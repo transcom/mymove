@@ -46,6 +46,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
+		Status:                 handlers.FmtStringPtr(o.Status),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -86,6 +87,9 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, officeUserFilterConverters)
+
+			// Add a filter for approved status
+			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "APPROVED"))
 
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
@@ -187,6 +191,9 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
+			// if the user is being manually created, then we know they will already be approved
+			officeUserStatus := "APPROVED"
+
 			officeUser := models.OfficeUser{
 				LastName:               payload.LastName,
 				FirstName:              payload.FirstName,
@@ -194,6 +201,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				Email:                  payload.Email,
 				TransportationOfficeID: transportationOfficeID,
 				Active:                 true,
+				Status:                 &officeUserStatus,
 			}
 
 			transportationIDFilter := []services.QueryFilter{

@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
@@ -41,6 +42,13 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	adminAPI.ServeError = handlers.ServeCustomError
+
+	adminAPI.RequestedOfficeUsersIndexRequestedOfficeUsersHandler = IndexRequestedOfficeUsersHandler{
+		handlerConfig,
+		requestedofficeusers.NewRequestedOfficeUsersListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
