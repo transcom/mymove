@@ -107,6 +107,51 @@ func BuildOfficeUserWithRoles(db *pop.Connection, customs []Customization, roleT
 	return BuildOfficeUser(db, customs, traits)
 }
 
+// BuildOfficeUserWithPrivileges returns an office user with an ID, unique email, and privileges
+// Also creates
+//   - User
+//   - Privilege
+//   - UsersPrivileges
+//
+// Notes:
+//   - privilegeTypes passed into the function will overwrite over any privileges in a User customization
+//   - a unique email for the user will be created
+//   - a UUID will be added to the OfficeUser record when it's stubbed
+func BuildOfficeUserWithPrivileges(db *pop.Connection, customs []Customization, privilegeTypes []models.PrivilegeType) models.OfficeUser {
+	customs = setupCustomizations(customs, nil)
+
+	var privilegesList []models.Privilege
+	for _, privilegeType := range privilegeTypes {
+		privilege := models.Privilege{
+			PrivilegeType: privilegeType,
+		}
+		privilegesList = append(privilegesList, privilege)
+	}
+
+	traits := []Trait{GetTraitOfficeUserEmail}
+	if db == nil {
+		// UUIDs are only set when saving to a DB, but they're necessary when checking session auths
+		traits = append(traits, GetTraitOfficeUserWithID)
+	}
+
+	// Find/create the user model
+	// If there is a user customization, add the privileges to it, otherwise add a new user customization
+	var user models.User
+	idx, result := findCustomWithIdx(customs, User)
+	if result != nil {
+		// add privileges to the existing user customization
+		user = result.Model.(models.User)
+		user.Privileges = privilegesList
+		customs[idx].Model = user
+	} else {
+		// create a new user customization with the correct privileges
+		user.Privileges = privilegesList
+		customs = append(customs, Customization{Model: user})
+	}
+
+	return BuildOfficeUser(db, customs, traits)
+}
+
 // ------------------------
 //        TRAITS
 // ------------------------
