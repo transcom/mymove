@@ -657,15 +657,6 @@ export class CustomerPpmPage extends CustomerPage {
         await expect(loc).not.toBeVisible();
       }
     }
-
-    // TODO: This will fail until address information along with zip is saved for the PPM page B-18434
-    // await expect(ppm1.locator('dt')).toHaveCount(shipmentCardFields.length);
-    // await expect(ppm1.locator('dd')).toHaveCount(shipmentCardFields.length);
-
-    // shipmentCardFields.forEach(async (shipmentField, index) => {
-    //   await expect(ppm1.locator('dt').nth(index)).toContainText(shipmentField[0]);
-    //   await expect(ppm1.locator('dd').nth(index)).toContainText(shipmentField[1]);
-    // });
   }
 
   /**
