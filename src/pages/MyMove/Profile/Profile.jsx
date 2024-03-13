@@ -64,9 +64,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     setProfileValidated(true);
   };
 
-  const returnToMovePath = multiMove
-    ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId })
-    : generalRoutes.HOME_PATH;
+  const returnToMovePath =
+    multiMove && moveId ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }) : generalRoutes.HOME_PATH;
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
@@ -9,13 +10,16 @@ import ButtonDropdownMenu from '../../../../components/ButtonDropdownMenu/Button
 
 import styles from './MultiMovesMoveContainer.module.scss';
 
+// import { SET_MOVE_ID } from 'store/general/actions';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 import { getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { setMoveId } from 'store/general/actions';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // this expands the moves when the arrow is clicked
   const handleExpandClick = (index) => {
@@ -69,6 +73,8 @@ const MultiMovesMoveContainer = ({ moves }) => {
 
   // sends user to the move page when clicking "Go to Move" btn
   const handleGoToMoveClick = (id) => {
+    // When Go To Move is clicked store the moveId choosen in state
+    dispatch(setMoveId(id));
     navigate(`${customerRoutes.MOVE_HOME_PAGE}/${id}`);
   };
 
