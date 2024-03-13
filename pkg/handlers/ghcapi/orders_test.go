@@ -75,6 +75,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal(order.OriginDutyLocation.ID.String(), ordersPayload.OriginDutyLocation.ID.String())
 	suite.NotZero(order.OriginDutyLocation)
 	suite.NotZero(ordersPayload.DateIssued)
+	suite.Equal(ghcmessages.GBLOC(*order.OriginDutyLocationGBLOC), ordersPayload.OriginDutyLocationGBLOC)
 }
 
 func (suite *HandlerSuite) TestWeightAllowances() {

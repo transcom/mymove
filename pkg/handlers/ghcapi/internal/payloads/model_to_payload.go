@@ -536,6 +536,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
+		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(*order.OriginDutyLocationGBLOC),
 	}
 
 	return &payload
