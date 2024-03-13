@@ -8,8 +8,9 @@ import CustomerUserInfo from 'components/MilMoveHeader/CustomerUserInfo';
 import { LogoutUser } from 'utils/api';
 import { logOut as logOutAction } from 'store/auth/actions';
 import { selectIsProfileComplete } from 'store/entities/selectors';
+import { selectCurrentMoveId } from 'store/general/selectors';
 
-const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
+const CustomerLoggedInHeader = ({ isProfileComplete, logOut, moveId }) => {
   const navigate = useNavigate();
   const handleLogout = () => {
     logOut();
@@ -27,7 +28,7 @@ const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
 
   return (
     <MilMoveHeader>
-      <CustomerUserInfo showProfileLink={isProfileComplete} handleLogout={handleLogout} />
+      <CustomerUserInfo showProfileLink={isProfileComplete} handleLogout={handleLogout} moveId={moveId} />
     </MilMoveHeader>
   );
 };
@@ -43,6 +44,8 @@ CustomerLoggedInHeader.defaultProps = {
 
 const mapStateToProps = (state) => ({
   isProfileComplete: selectIsProfileComplete(state),
+  // Grab moveId from state that was set from the most recent navigation to a move
+  moveId: selectCurrentMoveId(state),
 });
 
 const mapDispatchToProps = {
