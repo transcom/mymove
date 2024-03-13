@@ -7482,6 +7482,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -19176,6 +19179,9 @@ func init() {
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "packingAndShippingInstructions": {
           "type": "string"
