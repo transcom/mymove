@@ -29,7 +29,9 @@ const columns = (roleType) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {['BLUEBARK', 'Wounded Warrior'].includes(row.orderType) ? (
+            <span className={styles.specialMoves}>{row.orderType}</span>
+          ) : null}
           {`${row.lastName}, ${row.firstName}`}
         </div>
       );
