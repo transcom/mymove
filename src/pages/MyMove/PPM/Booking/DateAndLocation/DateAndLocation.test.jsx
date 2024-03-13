@@ -86,6 +86,10 @@ const serviceMember = {
   serviceMember: {
     id: '8',
     residential_address: {
+      streetAddress1: '123 Any St',
+      streetAddress2: '',
+      city: 'Norfolk',
+      state: 'VA',
       postalCode: '20001',
     },
   },
@@ -94,6 +98,10 @@ const serviceMember = {
 const defaultProps = {
   destinationDutyLocation: {
     address: {
+      streetAddress1: '234 Any St',
+      streetAddress2: '',
+      city: 'Richmond',
+      state: 'VA',
       postalCode: '10002',
     },
   },
@@ -118,6 +126,34 @@ const fullShipmentProps = {
     moveTaskOrderID: mockMoveId,
     ppmShipment: {
       id: '10',
+      pickupAddress: {
+        streetAddress1: '234 Any St',
+        streetAddress2: '',
+        city: 'Richmond',
+        state: 'VA',
+        postalCode: '20002',
+      },
+      destinationAddress: {
+        streetAddress1: '234 Any St',
+        streetAddress2: '',
+        city: 'Richmond',
+        state: 'VA',
+        postalCode: '20003',
+      },
+      secondaryPickupAddress: {
+        streetAddress1: '234 Any St',
+        streetAddress2: '',
+        city: 'Richmond',
+        state: 'VA',
+        postalCode: '20004',
+      },
+      secondaryDestinationAddress: {
+        streetAddress1: '234 Any St',
+        streetAddress2: '',
+        city: 'Richmond',
+        state: 'VA',
+        postalCode: '20005',
+      },
       pickupPostalCode: '20002',
       secondaryPickupPostalCode: '20003',
       destinationPostalCode: '20004',
@@ -165,9 +201,43 @@ describe('DateAndLocation component', () => {
 
       renderDateAndLocation();
 
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.type(primaryPostalCodes[1], '10002');
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
+      });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
@@ -178,11 +248,23 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
+            destinationAddress: {
+              city: 'Norfolk',
+              postalCode: '10002',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
+            pickupAddress: {
+              city: 'Norfolk',
+              postalCode: '10001',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
             pickupPostalCode: '10001',
             destinationPostalCode: '10002',
-            hasSecondaryPickupPostalCode: false,
+            hasSecondaryPickupAddress: false,
             secondaryPickupPostalCode: null,
-            hasSecondaryDestinationPostalCode: false,
+            hasSecondaryDestinationAddress: false,
             secondaryDestinationPostalCode: null,
             sitExpected: false,
             expectedDepartureDate: '2022-07-04',
@@ -201,12 +283,46 @@ describe('DateAndLocation component', () => {
 
     it('displays an error alert when the create shipment fails', async () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
-
       renderDateAndLocation();
 
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.type(primaryPostalCodes[1], '10002');
+      // Fill in form
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
+      });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
@@ -217,11 +333,23 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
+            destinationAddress: {
+              city: 'Norfolk',
+              postalCode: '10002',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
+            pickupAddress: {
+              city: 'Norfolk',
+              postalCode: '10001',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
             pickupPostalCode: '10001',
             destinationPostalCode: '10002',
-            hasSecondaryPickupPostalCode: false,
+            hasSecondaryPickupAddress: false,
             secondaryPickupPostalCode: null,
-            hasSecondaryDestinationPostalCode: false,
+            hasSecondaryDestinationAddress: false,
             secondaryDestinationPostalCode: null,
             sitExpected: false,
             expectedDepartureDate: '2022-07-04',
@@ -237,17 +365,112 @@ describe('DateAndLocation component', () => {
 
       renderDateAndLocation();
 
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.type(primaryPostalCodes[1], '10002');
-
       const radioElements = screen.getAllByLabelText('Yes');
       await userEvent.click(radioElements[0]);
       await userEvent.click(radioElements[1]);
 
-      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
-      await userEvent.type(secondaryPostalCodes[0], '10003');
-      await userEvent.type(secondaryPostalCodes[1], '10004');
+      await act(async () => {
+        await userEvent.click(document.querySelector('input[name="hasSecondaryPickupAddress"]'));
+      });
+
+      await act(async () => {
+        await userEvent.click(document.querySelector('input[name="hasSecondaryDestinationAddress"]'));
+      });
+
+      await act(async () => {
+        await userEvent.click(document.querySelector('input[name="sitExpected"]'));
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="secondaryPickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(
+          document.querySelector('select[name="secondaryPickupAddress.address.state"]'),
+          'VA',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="secondaryPickupAddress.address.postalCode"]'),
+          '10003',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="secondaryDestinationAddress.address.city"]'),
+          'Norfolk',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(
+          document.querySelector('select[name="secondaryDestinationAddress.address.state"]'),
+          'VA',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="secondaryDestinationAddress.address.postalCode"]'),
+          '10004',
+        );
+      });
 
       await userEvent.click(radioElements[2]);
 
@@ -260,11 +483,35 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
+            destinationAddress: {
+              city: 'Norfolk',
+              postalCode: '10002',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
+            pickupAddress: {
+              city: 'Norfolk',
+              postalCode: '10001',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
+            secondaryDestinationAddress: {
+              city: 'Norfolk',
+              postalCode: '10004',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
+            secondaryPickupAddress: {
+              city: 'Norfolk',
+              postalCode: '10003',
+              state: 'VA',
+              streetAddress1: '123 Any St',
+            },
             pickupPostalCode: '10001',
             destinationPostalCode: '10002',
-            hasSecondaryPickupPostalCode: true,
+            hasSecondaryPickupAddress: true,
             secondaryPickupPostalCode: '10003',
-            hasSecondaryDestinationPostalCode: true,
+            hasSecondaryDestinationAddress: true,
             secondaryDestinationPostalCode: '10004',
             sitExpected: true,
             expectedDepartureDate: '2022-07-04',
@@ -289,9 +536,44 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.type(primaryPostalCodes[1], '10002');
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
+      });
+
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
       // Set Closeout office
@@ -331,9 +613,44 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: navyServiceMember });
 
       // Fill in form
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.type(primaryPostalCodes[1], '10002');
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
+      });
+
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
       // Should not see closeout office field
@@ -370,9 +687,44 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.type(primaryPostalCodes[1], '10002');
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
+      });
+
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
       // Set Closeout office
@@ -409,9 +761,44 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.type(primaryPostalCodes[1], '10002');
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
+      });
+
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
       // Set Closeout office
@@ -446,8 +833,13 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation(fullShipmentProps);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
+      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
+
+      await userEvent.click(inputHasSecondaryZIP[0]);
+      await userEvent.click(inputHasSecondaryZIP[1]);
+
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
       const postalCodes = screen.getAllByLabelText('ZIP');
-      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
 
       await waitFor(() => {
         expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
@@ -455,9 +847,8 @@ describe('DateAndLocation component', () => {
 
       expect(postalCodes[0]).toHaveValue('20002');
       expect(postalCodes[1]).toHaveValue('20004');
-      expect(secondaryPostalCodes[0]).toHaveValue('20003');
-      expect(secondaryPostalCodes[1]).toHaveValue('20005');
-      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+      expect(postalCodes[2]).toHaveValue('20003');
+      expect(postalCodes[3]).toHaveValue('20005');
     });
 
     it('routes back to the home page screen when back is clicked', async () => {
@@ -486,11 +877,39 @@ describe('DateAndLocation component', () => {
             shipmentType: 'PPM',
             ppmShipment: {
               id: fullShipmentProps.mtoShipment.ppmShipment.id,
+              pickupAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20002',
+              },
+              destinationAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20003',
+              },
+              secondaryPickupAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20004',
+              },
+              secondaryDestinationAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20005',
+              },
               pickupPostalCode: '20002',
-              destinationPostalCode: '20004',
-              hasSecondaryPickupPostalCode: true,
-              secondaryPickupPostalCode: '20003',
-              hasSecondaryDestinationPostalCode: true,
+              destinationPostalCode: '20003',
+              hasSecondaryPickupAddress: true,
+              secondaryPickupPostalCode: '20004',
+              hasSecondaryDestinationAddress: true,
               secondaryDestinationPostalCode: '20005',
               sitExpected: true,
               expectedDepartureDate: '2022-12-31',
@@ -508,18 +927,6 @@ describe('DateAndLocation component', () => {
 
       renderDateAndLocation(fullShipmentProps);
 
-      const primaryPostalCodes = screen.getAllByLabelText('ZIP');
-      await userEvent.clear(primaryPostalCodes[0]);
-      await userEvent.type(primaryPostalCodes[0], '10001');
-      await userEvent.clear(primaryPostalCodes[1]);
-      await userEvent.type(primaryPostalCodes[1], '10002');
-
-      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
-      await userEvent.clear(secondaryPostalCodes[0]);
-      await userEvent.type(secondaryPostalCodes[0], '10003');
-      await userEvent.clear(secondaryPostalCodes[1]);
-      await userEvent.type(secondaryPostalCodes[1], '10004');
-
       const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
       await userEvent.clear(expectedDepartureDate);
       await userEvent.type(expectedDepartureDate, '04 Jul 2022');
@@ -535,12 +942,40 @@ describe('DateAndLocation component', () => {
             shipmentType: 'PPM',
             ppmShipment: {
               id: fullShipmentProps.mtoShipment.ppmShipment.id,
-              pickupPostalCode: '10001',
-              destinationPostalCode: '10002',
-              hasSecondaryPickupPostalCode: true,
-              secondaryPickupPostalCode: '10003',
-              hasSecondaryDestinationPostalCode: true,
-              secondaryDestinationPostalCode: '10004',
+              pickupAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20002',
+              },
+              destinationAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20003',
+              },
+              secondaryPickupAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20004',
+              },
+              secondaryDestinationAddress: {
+                streetAddress1: '234 Any St',
+                streetAddress2: '',
+                city: 'Richmond',
+                state: 'VA',
+                postalCode: '20005',
+              },
+              pickupPostalCode: '20002',
+              destinationPostalCode: '20003',
+              hasSecondaryPickupAddress: true,
+              secondaryPickupPostalCode: '20004',
+              hasSecondaryDestinationAddress: true,
+              secondaryDestinationPostalCode: '20005',
               sitExpected: true,
               expectedDepartureDate: '2022-07-04',
             },
