@@ -223,7 +223,7 @@ export const StorageFacilityShape = shape({
 });
 
 export const ProGearTicketShape = shape({
-  belongsToSelf: bool,
+  selfProGear: bool,
   proGearWeight: number,
   description: string,
   missingWeightTicket: bool,

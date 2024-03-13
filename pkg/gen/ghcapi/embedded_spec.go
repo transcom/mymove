@@ -7563,15 +7563,13 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
-        "RECEIVED",
-        "NOT_RECEIVED"
+        "EDITED"
       ],
       "x-nullable": true
     },
@@ -19260,15 +19258,13 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
-        "RECEIVED",
-        "NOT_RECEIVED"
+        "EDITED"
       ],
       "x-nullable": true
     },

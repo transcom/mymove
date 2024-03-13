@@ -15,6 +15,4 @@ export const ADVANCE_STATUSES = {
   APPROVED: { apiValue: 'APPROVED', displayValue: 'Approved' },
   REJECTED: { apiValue: 'REJECTED', displayValue: 'Rejected' },
   EDITED: { apiValue: 'EDITED', displayValue: 'Approved with adjustment' },
-  RECEIVED: { apiValue: 'RECEIVED', displayValue: 'Received' },
-  NOT_RECEIVED: { apiValue: 'NOT_RECEIVED', displayValue: 'Not received' },
 };

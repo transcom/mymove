@@ -78,10 +78,6 @@ const (
 	PPMAdvanceStatusEdited PPMAdvanceStatus = "EDITED"
 	// PPMAdvanceStatusRejected captures enum value "REJECTED"
 	PPMAdvanceStatusRejected PPMAdvanceStatus = "REJECTED"
-	// PPMAdvanceStatusReceived captures enum value "RECEIVED"
-	PPMAdvanceStatusReceived PPMAdvanceStatus = "RECEIVED"
-	// PPMAdvanceStatusNotReceived captures enum value "NOT RECEIVED"
-	PPMAdvanceStatusNotReceived PPMAdvanceStatus = "NOT_RECEIVED"
 )
 
 // AllowedPPMAdvanceStatuses is a list of all the allowed values for AdvanceStatus on a PPMShipment, as strings. Needed
@@ -90,8 +86,6 @@ var AllowedPPMAdvanceStatuses = []string{
 	string(PPMAdvanceStatusApproved),
 	string(PPMAdvanceStatusEdited),
 	string(PPMAdvanceStatusRejected),
-	string(PPMAdvanceStatusReceived),
-	string(PPMAdvanceStatusNotReceived),
 }
 
 // SITLocationType represents whether the SIT at the origin or destination

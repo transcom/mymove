@@ -16,7 +16,6 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
-import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -31,7 +30,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
+import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -56,7 +55,6 @@ import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete }
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -83,7 +81,6 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
-      showDownloadPPMAOAPaperworkErrorAlert: false,
     };
   }
 
@@ -357,12 +354,6 @@ export class Home extends Component {
     navigate(path);
   };
 
-  toggleDownloadAOAErrorModal = () => {
-    this.setState((prevState) => ({
-      showDownloadPPMAOAPaperworkErrorAlert: !prevState.showDownloadPPMAOAPaperworkErrorAlert,
-    }));
-  };
-
   // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
@@ -388,13 +379,7 @@ export class Home extends Component {
       orders,
     } = this.props;
 
-    const {
-      showDeleteModal,
-      targetShipmentId,
-      showDeleteSuccessAlert,
-      showDeleteErrorAlert,
-      showDownloadPPMAOAPaperworkErrorAlert,
-    } = this.state;
+    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert } = this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -439,10 +424,6 @@ export class Home extends Component {
           content="Your information will be gone. You’ll need to start over if you want it back."
           submitText="Yes, Delete"
           closeText="No, Keep It"
-        />
-        <DownloadAOAErrorModal
-          isOpen={showDownloadPPMAOAPaperworkErrorAlert}
-          closeModal={this.toggleDownloadAOAErrorModal}
         />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
@@ -619,13 +600,11 @@ export class Home extends Component {
                                     {` ${shipmentNumber} `}
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
+                                    // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                     <p className={styles.downloadLink}>
-                                      <AsyncPacketDownloadLink
-                                        id={shipment?.ppmShipment?.id}
-                                        label="Download AOA Paperwork (PDF)"
-                                        asyncRetrieval={downloadPPMAOAPacket}
-                                        onFailure={this.toggleDownloadAOAErrorModal}
-                                      />
+                                      <a href="">
+                                        <span>Download AOA Paperwork (PDF)</span>
+                                      </a>
                                     </p>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (

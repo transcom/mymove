@@ -451,27 +451,3 @@ func FetchPPMShipmentFromMTOShipmentID(appCtx appcontext.AppContext, mtoShipment
 	}
 	return &ppmShipment, nil
 }
-
-// returns true if moves orders are from a location that does not provide service counseling
-func IsPrimeCounseledPPM(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
-	var ppmDutyLocation models.DutyLocation
-
-	err := appCtx.DB().Q().
-		Join("orders", "duty_locations.id = orders.origin_duty_location_id").
-		Join("moves", "orders.id = moves.orders_id ").
-		Join("mto_shipments", "moves.id = mto_shipments.move_id").
-		Join("ppm_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
-		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
-		First(&ppmDutyLocation)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return false, apperror.NewNotFoundError(mtoShipmentID, "while looking for PPMShipment")
-		default:
-			return false, apperror.NewQueryError("PPMShipment", err, "")
-		}
-	}
-
-	return !ppmDutyLocation.ProvidesServicesCounseling, err
-}
