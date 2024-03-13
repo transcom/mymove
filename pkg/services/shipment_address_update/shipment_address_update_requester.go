@@ -2,6 +2,7 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -170,6 +171,7 @@ func (f *shipmentAddressUpdateRequester) doesShipmentContainApprovedDestinationS
 
 func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequirements(originalServiceItem models.MTOServiceItem) models.MTOServiceItem {
 	var reService models.ReService
+	now := time.Now()
 
 	if originalServiceItem.ReService.Code == models.ReServiceCodeDSH {
 		reService = models.ReService{
@@ -207,7 +209,7 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 		SITAddressUpdates:               originalServiceItem.SITAddressUpdates,
 		ServiceRequestDocuments:         originalServiceItem.ServiceRequestDocuments,
 		CreatedAt:                       originalServiceItem.CreatedAt,
-		ApprovedAt:                      originalServiceItem.ApprovedAt,
+		ApprovedAt:                      &now,
 	}
 
 	return newServiceItem
