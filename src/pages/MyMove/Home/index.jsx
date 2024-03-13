@@ -434,6 +434,7 @@ export class Home extends Component {
     const currentLocation = current_location;
     const shipmentNumbersByType = {};
 
+    const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -452,6 +453,11 @@ export class Home extends Component {
         />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
+            {isSpecialMove ? (
+              <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
+                <p>BLUEBARK</p>
+              </div>
+            ) : null}
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
               <h2>
                 {serviceMember.first_name} {serviceMember.last_name}

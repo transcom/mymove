@@ -86,6 +86,7 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		OrderType:          string(move.Orders.OrdersType),
 	}
 
 	if move.PPMType != nil {
