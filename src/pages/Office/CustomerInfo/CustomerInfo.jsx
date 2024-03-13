@@ -58,7 +58,12 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       name,
       email,
       telephone,
+      backupAddress,
+      phoneIsPreferred,
+      emailIsPreferred,
+      secondaryPhone,
     } = values;
+
     const body = {
       first_name: firstName,
       last_name: lastName,
@@ -72,10 +77,13 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
         email,
         phone: telephone,
       },
+      backupAddress,
+      phoneIsPreferred,
+      emailIsPreferred,
+      secondaryTelephone: secondaryPhone,
     };
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
-
   const initialValues = {
     firstName: customer.first_name,
     lastName: customer.last_name,
@@ -85,8 +93,12 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     customerEmail: customer.email,
     name: customer.backup_contact.name,
     telephone: customer.backup_contact.phone,
+    secondaryPhone: customer.secondaryTelephone,
     email: customer.backup_contact.email,
     customerAddress: customer.current_address,
+    backupAddress: customer.backupAddress,
+    emailIsPreferred: customer.emailIsPreferred,
+    phoneIsPreferred: customer.phoneIsPreferred,
   };
 
   return (

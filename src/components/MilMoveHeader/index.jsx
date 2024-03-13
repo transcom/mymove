@@ -6,7 +6,7 @@ import MmLogo from '../../shared/images/milmove-logo.svg';
 
 import styles from './index.module.scss';
 
-const MilMoveHeader = ({ isSpecialMove, children }) => {
+const MilMoveHeader = ({ children }) => {
   return (
     <Header basic className={styles.mmHeader}>
       <div className="usa-nav-container">
@@ -17,11 +17,6 @@ const MilMoveHeader = ({ isSpecialMove, children }) => {
             </a>
           </Title>
         </div>
-        {isSpecialMove ? (
-          <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-            <p>BLUEBARK</p>
-          </div>
-        ) : null}
         <div className={styles.contents}>{children}</div>
       </div>
     </Header>
@@ -29,12 +24,10 @@ const MilMoveHeader = ({ isSpecialMove, children }) => {
 };
 
 MilMoveHeader.defaultProps = {
-  isSpecialMove: null,
   children: null,
 };
 
 MilMoveHeader.propTypes = {
-  isSpecialMove: PropTypes.bool,
   children: PropTypes.node,
 };
 
