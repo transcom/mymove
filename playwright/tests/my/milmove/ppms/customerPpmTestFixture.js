@@ -643,7 +643,6 @@ export class CustomerPpmPage extends CustomerPage {
   async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
     const { isEditable = false } = options;
     // get first div after the move setup heading
-    await this.page.pause();
     const ppm1 = this.page
       .locator(':text("Move setup") ~ div')
       .filter({ has: this.page.getByText('PPM 1', { exact: false }) });
