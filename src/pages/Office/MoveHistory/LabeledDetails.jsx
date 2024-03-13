@@ -34,7 +34,14 @@ export const withMappings = () => {
     fn,
   });
 
-  const defaultField = [optionFields, ({ value }) => optionFields[value] || `${value}` || '—'];
+  const defaultField = [
+    {},
+    ({ value }) =>
+      (value in optionFields && optionFields[value]) ||
+      (value in statusFields && statusFields[value]) ||
+      `${value}` ||
+      '—',
+  ];
 
   self.addNameMappings = (mappings) => {
     self.displayMappings = self.displayMappings.concat(mappings);
@@ -52,8 +59,8 @@ export const { displayMappings, getMappedDisplayName } = withMappings().addNameM
   [monetaryFields, ({ value }) => toDollarString(formatCents(value))],
   [timeUnitFields, ({ value }) => formatTimeUnitDays(value)],
   [distanceFields, ({ value }) => formatDistanceUnitMiles(value)],
-  [optionFields, ({ value }) => optionFields[value]],
   [statusFields, ({ value }) => statusFields[value]],
+  [optionFields, ({ value }) => optionFields[value]],
 ]);
 
 export const retrieveTextToDisplay = (fieldName, value) => {
@@ -79,18 +86,25 @@ export const createLineItemLabel = (shipmentType, shipmentIdDisplay, serviceItem
 // Filter out empty values unless they used to be non-empty
 // These values may be non-nullish in oldValues and nullish in changedValues
 // Use the existing keys in changed or old values to check against keys listed in fieldMappings
-export const filterInLineItemValues = (changed, old) =>
-  Object.entries({ ...old, ...changed }).filter(
-    ([theField, theValue]) =>
-      !!(
+export const filterInLineItemValues = (changedValues, oldValues) =>
+  Object.entries({ ...oldValues, ...changedValues }).filter(([theField, theValue]) => {
+    const changed = changedValues || {};
+    const old = oldValues || {};
+    const fieldInOld = theField in old;
+    const fieldInChanged = theField in changed;
+    const valueIsNotBlank = `${theValue}`.length > 0 && !!theValue;
+
+    return !!(
+      (
         fieldMappings[theField] &&
         // if changeValues has theField while theValue is either blank or theField exists the old values
-        ((theField in changed && (`${theValue}` || theField in old)) ||
+        ((fieldInChanged && (valueIsNotBlank || fieldInOld)) ||
           // or theField exists in changeValues
           // and oldValues is empty or not empty
-          (theField in changed && (!`${old[theField]}` || `${theValue}`)))
-      ),
-  );
+          (fieldInChanged && !`${old[theField]}`))
+      ) /* || `${theValue}` */
+    );
+  });
 
 const LabeledDetails = ({ historyRecord }) => {
   const { changedValues, oldValues = {} } = historyRecord;
