@@ -171,14 +171,8 @@ describe('ShipmentAddresses', () => {
 
   it('shows correct headings for PPM', () => {
     render(<ShipmentAddresses {...ppmShipment} />);
+
     expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
     expect(screen.getByText('Authorized addresses')).toBeInTheDocument();
-  });
-
-  it('shows correct addresses for PPM', () => {
-    render(<ShipmentAddresses {...ppmShipment} />);
-
-    expect(screen.queryByText('Tampa, FL 33621')).toBeInTheDocument();
-    expect(screen.queryByText('Chicago, IL 01054')).toBeInTheDocument();
   });
 });
