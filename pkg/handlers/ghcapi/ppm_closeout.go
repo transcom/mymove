@@ -19,7 +19,7 @@ import (
 // GetPPMCloseoutHandler is the handler that fetches all of the calculations for a PPM closeout for the office api
 type GetPPMCloseoutHandler struct {
 	handlers.HandlerConfig
-	ppmCloseoutFetcher services.PPMCloseoutFetcher
+	services.PPMCloseoutFetcher
 }
 
 // Handle retrieves all calcuations for a PPM closeout
@@ -33,12 +33,14 @@ func (h GetPPMCloseoutHandler) Handle(params ppmcloseoutops.GetPPMCloseoutParams
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return ppmcloseoutops.NewGetPPMCloseoutNotFound().WithPayload(payload), err
+				case apperror.PPMNotReadyForCloseoutError:
+					return ppmcloseoutops.NewGetPPMCloseoutNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
 					return ppmcloseoutops.NewGetPPMCloseoutForbidden().WithPayload(payload), err
 				case apperror.QueryError:
-					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError(), err
+					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError().WithPayload(payload), err
 				default:
-					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError(), err
+					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError().WithPayload(payload), err
 				}
 			}
 			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
@@ -50,7 +52,7 @@ func (h GetPPMCloseoutHandler) Handle(params ppmcloseoutops.GetPPMCloseoutParams
 			}
 			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 
-			ppmCloseout, err := h.ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipmentID)
+			ppmCloseout, err := h.PPMCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipmentID)
 			if err != nil {
 				return handleError(err)
 			}
