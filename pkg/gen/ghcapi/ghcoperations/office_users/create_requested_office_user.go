@@ -34,7 +34,7 @@ func NewCreateRequestedOfficeUser(ctx *middleware.Context, handler CreateRequest
 
 # Create an Office User
 
-Request the creation of and office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an "OR" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an "OR" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
 */
 type CreateRequestedOfficeUser struct {
 	Context *middleware.Context
