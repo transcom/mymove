@@ -14,8 +14,7 @@ import (
 )
 
 type testRequestedOfficeUsersQueryBuilder struct {
-	fakeFetchOne  func(appConfig appcontext.AppContext, model interface{}) error
-	fakeUpdateOne func(appConfig appcontext.AppContext, models interface{}, eTag *string) (*validate.Errors, error)
+	fakeFetchOne func(appConfig appcontext.AppContext, model interface{}) error
 }
 
 func (t *testRequestedOfficeUsersQueryBuilder) FetchOne(appConfig appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
@@ -43,10 +42,10 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {
 		fetcher := NewRequestedOfficeUserFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 
-		adminUser, err := fetcher.FetchRequestedOfficeUser(suite.AppContextForTest(), filters)
+		requestedOfficeUser, err := fetcher.FetchRequestedOfficeUser(suite.AppContextForTest(), filters)
 
 		suite.NoError(err)
-		suite.Equal(id, adminUser.ID)
+		suite.Equal(id, requestedOfficeUser.ID)
 	})
 
 	suite.Run("if there is an error, we get it with zero admin user", func() {
@@ -58,10 +57,10 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {
 		}
 		fetcher := NewRequestedOfficeUserFetcher(builder)
 
-		adminUser, err := fetcher.FetchRequestedOfficeUser(suite.AppContextForTest(), []services.QueryFilter{})
+		requestedOfficeUser, err := fetcher.FetchRequestedOfficeUser(suite.AppContextForTest(), []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
-		suite.Equal(models.OfficeUser{}, adminUser)
+		suite.Equal(models.OfficeUser{}, requestedOfficeUser)
 	})
 }
