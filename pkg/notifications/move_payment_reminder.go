@@ -113,6 +113,7 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 			DestinationDutyLocation: PaymentReminderEmailInfo.NewDutyLocationName,
 			Locator:                 PaymentReminderEmailInfo.Locator,
 			OneSourceLink:           OneSourceTransportationOfficeLink,
+			MyMoveLink:              MyMoveLink,
 		})
 		if err != nil {
 			appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -177,6 +178,7 @@ type PaymentReminderEmailData struct {
 	DestinationDutyLocation string
 	Locator                 string
 	OneSourceLink           string
+	MyMoveLink              string
 }
 
 // RenderHTML renders the html for the email

@@ -3,7 +3,7 @@ import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath, Link } from 'react-router-dom';
+import { generatePath } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -16,6 +16,7 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -52,7 +53,6 @@ import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
-import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -194,6 +194,12 @@ export class Home extends Component {
       default:
         return 'Report by';
     }
+  }
+
+  get isPrimeCounseled() {
+    const { orders } = this.props;
+
+    return !orders.provides_services_counseling;
   }
 
   renderAlert = () => {
@@ -364,17 +370,6 @@ export class Home extends Component {
   };
 
   // eslint-disable-next-line class-methods-use-this
-  handlePPMAOAPacketDownloadClick = (shipmentId) => {
-    downloadPPMAOAPacket(shipmentId)
-      .then((response) => {
-        downloadPPMAOAPacketOnSuccessHandler(response);
-      })
-      .catch(() => {
-        this.toggleDownloadAOAErrorModal();
-      });
-  };
-
-  // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
@@ -439,6 +434,7 @@ export class Home extends Component {
     const currentLocation = current_location;
     const shipmentNumbersByType = {};
 
+    const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -457,6 +453,11 @@ export class Home extends Component {
         />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
+            {isSpecialMove ? (
+              <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
+                <p>BLUEBARK</p>
+              </div>
+            ) : null}
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
               <h2>
                 {serviceMember.first_name} {serviceMember.last_name}
@@ -631,11 +632,12 @@ export class Home extends Component {
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
                                     <p className={styles.downloadLink}>
-                                      <Link
-                                        onClick={() => this.handlePPMAOAPacketDownloadClick(shipment?.ppmShipment.id)}
-                                      >
-                                        Download AOA Paperwork (PDF)
-                                      </Link>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadAOAErrorModal}
+                                      />
                                     </p>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
@@ -656,11 +658,22 @@ export class Home extends Component {
                             GTCC usage authorization or ask any questions.
                           </Description>
                         )}
-                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && (
+                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && !this.isPrimeCounseled && (
                           <Description>
                             Your service will review your request for an Advance Operating Allowance (AOA). If approved,
                             you will be able to download the paperwork for your request and submit it to your Finance
                             Office to receive your advance.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                          </Description>
+                        )}
+                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && this.isPrimeCounseled && (
+                          <Description>
+                            Once you have received counseling for your PPM you will receive emailed instructions on how
+                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
+                            Transportation Office for review of your AOA packet.
                             <br />
                             <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                             incentive ends up being less than your advance, you will be required to pay back the

@@ -77,7 +77,16 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {m.status !== 'APPROVED' ? (
+          {m?.orders?.orders_type === 'BLUEBARK' ? <div className={styles.specialMoves}>BLUEBARK</div> : null}
+          <div className={styles.moveContainerButtons} data-testid="headerBtns">
+            <ButtonDropdownMenu
+              data-testid="downloadBtn"
+              title="Download"
+              items={dropdownMenuItems}
+              divClassName={styles.dropdownBtn}
+              onItemClick={handleDropdownItemClick}
+              outline
+            />
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
@@ -89,15 +98,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
             >
               Go to Move
             </Button>
-          ) : (
-            <ButtonDropdownMenu
-              title="Download"
-              items={dropdownMenuItems}
-              divClassName={styles.dropdownBtn}
-              onItemClick={handleDropdownItemClick}
-              outline
-            />
-          )}
+          </div>
           <FontAwesomeIcon
             className={styles.icon}
             icon={classnames({
