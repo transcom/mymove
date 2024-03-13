@@ -36,8 +36,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		StreetAddress2: &streetAddress2,
 		StreetAddress3: &streetAddress3,
 		City:           city,
-		State:          "FL",
-		PostalCode:     "33621",
+		State:          state,
+		PostalCode:     postalcode,
 		Country:        &country,
 	}
 
