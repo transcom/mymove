@@ -74,6 +74,8 @@ properties:
     x-nullable: true
   sitDestinationOriginalAddress:
     $ref: 'Address.yaml'
+  sitOriginHHGOriginalAddress:
+    $ref: 'Address.yaml'
   sitDestinationFinalAddress:
     $ref: 'Address.yaml'
   sitAddressUpdates:

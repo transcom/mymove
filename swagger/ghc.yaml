@@ -6102,6 +6102,8 @@ definitions:
         x-nullable: true
       sitDestinationOriginalAddress:
         $ref: '#/definitions/Address'
+      sitOriginHHGOriginalAddress:
+        $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
       sitAddressUpdates:

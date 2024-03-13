@@ -152,6 +152,12 @@ export const MoveTaskOrder = (props) => {
         rejectionReason: item.rejectionReason,
         sitDepartureDate: item.sitDepartureDate,
         sitEntryDate: item.sitEntryDate,
+        sitOriginHHGOriginalAddress: item.sitOriginHHGOriginalAddress,
+        sitDestinationFinalAddress: item.sitDestinationFinalAddress,
+        sitDestinationOriginalAddress: item.sitDestinationOriginalAddress,
+        sitCustomerContacted: item.sitCustomerContacted,
+        sitRequestedDeliveryDate: item.sitRequestedDeliveryDate,
+        sitDeliveryMiles: item.sitDeliveryMiles,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {

@@ -137,6 +137,9 @@ type MTOServiceItem struct {
 	// Format: date-time
 	SitEntryDate *strfmt.DateTime `json:"sitEntryDate,omitempty"`
 
+	// sit origin h h g original address
+	SitOriginHHGOriginalAddress *Address `json:"sitOriginHHGOriginalAddress,omitempty"`
+
 	// sit requested delivery
 	// Format: date
 	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
@@ -240,6 +243,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitOriginHHGOriginalAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -572,6 +579,25 @@ func (m *MTOServiceItem) validateSitEntryDate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItem) validateSitOriginHHGOriginalAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitOriginHHGOriginalAddress) { // not required
+		return nil
+	}
+
+	if m.SitOriginHHGOriginalAddress != nil {
+		if err := m.SitOriginHHGOriginalAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitOriginHHGOriginalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitOriginHHGOriginalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateSitRequestedDelivery(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitRequestedDelivery) { // not required
 		return nil
@@ -654,6 +680,10 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateSitDestinationOriginalAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitOriginHHGOriginalAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -766,6 +796,27 @@ func (m *MTOServiceItem) contextValidateSitDestinationOriginalAddress(ctx contex
 				return ve.ValidateName("sitDestinationOriginalAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("sitDestinationOriginalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateSitOriginHHGOriginalAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitOriginHHGOriginalAddress != nil {
+
+		if swag.IsZero(m.SitOriginHHGOriginalAddress) { // not required
+			return nil
+		}
+
+		if err := m.SitOriginHHGOriginalAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitOriginHHGOriginalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitOriginHHGOriginalAddress")
 			}
 			return err
 		}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { isEmpty, sortBy } from 'lodash';
 import classnames from 'classnames';
+import moment from 'moment';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 import { trimFileName } from '../../../utils/serviceItems';
@@ -8,6 +9,7 @@ import { trimFileName } from '../../../utils/serviceItems';
 import styles from './ServiceItemDetails.module.scss';
 
 import { formatDateWithUTC } from 'shared/dates';
+import { formatCityStateAndPostalCode } from 'utils/shipmentDisplay';
 import { formatWeight, convertFromThousandthInchToInch } from 'utils/formatters';
 
 function generateDetailText(details, id, className) {
@@ -92,19 +94,26 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
 
 const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
   const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
+  /// SIT Add'l start date should be displayed as the day after the sit entry date per B-18404
+  const additionalSITStartDate = details.sitEntryDate
+    ? moment.utc(details.sitEntryDate).add(1, 'days').format('DD MMM YYYY')
+    : '-';
 
   let detailSection;
   switch (code) {
-    case 'DOFSIT':
-    case 'DOASIT': {
+    case 'DOFSIT': {
       detailSection = (
         <div>
           <dl>
             {generateDetailText(
               {
+                'Original pickup address': details.sitOriginHHGOriginalAddress
+                  ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
+                  : '-',
                 'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
-                ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
-                Reason: details.reason ? details.reason : '-',
+                'SIT departure date': details.sitDepartureDate
+                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
+                  : '-',
               },
               id,
             )}
@@ -127,13 +136,95 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
       );
       break;
     }
-    case 'DOPSIT':
+    case 'DOASIT': {
+      detailSection = (
+        <div>
+          <dl>
+            {generateDetailText(
+              {
+                'Original pickup address': details.sitOriginHHGOriginalAddress
+                  ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
+                  : '-',
+                "Add'l SIT Start Date": additionalSITStartDate,
+                'Customer contacted': details.sitCustomerContacted
+                  ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
+                  : '-',
+                'Customer requested delivery date': details.sitRequestedDeliveryDate
+                  ? formatDateWithUTC(details.sitRequestedDeliveryDate, 'DD MMM YYYY')
+                  : '-',
+                'SIT departure date': details.sitDepartureDate
+                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
+                  : '-',
+              },
+              id,
+            )}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
+    case 'DOPSIT': {
+      detailSection = (
+        <div>
+          <dl>
+            {generateDetailText(
+              {
+                'Original pickup address': details.sitOriginHHGOriginalAddress
+                  ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
+                  : '-',
+                'Actual pickup address': details.sitOriginHHGActualAddress
+                  ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
+                  : '-',
+                'SIT delivery miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+              },
+              id,
+            )}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
     case 'DOSFSC': {
       detailSection = (
         <div>
           <dl>
             {generateDetailText(
               {
+                'Original pickup address': details.sitOriginHHGOriginalAddress
+                  ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
+                  : '-',
+                'Actual pickup address': details.sitOriginHHGActualAddress
+                  ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
+                  : '-',
+                'SIT delivery miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
                 ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
                 Reason: details.reason ? details.reason : '-',
               },
@@ -160,7 +251,47 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
     }
 
     case 'DDFSIT':
-    case 'DDASIT':
+    case 'DDASIT': {
+      detailSection = (
+        <div>
+          <dl>
+            {generateDetailText(
+              {
+                'Original delivery address': details.sitDestinationOriginalAddress
+                  ? formatCityStateAndPostalCode(details.sitDestinationOriginalAddress)
+                  : '-',
+                "Add'l SIT Start Date": additionalSITStartDate,
+                'Customer contacted': details.sitCustomerContacted
+                  ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
+                  : '-',
+                'Customer requested delivery date': details.sitRequestedDeliveryDate
+                  ? formatDateWithUTC(details.sitRequestedDeliveryDate, 'DD MMM YYYY')
+                  : '-',
+                'SIT departure date': details.sitDepartureDate
+                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
+                  : '-',
+              },
+              id,
+            )}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
     case 'DDDSIT':
     case 'DDSFSC': {
       detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, code);
