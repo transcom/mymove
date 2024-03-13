@@ -23,6 +23,7 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
 import { SIT_SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
 import { MoveOrderDocumentType } from 'shared/constants';
+import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -170,8 +171,10 @@ const MoveDetails = ({ setFlashMessage }) => {
         <div className="grid-row">
           <div className="grid-col-12">
             <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container">
-              {moveTaskOrder?.order?.ordersType !== 'BLUEBARK' ? null : (
-                <div className={styles.specialMovesLabel}>BLUEBARK</div>
+              {['BLUEBARK', 'WOUNDED_WARRIOR'].includes(moveTaskOrder?.order?.ordersType) ? null : (
+                <div className={styles.specialMovesLabel}>
+                  {SPECIAL_ORDERS_TYPES[`${moveTaskOrder?.order?.orderType}`]}
+                </div>
               )}
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>

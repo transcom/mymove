@@ -12,6 +12,7 @@ import styles from './MultiMovesMoveContainer.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 import { getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -77,7 +78,9 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {m?.orders?.orders_type === 'BLUEBARK' ? <div className={styles.specialMoves}>BLUEBARK</div> : null}
+          {['BLUEBARK', 'WOUNDED_WARRIOR'].includes(m?.orders?.orders_type) ? (
+            <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
+          ) : null}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
             <ButtonDropdownMenu
               data-testid="downloadBtn"

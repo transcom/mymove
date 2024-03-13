@@ -16,6 +16,7 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
+import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columns = (roleType) => [
   createHeader('Move code', 'locator', {
@@ -31,7 +32,9 @@ const columns = (roleType) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {['BLUEBARK', 'WOUNDED_WARRIOR'].includes(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.lastName}, ${row.firstName}`}
         </div>
       );
