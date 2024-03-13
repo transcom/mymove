@@ -171,11 +171,11 @@ const MoveDetails = ({ setFlashMessage }) => {
         <div className="grid-row">
           <div className="grid-col-12">
             <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container">
-              {['BLUEBARK', 'WOUNDED_WARRIOR'].includes(moveTaskOrder?.order?.ordersType) ? null : (
+              {['BLUEBARK', 'WOUNDED_WARRIOR'].includes(moveTaskOrder?.order?.ordersType) ? (
                 <div className={styles.specialMovesLabel}>
-                  {SPECIAL_ORDERS_TYPES[`${moveTaskOrder?.order?.orderType}`]}
+                  {SPECIAL_ORDERS_TYPES[`${moveTaskOrder?.order?.ordersType}`]}
                 </div>
-              )}
+              ) : null}
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>
                   <div className={styles.moveHeader}>
