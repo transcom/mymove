@@ -2953,8 +2953,8 @@ func init() {
           "403": {
             "description": "user is not authorized"
           },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
+          "404": {
+            "description": "ppm not found"
           },
           "500": {
             "description": "internal server error"
@@ -14270,11 +14270,8 @@ func init() {
           "403": {
             "description": "user is not authorized"
           },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+          "404": {
+            "description": "ppm not found"
           },
           "500": {
             "description": "internal server error"

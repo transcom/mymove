@@ -9,6 +9,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -56,6 +57,12 @@ func NewPaymentPacketCreator(
 }
 
 func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (io.ReadCloser, error) {
+
+	err := verifyPPMShipment(appCtx, ppmShipmentID)
+	if err != nil {
+		return nil, err
+	}
+
 	errMsgPrefix := "error creating payment packet"
 
 	ppmShipment, err := p.PPMShipmentFetcher.GetPPMShipment(
@@ -75,37 +82,12 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		},
 	)
 
+	// something bad happened on data retrieval of everything for PPM
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to load PPMShipment")
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
 		return nil, err
 	}
-
-	var pdfFileNamesToMerge []string
-
-	sortedPaymentPacketItemsMap := buildPaymentPacketItemsMap(ppmShipment)
-
-	// return not found error if there are no documentations to process, abort
-	if len(sortedPaymentPacketItemsMap) == 0 {
-		id, _ := uuid.FromString(ppmShipmentID.String())
-		notFoundErr := apperror.NewNotFoundError(
-			id,
-			"Could not find any documentations for ppmShipmentID",
-		)
-		return nil, notFoundErr
-	}
-
-	for i := 0; i < len(sortedPaymentPacketItemsMap); i++ {
-		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload)
-		if perr != nil {
-			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate pdf for upload")
-			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-		}
-		pdfFileNamesToMerge = append(pdfFileNamesToMerge, pdfFileName)
-	}
-
-	pdfFileNamesToMergePdf, _ := p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge)
 
 	var pdfFilesToMerge []io.ReadSeeker
 
@@ -117,10 +99,34 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	// add all targeted PDF files to array for final PDF generation
-	// AOA packet will be appended at the beginning of the file
+	// AOA packet will be appended at the beginning of the final pdf file
 	pdfFilesToMerge = append(pdfFilesToMerge, aoaPacketFile)
-	pdfFilesToMerge = append(pdfFilesToMerge, pdfFileNamesToMergePdf)
+
+	// Start building individual PDFs for each expense/receipt docs. These files will then be merged as one PDF.
+	var pdfFileNamesToMerge []string
+	sortedPaymentPacketItemsMap := buildPaymentPacketItemsMap(ppmShipment)
+
+	for i := 0; i < len(sortedPaymentPacketItemsMap); i++ {
+		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload)
+		if perr != nil {
+			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate pdf for upload")
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		}
+		pdfFileNamesToMerge = append(pdfFileNamesToMerge, pdfFileName)
+	}
+
+	if len(pdfFileNamesToMerge) > 0 {
+		pdfFileNamesToMergePdf, perr := p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge)
+		if perr != nil {
+			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed pdfGenerator.MergePDFFiles")
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		}
+		pdfFilesToMerge = append(pdfFilesToMerge, pdfFileNamesToMergePdf)
+	}
+
+	// Do final merge of all PDFs into one.
 	finalMergePdf, err := p.pdfGenerator.MergePDFFilesByContents(appCtx, pdfFilesToMerge)
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generated file merged pdf")
@@ -128,19 +134,12 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	if !(addBookmarks && addWatermarks) {
-		return finalMergePdf, nil
-	}
-
+	// Start building bookmarks and watermarks
 	bookmarks, err := buildBookMarks(pdfFileNamesToMerge, sortedPaymentPacketItemsMap, aoaPacketFile, p.pdfGenerator)
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate bookmarks for PDF")
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	}
-
-	if !addWatermarks {
-		return p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
 	}
 
 	watermarks, err := buildWaterMarks(bookmarks, p.pdfGenerator)
@@ -149,13 +148,27 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
-	pdfWithWatermarks, err := p.pdfGenerator.AddWatermarks(finalMergePdf, watermarks)
-	if err != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to add watermarks to PDF")
-		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+
+	// Apply bookmarks and watermarks based on flag
+	if addWatermarks && len(watermarks) > 0 {
+		pdfWithWatermarks, err := p.pdfGenerator.AddWatermarks(finalMergePdf, watermarks)
+		if err != nil {
+			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to add watermarks to PDF")
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		}
+		if addBookmarks {
+			return p.pdfGenerator.AddPdfBookmarks(pdfWithWatermarks, bookmarks)
+		}
+		return pdfWithWatermarks, nil
 	}
-	return p.pdfGenerator.AddPdfBookmarks(pdfWithWatermarks, bookmarks)
+
+	if addBookmarks {
+		return p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
+	}
+
+	// bookmark and watermark both disabled
+	return finalMergePdf, nil
 }
 
 func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
@@ -206,6 +219,8 @@ func buildWaterMarks(bookMarks []pdfcpu.Bookmark, pdfGenerator paperwork.Generat
 	update := false
 	unit := types.POINTS
 
+	desc := fmt.Sprintf("font:Times-Italic, points:10, sc:1 abs, pos:bc, off:0 8, rot:0, op:%f", opacity)
+
 	creationTimeStamp := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
 	totalPages := bookMarks[len(bookMarks)-1].PageThru
 	currentPage := 1
@@ -226,9 +241,8 @@ func buildWaterMarks(bookMarks []pdfcpu.Bookmark, pdfGenerator paperwork.Generat
 			}
 			wms := make([]*model.Watermark, 0)
 			pagingInfo := fmt.Sprintf("Page %d of %d", currentPage, totalPages)
-			text := fmt.Sprintf("%s - Payment Packet[%s] (Creation date: %v)", pagingInfo, wmText, creationTimeStamp)
+			text := fmt.Sprintf("%s - Payment Packet[%s] (Creation Date: %v)", pagingInfo, wmText, creationTimeStamp)
 
-			desc := fmt.Sprintf("font:Times-Italic, points:10, sc:1 abs, pos:bc, off:0 10, rot:0, op:%f", opacity)
 			wm, _ := pdfGenerator.CreateTextWatermark(text, desc, onTop, update, unit)
 			wms = append(wms, wm)
 			// note: use current page because map is 1 based
@@ -328,6 +342,29 @@ func buildPaymentPacketItemsMap(ppmShipment *models.PPMShipment) map[int]payment
 	}
 
 	return sortedPaymentPacketItems
+}
+
+// Helper method to verify if PPMShipment is accessible for current user. This is to prevent
+// backdoor access for unauthorized users in INTERNAL.
+func verifyPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+	ppmShipment := models.PPMShipment{}
+	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder.Orders.ServiceMember",
+	).Find(&ppmShipment, ppmShipmentID)
+
+	if dbQErr != nil {
+		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
+			return apperror.NewNotFoundError(ppmShipmentID, "PPMShipment")
+		}
+		return dbQErr
+	}
+
+	// if request is from INTERNAL verify if PPM belongs to user
+	if appCtx.Session().IsMilApp() && ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID != appCtx.Session().ServiceMemberID {
+		return apperror.NewForbiddenError(fmt.Sprintf("PPMShipmentId: %s", ppmShipmentID.String()))
+	}
+
+	return nil
 }
 
 func getExpenseTypeLabel(value string) string {

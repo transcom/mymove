@@ -698,7 +698,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketOK{}, showPaymentPacketResponse)
 	})
 
-	suite.Run("Unsuccessful ShowPaymentPacketHandler - error generating PDF - 500", func() {
+	suite.Run("Unsuccessful ShowPaymentPacketHandler - InternalServerError", func() {
 		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
 		handler := ShowPaymentPacketHandler{
 			HandlerConfig:        suite.createS3HandlerConfig(),
@@ -724,7 +724,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketInternalServerError{}, showPaymentPacketResponse)
 	})
 
-	suite.Run("Unsuccessful ShowPaymentPacketHandler - UnprocessableEntity - 422", func() {
+	suite.Run("Unsuccessful ShowPaymentPacketHandler - NotFoundError", func() {
 		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
 		handler := ShowPaymentPacketHandler{
 			HandlerConfig:        suite.createS3HandlerConfig(),
@@ -745,8 +745,8 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
 		}
 		response := handler.Handle(params)
-		showPaymentPacketResponse := response.(*ppmdocumentops.ShowPaymentPacketUnprocessableEntity)
+		showPaymentPacketResponse := response.(*ppmdocumentops.ShowPaymentPacketNotFound)
 
-		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketUnprocessableEntity{}, showPaymentPacketResponse)
+		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketNotFound{}, showPaymentPacketResponse)
 	})
 }

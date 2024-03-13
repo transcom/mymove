@@ -203,10 +203,11 @@ func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacket
 			if err != nil {
 				switch err.(type) {
 				case apperror.NotFoundError:
-					appCtx.Logger().Warn("ghcapi.DownPaymentPacket warn", zap.Error(err))
-					return ppmdocumentops.NewShowPaymentPacketUnprocessableEntity(), err
+					// this indicates ppm was not found
+					appCtx.Logger().Warn(fmt.Sprintf("ghcapi.DownPaymentPacket NotFoundError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+					return ppmdocumentops.NewShowPaymentPacketNotFound(), err
 				default:
-					appCtx.Logger().Error("ghcapi.DownPaymentPacket error", zap.Error(err))
+					appCtx.Logger().Error(fmt.Sprintf("ghcapi.DownPaymentPacket InternalServerError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
 					return ppmdocumentops.NewShowPaymentPacketInternalServerError(), err
 				}
 			}

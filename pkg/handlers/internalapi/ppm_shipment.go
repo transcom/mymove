@@ -328,11 +328,16 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
 			if err != nil {
 				switch err.(type) {
+				case apperror.ForbiddenError:
+					// this indicates user does not have access to PPM
+					appCtx.Logger().Warn(fmt.Sprintf("internalapi.DownPaymentPacket ForbiddenError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+					return ppmops.NewShowPaymentPacketForbidden(), err
 				case apperror.NotFoundError:
-					appCtx.Logger().Warn("internalapi.DownPaymentPacket warn", zap.Error(err))
-					return ppmops.NewShowPaymentPacketUnprocessableEntity(), err
+					// this indicates ppm was not found
+					appCtx.Logger().Warn(fmt.Sprintf("internalapi.DownPaymentPacket NotFoundError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+					return ppmops.NewShowPaymentPacketNotFound(), err
 				default:
-					appCtx.Logger().Error("internalapi.DownPaymentPacket error", zap.Error(err))
+					appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
 					return ppmops.NewShowPaymentPacketInternalServerError(), err
 				}
 			}
