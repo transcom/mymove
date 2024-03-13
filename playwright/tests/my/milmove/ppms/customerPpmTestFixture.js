@@ -643,14 +643,19 @@ export class CustomerPpmPage extends CustomerPage {
   async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
     const { isEditable = false } = options;
     // get first div after the move setup heading
-    const ppm1 = this.page.locator(':text("Move setup") + div');
+    await this.page.pause();
+    const ppm1 = this.page
+      .locator(':text("Move setup") ~ div')
+      .filter({ has: this.page.getByText('PPM 1', { exact: false }) });
     await expect(ppm1).toBeVisible();
 
     if (isEditable) {
       await expect(ppm1.getByRole('button', { name: 'Edit' })).toBeVisible();
       await expect(ppm1.getByRole('button', { name: 'Delete' })).toBeVisible();
     } else {
-      await expect(ppm1.locator('[data-testid="ShipmentContainer"]').locator('button')).not.toBeVisible();
+      for (const loc of await ppm1.locator('[data-testid="ShipmentContainer"]').locator('button').all()) {
+        await expect(loc).not.toBeVisible();
+      }
     }
 
     // TODO: This will fail until address information along with zip is saved for the PPM page B-18434
