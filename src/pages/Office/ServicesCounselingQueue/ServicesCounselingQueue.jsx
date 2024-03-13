@@ -40,9 +40,10 @@ const counselingColumns = () => [
     (row) => {
       return (
         <div>
-          {['WOUNDED_WARRIOR'].includes(row.orderType) ? (
+          {['WOUNDED_WARRIOR', 'BLUEBARK'].includes(row.orderType) ? (
             <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
           ) : null}
+          {/* {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null} */}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );
@@ -125,9 +126,10 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
     (row) => {
       return (
         <div>
-          {['WOUNDED_WARRIOR'].includes(row.orderType) ? (
+          {['WOUNDED_WARRIOR', 'BLUEBARK'].includes(row.orderType) ? (
             <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
           ) : null}
+          {/* {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null} */}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );

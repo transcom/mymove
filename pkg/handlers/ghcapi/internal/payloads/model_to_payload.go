@@ -85,6 +85,7 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		OrderType:          string(move.Orders.OrdersType),
 	}
 
 	if move.PPMType != nil {
@@ -714,6 +715,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
 		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
 		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		SitAuthorizedEndDate: handlers.FmtDatePtr(currentSIT.SITAuthorizedEndDate),
 		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
 		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}

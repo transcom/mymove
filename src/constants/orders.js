@@ -4,6 +4,7 @@ export const ORDERS_TYPE = {
   RETIREMENT: 'RETIREMENT',
   SEPARATION: 'SEPARATION',
   WOUNDED_WARRIOR: 'WOUNDED_WARRIOR',
+  BLUEBARK: 'BLUEBARK',
 };
 
 export const SPECIAL_ORDERS_TYPES = {
@@ -17,6 +18,7 @@ export const ORDERS_TYPE_OPTIONS = {
   RETIREMENT: 'Retirement',
   SEPARATION: 'Separation',
   WOUNDED_WARRIOR: 'Wounded Warrior',
+  BLUEBARK: 'BLUEBARK',
 };
 
 export const ORDERS_TYPE_DETAILS = {
