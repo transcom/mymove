@@ -16,6 +16,8 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -30,7 +32,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -79,6 +81,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
+  const [showDownloadPPMAOAPaperworkErrorAlert, setShowDownloadPPMAOAPaperworkErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -183,6 +186,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking the move status, if approved, return true
   const isMoveApproved = () => {
     return move.status === MOVE_STATUSES.APPROVED;
+  };
+
+  // checking to see if prime is counseling this move, return true
+  const isPrimeCounseled = () => {
+    return !orders.provides_services_counseling;
   };
 
   // logic that handles deleting a shipment
@@ -366,6 +374,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   };
 
+  const toggleDownloadAOAErrorModal = () => {
+    setShowDownloadPPMAOAPaperworkErrorAlert(!showDownloadPPMAOAPaperworkErrorAlert);
+  };
+
   // early return if loading user/service member
   if (!serviceMember) {
     return (
@@ -397,7 +409,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
-
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -410,6 +421,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
+      <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -583,11 +595,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                   {` ${shipmentNumber} `}
                                 </strong>
                                 {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
-                                  // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                   <p className={styles.downloadLink}>
-                                    <a href="">
-                                      <span>Download AOA Paperwork (PDF)</span>
-                                    </a>
+                                    <AsyncPacketDownloadLink
+                                      id={shipment?.ppmShipment?.id}
+                                      label="Download AOA Paperwork (PDF)"
+                                      asyncRetrieval={downloadPPMAOAPacket}
+                                      onFailure={toggleDownloadAOAErrorModal}
+                                    />
                                   </p>
                                 )}
                                 {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
@@ -608,11 +622,22 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                           usage authorization or ask any questions.
                         </Description>
                       )}
-                      {!hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                      {!isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
                         <Description>
                           Your service will review your request for an Advance Operating Allowance (AOA). If approved,
                           you will be able to download the paperwork for your request and submit it to your Finance
                           Office to receive your advance.
+                          <br />
+                          <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                          incentive ends up being less than your advance, you will be required to pay back the
+                          difference.
+                        </Description>
+                      )}
+                      {isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                        <Description>
+                          Once you have received counseling for your PPM you will receive emailed instructions on how to
+                          download your Advance Operating Allowance (AOA) packet. Please consult with your
+                          Transportation Office for review of your AOA packet.
                           <br />
                           <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                           incentive ends up being less than your advance, you will be required to pay back the
