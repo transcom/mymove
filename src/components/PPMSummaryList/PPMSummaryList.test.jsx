@@ -88,7 +88,7 @@ describe('PPMSummaryList component', () => {
   describe('payment docs submitted for closeout review', () => {
     it('should display submitted date and disabled button with copy', () => {
       render(<PPMSummaryList shipments={[shipments[2]]} />);
-      expect(screen.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Download Payment Packet' })).toBeDisabled();
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`PPM documentation submitted: 19 Apr 2022`)).toBeInTheDocument();
@@ -104,7 +104,7 @@ describe('PPMSummaryList component', () => {
   describe('payment docs reviewed', () => {
     it('should display reviewed date and enabled button with copy', () => {
       render(<PPMSummaryList shipments={[shipments[3]]} />);
-      expect(screen.getByRole('button', { name: 'Download Incentive Packet' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Download Payment Packet' })).toBeEnabled();
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`PPM documentation submitted: 19 Apr 2022`)).toBeInTheDocument();
