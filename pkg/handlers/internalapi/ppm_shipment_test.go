@@ -1144,7 +1144,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 		suite.Assertions.IsType(&ppmops.ShowPaymentPacketOK{}, showPaymentPacketResponse)
 	})
 
-	suite.Run("Unsuccessful ShowPaymentPacketHandler - error generating PDF - 500", func() {
+	suite.Run("Unsuccessful ShowPaymentPacketHandler - InternalServerError", func() {
 		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
 		handler := ShowPaymentPacketHandler{
 			HandlerConfig:        suite.createS3HandlerConfig(),
@@ -1170,7 +1170,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 		suite.Assertions.IsType(&ppmops.ShowPaymentPacketInternalServerError{}, showPaymentPacketResponse)
 	})
 
-	suite.Run("Unsuccessful ShowPaymentPacketHandler - UnprocessableEntity - 422", func() {
+	suite.Run("Unsuccessful ShowPaymentPacketHandler - NotFoundError", func() {
 		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
 		handler := ShowPaymentPacketHandler{
 			HandlerConfig:        suite.createS3HandlerConfig(),
@@ -1191,8 +1191,34 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
 		}
 		response := handler.Handle(params)
-		showPaymentPacketResponse := response.(*ppmops.ShowPaymentPacketUnprocessableEntity)
+		showPaymentPacketResponse := response.(*ppmops.ShowPaymentPacketNotFound)
 
-		suite.Assertions.IsType(&ppmops.ShowPaymentPacketUnprocessableEntity{}, showPaymentPacketResponse)
+		suite.Assertions.IsType(&ppmops.ShowPaymentPacketNotFound{}, showPaymentPacketResponse)
+	})
+
+	suite.Run("Unsuccessful ShowPaymentPacketHandler - ForbiddenError", func() {
+		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
+		handler := ShowPaymentPacketHandler{
+			HandlerConfig:        suite.createS3HandlerConfig(),
+			PaymentPacketCreator: &mockPaymentPacketCreator,
+		}
+
+		mockPaymentPacketCreator.On("GenerateDefault",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.ForbiddenError{})
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmShipment.ID
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment-packet/", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmops.ShowPaymentPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
+		}
+		response := handler.Handle(params)
+		showPaymentPacketResponse := response.(*ppmops.ShowPaymentPacketForbidden)
+
+		suite.Assertions.IsType(&ppmops.ShowPaymentPacketForbidden{}, showPaymentPacketResponse)
 	})
 }
