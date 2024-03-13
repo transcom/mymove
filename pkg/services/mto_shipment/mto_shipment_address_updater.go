@@ -71,9 +71,10 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 			} else {
 				milesCalculated, err = planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
 			}
-			if err == nil {
-				serviceItem.SITDeliveryMiles = &milesCalculated
+			if err != nil {
+				return nil, err
 			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
 
 			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
 		}

@@ -242,9 +242,10 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 				// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
 				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
-				if err == nil {
-					serviceItem.SITDeliveryMiles = &milesCalculated
+				if err != nil {
+					return nil, err
 				}
+				serviceItem.SITDeliveryMiles = &milesCalculated
 			}
 		}
 		// Calculate SITDeliveryMiles for DOPSIT and DOSFSC origin SIT service items
@@ -252,9 +253,10 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
 			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
 			milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
-			if err == nil {
-				serviceItem.SITDeliveryMiles = &milesCalculated
+			if err != nil {
+				return nil, err
 			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
 		}
 	}
 

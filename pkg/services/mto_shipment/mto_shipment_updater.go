@@ -1073,9 +1073,10 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 				// if TOO approval was not required, use the newAddress
 				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 			}
-			if err == nil {
-				serviceItem.SITDeliveryMiles = &milesCalculated
+			if err != nil {
+				return err
 			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
 
 			mtoServiceItems = append(mtoServiceItems, serviceItem)
 		}
