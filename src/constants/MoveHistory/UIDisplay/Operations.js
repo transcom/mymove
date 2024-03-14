@@ -57,5 +57,6 @@ export default {
   deleteProGearWeightTicket: 'deleteProGearWeightTicket', // internal.yaml
   createMovingExpense: 'createMovingExpense', // internal.yaml
   deleteMovingExpense: 'deleteMovingExpense', // internal.yaml
+  submitPPMShipmentDocumentation: 'submitPPMShipmentDocumentation', // internal.yaml
   finishDocumentReview: 'finishDocumentReview', // ghc.yaml
 };
