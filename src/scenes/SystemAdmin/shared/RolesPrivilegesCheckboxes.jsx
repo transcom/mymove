@@ -96,7 +96,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
         optionValue="privilegeType"
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>
-        Supervisor privileges cannot be selected with Customer or Contracting Officer roles.
+        Privileges cannot be selected with Customer or Contracting Officer roles.
       </span>
     </>
   );
