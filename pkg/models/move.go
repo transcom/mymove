@@ -160,45 +160,6 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	return &move, nil
 }
 
-// CreatePPM creates a new PPM associated with this move
-func (m Move) CreatePPM(db *pop.Connection,
-	weightEstimate *unit.Pound,
-	originalMoveDate *time.Time,
-	pickupPostalCode *string,
-	hasAdditionalPostalCode *bool,
-	additionalPickupPostalCode *string,
-	destinationPostalCode *string,
-	hasSit *bool,
-	daysInStorage *int64,
-	estimatedStorageReimbursement *string,
-	hasRequestedAdvance bool,
-	advance *Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
-
-	newPPM := PersonallyProcuredMove{
-		MoveID:                        m.ID,
-		Move:                          m,
-		WeightEstimate:                weightEstimate,
-		OriginalMoveDate:              originalMoveDate,
-		PickupPostalCode:              pickupPostalCode,
-		HasAdditionalPostalCode:       hasAdditionalPostalCode,
-		AdditionalPickupPostalCode:    additionalPickupPostalCode,
-		DestinationPostalCode:         destinationPostalCode,
-		HasSit:                        hasSit,
-		DaysInStorage:                 daysInStorage,
-		Status:                        PPMStatusDRAFT,
-		HasRequestedAdvance:           hasRequestedAdvance,
-		Advance:                       advance,
-		EstimatedStorageReimbursement: estimatedStorageReimbursement,
-	}
-
-	verrs, err := SavePersonallyProcuredMove(db, &newPPM)
-	if err != nil || verrs.HasAny() {
-		return nil, verrs, err
-	}
-
-	return &newPPM, verrs, nil
-}
-
 // CreateSignedCertification creates a new SignedCertification associated with this move
 func (m Move) CreateSignedCertification(db *pop.Connection,
 	submittingUserID uuid.UUID,
@@ -495,6 +456,16 @@ func (m Move) IsPPMOnly() bool {
 	}
 	return ppmOnlyMove
 }
+func GetTotalNetWeightForMove(m Move) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, shipment := range m.MTOShipments {
+		if shipment.ShipmentType == MTOShipmentTypePPM && shipment.PPMShipment != nil {
+			totalNetWeight += GetPPMNetWeight(*shipment.PPMShipment)
+		}
+	}
+	return totalNetWeight
+
+}
 
 // HasPPM returns true if at least one shipment type is "PPM" associated with the move, false otherwise
 func (m Move) HasPPM() bool {
@@ -509,14 +480,4 @@ func (m Move) HasPPM() bool {
 		}
 	}
 	return hasPpmMove
-}
-func GetTotalNetWeightForMove(m Move) unit.Pound {
-	totalNetWeight := unit.Pound(0)
-	for _, shipment := range m.MTOShipments {
-		if shipment.ShipmentType == MTOShipmentTypePPM && shipment.PPMShipment != nil {
-			totalNetWeight += GetPPMNetWeight(*shipment.PPMShipment)
-		}
-	}
-	return totalNetWeight
-
 }
