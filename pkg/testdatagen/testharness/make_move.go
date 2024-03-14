@@ -14,7 +14,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -120,64 +119,6 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	}, nil)
 
 	return move
-}
-
-func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
-	userInfo := newUserInfo("customer")
-	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
-			},
-		},
-	}, nil)
-
-	cal := dates.NewUSCalendar()
-	nextValidMoveDate := dates.NextValidMoveDate(time.Now(), cal)
-
-	nextValidMoveDateMinusTen := dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
-	pastTime := nextValidMoveDateMinusTen
-
-	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        user.ID,
-			PersonalEmail: models.StringPointer(userInfo.email),
-			FirstName:     models.StringPointer(userInfo.firstName),
-			LastName:      models.StringPointer(userInfo.lastName),
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &pastTime,
-		},
-	})
-
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    ppm1.Move,
-			LinkOnly: true,
-		},
-	}, nil)
-	moveRouter := moverouter.NewMoveRouter()
-	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = moveRouter.Approve(appCtx, &ppm1.Move)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
-	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-	}
-
-	// re-fetch the move so that we ensure we have exactly what is in
-	// the db
-	move, err := models.FetchMove(appCtx.DB(), &auth.Session{}, ppm1.Move.ID)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
-	}
-	return *move
 }
 
 func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
@@ -2715,8 +2656,8 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
-			PickupPostalAddressID:       &pickupAddress.ID,
-			DestinationPostalAddressID:  &destinationAddress.ID,
+			PickupAddressID:             &pickupAddress.ID,
+			DestinationAddressID:        &destinationAddress.ID,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
