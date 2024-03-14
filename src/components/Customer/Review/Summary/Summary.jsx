@@ -274,7 +274,7 @@ export class Summary extends Component {
       );
     }
 
-    const currentDutyLocation = serviceMember?.current_location;
+    const currentDutyLocation = orders?.origin_duty_location?.transportation_office;
     const officePhone = currentDutyLocation?.transportation_office?.phone_lines?.[0];
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
