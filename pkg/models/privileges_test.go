@@ -23,7 +23,7 @@ func TestPrivilegesSuite(t *testing.T) {
 }
 
 func (suite *PrivilegesSuite) TestFetchPrivilegesForUser() {
-	officeUserOne := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+	officeUserOne := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				Email: "officeuser1@example.com",

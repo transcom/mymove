@@ -117,39 +117,44 @@ func BuildOfficeUserWithRoles(db *pop.Connection, customs []Customization, roleT
 //   - privilegeTypes passed into the function will overwrite over any privileges in a User customization
 //   - a unique email for the user will be created
 //   - a UUID will be added to the OfficeUser record when it's stubbed
-func BuildOfficeUserWithPrivileges(db *pop.Connection, customs []Customization, privilegeTypes []models.PrivilegeType) models.OfficeUser {
-	customs = setupCustomizations(customs, nil)
+func BuildOfficeUserWithPrivileges(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
+	customs = setupCustomizations(customs, traits)
 
-	var privilegesList []models.Privilege
-	for _, privilegeType := range privilegeTypes {
-		privilege := models.Privilege{
-			PrivilegeType: privilegeType,
+	// Find officeuser assertion and convert to models officeuser
+	var cOfficeUser models.OfficeUser
+	if result := findValidCustomization(customs, OfficeUser); result != nil {
+		cOfficeUser = result.Model.(models.OfficeUser)
+		if result.LinkOnly {
+			return cOfficeUser
 		}
-		privilegesList = append(privilegesList, privilege)
-	}
-
-	traits := []Trait{GetTraitOfficeUserEmail}
-	if db == nil {
-		// UUIDs are only set when saving to a DB, but they're necessary when checking session auths
-		traits = append(traits, GetTraitOfficeUserWithID)
 	}
 
 	// Find/create the user model
-	// If there is a user customization, add the privileges to it, otherwise add a new user customization
-	var user models.User
-	idx, result := findCustomWithIdx(customs, User)
-	if result != nil {
-		// add privileges to the existing user customization
-		user = result.Model.(models.User)
-		user.Privileges = privilegesList
-		customs[idx].Model = user
-	} else {
-		// create a new user customization with the correct privileges
-		user.Privileges = privilegesList
-		customs = append(customs, Customization{Model: user})
+	user := BuildUserAndUsersRolesAndUsersPrivileges(db, customs, nil)
+
+	// Find/create the TransportationOffice model
+	transportationOffice := BuildTransportationOffice(db, customs, nil)
+
+	// create officeuser
+	officeUser := models.OfficeUser{
+		UserID:                 &user.ID,
+		User:                   user,
+		FirstName:              "Leo",
+		LastName:               "Spaceman",
+		Email:                  "leo_spaceman_office@example.com",
+		Telephone:              "415-555-1212",
+		TransportationOffice:   transportationOffice,
+		TransportationOfficeID: transportationOffice.ID,
+	}
+	// Overwrite values with those from assertions
+	testdatagen.MergeModels(&officeUser, cOfficeUser)
+
+	// If db is false, it's a stub. No need to create in database
+	if db != nil {
+		mustCreate(db, &officeUser)
 	}
 
-	return BuildOfficeUser(db, customs, traits)
+	return officeUser
 }
 
 // ------------------------
