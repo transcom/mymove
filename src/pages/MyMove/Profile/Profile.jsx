@@ -133,7 +133,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               oktaFirstName={oktaUser?.firstName || 'Not Provided'}
               oktaLastName={oktaUser?.lastName || 'Not Provided'}
               oktaEdipi={oktaUser?.cac_edipi || 'Not Provided'}
-              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
+              editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
             />
           </SectionWrapper>
           {needsToVerifyProfile && (
