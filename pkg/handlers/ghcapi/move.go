@@ -81,7 +81,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 			}
 			var searchMoves *ghcmessages.SearchMoves
 			if appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-				searchMoves = payloads.SearchMovesWithPaymentRequestAttributes(moves)
+				searchMoves = payloads.SearchMovesWithPaymentRequestAttributes(moves, searchMovesParams.Status)
 
 			} else {
 				searchMoves = payloads.SearchMoves(moves)

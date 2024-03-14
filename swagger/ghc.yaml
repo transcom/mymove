@@ -3173,12 +3173,12 @@ paths:
           items:
             type: string
             enum:
-              - Payment requested
-              - Reviewed
-              - Rejected
-              - Paid
-              - Deprecated
-              - Error
+              - PENDING
+              - REVIEWED
+              - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+              - PAID
+              - DEPRECATED
+              - EDI_ERROR
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3241,12 +3241,12 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
-                    - PAYMENT_REQUESTED
+                    - PENDING
                     - REVIEWED
-                    - REJECTED
+                    - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
                     - PAID
                     - DEPRECATED
-                    - ERROR
+                    - EDI_ERROR
               originPostalCode:
                 type: string
                 x-nullable: true

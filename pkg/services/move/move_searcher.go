@@ -100,8 +100,8 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
 			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
 			Join("payment_requests as prq", "prq.move_id = moves.id").
-			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id, prq.move_id").
-			Where("show = TRUE AND (prq.status = 'PAYMENT REQUESTED' or prq.status = 'REVIEWED' or prq.status = 'REJECTED' or prq.status = 'PAID' or prq.status = 'DEPRECATED' or prq.status = 'ERROR')")
+			Where("show = TRUE").
+			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id, prq.move_id")
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
@@ -110,7 +110,13 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	branchQuery := branchFilter(params.Branch)
 	originPostalCodeQuery := originPostalCodeFilter(params.OriginPostalCode)
 	destinationPostalCodeQuery := destinationPostalCodeFilter(params.DestinationPostalCode)
-	statusQuery := moveStatusFilter(params.Status)
+	var statusQuery QueryOption
+	if appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+		statusQuery = paymentRequestsStatusFilter(params.Status)
+	} else {
+		statusQuery = moveStatusFilter(params.Status)
+	}
+
 	shipmentsCountQuery := shipmentsCountFilter(params.ShipmentsCount)
 	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
 
@@ -194,6 +200,24 @@ func moveStatusFilter(statuses []string) QueryOption {
 			query.Where("moves.status in (?)", translatedStatuses)
 		}
 	}
+}
+func paymentRequestsStatusFilter(statuses []string) QueryOption {
+	return func(query *pop.Query) {
+		var translatedStatuses []string
+		if len(statuses) > 0 {
+			translatedStatuses = append(translatedStatuses, statuses...)
+		} else {
+			translatedStatuses = append(translatedStatuses,
+				models.PaymentRequestStatusPending.String(),
+				models.PaymentRequestStatusReviewed.String(),
+				models.PaymentRequestStatusReviewedAllRejected.String(),
+				models.PaymentRequestStatusPaid.String(),
+				models.PaymentRequestStatusDeprecated.String(),
+				models.PaymentRequestStatusEDIError.String())
+		}
+		query.Where("prq.status in (?)", translatedStatuses)
+	}
+
 }
 
 func customerNameSearch(customerName *string) QueryOption {

@@ -9,7 +9,13 @@ import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, ROLE_TYPE_OPTIONS, SortShape } from 'constants/queues';
+import {
+  BRANCH_OPTIONS,
+  MOVE_STATUS_LABELS,
+  PAYMENT_REQUEST_SEARCH_STATUS_LABELS,
+  ROLE_TYPE_OPTIONS,
+  SortShape,
+} from 'constants/queues';
 import { serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -37,6 +43,9 @@ const columns = (roleType) => [
   createHeader(
     'Status',
     (row) => {
+      if (roleType === roleTypes.TIO) {
+        return PAYMENT_REQUEST_SEARCH_STATUS_LABELS[`${row.status}`];
+      }
       return MOVE_STATUS_LABELS[`${row.status}`];
     },
     {

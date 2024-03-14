@@ -298,7 +298,7 @@ var searchMovesBodyStatusItemsEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","APPROVALS REQUESTED","APPROVED","NEEDS SERVICE COUNSELING","SERVICE COUNSELING COMPLETED","PAYMENT_REQUESTED","REVIEWED","REJECTED","PAID","DEPRECATED","ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","APPROVALS REQUESTED","APPROVED","NEEDS SERVICE COUNSELING","SERVICE COUNSELING COMPLETED","PENDING","REVIEWED","REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED","PAID","DEPRECATED","EDI_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

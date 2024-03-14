@@ -1640,12 +1640,12 @@ func init() {
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
                       "SERVICE COUNSELING COMPLETED",
-                      "PAYMENT_REQUESTED",
+                      "PENDING",
                       "REVIEWED",
-                      "REJECTED",
+                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
                       "PAID",
                       "DEPRECATED",
-                      "ERROR"
+                      "EDI_ERROR"
                     ]
                   }
                 }
@@ -3474,12 +3474,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -12492,12 +12492,12 @@ func init() {
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
                       "SERVICE COUNSELING COMPLETED",
-                      "PAYMENT_REQUESTED",
+                      "PENDING",
                       "REVIEWED",
-                      "REJECTED",
+                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
                       "PAID",
                       "DEPRECATED",
-                      "ERROR"
+                      "EDI_ERROR"
                     ]
                   }
                 }
@@ -14799,12 +14799,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },

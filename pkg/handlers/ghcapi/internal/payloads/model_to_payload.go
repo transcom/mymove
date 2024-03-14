@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -1831,10 +1832,8 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 	}
 	return &searchMoves
 }
-func SearchMovesWithPaymentRequestAttributes(moves models.Moves) *ghcmessages.SearchMoves {
-	paymentRequestIndex := 0
-	countPaymentRequests := GetNumberOfPaymentRequests(moves)
-	searchMoves := make(ghcmessages.SearchMoves, countPaymentRequests)
+func SearchMovesWithPaymentRequestAttributes(moves models.Moves, ProvidedStatusParameters []string) *ghcmessages.SearchMoves {
+	var searchMoves ghcmessages.SearchMoves
 	for _, move := range moves {
 		customer := move.Orders.ServiceMember
 
@@ -1846,30 +1845,29 @@ func SearchMovesWithPaymentRequestAttributes(moves models.Moves) *ghcmessages.Se
 			}
 		}
 		for _, PaymentAttribute := range move.PaymentRequests {
-			searchMoves[paymentRequestIndex] = &ghcmessages.SearchMove{
-				FirstName:                         customer.FirstName,
-				LastName:                          customer.LastName,
-				DodID:                             customer.Edipi,
-				Branch:                            customer.Affiliation.String(),
-				Status:                            ghcmessages.MoveStatus(PaymentAttribute.Status),
-				ID:                                *handlers.FmtUUID(move.ID),
-				Locator:                           move.Locator,
-				ShipmentsCount:                    int64(numShipments),
-				OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
-				DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			// If status parameters are provided, and PRQ status does not match status parameters, then skip adding this payment request to the payload.
+			// This is due to a bug in the search query if a move contains multiple payment requests of different status.
+			StatusProvidedButPRQSNotMatch := len(ProvidedStatusParameters) > 0 && !slices.Contains(ProvidedStatusParameters, PaymentAttribute.Status.String())
+			if !(StatusProvidedButPRQSNotMatch) {
+				tempMove := ghcmessages.SearchMove{
+					FirstName:                         customer.FirstName,
+					LastName:                          customer.LastName,
+					DodID:                             customer.Edipi,
+					Branch:                            customer.Affiliation.String(),
+					Status:                            ghcmessages.MoveStatus(PaymentAttribute.Status),
+					ID:                                *handlers.FmtUUID(move.ID),
+					Locator:                           move.Locator,
+					ShipmentsCount:                    int64(numShipments),
+					OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
+					DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+				}
+				searchMoves = append(searchMoves, &tempMove)
 			}
-			paymentRequestIndex++
+
 		}
 
 	}
 	return &searchMoves
-}
-func GetNumberOfPaymentRequests(moves models.Moves) int {
-	paymentRequests := 0
-	for _, move := range moves {
-		paymentRequests += len(move.PaymentRequests)
-	}
-	return paymentRequests
 }
 
 // ShipmentPaymentSITBalance payload
