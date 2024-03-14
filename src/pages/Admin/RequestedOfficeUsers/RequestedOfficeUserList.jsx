@@ -32,7 +32,6 @@ const RequestedOfficeUserList = () => (
       <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" link={false}>
         <TextField source="name" />
       </ReferenceField>
-      <TextField source="userId" label="User Id" />
       <TextField source="status" />
       <DateField showTime source="createdAt" label="Requested on" />
     </Datagrid>
