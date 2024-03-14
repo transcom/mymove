@@ -28,7 +28,7 @@ type PPMCloseout struct {
 
 	// actual weight
 	// Example: 2000
-	ActualWeight *int64 `json:"actualWeight,omitempty"`
+	ActualWeight *int64 `json:"actualWeight"`
 
 	// Advance Operating Allowance (AOA).
 	Aoa *int64 `json:"aoa"`
@@ -86,7 +86,7 @@ type PPMCloseout struct {
 	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse"`
 
 	// The remaining reimbursement amount that is still owed to the customer.
-	RemainingReimbursementOwed *int64 `json:"remainingReimbursementOwed"`
+	RemainingIncentive *int64 `json:"remainingIncentive"`
 
 	// The full price of all packing/unpacking services.
 	UnpackPrice *int64 `json:"unpackPrice"`

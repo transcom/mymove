@@ -17,6 +17,7 @@ import {
   formatYesNoMoveHistoryValue,
   toDollarString,
 } from 'utils/formatters';
+import statusFields from 'constants/MoveHistory/Database/StatusFields';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const emptyValue = '—';
@@ -30,6 +31,8 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = formatWeight(Number(displayValue));
   } else if (optionFields[displayValue]) {
     displayValue = optionFields[displayValue];
+  } else if (statusFields[displayValue]) {
+    displayValue = statusFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
   } else if (booleanFields[fieldName]) {

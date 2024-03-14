@@ -5,19 +5,23 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { arrayOf, func, number, object } from 'prop-types';
+import moment from 'moment';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
 import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';
+import { formatDate, formatCents } from 'utils/formatters';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
+  ppmShipmentInfo,
   ppmNumber,
   formRef,
   onSuccess,
@@ -91,7 +95,7 @@ export default function ReviewDocumentsSidePanel({
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
-          <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
+          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields />
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -105,6 +109,35 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(weight)}
                         </div>
                         {showReason ? <p>{weight.reason}</p> : null}
+
+                        <dl className={classnames(styles.ItemDetails)}>
+                          <span>
+                            <dt>Empty Weight:</dt>
+                            <dd>{weight.emptyWeight} lbs</dd>
+                          </span>
+                          <span>
+                            <dt>Full Weight:</dt>
+                            <dl>{weight.fullWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Net Weight:</dt>
+                            <dl>{weight.fullWeight - weight.emptyWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Allowable Weight:</dt>
+                            <dl>{weight.allowableWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Trailer Used:</dt>
+                            <dl>{weight.ownsTrailer ? `Yes` : `No`}</dl>
+                          </span>
+                          {weight.ownsTrailer && (
+                            <span>
+                              <dt>Trailer Claimable:</dt>
+                              <dl>{weight.trailerMeetsCriteria ? `Yes` : `No`}</dl>
+                            </span>
+                          )}
+                        </dl>
                       </li>
                     );
                   })
@@ -118,6 +151,22 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(gear)}
                         </div>
                         {showReason ? <p>{gear.reason}</p> : null}
+
+                        <dl className={classnames(styles.ItemDetails)}>
+                          <span>
+                            <dt>Belongs To: </dt>
+                            <dd>{gear.belongsToSelf ? `Customer` : `Spouse`}</dd>
+                          </span>
+                          <span>
+                            <dt>Missing Weight Ticket (Constructed)?</dt>
+                            <dl>{gear.missingWeightTicket ? `Yes` : `No`}</dl>
+                          </span>
+                          <span>
+                            <dt>Pro-gear Weight:</dt>
+                            {/* TODO: proGearWeight shows empty for some reason? */}
+                            <dl>{gear.weight} lbs</dl>
+                          </span>
+                        </dl>
                       </li>
                     );
                   })
@@ -135,6 +184,39 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(exp)}
                         </div>
                         {showReason ? <p>{exp.reason}</p> : null}
+
+                        <div className={classnames(styles.ItemDetails)}>
+                          {exp.movingExpenseType === expenseTypes.STORAGE ? (
+                            <dl>
+                              <span>
+                                <dt>SIT Start Date:</dt>
+                                <dd>{formatDate(exp.sitStartDate)}</dd>
+                              </span>
+                              <span>
+                                <dt>SIT End Date:</dt>
+                                <dl>{formatDate(exp.sitEndDate)}</dl>
+                              </span>
+                              <span>
+                                <dt>Total Days in SIT:</dt>
+                                <dl>
+                                  {moment(exp.sitEndDate, 'YYYY MM DD').diff(
+                                    moment(exp.sitStartDate, 'YYYY MM DD'),
+                                    'days',
+                                  )}
+                                </dl>
+                              </span>
+                              <span>
+                                <dt>Authorized Price:</dt>
+                                <dl>${formatCents(exp.amount)}</dl>
+                              </span>
+                            </dl>
+                          ) : (
+                            <span>
+                              <dt>Authorized Price:</dt>
+                              <dl>${formatCents(exp.amount)}</dl>
+                            </span>
+                          )}
+                        </div>
                       </li>
                     );
                   })

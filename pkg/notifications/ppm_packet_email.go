@@ -41,6 +41,7 @@ type PpmPacketEmailData struct {
 	ServiceBranch                     string
 	Locator                           string
 	OneSourceTransportationOfficeLink string
+	WashingtonHQServicesLink          string
 	MyMoveLink                        string
 }
 
@@ -146,13 +147,13 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 
 	// If address IDs are available for this PPM shipment, then do another query to get the city/state for origin and destination.
 	// Note: This is a conditional put in because this work was done before address_ids were added to the ppm_shipments table.
-	if ppmShipment.PickupPostalAddressID != nil && ppmShipment.DestinationPostalAddressID != nil {
+	if ppmShipment.PickupAddressID != nil && ppmShipment.DestinationAddressID != nil {
 		var pickupAddress, destinationAddress models.Address
-		err = appCtx.DB().Find(&pickupAddress, ppmShipment.PickupPostalAddressID)
+		err = appCtx.DB().Find(&pickupAddress, ppmShipment.PickupAddressID)
 		if err != nil {
 			return PpmPacketEmailData{}, LoggerData{}, err
 		}
-		err = appCtx.DB().Find(&destinationAddress, ppmShipment.DestinationPostalAddressID)
+		err = appCtx.DB().Find(&destinationAddress, ppmShipment.DestinationAddressID)
 		if err != nil {
 			return PpmPacketEmailData{}, LoggerData{}, err
 		}
@@ -160,12 +161,15 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 		return PpmPacketEmailData{
 				OriginCity:                        &pickupAddress.City,
 				OriginState:                       &pickupAddress.State,
+				OriginZIP:                         &pickupAddress.PostalCode,
 				DestinationCity:                   &destinationAddress.City,
 				DestinationState:                  &destinationAddress.State,
+				DestinationZIP:                    &destinationAddress.PostalCode,
 				SubmitLocation:                    submitLocation,
 				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
 			},
 			LoggerData{
@@ -183,6 +187,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
 		},
 		LoggerData{

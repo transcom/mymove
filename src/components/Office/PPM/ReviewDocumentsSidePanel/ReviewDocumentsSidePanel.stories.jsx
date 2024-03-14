@@ -1,6 +1,8 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
+import PPMShipmentInfo from '../ppmTestData';
+
 import ReviewDocumentsSidePanel from './ReviewDocumentsSidePanel';
 
 import PPMDocumentsStatus from 'constants/ppms';
@@ -33,21 +35,27 @@ const Template = (args) => <ReviewDocumentsSidePanel {...args} />;
 
 export const FilledIn = Template.bind({});
 FilledIn.args = {
-  ppmShipment: {
-    actualMoveDate: '02-Dec-22',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
-  },
+  ppmShipmentInfo: PPMShipmentInfo,
   expenseTickets: [
     createCompleteMovingExpense(
       {},
-      { movingExpenseType: expenseTypes.STORAGE, status: PPMDocumentsStatus.REJECTED, reason: 'Too large' },
+      {
+        movingExpenseType: expenseTypes.STORAGE,
+        status: PPMDocumentsStatus.REJECTED,
+        sitStartDate: '2023-02-01',
+        sitEndDate: '2023-03-01',
+        amount: 30000,
+        reason: 'Too large',
+      },
     ),
     createCompleteMovingExpense(
       {},
-      { movingExpenseType: expenseTypes.PACKING_MATERIALS, status: PPMDocumentsStatus.APPROVED, reason: null },
+      {
+        movingExpenseType: expenseTypes.PACKING_MATERIALS,
+        status: PPMDocumentsStatus.APPROVED,
+        amount: 20000,
+        reason: null,
+      },
     ),
   ],
   proGearTickets: [

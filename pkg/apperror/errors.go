@@ -75,6 +75,23 @@ func (e *NotFoundError) Unwrap() error {
 	return e.err
 }
 
+type PPMNotReadyForCloseoutError struct {
+	id      uuid.UUID
+	message string
+}
+
+// NewNotFoundError returns an error for when a struct can not be found
+func NewPPMNotReadyForCloseoutError(id uuid.UUID, message string) PPMNotReadyForCloseoutError {
+	return PPMNotReadyForCloseoutError{
+		id:      id,
+		message: message,
+	}
+}
+
+func (e PPMNotReadyForCloseoutError) Error() string {
+	return fmt.Sprintf("ID: %s - PPM Shipment is not ready for closeout. Customer must upload PPM documents. %s", e.id.String(), e.message)
+}
+
 // ErrorCode contains error codes for the route package
 type ErrorCode string
 

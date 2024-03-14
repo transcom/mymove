@@ -321,6 +321,17 @@ func BuildNTSRShipment(db *pop.Connection, customs []Customization, traits []Tra
 	}
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentNTSR)
 }
+func AddPPMShipmentToMTOShipment(db *pop.Connection, mtoShipment *models.MTOShipment, ppmShipment models.PPMShipment) {
+	if mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
+		log.Panic("mtoShipmentType must be MTOShipmentTypePPM")
+	}
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+	mtoShipment.PPMShipment = &ppmShipment
+}
 
 // ------------------------
 //

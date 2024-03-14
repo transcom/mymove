@@ -2011,9 +2011,11 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "GHC",
-        "NTS"
+        "NTS",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
@@ -4806,9 +4808,11 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "GHC",
-        "NTS"
+        "NTS",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",

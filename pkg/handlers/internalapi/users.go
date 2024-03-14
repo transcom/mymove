@@ -97,14 +97,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 				// Load associations on PPM if they exist
 				if len(serviceMember.Orders[0].Moves) > 0 {
-					if len(serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves) > 0 {
-						// TODO: load advances on all ppms for the latest order's move
-						ppm, ppmErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
-						if ppmErr != nil {
-							return handlers.ResponseForError(appCtx.Logger(), ppmErr), ppmErr
-						}
-						serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
-					}
 
 					// Check if move is valid and not hidden
 					// If the move is hidden, return an error
