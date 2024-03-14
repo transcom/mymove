@@ -86,7 +86,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Final delivery address': details.sitDestinationFinalAddress
                   ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                   : '-',
-                'SIT delivery miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
             )
@@ -100,7 +100,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Final delivery address': details.sitDestinationFinalAddress
                   ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                   : '-',
-                'SIT delivery miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
             )
@@ -160,9 +160,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
                 'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
-                'SIT departure date': details.sitDepartureDate
-                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
-                  : '-',
               },
               id,
             )}
@@ -240,7 +237,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 'Actual pickup address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
-                'SIT delivery miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
             )}
@@ -275,7 +272,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
                 'Actual pickup address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
-                'SIT delivery miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
                 ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
                 Reason: details.reason ? details.reason : '-',
               },
@@ -302,80 +299,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
     }
     case 'DDFSIT':
     case 'DDASIT': {
-      // detailSection = (
-      //   <div>
-      //     <dl>
-      //       {generateDetailText(
-      //         {
-      //           'Original delivery address': details.sitDestinationOriginalAddress
-      //             ? formatCityStateAndPostalCode(details.sitDestinationOriginalAddress)
-      //             : '-',
-      //           "Add'l SIT Start Date": additionalSITStartDate,
-      //           'Customer contacted': details.sitCustomerContacted
-      //             ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
-      //             : '-',
-      //           'Customer requested delivery date': details.sitRequestedDeliveryDate
-      //             ? formatDateWithUTC(details.sitRequestedDeliveryDate, 'DD MMM YYYY')
-      //             : '-',
-      //           'SIT departure date': details.sitDepartureDate
-      //             ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
-      //             : '-',
-      //         },
-      //         id,
-      //       )}
-      //       {details.rejectionReason &&
-      //         generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
-      //       {!isEmpty(serviceRequestDocUploads) ? (
-      //         <div className={styles.uploads}>
-      //           <p className={styles.detailType}>Download service item documentation:</p>
-      //           {serviceRequestDocUploads.map((file) => (
-      //             <div className={styles.uploads}>
-      //               <a href={file.url} download>
-      //                 {trimFileName(file.filename)}
-      //               </a>
-      //             </div>
-      //           ))}
-      //         </div>
-      //       ) : null}
-      //     </dl>
-      //   </div>
-      // );
       detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, code);
       break;
     }
     case 'DDDSIT': {
-      //   detailSection = (
-      //     <div>
-      //       <dl>
-      //         {generateDetailText(
-      //           {
-      //             'Original delivery address': details.sitDestinationOriginalAddress
-      //               ? formatCityStateAndPostalCode(details.sitDestinationOriginalAddress)
-      //               : '-',
-      //             'Final delivery address': details.sitDestinationFinalAddress
-      //               ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
-      //               : '-',
-      //             'SIT delivery miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
-      //           },
-      //           id,
-      //         )}
-      //         {details.rejectionReason &&
-      //           generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
-      //         {!isEmpty(serviceRequestDocUploads) ? (
-      //           <div className={styles.uploads}>
-      //             <p className={styles.detailType}>Download service item documentation:</p>
-      //             {serviceRequestDocUploads.map((file) => (
-      //               <div className={styles.uploads}>
-      //                 <a href={file.url} download>
-      //                   {trimFileName(file.filename)}
-      //                 </a>
-      //               </div>
-      //             ))}
-      //           </div>
-      //         ) : null}
-      //       </dl>
-      //     </div>
-      //   );
       detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, code);
       break;
     }
