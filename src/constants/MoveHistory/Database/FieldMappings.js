@@ -133,5 +133,5 @@ export default {
   vehicle_description: 'Vehicle description',
   closeout_office_name: 'Closeout office',
   distance: 'Shipping distance',
-  ppm_status: 'PPM status', // custom front end status, not database value
+  ppm_status: 'PPM status', // custom front end status, not database value: resolved conflict
 };
