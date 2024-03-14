@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { useNavigate } from 'react-router-dom';
 
+import styles from './CustomerName.module.scss';
+
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import NameForm from 'components/Customer/NameForm/NameForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
@@ -62,8 +64,8 @@ export const CustomerName = ({ serviceMember, updateServiceMember }) => {
         </Grid>
       )}
 
-      <Grid>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
+      <Grid className={styles.nameFormContainer}>
+        <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <NameForm onSubmit={handleSubmit} onBack={handleBack} initialValues={initialValues} />
         </Grid>
       </Grid>
