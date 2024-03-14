@@ -1,9 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
@@ -206,8 +208,13 @@ const ServicesCounselingQueue = () => {
     navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
+  const handleAddCustomerClick = () => {
+    navigate(generatePath(servicesCounselingRoutes.CUSTOMER_NAME_PATH));
+  };
+
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -300,6 +307,16 @@ const ServicesCounselingQueue = () => {
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
           />
+        )}
+        {searchHappened && counselorMoveCreateFeatureFlag && (
+          <Button
+            secondary={false}
+            type="Add Customer"
+            style={{ maxWidth: '225px', alignSelf: 'flex-start', position: 'absolute', bottom: 35 }}
+            onClick={handleAddCustomerClick}
+          >
+            Add Customer
+          </Button>
         )}
       </div>
     );

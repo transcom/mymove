@@ -1,7 +1,7 @@
 import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Routes, Navigate } from 'react-router-dom';
-import { isMultiMoveEnabled } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 import { connect } from 'react-redux';
 import { GovBanner } from '@trussworks/react-uswds';
 
@@ -91,7 +91,7 @@ export class CustomerApp extends Component {
     loadInternalSchema();
     loadUser();
     initOnboarding();
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       this.setState({
         multiMoveFeatureFlag: enabled,
       });
