@@ -4282,15 +4282,18 @@ paths:
             format: binary
             type: file
         '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
+          $ref: '#/responses/InvalidRequest'
         '403':
           description: user is not authorized
         '404':
           description: ppm not found
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: internal server error
+          $ref: '#/responses/ServerError'
   /documents:
     post:
       summary: Create a new document
