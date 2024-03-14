@@ -2937,6 +2937,10 @@ paths:
           name: closeoutLocation
           type: string
           description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -2992,6 +2996,9 @@ paths:
           type: string
         - in: query
           name: moveCode
+          type: string
+        - in: query
+          name: orderType
           type: string
       responses:
         '200':
@@ -3085,6 +3092,10 @@ paths:
               - SUBMITTED
               - APPROVALS REQUESTED
               - APPROVED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3177,6 +3188,10 @@ paths:
               - Paid
               - Deprecated
               - Error
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -5103,6 +5118,9 @@ definitions:
       closeoutLocation:
         type: string
         x-nullable: true
+      orderType:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5157,6 +5175,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      orderType:
+        type: string
   ListPrimeMoves:
     type: array
     items:
@@ -5202,6 +5222,9 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      orderType:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5267,6 +5290,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
   SearchMovesResult:
     type: object
     properties:
@@ -5776,11 +5801,13 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:
@@ -6467,12 +6494,14 @@ definitions:
     title: PPM Advance Status
     description: >-
       Indicates whether an advance status has been accepted, rejected, or
-      edited.
+      edited, or a prime counseled PPM has been received or not received
     x-nullable: true
     enum:
       - APPROVED
       - REJECTED
       - EDITED
+      - RECEIVED
+      - NOT_RECEIVED
   Document:
     type: object
     properties:
