@@ -1394,6 +1394,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		CustomerContacts:              MTOServiceItemCustomerContacts(s.CustomerContacts),
 		SitAddressUpdates:             SITAddressUpdates(s.SITAddressUpdates),
 		SitOriginHHGOriginalAddress:   Address(s.SITOriginHHGOriginalAddress),
+		SitOriginHHGActualAddress:     Address(s.SITOriginHHGActualAddress),
 		SitDestinationOriginalAddress: Address(s.SITDestinationOriginalAddress),
 		SitDestinationFinalAddress:    Address(s.SITDestinationFinalAddress),
 		EstimatedWeight:               handlers.FmtPoundPtr(s.EstimatedWeight),

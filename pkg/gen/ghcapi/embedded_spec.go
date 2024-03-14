@@ -6320,6 +6320,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "sitOriginHHGOriginalAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -18017,6 +18020,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitOriginHHGOriginalAddress": {
           "$ref": "#/definitions/Address"

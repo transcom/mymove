@@ -6104,6 +6104,8 @@ definitions:
         $ref: '#/definitions/Address'
       sitOriginHHGOriginalAddress:
         $ref: '#/definitions/Address'
+      sitOriginHHGActualAddress:
+        $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
       sitAddressUpdates:

@@ -76,6 +76,8 @@ properties:
     $ref: 'Address.yaml'
   sitOriginHHGOriginalAddress:
     $ref: 'Address.yaml'
+  sitOriginHHGActualAddress:
+    $ref: 'Address.yaml'
   sitDestinationFinalAddress:
     $ref: 'Address.yaml'
   sitAddressUpdates:
