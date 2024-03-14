@@ -24,7 +24,7 @@ const RequestedOfficeUserList = () => (
     filters={<RequestedOfficeUserListFilter />}
     actions={<ListActions />}
   >
-    <Datagrid bulkActionButtons={false} rowClick="show">
+    <Datagrid bulkActionButtons={false} rowClick="show" data-testid="requested-office-user-fields">
       <TextField source="id" />
       <TextField source="email" />
       <TextField source="firstName" />
