@@ -10,7 +10,6 @@ import ButtonDropdownMenu from '../../../../components/ButtonDropdownMenu/Button
 
 import styles from './MultiMovesMoveContainer.module.scss';
 
-// import { SET_MOVE_ID } from 'store/general/actions';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 import { getMoveCodeLabel } from 'utils/shipmentDisplay';
