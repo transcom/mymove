@@ -10,8 +10,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // ShowPaymentPacketOKCode is the HTTP code returned for type ShowPaymentPacketOK
@@ -154,49 +152,29 @@ func (o *ShowPaymentPacketForbidden) WriteResponse(rw http.ResponseWriter, produ
 	rw.WriteHeader(403)
 }
 
-// ShowPaymentPacketUnprocessableEntityCode is the HTTP code returned for type ShowPaymentPacketUnprocessableEntity
-const ShowPaymentPacketUnprocessableEntityCode int = 422
+// ShowPaymentPacketNotFoundCode is the HTTP code returned for type ShowPaymentPacketNotFound
+const ShowPaymentPacketNotFoundCode int = 404
 
 /*
-ShowPaymentPacketUnprocessableEntity The payload was unprocessable.
+ShowPaymentPacketNotFound ppm not found
 
-swagger:response showPaymentPacketUnprocessableEntity
+swagger:response showPaymentPacketNotFound
 */
-type ShowPaymentPacketUnprocessableEntity struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+type ShowPaymentPacketNotFound struct {
 }
 
-// NewShowPaymentPacketUnprocessableEntity creates ShowPaymentPacketUnprocessableEntity with default headers values
-func NewShowPaymentPacketUnprocessableEntity() *ShowPaymentPacketUnprocessableEntity {
+// NewShowPaymentPacketNotFound creates ShowPaymentPacketNotFound with default headers values
+func NewShowPaymentPacketNotFound() *ShowPaymentPacketNotFound {
 
-	return &ShowPaymentPacketUnprocessableEntity{}
-}
-
-// WithPayload adds the payload to the show payment packet unprocessable entity response
-func (o *ShowPaymentPacketUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *ShowPaymentPacketUnprocessableEntity {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the show payment packet unprocessable entity response
-func (o *ShowPaymentPacketUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
-	o.Payload = payload
+	return &ShowPaymentPacketNotFound{}
 }
 
 // WriteResponse to the client
-func (o *ShowPaymentPacketUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *ShowPaymentPacketNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(422)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(404)
 }
 
 // ShowPaymentPacketInternalServerErrorCode is the HTTP code returned for type ShowPaymentPacketInternalServerError

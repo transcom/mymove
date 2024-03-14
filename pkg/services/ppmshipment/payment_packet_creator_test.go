@@ -15,6 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
@@ -63,8 +64,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	suite.FatalNil(err)
 	mockAoaPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(file, nil)
 
-	suite.Run("generate pdf", func() {
-		appCtx := suite.AppContextForTest()
+	suite.Run("generate pdf - INTERNAL", func() {
 
 		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
 		// initial test data will have one trip(as trip #1) containing:
@@ -72,6 +72,11 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		// 1 full weight with 1 doc
 		// 1 POV/Registration with 1 doc
 		// total = 3
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID,
+			ApplicationName: auth.MilApp,
+		})
 
 		suite.NotNil(ppmShipment)
 
@@ -430,37 +435,8 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		pdf, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
 		suite.FatalNil(err)
 
-		mergedBytes, err := io.ReadAll(pdf)
-		suite.FatalNil(err)
-		suite.True(len(mergedBytes) > 0)
-
-		memorybasedFs := afero.NewMemMapFs()
-
-		outFile, err := memorybasedFs.Create("test")
-		suite.FatalNil(err)
-		defer outFile.Close()
-
-		buf := new(bytes.Buffer)
-		buf.Write(mergedBytes)
-
-		_, err = io.Copy(outFile, buf)
-		suite.FatalNil(err)
-
-		info, err := generator.GetPdfFileInfoForReadSeeker(outFile)
-		suite.FatalNil(err)
-		suite.True(info.PageCount > 0)
-
-		buf = new(bytes.Buffer)
-		err = api.ExportBookmarksJSON(outFile, buf, "", nil)
-		suite.FatalNil(err)
-
-		pdfBookmarks := pdfBookmarks{}
-
-		err = json.Unmarshal(buf.Bytes(), &pdfBookmarks)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		pdfBookmarks := extractBookmarks(suite, *generator, pdf)
+		suite.True(len(pdfBookmarks.Bookmarks) == 19)
 
 		// this is a way to verify doc order via bookmark title
 		expectedLabels := [19]string{"Shipment Summary Worksheet and Orders", "Weight Moved: Trip #1: Empty Weight Document #1", "Weight Moved: Trip #1: Empty Weight Document #2",
@@ -475,12 +451,12 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		}
 	})
 
-	suite.Run("returns an error if the PPMShipmentFetcher returns an error", func() {
+	suite.Run("returns a NotFoundError if the ppmShipment is not found", func() {
 		appCtx := suite.AppContextForTest()
 
 		ppmShipmentID := uuid.Must(uuid.NewV4())
 
-		fakeErr := apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+		fakeErr := apperror.NewNotFoundError(ppmShipmentID, "PPMShipment")
 
 		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipmentID, nil, fakeErr)
 
@@ -488,10 +464,171 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)
-
-			suite.ErrorContains(err, "not found while looking for PPMShipment")
 		}
 	})
+
+	suite.Run("returns a ForbiddenError if the ppmShipment does not belong to user in INTERNAL context", func() {
+		serviceMemberID := uuid.Must(uuid.NewV4())
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: serviceMemberID,
+			ApplicationName: auth.MilApp,
+		})
+
+		fakeErr := apperror.NewForbiddenError(fmt.Sprintf("PPMShipmentId: %s", ppmShipment.ID.String()))
+
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, nil, fakeErr)
+
+		_, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
+
+		if suite.Error(err) {
+			suite.ErrorIs(err, fakeErr)
+		}
+	})
+
+	suite.Run("generation even if PPM is not current user's - NON INTERNAL CONTEXT (Office/Admin)", func() {
+		var apps = []auth.Application{
+			auth.OfficeApp,
+			auth.AdminApp,
+		}
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
+
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		for _, app := range apps {
+			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+				ServiceMemberID: notOwnerServiceMemberID,
+				ApplicationName: app,
+			})
+
+			setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+
+			// should still generate even if PPM belongs to different user in office/admin
+			pdf, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
+			suite.FatalNil(err)
+
+			mergedBytes, err := io.ReadAll(pdf)
+			suite.FatalNil(err)
+			suite.True(len(mergedBytes) > 0)
+		}
+	})
+
+	suite.Run("should still generate PDF if PPM has no uploaded docs (orders, expenses/receipts)", func() {
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
+
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+
+		// should still generate even if PPM belongs to different user in office/admin
+		pdf, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
+		suite.FatalNil(err)
+
+		mergedBytes, err := io.ReadAll(pdf)
+		suite.FatalNil(err)
+		suite.True(len(mergedBytes) > 0)
+	})
+
+	suite.Run("generate with disabled bookmark and watermark", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
+
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+
+		// disable bookmark and watermark
+		// TODO -- figure out how to determine if watermark was generated
+		pdf, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, false, false)
+		suite.FatalNil(err)
+
+		mergedBytes, err := io.ReadAll(pdf)
+		suite.FatalNil(err)
+		suite.True(len(mergedBytes) > 0)
+	})
+
+	suite.Run("generate with enable bookmark, disable watermark", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
+
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+
+		// enable bookmark, disable watermark
+		pdf, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, true, false)
+		suite.FatalNil(err)
+
+		bookmarks := extractBookmarks(suite, *generator, pdf)
+		suite.True(len(bookmarks.Bookmarks) > 0)
+	})
+
+	suite.Run("generate with disable bookmark, enable watermark", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
+
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+
+		// disable bookmark, enable watermark
+		// TODO -- figure out how to determine if watermark was generated
+		pdf, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, false, true)
+		suite.FatalNil(err)
+
+		bookmarks := extractBookmarks(suite, *generator, pdf)
+		suite.True(bookmarks == nil)
+	})
+}
+
+func extractBookmarks(suite *PPMShipmentSuite, generator paperworkgenerator.Generator, pdf io.ReadCloser) *pdfBookmarks {
+	mergedBytes, err := io.ReadAll(pdf)
+	suite.FatalNil(err)
+	suite.True(len(mergedBytes) > 0)
+
+	memorybasedFs := afero.NewMemMapFs()
+
+	outFile, err := memorybasedFs.Create("test")
+	suite.FatalNil(err)
+	defer outFile.Close()
+
+	buf := new(bytes.Buffer)
+	buf.Write(mergedBytes)
+
+	_, err = io.Copy(outFile, buf)
+	suite.FatalNil(err)
+
+	info, err := generator.GetPdfFileInfoForReadSeeker(outFile)
+	suite.FatalNil(err)
+	suite.True(info.PageCount > 0)
+
+	buf = new(bytes.Buffer)
+	err = api.ExportBookmarksJSON(outFile, buf, "", nil)
+	if err != nil {
+		// no bookmarks
+		return nil
+	}
+
+	pb := pdfBookmarks{}
+
+	err = json.Unmarshal(buf.Bytes(), &pb)
+	suite.FatalNil(err)
+
+	return &pb
 }
 
 type pdfBookmarks struct {
