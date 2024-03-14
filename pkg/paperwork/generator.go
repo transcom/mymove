@@ -2,6 +2,7 @@ package paperwork
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -24,6 +25,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
+	"github.com/xuri/excelize/v2"
 )
 
 // Default values for PDF generation
@@ -315,6 +317,38 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 
 	if upload.ContentType == uploader.FileTypePDF {
 		return path, nil
+	} else if upload.ContentType == uploader.FileTypeExcel || upload.ContentType == uploader.FileTypeExcelXLSX {
+		tempFile, err := g.fs.Open(outputFile.Name())
+
+		if err != nil {
+			return "nil", errors.Wrap(err, "error g.fs.Open on reload from memstore")
+		}
+
+		excelFile, err := excelize.OpenReader(tempFile)
+
+		if err != nil {
+			return "nil", errors.Wrap(err, "Opening excel file")
+		}
+
+		defer func() {
+			// Close the spreadsheet.
+			if err := excelFile.Close(); err != nil {
+				appCtx.Logger().Debug("Failed to close file", zap.Error(err))
+			}
+		}()
+
+		// Get all the rows in the Sheet1.
+		rows, err := excelFile.GetRows("CUBE SHEET-ITO-TMO-ONLY")
+		if err != nil {
+			return path, nil
+		}
+
+		for _, row := range rows {
+			for _, colCell := range row {
+				fmt.Print(colCell, "\t")
+			}
+			fmt.Println()
+		}
 	}
 
 	images := make([]inputFile, 0)
