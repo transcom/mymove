@@ -9093,9 +9093,6 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -9127,19 +9124,6 @@ func init() {
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"
@@ -21022,9 +21006,6 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -21056,19 +21037,6 @@ func init() {
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"

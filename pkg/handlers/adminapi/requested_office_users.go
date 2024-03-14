@@ -49,7 +49,7 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 	return payload
 }
 
-// IndexRequestedOfficeUsersHandler returns a list of requested office users via GET /requested_office_users
+// IndexRequestedOfficeUsersHandler returns a list of office users via GET /office_users
 type IndexRequestedOfficeUsersHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserListFetcher
@@ -57,7 +57,7 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewPagination
 }
 
-// Handle retrieves a list of requested office users
+// Handle retrieves a list of office users
 func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -93,32 +93,5 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 			}
 
 			return requested_office_users.NewIndexRequestedOfficeUsersOK().WithContentRange(fmt.Sprintf("requested office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
-		})
-}
-
-// GetRequestedOfficeUserHandler returns a list of office users via GET /requested_office_users/{officeUserId}
-type GetRequestedOfficeUserHandler struct {
-	handlers.HandlerConfig
-	services.RequestedOfficeUserFetcher
-	services.NewQueryFilter
-}
-
-// Handle retrieves a single requested office user
-func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			requestedOfficeUserID := params.OfficeUserID
-
-			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", requestedOfficeUserID)}
-
-			requestedOfficeUser, err := h.RequestedOfficeUserFetcher.FetchRequestedOfficeUser(appCtx, queryFilters)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			payload := payloadForRequestedOfficeUserModel(requestedOfficeUser)
-
-			return requested_office_users.NewGetRequestedOfficeUserOK().WithPayload(payload), nil
 		})
 }

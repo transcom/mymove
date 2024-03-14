@@ -5373,18 +5373,6 @@ definitions:
         pattern: ^(\d{5})$
       orderType:
         type: string
-      requestedPickupDate:
-        type: string
-        format: date
-        x-nullable: true
-      requestedDeliveryDate:
-        type: string
-        format: date
-        x-nullable: true
-      originGBLOC:
-        $ref: '#/definitions/GBLOC'
-      destinationGBLOC:
-        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:
