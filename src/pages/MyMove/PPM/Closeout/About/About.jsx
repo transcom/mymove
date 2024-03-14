@@ -4,13 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { validatePostalCode } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
@@ -28,6 +30,7 @@ const About = () => {
   const dispatch = useDispatch();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const [multiMove, setMultiMove] = useState(false);
 
   useEffect(() => {
     getMTOShipmentsForMove(moveId)
@@ -40,6 +43,10 @@ const About = () => {
       .finally(() => {
         setIsLoading(false);
       });
+
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
   }, [moveId, mtoShipmentId, dispatch]);
 
   if (!mtoShipment || isLoading) {
@@ -47,7 +54,11 @@ const About = () => {
   }
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
