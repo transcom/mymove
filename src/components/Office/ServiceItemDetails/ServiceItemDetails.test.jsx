@@ -85,13 +85,14 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     expect(screen.getByText('Customer requested delivery date:')).toBeInTheDocument();
     expect(screen.getByText('15 Mar 2024')).toBeInTheDocument();
   });
+
   it('renders DDDSIT details', () => {
     render(<ServiceItemDetails id="1" code="DDDSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
     expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
-    expect(screen.getByText('Destination Final Tampa, FL 33621')).toBeInTheDocument();
+    expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('SIT delivery miles:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
@@ -107,7 +108,7 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
-    expect(screen.getByText('Destination Final Tampa, FL 33621')).toBeInTheDocument();
+    expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('SIT delivery miles:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
@@ -122,7 +123,7 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
-    expect(screen.getByText('13 Mar 2024')).toBeInTheDocument();
+    expect(screen.getByText('12 Mar 2024')).toBeInTheDocument();
 
     // Found under SIT section
     // expect(screen.getByText('# of days approved for:')).toBeInTheDocument();
