@@ -55,9 +55,6 @@ type MovePayload struct {
 	// Format: uuid
 	OrdersID *strfmt.UUID `json:"orders_id"`
 
-	// personally procured moves
-	PersonallyProcuredMoves IndexPersonallyProcuredMovePayload `json:"personally_procured_moves,omitempty"`
-
 	// service member id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
@@ -106,10 +103,6 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrdersID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePersonallyProcuredMoves(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -228,23 +221,6 @@ func (m *MovePayload) validateOrdersID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MovePayload) validatePersonallyProcuredMoves(formats strfmt.Registry) error {
-	if swag.IsZero(m.PersonallyProcuredMoves) { // not required
-		return nil
-	}
-
-	if err := m.PersonallyProcuredMoves.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("personally_procured_moves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("personally_procured_moves")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MovePayload) validateServiceMemberID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
@@ -311,10 +287,6 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidatePersonallyProcuredMoves(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateServiceMemberID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -357,20 +329,6 @@ func (m *MovePayload) contextValidateMtoShipments(ctx context.Context, formats s
 			return ve.ValidateName("mto_shipments")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("mto_shipments")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MovePayload) contextValidatePersonallyProcuredMoves(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.PersonallyProcuredMoves.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("personally_procured_moves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("personally_procured_moves")
 		}
 		return err
 	}

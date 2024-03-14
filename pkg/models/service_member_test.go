@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -176,7 +175,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
 
-		grade := models.ServiceMemberGradeE1
+		grade := ServiceMemberGradeE1
 		order := Order{
 			ServiceMemberID:                serviceMember.ID,
 			ServiceMember:                  serviceMember,

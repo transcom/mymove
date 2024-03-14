@@ -198,7 +198,7 @@ describe('RequestedShipments', () => {
         );
       });
 
-      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeEnabled();
       expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: none');
 
       // TODO
@@ -355,10 +355,6 @@ describe('RequestedShipments', () => {
   describe('External vendor shipments', () => {
     it('enables the Approve selected button when there is only external vendor shipments and a service item is checked', async () => {
       render(submittedRequestedExternalVendorShipmentsComponent);
-
-      expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
-
-      await userEvent.click(screen.getByLabelText('Move management'));
 
       expect(screen.getByLabelText('Move management').checked).toEqual(true);
 

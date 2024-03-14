@@ -62,4 +62,5 @@ type ListOrderParams struct {
 	PPMType                 *string
 	CloseoutInitiated       *time.Time
 	CloseoutLocation        *string
+	OrderType               *string
 }
