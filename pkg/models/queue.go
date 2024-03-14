@@ -67,8 +67,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
-			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			WHERE (moves.status = 'SUBMITTED'
+			JOIN mto_shipments AS mto ON moves.id = mto.move_id
+			JOIN ppm_shipments AS ppm ON mto.id = ppm.shipment_id			WHERE (moves.status = 'SUBMITTED'
 			OR (ppm.status = 'SUBMITTED'
 				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
 			AND moves.show is true
@@ -95,8 +95,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
+			JOIN mto_shipments AS mto ON moves.id = mto.move_id
+			JOIN ppm_shipments AS ppm ON mto.id = ppm.shipment_id			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
 			and ppm.status = 'PAYMENT_REQUESTED'
@@ -122,8 +122,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
+			JOIN mto_shipments AS mto ON moves.id = mto.move_id
+			JOIN ppm_shipments AS ppm ON mto.id = ppm.shipment_id			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
 			and ppm.status = 'COMPLETED'
@@ -149,8 +149,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
+			JOIN mto_shipments AS mto ON moves.id = mto.move_id
+			JOIN ppm_shipments AS ppm ON mto.id = ppm.shipment_id			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
 			and ppm.status = 'APPROVED'
@@ -163,22 +163,18 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.locator as locator,
 				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
-				COALESCE(
-					ppm.actual_move_date,
-					ppm.original_move_date
-				) as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
 				origin_duty_location.name as origin_duty_location_name,
 				destination_duty_location.name as destination_duty_location_name,
-                ppm.actual_move_date,
-                ppm.original_move_date
+                ppm.actual_move_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			JOIN mto_shipments AS mto ON moves.id = mto.move_id
+			JOIN ppm_shipments AS ppm ON mto.id = ppm.shipment_id
 			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
