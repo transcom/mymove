@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router';
 
-import { isMultiMoveEnabled } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 
 import './UploadOrders.css';
 
@@ -60,7 +60,7 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
       await getAllMoves(serviceMemberId).then((response) => {
         updateAllMoves(response);
       });
-      isMultiMoveEnabled().then((enabled) => {
+      isBooleanFlagEnabled('multi_move').then((enabled) => {
         setMultiMove(enabled);
       });
     };

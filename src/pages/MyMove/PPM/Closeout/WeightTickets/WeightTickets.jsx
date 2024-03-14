@@ -3,7 +3,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { isMultiMoveEnabled } from '../../../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
@@ -31,7 +31,7 @@ const WeightTickets = () => {
   );
 
   useEffect(() => {
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
     if (!weightTicketId) {

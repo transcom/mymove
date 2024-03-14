@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import { isMultiMoveEnabled } from '../../../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -44,7 +44,7 @@ const About = () => {
         setIsLoading(false);
       });
 
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
   }, [moveId, mtoShipmentId, dispatch]);

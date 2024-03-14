@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
-import { isMultiMoveEnabled } from '../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import styles from './Review.module.scss';
 
@@ -41,7 +41,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
     getAllMoves(serviceMemberId).then((response) => {
       updateAllMoves(response);
     });
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
   }, [updateAllMoves, serviceMemberId]);

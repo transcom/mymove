@@ -5,7 +5,7 @@ import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { isMultiMoveEnabled } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 
 import styles from './MovingInfo.module.scss';
 
@@ -40,7 +40,7 @@ export class MovingInfo extends Component {
   componentDidMount() {
     const { serviceMemberId, fetchLatestOrders } = this.props;
     fetchLatestOrders(serviceMemberId);
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       this.setState({
         multiMoveFeatureFlag: enabled,
       });

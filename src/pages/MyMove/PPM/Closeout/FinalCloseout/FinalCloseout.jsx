@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { isMultiMoveEnabled } from '../../../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import styles from './FinalCloseout.module.scss';
 
@@ -36,7 +36,7 @@ const FinalCloseout = () => {
   const selectedMove = useSelector((state) => selectMove(state, moveId));
 
   useEffect(() => {
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
     getMTOShipmentsForMove(moveId)

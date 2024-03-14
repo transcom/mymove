@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import { isMultiMoveEnabled } from '../../../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import styles from './Expenses.module.scss';
 
@@ -40,7 +40,7 @@ const Expenses = () => {
   );
 
   useEffect(() => {
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
     if (!expenseId) {
