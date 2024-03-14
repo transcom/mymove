@@ -216,7 +216,6 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 }
 
 func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (bool, error) {
-	//func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (bool, error) {
 	mtoShipmentSITPaymentServiceItems := models.PaymentServiceItems{}
 
 	err := appCtx.DB().Q().
