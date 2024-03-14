@@ -57,13 +57,27 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewPagination
 }
 
-// Handle retrieves a list of office users
+var requestedOfficeUserFilterConverters = map[string]func(string) []services.QueryFilter{
+	"search": func(content string) []services.QueryFilter {
+		nameSearch := fmt.Sprintf("%s%%", content)
+		return []services.QueryFilter{
+			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
+			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
+			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+		}
+	},
+}
+
+// Handle retrieves a list of requested office users
 func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// adding in filters for when a search or filtering is done
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, requestedOfficeUserFilterConverters)
+
 			// We only want users that are in a REQUESTED status
-			queryFilters := []services.QueryFilter{query.NewQueryFilter("status", "=", "REQUESTED")}
+			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "REQUESTED"))
 
 			// adding in pagination for the UI
 			pagination := h.NewPagination(params.Page, params.PerPage)
