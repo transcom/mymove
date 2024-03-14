@@ -11,6 +11,7 @@ import { selectIsProfileComplete } from 'store/entities/selectors';
 
 const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
   const navigate = useNavigate();
+
   const handleLogout = () => {
     logOut();
     LogoutUser().then((r) => {

@@ -27,7 +27,12 @@ const columns = (roleType) => [
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.lastName}, ${row.firstName}`;
+      return (
+        <div>
+          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {`${row.lastName}, ${row.firstName}`}
+        </div>
+      );
     },
     {
       id: 'customerName',
