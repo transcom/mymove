@@ -42,6 +42,33 @@ const testProps = {
   },
 };
 
+const ppmShipment = {
+  pickupAddress: {
+    city: 'Tampa',
+    state: 'FL',
+    postalCode: '33621',
+    streetAddress1: '123 Fake Street',
+    streetAddress2: '',
+    streetAddress3: '',
+    country: 'USA',
+  },
+  destinationAddress: {
+    city: 'Chicago',
+    state: 'IL',
+    postalCode: '01054',
+    streetAddress1: '5 Main Street',
+    streetAddress2: '',
+    streetAddress3: '',
+    country: 'USA',
+  },
+  shipmentInfo: {
+    id: '1234',
+    eTag: 'abc123',
+    status: 'APPROVED',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+  },
+};
+
 const cancelledShipment = {
   pickupAddress: {
     city: 'Fairfax',
@@ -140,5 +167,12 @@ describe('ShipmentAddresses', () => {
     render(<ShipmentAddresses {...NTSRProps} />);
     expect(screen.getByText('Facility address')).toBeInTheDocument();
     expect(screen.getByText('Delivery address')).toBeInTheDocument();
+  });
+
+  it('shows correct headings for PPM', () => {
+    render(<ShipmentAddresses {...ppmShipment} />);
+
+    expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
+    expect(screen.getByText('Authorized addresses')).toBeInTheDocument();
   });
 });
