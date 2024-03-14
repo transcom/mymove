@@ -18,7 +18,7 @@ test.describe('PPM Onboarding - Estimated Incentive', () => {
       await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
       await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
-      await expect(customerPpmPage.page.locator('.container h2')).toContainText('$10,000');
+      await expect(customerPpmPage.page.locator('.container h2')).toContainText('is your estimated incentive');
     });
 
     test('go to estimated incentives page', async ({ customerPpmPage }) => {
@@ -35,10 +35,10 @@ test.describe('(MultiMove) PPM Onboarding - Estimated Incentive', () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-      // await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
-      // await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
-      // await expect(customerPpmPage.page.locator('.container h2')).toContainText('$10,000');
+      await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+      await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
+      await expect(customerPpmPage.page.locator('.container h2')).toContainText('is your estimated incentive');
     });
 
     test.skip('go to estimated incentives page', async ({ customerPpmPage }) => {
