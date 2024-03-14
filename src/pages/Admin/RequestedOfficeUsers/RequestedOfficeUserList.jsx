@@ -3,7 +3,7 @@ import { Datagrid, DateField, Filter, List, ReferenceField, TextField, TextInput
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-// Overriding the default toolbar to add import button
+// Overriding the default toolbar
 const ListActions = () => {
   return <TopToolbar />;
 };
