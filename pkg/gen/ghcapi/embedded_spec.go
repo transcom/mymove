@@ -2919,6 +2919,59 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "ppm not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -5426,6 +5479,9 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -5443,6 +5499,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
         },
         "first_name": {
           "type": "string",
@@ -5463,6 +5522,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -6095,6 +6163,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orderType": {
+          "type": "string"
         },
         "ppmType": {
           "type": "string",
@@ -7525,6 +7596,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -7608,13 +7682,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED"
+        "EDITED",
+        "RECEIVED",
+        "NOT_RECEIVED"
       ],
       "x-nullable": true
     },
@@ -7923,6 +7999,16 @@ func init() {
         },
         "hasRequestedAdvance": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -9605,6 +9691,13 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
+        "backupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -9621,6 +9714,9 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -9635,6 +9731,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -14255,6 +14360,59 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "ppm not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -17193,6 +17351,9 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -17210,6 +17371,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
         },
         "first_name": {
           "type": "string",
@@ -17230,6 +17394,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -17862,6 +18035,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orderType": {
+          "type": "string"
         },
         "ppmType": {
           "type": "string",
@@ -19292,6 +19468,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -19375,13 +19554,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED"
+        "EDITED",
+        "RECEIVED",
+        "NOT_RECEIVED"
       ],
       "x-nullable": true
     },
@@ -19691,6 +19872,16 @@ func init() {
         },
         "hasRequestedAdvance": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -21435,6 +21626,13 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
+        "backupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -21451,6 +21649,9 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -21465,6 +21666,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",

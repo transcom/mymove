@@ -349,7 +349,7 @@ test.describe('TOO user', () => {
       // tooFlowsNTS.
       await expect(page.locator('#approved-shipments')).not.toBeVisible();
       await expect(page.locator('#requested-shipments')).toBeVisible();
-      await expect(page.getByText('Approve selected')).toBeDisabled();
+      await expect(page.getByText('Approve selected')).toBeEnabled();
 
       const lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
 

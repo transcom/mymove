@@ -110,16 +110,15 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		}
 	}
 
-	if newPPMShipment.SecondaryPickupAddress != nil {
-		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
-		if ppmShipment.SecondaryPickupAddressID != nil {
-			ppmShipment.SecondaryPickupAddress.ID = *ppmShipment.SecondaryPickupAddressID
-		} else {
-			ppmShipment.SecondaryPickupAddress.ID = uuid.Nil
-		}
-	} else {
+	// If HasSecondaryPickupAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if newPPMShipment.HasSecondaryPickupAddress != nil && !*newPPMShipment.HasSecondaryPickupAddress {
+		ppmShipment.HasSecondaryPickupAddress = newPPMShipment.HasSecondaryPickupAddress
 		ppmShipment.SecondaryPickupAddress = nil
 		ppmShipment.SecondaryPickupAddressID = nil
+	} else if newPPMShipment.SecondaryPickupAddress != nil {
+		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
+		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 	}
 
 	if newPPMShipment.DestinationAddress != nil {
@@ -131,16 +130,15 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		}
 	}
 
-	if newPPMShipment.SecondaryDestinationAddress != nil {
-		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
-		if ppmShipment.SecondaryDestinationAddressID != nil {
-			ppmShipment.SecondaryDestinationAddress.ID = *ppmShipment.SecondaryDestinationAddressID
-		} else {
-			ppmShipment.SecondaryDestinationAddress.ID = uuid.Nil
-		}
-	} else {
+	// If HasSecondaryDestinationAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if newPPMShipment.HasSecondaryDestinationAddress != nil && !*newPPMShipment.HasSecondaryDestinationAddress {
+		ppmShipment.HasSecondaryDestinationAddress = newPPMShipment.HasSecondaryDestinationAddress
 		ppmShipment.SecondaryDestinationAddress = nil
 		ppmShipment.SecondaryDestinationAddressID = nil
+	} else if newPPMShipment.SecondaryDestinationAddress != nil {
+		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
+		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
 	}
 
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {

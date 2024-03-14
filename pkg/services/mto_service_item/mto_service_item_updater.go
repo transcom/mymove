@@ -36,6 +36,7 @@ type mtoServiceItemQueryBuilder interface {
 }
 
 type mtoServiceItemUpdater struct {
+	planner          route.Planner
 	builder          mtoServiceItemQueryBuilder
 	createNewBuilder func() mtoServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
@@ -44,13 +45,13 @@ type mtoServiceItemUpdater struct {
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -122,6 +123,7 @@ func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, se
 		"MoveTaskOrder",
 		"SITDestinationFinalAddress",
 		"ReService",
+		"SITOriginHHGOriginalAddress",
 	).Find(&serviceItem, serviceItemID)
 	if err != nil {
 		switch err {
@@ -194,6 +196,12 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.RejectedAt = nil
 		serviceItem.ApprovedAt = &now
 
+		// Get the shipment destination address
+		mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress", "PickupAddress", "MTOServiceItems.SITOriginHHGOriginalAddress")
+		if err != nil {
+			return nil, err
+		}
+
 		// Check to see if there is already a SIT Destination Original Address
 		// by checking for the ID before trying to set one on the service item.
 		// If there isn't one, then we set it. We will update all four destination
@@ -203,12 +211,6 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
 			serviceItem.SITDestinationOriginalAddressID == nil {
-
-			// Get the shipment destination address
-			mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
-			if err != nil {
-				return nil, err
-			}
 
 			// Set the original address on a service item to the shipment's
 			// destination address when approving destination SIT service items
@@ -234,6 +236,27 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
 				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
 			}
+
+			// Calculate SITDeliveryMiles for DDDSIT and DDSFSC origin SIT service items
+			if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+				// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
+				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				if err != nil {
+					return nil, err
+				}
+				serviceItem.SITDeliveryMiles = &milesCalculated
+			}
+		}
+		// Calculate SITDeliveryMiles for DOPSIT and DOSFSC origin SIT service items
+		if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
+			milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+			if err != nil {
+				return nil, err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
 		}
 	}
 
@@ -369,6 +392,7 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 // Customer Contact Date, Customer Requested Delivery Date, and SIT Departure Date
 func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
 	planner route.Planner) error {
+	var verrs *validate.Errors
 	location := DestinationSITLocation
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
@@ -382,12 +406,6 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 	sitAuthorizedEndDate := sitDepartureDate
 
 	if location == OriginSITLocation {
-		// Origin SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
-		calculatedAuthorizedEndDate := serviceItem.SITCustomerContacted.AddDate(0, 0, GracePeriodDays)
-
-		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
-			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
-		}
 
 		if sitDepartureDate != nil {
 			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner,
@@ -399,28 +417,21 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 
 			shipment.RequiredDeliveryDate = requiredDeliveryDate
 		} else {
-			return apperror.NewNotFoundError(shipment.ID, "sit departure date not found")
+			return apperror.NewNotFoundError(shipment.ID, "sit departure date not found, cannot update Required Delivery Date")
+		}
+
+		// Origin SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
+		calculatedAuthorizedEndDate := serviceItem.SITCustomerContacted.AddDate(0, 0, GracePeriodDays)
+
+		if calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
+			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
 		}
 	} else if location == DestinationSITLocation {
 		// Destination SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
 		calculatedAuthorizedEndDate := serviceItem.SITRequestedDelivery.AddDate(0, 0, GracePeriodDays)
 
-		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
+		if calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
 			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
-		}
-	}
-
-	var verrs *validate.Errors
-	var err error
-
-	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
-	if location == OriginSITLocation {
-		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
-
-		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
-		} else if err != nil {
-			return apperror.NewQueryError("Shipment", err, "")
 		}
 	}
 
@@ -432,6 +443,24 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 			return apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
 		default:
 			return apperror.NewQueryError("MTOServiceItem", err, "")
+		}
+	}
+
+	sitEndDate := oldServiceItem.SITEntryDate.AddDate(0, 0, *shipment.SITDaysAllowance)
+
+	if (oldServiceItem.SITAuthorizedEndDate == nil && sitAuthorizedEndDate.After(sitEndDate)) ||
+		(oldServiceItem.SITAuthorizedEndDate != nil && sitAuthorizedEndDate.After(*oldServiceItem.SITAuthorizedEndDate)) {
+		return apperror.NewUnprocessableEntityError("dates entered cannot extend authorized end date beyond its current date")
+	}
+
+	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
+	if location == OriginSITLocation {
+		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
+
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
+		} else if err != nil {
+			return apperror.NewQueryError("Shipment", err, "")
 		}
 	}
 
