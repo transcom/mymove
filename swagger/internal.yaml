@@ -134,15 +134,6 @@ definitions:
     required:
       - range_min
       - range_max
-  PaymentMethodsTotals:
-    type: object
-    properties:
-      MIL_PAY:
-        type: integer
-      OTHER:
-        type: integer
-      GTCC:
-        type: integer
   MovePayload:
     type: object
     properties:

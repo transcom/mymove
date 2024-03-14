@@ -5909,20 +5909,6 @@ func init() {
         }
       }
     },
-    "PaymentMethodsTotals": {
-      "type": "object",
-      "properties": {
-        "GTCC": {
-          "type": "integer"
-        },
-        "MIL_PAY": {
-          "type": "integer"
-        },
-        "OTHER": {
-          "type": "integer"
-        }
-      }
-    },
     "PostDocumentPayload": {
       "type": "object",
       "properties": {
@@ -13710,20 +13696,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "PaymentMethodsTotals": {
-      "type": "object",
-      "properties": {
-        "GTCC": {
-          "type": "integer"
-        },
-        "MIL_PAY": {
-          "type": "integer"
-        },
-        "OTHER": {
-          "type": "integer"
         }
       }
     },
