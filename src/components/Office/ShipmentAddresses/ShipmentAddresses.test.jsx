@@ -28,7 +28,7 @@ const testProps = {
     country: 'USA',
   },
   destinationDutyLocation: {
-    streetAddress1: '',
+    streetAddress1: 'Street Address',
     city: 'Fort Irwin',
     state: 'CA',
     postalCode: '92310',
