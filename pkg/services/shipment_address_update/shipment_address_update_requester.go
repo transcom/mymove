@@ -239,31 +239,6 @@ func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, m
 	return false, err
 }
 
-func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (bool, error) {
-	//func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (bool, error) {
-	mtoShipmentSITPaymentServiceItems := models.PaymentServiceItems{}
-
-	err := appCtx.DB().Q().
-		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
-		Join("re_services", "re_services.id = mto_service_items.re_service_id").
-		Join("payment_requests", "payment_requests.id = payment_service_items.payment_request_id").
-		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
-		Where("mto_service_items.mto_shipment_id = ($1)", mtoShipment.ID).
-		Where("payment_requests.status != $2", models.PaymentRequestStatusDeprecated).
-		Where("payment_service_items.status IN ($3, $4, $5)", models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid).
-		Where("re_services.code IN ($6, $7)", models.ReServiceCodeDSH, models.ReServiceCodeDLH).
-		All(&mtoShipmentSITPaymentServiceItems)
-	if err != nil {
-		return false, err
-	}
-
-	if len(mtoShipmentSITPaymentServiceItems) != 0 {
-		return true, err
-	}
-
-	return false, err
-}
-
 // RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
