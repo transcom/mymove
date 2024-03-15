@@ -62,10 +62,6 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	OrderType *string
-	/*order type
-	  In: query
-	*/
-	OrderType *string
 	/*
 	  In: query
 	*/

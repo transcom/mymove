@@ -7,7 +7,6 @@ const Queue = () => {
   const { queueType } = useParams();
 
   if (queueType === 'Search') {
-
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
@@ -31,9 +30,7 @@ const Queue = () => {
         )}
       </div>
     );
-  }
-  else{
-
+  } else {
   }
 
   return <QueueNav />;

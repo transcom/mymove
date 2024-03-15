@@ -1649,7 +1649,13 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "PENDING",
+                      "REVIEWED",
+                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                      "PAID",
+                      "DEPRECATED",
+                      "EDI_ERROR"
                     ]
                   }
                 }
@@ -3295,12 +3301,6 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -3432,12 +3432,6 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -3552,23 +3546,17 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -3633,11 +3621,6 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -6190,9 +6173,6 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -7266,7 +7246,18 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "EDI_ERROR",
+        "DEPRECATED",
+        "ERROR",
+        "REJECTED",
+        "PAYMENT REQUESTED"
       ]
     },
     "MoveTaskOrder": {
@@ -7675,11 +7666,8 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "BLUEBARK"
-        "SEPARATION",
-        "BLUEBARK"
       ],
       "x-display-value": {
-        "BLUEBARK": "BLUEBARK",
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
@@ -8663,10 +8651,6 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
-        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -8746,10 +8730,6 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
-        },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
         },
         "orderType": {
           "type": "string",
@@ -9130,9 +9110,6 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -9158,28 +9135,12 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "originDutyLocationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"
@@ -12751,7 +12712,13 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "PENDING",
+                      "REVIEWED",
+                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                      "PAID",
+                      "DEPRECATED",
+                      "EDI_ERROR"
                     ]
                   }
                 }
@@ -14858,12 +14825,6 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -15001,12 +14962,6 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -15127,23 +15082,17 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -15214,11 +15163,6 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -18102,9 +18046,6 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -19178,7 +19119,18 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "EDI_ERROR",
+        "DEPRECATED",
+        "ERROR",
+        "REJECTED",
+        "PAYMENT REQUESTED"
       ]
     },
     "MoveTaskOrder": {
@@ -19587,11 +19539,8 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "BLUEBARK"
-        "SEPARATION",
-        "BLUEBARK"
       ],
       "x-display-value": {
-        "BLUEBARK": "BLUEBARK",
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
@@ -20577,10 +20526,6 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
-        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -20660,10 +20605,6 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
-        },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
         },
         "orderType": {
           "type": "string",
@@ -21099,9 +21040,6 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -21127,28 +21065,12 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "originDutyLocationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"

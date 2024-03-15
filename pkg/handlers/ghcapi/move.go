@@ -87,7 +87,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				searchMoves = payloads.SearchMovesWithPaymentRequestAttributes(moves, searchMovesParams.Status)
 
 			} else {
-				searchMoves = payloads.SearchMoves(moves)
+				searchMoves = payloads.SearchMoves(appCtx, moves)
 			}
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        searchMovesParams.Page,
