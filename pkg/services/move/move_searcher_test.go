@@ -250,7 +250,8 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.Equal(2, totalCount)
 	})
 }
-func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
+
+func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MTOShipment) {
 	armyAffiliation := models.AffiliationARMY
 	navyAffiliation := models.AffiliationNAVY
 	firstMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -290,7 +291,7 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 		},
 	}, nil)
 
-	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    firstMove,
 			LinkOnly: true,
@@ -332,6 +333,7 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
+
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    secondMove,
@@ -356,11 +358,12 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 		},
 	}, nil)
 
-	return firstMove, secondMove
+	return firstMove, secondMove, mtoShipment
 }
+
 func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 	suite.Run("search results ordering", func() {
-		firstMove, secondMove := setupTestData(suite)
+		firstMove, secondMove, _ := setupTestData(suite)
 		testMoves := models.Moves{}
 		suite.NoError(suite.DB().EagerPreload("Orders", "Orders.NewDutyLocation", "Orders.NewDutyLocation.Address").All(&testMoves))
 
@@ -398,7 +401,7 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 		}
 	})
 	suite.Run("search results filtering", func() {
-		_, secondMove := setupTestData(suite)
+		_, secondMove, mtoShipment := setupTestData(suite)
 		nameToSearch := "maria johnson"
 		searcher := NewMoveSearcher()
 
@@ -421,6 +424,8 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 			{column: "Branch", value: string(*secondMove.Orders.ServiceMember.Affiliation), SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, Branch: models.StringPointer(secondMove.Orders.ServiceMember.Affiliation.String())}},
 			{column: "ShipmentsCount", value: "2", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, ShipmentsCount: models.Int64Pointer(2)}},
 			{column: "DestinationPostalCode", value: secondMove.Orders.NewDutyLocation.Address.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, DestinationPostalCode: &secondMove.Orders.NewDutyLocation.Address.PostalCode}},
+			{column: "ScheduledPickupDate", value: "2020-03-16", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, PickupDate: mtoShipment.ScheduledPickupDate}},
+			{column: "ScheduledDeliveryDate", value: "2020-03-17", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, DeliveryDate: mtoShipment.ScheduledDeliveryDate}},
 		}
 		for _, testCase := range cases {
 			message := fmt.Sprintf("Filtering results of search by column %s = %s has failed", testCase.column, testCase.value)
