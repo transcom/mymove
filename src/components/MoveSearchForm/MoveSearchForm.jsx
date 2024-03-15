@@ -101,12 +101,18 @@ const MoveSearchForm = ({ onSubmit }) => {
             <div className={styles.searchBar}>
               <TextField
                 id="searchText"
+                data-testid="searchText"
                 className="usa-search__input"
                 label={<legend className="usa-label">Search</legend>}
                 name="searchText"
                 type="search"
                 button={
-                  <Button className={styles.searchButton} type="submit" disabled={!formik.isValid}>
+                  <Button
+                    data-testid="searchTextSubmit"
+                    className={styles.searchButton}
+                    type="submit"
+                    disabled={!formik.isValid}
+                  >
                     Search
                   </Button>
                 }

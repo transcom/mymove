@@ -124,15 +124,6 @@ const PaymentRequestQueue = () => {
       dodID: null,
       customerName: null,
     };
-    if (!isNullUndefinedOrWhitespace(values.searchText)) {
-      if (values.searchType === 'moveCode') {
-        payload.moveCode = values.searchText;
-      } else if (values.searchType === 'dodID') {
-        payload.dodID = values.searchText;
-      } else if (values.searchType === 'customerName') {
-        payload.customerName = values.searchText;
-      }
-    }
 
     setSearch(payload);
     setSearchHappened(true);
@@ -158,7 +149,7 @@ const PaymentRequestQueue = () => {
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
             to={tioRoutes.BASE_PAYMENT_REQUEST_QUEUE}
           >
-            <span data-testid="counseling-tab-link" className="tab-title">
+            <span data-testid="payment-request-queue-tab-link" className="tab-title">
               Payment Request Queue
             </span>
           </NavLink>,
@@ -202,7 +193,7 @@ const PaymentRequestQueue = () => {
     );
   }
   return (
-    <div className={styles.PaymentRequestQueue}>
+    <div className={styles.PaymentRequestQueue} data-testid="payment-request-queue">
       {renderNavBar()}
       <TableQueue
         showFilters
