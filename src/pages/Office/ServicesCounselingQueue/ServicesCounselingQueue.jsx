@@ -17,7 +17,7 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import {
   useServicesCounselingQueueQueries,
   useServicesCounselingQueuePPMQueries,
@@ -33,6 +33,7 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -222,13 +223,14 @@ const ServicesCounselingQueue = () => {
       dodID: null,
       customerName: null,
     };
-
-    if (values.searchType === 'moveCode') {
-      payload.moveCode = values.searchText;
-    } else if (values.searchType === 'dodID') {
-      payload.dodID = values.searchText;
-    } else if (values.searchType === 'customerName') {
-      payload.customerName = values.searchText;
+    if (!isNullUndefinedOrWhitespace(values.searchText)) {
+      if (values.searchType === 'moveCode') {
+        payload.moveCode = values.searchText;
+      } else if (values.searchType === 'dodID') {
+        payload.dodID = values.searchText;
+      } else if (values.searchType === 'customerName') {
+        payload.customerName = values.searchText;
+      }
     }
 
     setSearch(payload);
@@ -275,7 +277,7 @@ const ServicesCounselingQueue = () => {
           <NavLink
             end
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
+            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
           >
             <span data-testid="search-tab-link" className="tab-title">
               Search

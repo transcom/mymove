@@ -1,12 +1,25 @@
+/* eslint-disable no-restricted-syntax */
 import React from 'react';
 import Select from 'react-select';
 import { mount } from 'enzyme';
 import { QueryClient } from '@tanstack/react-query';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import * as reactRouterDom from 'react-router-dom';
 
 import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
+import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import { generalRoutes, tioRoutes } from 'constants/routes';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
+  useParams: jest.fn(),
+  useNavigate: jest.fn(),
+}));
+jest.setTimeout(60000);
 jest.mock('hooks/queries', () => ({
   useUserQueries: () => {
     return {
@@ -53,42 +66,101 @@ jest.mock('hooks/queries', () => ({
       isSuccess: true,
     };
   },
+  useMoveSearchQueries: () => {
+    return {
+      searchResult: {
+        data: [
+          {
+            age: 0.8477863,
+            customer: {
+              agency: 'ARMY',
+              dodID: '3305957632',
+              eTag: 'MjAyMC0xMC0xNVQyMzo0ODozNC41ODQxOTZa',
+              email: 'leo_spaceman_sm@example.com',
+              first_name: 'Leo',
+              id: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+              last_name: 'Spacemen',
+              phone: '555-555-5555',
+              userID: 'c4d59e2b-bff0-4fce-a31f-26a19b1ad34a',
+            },
+            departmentIndicator: 'AIR_AND_SPACE_FORCE',
+            id: 'a2c34dba-015f-4f96-a38b-0c0b9272e208',
+            locator: 'R993T7',
+            moveID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
+            originGBLOC: 'LKNQ',
+            status: 'PENDING',
+            submittedAt: '2020-10-15T23:48:35.420Z',
+            originDutyLocation: {
+              name: 'Scott AFB',
+            },
+          },
+        ],
+        page: 0,
+        perPage: 20,
+        totalCount: 1,
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    };
+  },
 }));
-
+const ExpectedPaymentRequestQueueColumns = [
+  'Customer name',
+  'DoD ID',
+  'Status',
+  'Age',
+  'Submitted',
+  'Move Code',
+  'Branch',
+  'Origin GBLOC',
+  'Origin Duty Location',
+];
 describe('PaymentRequestQueue', () => {
   const client = new QueryClient();
 
-  const wrapper = mount(
-    <MockProviders client={client}>
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <PaymentRequestQueue />
-    </MockProviders>,
-  );
-
-  it('renders the h1', () => {
-    expect(wrapper.find('h1').text()).toBe('Payment requests (1)');
+  it('renders the queue results text', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: '' });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByText('Payment requests (1)')).toBeInTheDocument();
   });
 
   it('renders the correct column headers', () => {
-    expect(wrapper.find('thead tr').length).toBe(2);
+    reactRouterDom.useParams.mockReturnValue({ queueType: '' });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    const columns = [
+      'Customer name',
+      'DoD ID',
+      'Status',
+      'Age',
+      'Submitted',
+      'Move Code',
+      'Branch',
+      'Origin GBLOC',
+      'Origin Duty Location',
+    ];
 
-    expect(wrapper.find('thead tr th').at(0).text()).toBe('Customer name');
-    expect(wrapper.find('thead tr th').at(1).text()).toBe('DoD ID');
-    expect(wrapper.find('thead tr th').at(2).text()).toContain('Status');
-    expect(wrapper.find('thead tr th').at(3).text()).toBe('Age');
-    expect(wrapper.find('thead tr th').at(4).text()).toBe('Submitted');
-    expect(wrapper.find('thead tr th').at(5).text()).toBe('Move Code');
-    expect(wrapper.find('thead tr th').at(6).text()).toContain('Branch');
-    expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
-    expect(wrapper.find('thead tr th').at(8).text()).toBe('Origin Duty Location');
-  });
-
-  it('renders the correct status filter', () => {
-    const statusFilter = wrapper.find('[data-testid="statusFilter"] MultiSelectCheckBoxFilter');
-    expect(statusFilter.length).toBe(1);
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const col in ExpectedPaymentRequestQueueColumns) {
+      expect(screen.findByText(columns[col], { selector: 'th' }));
+    }
   });
 
   it('renders the table with data and expected values', () => {
+    const wrapper = mount(
+      <MockProviders client={client}>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <PaymentRequestQueue />
+      </MockProviders>,
+    );
     expect(wrapper.find('Table').exists()).toBe(true);
     expect(wrapper.find('tbody tr').length).toBe(1);
 
@@ -104,10 +176,22 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('applies the sort to the age column in descending direction', () => {
+    const wrapper = mount(
+      <MockProviders client={client}>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <PaymentRequestQueue />
+      </MockProviders>,
+    );
     expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortDescending')).toBe(true);
   });
 
   it('toggles the sort direction when clicked', () => {
+    const wrapper = mount(
+      <MockProviders client={client}>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <PaymentRequestQueue />
+      </MockProviders>,
+    );
     const ageHeading = wrapper.find({ 'data-testid': 'age' }).at(0);
 
     ageHeading.simulate('click');
@@ -130,11 +214,134 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('filters the queue', () => {
+    const wrapper = mount(
+      <MockProviders client={client}>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <PaymentRequestQueue />
+      </MockProviders>,
+    );
     const input = wrapper.find(Select).at(0).find('input');
     input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
     input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
 
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Payment requested');
+  });
+
+  it('Displays the payment request ', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // Simulate user input and form submission
+    const searchInput = screen.getByTestId('searchText');
+    await userEvent.type(searchInput, 'R993T7');
+    await userEvent.click(screen.getByTestId('searchTextSubmit'));
+    // Assert search results are displayed
+    expect(screen.queryByText('Results (1)')).toBeInTheDocument();
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+  });
+
+  it(' renders Search and Payment Request Queue tabs', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.getByTestId('payment-request-queue-tab-link')).toBeInTheDocument();
+    expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
+  });
+  it('renders SearchResultsTable when Search tab is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByTestId('payment-request-queue')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('move-search')).toBeInTheDocument();
+  });
+  it('renders TableQueue when Payment Request Queue tab is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: 'PaymentRequests' });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByTestId('payment-request-queue')).toBeInTheDocument();
+    expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
+  });
+  it('submits search form and displays search results', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // Simulate user input and form submission
+    const searchInput = screen.getByTestId('searchText');
+    await userEvent.type(searchInput, 'R993T7');
+    await userEvent.click(screen.getByTestId('searchTextSubmit'));
+    // Assert search results are displayed
+    expect(screen.queryByText('Results (1)')).toBeInTheDocument();
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+  });
+  it('submits search form and displays possible filters for status', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // Simulate user input and form submission
+    const searchInput = screen.getByTestId('searchText');
+    await userEvent.type(searchInput, 'R993T7');
+    await userEvent.click(screen.getByTestId('searchTextSubmit'));
+    // Assert search results are displayed
+
+    expect(screen.queryByText('Results (1)')).toBeInTheDocument();
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+  });
+  it('Has 3 options for searches', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    const options = ['Move Code', 'DoD ID', 'Customer Name'];
+
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const col in options) {
+      expect(screen.findByLabelText(options[col]));
+    }
+  });
+  it('Has all status options for payment request search', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const col in PAYMENT_REQUEST_STATUS_OPTIONS) {
+      expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
+    }
+  });
+
+  it('Has all status options for payment request queue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const col in PAYMENT_REQUEST_STATUS_LABELS) {
+      expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
+    }
   });
 });

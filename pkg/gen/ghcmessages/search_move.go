@@ -52,6 +52,9 @@ type SearchMove struct {
 	// order type
 	OrderType string `json:"orderType,omitempty"`
 
+	// order type
+	OrderType string `json:"orderType,omitempty"`
+
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$

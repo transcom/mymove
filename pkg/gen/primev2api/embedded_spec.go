@@ -1877,8 +1877,11 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "BLUEBARK"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
