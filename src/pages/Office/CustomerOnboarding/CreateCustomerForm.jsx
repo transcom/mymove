@@ -124,6 +124,7 @@ export const CreateCustomerForm = () => {
 
   const onSubmit = () => {
     // TODO pass in values and call the API
+    // console.log(values);
     navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
   };
 
@@ -220,46 +221,77 @@ export const CreateCustomerForm = () => {
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Current Address</h3>
-                    <TextField label="Address 1" id="mailingAddress1" name="residential_address.streetAddress1" />
+                    <TextField
+                      label="Address 1"
+                      id="mailingAddress1"
+                      name="residential_address.streetAddress1"
+                      data-testid="res-add-street1"
+                    />
                     <TextField
                       label="Address 2"
                       labelHint="Optional"
                       id="mailingAddress2"
                       name="residential_address.streetAddress2"
+                      data-testid="res-add-street2"
                     />
                     <TextField
                       label="Address 3"
                       labelHint="Optional"
                       id="mailingAddress3"
                       name="residential_address.streetAddress3"
+                      data-testid="res-add-street3"
                     />
-                    <TextField label="City" id="city" name="residential_address.city" />
+                    <TextField label="City" id="city" name="residential_address.city" data-testid="res-add-city" />
 
                     <div className="grid-row grid-gap">
                       <div className="mobile-lg:grid-col-6">
-                        <DropdownInput name="residential_address.state" id="state" label="State" options={statesList} />
+                        <DropdownInput
+                          name="residential_address.state"
+                          id="state"
+                          label="State"
+                          options={statesList}
+                          data-testid="res-add-state"
+                        />
                       </div>
                       <div className="mobile-lg:grid-col-6">
-                        <TextField label="ZIP" id="zip" name="residential_address.postalCode" maxLength={10} />
+                        <TextField
+                          label="ZIP"
+                          id="zip"
+                          name="residential_address.postalCode"
+                          maxLength={10}
+                          data-testid="res-add-zip"
+                        />
                       </div>
                     </div>
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Backup Address</h3>
-                    <TextField label="Address 1" id="bMailingAddress1" name="backup_mailing_address.streetAddress1" />
+                    <TextField
+                      label="Address 1"
+                      id="bMailingAddress1"
+                      name="backup_mailing_address.streetAddress1"
+                      data-testid="backup-add-street1"
+                    />
                     <TextField
                       label="Address 2"
                       labelHint="Optional"
                       id="mailingAddress2"
                       name="backup_mailing_address.streetAddress2"
+                      data-testid="backup-add-street2"
                     />
                     <TextField
                       label="Address 3"
                       labelHint="Optional"
                       id="mailingAddress3"
                       name="backup_mailing_address.streetAddress3"
+                      data-testid="backup-add-street3"
                     />
-                    <TextField label="City" id="city" name="backup_mailing_address.city" />
+                    <TextField
+                      label="City"
+                      id="city"
+                      name="backup_mailing_address.city"
+                      data-testid="backup-add-city"
+                    />
 
                     <div className="grid-row grid-gap">
                       <div className="mobile-lg:grid-col-6">
@@ -268,15 +300,22 @@ export const CreateCustomerForm = () => {
                           id="state"
                           label="State"
                           options={statesList}
+                          data-testid="backup-add-state"
                         />
                       </div>
                       <div className="mobile-lg:grid-col-6">
-                        <TextField label="ZIP" id="zip" name="backup_mailing_address.postalCode" maxLength={10} />
+                        <TextField
+                          label="ZIP"
+                          id="zip"
+                          name="backup_mailing_address.postalCode"
+                          maxLength={10}
+                          data-testid="backup-add-zip"
+                        />
                       </div>
                     </div>
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3>Backup contact</h3>
+                    <h3>Backup Contact</h3>
                     <TextField label="Name" id="backupContactName" name="backup_contact.name" required />
                     <TextField label="Email" id="backupContaactEmail" name="backup_contact.email" required />
                     <MaskedTextField
