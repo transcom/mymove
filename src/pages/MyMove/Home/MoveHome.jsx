@@ -187,7 +187,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // checking to see if prime is counseling this move, return true
   const isPrimeCounseled = () => {
-    return !orders.provides_services_counseling;
+    return !orders.providesServicesCounseling;
   };
 
   // logic that handles deleting a shipment
@@ -402,6 +402,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
+
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
