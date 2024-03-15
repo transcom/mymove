@@ -10,6 +10,10 @@ export const SPECIAL_ORDERS_TYPES = {
   BLUEBARK: 'BLUEBARK',
 };
 
+export const CHECK_SPECIAL_ORDERS_TYPES = (ordersType) => {
+  return ['BLUEBARK', 'WOUNDED_WARRIOR'].includes(ordersType);
+};
+
 export const ORDERS_TYPE_OPTIONS = {
   PERMANENT_CHANGE_OF_STATION: 'Permanent Change Of Station (PCS)',
   LOCAL_MOVE: 'Local Move',

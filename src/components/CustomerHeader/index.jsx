@@ -5,14 +5,19 @@ import styles from './index.module.scss';
 
 import { OrderShape, CustomerShape } from 'types/order';
 import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS, SPECIAL_ORDERS_TYPES } from 'constants/orders.js';
+import {
+  CHECK_SPECIAL_ORDERS_TYPES,
+  ORDERS_BRANCH_OPTIONS,
+  ORDERS_PAY_GRADE_OPTIONS,
+  SPECIAL_ORDERS_TYPES,
+} from 'constants/orders.js';
 
 const CustomerHeader = ({ customer, order, moveCode }) => {
   // eslint-disable-next-line camelcase
   const { order_type: orderType } = order;
 
   const isRetireeOrSeparatee = ['RETIREMENT', 'SEPARATION'].includes(orderType);
-  const isSpecialMove = ['BLUEBARK', 'WOUNDED_WARRIOR'].includes(orderType);
+  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orderType);
 
   /**
    * Depending on the order type, this row dt label can be either:
