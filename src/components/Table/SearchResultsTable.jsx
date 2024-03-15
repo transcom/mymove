@@ -77,6 +77,19 @@ const columns = (roleType) => [
     { id: 'shipmentsCount', isFilterable: true },
   ),
   createHeader(
+    'Pickup Date',
+    (row) => {
+      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'pickupDate',
+      disableSortBy: true,
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
     'Origin ZIP',
     (row) => {
       return row.originDutyLocationPostalCode;
@@ -97,15 +110,15 @@ const columns = (roleType) => [
     },
   ),
   createHeader(
-    'Pickup Date',
+    'Delivery Date',
     (row) => {
-      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
+      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
     },
     {
-      id: 'pickupDate',
+      id: 'deliveryDate',
       disableSortBy: true,
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
+      // eslint-disable-next-line react/jsx-props-no-spreading, react/jsx-boolean-value
       Filter: (props) => <DateSelectFilter dateTime {...props} />,
     },
   ),
@@ -127,19 +140,6 @@ const columns = (roleType) => [
     {
       id: 'destinationGBLOC',
       disableSortBy: true,
-    },
-  ),
-  createHeader(
-    'Delivery Date',
-    (row) => {
-      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
-    },
-    {
-      id: 'deliveryDate',
-      disableSortBy: true,
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter dateTime {...props} />,
     },
   ),
 ];
