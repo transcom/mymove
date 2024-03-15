@@ -3,12 +3,15 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
 	requestedofficeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -119,5 +122,94 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			Err:  expectedError,
 		}
 		suite.Equal(expectedResponse, response)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandler() {
+	suite.Run("Successful update", func() {
+		user := factory.BuildDefaultUser(suite.DB())
+		tooRoleName := "Transportation Ordering Officer"
+		tooRoleType := string(roles.RoleTypeTOO)
+		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleType := string(roles.RoleTypeTIO)
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					UserID: &user.ID,
+				},
+			},
+			{
+				Model: models.User{
+					Roles: roles.Roles{
+						{RoleName: roles.RoleName(tioRoleName),
+							RoleType: roles.RoleType(tioRoleType)},
+					},
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		officeUserID := requestedOfficeUser.ID
+		officeUser := models.OfficeUser{ID: officeUserID, FirstName: "Billy", LastName: "Bob", UserID: requestedOfficeUser.UserID, CreatedAt: time.Now(),
+			UpdatedAt: time.Now()}
+
+		mockUserRoleAssociator := &mocks.UserRoleAssociator{}
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		requestedOfficeUserUpdater := &mocks.RequestedOfficeUserUpdater{}
+
+		params := requestedofficeuserop.UpdateRequestedOfficeUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("PATCH", fmt.Sprintf("/requested_office_users/%s", officeUserID)),
+			Body: &adminmessages.RequestedOfficeUserUpdate{
+				FirstName: &officeUser.FirstName,
+				LastName:  &officeUser.LastName,
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &tooRoleName,
+						RoleType: &tooRoleType,
+					},
+				},
+			},
+			OfficeUserID: strfmt.UUID(officeUserID.String()),
+		}
+
+		requestedOfficeUserUpdater.On("UpdateRequestedOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(&officeUser, nil, nil).Once()
+
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Transportation Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+
+		// Mock roles
+		mockUserRoleAssociator.On(
+			"UpdateUserRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, nil).Once()
+
+		mockRoleAssociator.On(
+			"FetchRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
+		handler := UpdateRequestedOfficeUserHandler{
+			suite.HandlerConfig(),
+			requestedOfficeUserUpdater,
+			mockUserRoleAssociator,
+			mockRoleAssociator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&requestedofficeuserop.UpdateRequestedOfficeUserOK{}, response)
 	})
 }
