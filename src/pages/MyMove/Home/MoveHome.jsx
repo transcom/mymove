@@ -54,6 +54,7 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -411,7 +412,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
 
-  const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
+  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orders?.orders_type);
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -429,7 +430,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         <header data-testid="customer-header" className={styles['customer-header']}>
           {isSpecialMove ? (
             <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-              <p>BLUEBARK</p>
+              <p>{SPECIAL_ORDERS_TYPES[`${orders.orders_type}`]}</p>
             </div>
           ) : null}
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
