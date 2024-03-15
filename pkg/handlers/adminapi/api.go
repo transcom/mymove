@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
+	"github.com/transcom/mymove/pkg/services/roles"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
@@ -56,6 +57,15 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
+	userRolesCreator := usersroles.NewUsersRolesCreator()
+	newRolesFetcher := roles.NewRolesFetcher()
+	adminAPI.RequestedOfficeUsersUpdateRequestedOfficeUserHandler = UpdateRequestedOfficeUserHandler{
+		handlerConfig,
+		requestedofficeusers.NewRequestedOfficeUserUpdater(queryBuilder),
+		userRolesCreator,
+		newRolesFetcher,
+	}
+
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
@@ -69,7 +79,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
-	userRolesCreator := usersroles.NewUsersRolesCreator()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
