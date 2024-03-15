@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -58,6 +60,12 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 	if err != nil {
 		return nil, err
+	}
+
+	today := time.Now()
+	if today.Before(*ppmShipment.ActualMoveDate) {
+
+		return nil, apperror.NewUpdateError(ppmShipment.ID, "Actual move date cannot be set to the future.")
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
