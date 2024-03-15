@@ -54,7 +54,7 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -406,7 +406,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
 
-  const isSpecialMove = ['BLUEBARK', 'WOUNDED_WARRIOR'].includes(orders?.orders_type);
+  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orders?.orders_type);
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal

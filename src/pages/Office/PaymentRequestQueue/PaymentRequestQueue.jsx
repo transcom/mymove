@@ -18,7 +18,7 @@ import { BRANCH_OPTIONS, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -27,7 +27,7 @@ const columns = (showBranchFilter = true) => [
     (row) => {
       return (
         <div>
-          {['WOUNDED_WARRIOR', 'BLUEBARK'].includes(row.orderType) ? (
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
             <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
           ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
