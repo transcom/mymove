@@ -268,27 +268,27 @@ export const CreateCustomerForm = () => {
                     <h3>Backup Address</h3>
                     <TextField
                       label="Address 1"
-                      id="bMailingAddress1"
+                      id="backupMailingAddress1"
                       name="backup_mailing_address.streetAddress1"
                       data-testid="backup-add-street1"
                     />
                     <TextField
                       label="Address 2"
                       labelHint="Optional"
-                      id="mailingAddress2"
+                      id="backupMailingAddress2"
                       name="backup_mailing_address.streetAddress2"
                       data-testid="backup-add-street2"
                     />
                     <TextField
                       label="Address 3"
                       labelHint="Optional"
-                      id="mailingAddress3"
+                      id="backupMailingAddress3"
                       name="backup_mailing_address.streetAddress3"
                       data-testid="backup-add-street3"
                     />
                     <TextField
                       label="City"
-                      id="city"
+                      id="backupCity"
                       name="backup_mailing_address.city"
                       data-testid="backup-add-city"
                     />
@@ -297,7 +297,7 @@ export const CreateCustomerForm = () => {
                       <div className="mobile-lg:grid-col-6">
                         <DropdownInput
                           name="backup_mailing_address.state"
-                          id="state"
+                          id="backupState"
                           label="State"
                           options={statesList}
                           data-testid="backup-add-state"
@@ -306,7 +306,7 @@ export const CreateCustomerForm = () => {
                       <div className="mobile-lg:grid-col-6">
                         <TextField
                           label="ZIP"
-                          id="zip"
+                          id="backupZip"
                           name="backup_mailing_address.postalCode"
                           maxLength={10}
                           data-testid="backup-add-zip"
@@ -317,7 +317,7 @@ export const CreateCustomerForm = () => {
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Backup Contact</h3>
                     <TextField label="Name" id="backupContactName" name="backup_contact.name" required />
-                    <TextField label="Email" id="backupContaactEmail" name="backup_contact.email" required />
+                    <TextField label="Email" id="backupContactEmail" name="backup_contact.email" required />
                     <MaskedTextField
                       label="Phone"
                       id="backupContactTelephone"
