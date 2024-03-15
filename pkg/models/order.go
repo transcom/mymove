@@ -75,6 +75,7 @@ type Order struct {
 	PackingAndShippingInstructions string                             `json:"packing_and_shipping_instructions" db:"packing_and_shipping_instructions"`
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
+	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -171,7 +172,8 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.SignedCertifications",
 		"Moves.CloseoutOffice.Address",
 		"Entitlement",
-		"OriginDutyLocation").
+		"OriginDutyLocation",
+		"OriginDutyLocation.ProvidesServicesCounseling").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
