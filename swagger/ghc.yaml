@@ -3454,6 +3454,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        $ref: '#/definitions/Address'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3486,6 +3497,18 @@ definitions:
           - $ref: '#/definitions/Address'
       backup_contact:
         $ref: '#/definitions/BackupContact'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
   Entitlements:
     properties:
       id:
