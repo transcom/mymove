@@ -21,8 +21,6 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import affiliation from 'content/serviceMemberAgencies';
 import { fieldValidationShape, objectIsMissingFieldWithCondition } from 'utils/displayFlags';
-import { downloadPPMPaymentPacket } from 'services/ghcApi';
-import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -97,13 +95,7 @@ const ShipmentDisplay = ({
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
             {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ||
               displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
-              <AsyncPacketDownloadLink
-                id={displayInfo.ppmShipment.id}
-                label="Download Payment Packet"
-                asyncRetrieval={downloadPPMPaymentPacket}
-                onFailure={toggleDownloadPacketErrorModal}
-                className="styles.btn"
-              />
+              <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
           </div>
 

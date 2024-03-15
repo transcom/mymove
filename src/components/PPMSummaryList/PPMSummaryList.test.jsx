@@ -1,10 +1,21 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import PPMSummaryList from './PPMSummaryList';
 
+import { MockProviders } from 'testUtils';
+import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  downloadPPMPaymentPacket: jest.fn(),
+}));
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
 
 const shipments = [
   {
@@ -130,6 +141,61 @@ describe('PPMSummaryList component', () => {
       render(<PPMSummaryList {...defaultProps} />);
       expect(screen.queryByText('PPM 1')).toBeInTheDocument();
       expect(screen.queryByText('PPM 2')).toBeInTheDocument();
+    });
+  });
+
+  it('PPM Download Payment Packet - success', async () => {
+    const mockResponse = {
+      ok: true,
+      headers: {
+        'content-disposition': 'filename="test.pdf"',
+      },
+      status: 200,
+      data: null,
+    };
+    downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(mockResponse));
+
+    render(
+      <MockProviders>
+        <PPMSummaryList shipments={[shipments[3]]} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Download Payment Packet', { exact: false })).toBeInTheDocument();
+
+    const downloadPaymentButton = screen.getByText('Download Payment Packet');
+    expect(downloadPaymentButton).toBeInTheDocument();
+
+    await userEvent.click(downloadPaymentButton);
+
+    await waitFor(() => {
+      expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('PPM Download Payment Packet - failure', async () => {
+    downloadPPMPaymentPacket.mockRejectedValue({
+      response: { body: { title: 'Error title', detail: 'Error detail' } },
+    });
+
+    const shipment = { ppmShipment: { status: ppmShipmentStatuses.PAYMENT_APPROVED } };
+    const onErrorHandler = jest.fn();
+
+    render(
+      <MockProviders>
+        <PPMSummaryList shipments={[shipment]} onDownloadError={onErrorHandler} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Download Payment Packet')).toBeInTheDocument();
+
+    const downloadPaymentButton = screen.getByText('Download Payment Packet');
+    expect(downloadPaymentButton).toBeInTheDocument();
+    await userEvent.click(downloadPaymentButton);
+
+    await waitFor(() => {
+      expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
+      expect(onErrorHandler).toHaveBeenCalledTimes(1);
     });
   });
 });
