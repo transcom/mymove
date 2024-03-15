@@ -1,10 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 import React from 'react';
 import Select from 'react-select';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 import { QueryClient } from '@tanstack/react-query';
-import { NavTab } from 'react-router-tabs/cjs/react-router-tabs.min';
-import { MemoryRouter, Route, Routes, useParams } from 'react-router';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as reactRouterDom from 'react-router-dom';
@@ -12,17 +10,14 @@ import * as reactRouterDom from 'react-router-dom';
 import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
-import SearchResultsTable from 'components/Table/SearchResultsTable';
-import PrivateRoute from 'containers/PrivateRoute';
-import { roleTypes } from 'constants/userRoles';
-import { initialState } from 'reducers/tacValidation';
-import { MOVE_STATUS_OPTIONS, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import { generalRoutes, tioRoutes } from 'constants/routes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
-  useParams: jest.fn(), // mock useParams
-  useNavigate: jest.fn(), // mock useNavigate if needed
+  useParams: jest.fn(),
+  useNavigate: jest.fn(),
 }));
 jest.setTimeout(60000);
 jest.mock('hooks/queries', () => ({
@@ -121,7 +116,6 @@ const ExpectedPaymentRequestQueueColumns = [
   'Origin GBLOC',
   'Origin Duty Location',
 ];
-const ExpectedOptions = ['Move Code', 'DOD ID', 'CustomerName'];
 describe('PaymentRequestQueue', () => {
   const client = new QueryClient();
 
@@ -236,16 +230,14 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('Displays the payment request ', async () => {
-    // Setup initial state and mocks as necessary
-
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'Search' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
     // Simulate user input and form submission
-    const searchInput = screen.getByTestId('searchText'); // Adjust based on your actual labels/inputs
+    const searchInput = screen.getByTestId('searchText');
     await userEvent.type(searchInput, 'R993T7');
     await userEvent.click(screen.getByTestId('searchTextSubmit'));
     // Assert search results are displayed
@@ -254,7 +246,7 @@ describe('PaymentRequestQueue', () => {
   });
 
   it(' renders Search and Payment Request Queue tabs', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'Search' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
@@ -264,7 +256,7 @@ describe('PaymentRequestQueue', () => {
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
   });
   it('renders SearchResultsTable when Search tab is selected', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'Search' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
@@ -284,16 +276,14 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
   });
   it('submits search form and displays search results', async () => {
-    // Setup initial state and mocks as necessary
-
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'Search' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
     // Simulate user input and form submission
-    const searchInput = screen.getByTestId('searchText'); // Adjust based on your actual labels/inputs
+    const searchInput = screen.getByTestId('searchText');
     await userEvent.type(searchInput, 'R993T7');
     await userEvent.click(screen.getByTestId('searchTextSubmit'));
     // Assert search results are displayed
@@ -301,16 +291,14 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
   });
   it('submits search form and displays possible filters for status', async () => {
-    // Setup initial state and mocks as necessary
-
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'Search' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
     // Simulate user input and form submission
-    const searchInput = screen.getByTestId('searchText'); // Adjust based on your actual labels/inputs
+    const searchInput = screen.getByTestId('searchText');
     await userEvent.type(searchInput, 'R993T7');
     await userEvent.click(screen.getByTestId('searchTextSubmit'));
     // Assert search results are displayed
@@ -319,7 +307,7 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
   });
   it('Has 3 options for searches', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'Search' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
@@ -333,7 +321,7 @@ describe('PaymentRequestQueue', () => {
     }
   });
   it('Has all status options for payment request search', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'Search' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
@@ -346,7 +334,7 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('Has all status options for payment request queue', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'PaymentRequest' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />

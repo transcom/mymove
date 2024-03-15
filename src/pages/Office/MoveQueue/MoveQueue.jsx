@@ -120,7 +120,6 @@ const MoveQueue = () => {
         payload.customerName = values.searchText;
       }
     }
-
     setSearch(payload);
     setSearchHappened(true);
   }, []);
@@ -164,7 +163,7 @@ const MoveQueue = () => {
       />
     );
   };
-  if (queueType.queueType === 'Search') {
+  if (queueType.queueType === generalRoutes.QUEUE_SEARCH_PATH) {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
@@ -191,7 +190,7 @@ const MoveQueue = () => {
   }
 
   return (
-    <div className={styles.MoveQueue}>
+    <div className={styles.MoveQueue} data-testid="move-queue">
       {renderNavBar()}
       <TableQueue
         showFilters
