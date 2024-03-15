@@ -3,6 +3,16 @@ import { render, screen } from '@testing-library/react';
 
 import ServiceItemDetails from './ServiceItemDetails';
 
+const sitStatus = {
+  currentSIT: {
+    sitAllowanceEndDate: '2024-03-17',
+  },
+};
+
+const shipment = {
+  sitDaysAllowance: 90,
+};
+
 const details = {
   description: 'some description',
   pickupPostalCode: '90210',
@@ -72,15 +82,30 @@ const nilDetails = {
 
 describe('ServiceItemDetails Domestic Destination SIT', () => {
   it('renders DDASIT details', () => {
-    render(<ServiceItemDetails id="1" code="DDASIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="DDASIT"
+        details={details}
+        shipment={shipment}
+        sitStatus={sitStatus}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
     expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
     expect(screen.getByText('12 Mar 2024')).toBeInTheDocument();
 
-    expect(screen.getByText('Customer contacted:')).toBeInTheDocument();
+    expect(screen.getByText('Customer contacted homesafe:')).toBeInTheDocument();
     expect(screen.getByText('14 Mar 2024')).toBeInTheDocument();
+
+    expect(screen.getByText('# of days approved for:')).toBeInTheDocument();
+    expect(screen.getByText('89 days')).toBeInTheDocument();
+
+    expect(screen.getByText('SIT expiration date:')).toBeInTheDocument();
+    expect(screen.getByText('17 Mar 2024')).toBeInTheDocument();
 
     expect(screen.getByText('Customer requested delivery date:')).toBeInTheDocument();
     expect(screen.getByText('15 Mar 2024')).toBeInTheDocument();
@@ -117,7 +142,16 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
 describe('ServiceItemDetails Domestic Origin SIT', () => {
   it(`renders DOASIT details`, () => {
-    render(<ServiceItemDetails id="1" code="DOASIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="DOASIT"
+        details={details}
+        shipment={shipment}
+        sitStatus={sitStatus}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
 
     expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
@@ -125,16 +159,13 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
     expect(screen.getByText('12 Mar 2024')).toBeInTheDocument();
 
-    // Found under SIT section
-    // expect(screen.getByText('# of days approved for:')).toBeInTheDocument();
-    // expect(screen.getByText('89')).toBeInTheDocument();
+    expect(screen.getByText('# of days approved for:')).toBeInTheDocument();
+    expect(screen.getByText('89 days')).toBeInTheDocument();
 
-    // Found under SIT section
-    // SIT authorized end date
-    // expect(screen.getByText('SIT Expiration Date:')).toBeInTheDocument();
-    // expect(screen.getByText('param')).toBeInTheDocument();
+    expect(screen.getByText('SIT expiration date:')).toBeInTheDocument();
+    expect(screen.getByText('17 Mar 2024')).toBeInTheDocument();
 
-    expect(screen.getByText('Customer contacted:')).toBeInTheDocument();
+    expect(screen.getByText('Customer contacted homesafe:')).toBeInTheDocument();
     expect(screen.getByText('14 Mar 2024')).toBeInTheDocument();
 
     expect(screen.getByText('Customer requested delivery date:')).toBeInTheDocument();
@@ -186,22 +217,19 @@ describe('ServiceItemDetails for DOFSIT', () => {
 });
 
 describe('ServiceItemDetails Domestic Destination SIT', () => {
-  it.each([['DDDSIT'], ['DDASIT'], ['DDFSIT']])(
-    'renders first and second customer contact and available delivery date',
-    (code) => {
-      render(<ServiceItemDetails id="1" code={code} details={details} serviceRequestDocs={serviceRequestDocs} />);
+  it('renders first and second customer contact and available delivery date', () => {
+    render(<ServiceItemDetails id="1" code="DDFSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
 
-      expect(screen.getByText('Customer contact attempt 1:')).toBeInTheDocument();
-      expect(screen.getByText('15 Sep 2020, 1200Z')).toBeInTheDocument();
-      expect(screen.getByText('15 Sep 2020')).toBeInTheDocument();
-      expect(screen.getByText('Customer contact attempt 2:')).toBeInTheDocument();
-      expect(screen.getByText('21 Sep 2020, 2300Z')).toBeInTheDocument();
-      expect(screen.getByText('21 Sep 2020')).toBeInTheDocument();
-      expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
-      const downloadLink = screen.getByText('receipt.pdf');
-      expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
-    },
-  );
+    expect(screen.getByText('Customer contact attempt 1:')).toBeInTheDocument();
+    expect(screen.getByText('15 Sep 2020, 1200Z')).toBeInTheDocument();
+    expect(screen.getByText('15 Sep 2020')).toBeInTheDocument();
+    expect(screen.getByText('Customer contact attempt 2:')).toBeInTheDocument();
+    expect(screen.getByText('21 Sep 2020, 2300Z')).toBeInTheDocument();
+    expect(screen.getByText('21 Sep 2020')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
 });
 
 describe('ServiceItemDetails Crating', () => {
