@@ -424,13 +424,10 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 	})
 
 	suite.Run("cancels PPM and Order when move is canceled", func() {
-		move := factory.BuildMove(nil, nil, nil)
 
 		// Create PPM on this move
-		ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-		mto := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		mto.PPMShipment = &ppm
-		move.MTOShipments = append(move.MTOShipments, mto)
+
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
 
 		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
 

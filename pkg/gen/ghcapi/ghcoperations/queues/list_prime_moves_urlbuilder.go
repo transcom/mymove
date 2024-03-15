@@ -16,11 +16,12 @@ import (
 
 // ListPrimeMovesURL generates an URL for the list prime moves operation
 type ListPrimeMovesURL struct {
-	ID       *string
-	MoveCode *string
-	Page     *int64
-	PerPage  *int64
-	Since    *strfmt.DateTime
+	ID        *string
+	MoveCode  *string
+	OrderType *string
+	Page      *int64
+	PerPage   *int64
+	Since     *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage
@@ -70,6 +71,14 @@ func (o *ListPrimeMovesURL) Build() (*url.URL, error) {
 	}
 	if moveCodeQ != "" {
 		qs.Set("moveCode", moveCodeQ)
+	}
+
+	var orderTypeQ string
+	if o.OrderType != nil {
+		orderTypeQ = *o.OrderType
+	}
+	if orderTypeQ != "" {
+		qs.Set("orderType", orderTypeQ)
 	}
 
 	var pageQ string

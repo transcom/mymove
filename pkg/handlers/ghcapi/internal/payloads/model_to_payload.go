@@ -85,6 +85,7 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		OrderType:          string(move.Orders.OrdersType),
 	}
 
 	if move.PPMType != nil {
@@ -530,6 +531,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
+		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(*order.OriginDutyLocationGBLOC),
 	}
 
 	return &payload
@@ -1676,6 +1678,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
+			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 		}
 	}
 	return &queueMoves
@@ -1780,6 +1783,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
+			OrderType:          (*string)(orders.OrdersType.Pointer()),
 		}
 
 		if orders.DepartmentIndicator != nil {
@@ -1833,6 +1837,7 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			OrderType:                         string(move.Orders.OrdersType),
 		}
 	}
 	return &searchMoves
