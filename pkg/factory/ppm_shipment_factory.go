@@ -788,6 +788,14 @@ func GetTraitApprovedPPMShipment() []Customization {
 		},
 	}
 }
+func AddSignedCertificationToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, signedCertification models.SignedCertification) {
+	if db == nil && signedCertification.ID.IsNil() {
+		// need to create an ID so we can use the signedCertification as
+		// LinkOnly
+		signedCertification.ID = uuid.Must(uuid.NewV4())
+	}
+	ppmShipment.SignedCertification = &signedCertification
+}
 
 func GetTraitPPMShipmentReadyForPaymentRequest() []Customization {
 	estimatedWeight := unit.Pound(200)
