@@ -25,6 +25,16 @@ export function formatDataForPPM(historyRecord) {
     ppmValues.w2_address = formatMoveHistoryFullAddressFromJSON(historyRecord.context[0].w2_address);
   }
 
+  // it was requested that we add a status of 'ADDED' once a customer finishes creating a ppm
+  // will require refactor down the line but this has been approved for now
+  if (
+    historyRecord.changedValues?.has_requested_advance !== undefined &&
+    historyRecord.oldValues?.has_requested_advance === null &&
+    historyRecord.oldValues?.advance_amount_requested === null
+  ) {
+    ppmValues.ppm_status = 'ADDED';
+  }
+
   return ppmValues;
 }
 

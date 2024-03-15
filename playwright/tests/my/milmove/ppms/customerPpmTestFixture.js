@@ -86,7 +86,9 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateToPPMReviewPage() {
     await this.clickOnUploadPPMDocumentsButton();
 
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
+
+    await this.page.getByText('Save & Continue').click();
 
     await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
   }
@@ -652,15 +654,6 @@ export class CustomerPpmPage extends CustomerPage {
     } else {
       await expect(ppm1.locator('[data-testid="ShipmentContainer"]').locator('button')).not.toBeVisible();
     }
-
-    // TODO: This will fail until address information along with zip is saved for the PPM page B-18434
-    // await expect(ppm1.locator('dt')).toHaveCount(shipmentCardFields.length);
-    // await expect(ppm1.locator('dd')).toHaveCount(shipmentCardFields.length);
-
-    // shipmentCardFields.forEach(async (shipmentField, index) => {
-    //   await expect(ppm1.locator('dt').nth(index)).toContainText(shipmentField[0]);
-    //   await expect(ppm1.locator('dd').nth(index)).toContainText(shipmentField[1]);
-    // });
   }
 
   /**
@@ -711,11 +704,13 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {string} moveId
+   * returns {Promise<void>}
    */
-  async cancelAddLineItemAndReturnToCloseoutReviewPage() {
+  async cancelAddLineItemAndReturnToCloseoutReviewPage(moveId) {
     // calculate the home url to wait for it after click
     const url = new URL(this.page.url());
-    url.pathname = '/';
+    url.pathname = `/move/${moveId}`;
     await this.page.getByRole('button', { name: 'Return to Homepage' }).click();
     await this.page.waitForURL(url.href);
     await this.navigateToPPMReviewPage();
@@ -903,12 +898,13 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * returns {Promise<void>}
    */
-  async signCloseoutAgreement() {
+  async signCloseoutAgreement(moveId) {
     await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
 
     // calculate the home url to wait for it after click
     const url = new URL(this.page.url());
-    url.pathname = '/';
+    url.pathname = `/move/${moveId}`;
+
     await this.page.getByRole('button', { name: 'Submit PPM Documentation' }).click();
     await this.page.waitForURL(url.href);
 
@@ -932,9 +928,9 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {string} [options.finalIncentiveAmount='$500,000.00']
    * returns {Promise<void>}
    */
-  async submitFinalCloseout(options) {
+  async submitFinalCloseout(moveId, options) {
     await this.verifyFinalIncentiveAndTotals(options);
-    await this.signCloseoutAgreement();
+    await this.signCloseoutAgreement(moveId);
   }
 }
 

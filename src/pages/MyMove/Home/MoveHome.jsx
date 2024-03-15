@@ -3,7 +3,7 @@ import { node, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -16,6 +16,8 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -30,7 +32,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -52,6 +54,7 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -74,11 +77,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // loading the moveId in params to select move details from serviceMemberMoves in state
   const { moveId } = useParams();
   const navigate = useNavigate();
-
+  let { state } = useLocation();
+  state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
+  const [showDownloadPPMAOAPaperworkErrorAlert, setShowDownloadPPMAOAPaperworkErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -314,7 +319,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const handleNewPathClick = (path) => {
-    navigate(path);
+    navigate(path, { state });
   };
 
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
@@ -371,6 +376,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   };
 
+  const toggleDownloadAOAErrorModal = () => {
+    setShowDownloadPPMAOAPaperworkErrorAlert(!showDownloadPPMAOAPaperworkErrorAlert);
+  };
+
   // early return if loading user/service member
   if (!serviceMember) {
     return (
@@ -393,7 +402,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
-  const profileEditPath = customerRoutes.PROFILE_PATH;
+  const profileEditPath = generatePath(customerRoutes.PROFILE_PATH);
   const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
   const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
@@ -403,6 +412,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
 
+  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orders?.orders_type);
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -415,8 +425,14 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
+      <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
+          {isSpecialMove ? (
+            <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
+              <p>{SPECIAL_ORDERS_TYPES[`${orders.orders_type}`]}</p>
+            </div>
+          ) : null}
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <h2>
               {serviceMember.first_name} {serviceMember.last_name}
@@ -588,11 +604,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                   {` ${shipmentNumber} `}
                                 </strong>
                                 {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
-                                  // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                   <p className={styles.downloadLink}>
-                                    <a href="">
-                                      <span>Download AOA Paperwork (PDF)</span>
-                                    </a>
+                                    <AsyncPacketDownloadLink
+                                      id={shipment?.ppmShipment?.id}
+                                      label="Download AOA Paperwork (PDF)"
+                                      asyncRetrieval={downloadPPMAOAPacket}
+                                      onFailure={toggleDownloadAOAErrorModal}
+                                    />
                                   </p>
                                 )}
                                 {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
