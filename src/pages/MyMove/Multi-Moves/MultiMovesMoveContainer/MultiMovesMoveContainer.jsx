@@ -77,6 +77,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
+          {m?.orders?.orders_type === 'BLUEBARK' ? <div className={styles.specialMoves}>BLUEBARK</div> : null}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
             <ButtonDropdownMenu
               data-testid="downloadBtn"
