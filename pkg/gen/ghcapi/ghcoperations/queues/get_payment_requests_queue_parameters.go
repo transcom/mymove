@@ -58,6 +58,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*order type
+	  In: query
+	*/
+	OrderType *string
 	/*
 	  In: query
 	*/
@@ -123,6 +127,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qOrder, qhkOrder, _ := qs.GetOK("order")
 	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOrderType, qhkOrderType, _ := qs.GetOK("orderType")
+	if err := o.bindOrderType(qOrderType, qhkOrderType, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -279,6 +288,24 @@ func (o *GetPaymentRequestsQueueParams) validateOrder(formats strfmt.Registry) e
 	if err := validate.EnumCase("order", "query", *o.Order, []interface{}{"asc", "desc"}, true); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindOrderType binds and validates parameter OrderType from query.
+func (o *GetPaymentRequestsQueueParams) bindOrderType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OrderType = &raw
 
 	return nil
 }
