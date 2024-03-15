@@ -119,6 +119,6 @@ test.describe('(MultiMove) Onboarding', () => {
     await page.getByLabel('Phone').fill('2025553456');
     await customerPage.navigateForward();
 
-    await customerPage.waitForPage.home();
+    await customerPage.waitForPage.multiMoveDashboard();
   });
 });

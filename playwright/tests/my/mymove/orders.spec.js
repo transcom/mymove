@@ -75,11 +75,7 @@ test.describe('(MultiMove) Orders', () => {
     const user = await customerPage.testHarness.buildNeedsOrdersUser();
     const userId = user.id;
     await customerPage.signInAsExistingCustomer(userId);
-
-    // Navigate to add orders
-    await customerPage.waitForPage.home();
-    await page.getByRole('button', { name: 'Add orders' }).click();
-    await customerPage.waitForPage.ordersDetails();
+    await customerPage.createMoveButtonClick();
 
     // Fill in orders details
     await page.getByLabel('Orders type').selectOption({ label: 'Permanent Change Of Station (PCS)' });
