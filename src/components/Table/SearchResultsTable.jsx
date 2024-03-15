@@ -17,10 +17,11 @@ import {
   ROLE_TYPE_OPTIONS,
   SortShape,
 } from 'constants/queues';
-import { serviceMemberAgencyLabel } from 'utils/formatters';
+import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
+import { DATE_FORMAT_STRING } from 'shared/constants';
 
 const columns = (roleType) => [
   createHeader('Move code', 'locator', {
