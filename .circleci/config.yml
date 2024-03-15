@@ -880,7 +880,7 @@ commands:
             PLAYWRIGHT_MY_URL: http://milmovelocal:4000
             PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
-          # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
             FEATURE_FLAG_MULTI_MOVE: 'true'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
@@ -1248,7 +1248,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v9-spectral-lint-
+            - v10-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1307,7 +1307,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v9-spectral-lint-{{ .BuildNum }}
+                key: v10-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
