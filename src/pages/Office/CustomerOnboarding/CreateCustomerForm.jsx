@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 
-import styles from './CustomerName.module.scss';
+import styles from './CreateCustomerForm.module.scss';
 
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -19,7 +19,7 @@ import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { backupContactInfoSchema, requiredAddressSchema } from 'utils/validation';
 
-export const CustomerName = () => {
+export const CreateCustomerForm = () => {
   const [serverError] = useState(null);
   const navigate = useNavigate();
 
@@ -123,7 +123,7 @@ export const CustomerName = () => {
   };
 
   const onSubmit = () => {
-    // pass in values and call the API
+    // TODO pass in values and call the API
     navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
   };
 
@@ -329,4 +329,4 @@ export const CustomerName = () => {
   );
 };
 
-export default CustomerName;
+export default CreateCustomerForm;
