@@ -86,6 +86,7 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		OrderType:          string(move.Orders.OrdersType),
 	}
 
 	if move.PPMType != nil {
@@ -531,6 +532,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
+		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(*order.OriginDutyLocationGBLOC),
 	}
 
 	return &payload
@@ -715,6 +717,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
 		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
 		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		SitAuthorizedEndDate: handlers.FmtDatePtr(currentSIT.SITAuthorizedEndDate),
 		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
 		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}
@@ -959,6 +962,7 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
+		AllowableWeight:                   handlers.FmtPoundPtr(weightTicket.AllowableWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}
@@ -998,25 +1002,25 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		return nil
 	}
 	payload := &ghcmessages.PPMCloseout{
-		ID:                         strfmt.UUID(ppmCloseout.ID.String()),
-		PlannedMoveDate:            handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate),
-		ActualMoveDate:             handlers.FmtDatePtr(ppmCloseout.ActualMoveDate),
-		Miles:                      handlers.FmtIntPtrToInt64(ppmCloseout.Miles),
-		EstimatedWeight:            handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight),
-		ActualWeight:               handlers.FmtPoundPtr(ppmCloseout.ActualWeight),
-		ProGearWeightCustomer:      handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer),
-		ProGearWeightSpouse:        handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse),
-		GrossIncentive:             handlers.FmtCost(ppmCloseout.GrossIncentive),
-		Gcc:                        handlers.FmtCost(ppmCloseout.GCC),
-		Aoa:                        handlers.FmtCost(ppmCloseout.AOA),
-		RemainingReimbursementOwed: handlers.FmtCost(ppmCloseout.RemainingReimbursementOwed),
-		HaulPrice:                  handlers.FmtCost(ppmCloseout.HaulPrice),
-		HaulFSC:                    handlers.FmtCost(ppmCloseout.HaulFSC),
-		Dop:                        handlers.FmtCost(ppmCloseout.DOP),
-		Ddp:                        handlers.FmtCost(ppmCloseout.DDP),
-		PackPrice:                  handlers.FmtCost(ppmCloseout.PackPrice),
-		UnpackPrice:                handlers.FmtCost(ppmCloseout.UnpackPrice),
-		SITReimbursement:           handlers.FmtCost(ppmCloseout.SITReimbursement),
+		ID:                    strfmt.UUID(ppmCloseout.ID.String()),
+		PlannedMoveDate:       handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate),
+		ActualMoveDate:        handlers.FmtDatePtr(ppmCloseout.ActualMoveDate),
+		Miles:                 handlers.FmtIntPtrToInt64(ppmCloseout.Miles),
+		EstimatedWeight:       handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight),
+		ActualWeight:          handlers.FmtPoundPtr(ppmCloseout.ActualWeight),
+		ProGearWeightCustomer: handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer),
+		ProGearWeightSpouse:   handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse),
+		GrossIncentive:        handlers.FmtCost(ppmCloseout.GrossIncentive),
+		Gcc:                   handlers.FmtCost(ppmCloseout.GCC),
+		Aoa:                   handlers.FmtCost(ppmCloseout.AOA),
+		RemainingIncentive:    handlers.FmtCost(ppmCloseout.RemainingIncentive),
+		HaulPrice:             handlers.FmtCost(ppmCloseout.HaulPrice),
+		HaulFSC:               handlers.FmtCost(ppmCloseout.HaulFSC),
+		Dop:                   handlers.FmtCost(ppmCloseout.DOP),
+		Ddp:                   handlers.FmtCost(ppmCloseout.DDP),
+		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
+		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
+		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
 	}
 
 	return payload
@@ -1082,6 +1086,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
+	}
+
+	if mtoShipment.Distance != nil {
+		payload.Distance = handlers.FmtInt64(int64(*mtoShipment.Distance))
 	}
 
 	if sitStatusPayload != nil {
@@ -1671,6 +1679,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
+			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 		}
 	}
 	return &queueMoves
@@ -1775,6 +1784,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
+			OrderType:          (*string)(orders.OrdersType.Pointer()),
 		}
 
 		if orders.DepartmentIndicator != nil {
@@ -1828,6 +1838,7 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			OrderType:                         string(move.Orders.OrdersType),
 		}
 	}
 	return &searchMoves

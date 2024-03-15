@@ -2747,9 +2747,6 @@ func init() {
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -3235,6 +3232,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3359,6 +3362,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -3486,6 +3495,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3543,6 +3558,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -6072,6 +6092,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "orderType": {
+          "type": "string"
+        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -6613,6 +6636,11 @@ func init() {
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         },
         "diversion": {
           "type": "boolean",
@@ -7497,6 +7525,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -7545,9 +7576,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -7578,13 +7611,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED"
+        "EDITED",
+        "RECEIVED",
+        "NOT_RECEIVED"
       ],
       "x-nullable": true
     },
@@ -7611,6 +7646,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -7711,7 +7747,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -7835,6 +7871,9 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -7893,6 +7932,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -7906,6 +7955,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -7935,6 +7987,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -7944,6 +8009,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -8481,6 +8559,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -8560,6 +8642,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -8885,6 +8971,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -8951,6 +9042,9 @@ func init() {
           "example": "Doe"
         },
         "locator": {
+          "type": "string"
+        },
+        "orderType": {
           "type": "string"
         },
         "originDutyLocationPostalCode": {
@@ -13894,9 +13988,6 @@ func init() {
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -14548,6 +14639,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -14678,6 +14775,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -14811,6 +14914,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -14874,6 +14983,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -17734,6 +17848,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "orderType": {
+          "type": "string"
+        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -18275,6 +18392,11 @@ func init() {
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         },
         "diversion": {
           "type": "boolean",
@@ -19159,6 +19281,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -19207,9 +19332,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -19240,13 +19367,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED"
+        "EDITED",
+        "RECEIVED",
+        "NOT_RECEIVED"
       ],
       "x-nullable": true
     },
@@ -19273,6 +19402,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -19374,7 +19504,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -19498,6 +19628,9 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -19556,6 +19689,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -19569,6 +19712,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -19598,6 +19744,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -19607,6 +19766,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -20145,6 +20317,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -20224,6 +20400,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -20552,6 +20732,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -20606,6 +20791,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -20665,6 +20855,9 @@ func init() {
           "example": "Doe"
         },
         "locator": {
+          "type": "string"
+        },
+        "orderType": {
           "type": "string"
         },
         "originDutyLocationPostalCode": {

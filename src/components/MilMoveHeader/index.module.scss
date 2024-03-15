@@ -7,8 +7,8 @@
   color: $bg-white;
 
   // Override USWDS
-  +.usa-section,
-  +main {
+  + .usa-section,
+  + main {
     border-top: none !important;
   }
 
@@ -87,7 +87,7 @@
       display: flex;
       align-items: center;
 
-      >a,
+      > a,
       > :global(.usa-link),
       > :global(.usa-button.usa-button--unstyled) {
         display: flex;
@@ -185,5 +185,14 @@
         @include u-margin-right(2);
       }
     }
+  }
+}
+
+.specialMovesLabel {
+  p {
+    margin: 0;
+    padding: 0;
+    font-size: 2.67rem;
+    color: red;
   }
 }
