@@ -118,7 +118,7 @@ const columns = (roleType) => [
       id: 'deliveryDate',
       disableSortBy: true,
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading, react/jsx-boolean-value
+      // eslint-disable-next-line react/jsx-props-no-spreading
       Filter: (props) => <DateSelectFilter dateTime {...props} />,
     },
   ),
