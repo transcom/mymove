@@ -126,7 +126,6 @@ describe('PaymentRequestQueue', () => {
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    screen.debug();
     expect(screen.queryByText('Payment requests (1)')).toBeInTheDocument();
   });
 

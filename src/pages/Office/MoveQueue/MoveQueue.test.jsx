@@ -88,7 +88,6 @@ const GetMountedComponent = (queueTypeToMount) => {
 };
 describe('MoveQueue', () => {
   it('should render the h1', () => {
-    screen.debug();
     expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (2)');
   });
 
