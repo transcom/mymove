@@ -880,7 +880,7 @@ commands:
             PLAYWRIGHT_MY_URL: http://milmovelocal:4000
             PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
-          # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
             FEATURE_FLAG_MULTI_MOVE: 'true'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
