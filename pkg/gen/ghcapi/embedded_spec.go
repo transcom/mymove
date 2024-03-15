@@ -5416,6 +5416,9 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -5433,6 +5436,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
         },
         "first_name": {
           "type": "string",
@@ -5453,6 +5459,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -9587,6 +9602,13 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
+        "backupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -9603,6 +9625,9 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -9617,6 +9642,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -17155,6 +17189,9 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -17172,6 +17209,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
         },
         "first_name": {
           "type": "string",
@@ -17192,6 +17232,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -21389,6 +21438,13 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
+        "backupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -21405,6 +21461,9 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -21419,6 +21478,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
