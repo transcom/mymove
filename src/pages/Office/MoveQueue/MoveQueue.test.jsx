@@ -3,7 +3,6 @@ import Select from 'react-select';
 import { mount } from 'enzyme';
 import * as reactRouterDom from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import MoveQueue from './MoveQueue';
 
@@ -88,13 +87,6 @@ const GetMountedComponent = (queueTypeToMount) => {
   return wrapper;
 };
 describe('MoveQueue', () => {
-  /* reactRouterDom.useParams.mockReturnValue({ queueType: '' });
-  const wrapper = mount(
-    <MockProviders>
-      <MoveQueue />
-    </MockProviders>,
-  ); */
-
   it('should render the h1', () => {
     screen.debug();
     expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (2)');
