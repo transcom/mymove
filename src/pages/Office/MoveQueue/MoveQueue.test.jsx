@@ -139,7 +139,6 @@ describe('MoveQueue', () => {
 
     statusHeading.simulate('click');
     GetMountedComponent(tooRoutes.MOVE_QUEUE).update();
-    wrapper.debug();
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
 
     statusHeading.simulate('click');
