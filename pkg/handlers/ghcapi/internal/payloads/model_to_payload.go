@@ -781,6 +781,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
