@@ -3802,6 +3802,8 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      originDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
