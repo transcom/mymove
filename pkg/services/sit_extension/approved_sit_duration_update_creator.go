@@ -2,6 +2,7 @@ package sitextension
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -34,6 +35,12 @@ func NewApprovedSITDurationUpdateCreator() services.ApprovedSITDurationUpdateCre
 // CreateApprovedSITDurationUpdate creates a SIT Duration Update with a status of APPROVED and updates the MTO Shipment's SIT days allowance
 func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCtx appcontext.AppContext, sitDurationUpdate *models.SITDurationUpdate, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = resetSITAuthorizedEndDate(appCtx, shipmentID)
+
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +85,7 @@ func (f *approvedSITDurationUpdateCreator) updateSitDaysAllowance(appCtx appcont
 	} else {
 		shipment.SITDaysAllowance = &approvedDays
 	}
+
 	verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
 	if e := f.handleError(shipment.ID, verrs, err); e != nil {
 		return &shipment, e
@@ -94,6 +102,58 @@ func (f *approvedSITDurationUpdateCreator) updateSitDaysAllowance(appCtx appcont
 	}
 
 	return &shipment, nil
+}
+
+func resetSITAuthorizedEndDate(appCtx appcontext.AppContext, shipmentID uuid.UUID) error {
+	// We need to get the shipment with its service items to reset the Authorized End Date
+	// for an Origin or Destination SIT service item, since we are updating with a manual override
+	eagerAssociations := []string{"MoveTaskOrder",
+		"PickupAddress",
+		"DestinationAddress",
+		"SecondaryPickupAddress",
+		"SecondaryDeliveryAddress",
+		"MTOServiceItems.ReService",
+		"StorageFacility.Address",
+		"PPMShipment"}
+	shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
+
+	if err != nil {
+		return apperror.NewNotFoundError(shipmentID, "while looking for MTOServiceItem")
+	}
+
+	today := time.Now()
+
+	for _, serviceItem := range shipment.MTOServiceItems {
+		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
+			serviceItem.Status == models.MTOServiceItemStatusApproved {
+			// get current SIT service item
+			if !serviceItem.SITEntryDate.After(today) && !(serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today)) {
+				// We retrieve the old service item so we can get the required values to update with the new value for Authorized End Date
+				aedServiceItem, err := models.FetchServiceItem(appCtx.DB(), serviceItem.ID)
+
+				if err != nil {
+					switch err {
+					case models.ErrFetchNotFound:
+						return apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
+					default:
+						return apperror.NewQueryError("MTOServiceItem", err, "")
+					}
+				}
+
+				aedServiceItem.SITAuthorizedEndDate = nil
+				verrs, err := appCtx.DB().ValidateAndUpdate(&aedServiceItem)
+
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(aedServiceItem.ID, err, verrs, "invalid input found while updating the sit service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 func (f *approvedSITDurationUpdateCreator) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
