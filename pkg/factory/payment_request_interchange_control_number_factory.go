@@ -30,14 +30,14 @@ func BuildPaymentRequestToInterchangeControlNumber(db *pop.Connection, customs [
 
 	icnSequencer, err := sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
 	if err != nil {
-		log.Panic(fmt.Errorf("Errors encountered creating random sequencer: %v", err))
+		log.Panic(fmt.Errorf("errors encountered creating random sequencer: %v", err))
 	}
 
 	// for now, hack together an appcontext, so we don't have to change all of testdatagen
 	appCtx := appcontext.NewAppContext(db, nil, nil)
 	icn, err := icnSequencer.NextVal(appCtx)
 	if err != nil {
-		log.Panic(fmt.Errorf("Errors encountered getting random interchange control number: %v", err))
+		log.Panic(fmt.Errorf("errors encountered getting random interchange control number: %v", err))
 	}
 
 	pr2icn := models.PaymentRequestToInterchangeControlNumber{

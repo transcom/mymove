@@ -1,44 +1,39 @@
-<p>We hope your move to {{.DestinationDutyLocation}} went well.</p>
+<p><strong>***</strong> DO NOT REPLY directly to this email <strong>***</strong></p>
 
-<p>It’s been a couple of weeks, so we want to make sure you get paid for that move. {{.IncentiveTxt}}</p>
+<p>This is a reminder that your PPM with the <strong>assigned move code {{.Locator}}</strong> from
+<strong>{{.OriginDutyLocation}}</strong> to <strong>{{.DestinationDutyLocation}}</strong> is awaiting action in MilMove.</p>
 
-<p>To get your incentive, you need to request payment.</p>
+<p>Next steps:</p>
 
-<p>Log in to MilMove and request payment</p>
+<p>To get your payment, you need to login to MilMove, document expenses, and request payment.</p>
 
-<p>We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.</p>
+<p>To do that:</p>
 
-<p>To do that</p>
-
+<p>
 <ul>
-  <li><a href="{{.MyMoveLink}}">Log in to MilMove</a></li>
-  <li>Click Request Payment</li>
-  <li>Follow the instructions.</li>
+  <li>Log into <a href={{.MyMoveLink}}>MilMove</a></li>
+  <li>Click on "Upload PPM Documents"</li>
+  <li>Follow the instructions</li>
 </ul>
-
-<p>What documents do you need?</p>
+</p>
 
 <p>To request payment, you should have copies of:</p>
+
 <ul>
-  <li>Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move</li>
-  <li>Receipts for reimbursable expenses (see our moving tips PDF for more info)</li>
+<li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.</li>
+<li>       Receipts for reimbursable expenses.</li>
 </ul>
 
-<p>MilMove will ask you to upload copies of your documents as you complete your payment request.</p>
+<p>MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-<p>What if you’re missing documents?</p>
+<p>If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.</p>
 
-<p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
-{{ if .TOName }}
-<p>If you’re missing certified weight tickets, your PPPO will have to help. Call {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}} to have them walk you through it. Reference your move locator code: {{.Locator}}.</p>
-{{- end -}}
+<p>Payment request must be submitted within 45 days of your move date.</p>
 
-{{ if not .TOName }}
-<p>If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference your move code {{.Locator}}.</p>
-{{- end }}
+<p>If you have any questions, contact a government transportation office. You can see a listing of
+transportation offices on Military OneSource here: &lt;<a href="{{.OneSourceLink}}">{{.OneSourceLink}}</a>&gt;</p>
 
-<p>Log in to MilMove to complete your request and get paid.</p>
-
-<p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
-
-{{if .TOName}}<p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}}. Reference your move locator code: {{.Locator}}.</p>{{end}}
+<p>Thank you,</p>
+<p>USTRANSCOM MilMove Team</p>
+<p>The information contained in this email may contain Privacy Act information and is therefore protected
+under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>
