@@ -123,6 +123,9 @@ type MTOServiceItem struct {
 	// Format: date
 	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
 
+	// sit delivery miles
+	SitDeliveryMiles *int64 `json:"sitDeliveryMiles,omitempty"`
+
 	// sit departure date
 	// Format: date-time
 	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`

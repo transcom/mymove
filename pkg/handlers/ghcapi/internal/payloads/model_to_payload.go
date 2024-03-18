@@ -1413,6 +1413,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ServiceRequestDocuments:       serviceRequestDocs,
 		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
+		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 	}
 }
 

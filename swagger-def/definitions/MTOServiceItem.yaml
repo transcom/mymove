@@ -82,6 +82,9 @@ properties:
     $ref: 'Address.yaml'
   sitAddressUpdates:
     $ref: 'SITAddressUpdates.yaml'
+  sitDeliveryMiles:
+    type: integer
+    x-nullable: true
   feeType:
     enum:
       - COUNSELING

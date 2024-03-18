@@ -6345,6 +6345,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -18122,6 +18126,10 @@ func init() {
         "sitCustomerContacted": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sitDeliveryMiles": {
+          "type": "integer",
           "x-nullable": true
         },
         "sitDepartureDate": {
