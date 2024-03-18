@@ -13,7 +13,7 @@
     flex: auto;
     @include u-margin-top(1);
     width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
   }
 
   table {
