@@ -90,7 +90,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     },
     onError: (error) => {
       const { response: { body } = {} } = error;
-
       if (body) {
         /*
         {
