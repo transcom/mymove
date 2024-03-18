@@ -12,6 +12,9 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestMergePPMShipment() {
+	date := time.Now()
+	futureDate := date.AddDate(0, 0, 2)
+
 	type PPMShipmentState int
 
 	const (
@@ -31,6 +34,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		hasReceivedAdvance             bool
 		hasSecondaryPickupAddress      bool
 		hasSecondaryDestinationAddress bool
+		isFutureDate                   bool
 	}
 
 	var (
@@ -137,6 +141,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				oldShipment.SecondaryDestinationAddressID = &expectedSecondaryDestinationAddressID
 			}
 		}
+		oldShipment.ActualMoveDate = &date
 
 		return oldShipment
 	}
@@ -209,6 +214,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 	SITLocationOrigin := models.SITLocationTypeOrigin
 
 	mergeTestCases := map[string]struct {
+		oldDate     time.Time
 		oldState    PPMShipmentState
 		oldFlags    flags
 		newShipment models.PPMShipment
@@ -818,6 +824,17 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				suite.True(mergedShipment.SecondaryDestinationAddressID == nil)
 			},
 		},
+		"attempt to update actual move date with futureDate": {
+			oldDate: date,
+			oldFlags: flags{
+				isFutureDate: true,
+			},
+			newShipment: models.PPMShipment{
+				ActualMoveDate: &futureDate,
+			},
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			},
+		},
 	}
 
 	for name, tc := range mergeTestCases {
@@ -827,12 +844,16 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Run(fmt.Sprintf("Can merge changes - %s", name), func() {
 			oldShipment := setupShipmentData(tc.oldState, tc.oldFlags)
 
-			mergedShipment := mergePPMShipment(tc.newShipment, &oldShipment)
+			mergedShipment, err2 := mergePPMShipment(tc.newShipment, &oldShipment)
 
 			// these should never change
 			suite.Equal(oldShipment.ID, mergedShipment.ID)
 			suite.Equal(oldShipment.ShipmentID, mergedShipment.ShipmentID)
 			suite.Equal(oldShipment.Status, mergedShipment.Status)
+
+			if tc.oldFlags.isFutureDate {
+				suite.Equal(err2.Error(), "Update Error Actual move date cannot be set to the future.")
+			}
 
 			// now run test case specific checks
 			tc.runChecks(*mergedShipment, oldShipment, tc.newShipment)
