@@ -20,12 +20,6 @@ import (
 
 const dateOnly = "2006-01-02"
 
-//const futureDate = ""
-
-func (suite *PPMShipmentSuite) TestUpdatePPMShipmentInvalidActualMoveDate() {
-
-}
-
 func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	// One-time test setup
