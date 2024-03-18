@@ -1292,6 +1292,57 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "description": "Updates a requested office user to include profile data and status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Update a Requested Office User",
+        "operationId": "updateRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestedOfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
       }
     },
     "/uploads/{uploadId}": {
@@ -2484,6 +2535,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -2543,6 +2600,12 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -2559,6 +2622,23 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -2601,6 +2681,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "roles": {
           "type": "array",
@@ -2676,6 +2762,90 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "RequestedOfficeUserUpdate": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "Q."
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
       }
     },
     "Role": {
@@ -4421,6 +4591,57 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "description": "Updates a requested office user to include profile data and status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Update a Requested Office User",
+        "operationId": "updateRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestedOfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
       }
     },
     "/uploads/{uploadId}": {
@@ -5614,6 +5835,12 @@ func init() {
         "otherUniqueId": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -5673,6 +5900,12 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -5689,6 +5922,23 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -5731,6 +5981,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "roles": {
           "type": "array",
@@ -5806,6 +6062,90 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "RequestedOfficeUserUpdate": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "Q."
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
       }
     },
     "Role": {

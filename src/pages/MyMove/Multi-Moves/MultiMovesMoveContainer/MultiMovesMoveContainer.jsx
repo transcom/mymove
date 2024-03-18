@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
@@ -12,10 +13,13 @@ import styles from './MultiMovesMoveContainer.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 import { getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { setMoveId } from 'store/general/actions';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // this expands the moves when the arrow is clicked
   const handleExpandClick = (index) => {
@@ -69,6 +73,8 @@ const MultiMovesMoveContainer = ({ moves }) => {
 
   // sends user to the move page when clicking "Go to Move" btn
   const handleGoToMoveClick = (id) => {
+    // When Go To Move is clicked store the moveId choosen in state
+    dispatch(setMoveId(id));
     navigate(`${customerRoutes.MOVE_HOME_PAGE}/${id}`);
   };
 
@@ -77,6 +83,9 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
+          {CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) ? (
+            <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
+          ) : null}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
             <ButtonDropdownMenu
               data-testid="downloadBtn"
