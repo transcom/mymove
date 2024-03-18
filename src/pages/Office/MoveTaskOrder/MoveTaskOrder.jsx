@@ -157,7 +157,7 @@ export const MoveTaskOrder = (props) => {
         sitDestinationFinalAddress: item.sitDestinationFinalAddress,
         sitDestinationOriginalAddress: item.sitDestinationOriginalAddress,
         sitCustomerContacted: item.sitCustomerContacted,
-        sitRequestedDeliveryDate: item.sitRequestedDeliveryDate,
+        sitRequestedDelivery: item.sitRequestedDelivery,
         sitDeliveryMiles: item.sitDeliveryMiles,
       };
 

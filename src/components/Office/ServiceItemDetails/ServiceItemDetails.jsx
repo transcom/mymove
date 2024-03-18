@@ -69,8 +69,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Customer contacted homesafe': details.sitCustomerContacted
                   ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
                   : '-',
-                'Customer requested delivery date': details.sitRequestedDeliveryDate
-                  ? formatDateWithUTC(details.sitRequestedDeliveryDate, 'DD MMM YYYY')
+                'Customer requested delivery date': details.sitRequestedDelivery
+                  ? formatDateWithUTC(details.sitRequestedDelivery, 'DD MMM YYYY')
                   : '-',
               },
               id,
@@ -208,8 +208,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
                 'Customer contacted homesafe': details.sitCustomerContacted
                   ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
                   : '-',
-                'Customer requested delivery date': details.sitRequestedDeliveryDate
-                  ? formatDateWithUTC(details.sitRequestedDeliveryDate, 'DD MMM YYYY')
+                'Customer requested delivery date': details.sitRequestedDelivery
+                  ? formatDateWithUTC(details.sitRequestedDelivery, 'DD MMM YYYY')
                   : '-',
                 'SIT departure date': details.sitDepartureDate
                   ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
