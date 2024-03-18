@@ -343,11 +343,103 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 			return path, nil
 		}
 
-		for _, row := range rows {
-			for _, colCell := range row {
-				fmt.Print(colCell, "\t")
+		tempCSVFile, err := g.newTempFile()
+
+		if err != nil {
+			return "nil", errors.Wrap(err, "Creating temp file")
+		}
+
+		csvFile, err := g.fs.Open(tempCSVFile.Name())
+
+		if err != nil {
+			return "nil", errors.Wrap(err, "error g.fs.Open on reload from memstore")
+		}
+
+		defer func() {
+			// Close the spreadsheet.
+			if err := excelFile.Close(); err != nil {
+				appCtx.Logger().Debug("Failed to close file", zap.Error(err))
 			}
-			fmt.Println()
+		}()
+
+		// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
+		// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
+		// have 2 numbers.
+		rowCount := 1
+		var cellColumnData []string
+		const cellColumnCount = 4
+		const totalItemSectionString = "Total number of items in this section"
+		const totalCubeSectionString = "Total cube for this section"
+		const constructedWeightSectionString = "Constructed Weight for this section"
+		const itemString = "Item"
+
+		for _, row := range rows {
+			//secondDataSection := false
+			currentCell := 1
+			writeData := false
+			blankCell := false
+
+			for _, colCell := range row {
+				//fmt.Print(colCell, "\t")
+
+				// We skip the first two rows of the table
+				if rowCount <= 2 {
+					continue
+				} else if blankCell {
+					blankCell = false
+				} else if currentCell == cellColumnCount {
+					cellColumnData = append(cellColumnData, colCell)
+					writeData = true
+				} else if currentCell < cellColumnCount {
+					cellColumnData = append(cellColumnData, colCell)
+
+					// The total cube section only has 3 columns of data and we need to make sure we write out its value in the 3rd column
+					if cellColumnData[0] == totalCubeSectionString && currentCell == cellColumnCount-1 {
+						writeData = true
+					}
+
+					currentCell++
+				}
+
+				if writeData {
+					currentCell = 1
+					writeData = false
+
+					// If the first cell contains Item in the string its a section of just headers and no data
+					if cellColumnData[0] == itemString || (len(cellColumnData) == 4 && cellColumnData[0] == "" && cellColumnData[1] == "" &&
+						cellColumnData[2] == "" && cellColumnData[3] == "") {
+						cellColumnData = cellColumnData[:0]
+						blankCell = true
+						continue
+					} else if strings.Contains(cellColumnData[0], totalItemSectionString) ||
+						strings.Contains(cellColumnData[0], constructedWeightSectionString) {
+						csvFile.WriteString(cellColumnData[3] + ",")
+						fmt.Print(cellColumnData[3] + ",")
+					} else if strings.Contains(cellColumnData[0], totalCubeSectionString) {
+						csvFile.WriteString(cellColumnData[2] + ",")
+						fmt.Print(cellColumnData[2] + ",")
+					} else if cellColumnData[0] == "" {
+						csvFile.WriteString(cellColumnData[2] + ",")
+						csvFile.WriteString(cellColumnData[3] + ",")
+						fmt.Print(cellColumnData[2] + ",")
+						fmt.Print(cellColumnData[3] + ",")
+					} else {
+						csvFile.WriteString(cellColumnData[1] + ",")
+						csvFile.WriteString(cellColumnData[2] + ",")
+						csvFile.WriteString(cellColumnData[3] + ",")
+						fmt.Print(cellColumnData[1] + ",")
+						fmt.Print(cellColumnData[2] + ",")
+						fmt.Print(cellColumnData[3] + ",")
+					}
+
+					cellColumnData = cellColumnData[:0]
+					blankCell = true
+				}
+			}
+
+			rowCount++
+			cellColumnData = nil
+			currentCell = 1
 		}
 	}
 
