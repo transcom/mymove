@@ -216,11 +216,6 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 			officeUserStatus := "APPROVED"
 
 			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
-			if len(updatedPrivileges) == 0 {
-				err = apperror.NewBadDataError("No privileges were matched from payload")
-				appCtx.Logger().Error(err.Error())
-				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
-			}
 
 			officeUser := models.OfficeUser{
 				LastName:               payload.LastName,
