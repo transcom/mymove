@@ -41,7 +41,6 @@ import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
-import CustomerName from 'pages/Office/CustomerOnboarding/CustomerName';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -89,6 +88,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 );
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
+const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -275,10 +275,10 @@ export class OfficeApp extends Component {
                       />
                     )}
                     <Route
-                      path={servicesCounselingRoutes.CUSTOMER_NAME_PATH}
+                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CustomerName />
+                          <CreateCustomerForm />
                         </PrivateRoute>
                       }
                     />
