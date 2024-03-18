@@ -474,12 +474,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
 ServiceItemDetails.propTypes = ServiceItemDetailsShape.isRequired;
 
 ServiceItemDetails.propTypes = {
-  details: ServiceItemDetailsShape.isRequired,
+  details: ServiceItemDetailsShape,
   shipment: ShipmentShape,
   sitStatus: SitStatusShape,
 };
 
 ServiceItemDetails.defaultProps = {
+  details: {},
   shipment: {},
   sitStatus: undefined,
 };
