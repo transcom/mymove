@@ -93,6 +93,8 @@ const approvedMoveTaskOrder = {
         },
         primeActualWeight: 2000,
         primeEstimatedWeight: 1400,
+        actualProGearWeight: 1500,
+        actualSpouseProGearWeight: 250,
         primeEstimatedWeightRecordedDate: null,
         requestedPickupDate: '2020-03-15',
         requiredDeliveryDate: null,
@@ -331,6 +333,7 @@ describe('Update Shipment Page', () => {
 
     expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
     expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
+    expect(await screen.findByText('Pro Gear Weights')).toBeInTheDocument();
     expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
   });
 
@@ -383,6 +386,12 @@ describe('Displays the shipment information to update', () => {
       }),
     ).toBeInTheDocument();
     expect(
+      await within(updateShipmentContainer).findByRole('heading', {
+        name: 'Pro Gear Weights',
+        level: 2,
+      }),
+    ).toBeInTheDocument();
+    expect(
       within(updateShipmentContainer).getByRole('heading', {
         name: 'Shipment Addresses',
         level: 2,
@@ -428,6 +437,12 @@ describe('successful submission of form', () => {
 
     const actualWeightInput = screen.getByLabelText(/Actual weight/);
     await userEvent.type(actualWeightInput, '10000');
+
+    const actualProGearWeightInput = screen.getByLabelText(/Actual pro gear weight/);
+    await userEvent.type(actualProGearWeightInput, '2000');
+
+    const actualSpouseProGearWeightInput = screen.getByLabelText(/Actual spouse pro gear weight/);
+    await userEvent.type(actualSpouseProGearWeightInput, '500');
 
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 
