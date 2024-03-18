@@ -95,6 +95,14 @@ describe('ServiceItemsTable', () => {
             },
             { timeMilitary: '0800Z', firstAvailableDeliveryDate: '2021-01-01', dateOfContact: '2021-01-01' },
           ],
+          sitDestinationOriginalAddress: {
+            city: 'Destination Original Tampa',
+            eTag: 'MjAyNC0wMy0xMlQxOTo1OTowOC41NjkxMzla',
+            id: '7fd6cb90-54cd-44d8-8735-102e28734d84',
+            postalCode: '33621',
+            state: 'FL',
+            streetAddress1: 'MacDill',
+          },
         },
       },
     ];
@@ -110,18 +118,21 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
+    expect(wrapper.find('dt').at(0).text()).toBe('Original delivery address:');
+    expect(wrapper.find('dd').at(0).text()).toBe('Destination Original Tampa, FL 33621');
 
-    expect(wrapper.find('dt').at(0).text()).toBe('SIT entry date:');
-    expect(wrapper.find('dd').at(0).text()).toBe('31 Dec 2020');
-    expect(wrapper.find('dt').at(1).text()).toBe('First available delivery date 1:');
+    expect(wrapper.find('dt').at(1).text()).toBe('SIT entry date:');
     expect(wrapper.find('dd').at(1).text()).toBe('31 Dec 2020');
-    expect(wrapper.find('dt').at(2).text()).toBe('Customer contact attempt 1:');
-    expect(wrapper.find('dd').at(2).text()).toBe('31 Dec 2020, 0400Z');
 
-    expect(wrapper.find('dt').at(3).text()).toBe('First available delivery date 2:');
-    expect(wrapper.find('dd').at(3).text()).toBe('01 Jan 2021');
-    expect(wrapper.find('dt').at(4).text()).toBe('Customer contact attempt 2:');
-    expect(wrapper.find('dd').at(4).text()).toBe('01 Jan 2021, 0800Z');
+    expect(wrapper.find('dt').at(2).text()).toBe('First available delivery date 1:');
+    expect(wrapper.find('dd').at(2).text()).toBe('31 Dec 2020');
+    expect(wrapper.find('dt').at(3).text()).toBe('Customer contact attempt 1:');
+    expect(wrapper.find('dd').at(3).text()).toBe('31 Dec 2020, 0400Z');
+
+    expect(wrapper.find('dt').at(4).text()).toBe('First available delivery date 2:');
+    expect(wrapper.find('dd').at(4).text()).toBe('01 Jan 2021');
+    expect(wrapper.find('dt').at(5).text()).toBe('Customer contact attempt 2:');
+    expect(wrapper.find('dd').at(5).text()).toBe('01 Jan 2021, 0800Z');
   });
 
   it('should render the SITPostalCode ZIP, and reason for DOFSIT service item', () => {
@@ -136,6 +147,14 @@ describe('ServiceItemsTable', () => {
           SITPostalCode: '12345',
           reason: 'This is the reason',
           sitEntryDate: '2023-12-25T00:00:00.000Z',
+          sitOriginHHGOriginalAddress: {
+            city: 'Origin Original Tampa',
+            eTag: 'MjAyNC0wMy0xMlQxOTo1OTowOC41NjkxMzla',
+            id: '7fd6cb90-54cd-44d8-8735-102e28734d84',
+            postalCode: '33621',
+            state: 'FL',
+            streetAddress1: 'MacDill',
+          },
         },
       },
     ];
@@ -149,10 +168,11 @@ describe('ServiceItemsTable', () => {
         />
       </MockProviders>,
     );
-    expect(wrapper.find('dt').at(0).contains('SIT entry date')).toBe(true);
-    expect(wrapper.find('dd').at(0).contains('25 Dec 2023')).toBe(true);
-    expect(wrapper.find('dt').at(1).contains('ZIP')).toBe(true);
-    expect(wrapper.find('dd').at(1).contains('12345')).toBe(true);
+    expect(wrapper.find('dt').at(0).contains('Original pickup address')).toBe(true);
+    expect(wrapper.find('dd').at(0).contains('Origin Original Tampa, FL 33621')).toBe(true);
+
+    expect(wrapper.find('dt').at(1).contains('SIT entry date')).toBe(true);
+    expect(wrapper.find('dd').at(1).contains('25 Dec 2023')).toBe(true);
     expect(wrapper.find('dt').at(2).contains('Reason')).toBe(true);
     expect(wrapper.find('dd').at(2).contains('This is the reason')).toBe(true);
   });

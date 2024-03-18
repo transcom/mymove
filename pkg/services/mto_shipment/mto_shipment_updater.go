@@ -1049,3 +1049,53 @@ func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipm
 
 	return nil
 }
+
+func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, appCtx appcontext.AppContext, shipment *models.MTOShipment, newAddress *models.Address, TOOApprovalRequired bool) error {
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITDestinationOriginalAddress"}
+	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
+	if err != nil {
+		return err
+	}
+
+	mtoServiceItems := mtoShipment.MTOServiceItems
+	for _, s := range mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC {
+
+			var milesCalculated int
+
+			if TOOApprovalRequired {
+				// if TOO approval was required, shipment destination address has been updated at this point
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+			} else {
+				// if TOO approval was not required, use the newAddress
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+			}
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+		}
+	}
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		// update service item final SITDeliveryMiles
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&mtoServiceItems)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
+		} else if err != nil {
+			return apperror.NewQueryError("Service item", err, "")
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+
+	return nil
+}
