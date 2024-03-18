@@ -71,7 +71,7 @@ export const retrieveTextToDisplay = (fieldName, value) => {
 
   return {
     displayName,
-    displayValue: (!`${value}` && '-') || (value && displayValue),
+    displayValue: (!`${value}` && '—') || (value && displayValue),
   };
 };
 
