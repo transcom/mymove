@@ -2937,6 +2937,10 @@ paths:
           name: closeoutLocation
           type: string
           description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -2992,6 +2996,9 @@ paths:
           type: string
         - in: query
           name: moveCode
+          type: string
+        - in: query
+          name: orderType
           type: string
       responses:
         '200':
@@ -3085,6 +3092,10 @@ paths:
               - SUBMITTED
               - APPROVALS REQUESTED
               - APPROVED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3177,6 +3188,10 @@ paths:
               - Paid
               - Deprecated
               - Error
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3439,6 +3454,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        $ref: '#/definitions/Address'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3471,6 +3497,18 @@ definitions:
           - $ref: '#/definitions/Address'
       backup_contact:
         $ref: '#/definitions/BackupContact'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
   Entitlements:
     properties:
       id:
@@ -3933,6 +3971,8 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      originDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -5103,6 +5143,9 @@ definitions:
       closeoutLocation:
         type: string
         x-nullable: true
+      orderType:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5157,6 +5200,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      orderType:
+        type: string
   ListPrimeMoves:
     type: array
     items:
@@ -5202,6 +5247,9 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      orderType:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5267,6 +5315,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
   SearchMovesResult:
     type: object
     properties:
@@ -5776,11 +5826,13 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:

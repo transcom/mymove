@@ -85,6 +85,7 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		OrderType:          string(move.Orders.OrdersType),
 	}
 
 	if move.PPMType != nil {
@@ -439,19 +440,23 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	}
 
 	payload := ghcmessages.Customer{
-		Agency:         swag.StringValue((*string)(customer.Affiliation)),
-		CurrentAddress: Address(customer.ResidentialAddress),
-		DodID:          swag.StringValue(customer.Edipi),
-		Email:          customer.PersonalEmail,
-		FirstName:      swag.StringValue(customer.FirstName),
-		ID:             strfmt.UUID(customer.ID.String()),
-		LastName:       swag.StringValue(customer.LastName),
-		Phone:          customer.Telephone,
-		Suffix:         customer.Suffix,
-		MiddleName:     customer.MiddleName,
-		UserID:         strfmt.UUID(customer.UserID.String()),
-		ETag:           etag.GenerateEtag(customer.UpdatedAt),
-		BackupContact:  BackupContact(customer.BackupContacts),
+		Agency:             swag.StringValue((*string)(customer.Affiliation)),
+		CurrentAddress:     Address(customer.ResidentialAddress),
+		DodID:              swag.StringValue(customer.Edipi),
+		Email:              customer.PersonalEmail,
+		FirstName:          swag.StringValue(customer.FirstName),
+		ID:                 strfmt.UUID(customer.ID.String()),
+		LastName:           swag.StringValue(customer.LastName),
+		Phone:              customer.Telephone,
+		Suffix:             customer.Suffix,
+		MiddleName:         customer.MiddleName,
+		UserID:             strfmt.UUID(customer.UserID.String()),
+		ETag:               etag.GenerateEtag(customer.UpdatedAt),
+		BackupContact:      BackupContact(customer.BackupContacts),
+		BackupAddress:      Address(customer.BackupMailingAddress),
+		SecondaryTelephone: customer.SecondaryTelephone,
+		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
+		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
 	}
 	return &payload
 }
@@ -530,6 +535,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
+		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(*order.OriginDutyLocationGBLOC),
 	}
 
 	return &payload
@@ -775,6 +781,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -1676,6 +1684,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
+			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 		}
 	}
 	return &queueMoves
@@ -1780,6 +1789,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
+			OrderType:          (*string)(orders.OrdersType.Pointer()),
 		}
 
 		if orders.DepartmentIndicator != nil {
@@ -1833,6 +1843,7 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			OrderType:                         string(move.Orders.OrdersType),
 		}
 	}
 	return &searchMoves

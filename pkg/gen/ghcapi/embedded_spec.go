@@ -3226,6 +3226,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3350,6 +3356,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -3477,6 +3489,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3534,6 +3552,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -5393,6 +5416,9 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -5410,6 +5436,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
         },
         "first_name": {
           "type": "string",
@@ -5430,6 +5459,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -6062,6 +6100,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orderType": {
+          "type": "string"
         },
         "ppmType": {
           "type": "string",
@@ -7482,6 +7523,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -7530,9 +7574,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -8511,6 +8557,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -8590,6 +8640,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -8986,6 +9040,9 @@ func init() {
           "example": "Doe"
         },
         "locator": {
+          "type": "string"
+        },
+        "orderType": {
           "type": "string"
         },
         "originDutyLocationPostalCode": {
@@ -9545,6 +9602,13 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
+        "backupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -9561,6 +9625,9 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -9575,6 +9642,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -14574,6 +14650,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -14704,6 +14786,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -14837,6 +14925,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -14900,6 +14994,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -17090,6 +17189,9 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -17107,6 +17209,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
         },
         "first_name": {
           "type": "string",
@@ -17127,6 +17232,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -17759,6 +17873,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orderType": {
+          "type": "string"
         },
         "ppmType": {
           "type": "string",
@@ -19179,6 +19296,9 @@ func init() {
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "originDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -19227,9 +19347,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -20210,6 +20332,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -20289,6 +20415,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -20740,6 +20870,9 @@ func init() {
           "example": "Doe"
         },
         "locator": {
+          "type": "string"
+        },
+        "orderType": {
           "type": "string"
         },
         "originDutyLocationPostalCode": {
@@ -21305,6 +21438,13 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
+        "backupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -21321,6 +21461,9 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -21335,6 +21478,15 @@ func init() {
           "example": "David"
         },
         "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",

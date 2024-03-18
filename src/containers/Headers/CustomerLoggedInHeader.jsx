@@ -12,6 +12,7 @@ import { selectCurrentMoveId } from 'store/general/selectors';
 
 const CustomerLoggedInHeader = ({ isProfileComplete, logOut, moveId }) => {
   const navigate = useNavigate();
+
   const handleLogout = () => {
     logOut();
     LogoutUser().then((r) => {
