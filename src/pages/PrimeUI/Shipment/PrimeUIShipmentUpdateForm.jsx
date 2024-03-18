@@ -158,11 +158,15 @@ const PrimeUIShipmentUpdateForm = ({
 PrimeUIShipmentUpdateForm.propTypes = {
   editableWeightEstimateField: PropTypes.bool,
   editableWeightActualField: PropTypes.bool,
+  editableProGearWeightActualField: PropTypes.bool,
+  editableSpouseProGearWeightActualField: PropTypes.bool,
   editablePickupAddress: PropTypes.bool,
   editableDestinationAddress: PropTypes.bool,
   requestedPickupDate: PropTypes.string,
   estimatedWeight: PropTypes.string,
   actualWeight: PropTypes.string,
+  actualProGearWeight: PropTypes.string,
+  actualSpouseProGearWeight: PropTypes.string,
   pickupAddress: ResidentialAddressShape,
   destinationAddress: ResidentialAddressShape,
 };
@@ -170,11 +174,15 @@ PrimeUIShipmentUpdateForm.propTypes = {
 PrimeUIShipmentUpdateForm.defaultProps = {
   editableWeightEstimateField: 0,
   editableWeightActualField: 0,
+  editableProGearWeightActualField: true,
+  editableSpouseProGearWeightActualField: true,
   editablePickupAddress: true,
   editableDestinationAddress: true,
   requestedPickupDate: '',
   estimatedWeight: '',
   actualWeight: '',
+  actualProGearWeight: '',
+  actualSpouseProGearWeight: '',
   pickupAddress: emptyAddressShape,
   destinationAddress: emptyAddressShape,
 };
