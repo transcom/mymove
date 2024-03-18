@@ -16,6 +16,7 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -30,7 +31,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -55,6 +56,7 @@ import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete }
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -81,6 +83,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
+      showDownloadPPMAOAPaperworkErrorAlert: false,
     };
   }
 
@@ -191,6 +194,12 @@ export class Home extends Component {
       default:
         return 'Report by';
     }
+  }
+
+  get isPrimeCounseled() {
+    const { orders } = this.props;
+
+    return !orders.provides_services_counseling;
   }
 
   renderAlert = () => {
@@ -354,6 +363,12 @@ export class Home extends Component {
     navigate(path);
   };
 
+  toggleDownloadAOAErrorModal = () => {
+    this.setState((prevState) => ({
+      showDownloadPPMAOAPaperworkErrorAlert: !prevState.showDownloadPPMAOAPaperworkErrorAlert,
+    }));
+  };
+
   // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
@@ -379,7 +394,13 @@ export class Home extends Component {
       orders,
     } = this.props;
 
-    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert } = this.state;
+    const {
+      showDeleteModal,
+      targetShipmentId,
+      showDeleteSuccessAlert,
+      showDeleteErrorAlert,
+      showDownloadPPMAOAPaperworkErrorAlert,
+    } = this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -413,6 +434,7 @@ export class Home extends Component {
     const currentLocation = current_location;
     const shipmentNumbersByType = {};
 
+    const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -425,8 +447,17 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
+        <DownloadAOAErrorModal
+          isOpen={showDownloadPPMAOAPaperworkErrorAlert}
+          closeModal={this.toggleDownloadAOAErrorModal}
+        />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
+            {isSpecialMove ? (
+              <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
+                <p>BLUEBARK</p>
+              </div>
+            ) : null}
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
               <h2>
                 {serviceMember.first_name} {serviceMember.last_name}
@@ -600,11 +631,13 @@ export class Home extends Component {
                                     {` ${shipmentNumber} `}
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
-                                    // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                     <p className={styles.downloadLink}>
-                                      <a href="">
-                                        <span>Download AOA Paperwork (PDF)</span>
-                                      </a>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadAOAErrorModal}
+                                      />
                                     </p>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
@@ -625,11 +658,22 @@ export class Home extends Component {
                             GTCC usage authorization or ask any questions.
                           </Description>
                         )}
-                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && (
+                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && !this.isPrimeCounseled && (
                           <Description>
                             Your service will review your request for an Advance Operating Allowance (AOA). If approved,
                             you will be able to download the paperwork for your request and submit it to your Finance
                             Office to receive your advance.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                          </Description>
+                        )}
+                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && this.isPrimeCounseled && (
+                          <Description>
+                            Once you have received counseling for your PPM you will receive emailed instructions on how
+                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
+                            Transportation Office for review of your AOA packet.
                             <br />
                             <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                             incentive ends up being less than your advance, you will be required to pay back the
