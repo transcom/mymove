@@ -481,6 +481,6 @@ ServiceItemDetails.propTypes = {
 
 ServiceItemDetails.defaultProps = {
   shipment: {},
-  sitStatus: {},
+  sitStatus: undefined,
 };
 export default ServiceItemDetails;
