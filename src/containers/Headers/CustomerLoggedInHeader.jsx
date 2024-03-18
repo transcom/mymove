@@ -7,11 +7,17 @@ import MilMoveHeader from 'components/MilMoveHeader/index';
 import CustomerUserInfo from 'components/MilMoveHeader/CustomerUserInfo';
 import { LogoutUser } from 'utils/api';
 import { logOut as logOutAction } from 'store/auth/actions';
-import { selectIsProfileComplete } from 'store/entities/selectors';
+import { selectCurrentOrders, selectIsProfileComplete } from 'store/entities/selectors';
 import { selectCurrentMoveId } from 'store/general/selectors';
 
-const CustomerLoggedInHeader = ({ isProfileComplete, logOut, moveId }) => {
+const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut, moveId }) => {
   const navigate = useNavigate();
+
+  let isSpecialMove = false;
+  if (Object.keys(state.entities.orders).length > 0) {
+    const currentOrderType = selectCurrentOrders(state);
+    isSpecialMove = ['BLUEBARK'].includes(currentOrderType?.orders_type);
+  }
 
   const handleLogout = () => {
     logOut();
@@ -28,7 +34,7 @@ const CustomerLoggedInHeader = ({ isProfileComplete, logOut, moveId }) => {
   };
 
   return (
-    <MilMoveHeader>
+    <MilMoveHeader isSpecialMove={isSpecialMove}>
       <CustomerUserInfo showProfileLink={isProfileComplete} handleLogout={handleLogout} moveId={moveId} />
     </MilMoveHeader>
   );
@@ -44,6 +50,7 @@ CustomerLoggedInHeader.defaultProps = {
 };
 
 const mapStateToProps = (state) => ({
+  state,
   isProfileComplete: selectIsProfileComplete(state),
   // Grab moveId from state that was set from the most recent navigation to a move
   moveId: selectCurrentMoveId(state),
