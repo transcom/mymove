@@ -141,6 +141,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 		if shipmentHasDeliveryDetails {
 			newMTOShipment.RequestedDeliveryDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+			newMTOShipment.ScheduledDeliveryDate = models.TimePointer(time.Date(GHCTestYear, time.March, 17, 0, 0, 0, 0, time.UTC))
 
 			// Find/create the Delivery Address
 			tempDeliveryAddressCustoms := customs
