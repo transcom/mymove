@@ -71,7 +71,7 @@ export const retrieveTextToDisplay = (fieldName, value) => {
 
   return {
     displayName,
-    displayValue,
+    displayValue: (!`${value}` && '-') || (value && displayValue),
   };
 };
 
@@ -94,15 +94,14 @@ export const filterInLineItemValues = (changedValues, oldValues) =>
     const fieldInChanged = theField in changed;
     const valueIsNotBlank = `${theValue}`.length > 0 && !!theValue;
 
+    // const isNullAndChangedFromOld = !!(fieldInChanged && `${old[theField]}` && !theValue);
     return !!(
-      (
-        fieldMappings[theField] &&
-        // if changeValues has theField while theValue is either blank or theField exists the old values
-        ((fieldInChanged && (valueIsNotBlank || fieldInOld)) ||
-          // or theField exists in changeValues
-          // and oldValues is empty or not empty
-          (fieldInChanged && !`${old[theField]}`))
-      ) /* || `${theValue}` */
+      fieldMappings[theField] &&
+      // if changeValues has theField while theValue is either blank or theField exists the old values
+      ((fieldInChanged && (valueIsNotBlank || fieldInOld)) ||
+        // or theField exists in changeValues
+        // and oldValues is empty or not empty
+        (fieldInChanged && !(`${old[theField]}` || theValue)))
     );
   });
 
