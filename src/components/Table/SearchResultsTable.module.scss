@@ -14,6 +14,7 @@
     @include u-margin-top(1);
     width: 100%;
     overflow-x: auto;
+    min-height: 460px;
   }
 
   table {
