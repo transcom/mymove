@@ -72,6 +72,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Customer requested delivery date': details.sitRequestedDelivery
                   ? formatDateWithUTC(details.sitRequestedDelivery, 'DD MMM YYYY')
                   : '-',
+                'SIT departure date': details.sitDepartureDate
+                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
+                  : '-',
               },
               id,
             )

@@ -27,7 +27,7 @@ const details = {
   ],
   estimatedWeight: 2500,
   sitCustomerContacted: '2024-03-14T00:00:00.000Z',
-  sitRequestedDeliveryDate: '2024-03-15T00:00:00.000Z',
+  sitRequestedDelivery: '2024-03-15T00:00:00.000Z',
   sitDepartureDate: '2024-03-16T00:00:00.000Z',
   sitDeliveryMiles: 50,
   sitOriginHHGOriginalAddress: {
@@ -109,6 +109,9 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
     expect(screen.getByText('Customer requested delivery date:')).toBeInTheDocument();
     expect(screen.getByText('15 Mar 2024')).toBeInTheDocument();
+
+    expect(screen.getByText('SIT departure date:')).toBeInTheDocument();
+    expect(screen.getByText('16 Mar 2024')).toBeInTheDocument();
   });
 
   it('renders DDDSIT details', () => {
