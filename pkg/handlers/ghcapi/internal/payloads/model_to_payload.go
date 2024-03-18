@@ -467,6 +467,12 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 		return nil
 	}
 
+	bc := &ghcmessages.BackupContact{
+		Name:  &backupContact.Name,
+		Email: &backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
 	payload := ghcmessages.CreatedCustomer{
 		ID:                 strfmt.UUID(sm.ID.String()),
 		UserID:             strfmt.UUID(sm.UserID.String()),
@@ -485,7 +491,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 		SecondaryTelephone: sm.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
-		BackupContact:      BackupContact(sm.BackupContacts),
+		BackupContact:      bc,
 	}
 	return &payload
 }
