@@ -2931,6 +2931,7 @@ paths:
         - in: query
           name: orderType
           type: string
+          description: order type
       responses:
         '200':
           description: Successfully retrieved moves. A successful fetch might still return zero moves.
