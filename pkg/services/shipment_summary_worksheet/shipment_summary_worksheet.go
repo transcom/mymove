@@ -351,8 +351,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 	if estimatedIncentive != nil {
 		maxAdvance := float64(*estimatedIncentive) * 0.6
-		maxAdvanceString := FormatDollars(maxAdvance / 100)
-		return maxAdvanceString
+		return FormatDollars(maxAdvance / 100)
 	}
 	maxAdvanceString := "No Incentive Found"
 	return maxAdvanceString
