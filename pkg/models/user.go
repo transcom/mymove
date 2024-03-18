@@ -23,6 +23,7 @@ type User struct {
 	OktaEmail              string      `json:"okta_email" db:"okta_email"`
 	Active                 bool        `json:"active" db:"active"`
 	Roles                  roles.Roles `many_to_many:"users_roles"`
+	Privileges             Privileges  `many_to_many:"users_privileges"`
 	CurrentAdminSessionID  string      `json:"current_admin_session_id" db:"current_admin_session_id"`
 	CurrentOfficeSessionID string      `json:"current_office_session_id" db:"current_office_session_id"`
 	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
@@ -120,6 +121,7 @@ type UserIdentity struct {
 	AdminUserLastName      *string     `db:"au_lname"`
 	AdminUserActive        *bool       `db:"au_active"`
 	Roles                  roles.Roles `many_to_many:"users_roles" primary_id:"user_id"`
+	Privileges             Privileges  `many_to_many:"users_privileges" primary_id:"user_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -159,6 +161,12 @@ func FetchUserIdentity(db *pop.Connection, oktaID string) (*UserIdentity, error)
 										where deleted_at is null and user_id = ?)`, identity.ID).All(&identity.Roles)
 	if roleError != nil {
 		return nil, roleError
+	}
+	privilegeError := db.RawQuery(`SELECT * FROM privileges
+									WHERE id in (select privilege_id from users_privileges
+										where deleted_at is null and user_id = ?)`, identity.ID).All(&identity.Privileges)
+	if privilegeError != nil {
+		return nil, privilegeError
 	}
 	return identity, nil
 }

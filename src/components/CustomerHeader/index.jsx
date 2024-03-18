@@ -5,14 +5,19 @@ import styles from './index.module.scss';
 
 import { OrderShape, CustomerShape } from 'types/order';
 import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders.js';
+import {
+  CHECK_SPECIAL_ORDERS_TYPES,
+  ORDERS_BRANCH_OPTIONS,
+  ORDERS_PAY_GRADE_OPTIONS,
+  SPECIAL_ORDERS_TYPES,
+} from 'constants/orders.js';
 
 const CustomerHeader = ({ customer, order, moveCode }) => {
   // eslint-disable-next-line camelcase
-  const { order_type } = order;
+  const { order_type: orderType } = order;
 
-  const isRetireeOrSeparatee = ['RETIREMENT', 'SEPARATION'].includes(order_type);
-  const isSpecialMove = ['BLUEBARK'].includes(order_type);
+  const isRetireeOrSeparatee = ['RETIREMENT', 'SEPARATION'].includes(orderType);
+  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orderType);
 
   /**
    * Depending on the order type, this row dt label can be either:
@@ -20,7 +25,7 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
    * Date of retirement (RETIREMENT)
    * Date of separation (SEPARATION)
    */
-  const reportDateLabel = formatLabelReportByDate(order_type);
+  const reportDateLabel = formatLabelReportByDate(orderType);
 
   return (
     <div className={styles.custHeader}>
@@ -45,7 +50,7 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
       </div>
       {isSpecialMove ? (
         <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-          <p>BLUEBARK</p>
+          <p>{SPECIAL_ORDERS_TYPES[`${orderType}`]}</p>
         </div>
       ) : null}
       <div data-testid="infoBlock" className={styles.infoBlock}>
