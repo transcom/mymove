@@ -25,11 +25,15 @@ const shipmentDestinationTypeOptions = dropdownInputOptions(shipmentDestinationT
 const PrimeUIShipmentUpdateForm = ({
   editableWeightEstimateField,
   editableWeightActualField,
+  editableProGearWeightActualField,
+  editableSpouseProGearWeightActualField,
   editablePickupAddress,
   editableDestinationAddress,
   requestedPickupDate,
   estimatedWeight,
   actualWeight,
+  actualProGearWeight,
+  actualSpouseProGearWeight,
   pickupAddress,
   destinationAddress,
 }) => {
@@ -87,6 +91,51 @@ const PrimeUIShipmentUpdateForm = ({
             <h5 className={styles.sectionHeader}>Actual Weight</h5>
           </dt>
           <dd data-testid="authorizedWeight">{formatWeight(actualWeight)}</dd>
+        </>
+      )}
+      <h2 className={styles.sectionHeader}>Pro Gear Weights</h2>
+      {editableProGearWeightActualField && (
+        <MaskedTextField
+          data-testid="actualProGearWeightInput"
+          defaultValue="0"
+          name="actualProGearWeight"
+          label="Actual pro gear weight (lbs)"
+          id="actualProGearWeightInput"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          signed={false} // disallow negative
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+      )}
+      {!editableProGearWeightActualField && (
+        <>
+          <dt>
+            <h5 className={styles.sectionHeader}>Actual Pro Gear Weight</h5>
+          </dt>
+          <dd data-testid="authorizedWeight">{formatWeight(actualProGearWeight)}</dd>
+        </>
+      )}
+      {editableSpouseProGearWeightActualField && (
+        <MaskedTextField
+          data-testid="actualSpouseProGearWeightInput"
+          defaultValue="0"
+          name="actualSpouseProGearWeight"
+          label="Actual spouse pro gear weight (lbs)"
+          id="actualSpouseProGearWeightInput"
+          mask={Number}
+          scale={0} // digits after point, 0 for integers
+          signed={false} // disallow negative
+          thousandsSeparator=","
+          lazy={false} // immediate masking evaluation
+        />
+      )}
+      {!editableSpouseProGearWeightActualField && (
+        <>
+          <dt>
+            <h5 className={styles.sectionHeader}>Actual Pro Gear Weight</h5>
+          </dt>
+          <dd data-testid="authorizedWeight">{formatWeight(actualSpouseProGearWeight)}</dd>
         </>
       )}
       <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
