@@ -155,8 +155,8 @@ func CheckAuth(v *viper.Viper) error {
 	}
 
 	for _, s := range groupIDVars {
-		privateKey := v.GetString(s)
-		if len(privateKey) == 0 {
+		groupID := v.GetString(s)
+		if len(groupID) == 0 {
 			return errors.Errorf("%s is missing", s)
 		}
 	}
