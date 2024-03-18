@@ -1494,6 +1494,46 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
+    parameters:
+      - description: the id for the ppmshipment with aoa to be downloaded
+        in: path
+        name: ppmShipmentId
+        required: true
+        type: string
+    get:
+      summary: Downloads AOA Packet form PPMShipment as a PDF
+      description: |
+        ### Functionality
+        This endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.
+        ### Errors
+        * The PPMShipment must have requested an AOA.
+        * The PPMShipment AOA Request must have been approved.
+      operationId: showAOAPacket
+      tags:
+        - ppm
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: AOA PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/finish-document-review:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -1546,8 +1586,6 @@ paths:
       operationId: getPPMCloseout
       tags:
         - ppm
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -2803,6 +2841,10 @@ paths:
           name: closeoutLocation
           type: string
           description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -2847,6 +2889,9 @@ paths:
           type: string
         - in: query
           name: moveCode
+          type: string
+        - in: query
+          name: orderType
           type: string
       responses:
         '200':
@@ -2934,6 +2979,10 @@ paths:
               - SUBMITTED
               - APPROVALS REQUESTED
               - APPROVED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3012,6 +3061,10 @@ paths:
               - Paid
               - Deprecated
               - Error
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3067,9 +3120,12 @@ paths:
                 items:
                   type: string
                   enum:
+                    - DRAFT
                     - SUBMITTED
                     - APPROVALS REQUESTED
                     - APPROVED
+                    - NEEDS SERVICE COUNSELING
+                    - SERVICE COUNSELING COMPLETED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -3270,6 +3326,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backupAddress:
+        $ref: 'definitions/Address.yaml'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3302,6 +3369,18 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
   Entitlements:
     properties:
       id:
@@ -3746,6 +3825,8 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      originDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -4862,6 +4943,9 @@ definitions:
       closeoutLocation:
         type: string
         x-nullable: true
+      orderType:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -4915,6 +4999,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      orderType:
+        type: string
   ListPrimeMoves:
     type: array
     items:
@@ -4958,6 +5044,9 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      orderType:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5023,6 +5112,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
   SearchMovesResult:
     type: object
     properties:

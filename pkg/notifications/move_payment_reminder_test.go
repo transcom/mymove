@@ -1,12 +1,10 @@
 package notifications
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func offsetDate(dayOffset int) time.Time {
@@ -14,78 +12,53 @@ func offsetDate(dayOffset int) time.Time {
 	return currentDatetime.AddDate(0, 0, dayOffset)
 }
 
-// cutoff date for sending payment reminders (don't send if older than this...)
-func cutoffDate() time.Time {
+func (suite *NotificationSuite) CreatePPMShipmentDateTooOld() models.PPMShipment {
 	cutoffDate, _ := time.Parse("2006-01-02", "2019-05-31")
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: cutoffDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+	return ppm
+}
 
-	return cutoffDate
+func (suite *NotificationSuite) GetPPMShipment(offset int) models.PPMShipment {
+	expectedDate := offsetDate(offset)
+
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+
+	return ppm
+}
+
+func (suite *NotificationSuite) CreatePPMShipment(offset int) {
+	expectedDate := offsetDate(offset)
+
+	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
-	date14DaysAgo := offsetDate(-14)
-	date9DaysAgo := offsetDate(-9)
 
-	weightEstimate := unit.Pound(300)
-
-	ppms := []models.PPMShipment{
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: date14DaysAgo,
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: offsetDate(-15),
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: date9DaysAgo,
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-	}
+	ppms := []models.PPMShipment{suite.GetPPMShipment(-9), suite.GetPPMShipment(-14), suite.GetPPMShipment(-15)}
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -103,8 +76,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 				suite.Equal(*ppms[i].Shipment.MoveTaskOrder.Orders.ServiceMember.PersonalEmail, *emailInfo[j].Email)
 				suite.Equal(ppms[i].EstimatedWeight, emailInfo[j].WeightEstimate)
 				suite.Equal(ppms[i].EstimatedIncentive, emailInfo[j].IncentiveEstimate)
-				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice.Name, *emailInfo[j].TOName)
-				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice.PhoneLines[0].Number, *emailInfo[j].TOPhone)
 				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Locator, emailInfo[j].Locator)
 			}
 		}
@@ -112,90 +83,9 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
-	date10DaysAgo := offsetDate(-10)
-	date9DaysAgo := offsetDate(-9)
-	dateTooOld := cutoffDate()
-	weightEstimate := unit.Pound(100)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date9DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: dateTooOld,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date10DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date9DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Show: models.BoolPointer(false),
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
+	suite.CreatePPMShipment(-10)
+	suite.CreatePPMShipment(-9)
+	suite.CreatePPMShipmentDateTooOld()
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -206,49 +96,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-	date14DaysAgo := offsetDate(-14)
-	dateTooOld := cutoffDate()
-	weightEstimate := unit.Pound(200)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date14DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: dateTooOld,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
+	suite.CreatePPMShipmentDateTooOld()
+	suite.CreatePPMShipment(-14)
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -264,145 +113,76 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
-	sm := factory.BuildServiceMember(suite.DB(), nil, nil)
-	ei := PaymentReminderEmailInfo{
-		ServiceMemberID: sm.ID,
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	serviceMenmberID := PaymentReminderEmailInfo{
+		ServiceMemberID: serviceMember.ID,
 	}
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), ei)("SESID")
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), serviceMenmberID)("SESID")
 	suite.NoError(err)
 
-	n := models.Notification{}
-	err = suite.DB().First(&n)
+	notification := models.Notification{}
+	err = suite.DB().First(&notification)
 	suite.NoError(err)
-	suite.Equal(sm.ID, n.ServiceMemberID)
-	suite.Equal(models.MovePaymentReminderEmail, n.NotificationType)
-	suite.Equal("SESID", n.SESMessageID)
+	suite.Equal(serviceMember.ID, notification.ServiceMemberID)
+	suite.Equal(models.MovePaymentReminderEmail, notification.NotificationType)
+	suite.Equal("SESID", notification.SESMessageID)
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
-	milMove := "https://my.move.mil/"
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
-	name := "TEST PPPO"
-	phone := "555-555-5555"
-	s := PaymentReminderEmailData{
+	paymentReminderData := PaymentReminderEmailData{
+		OriginDutyLocation:      "OriginDutyLocation",
 		DestinationDutyLocation: "DestDutyLocation",
-		WeightEstimate:          "1500",
-		IncentiveEstimate:       "500",
-		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                  &name,
-		TOPhone:                 &phone,
 		Locator:                 "abc123",
+		OneSourceLink:           OneSourceTransportationOfficeLink,
 		MyMoveLink:              MyMoveLink,
 	}
-	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
+	expectedHTMLContent := `<p><strong>***</strong> DO NOT REPLY directly to this email <strong>***</strong></p>
 
-<p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
+<p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from
+<strong>` + paymentReminderData.OriginDutyLocation + `</strong> to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
 
-<p>To get your incentive, you need to request payment.</p>
+<p>Next steps:</p>
 
-<p>Log in to MilMove and request payment</p>
+<p>To get your payment, you need to login to MilMove, document expenses, and request payment.</p>
 
-<p>We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.</p>
+<p>To do that:</p>
 
-<p>To do that</p>
-
+<p>
 <ul>
-  <li><a href="` + milMove + `">Log in to MilMove</a></li>
-  <li>Click Request Payment</li>
-  <li>Follow the instructions.</li>
+  <li>Log into <a href=` + MyMoveLink + `>MilMove</a></li>
+  <li>Click on "Upload PPM Documents"</li>
+  <li>Follow the instructions</li>
 </ul>
-
-<p>What documents do you need?</p>
+</p>
 
 <p>To request payment, you should have copies of:</p>
-<ul>
-  <li>Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move</li>
-  <li>Receipts for reimbursable expenses (see our moving tips PDF for more info)</li>
-</ul>
-
-<p>MilMove will ask you to upload copies of your documents as you complete your payment request.</p>
-
-<p>What if you’re missing documents?</p>
-
-<p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
-
-<p>If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.</p>
-
-<p>Log in to MilMove to complete your request and get paid.</p>
-
-<p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
-
-<p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.</p>
-`
-
-	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), s)
-
-	suite.NoError(err)
-	suite.Equal(expectedHTMLContent, htmlContent)
-
-}
-
-func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDutyLocation() {
-	pr, err := NewPaymentReminder()
-	suite.NoError(err)
-
-	s := PaymentReminderEmailData{
-		DestinationDutyLocation: "DestDutyLocation",
-		WeightEstimate:          "1500",
-		IncentiveEstimate:       "500",
-		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                  nil,
-		TOPhone:                 nil,
-		Locator:                 "abc123",
-		MyMoveLink:              MyMoveLink,
-	}
-	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
-
-<p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
-
-<p>To get your incentive, you need to request payment.</p>
-
-<p>Log in to MilMove and request payment</p>
-
-<p>We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.</p>
-
-<p>To do that</p>
 
 <ul>
-  <li><a href="` + MyMoveLink + `">Log in to MilMove</a></li>
-  <li>Click Request Payment</li>
-  <li>Follow the instructions.</li>
+<li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.</li>
+<li>       Receipts for reimbursable expenses.</li>
 </ul>
 
-<p>What documents do you need?</p>
+<p>MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-<p>To request payment, you should have copies of:</p>
-<ul>
-  <li>Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move</li>
-  <li>Receipts for reimbursable expenses (see our moving tips PDF for more info)</li>
-</ul>
+<p>If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.</p>
 
-<p>MilMove will ask you to upload copies of your documents as you complete your payment request.</p>
+<p>Payment request must be submitted within 45 days of your move date.</p>
 
-<p>What if you’re missing documents?</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of
+transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;</p>
 
-<p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
+<p>Thank you,</p>
+<p>USTRANSCOM MilMove Team</p>
+<p>The information contained in this email may contain Privacy Act information and is therefore protected
+under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
 
-<p>If you are missing weight tickets, someone from the government will have to help. Consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to find your best contact and reference your move code abc123.</p>
-
-<p>Log in to MilMove to complete your request and get paid.</p>
-
-<p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
-
-
-`
-
-	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), s)
+	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), paymentReminderData)
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
@@ -412,57 +192,50 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDut
 func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
-
-	name := "TEST PPPO"
-	phone := "555-555-5555"
-	s := PaymentReminderEmailData{
+	paymentReminderData := PaymentReminderEmailData{
+		OriginDutyLocation:      "OriginDutyLocation",
 		DestinationDutyLocation: "DestDutyLocation",
-		WeightEstimate:          "1500",
-		IncentiveEstimate:       "500",
-		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                  &name,
-		TOPhone:                 &phone,
 		Locator:                 "abc123",
+		OneSourceLink:           OneSourceTransportationOfficeLink,
 		MyMoveLink:              MyMoveLink,
 	}
-	expectedTextContent := `We hope your move to DestDutyLocation went well.
+	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.
+This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from ` + paymentReminderData.OriginDutyLocation +
+		`
+to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.
 
-To get your incentive, you need to request payment.
+Next steps:
 
-Log in to MilMove and request payment
+To get your payment, you need to login to MilMove, document expenses, and request payment.
 
-We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.
+To do that:
 
-To do that
-
-  * Log in to MilMove
-  * Click Request Payment
-  * Follow the instructions.
-
-What documents do you need?
+  * Log into MilMove<` + MyMoveLink + `>
+  * Click on "Upload PPM Documents"
+  * Follow the instructions
 
 To request payment, you should have copies of:
-  * Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move
-  * Receipts for reimbursable expenses (see our moving tips PDF for more info)
+
+*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.
+*       Receipts for reimbursable expenses.
 
 MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-What if you’re missing documents?
+If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.
 
-If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.
+Payment request must be submitted within 45 days of your move date.
 
-If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
 
-Log in to MilMove to complete your request and get paid.
+Thank you,
 
-Request payment within 45 days of your move date or you might not be able to get paid.
+USTRANSCOM MilMove Team
 
-If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.
-`
+The information contained in this email may contain Privacy Act information and is therefore protected
+under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.`
 
-	textContent, err := pr.RenderText(suite.AppContextForTest(), s)
+	textContent, err := pr.RenderText(suite.AppContextForTest(), paymentReminderData)
 
 	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)
@@ -472,66 +245,31 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 	email1 := "email1"
-	weightEst1 := unit.Pound(100)
-	estimate1 := unit.Cents(1000)
-	phone1 := "111-111-1111"
 
 	email2 := "email2"
-	weightEst2 := unit.Pound(200)
-	estimate2 := unit.Cents(2000)
-	phone2 := ""
 
 	email3 := "email3"
-	weightEst3 := unit.Pound(0)
-	estimate3 := unit.Cents(0)
-
-	phone := "000-000-0000"
-
-	name1 := "to1"
-	name2 := "to2"
-	name3 := "to3"
-	name4 := "to4"
 
 	emailInfos := PaymentReminderEmailInfos{
 		{
 			Email:               &email1,
 			NewDutyLocationName: "nd1",
-			WeightEstimate:      &weightEst1,
-			IncentiveEstimate:   &estimate1,
-			IncentiveTxt:        fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s.", weightEst1.Int(), estimate1.ToDollarString()),
-			TOName:              &name1,
-			TOPhone:             &phone1,
 			Locator:             "abc123",
 		},
 		{
 			Email:               &email2,
 			NewDutyLocationName: "nd2",
-			WeightEstimate:      &weightEst2,
-			IncentiveEstimate:   &estimate2,
-			IncentiveTxt:        fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s.", weightEst2.Int(), estimate2.ToDollarString()),
-			TOName:              &name2,
-			TOPhone:             &phone2,
 			Locator:             "abc456",
 		},
 		{
 			Email:               &email3,
 			NewDutyLocationName: "nd3",
-			WeightEstimate:      &weightEst3,
-			IncentiveEstimate:   &estimate3,
-			IncentiveTxt:        "",
-			TOName:              &name3,
-			TOPhone:             &phone,
 			Locator:             "def123",
 		},
 		{
 			// nil emails should be skipped
 			Email:               nil,
 			NewDutyLocationName: "nd0",
-			WeightEstimate:      &weightEst3,
-			IncentiveEstimate:   &estimate3,
-			IncentiveTxt:        "",
-			TOName:              &name4,
-			TOPhone:             &phone,
 			Locator:             "def456",
 		},
 	}
@@ -543,12 +281,8 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 
 		data := PaymentReminderEmailData{
 			DestinationDutyLocation: emailInfo.NewDutyLocationName,
-			WeightEstimate:          fmt.Sprintf("%d", emailInfo.WeightEstimate.Int()),
-			IncentiveEstimate:       emailInfo.IncentiveEstimate.ToDollarString(),
-			IncentiveTxt:            emailInfo.IncentiveTxt,
-			TOName:                  emailInfo.TOName,
-			TOPhone:                 emailInfo.TOPhone,
 			Locator:                 emailInfo.Locator,
+			OneSourceLink:           OneSourceTransportationOfficeLink,
 			MyMoveLink:              MyMoveLink,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
@@ -557,14 +291,13 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", emailInfo.NewDutyLocationName, emailInfo.Locator),
+			subject:        "Complete your Personally Procured Move (PPM)",
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 		}
 		if emailInfo.Email != nil {
 			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
 			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
-			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody, "htmlBody diffferent: %s", emailInfo.TOName)
 			suite.Equal(expectedEmailContent.textBody, actualEmailContent.textBody)
 		}
 	}

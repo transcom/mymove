@@ -46,6 +46,7 @@ type SSWPPMGenerator struct {
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator() (services.SSWPPMGenerator, error) {
+	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -295,15 +296,10 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
 func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
+
 	var hhgActualWeight unit.Pound
 
-	var ppmActualWeight unit.Pound
-	if len(move.PersonallyProcuredMoves) > 0 {
-		if move.PersonallyProcuredMoves[0].NetWeight == nil {
-			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
-		}
-		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
-	}
+	ppmActualWeight := models.GetTotalNetWeightForMove(move)
 
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
