@@ -10,8 +10,8 @@ export const DownloadPacketErrorModal = ({ closeModal }) => (
   <Modal className={styles.Modal}>
     <ModalClose handleClick={closeModal} />
     <SystemError>
-      Something went wrong downloading the PPM paperwork. Please try again later. If that doesn&apos;t fix it, contact
-      the &nbsp;<a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>.
+      Something went wrong downloading PPM paperwork. Please try again later. If that doesn&apos;t fix it, contact the
+      &nbsp;<a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>.
     </SystemError>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal} className={styles.Button}>
