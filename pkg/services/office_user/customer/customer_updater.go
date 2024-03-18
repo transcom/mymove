@@ -39,8 +39,32 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			if residentialAddress.StreetAddress2 != nil {
 				existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
 			}
+			if residentialAddress.StreetAddress3 != nil {
+				existingCustomer.ResidentialAddress.StreetAddress3 = residentialAddress.StreetAddress3
+			}
 
 			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.ResidentialAddress)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(customer.ID, dbErr, verrs, "")
+			}
+			if dbErr != nil {
+				return dbErr
+			}
+		}
+
+		if backupAddress := customer.BackupMailingAddress; backupAddress != nil {
+			existingCustomer.BackupMailingAddress.StreetAddress1 = backupAddress.StreetAddress1
+			existingCustomer.BackupMailingAddress.City = backupAddress.City
+			existingCustomer.BackupMailingAddress.State = backupAddress.State
+			existingCustomer.BackupMailingAddress.PostalCode = backupAddress.PostalCode
+			if backupAddress.StreetAddress2 != nil {
+				existingCustomer.BackupMailingAddress.StreetAddress2 = backupAddress.StreetAddress2
+			}
+			if backupAddress.StreetAddress3 != nil {
+				existingCustomer.BackupMailingAddress.StreetAddress3 = backupAddress.StreetAddress3
+			}
+
+			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.BackupMailingAddress)
 			if verrs != nil && verrs.HasAny() {
 				return apperror.NewInvalidInputError(customer.ID, dbErr, verrs, "")
 			}
@@ -77,6 +101,18 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 
 		if customer.Telephone != nil {
 			existingCustomer.Telephone = customer.Telephone
+		}
+
+		if customer.SecondaryTelephone != nil {
+			existingCustomer.SecondaryTelephone = customer.SecondaryTelephone
+		}
+
+		if customer.PhoneIsPreferred != nil {
+			existingCustomer.PhoneIsPreferred = customer.PhoneIsPreferred
+		}
+
+		if customer.EmailIsPreferred != nil {
+			existingCustomer.EmailIsPreferred = customer.EmailIsPreferred
 		}
 
 		if customer.Suffix != nil {
