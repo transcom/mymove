@@ -196,7 +196,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.RejectedAt = nil
 		serviceItem.ApprovedAt = &now
 
-		if (serviceItem.MTOShipmentID != nil) {
+		if serviceItem.MTOShipmentID != nil {
 			// Get the shipment destination address
 			mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress", "PickupAddress", "MTOServiceItems.SITOriginHHGOriginalAddress")
 			if err != nil {
@@ -248,7 +248,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 					}
 					serviceItem.SITDeliveryMiles = &milesCalculated
 				}
-				
+
 			}
 			// Calculate SITDeliveryMiles for DOPSIT and DOSFSC origin SIT service items
 			if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
