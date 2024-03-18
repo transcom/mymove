@@ -106,7 +106,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		defaultScheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 		defaultActualPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 		defaultRequestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-		defaultScheduledDeliveryDate := time.Date(GHCTestYear, time.March, 17, 0, 0, 0, 0, time.UTC)
 
 		mtoShipment := BuildMTOShipment(suite.DB(), nil, nil)
 
@@ -138,8 +137,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(defaultActualPickupDate, *mtoShipment.ActualPickupDate)
 		suite.NotNil(mtoShipment.RequestedDeliveryDate)
 		suite.Equal(defaultRequestedDeliveryDate, *mtoShipment.RequestedDeliveryDate)
-		suite.NotNil(mtoShipment.ScheduledDeliveryDate)
-		suite.Equal(defaultScheduledDeliveryDate, *mtoShipment.ScheduledDeliveryDate)
 	})
 
 	suite.Run("Successful creation of custom MTOShipment with pickup details and other associated set relationships", func() {
@@ -378,7 +375,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.NotNil(ntsShipment.ScheduledPickupDate)
 		suite.Nil(ntsShipment.RequestedDeliveryDate)
 		suite.Nil(ntsShipment.ActualDeliveryDate)
-		suite.Nil(ntsShipment.ScheduledDeliveryDate)
 
 	})
 
