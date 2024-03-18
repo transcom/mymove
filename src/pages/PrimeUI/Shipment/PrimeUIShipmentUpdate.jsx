@@ -13,7 +13,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
 import scrollToTop from 'shared/scrollToTop';
-import { updatePrimeMTOShipment, updatePrimeMTOShipmentStatus } from 'services/primeApi';
+import { updatePrimeMTOShipmentV2, updatePrimeMTOShipmentStatus } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -81,7 +81,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     },
   });
 
-  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipment, {
+  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipmentV2, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
@@ -139,6 +139,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
 
   const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
   const editableWeightActualField = true;
+  const editableProGearWeightActualField = true;
+  const editableSpouseProGearWeightActualField = true;
   const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
   const editablePickupAddress = isEmpty(reformatPrimeApiPickupAddress);
@@ -199,6 +201,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       const {
         estimatedWeight,
         actualWeight,
+        actualProGearWeight,
+        actualSpouseProGearWeight,
         actualPickupDate,
         scheduledPickupDate,
         actualDeliveryDate,
@@ -212,6 +216,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       body = {
         primeEstimatedWeight: editableWeightEstimateField ? parseInt(estimatedWeight, 10) : null,
         primeActualWeight: parseInt(actualWeight, 10),
+        actualProGearWeight: parseInt(actualProGearWeight, 10),
+        actualSpouseProGearWeight: parseInt(actualSpouseProGearWeight, 10),
         scheduledPickupDate: scheduledPickupDate ? formatSwaggerDate(scheduledPickupDate) : null,
         actualPickupDate: actualPickupDate ? formatSwaggerDate(actualPickupDate) : null,
         scheduledDeliveryDate: scheduledDeliveryDate ? formatSwaggerDate(scheduledDeliveryDate) : null,
@@ -297,6 +303,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     initialValues = {
       estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
       actualWeight: shipment.primeActualWeight?.toLocaleString(),
+      actualProGearWeight: shipment.actualProGearWeight?.toLocaleString(),
+      actualSpouseProGearWeight: shipment.actualSpouseProGearWeight?.toLocaleString(),
       requestedPickupDate: shipment.requestedPickupDate,
       scheduledPickupDate: shipment.scheduledPickupDate,
       actualPickupDate: shipment.actualPickupDate,
@@ -348,10 +356,14 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                         <PrimeUIShipmentUpdateForm
                           editableWeightEstimateField={editableWeightEstimateField}
                           editableWeightActualField={editableWeightActualField}
+                          editableProGearWeightActualField={editableProGearWeightActualField}
+                          editableSpouseProGearWeightActualField={editableSpouseProGearWeightActualField}
                           editablePickupAddress={editablePickupAddress}
                           editableDestinationAddress={editableDestinationAddress}
                           estimatedWeight={initialValues.estimatedWeight}
                           actualWeight={initialValues.actualWeight}
+                          actualProGearWeight={initialValues.actualProGearWeight}
+                          actualSpouseProGearWeight={initialValues.actualSpouseProGearWeight}
                           requestedPickupDate={initialValues.requestedPickupDate}
                           pickupAddress={initialValues.pickupAddress}
                           destinationAddress={initialValues.destinationAddress}
