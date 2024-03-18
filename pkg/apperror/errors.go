@@ -75,14 +75,14 @@ func (e *NotFoundError) Unwrap() error {
 	return e.err
 }
 
-// NotUpdateError is returned when a service cannot be updated
+// UpdateError is returned when a service cannot be updated
 type UpdateError struct {
 	id      uuid.UUID
 	message string
 	err     error
 }
 
-// NewNotUpdateError returns an error for when a service cannot be updated
+// NewUpdateError returns an error for when a service cannot be updated
 func NewUpdateError(id uuid.UUID, message string) UpdateError {
 	return UpdateError{
 		id:      id,
