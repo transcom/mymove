@@ -16,20 +16,29 @@ describe('when given an updateCloseoutOffice history record', () => {
   });
 
   it('renders the default details in the details column when updateCloseoutOffice key is not present ', () => {
-    const template = getTemplate(historyRecord);
-    const ren = render(template.getDetails(historyRecord));
-    ren.debug();
-    expect(screen.getByText('-')).toBeInTheDocument();
+    const newHistoryRecord = {
+      ...historyRecord,
+      changedValues: {
+        // closeout_office_id: '123'
+      },
+      oldValues: {
+        closeout_office_id: '123',
+      },
+      context: [{ closeout_office_name: 'this is the closeout_office_name' }],
+    };
+    const template = getTemplate(newHistoryRecord);
+    const { baseElement } = render(template.getDetails(newHistoryRecord));
+    expect(baseElement.textContent).toEqual('');
   });
 
   it('renders the proper message in the details column when updateCloseoutOffice is present ', () => {
     const newHistoryRecord = {
       ...historyRecord,
+      changedValues: { closeout_office_id: '123' },
       context: [{ closeout_office_name: 'this is the closeout_office_name' }],
     };
     const template = getTemplate(newHistoryRecord);
-    const ren = render(template.getDetails(newHistoryRecord));
-    ren.debug();
+    render(template.getDetails(newHistoryRecord));
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
 });
