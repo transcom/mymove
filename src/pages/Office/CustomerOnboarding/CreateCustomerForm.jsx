@@ -127,7 +127,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   };
 
   const onSubmit = async (values) => {
-    // Convert strings to booleans
+    // Convert strings to booleans to satisfy swagger
     const createOktaAccount = values.create_okta_account === 'true';
 
     const body = {
