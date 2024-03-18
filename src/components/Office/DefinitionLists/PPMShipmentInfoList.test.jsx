@@ -9,16 +9,10 @@ import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { downloadPPMAOAPacket } from 'services/ghcApi';
-import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   downloadPPMAOAPacket: jest.fn(),
-}));
-
-jest.mock('utils/download', () => ({
-  ...jest.requireActual('utils/download'),
-  downloadPPMAOAPacketOnSuccessHandler: jest.fn(),
 }));
 
 afterEach(() => {
@@ -91,7 +85,6 @@ describe('PPMShipmentInfoList', () => {
 
     await waitFor(() => {
       expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-      expect(downloadPPMAOAPacketOnSuccessHandler).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -117,7 +110,6 @@ describe('PPMShipmentInfoList', () => {
 
     await waitFor(() => {
       expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-      expect(downloadPPMAOAPacketOnSuccessHandler).toHaveBeenCalledTimes(0);
       expect(onErrorHandler).toHaveBeenCalledTimes(1);
     });
   });

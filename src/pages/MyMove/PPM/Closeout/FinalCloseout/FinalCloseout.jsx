@@ -1,15 +1,17 @@
 import classnames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import styles from './FinalCloseout.module.scss';
 
 import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { ppmSubmissionCertificationText } from 'scenes/Legalese/legaleseText';
@@ -26,6 +28,7 @@ const FinalCloseout = () => {
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [multiMove, setMultiMove] = useState(false);
   const { moveId, mtoShipmentId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
@@ -33,6 +36,9 @@ const FinalCloseout = () => {
   const selectedMove = useSelector((state) => selectMove(state, moveId));
 
   useEffect(() => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
     getMTOShipmentsForMove(moveId)
       .then((response) => {
         dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
@@ -50,7 +56,11 @@ const FinalCloseout = () => {
   }
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
 
   const handleSubmit = (values) => {
@@ -76,7 +86,11 @@ const FinalCloseout = () => {
           setFlashMessage('PPM_SUBMITTED', 'success', 'You submitted documentation for review.', undefined, false),
         );
 
-        navigate(generalRoutes.HOME_PATH);
+        if (multiMove) {
+          navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+        } else {
+          navigate(customerRoutes.MOVE_HOME_PAGE);
+        }
       })
       .catch((err) => {
         setErrorMessage(getResponseError(err.response, 'Failed to submit PPM documentation due to server error.'));

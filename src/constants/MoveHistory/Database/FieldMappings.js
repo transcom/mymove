@@ -132,4 +132,5 @@ export default {
   paid_with_gtcc: 'Paid with gtcc',
   missing_receipt: 'Missing receipt',
   vehicle_description: 'Vehicle description',
+  ppm_status: 'PPM status', // custom front end status, not database value
 };
