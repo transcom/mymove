@@ -115,7 +115,7 @@ type CreateCustomerWithOktaOptionHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handle updates a customer from a request payload
+// Handle creates a customer/serviceMember from a request payload
 func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.CreateCustomerWithOktaOptionParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
