@@ -132,5 +132,6 @@ export default {
   missing_receipt: 'Missing receipt',
   closeout_office_name: 'Closeout office',
   distance: 'Shipping distance',
+  vehicle_description: 'Vehicle description',
   ppm_status: 'PPM status', // custom front end status, not database value
 };

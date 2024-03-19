@@ -167,7 +167,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
                 sitStartDateElement,
                 sitStatus?.currentSIT?.sitAuthorizedEndDate == null
                   ? sitEndDate
-                  : sitStatus?.currentSIT?.sitAuthorizedEndDate,
+                  : formatDate(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat, 'DD MMM YYYY') ||
+                    '\u2014',
                 sitStatus.calculatedTotalDaysInSIT,
               ]}
               custClass={styles.currentLocation}
