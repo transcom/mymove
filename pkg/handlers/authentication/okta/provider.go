@@ -283,6 +283,9 @@ func (op *Provider) GetUserURL(oktaUserID string) string {
 func (op *Provider) GetCreateUserURL(activate string) string {
 	return op.orgURL + "/api/v1/users/?activate=" + url.QueryEscape(activate)
 }
+func (op *Provider) GetCreateAccountURL() string {
+	return op.orgURL + "/api/v1/users"
+}
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil
 func (op Provider) TokenURL(r *http.Request) string {
