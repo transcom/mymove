@@ -41,8 +41,10 @@
   }
 
   .createNewMove {
+    background-color: inherit;
     display: flex;
     justify-content: flex-end;
+    @include u-margin-right(0);
 
     button {
       @include u-margin-right(0);

@@ -495,9 +495,18 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <Grid col={6} className={scMoveDetailsStyles.testdiv}>
               {!isCounselorMoveCreateFFEnabled ? null : (
                 <Grid col={6} className={scMoveDetailsStyles.createNewMove}>
-                  <Button type="button" onClick={null}>
-                    Create New Move
-                  </Button>
+                  <DetailsPanel
+                    className={scMoveDetailsStyles.createNewMove}
+                    editButton={
+                      <Link
+                        className="usa-button usa-button--secondary"
+                        data-testid="edit-customer-info"
+                        to={`../${servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                      >
+                        Create New Move
+                      </Link>
+                    }
+                  />
                 </Grid>
               )}
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
