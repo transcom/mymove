@@ -3586,7 +3586,6 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       createOktaAccount:
         type: boolean
-          - $ref: "definitions/Address.yaml"
   Entitlements:
     properties:
       id:
