@@ -5372,6 +5372,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
@@ -5384,8 +5386,6 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
-      orderType:
-        type: string
   SearchMovesResult:
     type: object
     properties:
@@ -6550,10 +6550,6 @@ definitions:
             format: date
             x-nullable: true
           sitAllowanceEndDate:
-            type: string
-            format: date
-            x-nullable: true
-          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
