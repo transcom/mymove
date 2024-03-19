@@ -298,7 +298,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		// Authorized End Date and Required Delivery Date
 		if (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
 			updatedServiceItem.Status == models.MTOServiceItemStatusApproved {
-			err = calculateSITAuthorizedAndRequirededDates(appCtx, mtoServiceItem, shipment, planner)
+			err = calculateSITRequirededDates(appCtx, mtoServiceItem, shipment, planner)
 		}
 	}
 
@@ -365,9 +365,9 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	return &requiredDeliveryDate, nil
 }
 
-// Calculate the Authorized End Date and the Required Delivery Date for the service item based on business logic using the
+// Calculate the Required Delivery Date for the service item based on business logic using the
 // Customer Contact Date, Customer Requested Delivery Date, and SIT Departure Date
-func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
+func calculateSITRequirededDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
 	planner route.Planner) error {
 	var verrs *validate.Errors
 	var err error
