@@ -121,6 +121,11 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			payload := params.Body
+			if payload.PersonalEmail == nil {
+				badDataError := apperror.NewBadDataError("missing personal email")
+				payload := payloadForValidationError("Unable to create a customer", badDataError.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+				return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), badDataError
+			}
 			email := payload.PersonalEmail
 
 			// delcaring okta values outside of if statements so we can use them later
@@ -168,13 +173,14 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				ResidentialAddress:   residentialAddress,
 				BackupMailingAddress: backupMailingAddress,
 			}
+
 			// create the service member and save to the db
 			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
 			if smVerrs.HasAny() || err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			// creating backup contact associated with service member
+			// creating backup contact associated with service member since this is done separately
 			// default permission of EDIT since we want them to be able to change this info
 			defaultPermission := models.BackupContactPermissionEDIT
 			backupContact, verrs, err := newServiceMember.CreateBackupContact(appCtx.DB(),
@@ -186,6 +192,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
+			// covering error returns
 			if err != nil {
 				appCtx.Logger().Error("error creating customer", zap.Error(err))
 				switch err.(type) {
@@ -207,8 +214,11 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 		})
 }
 
+// createOktaProfile sends a request to the Okta Users API
+// this creates a user in Okta assigned to the customer group (allowing access to the customer application)
 func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.CreateCustomerWithOktaOptionParams) (*models.CreatedOktaUser, error) {
 
+	// taking all the data that we'll need for the okta profile creation
 	payload := params.Body
 	oktaEmail := payload.PersonalEmail
 	oktaFirstName := payload.FirstName
@@ -253,7 +263,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	}
 
 	// making HTTP request to Okta Users API to create a user
-	// this is done via a POST request for creating a user that sends an activation email
+	// this is done via a POST request for creating a user that sends an activation email (when activate=true)
 	// https://developer.okta.com/docs/reference/api/users/#create-user-without-credentials
 	req, _ := http.NewRequest("POST", baseURL, bytes.NewReader(body))
 	h := req.Header
@@ -261,6 +271,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	h.Add("Accept", "application/json")
 	h.Add("Content-Type", "application/json")
 
+	// now let the client send the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -268,6 +279,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 		return nil, err
 	}
 
+	// if all is well, should have a 200 response
 	response, err := io.ReadAll(resp.Body)
 	if err != nil {
 		appCtx.Logger().Error("could not read response body", zap.Error(err))
