@@ -1,0 +1,1 @@
+ALTER TABLE mto_service_items DROP COLUMN IF EXISTS sit_authorized_end_date;
