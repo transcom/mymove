@@ -194,7 +194,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
 
       {serverError && (
         <Grid>
-          <Grid col desktop={{ col: 8, offset: 2 }} style={{ width: '750px' }}>
+          <Grid col desktop={{ col: 8 }}>
             <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
