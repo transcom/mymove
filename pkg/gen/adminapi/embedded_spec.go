@@ -498,6 +498,52 @@ func init() {
         }
       }
     },
+    "/create-okta-account": {
+      "post": {
+        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns Okta information provided to it\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Okta"
+        ],
+        "summary": "Create an Okata Account",
+        "operationId": "createOktaAccount",
+        "parameters": [
+          {
+            "name": "createOktaAccountPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAccount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted request okta account created",
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAccount"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create an Okta Account"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -2257,6 +2303,64 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreateOktaAccount": {
+      "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "login",
+        "email",
+        "mobilePhone",
+        "cacEdipi",
+        "gsaId",
+        "groupId"
+      ],
+      "properties": {
+        "cacEdipi": {
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "Micheal"
+        },
+        "groupId": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-nullable": false
+        },
+        "gsaId": {
+          "type": "string",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "Jordan"
+        },
+        "login": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "mobilePhone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false
         }
       }
     },
@@ -3308,6 +3412,13 @@ func init() {
       }
     },
     {
+      "description": "Information about okta",
+      "name": "Okta",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
       "description": "Information about Webhook subscriptions",
       "name": "Webhook subscriptions",
       "externalDocs": {
@@ -3790,6 +3901,52 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update a client certificate"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/create-okta-account": {
+      "post": {
+        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns Okta information provided to it\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Okta"
+        ],
+        "summary": "Create an Okata Account",
+        "operationId": "createOktaAccount",
+        "parameters": [
+          {
+            "name": "createOktaAccountPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAccount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted request okta account created",
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAccount"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create an Okta Account"
           },
           "500": {
             "description": "Server error"
@@ -5559,6 +5716,64 @@ func init() {
         }
       }
     },
+    "CreateOktaAccount": {
+      "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "login",
+        "email",
+        "mobilePhone",
+        "cacEdipi",
+        "gsaId",
+        "groupId"
+      ],
+      "properties": {
+        "cacEdipi": {
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "Micheal"
+        },
+        "groupId": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-nullable": false
+        },
+        "gsaId": {
+          "type": "string",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "Jordan"
+        },
+        "login": {
+          "type": "string",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "mobilePhone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false
+        }
+      }
+    },
     "CreateWebhookSubscription": {
       "type": "object",
       "required": [
@@ -6607,6 +6822,13 @@ func init() {
     {
       "description": "Information about users",
       "name": "Users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about okta",
+      "name": "Okta",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

@@ -151,6 +151,10 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.OktaCreateOktaAccountHandler = CreateOktaAccount{
+		handlerConfig,
+	}
+
 	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
 		handlerConfig,
 		adminUpdater,
