@@ -1,21 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import MilMoveHeader from 'components/MilMoveHeader/index';
 import CustomerUserInfo from 'components/MilMoveHeader/CustomerUserInfo';
 import { LogoutUser } from 'utils/api';
 import { logOut as logOutAction } from 'store/auth/actions';
-import { selectCurrentOrders, selectIsProfileComplete } from 'store/entities/selectors';
+import { selectIsProfileComplete } from 'store/entities/selectors';
 import { selectCurrentMoveId } from 'store/general/selectors';
 
 const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut, moveId }) => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const moveID = pathname.split('/')[2];
 
   let isSpecialMove = false;
   if (Object.keys(state.entities.orders).length > 0) {
-    const currentOrderType = selectCurrentOrders(state);
+    const currentOrderType = Object.values(state.entities.orders).filter((order) => order.moves[0] === moveID)[0];
     isSpecialMove = ['BLUEBARK'].includes(currentOrderType?.orders_type);
   }
 
