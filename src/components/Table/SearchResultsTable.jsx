@@ -16,6 +16,7 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columns = (roleType) => [
   createHeader('Move code', 'locator', {
@@ -31,7 +32,9 @@ const columns = (roleType) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.lastName}, ${row.firstName}`}
         </div>
       );
@@ -82,6 +85,19 @@ const columns = (roleType) => [
     { id: 'shipmentsCount', isFilterable: true },
   ),
   createHeader(
+    'Pickup Date',
+    (row) => {
+      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'pickupDate',
+      disableSortBy: true,
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
     'Origin ZIP',
     (row) => {
       return row.originDutyLocationPostalCode;
@@ -102,12 +118,12 @@ const columns = (roleType) => [
     },
   ),
   createHeader(
-    'Pickup Date',
+    'Delivery Date',
     (row) => {
-      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
+      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
     },
     {
-      id: 'pickupDate',
+      id: 'deliveryDate',
       disableSortBy: true,
       isFilterable: true,
       // eslint-disable-next-line react/jsx-props-no-spreading
@@ -132,19 +148,6 @@ const columns = (roleType) => [
     {
       id: 'destinationGBLOC',
       disableSortBy: true,
-    },
-  ),
-  createHeader(
-    'Delivery Date',
-    (row) => {
-      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
-    },
-    {
-      id: 'deliveryDate',
-      disableSortBy: true,
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter dateTime {...props} />,
     },
   ),
 ];

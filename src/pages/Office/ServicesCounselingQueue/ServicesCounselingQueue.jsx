@@ -1,9 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
@@ -31,6 +33,7 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -39,7 +42,9 @@ const counselingColumns = () => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );
@@ -122,7 +127,9 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );
@@ -206,8 +213,13 @@ const ServicesCounselingQueue = () => {
     navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
+  const handleAddCustomerClick = () => {
+    navigate(generatePath(servicesCounselingRoutes.CUSTOMER_NAME_PATH));
+  };
+
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -300,6 +312,16 @@ const ServicesCounselingQueue = () => {
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
           />
+        )}
+        {searchHappened && counselorMoveCreateFeatureFlag && (
+          <Button
+            secondary={false}
+            type="Add Customer"
+            style={{ maxWidth: '225px', alignSelf: 'flex-start', position: 'absolute', bottom: 35 }}
+            onClick={handleAddCustomerClick}
+          >
+            Add Customer
+          </Button>
         )}
       </div>
     );
