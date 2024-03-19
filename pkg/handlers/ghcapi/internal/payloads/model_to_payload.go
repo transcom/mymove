@@ -1893,7 +1893,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
-			OrderType:                         string(move.Orders.OrdersType),
+			OrderType:                         (*string)(move.Orders.OrdersType.Pointer()),
 			RequestedPickupDate:               pickupDate,
 			RequestedDeliveryDate:             deliveryDate,
 			OriginGBLOC:                       originGBLOC,

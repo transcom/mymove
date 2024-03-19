@@ -50,7 +50,7 @@ type SearchMove struct {
 	Locator string `json:"locator,omitempty"`
 
 	// order type
-	OrderType string `json:"orderType,omitempty"`
+	OrderType *string `json:"orderType,omitempty"`
 
 	// ZIP
 	// Example: 90210

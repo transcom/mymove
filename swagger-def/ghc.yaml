@@ -5191,7 +5191,7 @@ definitions:
       originGBLOC:
         $ref: "#/definitions/GBLOC"
       destinationGBLOC:
-        $ref: "#/definitions/GBLOC"
+        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:
