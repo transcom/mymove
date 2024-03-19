@@ -844,7 +844,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		suite.Run(fmt.Sprintf("Can merge changes - %s", name), func() {
 			oldShipment := setupShipmentData(tc.oldState, tc.oldFlags)
 
-			mergedShipment, err2 := mergePPMShipment(tc.newShipment, &oldShipment)
+			mergedShipment, err := mergePPMShipment(tc.newShipment, &oldShipment)
 
 			// these should never change
 			suite.Equal(oldShipment.ID, mergedShipment.ID)
@@ -852,7 +852,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			suite.Equal(oldShipment.Status, mergedShipment.Status)
 
 			if tc.oldFlags.isFutureDate {
-				suite.Equal(err2.Error(), "Update Error Actual move date cannot be set to the future.")
+				suite.Equal(err.Error(), "Update Error Actual move date cannot be set to the future.")
 			}
 
 			// now run test case specific checks
