@@ -215,13 +215,6 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 			// if the user is being manually created, then we know they will already be approved
 			officeUserStatus := "APPROVED"
 
-			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
-			if len(updatedPrivileges) == 0 {
-				err = apperror.NewBadDataError("No privileges were matched from payload")
-				appCtx.Logger().Error(err.Error())
-				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
-			}
-
 			officeUser := models.OfficeUser{
 				LastName:               payload.LastName,
 				FirstName:              payload.FirstName,
@@ -260,6 +253,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
+			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
 			_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *createdOfficeUser.UserID, updatedPrivileges)
 			if err != nil {
 				appCtx.Logger().Error("Error updating user privileges", zap.Error(err))
