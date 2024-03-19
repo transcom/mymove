@@ -369,8 +369,6 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 // Customer Contact Date, Customer Requested Delivery Date, and SIT Departure Date
 func calculateSITDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
 	planner route.Planner) error {
-	var verrs *validate.Errors
-	var err error
 	location := DestinationSITLocation
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
@@ -397,7 +395,9 @@ func calculateSITDates(appCtx appcontext.AppContext, serviceItem *models.MTOServ
 
 	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
 	if location == OriginSITLocation {
-		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
+		var verrs *validate.Errors
+
+		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
 
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
