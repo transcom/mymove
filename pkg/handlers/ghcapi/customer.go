@@ -217,6 +217,12 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 // createOktaProfile sends a request to the Okta Users API
 // this creates a user in Okta assigned to the customer group (allowing access to the customer application)
 func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.CreateCustomerWithOktaOptionParams) (*models.CreatedOktaUser, error) {
+	// setting viper so we can access the api key in the env vars
+	v := viper.New()
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	apiKey := v.GetString(cli.OktaAPIKeyFlag)
+	customerGroupID := v.GetString(cli.OktaCustomerGroupIDFlag)
 
 	// taking all the data that we'll need for the okta profile creation
 	payload := params.Body
@@ -237,14 +243,8 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	// Creating the OktaUserPayload struct
 	oktaPayload := models.OktaUserPayload{
 		Profile:  profile,
-		GroupIds: []string{"00g3ja8t0dwKG8Mmi0k6"},
+		GroupIds: []string{customerGroupID},
 	}
-
-	// setting viper so we can access the api key in the env vars
-	v := viper.New()
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	apiKey := v.GetString(cli.OktaAPIKeyFlag)
 
 	// getting okta domain url for request
 	provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
