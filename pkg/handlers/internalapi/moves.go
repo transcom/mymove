@@ -95,7 +95,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			MoveCode:       move.Locator,
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
-			SubmittedAt:    *handlers.FmtDateTime(*move.SubmittedAt),
+			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
