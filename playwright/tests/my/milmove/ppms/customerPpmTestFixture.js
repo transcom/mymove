@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 /**
  * Semi-automated converted from a cypress test, and thus may contain
  * non best-practices, in particular: heavy use of `page.locator`
@@ -491,11 +493,11 @@ export class CustomerPpmPage extends CustomerPage {
         await this.page.locator('label[for="agreeToTerms"]').click();
       }
     }
-    await saveButton.click();
+
+    // click and wait for page path to change
+    await Promise.all([this.page.waitForURL(/.*\/moves\/[^/]+\/review$/), saveButton.click()]);
 
     await expect(this.page.getByRole('heading', { name: 'Review your details', exact: true })).toBeVisible();
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/review/);
-
     await expect(this.page.locator('.usa-alert__heading')).toContainText('Details saved');
     await expect(this.page.locator('.usa-alert__heading + p')).toContainText(
       'Review your info and submit your move request now, or come back and finish later.',
@@ -645,9 +647,7 @@ export class CustomerPpmPage extends CustomerPage {
   async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
     const { isEditable = false } = options;
     // get first div after the move setup heading
-    const ppm1 = this.page
-      .locator(':text("Move setup") ~ div')
-      .filter({ has: this.page.getByText('PPM 1', { exact: false }) });
+    const ppm1 = this.page.locator(':text("Move setup") + div:has(:text("PPM 1"))');
     await expect(ppm1).toBeVisible();
 
     if (isEditable) {

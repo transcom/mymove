@@ -39,7 +39,7 @@ export const withMappings = () => {
     ({ value }) =>
       (value in optionFields && optionFields[value]) ||
       (value in statusFields && statusFields[value]) ||
-      `${value}` ||
+      (`${value}` && value) ||
       '—',
   ];
 
@@ -71,7 +71,7 @@ export const retrieveTextToDisplay = (fieldName, value) => {
 
   return {
     displayName,
-    displayValue: (!`${value}` && '—') || (value && displayValue),
+    displayValue: (!`${value}` && '—') || (value && displayValue) || '—',
   };
 };
 
@@ -87,22 +87,35 @@ export const createLineItemLabel = (shipmentType, shipmentIdDisplay, serviceItem
 // These values may be non-nullish in oldValues and nullish in changedValues
 // Use the existing keys in changed or old values to check against keys listed in fieldMappings
 export const filterInLineItemValues = (changedValues, oldValues) =>
-  Object.entries({ ...oldValues, ...changedValues }).filter(([theField, theValue]) => {
+  Object.entries({ ...oldValues, ...changedValues }).filter(([theField]) => {
+    if (!(fieldMappings[theField]?.length >= 0)) return false;
+
     const changed = changedValues || {};
     const old = oldValues || {};
-    const fieldInOld = theField in old;
-    const fieldInChanged = theField in changed;
-    const valueIsNotBlank = `${theValue}`.length > 0 && !!theValue;
 
-    // const isNullAndChangedFromOld = !!(fieldInChanged && `${old[theField]}` && !theValue);
-    return !!(
-      fieldMappings[theField] &&
-      // if changeValues has theField while theValue is either blank or theField exists the old values
-      ((fieldInChanged && (valueIsNotBlank || fieldInOld)) ||
-        // or theField exists in changeValues
-        // and oldValues is empty or not empty
-        (fieldInChanged && !(`${old[theField]}` || theValue)))
-    );
+    const isInChangedValues = theField in changedValues;
+
+    if (isInChangedValues)
+      switch (changed[theField]) {
+        case undefined:
+        case null:
+          break;
+        default:
+          if (changed[theField] === '' && !(theField in old)) return false;
+          return true;
+      }
+
+    if (isInChangedValues)
+      switch (old[theField]) {
+        case undefined:
+        case null:
+        case '':
+          break;
+        default:
+          return true;
+      }
+
+    return false;
   });
 
 const LabeledDetails = ({ historyRecord }) => {
@@ -121,7 +134,6 @@ const LabeledDetails = ({ historyRecord }) => {
 
   const lineItems = filterInLineItemValues(changedValuesToUse, oldValues).map(([label, value]) => {
     const { displayName, displayValue } = retrieveTextToDisplay(label, value);
-
     return (
       <div key={label}>
         <b>{displayName}</b>: {displayValue}
