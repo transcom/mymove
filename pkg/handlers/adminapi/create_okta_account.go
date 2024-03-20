@@ -22,18 +22,18 @@ import (
 
 func payloadToOktaAccountCreationModel(payload *adminmessages.CreateOktaAccount) models.OktaAccountCreationTemplate {
 	return models.OktaAccountCreationTemplate{
-		FirstName:   payload.FirstName,
-		LastName:    payload.LastName,
-		Login:       payload.Login,
-		Email:       payload.Email,
-		CacEdipi:    payload.CacEdipi,
-		MobilePhone: payload.MobilePhone,
-		GsaID:       payload.GsaID,
+		FirstName:   *payload.FirstName,
+		LastName:    *payload.LastName,
+		Login:       *payload.Login,
+		Email:       *payload.Email,
+		CacEdipi:    *payload.CacEdipi,
+		MobilePhone: *payload.MobilePhone,
+		GsaID:       *payload.GsaID,
 		GroupIds:    payload.GroupID,
 	}
 }
 
-// CreateOktaAccount Handler creats okta accounts
+// CreateOktaAccount Handler creates okta accounts
 type CreateOktaAccount struct {
 	handlers.HandlerConfig
 }
@@ -54,7 +54,7 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 			}
 
 			// Get the Okta Domain from the Okta provider
-			oktaDomain := provider.GetOrgURL()
+			// oktaDomain := provider.GetOrgURL()
 
 			// setting viper so we can access the api key in the env vars
 			v := viper.New()
@@ -65,7 +65,8 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 			apiKey := v.GetString(cli.OktaAPIKeyFlag)
 
 			// Okta getUser url
-			baseURL := oktaDomain + "/api/v1/users"
+			// baseURL := oktaDomain + "/api/v1/users"
+			baseURL := provider.GetCreateAccountURL("true")
 
 			// Build okta profile body
 			oktaProfileBody := models.OktaBodyProfile{
@@ -99,8 +100,8 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 			}
 
 			// Add url params
-			urlParams := userPostReq.URL.Query()
-			urlParams.Add("activate", "false")
+			// urlParams := userPostReq.URL.Query()
+			// urlParams.Add("activate", "false")
 
 			// Set POST request header
 			userPostReq.Header.Add("Authorization", "SSWS "+apiKey)
