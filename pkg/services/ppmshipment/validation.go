@@ -66,7 +66,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment := *oldPPMShipment
 
 	today := time.Now()
-	if ppmShipment.ActualMoveDate != nil && today.After(*ppmShipment.ActualMoveDate) {
+	if ppmShipment.ActualMoveDate != nil && today.Before(*ppmShipment.ActualMoveDate) {
 		err = apperror.NewUpdateError(ppmShipment.ID, "Actual move date cannot be set to the future.")
 	} else {
 		ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
