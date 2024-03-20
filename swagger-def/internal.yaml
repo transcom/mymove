@@ -2115,6 +2115,7 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+        x-nullable: true
       mtoShipments:
         $ref: "#/definitions/MTOShipments"
       closeoutOffice:
