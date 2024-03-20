@@ -196,67 +196,70 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.RejectedAt = nil
 		serviceItem.ApprovedAt = &now
 
-		// Get the shipment destination address
-		mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress", "PickupAddress", "MTOServiceItems.SITOriginHHGOriginalAddress")
-		if err != nil {
-			return nil, err
-		}
-
-		// Check to see if there is already a SIT Destination Original Address
-		// by checking for the ID before trying to set one on the service item.
-		// If there isn't one, then we set it. We will update all four destination
-		// SIT service items that get created
-		if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
-			serviceItem.SITDestinationOriginalAddressID == nil {
-
-			// Set the original address on a service item to the shipment's
-			// destination address when approving destination SIT service items
-			// Creating a new address record to ensure SITDestinationOriginalAddress
-			// doesn't change if shipment destination address is updated
-			shipmentDestinationAddress := &models.Address{
-				StreetAddress1: mtoShipment.DestinationAddress.StreetAddress1,
-				StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
-				StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
-				City:           mtoShipment.DestinationAddress.City,
-				State:          mtoShipment.DestinationAddress.State,
-				PostalCode:     mtoShipment.DestinationAddress.PostalCode,
-				Country:        mtoShipment.DestinationAddress.Country,
-			}
-			shipmentDestinationAddress, err = p.addressCreator.CreateAddress(appCtx, shipmentDestinationAddress)
+		if serviceItem.MTOShipmentID != nil {
+			// Get the shipment destination address
+			mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress", "PickupAddress", "MTOServiceItems.SITOriginHHGOriginalAddress")
 			if err != nil {
 				return nil, err
 			}
-			serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
-			serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
 
-			if serviceItem.SITDestinationFinalAddressID == nil {
-				serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
-				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
+			// Check to see if there is already a SIT Destination Original Address
+			// by checking for the ID before trying to set one on the service item.
+			// If there isn't one, then we set it. We will update all four destination
+			// SIT service items that get created
+			if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
+				serviceItem.SITDestinationOriginalAddressID == nil {
+
+				// Set the original address on a service item to the shipment's
+				// destination address when approving destination SIT service items
+				// Creating a new address record to ensure SITDestinationOriginalAddress
+				// doesn't change if shipment destination address is updated
+				shipmentDestinationAddress := &models.Address{
+					StreetAddress1: mtoShipment.DestinationAddress.StreetAddress1,
+					StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
+					StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
+					City:           mtoShipment.DestinationAddress.City,
+					State:          mtoShipment.DestinationAddress.State,
+					PostalCode:     mtoShipment.DestinationAddress.PostalCode,
+					Country:        mtoShipment.DestinationAddress.Country,
+				}
+				shipmentDestinationAddress, err = p.addressCreator.CreateAddress(appCtx, shipmentDestinationAddress)
+				if err != nil {
+					return nil, err
+				}
+				serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
+				serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
+
+				if serviceItem.SITDestinationFinalAddressID == nil {
+					serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
+					serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
+				}
+
+				// Calculate SITDeliveryMiles for DDDSIT and DDSFSC origin SIT service items
+				if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+					// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
+					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+					if err != nil {
+						return nil, err
+					}
+					serviceItem.SITDeliveryMiles = &milesCalculated
+				}
+
 			}
-
-			// Calculate SITDeliveryMiles for DDDSIT and DDSFSC origin SIT service items
-			if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
-				// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
-				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+			// Calculate SITDeliveryMiles for DOPSIT and DOSFSC origin SIT service items
+			if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+				// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
+				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
 				if err != nil {
 					return nil, err
 				}
 				serviceItem.SITDeliveryMiles = &milesCalculated
 			}
-		}
-		// Calculate SITDeliveryMiles for DOPSIT and DOSFSC origin SIT service items
-		if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
-			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
-			milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
-			if err != nil {
-				return nil, err
-			}
-			serviceItem.SITDeliveryMiles = &milesCalculated
 		}
 	}
 

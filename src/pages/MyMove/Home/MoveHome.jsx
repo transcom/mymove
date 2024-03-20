@@ -17,7 +17,7 @@ import {
 } from './HomeHelpers';
 
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
+import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -54,7 +54,6 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -83,7 +82,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
-  const [showDownloadPPMAOAPaperworkErrorAlert, setShowDownloadPPMAOAPaperworkErrorAlert] = useState(false);
+  const [showDownloadPPMPaperworkErrorAlert, setShowDownloadPPMPaperworkErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -192,7 +191,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // checking to see if prime is counseling this move, return true
   const isPrimeCounseled = () => {
-    return !orders.provides_services_counseling;
+    return !orders.providesServicesCounseling;
   };
 
   // logic that handles deleting a shipment
@@ -376,8 +375,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   };
 
-  const toggleDownloadAOAErrorModal = () => {
-    setShowDownloadPPMAOAPaperworkErrorAlert(!showDownloadPPMAOAPaperworkErrorAlert);
+  const togglePPMPacketErrorModal = () => {
+    setShowDownloadPPMPaperworkErrorAlert(!showDownloadPPMPaperworkErrorAlert);
   };
 
   // early return if loading user/service member
@@ -411,8 +410,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
-
-  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orders?.orders_type);
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -425,14 +422,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
+      <DownloadPacketErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
-          {isSpecialMove ? (
-            <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-              <p>{SPECIAL_ORDERS_TYPES[`${orders.orders_type}`]}</p>
-            </div>
-          ) : null}
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <h2>
               {serviceMember.first_name} {serviceMember.last_name}
@@ -609,7 +601,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       id={shipment?.ppmShipment?.id}
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
-                                      onFailure={toggleDownloadAOAErrorModal}
+                                      onFailure={togglePPMPacketErrorModal}
                                     />
                                   </p>
                                 )}
@@ -662,7 +654,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     completedHeaderText="Manage your PPM"
                     step={hasAdvanceRequested() ? '6' : '5'}
                   >
-                    <PPMSummaryList shipments={ppmShipments} onUploadClick={handlePPMUploadClick} />
+                    <PPMSummaryList
+                      shipments={ppmShipments}
+                      onUploadClick={handlePPMUploadClick}
+                      onDownloadError={togglePPMPacketErrorModal}
+                    />
                   </Step>
                 )}
               </SectionWrapper>

@@ -535,3 +535,7 @@ export async function searchTransportationOffices(search) {
 export async function downloadPPMAOAPacket(ppmShipmentId) {
   return makeInternalRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
 }
+
+export async function downloadPPMPaymentPacket(ppmShipmentId) {
+  return makeInternalRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}
