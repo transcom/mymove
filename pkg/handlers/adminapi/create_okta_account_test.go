@@ -17,7 +17,6 @@ import (
 )
 
 const DummyRSAModulus = "0OtoQx0UQHbkrlEA8YsZ-tW20S4_YgQZkRtN61tzzZ5Es63KH_crZymNi19gwD2kq_9RJu376oqL81YONxJXxRyQawrJCali6YYn7-qqBl9acLDwP0W_jAan7TFNWau1AvRIrP0o3tkBse5NNiaEMvkfxD_5EKtQdKeP6grUe90"
-const jwtKeyID = "keyID"
 const adminProviderName = "adminProvider"
 
 func (suite *HandlerSuite) TestCreateOktaAccountHandler2() {
@@ -39,14 +38,22 @@ func (suite *HandlerSuite) TestCreateOktaAccountHandler2() {
 
 	mockAndActivateOktaEndpoints(provider)
 
+	firstName := "Micheal"
+	lastName := "Jackson"
+	email := "MJ2000@example.com"
+	login := "MJ2000@example.com"
+	cacEdipi := "1234567890"
+	mobilePhone := "462-940-8555"
+	gsaID := "string"
+
 	body := &adminmessages.CreateOktaAccount{
-		FirstName:   "Micheal",
-		LastName:    "Jackson",
-		Email:       "MJ2000@example.com",
-		Login:       "MJ2000@example.com",
-		CacEdipi:    "1234567890",
-		MobilePhone: "462-940-8555",
-		GsaID:       "string",
+		FirstName:   &firstName,
+		LastName:    &lastName,
+		Email:       &email,
+		Login:       &login,
+		CacEdipi:    &cacEdipi,
+		MobilePhone: &mobilePhone,
+		GsaID:       &gsaID,
 		GroupID:     []string{},
 	}
 
@@ -84,30 +91,9 @@ func (suite *HandlerSuite) TestCreateOktaAccountHandler2() {
 
 // Generate and activate Okta endpoints that will be using during the handler
 func mockAndActivateOktaEndpoints(provider *oktaAuth.Provider) {
-	jwksURL := provider.GetJWKSURL()
-	openIDConfigURL := provider.GetOpenIDConfigURL()
+	activate := "true"
 
-	httpmock.RegisterResponder("GET", openIDConfigURL,
-		httpmock.NewStringResponder(200, fmt.Sprintf(`{
-            "jwks_uri": "%s"
-        }`, jwksURL)))
-
-	// Mock the JWKS endpoint to receive keys for JWT verification
-	httpmock.RegisterResponder("GET", jwksURL,
-		httpmock.NewStringResponder(200, fmt.Sprintf(`{
-        "keys": [
-            {
-                "alg": "RS256",
-                "kty": "RSA",
-                "use": "sig",
-                "n": "%s",
-                "e": "AQAB",
-                "kid": "%s"
-            }
-        ]
-    }`, DummyRSAModulus, jwtKeyID)))
-
-	createAccountEndpoint := provider.GetCreateAccountURL()
+	createAccountEndpoint := provider.GetCreateAccountURL(activate)
 	oktaID := "fakeSub"
 
 	httpmock.RegisterResponder("POST", createAccountEndpoint,

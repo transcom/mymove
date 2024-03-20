@@ -2322,45 +2322,37 @@ func init() {
         "cacEdipi": {
           "type": "string",
           "maxLength": 10,
-          "x-nullable": false,
           "example": "1234567890"
         },
         "email": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Micheal"
         },
         "groupId": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "x-nullable": false
+          }
         },
         "gsaId": {
-          "type": "string",
-          "x-nullable": false
+          "type": "string"
         },
         "lastName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Jordan"
         },
         "login": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "mobilePhone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": false
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -5740,45 +5732,37 @@ func init() {
         "cacEdipi": {
           "type": "string",
           "maxLength": 10,
-          "x-nullable": false,
           "example": "1234567890"
         },
         "email": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Micheal"
         },
         "groupId": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "x-nullable": false
+          }
         },
         "gsaId": {
-          "type": "string",
-          "x-nullable": false
+          "type": "string"
         },
         "lastName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Jordan"
         },
         "login": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "mobilePhone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": false
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
