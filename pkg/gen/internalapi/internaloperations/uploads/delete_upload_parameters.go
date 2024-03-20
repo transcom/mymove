@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
@@ -31,6 +32,10 @@ type DeleteUploadParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*ID of the order that the upload belongs to
+	  In: query
+	*/
+	OrderID *strfmt.UUID
 	/*UUID of the upload to be deleted
 	  Required: true
 	  In: path
@@ -47,12 +52,56 @@ func (o *DeleteUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
+	qOrderID, qhkOrderID, _ := qs.GetOK("orderId")
+	if err := o.bindOrderID(qOrderID, qhkOrderID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	rUploadID, rhkUploadID, _ := route.Params.GetOK("uploadId")
 	if err := o.bindUploadID(rUploadID, rhkUploadID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// bindOrderID binds and validates parameter OrderID from query.
+func (o *DeleteUploadParams) bindOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("orderId", "query", "strfmt.UUID", raw)
+	}
+	o.OrderID = (value.(*strfmt.UUID))
+
+	if err := o.validateOrderID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateOrderID carries on validations for parameter OrderID
+func (o *DeleteUploadParams) validateOrderID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("orderId", "query", "uuid", o.OrderID.String(), formats); err != nil {
+		return err
 	}
 	return nil
 }
