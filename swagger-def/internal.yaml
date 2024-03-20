@@ -1330,7 +1330,10 @@ definitions:
         example: 7000
         x-nullable: true
       entitlement:
-        $ref: "#/definitions/Entitlement"
+        $ref: '#/definitions/Entitlement'
+      providesServicesCounseling:
+        type: boolean
+        x-omitempty: false
     required:
       - id
       - service_member_id
