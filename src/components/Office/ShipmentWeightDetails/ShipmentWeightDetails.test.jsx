@@ -15,6 +15,8 @@ const shipmentInfoReweighRequested = {
   ifMatchEtag: 'etag1',
   reweighID: 'reweighRequestID',
   shipmentType: SHIPMENT_OPTIONS.HHG,
+  shipmentActualProGearWeight: 800,
+  shipmentActualSpouseProGearWeight: 200,
 };
 
 const shipmentInfoNoReweigh = {
@@ -29,6 +31,8 @@ const shipmentInfoReweigh = {
   reweighID: 'reweighRequestID',
   reweighWeight: 1000,
   shipmentType: SHIPMENT_OPTIONS.HHG,
+  shipmentActualProGearWeight: 100,
+  shipmentActualSpouseProGearWeight: 50,
 };
 
 const handleRequestReweighModal = jest.fn();
@@ -57,6 +61,12 @@ describe('ShipmentWeightDetails', () => {
 
     const actualWeight = await screen.findByText('Actual shipment weight');
     expect(actualWeight).toBeTruthy();
+
+    const actualProGearWeight = await screen.findByText('Actual pro gear weight');
+    expect(actualProGearWeight).toBeTruthy();
+
+    const actualSpouseProGearWeight = await screen.findByText('Actual spouse pro gear weight');
+    expect(actualSpouseProGearWeight).toBeTruthy();
   });
 
   it('renders with estimated weight if not an NTSR', async () => {
@@ -70,7 +80,11 @@ describe('ShipmentWeightDetails', () => {
     );
 
     const estWeight = await screen.findByText('11,000 lbs');
+    const actualProGearWeight = await screen.findByText('800 lbs');
+    const actualSpouseProGearWeight = await screen.findByText('200 lbs');
     expect(estWeight).toBeTruthy();
+    expect(actualProGearWeight).toBeTruthy();
+    expect(actualSpouseProGearWeight).toBeTruthy();
   });
 
   it('renders without estimated weight if an NTSR', async () => {
@@ -97,7 +111,11 @@ describe('ShipmentWeightDetails', () => {
     );
 
     const shipWeight = await screen.findAllByText('12,000 lbs');
+    const actualProGearWeight = await screen.findByText('800 lbs');
+    const actualSpouseProGearWeight = await screen.findByText('200 lbs');
     expect(shipWeight).toBeTruthy();
+    expect(actualProGearWeight).toBeTruthy();
+    expect(actualSpouseProGearWeight).toBeTruthy();
   });
 
   it('calls the submit function when submit button is clicked', async () => {
@@ -131,10 +149,14 @@ describe('ShipmentWeightDetails', () => {
     const reweighButton = await screen.queryByText('Request reweigh');
     const reweighRequestedLabel = await screen.queryByText('reweigh requested');
     const reweighedLabel = await screen.queryByText('reweighed');
+    const actualProGearWeight = await screen.findByText('800 lbs');
+    const actualSpouseProGearWeight = await screen.findByText('200 lbs');
 
     expect(reweighButton).toBeFalsy();
     expect(reweighRequestedLabel).toBeTruthy();
     expect(reweighedLabel).toBeFalsy();
+    expect(actualProGearWeight).toBeTruthy();
+    expect(actualSpouseProGearWeight).toBeTruthy();
   });
 
   it('renders without the rewiegh button when the user does not have permission', async () => {
@@ -163,9 +185,13 @@ describe('ShipmentWeightDetails', () => {
 
     const reweighRequestedLabel = await screen.queryByText('reweigh requested');
     const reweighedLabel = await screen.queryByText('reweighed');
+    const actualProGearWeight = await screen.findByText('100 lbs');
+    const actualSpouseProGearWeight = await screen.findByText('50 lbs');
 
     expect(reweighRequestedLabel).toBeFalsy();
     expect(reweighedLabel).toBeTruthy();
+    expect(actualProGearWeight).toBeTruthy();
+    expect(actualSpouseProGearWeight).toBeTruthy();
   });
 
   it('renders the lowest of either reweight or actual weight', async () => {

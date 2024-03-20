@@ -55,6 +55,17 @@ const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, h
             lowestWeight ? formatWeight(lowestWeight) : emDash,
           ]}
         />
+        <DataTable
+          columnHeaders={['Actual pro gear weight', 'Actual spouse pro gear weight']}
+          dataRow={[
+            shipmentInfo.shipmentActualProGearWeight && shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR
+              ? formatWeight(shipmentInfo.shipmentActualProGearWeight)
+              : emDash,
+            shipmentInfo.shipmentActualSpouseProGearWeight
+              ? formatWeight(shipmentInfo.shipmentActualSpouseProGearWeight)
+              : emDash,
+          ]}
+        />
       </DataTableWrapper>
     </div>
   );
@@ -69,6 +80,8 @@ ShipmentWeightDetails.propTypes = {
     reweighID: PropTypes.string,
     reweighWeight: PropTypes.number,
     shipmentType: ShipmentOptionsOneOf.isRequired,
+    shipmentActualProGearWeight: PropTypes.number,
+    shipmentActualSpouseProGearWeight: PropTypes.number,
   }).isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
 };
