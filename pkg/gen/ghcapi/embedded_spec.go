@@ -6409,6 +6409,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -6424,6 +6428,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
@@ -18279,6 +18289,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -18294,6 +18308,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
