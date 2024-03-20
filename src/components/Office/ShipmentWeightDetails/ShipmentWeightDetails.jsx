@@ -56,7 +56,7 @@ const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, h
           ]}
         />
         <DataTable
-          columnHeaders={['Actual Pro Gear Weight', 'Actual Spouse Pro Gear Weight']}
+          columnHeaders={['Actual pro gear weight', 'Actual spouse pro gear weight']}
           dataRow={[
             shipmentInfo.shipmentActualProGearWeight && shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR
               ? formatWeight(shipmentInfo.shipmentActualProGearWeight)
