@@ -1108,7 +1108,7 @@ paths:
         $ref: paths/office-users/get/description.md
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested office users
+        - Requested Office users
       parameters:
         - in: query
           name: filter

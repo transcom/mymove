@@ -46,6 +46,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
+		Status:                 handlers.FmtStringPtr(o.Status),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
 	}

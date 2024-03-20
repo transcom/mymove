@@ -4322,7 +4322,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",

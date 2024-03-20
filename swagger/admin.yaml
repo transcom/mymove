@@ -1120,7 +1120,7 @@ paths:
         as it is meant to be used with the Admin UI exclusively.
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested office users
+        - Requested Office users
       parameters:
         - in: query
           name: filter
