@@ -202,8 +202,12 @@ const ServicesCounselingQueue = () => {
 
   const navigate = useNavigate();
 
-  const handleClick = (values) => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+  const handleClick = (e, values) => {
+    if (e.target.innerHTML === 'Create New Move') {
+      navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else {
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
