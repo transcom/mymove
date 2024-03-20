@@ -160,11 +160,17 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				userID := user.ID
 				residentialAddress := addressModelFromPayload(&payload.ResidentialAddress.Address)
 				backupMailingAddress := addressModelFromPayload(&payload.BackupMailingAddress.Address)
+				var edipi *string
+				if *payload.Edipi == "" {
+					edipi = nil
+				} else {
+					edipi = payload.Edipi
+				}
 
 				// Create a new serviceMember using the userID
 				newServiceMember = models.ServiceMember{
 					UserID:               userID,
-					Edipi:                payload.Edipi,
+					Edipi:                edipi,
 					Affiliation:          (*models.ServiceMemberAffiliation)(payload.Affiliation),
 					FirstName:            &payload.FirstName,
 					MiddleName:           payload.MiddleName,
