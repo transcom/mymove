@@ -161,8 +161,8 @@ const ShipmentDetailsMain = ({
       plannedMoveDate = ppmShipment.expectedDepartureDate;
       actualMoveDate = ppmShipment.actualMoveDate;
       weightResult = ppmShipment.estimatedWeight;
-      displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      displayedPickupAddress = ppmShipment.pickupAddress;
+      displayedDeliveryAddress = ppmShipment.destinationAddress || destinationDutyLocationAddress;
       break;
     default:
       pickupRequestedDate = requestedPickupDate;

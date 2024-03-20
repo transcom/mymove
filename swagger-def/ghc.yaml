@@ -3138,6 +3138,14 @@ paths:
               shipmentsCount:
                 type: integer
                 x-nullable: true
+              pickupDate:
+                type: string
+                format: date-time
+                x-nullable: true
+              deliveryDate:
+                type: string
+                format: date-time
+                x-nullable: true
               sort:
                 type: string
                 x-nullable: true
@@ -3326,6 +3334,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backupAddress:
+        $ref: 'definitions/Address.yaml'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3358,6 +3377,18 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
   Entitlements:
     properties:
       id:
@@ -5089,6 +5120,18 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
       orderType:
         type: string
   SearchMovesResult:
