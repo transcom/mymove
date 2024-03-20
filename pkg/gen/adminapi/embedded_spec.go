@@ -500,7 +500,7 @@ func init() {
     },
     "/create-okta-account": {
       "post": {
-        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns Okta information provided to it\n",
+        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns the account information from okta\n",
         "consumes": [
           "application/json"
         ],
@@ -524,9 +524,9 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Accepted request okta account created",
+            "description": "Accepted request and okta account created. Okta account information from okta is returned",
             "schema": {
-              "$ref": "#/definitions/CreateOktaAccount"
+              "$ref": "#/definitions/OktaAccountInfoResponse"
             }
           },
           "400": {
@@ -2682,6 +2682,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -3690,7 +3713,7 @@ func init() {
     },
     "/create-okta-account": {
       "post": {
-        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns Okta information provided to it\n",
+        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns the account information from okta\n",
         "consumes": [
           "application/json"
         ],
@@ -3714,9 +3737,9 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Accepted request okta account created",
+            "description": "Accepted request and okta account created. Okta account information from okta is returned",
             "schema": {
-              "$ref": "#/definitions/CreateOktaAccount"
+              "$ref": "#/definitions/OktaAccountInfoResponse"
             }
           },
           "400": {
@@ -5871,6 +5894,29 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OfficeUser"
+      }
+    },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
       }
     },
     "Organization": {

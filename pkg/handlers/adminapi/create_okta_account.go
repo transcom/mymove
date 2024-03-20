@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -53,10 +54,7 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 				return userop.NewCreateOktaAccountInternalServerError(), err
 			}
 
-			// Get the Okta Domain from the Okta provider
-			// oktaDomain := provider.GetOrgURL()
-
-			// setting viper so we can access the api key in the env vars
+			// Setting viper so we can access the api key in the env vars
 			v := viper.New()
 			v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 			v.AutomaticEnv()
@@ -64,9 +62,9 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 			// Okta api key
 			apiKey := v.GetString(cli.OktaAPIKeyFlag)
 
-			// Okta getUser url
-			// baseURL := oktaDomain + "/api/v1/users"
-			baseURL := provider.GetCreateAccountURL("true")
+			// Okta createUser url
+			activate := "true"
+			baseURL := provider.GetCreateAccountURL(activate)
 
 			// Build okta profile body
 			oktaProfileBody := models.OktaBodyProfile{
@@ -99,16 +97,12 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 				return userop.NewCreateOktaAccountInternalServerError(), err
 			}
 
-			// Add url params
-			// urlParams := userPostReq.URL.Query()
-			// urlParams.Add("activate", "false")
-
 			// Set POST request header
 			userPostReq.Header.Add("Authorization", "SSWS "+apiKey)
 			userPostReq.Header.Add("Accept", "application/json")
 			userPostReq.Header.Add("Content-Type", "application/json")
 
-			// // Execute POST request
+			// Execute POST request
 			client := &http.Client{}
 			res, err := client.Do(userPostReq)
 			if err != nil {
@@ -116,10 +110,10 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 				return userop.NewCreateOktaAccountInternalServerError(), err
 			}
 
-			// If account creation is success
-			if res.StatusCode == http.StatusOK {
-				appCtx.Logger().Info("Okta account successfully created")
-				return userop.NewCreateOktaAccountOK().WithPayload(params.CreateOktaAccountPayload), err
+			response, err := io.ReadAll(res.Body)
+			if err != nil {
+				appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" could not read response body")))
+				return nil, err
 			}
 
 			if res.StatusCode == http.StatusInternalServerError {
@@ -130,6 +124,22 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 			}
 			if res.StatusCode == http.StatusBadRequest {
 				appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf("okta returned status bad request")))
+			}
+
+			oktaAccountInfo := new(adminmessages.OktaAccountInfoResponse)
+
+			err = json.Unmarshal(response, &oktaAccountInfo)
+			if err != nil {
+				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+				return nil, err
+			}
+
+			defer res.Body.Close()
+
+			// If account creation is success
+			if res.StatusCode == http.StatusOK {
+				appCtx.Logger().Info("Okta account successfully created")
+				return userop.NewCreateOktaAccountOK().WithPayload(oktaAccountInfo), err
 			}
 
 			return userop.NewCreateOktaAccountInternalServerError(), err

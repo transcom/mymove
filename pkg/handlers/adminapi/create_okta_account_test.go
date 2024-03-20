@@ -76,17 +76,12 @@ func (suite *HandlerSuite) TestCreateOktaAccountHandler2() {
 	suite.IsNotErrResponse(response)
 	suite.Assertions.IsType(&okta.CreateOktaAccountOK{}, response)
 
-	suite.Assertions.IsType(&okta.CreateOktaAccountOK{}, response)
 	createAccountResponse := response.(*userop.CreateOktaAccountOK)
 	createAccountPayload := createAccountResponse.Payload
 
 	// Validate outgoing payload
 	suite.NoError(createAccountPayload.Validate(strfmt.Default))
-
-	suite.Equal(body.FirstName, createAccountPayload.FirstName)
-	suite.Equal(body.LastName, createAccountPayload.LastName)
-	suite.Equal(body.MobilePhone, createAccountPayload.MobilePhone)
-	suite.Equal(body.Email, createAccountPayload.Email)
+	suite.NotNil(createAccountPayload.ID)
 }
 
 // Generate and activate Okta endpoints that will be using during the handler

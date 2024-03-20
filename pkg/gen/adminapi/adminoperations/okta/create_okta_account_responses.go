@@ -17,7 +17,7 @@ import (
 const CreateOktaAccountOKCode int = 200
 
 /*
-CreateOktaAccountOK Accepted request okta account created
+CreateOktaAccountOK Accepted request and okta account created. Okta account information from okta is returned
 
 swagger:response createOktaAccountOK
 */
@@ -26,7 +26,7 @@ type CreateOktaAccountOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *adminmessages.CreateOktaAccount `json:"body,omitempty"`
+	Payload *adminmessages.OktaAccountInfoResponse `json:"body,omitempty"`
 }
 
 // NewCreateOktaAccountOK creates CreateOktaAccountOK with default headers values
@@ -36,13 +36,13 @@ func NewCreateOktaAccountOK() *CreateOktaAccountOK {
 }
 
 // WithPayload adds the payload to the create okta account o k response
-func (o *CreateOktaAccountOK) WithPayload(payload *adminmessages.CreateOktaAccount) *CreateOktaAccountOK {
+func (o *CreateOktaAccountOK) WithPayload(payload *adminmessages.OktaAccountInfoResponse) *CreateOktaAccountOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create okta account o k response
-func (o *CreateOktaAccountOK) SetPayload(payload *adminmessages.CreateOktaAccount) {
+func (o *CreateOktaAccountOK) SetPayload(payload *adminmessages.OktaAccountInfoResponse) {
 	o.Payload = payload
 }
 
