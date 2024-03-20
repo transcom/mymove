@@ -29,7 +29,7 @@ type CreatedCustomer struct {
 	BackupContact *BackupContact `json:"backupContact,omitempty"`
 
 	// edipi
-	Edipi string `json:"edipi,omitempty"`
+	Edipi *string `json:"edipi,omitempty"`
 
 	// email is preferred
 	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
@@ -59,7 +59,7 @@ type CreatedCustomer struct {
 
 	// personal email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	PersonalEmail *string `json:"personalEmail,omitempty"`
+	PersonalEmail string `json:"personalEmail,omitempty"`
 
 	// phone is preferred
 	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
@@ -182,7 +182,7 @@ func (m *CreatedCustomer) validatePersonalEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("personalEmail", "body", *m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("personalEmail", "body", m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 

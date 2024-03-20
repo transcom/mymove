@@ -54,7 +54,8 @@ type CreateCustomerPayload struct {
 
 	// personal email
 	// Example: personalEmail@email.com
-	PersonalEmail *string `json:"personalEmail,omitempty"`
+	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	PersonalEmail string `json:"personalEmail,omitempty"`
 
 	// phone is preferred
 	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
@@ -90,6 +91,10 @@ func (m *CreateCustomerPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateBackupMailingAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePersonalEmail(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -152,6 +157,18 @@ func (m *CreateCustomerPayload) validateBackupContact(formats strfmt.Registry) e
 func (m *CreateCustomerPayload) validateBackupMailingAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.BackupMailingAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateCustomerPayload) validatePersonalEmail(formats strfmt.Registry) error {
+	if swag.IsZero(m.PersonalEmail) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("personalEmail", "body", m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+		return err
 	}
 
 	return nil
