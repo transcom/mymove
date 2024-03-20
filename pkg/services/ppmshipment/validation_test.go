@@ -12,9 +12,6 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestMergePPMShipment() {
-	date := time.Now()
-	futureDate := date.AddDate(0, 0, 2)
-
 	type PPMShipmentState int
 
 	const (
@@ -34,10 +31,13 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		hasReceivedAdvance             bool
 		hasSecondaryPickupAddress      bool
 		hasSecondaryDestinationAddress bool
-		isFutureDate                   bool
+		hasActualMoveDate              bool
 	}
 
 	var (
+		today      = time.Now()
+		futureDate = today.AddDate(0, 0, 2)
+
 		expectedSecondaryPickupAddress = &models.Address{
 			StreetAddress1: "123 Secondary Pickup",
 			City:           "New York",
@@ -63,6 +63,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			ID:                    id,
 			ShipmentID:            shipmentID,
 			Status:                models.PPMShipmentStatusDraft,
+			ActualMoveDate:        &today,
 			ExpectedDepartureDate: time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC),
 			PickupPostalCode:      "90210",
 			DestinationPostalCode: "08004",
@@ -141,7 +142,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				oldShipment.SecondaryDestinationAddressID = &expectedSecondaryDestinationAddressID
 			}
 		}
-		oldShipment.ActualMoveDate = &date
 
 		return oldShipment
 	}
@@ -214,7 +214,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 	SITLocationOrigin := models.SITLocationTypeOrigin
 
 	mergeTestCases := map[string]struct {
-		oldDate     time.Time
 		oldState    PPMShipmentState
 		oldFlags    flags
 		newShipment models.PPMShipment
@@ -824,10 +823,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				suite.True(mergedShipment.SecondaryDestinationAddressID == nil)
 			},
 		},
-		"attempt to update actual move date with futureDate": {
-			oldDate: date,
+		"attempt to update actual move date with invalid date": {
 			oldFlags: flags{
-				isFutureDate: true,
+				hasActualMoveDate: true,
 			},
 			newShipment: models.PPMShipment{
 				ActualMoveDate: &futureDate,
@@ -851,7 +849,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			suite.Equal(oldShipment.ShipmentID, mergedShipment.ShipmentID)
 			suite.Equal(oldShipment.Status, mergedShipment.Status)
 
-			if tc.oldFlags.isFutureDate {
+			if tc.oldFlags.hasActualMoveDate {
 				suite.Equal(err.Error(), "Update Error Actual move date cannot be set to the future.")
 			}
 
