@@ -13,7 +13,6 @@ import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
 import styles from './ShipmentForm.module.scss';
 import ppmShipmentSchema from './ppmShipmentSchema';
 
-import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedShipmentAddressUpdateReviewRequestModal from 'components/Office/ShipmentAddressUpdateReviewRequestModal/ShipmentAddressUpdateReviewRequestModal';
@@ -189,11 +188,7 @@ const ShipmentForm = (props) => {
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
   const showCloseoutOffice =
-    isServiceCounselor &&
-    isPPM &&
-    (serviceMember.agency === SERVICE_MEMBER_AGENCIES.ARMY ||
-      serviceMember.agency === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
-      serviceMember.agency === SERVICE_MEMBER_AGENCIES.SPACE_FORCE);
+    isServiceCounselor && isPPM && (serviceMember.agency === 'ARMY' || serviceMember.agency === 'AIR_FORCE');
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 

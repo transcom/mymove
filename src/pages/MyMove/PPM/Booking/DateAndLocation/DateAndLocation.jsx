@@ -31,8 +31,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
 
   const includeCloseoutOffice =
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
-    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
-    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
   const isNewShipment = !mtoShipment?.id;
 
   useEffect(() => {

@@ -33,7 +33,6 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const counselingColumns = () => [
@@ -215,7 +214,7 @@ const ServicesCounselingQueue = () => {
   };
 
   const handleAddCustomerClick = () => {
-    navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
+    navigate(generatePath(servicesCounselingRoutes.CUSTOMER_NAME_PATH));
   };
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
@@ -296,15 +295,7 @@ const ServicesCounselingQueue = () => {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
-        <ConnectedFlashMessage />
-        <div className={styles.searchFormContainer}>
-          <h1>Search for a move</h1>
-          {searchHappened && counselorMoveCreateFeatureFlag && (
-            <Button type="submit" onClick={handleAddCustomerClick} className={styles.addCustomerBtn}>
-              Add Customer
-            </Button>
-          )}
-        </div>
+        <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
         {searchHappened && (
           <SearchResultsTable
@@ -321,6 +312,16 @@ const ServicesCounselingQueue = () => {
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
           />
+        )}
+        {searchHappened && counselorMoveCreateFeatureFlag && (
+          <Button
+            secondary={false}
+            type="Add Customer"
+            style={{ maxWidth: '225px', alignSelf: 'flex-start', position: 'absolute', bottom: 35 }}
+            onClick={handleAddCustomerClick}
+          >
+            Add Customer
+          </Button>
         )}
       </div>
     );

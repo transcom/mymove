@@ -5,7 +5,7 @@ import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
-import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
@@ -42,7 +42,7 @@ const ShipmentDisplay = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
-  const [isDownloadPacketErrorModalVisible, setIsDownloadPacketErrorModalVisible] = useState(false);
+  const [isDownloadAOAErrorModalVisible, setIsDownloadAOAErrorModalVisible] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -56,8 +56,8 @@ const ShipmentDisplay = ({
     'chevron-down': !isExpanded,
   });
 
-  const toggleDownloadPacketErrorModal = () => {
-    setIsDownloadPacketErrorModalVisible((prev) => !prev);
+  const toggleDownloadAOAErrorModal = () => {
+    setIsDownloadAOAErrorModalVisible((prev) => !prev);
   };
 
   return (
@@ -110,12 +110,9 @@ const ShipmentDisplay = ({
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
-          onErrorModalToggle={toggleDownloadPacketErrorModal}
+          onErrorModalToggle={toggleDownloadAOAErrorModal}
         />
-        <DownloadPacketErrorModal
-          isOpen={isDownloadPacketErrorModalVisible}
-          closeModal={toggleDownloadPacketErrorModal}
-        />
+        <DownloadAOAErrorModal isOpen={isDownloadAOAErrorModalVisible} closeModal={toggleDownloadAOAErrorModal} />
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton

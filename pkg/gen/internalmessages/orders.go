@@ -80,7 +80,7 @@ type Orders struct {
 	OriginDutyLocation *DutyLocationPayload `json:"origin_duty_location,omitempty"`
 
 	// provides services counseling
-	ProvidesServicesCounseling bool `json:"providesServicesCounseling"`
+	ProvidesServicesCounseling bool `json:"provides_services_counseling"`
 
 	// Report by
 	//

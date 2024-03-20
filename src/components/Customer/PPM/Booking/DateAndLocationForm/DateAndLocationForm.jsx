@@ -83,8 +83,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
 
   const showCloseoutOffice =
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
-    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
-    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
+    serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
   if (showCloseoutOffice) {
     validationShape.closeoutOffice = Yup.object().required('Required');
   } else {

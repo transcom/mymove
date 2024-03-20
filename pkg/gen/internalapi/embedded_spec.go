@@ -5385,7 +5385,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DutyLocationPayload"
         },
-        "providesServicesCounseling": {
+        "provides_services_counseling": {
           "type": "boolean",
           "x-omitempty": false
         },
@@ -13258,7 +13258,7 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DutyLocationPayload"
         },
-        "providesServicesCounseling": {
+        "provides_services_counseling": {
           "type": "boolean",
           "x-omitempty": false
         },

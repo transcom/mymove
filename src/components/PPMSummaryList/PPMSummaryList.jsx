@@ -8,8 +8,6 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate } from 'utils/formatters';
-import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import { downloadPPMPaymentPacket } from 'services/internalApi';
 
 const submittedContent = (
   <>
@@ -72,7 +70,7 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt) => {
   );
 };
 
-const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) => {
+const PPMSummaryStatus = (shipment, orderLabel, onButtonClick) => {
   const {
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt },
   } = shipment;
@@ -90,20 +88,11 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) 
       content = approvedContent(approvedAt);
       break;
     case ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL:
-      actionButton = <Button disabled>Download Payment Packet</Button>;
+      actionButton = <Button disabled>Download Incentive Packet</Button>;
       content = paymentSubmitted(approvedAt, submittedAt);
       break;
     case ppmShipmentStatuses.PAYMENT_APPROVED:
-      actionButton = (
-        <AsyncPacketDownloadLink
-          id={shipment?.ppmShipment?.id}
-          label="Download Payment Packet"
-          asyncRetrieval={downloadPPMPaymentPacket}
-          onFailure={onDownloadError}
-          className="styles.btn"
-        />
-      );
-
+      actionButton = <Button onClick={onButtonClick}>Download Incentive Packet</Button>;
       content = paymentReviewed(approvedAt, submittedAt, reviewedAt);
       break;
     default:
@@ -120,7 +109,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) 
   );
 };
 
-const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError }) => {
+const PPMSummaryList = ({ shipments, onUploadClick }) => {
   const { length } = shipments;
   return shipments.map((shipment, i) => {
     return (
@@ -130,22 +119,20 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError }) => {
         hasMany={length > 1}
         index={i}
         onUploadClick={() => onUploadClick(shipment.id)}
-        onDownloadError={onDownloadError}
       />
     );
   });
 };
 
-const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError }) => {
+const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick }) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
 
-  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError);
+  return PPMSummaryStatus(shipment, orderLabel, onUploadClick);
 };
 
 PPMSummaryList.propTypes = {
   shipments: arrayOf(ShipmentShape).isRequired,
   onUploadClick: func.isRequired,
-  onDownloadError: func.isRequired,
 };
 
 PPMSummaryListItem.propTypes = {
@@ -153,7 +140,6 @@ PPMSummaryListItem.propTypes = {
   index: number.isRequired,
   hasMany: bool.isRequired,
   onUploadClick: func.isRequired,
-  onDownloadError: func.isRequired,
 };
 
 export default PPMSummaryList;

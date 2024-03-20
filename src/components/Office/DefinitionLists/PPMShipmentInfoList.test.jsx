@@ -8,13 +8,11 @@ import affiliation from 'content/serviceMemberAgencies';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import { ppmShipmentStatuses } from 'constants/shipments';
-import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
+import { downloadPPMAOAPacket } from 'services/ghcApi';
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   downloadPPMAOAPacket: jest.fn(),
-  downloadPPMPaymentPacket: jest.fn(),
 }));
 
 afterEach(() => {
@@ -112,57 +110,6 @@ describe('PPMShipmentInfoList', () => {
 
     await waitFor(() => {
       expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-      expect(onErrorHandler).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('PPM Download Payment Paperwork - success', async () => {
-    const mockResponse = {
-      ok: true,
-      headers: {
-        'content-disposition': 'filename="test.pdf"',
-      },
-      status: 200,
-      data: null,
-    };
-    downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(mockResponse));
-
-    renderWithPermissions({ ppmShipment: { status: ppmShipmentStatuses.PAYMENT_APPROVED } });
-
-    expect(screen.getByText('Download Payment Packet (PDF)', { exact: false })).toBeInTheDocument();
-
-    const downloadPaymentButton = screen.getByText('Download Payment Packet (PDF)');
-    expect(downloadPaymentButton).toBeInTheDocument();
-
-    await userEvent.click(downloadPaymentButton);
-
-    await waitFor(() => {
-      expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('PPM Download Payment Packet - failure', async () => {
-    downloadPPMPaymentPacket.mockRejectedValue({
-      response: { body: { title: 'Error title', detail: 'Error detail' } },
-    });
-
-    const shipment = { ppmShipment: { status: ppmShipmentStatuses.PAYMENT_APPROVED } };
-    const onErrorHandler = jest.fn();
-
-    render(
-      <MockProviders permissions={[permissionTypes.viewCloseoutOffice]}>
-        <PPMShipmentInfoList shipment={shipment} onErrorModalToggle={onErrorHandler} />
-      </MockProviders>,
-    );
-
-    expect(screen.getByText('Download Payment Packet (PDF)')).toBeInTheDocument();
-
-    const downloadPaymentButton = screen.getByText('Download Payment Packet (PDF)');
-    expect(downloadPaymentButton).toBeInTheDocument();
-    await userEvent.click(downloadPaymentButton);
-
-    await waitFor(() => {
-      expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
       expect(onErrorHandler).toHaveBeenCalledTimes(1);
     });
   });

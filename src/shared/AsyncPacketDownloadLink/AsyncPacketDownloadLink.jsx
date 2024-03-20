@@ -43,13 +43,12 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {func} onSucccess on success response handler
  * @param {func} onFailure on failure response handler
  */
-const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSucccess, onFailure, className }) => {
+const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSucccess, onFailure }) => {
   const dataTestId = `asyncPacketDownloadLink${id}`;
-
   return (
     <Button
       data-testid={dataTestId}
-      className={className ? className : styles.downloadButtonToLink}
+      className={styles.downloadButtonToLink}
       onClick={() =>
         asyncRetrieval(id)
           .then((response) => {
@@ -71,7 +70,6 @@ AsyncPacketDownloadLink.propTypes = {
   asyncRetrieval: PropTypes.func.isRequired,
   onSucccess: PropTypes.func.isRequired,
   onFailure: PropTypes.func.isRequired,
-  className: PropTypes.string,
 };
 
 AsyncPacketDownloadLink.defaultProps = {

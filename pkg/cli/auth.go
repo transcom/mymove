@@ -86,9 +86,8 @@ const (
 	// RA Validator: leodis.f.scott.civ@mail.mil
 	// RA Modified Severity: CAT III
 	// #nosec G101
-	OktaAdminSecretKeyFlag  string = "okta-admin-secret-key"
-	OktaOfficeGroupIDFlag   string = "okta-office-group-id"
-	OktaCustomerGroupIDFlag string = "okta-customer-group-id"
+	OktaAdminSecretKeyFlag string = "okta-admin-secret-key"
+	OktaOfficeGroupIDFlag  string = "okta-office-group-id"
 )
 
 // InitAuthFlags initializes Auth command line flags
@@ -109,7 +108,6 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(OktaAdminCallbackURL, "", "The callback URL from logging in to the admin Okta app back to MilMove.")
 	flag.String(OktaAdminSecretKeyFlag, "", "The secret key for the miltiary Admin app, aka 'my'.")
 	flag.String(OktaOfficeGroupIDFlag, "", "The office group id for the Office app, aka 'office'.")
-	flag.String(OktaCustomerGroupIDFlag, "", "The customer group id for the Customer app.")
 }
 
 // CheckAuth validates Auth command line flags
@@ -138,7 +136,6 @@ func CheckAuth(v *viper.Viper) error {
 
 	groupIDVars := []string{
 		OktaOfficeGroupIDFlag,
-		OktaCustomerGroupIDFlag,
 	}
 
 	for _, c := range clientIDVars {
