@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
+import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 
 import styles from './SearchResultsTable.module.scss';
@@ -16,8 +17,28 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 const columns = (roleType) => [
+  roleType === roleTypes.SERVICES_COUNSELOR
+    ? createHeader(
+        'Create Move',
+        (row) => {
+          return (
+            <button
+              onClick={() =>
+                useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
+              }
+              type="button"
+              className={styles.createNewMove}
+            >
+              Create New Move
+            </button>
+          );
+        },
+        { isFilterable: false },
+      )
+    : null,
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
