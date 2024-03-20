@@ -68,43 +68,50 @@ tags:
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
 definitions:
+  OktaAccountInfoResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      activated:
+        type: string
+      created:
+        type: string
+      profile:
+          type: object
+      credentials:
+          type: object
   CreateOktaAccount:
     type: object
     properties:
       firstName:
         type: string
         example: Micheal
-        x-nullable: false
       lastName:
         type: string
         example: Jordan
-        x-nullable: false
       login:
         type: string
         example: 'user@userdomain.com'
-        x-nullable: false
       email:
         type: string
         example: 'user@userdomain.com'
-        x-nullable: false
       mobilePhone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        x-nullable: false
       cacEdipi:
         type: string
         example: '1234567890'
         maxLength: 10
-        x-nullable: false
       gsaId:
         type: string
-        x-nullable: false
       groupId:
         type: array
         items:
           type: string
-        x-nullable: false
     required:
       - firstName
       - lastName
@@ -1627,8 +1634,7 @@ paths:
       summary: Create an Okata Account
       description: >
         This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account.
-        Creates an Okta Account and returns Okta information provided to it
-
+        Creates an Okta Account and returns the account information from okta
       operationId: createOktaAccount
       tags:
         - Okta
@@ -1640,9 +1646,9 @@ paths:
             $ref: '#/definitions/CreateOktaAccount'
       responses:
         '200':
-            description: Accepted request okta account created
+            description: Accepted request and okta account created. Okta account information from okta is returned
             schema:
-              $ref: '#/definitions/CreateOktaAccount'
+              $ref: '#/definitions/OktaAccountInfoResponse'
         '400':
           description: Invalid Request
         '401':

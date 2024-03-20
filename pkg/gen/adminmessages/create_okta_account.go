@@ -23,17 +23,17 @@ type CreateOktaAccount struct {
 	// Example: 1234567890
 	// Required: true
 	// Max Length: 10
-	CacEdipi string `json:"cacEdipi"`
+	CacEdipi *string `json:"cacEdipi"`
 
 	// email
 	// Example: user@userdomain.com
 	// Required: true
-	Email string `json:"email"`
+	Email *string `json:"email"`
 
 	// first name
 	// Example: Micheal
 	// Required: true
-	FirstName string `json:"firstName"`
+	FirstName *string `json:"firstName"`
 
 	// group Id
 	// Required: true
@@ -41,22 +41,22 @@ type CreateOktaAccount struct {
 
 	// gsa Id
 	// Required: true
-	GsaID string `json:"gsaId"`
+	GsaID *string `json:"gsaId"`
 
 	// last name
 	// Example: Jordan
 	// Required: true
-	LastName string `json:"lastName"`
+	LastName *string `json:"lastName"`
 
 	// login
 	// Example: user@userdomain.com
 	// Required: true
-	Login string `json:"login"`
+	Login *string `json:"login"`
 
 	// mobile phone
 	// Required: true
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	MobilePhone string `json:"mobilePhone"`
+	MobilePhone *string `json:"mobilePhone"`
 }
 
 // Validate validates this create okta account
@@ -103,11 +103,11 @@ func (m *CreateOktaAccount) Validate(formats strfmt.Registry) error {
 
 func (m *CreateOktaAccount) validateCacEdipi(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("cacEdipi", "body", m.CacEdipi); err != nil {
+	if err := validate.Required("cacEdipi", "body", m.CacEdipi); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("cacEdipi", "body", m.CacEdipi, 10); err != nil {
+	if err := validate.MaxLength("cacEdipi", "body", *m.CacEdipi, 10); err != nil {
 		return err
 	}
 
@@ -116,7 +116,7 @@ func (m *CreateOktaAccount) validateCacEdipi(formats strfmt.Registry) error {
 
 func (m *CreateOktaAccount) validateEmail(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("email", "body", m.Email); err != nil {
+	if err := validate.Required("email", "body", m.Email); err != nil {
 		return err
 	}
 
@@ -125,7 +125,7 @@ func (m *CreateOktaAccount) validateEmail(formats strfmt.Registry) error {
 
 func (m *CreateOktaAccount) validateFirstName(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("firstName", "body", m.FirstName); err != nil {
+	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
 		return err
 	}
 
@@ -143,7 +143,7 @@ func (m *CreateOktaAccount) validateGroupID(formats strfmt.Registry) error {
 
 func (m *CreateOktaAccount) validateGsaID(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("gsaId", "body", m.GsaID); err != nil {
+	if err := validate.Required("gsaId", "body", m.GsaID); err != nil {
 		return err
 	}
 
@@ -152,7 +152,7 @@ func (m *CreateOktaAccount) validateGsaID(formats strfmt.Registry) error {
 
 func (m *CreateOktaAccount) validateLastName(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("lastName", "body", m.LastName); err != nil {
+	if err := validate.Required("lastName", "body", m.LastName); err != nil {
 		return err
 	}
 
@@ -161,7 +161,7 @@ func (m *CreateOktaAccount) validateLastName(formats strfmt.Registry) error {
 
 func (m *CreateOktaAccount) validateLogin(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("login", "body", m.Login); err != nil {
+	if err := validate.Required("login", "body", m.Login); err != nil {
 		return err
 	}
 
@@ -170,11 +170,11 @@ func (m *CreateOktaAccount) validateLogin(formats strfmt.Registry) error {
 
 func (m *CreateOktaAccount) validateMobilePhone(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("mobilePhone", "body", m.MobilePhone); err != nil {
+	if err := validate.Required("mobilePhone", "body", m.MobilePhone); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("mobilePhone", "body", m.MobilePhone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("mobilePhone", "body", *m.MobilePhone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 

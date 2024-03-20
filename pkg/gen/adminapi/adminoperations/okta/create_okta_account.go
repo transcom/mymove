@@ -34,7 +34,7 @@ func NewCreateOktaAccount(ctx *middleware.Context, handler CreateOktaAccountHand
 
 # Create an Okata Account
 
-This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns Okta information provided to it
+This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns the account information from okta
 */
 type CreateOktaAccount struct {
 	Context *middleware.Context
