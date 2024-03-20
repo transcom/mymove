@@ -204,12 +204,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersShowOrdersHandler: orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		}),
-		PpmShowPPMEstimateHandler: ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
-		}),
-		PpmShowPPMSitEstimateHandler: ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
-		}),
 		PpmShowPaymentPacketHandler: ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
 		}),
@@ -406,10 +400,6 @@ type MymoveAPI struct {
 	OktaProfileShowOktaInfoHandler okta_profile.ShowOktaInfoHandler
 	// OrdersShowOrdersHandler sets the operation handler for the show orders operation
 	OrdersShowOrdersHandler orders.ShowOrdersHandler
-	// PpmShowPPMEstimateHandler sets the operation handler for the show p p m estimate operation
-	PpmShowPPMEstimateHandler ppm.ShowPPMEstimateHandler
-	// PpmShowPPMSitEstimateHandler sets the operation handler for the show p p m sit estimate operation
-	PpmShowPPMSitEstimateHandler ppm.ShowPPMSitEstimateHandler
 	// PpmShowPaymentPacketHandler sets the operation handler for the show payment packet operation
 	PpmShowPaymentPacketHandler ppm.ShowPaymentPacketHandler
 	// QueuesShowQueueHandler sets the operation handler for the show queue operation
@@ -668,12 +658,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrdersShowOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.ShowOrdersHandler")
-	}
-	if o.PpmShowPPMEstimateHandler == nil {
-		unregistered = append(unregistered, "ppm.ShowPPMEstimateHandler")
-	}
-	if o.PpmShowPPMSitEstimateHandler == nil {
-		unregistered = append(unregistered, "ppm.ShowPPMSitEstimateHandler")
 	}
 	if o.PpmShowPaymentPacketHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPaymentPacketHandler")
@@ -1008,14 +992,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/orders/{ordersId}"] = orders.NewShowOrders(o.context, o.OrdersShowOrdersHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/estimates/ppm"] = ppm.NewShowPPMEstimate(o.context, o.PpmShowPPMEstimateHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/estimates/ppm_sit"] = ppm.NewShowPPMSitEstimate(o.context, o.PpmShowPPMSitEstimateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
