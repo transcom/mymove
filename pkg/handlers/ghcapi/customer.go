@@ -119,14 +119,17 @@ type CreateCustomerWithOktaOptionHandler struct {
 func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.CreateCustomerWithOktaOptionParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			var err error
+			var newServiceMember models.ServiceMember
+			var backupContact models.BackupContact
 
 			payload := params.Body
-			if payload.PersonalEmail == nil {
+			email := payload.PersonalEmail
+			if email == "" {
 				badDataError := apperror.NewBadDataError("missing personal email")
 				payload := payloadForValidationError("Unable to create a customer", badDataError.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
 				return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), badDataError
 			}
-			email := payload.PersonalEmail
 
 			// delcaring okta values outside of if statements so we can use them later
 			var oktaSub string
@@ -144,52 +147,62 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				oktaSub = oktaUser.ID
 			}
 
-			// creating a user and populating okta values (for now these can be null)
-			user, err := models.CreateUser(appCtx.DB(), oktaSub, *email)
-			if err != nil {
-				appCtx.Logger().Error("error creating user", zap.Error(err))
-				return customercodeop.NewCreateCustomerWithOktaOptionBadRequest(), err
-			}
+			transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+				var verrs *validate.Errors
+				// creating a user and populating okta values (for now these can be null)
+				user, userErr := models.CreateUser(appCtx.DB(), oktaSub, email)
+				if userErr != nil {
+					appCtx.Logger().Error("error creating user", zap.Error(err))
+					return userErr
+				}
 
-			// now we will take all the data we have and build the service member
-			userID := user.ID
-			residentialAddress := addressModelFromPayload(&payload.ResidentialAddress.Address)
-			backupMailingAddress := addressModelFromPayload(&payload.BackupMailingAddress.Address)
+				// now we will take all the data we have and build the service member
+				userID := user.ID
+				residentialAddress := addressModelFromPayload(&payload.ResidentialAddress.Address)
+				backupMailingAddress := addressModelFromPayload(&payload.BackupMailingAddress.Address)
 
-			// Create a new serviceMember using the userID
-			newServiceMember := models.ServiceMember{
-				UserID:               userID,
-				Edipi:                payload.Edipi,
-				Affiliation:          (*models.ServiceMemberAffiliation)(payload.Affiliation),
-				FirstName:            &payload.FirstName,
-				MiddleName:           payload.MiddleName,
-				LastName:             &payload.LastName,
-				Suffix:               payload.Suffix,
-				Telephone:            payload.Telephone,
-				SecondaryTelephone:   payload.SecondaryTelephone,
-				PersonalEmail:        payload.PersonalEmail,
-				PhoneIsPreferred:     &payload.PhoneIsPreferred,
-				EmailIsPreferred:     &payload.EmailIsPreferred,
-				ResidentialAddress:   residentialAddress,
-				BackupMailingAddress: backupMailingAddress,
-			}
+				// Create a new serviceMember using the userID
+				newServiceMember = models.ServiceMember{
+					UserID:               userID,
+					Edipi:                payload.Edipi,
+					Affiliation:          (*models.ServiceMemberAffiliation)(payload.Affiliation),
+					FirstName:            &payload.FirstName,
+					MiddleName:           payload.MiddleName,
+					LastName:             &payload.LastName,
+					Suffix:               payload.Suffix,
+					Telephone:            payload.Telephone,
+					SecondaryTelephone:   payload.SecondaryTelephone,
+					PersonalEmail:        &payload.PersonalEmail,
+					PhoneIsPreferred:     &payload.PhoneIsPreferred,
+					EmailIsPreferred:     &payload.EmailIsPreferred,
+					ResidentialAddress:   residentialAddress,
+					BackupMailingAddress: backupMailingAddress,
+				}
 
-			// create the service member and save to the db
-			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
-			if smVerrs.HasAny() || err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
+				// create the service member and save to the db
+				smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
+				if smVerrs.HasAny() || smErr != nil {
+					appCtx.Logger().Error("error creating service member", zap.Error(err))
+					return err
+				}
 
-			// creating backup contact associated with service member since this is done separately
-			// default permission of EDIT since we want them to be able to change this info
-			defaultPermission := models.BackupContactPermissionEDIT
-			backupContact, verrs, err := newServiceMember.CreateBackupContact(appCtx.DB(),
-				*payload.BackupContact.Name,
-				*payload.BackupContact.Email,
-				payload.BackupContact.Phone,
-				models.BackupContactPermission(defaultPermission))
-			if err != nil || verrs.HasAny() {
-				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
+				// creating backup contact associated with service member since this is done separately
+				// default permission of EDIT since we want them to be able to change this info
+				defaultPermission := models.BackupContactPermissionEDIT
+				backupContact, verrs, err = newServiceMember.CreateBackupContact(appCtx.DB(),
+					*payload.BackupContact.Name,
+					*payload.BackupContact.Email,
+					payload.BackupContact.Phone,
+					models.BackupContactPermission(defaultPermission))
+				if err != nil || verrs.HasAny() {
+					appCtx.Logger().Error("error creating backup contact", zap.Error(err))
+					return err
+				}
+				return nil
+			})
+
+			if transactionError != nil {
+				return nil, transactionError
 			}
 
 			// covering error returns
@@ -235,8 +248,8 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	profile := models.Profile{
 		FirstName:   oktaFirstName,
 		LastName:    oktaLastName,
-		Email:       *oktaEmail,
-		Login:       *oktaEmail,
+		Email:       oktaEmail,
+		Login:       oktaEmail,
 		MobilePhone: *oktaPhone,
 	}
 
@@ -265,7 +278,11 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	// making HTTP request to Okta Users API to create a user
 	// this is done via a POST request for creating a user that sends an activation email (when activate=true)
 	// https://developer.okta.com/docs/reference/api/users/#create-user-without-credentials
-	req, _ := http.NewRequest("POST", baseURL, bytes.NewReader(body))
+	req, err := http.NewRequest("POST", baseURL, bytes.NewReader(body))
+	if err != nil {
+		appCtx.Logger().Error("could not execute request", zap.Error(err))
+		return nil, err
+	}
 	h := req.Header
 	h.Add("Authorization", "SSWS "+apiKey)
 	h.Add("Accept", "application/json")

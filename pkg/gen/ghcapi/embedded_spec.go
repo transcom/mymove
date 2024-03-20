@@ -5283,7 +5283,7 @@ func init() {
         "personalEmail": {
           "type": "string",
           "format": "x-email",
-          "x-nullable": true,
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "personalEmail@email.com"
         },
         "phoneIsPreferred": {
@@ -5563,7 +5563,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "edipi": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -5595,8 +5596,7 @@ func init() {
         "personalEmail": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "phoneIsPreferred": {
           "type": "boolean"
@@ -17307,7 +17307,7 @@ func init() {
         "personalEmail": {
           "type": "string",
           "format": "x-email",
-          "x-nullable": true,
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "personalEmail@email.com"
         },
         "phoneIsPreferred": {
@@ -17587,7 +17587,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "edipi": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -17619,8 +17620,7 @@ func init() {
         "personalEmail": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "phoneIsPreferred": {
           "type": "boolean"
