@@ -13,6 +13,9 @@ const formatChangedValues = (historyRecord) => {
     ...getMtoShipmentLabel(historyRecord),
   };
 
+  if (historyRecord.context[0].shipment_type === 'PPM') {
+    newChangedValues.status = null; // Status will always be draft when shipment is created, not useful information.
+  }
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
@@ -20,6 +23,11 @@ export default {
   action: a.INSERT,
   eventName: o.createMTOShipment,
   tableName: t.mto_shipments,
-  getEventNameDisplay: () => 'Created shipment',
+  getEventNameDisplay: (historyRecord) => {
+    if (historyRecord.context[0].shipment_type === 'PPM') {
+      return 'PPM Shipment Created';
+    }
+    return 'Created shipment';
+  },
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
