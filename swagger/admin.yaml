@@ -59,6 +59,10 @@ tags:
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
+  - name: Requested Office Users
+    description: Information about requested office users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: Users
     description: Information about users
     externalDocs:
@@ -1120,7 +1124,7 @@ paths:
         as it is meant to be used with the Admin UI exclusively.
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested Office users
+        - Requested office users
       parameters:
         - in: query
           name: filter
