@@ -152,6 +152,82 @@ export function isMultiMoveEnabled() {
     });
 }
 
+// isPPMEnabled returns the Flipt feature flag value of PPM shipment type
+export function isPPMEnabled() {
+  const flagKey = 'ppm';
+  return getBooleanFeatureFlagForUser(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        // Found feature flag, "match" is its boolean value
+        return result.match;
+      }
+      throw new Error('ppm feature flag is undefined');
+    })
+    .catch((error) => {
+      // On error, log it and then just return false setting it to be disabled.
+      // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}
+
+// isHHGEnabled returns the Flipt feature flag value of HHG shipment type
+export function isHHGEnabled() {
+  const flagKey = 'hhg';
+  return getBooleanFeatureFlagForUser(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        // Found feature flag, "match" is its boolean value
+        return result.match;
+      }
+      throw new Error('hhg feature flag is undefined');
+    })
+    .catch((error) => {
+      // On error, log it and then just return false setting it to be disabled.
+      // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}
+
+// isNTSEnabled returns the Flipt feature flag value of NTS shipment type
+export function isNTSEnabled() {
+  const flagKey = 'nts';
+  return getBooleanFeatureFlagForUser(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        // Found feature flag, "match" is its boolean value
+        return result.match;
+      }
+      throw new Error('nts feature flag is undefined');
+    })
+    .catch((error) => {
+      // On error, log it and then just return false setting it to be disabled.
+      // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}
+
+// isNTSREnabled returns the Flipt feature flag value of NTSR shipment type
+export function isNTSREnabled() {
+  const flagKey = 'ntsr';
+  return getBooleanFeatureFlagForUser(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        // Found feature flag, "match" is its boolean value
+        return result.match;
+      }
+      throw new Error('ntsr feature flag is undefined');
+    })
+    .catch((error) => {
+      // On error, log it and then just return false setting it to be disabled.
+      // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}
+
 export function isCounselorMoveCreateEnabled() {
   const flagKey = 'counselor_move_create';
   return getBooleanFeatureFlagForUser(flagKey, {})

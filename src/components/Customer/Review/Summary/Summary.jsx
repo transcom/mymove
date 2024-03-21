@@ -6,6 +6,8 @@ import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { isPPMEnabled, isHHGEnabled, isNTSEnabled, isNTSREnabled } from '../../../../utils/featureFlags';
+
 import styles from './Summary.module.scss';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
@@ -49,6 +51,10 @@ export class Summary extends Component {
       targetShipmentLabel: null,
       targetShipmentMoveCode: null,
       targetShipmentType: null,
+      enableHHG: true,
+      enablePPM: true,
+      enableNTS: true,
+      enableNTSR: true,
     };
   }
 
@@ -61,6 +67,27 @@ export class Summary extends Component {
 
     getAllMoves(serviceMember.id).then((response) => {
       updateAllMoves(response);
+    });
+
+    isHHGEnabled().then((enabled) => {
+      this.setState({
+        enableHHG: enabled,
+      });
+    });
+    isPPMEnabled().then((enabled) => {
+      this.setState({
+        enablePPM: enabled,
+      });
+    });
+    isNTSEnabled().then((enabled) => {
+      this.setState({
+        enableNTS: enabled,
+      });
+    });
+    isNTSREnabled().then((enabled) => {
+      this.setState({
+        enableNTSR: enabled,
+      });
     });
   }
 
@@ -251,6 +278,10 @@ export class Summary extends Component {
       targetShipmentLabel,
       targetShipmentMoveCode,
       targetShipmentType,
+      enableHHG,
+      enablePPM,
+      enableNTS,
+      enableNTSR,
     } = this.state;
 
     const { pathname } = router.location;
@@ -380,7 +411,14 @@ export class Summary extends Component {
             {officePhone ? ` at ${officePhone}` : ''}.
           </div>
         )}
-        <ConnectedAddShipmentModal isOpen={showModal} closeModal={this.toggleModal} />
+        <ConnectedAddShipmentModal
+          isOpen={showModal}
+          closeModal={this.toggleModal}
+          enableHHG={enableHHG}
+          enablePPM={enablePPM}
+          enableNTS={enableNTS}
+          enableNTSR={enableNTSR}
+        />
       </>
     );
   }

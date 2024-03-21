@@ -1,10 +1,20 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { Radio } from '@trussworks/react-uswds';
+
+import { isPPMEnabled, isHHGEnabled, isNTSEnabled, isNTSREnabled } from '../../utils/featureFlags';
 
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { SelectShipmentType } from 'pages/MyMove/SelectShipmentType';
+
+jest.mock('../../utils/featureFlags', () => ({
+  ...jest.requireActual('../../utils/featureFlags'),
+  isPPMEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isHHGEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isNTSEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isNTSREnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
 
 describe('SelectShipmentType', () => {
   const defaultProps = {
@@ -35,6 +45,10 @@ describe('SelectShipmentType', () => {
   });
 
   describe('modals', () => {
+    isHHGEnabled.mockImplementation(() => Promise.resolve(true));
+    isPPMEnabled.mockImplementation(() => Promise.resolve(true));
+    isNTSEnabled.mockImplementation(() => Promise.resolve(true));
+    isNTSREnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = getWrapper();
     const storageInfoModal = wrapper.find('ConnectedStorageInfoModal');
     const moveInfoModal = wrapper.find('ConnectedMoveInfoModal');
@@ -87,6 +101,32 @@ describe('SelectShipmentType', () => {
         expect(wrapper.state('showMoveInfoModal')).toEqual(false);
         expect(moveInfoModal.prop('isOpen')).toEqual(false);
       });
+    });
+  });
+
+  describe('feature flags for shipment types hide', () => {
+    it('feature flags for shipment types hide/show SelectableCard', async () => {
+      isHHGEnabled.mockImplementation(() => Promise.resolve(true));
+      isPPMEnabled.mockImplementation(() => Promise.resolve(false));
+      isNTSEnabled.mockImplementation(() => Promise.resolve(false));
+      isNTSREnabled.mockImplementation(() => Promise.resolve(false));
+
+      const props = {};
+      const wrapper = shallow(<SelectShipmentType {...defaultProps} {...props} />);
+      await wrapper;
+      const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
+      expect(hhgCard.length).toBe(1);
+      const ppmCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.PPM}"]`);
+      expect(ppmCard.length).toBe(0);
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+      expect(ntsCard.length).toBe(0);
+      const ntsrCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTSR}"]`);
+      expect(ntsrCard.length).toBe(0);
+
+      expect(wrapper.state('enableHHG')).toEqual(true);
+      expect(wrapper.state('enablePPM')).toEqual(false);
+      expect(wrapper.state('enableNTS')).toEqual(false);
+      expect(wrapper.state('enableNTSR')).toEqual(false);
     });
   });
 
@@ -152,8 +192,8 @@ describe('SelectShipmentType', () => {
       mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
       move: { status: MOVE_STATUSES.DRAFT },
     };
-    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
 
+    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
     it('NTS card should render the correct text', () => {
       expect(wrapper.find('.usa-checkbox__label-description').at(2).text()).toContain(
         'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
