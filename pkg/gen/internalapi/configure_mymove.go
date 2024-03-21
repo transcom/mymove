@@ -297,16 +297,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		})
 	}
-	if api.PpmShowPPMEstimateHandler == nil {
-		api.PpmShowPPMEstimateHandler = ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
-		})
-	}
-	if api.PpmShowPPMSitEstimateHandler == nil {
-		api.PpmShowPPMSitEstimateHandler = ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
-		})
-	}
 	if api.PpmShowPaymentPacketHandler == nil {
 		api.PpmShowPaymentPacketHandler = ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
