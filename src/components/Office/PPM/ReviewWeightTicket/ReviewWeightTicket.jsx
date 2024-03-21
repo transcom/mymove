@@ -95,7 +95,54 @@ function ReviewWeightTicket({
 
   const weightAllowance = order.entitlement?.totalWeight;
 
+  const createUpdatedWeightTicketWithUpdatedValues = (updatedFormValues) => {
+    const updatedWeightTicket = {
+      ...weightTicket,
+      emptyWeight: parseInt(removeCommas(updatedFormValues.emptyWeight), 10),
+      fullWeight: parseInt(removeCommas(updatedFormValues.fullWeight), 10),
+      allowableWeight: parseInt(removeCommas(updatedFormValues.allowableWeight), 10),
+      status: updatedFormValues.status,
+    };
+    return updatedWeightTicket;
+  };
+  const updateMtoShipmentsWithNewWeightValues = (MtoShipmentsToUpdate, updatedWeightTicket) => {
+    const mtoShipmentIndex = MtoShipmentsToUpdate.findIndex((index) => index.id === mtoShipment.id);
+    const updatedPPMShipment = {
+      ...MtoShipmentsToUpdate[mtoShipmentIndex].ppmShipment,
+    };
+    const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
+      (ticket) => ticket.id === updatedWeightTicket.id,
+    );
+    updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
+    const updatedMtoShipment = {
+      ...mtoShipment,
+      ppmShipment: updatedPPMShipment,
+    };
+    const updatedMtoShipments = MtoShipmentsToUpdate;
+    updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
+    return updatedMtoShipments;
+  };
+  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, currentMtoShipmentId, updatedFormValues) => {
+    const updatedWeightTicket = createUpdatedWeightTicketWithUpdatedValues(updatedFormValues);
+    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(MtoShipmentsToUpdate, updatedWeightTicket);
+    let newWeightTotal = 0;
+    const currentShipmentIndex = newMtoShipments.findIndex((shipment) => shipment.id === currentMtoShipmentId);
+    for (let i = 0; i < newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets.length; i += 1) {
+      if (newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].status === 'APPROVED') {
+        newWeightTotal +=
+          newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].fullWeight -
+          newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].emptyWeight;
+      }
+    }
+    setCurrentWeightTicket(updatedWeightTicket);
+    setCurrentMtoShipments(newMtoShipments);
+    updateTotalWeight(newWeightTotal);
+  };
+
   const handleSubmit = (formValues) => {
+    if (mtoShipments !== undefined && mtoShipments.length > 0) {
+      getNewNetWeightCalculation(mtoShipments, mtoShipment.id, formValues);
+    }
     const ownsTrailerSubmit = formValues.ownsTrailer === 'true';
     const trailerMeetsCriteriaSubmit = ownsTrailerSubmit ? formValues.trailerMeetsCriteria === 'true' : false;
     const payload = {
@@ -126,46 +173,6 @@ function ReviewWeightTicket({
   } else {
     isTrailerClaimable = '';
   }
-  const createUpdatedWeightTicketWithUpdatedValues = (updatedFormValues) => {
-    const updatedWeightTicket = {
-      ...weightTicket,
-      emptyWeight: parseInt(removeCommas(updatedFormValues.emptyWeight), 10),
-      fullWeight: parseInt(removeCommas(updatedFormValues.fullWeight), 10),
-      allowableWeight: parseInt(removeCommas(updatedFormValues.allowableWeight), 10),
-    };
-    return updatedWeightTicket;
-  };
-  const updateMtoShipmentsWithNewWeightValues = (MtoShipmentsToUpdate, updatedWeightTicket) => {
-    const mtoShipmentIndex = MtoShipmentsToUpdate.findIndex((index) => index.id === mtoShipment.id);
-    const updatedPPMShipment = {
-      ...MtoShipmentsToUpdate[mtoShipmentIndex].ppmShipment,
-    };
-    const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
-      (ticket) => ticket.id === updatedWeightTicket.id,
-    );
-    updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
-    const updatedMtoShipment = {
-      ...mtoShipment,
-      ppmShipment: updatedPPMShipment,
-    };
-    const updatedMtoShipments = MtoShipmentsToUpdate;
-    updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
-    return updatedMtoShipments;
-  };
-  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, currentMtoShipmentId, updatedFormValues) => {
-    const updatedWeightTicket = createUpdatedWeightTicketWithUpdatedValues(updatedFormValues);
-    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(MtoShipmentsToUpdate, updatedWeightTicket);
-    let newWeightTotal = 0;
-    const currentShipmentIndex = newMtoShipments.findIndex((shipment) => shipment.id === currentMtoShipmentId);
-    for (let i = 0; i < newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets.length; i += 1) {
-      newWeightTotal +=
-        newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].fullWeight -
-        newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].emptyWeight;
-    }
-    setCurrentWeightTicket(updatedWeightTicket);
-    setCurrentMtoShipments(newMtoShipments);
-    updateTotalWeight(newWeightTotal);
-  };
   // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
   const initialValues = {
     emptyWeight: `${currentEmptyWeight.current}`,
