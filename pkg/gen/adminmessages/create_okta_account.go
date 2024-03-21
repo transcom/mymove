@@ -21,9 +21,8 @@ type CreateOktaAccount struct {
 
 	// cac edipi
 	// Example: 1234567890
-	// Required: true
 	// Max Length: 10
-	CacEdipi *string `json:"cacEdipi"`
+	CacEdipi string `json:"cacEdipi,omitempty"`
 
 	// email
 	// Example: user@userdomain.com
@@ -40,8 +39,7 @@ type CreateOktaAccount struct {
 	GroupID []string `json:"groupId"`
 
 	// gsa Id
-	// Required: true
-	GsaID *string `json:"gsaId"`
+	GsaID string `json:"gsaId,omitempty"`
 
 	// last name
 	// Example: Jordan
@@ -79,10 +77,6 @@ func (m *CreateOktaAccount) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateGsaID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateLastName(formats); err != nil {
 		res = append(res, err)
 	}
@@ -102,12 +96,11 @@ func (m *CreateOktaAccount) Validate(formats strfmt.Registry) error {
 }
 
 func (m *CreateOktaAccount) validateCacEdipi(formats strfmt.Registry) error {
-
-	if err := validate.Required("cacEdipi", "body", m.CacEdipi); err != nil {
-		return err
+	if swag.IsZero(m.CacEdipi) { // not required
+		return nil
 	}
 
-	if err := validate.MaxLength("cacEdipi", "body", *m.CacEdipi, 10); err != nil {
+	if err := validate.MaxLength("cacEdipi", "body", m.CacEdipi, 10); err != nil {
 		return err
 	}
 
@@ -135,15 +128,6 @@ func (m *CreateOktaAccount) validateFirstName(formats strfmt.Registry) error {
 func (m *CreateOktaAccount) validateGroupID(formats strfmt.Registry) error {
 
 	if err := validate.Required("groupId", "body", m.GroupID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateOktaAccount) validateGsaID(formats strfmt.Registry) error {
-
-	if err := validate.Required("gsaId", "body", m.GsaID); err != nil {
 		return err
 	}
 

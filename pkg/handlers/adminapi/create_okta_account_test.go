@@ -51,9 +51,9 @@ func (suite *HandlerSuite) TestCreateOktaAccountHandler2() {
 		LastName:    &lastName,
 		Email:       &email,
 		Login:       &login,
-		CacEdipi:    &cacEdipi,
+		CacEdipi:    cacEdipi,
 		MobilePhone: &mobilePhone,
-		GsaID:       &gsaID,
+		GsaID:       gsaID,
 		GroupID:     []string{},
 	}
 
