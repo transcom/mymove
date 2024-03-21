@@ -27,9 +27,9 @@ func payloadToOktaAccountCreationModel(payload *adminmessages.CreateOktaAccount)
 		LastName:    *payload.LastName,
 		Login:       *payload.Login,
 		Email:       *payload.Email,
-		CacEdipi:    *payload.CacEdipi,
+		CacEdipi:    payload.CacEdipi,
 		MobilePhone: *payload.MobilePhone,
-		GsaID:       *payload.GsaID,
+		GsaID:       payload.GsaID,
 		GroupIds:    payload.GroupID,
 	}
 }
