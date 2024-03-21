@@ -42,7 +42,7 @@ const RequestedOfficeUserShow = () => {
         <TextField source="middleInitials" />
         <TextField source="lastName" />
         <TextField source="telephone" />
-        <TextField source="edipi" label="DoD Id" />
+        <TextField source="edipi" label="DODID#" />
         <TextField source="otherUniqueId" label="Other unique Id" />
         <RequestedOfficeUserShowRoles />
         <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" sortBy="name">
