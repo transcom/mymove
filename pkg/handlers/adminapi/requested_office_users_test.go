@@ -59,10 +59,27 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
 
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Transportation Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+		mockRoleAssociator.On(
+			"FetchRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
 			requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
+			mockRoleAssociator,
 			query.NewQueryFilter,
 		}
 
@@ -84,9 +101,26 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(requestedOfficeUser, nil).Once()
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Transportation Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+		mockRoleAssociator.On(
+			"FetchRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
 		handler := GetRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
 			requestedOfficeUserFetcher,
+			mockRoleAssociator,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
@@ -109,9 +143,27 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.OfficeUser{}, expectedError).Once()
+
+		mockRoleAssociator := &mocks.RoleAssociater{}
+		mockRoles := roles.Roles{
+			roles.Role{
+				ID:        uuid.Must(uuid.NewV4()),
+				RoleType:  roles.RoleTypeTOO,
+				RoleName:  "Transportation Ordering Officer",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		}
+		mockRoleAssociator.On(
+			"FetchRoles",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(mockRoles, nil)
+
 		handler := GetRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
 			requestedOfficeUserFetcher,
+			mockRoleAssociator,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
 
