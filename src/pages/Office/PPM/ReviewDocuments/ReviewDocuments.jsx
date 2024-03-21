@@ -48,8 +48,8 @@ export const ReviewDocuments = () => {
     setCurrentTotalWeight(newWeight);
   };
   useEffect(() => {
-    updateTotalWeight(ppmActualWeight.actualWeight || 0);
-  }, [mtoShipments, ppmActualWeight.actualWeight]);
+    updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+  }, [mtoShipments, ppmActualWeight?.actualWeight]);
   useEffect(() => {
     setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
   }, [currentTotalWeight, order.entitlement.totalWeight]);
