@@ -112,7 +112,7 @@ const RequestedOfficeUserActionButtons = () => {
         </Alert>
       )}
       <div className={styles.rejectionInput}>
-        <Label>Rejection reason (optional)</Label>
+        <Label>Rejection reason (required if rejecting)</Label>
         <TextInput
           label="Rejection reason"
           source="rejectionReason"
