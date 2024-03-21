@@ -500,7 +500,7 @@ func init() {
     },
     "/create-okta-account": {
       "post": {
-        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns the account information from okta\n",
+        "description": "This endpoint accepts Okta account creation information and makes a POST request to okta's /api/v1/users endpoint to create the Okta account. Creates an Okta account and returns the account information from Okta.\n",
         "consumes": [
           "application/json"
         ],
@@ -524,7 +524,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Accepted request and okta account created. Okta account information from okta is returned",
+            "description": "Request was accepted and the Okta account was successfully created. The Okta account information is returned.",
             "schema": {
               "$ref": "#/definitions/OktaAccountInfoResponse"
             }
@@ -3925,7 +3925,7 @@ func init() {
     },
     "/create-okta-account": {
       "post": {
-        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns the account information from okta\n",
+        "description": "This endpoint accepts Okta account creation information and makes a POST request to okta's /api/v1/users endpoint to create the Okta account. Creates an Okta account and returns the account information from Okta.\n",
         "consumes": [
           "application/json"
         ],
@@ -3949,7 +3949,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Accepted request and okta account created. Okta account information from okta is returned",
+            "description": "Request was accepted and the Okta account was successfully created. The Okta account information is returned.",
             "schema": {
               "$ref": "#/definitions/OktaAccountInfoResponse"
             }
