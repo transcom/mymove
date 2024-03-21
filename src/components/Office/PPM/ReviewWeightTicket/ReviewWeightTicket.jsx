@@ -253,7 +253,7 @@ function ReviewWeightTicket({
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
-              <HHGWeightSummary mtoShipments={mtoShipments} />
+              <HHGWeightSummary mtoShipments={currentMtoShipments} />
               <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
