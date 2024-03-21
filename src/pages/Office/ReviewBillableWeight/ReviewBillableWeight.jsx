@@ -66,9 +66,9 @@ export default function ReviewBillableWeight() {
   };
 
   // filter out PPMs, as they're not including in TIO review
-  const ppmFilteredShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+  const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
-  const filteredShipments = ppmFilteredShipments?.filter((shipment) =>
+  const filteredShipments = excludePPMShipments?.filter((shipment) =>
     includedStatusesForCalculatingWeights(shipment.status),
   );
   const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
