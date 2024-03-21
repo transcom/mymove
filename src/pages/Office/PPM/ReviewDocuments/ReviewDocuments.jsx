@@ -3,8 +3,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
-import { calculateWeightRequested } from '../../../../hooks/custom';
-
 import styles from './ReviewDocuments.module.scss';
 
 import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
@@ -21,6 +19,7 @@ import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
+import { calculateWeightRequested } from 'hooks/custom';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -33,7 +32,7 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -50,11 +49,12 @@ export const ReviewDocuments = () => {
     setCurrentTotalWeight(newWeight);
   };
   useEffect(() => {
-    updateTotalWeight(calculateWeightRequested(mtoShipments));
-  }, [mtoShipments]);
+    updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+  }, [mtoShipments, ppmActualWeight?.actualWeight]);
   useEffect(() => {
-    setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
-  }, [currentTotalWeight, order.entitlement.totalWeight]);
+    const totalMoveWeight = calculateWeightRequested(mtoShipments);
+    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
+  }, [mtoShipments, order.entitlement.totalWeight]);
   useEffect(() => {
     setCurrentAllowableWeight(currentAllowableWeight);
   }, [currentAllowableWeight]);

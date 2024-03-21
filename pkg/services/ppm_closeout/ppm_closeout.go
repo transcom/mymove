@@ -52,7 +52,10 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return nil, err
 	}
 
-	actualWeight := p.GetActualWeight(*ppmShipment)
+	actualWeight, err := p.GetActualWeight(ppmShipment)
+	if err != nil {
+		return nil, err
+	}
 
 	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
 
@@ -227,7 +230,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 	return &ppmShipment, err
 }
 
-func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment models.PPMShipment) unit.Pound {
+func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error) {
 	var totalWeight unit.Pound
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
@@ -235,8 +238,10 @@ func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment models.PPMShipment) uni
 				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
+	} else {
+		return unit.Pound(0), apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, "")
 	}
-	return totalWeight
+	return totalWeight, nil
 }
 
 func (p *ppmCloseoutFetcher) GetExpenseStoragePrice(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (unit.Cents, error) {
