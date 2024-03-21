@@ -5,9 +5,7 @@ import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { isBooleanFlagEnabled } from '../../utils/featureFlags';
-
-import { isPPMEnabled } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled, isPPMEnabled } from '../../utils/featureFlags';
 
 import styles from './MovingInfo.module.scss';
 
