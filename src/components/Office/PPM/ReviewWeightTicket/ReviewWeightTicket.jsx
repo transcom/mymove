@@ -22,7 +22,6 @@ import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { getWeightTicketNetWeight } from 'utils/shipmentWeights';
-import { calculateWeightRequested } from 'hooks/custom';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const validationSchema = Yup.object().shape({
@@ -153,10 +152,16 @@ function ReviewWeightTicket({
     updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
     return updatedMtoShipments;
   };
-  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, updatedFormValues) => {
+  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, currentMtoShipmentId, updatedFormValues) => {
     const updatedWeightTicket = createUpdatedWeightTicketWithUpdatedValues(updatedFormValues);
     const newMtoShipments = updateMtoShipmentsWithNewWeightValues(MtoShipmentsToUpdate, updatedWeightTicket);
-    const newWeightTotal = calculateWeightRequested(newMtoShipments);
+    let newWeightTotal = 0;
+    const currentShipmentIndex = newMtoShipments.findIndex((shipment) => shipment.id === currentMtoShipmentId);
+    for (let i = 0; i < newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets.length; i += 1) {
+      newWeightTotal +=
+        newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].fullWeight -
+        newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].emptyWeight;
+    }
     setCurrentWeightTicket(updatedWeightTicket);
     setCurrentMtoShipments(newMtoShipments);
     updateTotalWeight(newWeightTotal);
@@ -220,7 +225,7 @@ function ReviewWeightTicket({
               }
             }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
-              getNewNetWeightCalculation(mtoShipments, values);
+              getNewNetWeightCalculation(mtoShipments, mtoShipment.id, values);
             }
             setFieldTouched(true);
           };
