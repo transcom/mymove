@@ -118,8 +118,6 @@ definitions:
       - login
       - email
       - mobilePhone
-      - cacEdipi
-      - gsaId
       - groupId
   Address:
     type: object
