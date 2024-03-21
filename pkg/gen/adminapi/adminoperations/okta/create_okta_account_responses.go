@@ -17,7 +17,7 @@ import (
 const CreateOktaAccountOKCode int = 200
 
 /*
-CreateOktaAccountOK Accepted request and okta account created. Okta account information from okta is returned
+CreateOktaAccountOK Request was accepted and the Okta account was successfully created. The Okta account information is returned.
 
 swagger:response createOktaAccountOK
 */
