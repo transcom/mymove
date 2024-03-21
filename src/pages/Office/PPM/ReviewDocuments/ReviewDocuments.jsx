@@ -3,8 +3,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
-import { calculateWeightRequested } from '../../../../hooks/custom';
-
 import styles from './ReviewDocuments.module.scss';
 
 import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
@@ -33,7 +31,7 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -50,8 +48,8 @@ export const ReviewDocuments = () => {
     setCurrentTotalWeight(newWeight);
   };
   useEffect(() => {
-    updateTotalWeight(calculateWeightRequested(mtoShipments));
-  }, [mtoShipments]);
+    updateTotalWeight(ppmActualWeight.actualWeight || 0);
+  }, [mtoShipments, ppmActualWeight.actualWeight]);
   useEffect(() => {
     setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
   }, [currentTotalWeight, order.entitlement.totalWeight]);
