@@ -18,6 +18,7 @@ import { permissionTypes } from 'constants/permissions';
 const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, handleRequestReweighModal }) => {
   const emDash = '\u2014';
   const lowestWeight = returnLowestValue(initialWeight, shipmentInfo.reweighWeight);
+  const shipmentIsPPM = shipmentInfo.shipmentType === SHIPMENT_OPTIONS.PPM;
 
   const reweighHeader = (
     <div className={styles.shipmentWeight}>
@@ -55,17 +56,19 @@ const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, h
             lowestWeight ? formatWeight(lowestWeight) : emDash,
           ]}
         />
-        <DataTable
-          columnHeaders={['Actual pro gear weight', 'Actual spouse pro gear weight']}
-          dataRow={[
-            shipmentInfo.shipmentActualProGearWeight && shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR
-              ? formatWeight(shipmentInfo.shipmentActualProGearWeight)
-              : emDash,
-            shipmentInfo.shipmentActualSpouseProGearWeight
-              ? formatWeight(shipmentInfo.shipmentActualSpouseProGearWeight)
-              : emDash,
-          ]}
-        />
+        {!shipmentIsPPM && (
+          <DataTable
+            columnHeaders={['Actual pro gear weight', 'Actual spouse pro gear weight']}
+            dataRow={[
+              shipmentInfo.shipmentActualProGearWeight && shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR
+                ? formatWeight(shipmentInfo.shipmentActualProGearWeight)
+                : emDash,
+              shipmentInfo.shipmentActualSpouseProGearWeight
+                ? formatWeight(shipmentInfo.shipmentActualSpouseProGearWeight)
+                : emDash,
+            ]}
+          />
+        )}
       </DataTableWrapper>
     </div>
   );
