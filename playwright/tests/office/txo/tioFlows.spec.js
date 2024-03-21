@@ -1,3 +1,4 @@
+/* eslint-disable guard-for-in */
 /**
  * Semi-automated converted from a cypress test, and thus may contain
  * non best-practices, in particular: heavy use of `page.locator`
@@ -26,6 +27,18 @@ class TioFlowPage extends OfficePage {
     this.moveLocator = move.locator;
     this.paymentRequest = this.findPaymentRequestBySequenceNumber(1);
   }
+
+  /**
+   * @constant TIOTabsTitles Search tabs available for TIO
+   * @readonly
+   */
+  TIOTabsTitles = ['Payment Request Queue', 'Search'];
+
+  /**
+   * @constant SearchRBSelection Available search options within Search tab
+   * @readonly
+   */
+  SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
 
   /**
    * @param {number} sequenceNumber
@@ -147,10 +160,154 @@ class TioFlowPage extends OfficePage {
   }
 }
 
+const TIOTabsTitles = ['Payment Request Queue', 'Search'];
+
+const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
+
+const SearchTerms = ['SITEXT', '8796353598', 'Spacemen'];
+
+const StatusFilterOptions = ['Payment requested', 'Reviewed', 'Rejected', 'Paid', 'Deprecated', 'Error'];
+
 test.describe('TIO user', () => {
   /** @type {TioFlowPage} */
   let tioFlowPage;
+  test.describe('with Payment Requests Queue', () => {
+    test.beforeEach(async ({ officePage }) => {
+      await officePage.signInAsNewTIOUser();
+    });
+    /* test('can filter the Payment Request queue', async ({ page }) => {
+      test.slow();
+    }); */
+  });
+  test.describe('with Search Queue', () => {
+    test.beforeEach(async ({ officePage }) => {
+      await officePage.signInAsNewTIOUser();
+      const searchTab = officePage.page.getByTitle(TIOTabsTitles[1]);
+      await searchTab.click();
+    });
 
+    test('can search for moves using Move Code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByTestId('locator-0')).toContainText(SearchTerms[0]);
+    });
+    test('can search for moves using DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(SearchTerms[1]);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByTestId('dodID-0')).toContainText(SearchTerms[1]);
+    });
+    test('can search for moves using Customer Name', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(SearchTerms[2]);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results')).toBeVisible();
+      await expect(page.getByTestId('customerName-0')).toContainText(SearchTerms[2]);
+    });
+    test('Can filter status using Payment Request Status', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchTextSubmit').click();
+
+      // Check if Payment Request Status options are present
+      const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
+      await StatusFilter.click();
+      const found = page.locator('label:has(:text("Payment requested"))');
+      await expect(found).toBeVisible();
+      await expect(page.getByText(StatusFilterOptions[0])).toBeVisible();
+      await expect(page.getByText(StatusFilterOptions[2])).toBeVisible();
+      await expect(page.getByText(StatusFilterOptions[3])).toBeVisible();
+      await expect(page.getByText(StatusFilterOptions[4])).toBeVisible();
+      await expect(page.getByText(StatusFilterOptions[5])).toBeVisible();
+    });
+    test('cant search for empty move code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for short move code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('MOVE');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for long move code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('ASUPERLONGMOVE');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for empty DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('');
+      await SearchBox.blur();
+
+      await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for short DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('1234567');
+      await SearchBox.blur();
+
+      await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for long DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('123456789011');
+      await SearchBox.blur();
+
+      await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for empty Customer Name', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Customer search must contain a value')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+  });
   test.describe('with HHG Moves', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestsForTIO();
