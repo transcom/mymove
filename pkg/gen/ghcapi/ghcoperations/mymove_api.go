@@ -90,6 +90,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler: customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
 		}),
+		CustomerCreateCustomerWithOktaOptionHandler: customer.CreateCustomerWithOktaOptionHandlerFunc(func(params customer.CreateCustomerWithOktaOptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.CreateCustomerWithOktaOption has not yet been implemented")
+		}),
 		EvaluationReportsCreateEvaluationReportHandler: evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		}),
@@ -355,6 +358,8 @@ type MymoveAPI struct {
 	ShipmentCreateApprovedSITDurationUpdateHandler shipment.CreateApprovedSITDurationUpdateHandler
 	// CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler sets the operation handler for the create customer support remark for move operation
 	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
+	// CustomerCreateCustomerWithOktaOptionHandler sets the operation handler for the create customer with okta option operation
+	CustomerCreateCustomerWithOktaOptionHandler customer.CreateCustomerWithOktaOptionHandler
 	// EvaluationReportsCreateEvaluationReportHandler sets the operation handler for the create evaluation report operation
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
@@ -597,6 +602,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler")
+	}
+	if o.CustomerCreateCustomerWithOktaOptionHandler == nil {
+		unregistered = append(unregistered, "customer.CreateCustomerWithOktaOptionHandler")
 	}
 	if o.EvaluationReportsCreateEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportHandler")
@@ -928,6 +936,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{locator}/customer-support-remarks"] = customer_support_remarks.NewCreateCustomerSupportRemarkForMove(o.context, o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/customer"] = customer.NewCreateCustomerWithOktaOption(o.context, o.CustomerCreateCustomerWithOktaOptionHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
