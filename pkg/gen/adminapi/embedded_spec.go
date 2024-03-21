@@ -500,7 +500,7 @@ func init() {
     },
     "/create-okta-account": {
       "post": {
-        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns Okta information provided to it\n",
+        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns the account information from okta\n",
         "consumes": [
           "application/json"
         ],
@@ -524,9 +524,9 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Accepted request okta account created",
+            "description": "Accepted request and okta account created. Okta account information from okta is returned",
             "schema": {
-              "$ref": "#/definitions/CreateOktaAccount"
+              "$ref": "#/definitions/OktaAccountInfoResponse"
             }
           },
           "400": {
@@ -2322,45 +2322,37 @@ func init() {
         "cacEdipi": {
           "type": "string",
           "maxLength": 10,
-          "x-nullable": false,
           "example": "1234567890"
         },
         "email": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Micheal"
         },
         "groupId": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "x-nullable": false
+          }
         },
         "gsaId": {
-          "type": "string",
-          "x-nullable": false
+          "type": "string"
         },
         "lastName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Jordan"
         },
         "login": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "mobilePhone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": false
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -2816,6 +2808,29 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OfficeUser"
+      }
+    },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
       }
     },
     "Organization": {
@@ -3910,7 +3925,7 @@ func init() {
     },
     "/create-okta-account": {
       "post": {
-        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns Okta information provided to it\n",
+        "description": "This endpoint accepts okta account creation information and integrates with oktas account creation endpoint to successfully create an okta account. Creates an Okta Account and returns the account information from okta\n",
         "consumes": [
           "application/json"
         ],
@@ -3934,9 +3949,9 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Accepted request okta account created",
+            "description": "Accepted request and okta account created. Okta account information from okta is returned",
             "schema": {
-              "$ref": "#/definitions/CreateOktaAccount"
+              "$ref": "#/definitions/OktaAccountInfoResponse"
             }
           },
           "400": {
@@ -5732,45 +5747,37 @@ func init() {
         "cacEdipi": {
           "type": "string",
           "maxLength": 10,
-          "x-nullable": false,
           "example": "1234567890"
         },
         "email": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Micheal"
         },
         "groupId": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "x-nullable": false
+          }
         },
         "gsaId": {
-          "type": "string",
-          "x-nullable": false
+          "type": "string"
         },
         "lastName": {
           "type": "string",
-          "x-nullable": false,
           "example": "Jordan"
         },
         "login": {
           "type": "string",
-          "x-nullable": false,
           "example": "user@userdomain.com"
         },
         "mobilePhone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": false
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -6227,6 +6234,29 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OfficeUser"
+      }
+    },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
       }
     },
     "Organization": {
