@@ -410,6 +410,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
+
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
