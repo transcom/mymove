@@ -19,6 +19,7 @@ import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
+import { calculateWeightRequested } from 'hooks/custom';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -51,8 +52,9 @@ export const ReviewDocuments = () => {
     updateTotalWeight(ppmActualWeight?.actualWeight || 0);
   }, [mtoShipments, ppmActualWeight?.actualWeight]);
   useEffect(() => {
-    setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
-  }, [currentTotalWeight, order.entitlement.totalWeight]);
+    const totalMoveWeight = calculateWeightRequested(mtoShipments);
+    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
+  }, [mtoShipments, order.entitlement.totalWeight]);
   useEffect(() => {
     setCurrentAllowableWeight(currentAllowableWeight);
   }, [currentAllowableWeight]);
