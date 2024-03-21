@@ -166,6 +166,61 @@ func init() {
         }
       ]
     },
+    "/customer": {
+      "post": {
+        "description": "Creates a customer with option to create an Okta profile account",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Creates a customer with Okta option",
+        "operationId": "createCustomerWithOktaOption",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCustomerPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully created the customer",
+            "schema": {
+              "$ref": "#/definitions/CreatedCustomer"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/customer-support-remarks/{customerSupportRemarkID}": {
       "delete": {
         "description": "Soft deletes a customer support remark by ID",
@@ -1577,11 +1632,6 @@ func init() {
                   "format": "date-time",
                   "x-nullable": true
                 },
-                "deliveryDate": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-nullable": true
-                },
                 "destinationPostalCode": {
                   "type": "string",
                   "x-nullable": true
@@ -1624,11 +1674,6 @@ func init() {
                   "format": "date-time",
                   "x-nullable": true
                 },
-                "pickupDate": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-nullable": true
-                },
                 "shipmentsCount": {
                   "type": "integer",
                   "x-nullable": true
@@ -1655,12 +1700,8 @@ func init() {
                     "type": "string",
                     "enum": [
                       "DRAFT",
-                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
-                      "APPROVED",
-                      "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
                       "SERVICE COUNSELING COMPLETED"
@@ -2762,58 +2803,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
-      "get": {
-        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
-        "operationId": "showAOAPacket",
-        "responses": {
-          "200": {
-            "description": "AOA PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the id for the ppmshipment with aoa to be downloaded",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
@@ -3361,12 +3350,6 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -3491,12 +3474,6 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -3629,12 +3606,6 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -5115,7 +5086,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          "example": "backupContact@mail.com"
         },
         "name": {
           "type": "string"
@@ -5320,6 +5291,81 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "CreateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "backupMailingAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "createOktaAccount": {
+          "type": "boolean"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         }
       }
     },
@@ -5557,15 +5603,91 @@ func init() {
         }
       }
     },
+    "CreatedCustomer": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Branch of service customer is affilated with"
+        },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "oktaEmail": {
+          "type": "string"
+        },
+        "oktaID": {
+          "type": "string"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "userID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
         "agency": {
           "type": "string",
           "title": "Agency customer is affilated with"
-        },
-        "backupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "backupAddress": {
           "$ref": "#/definitions/Address"
@@ -5591,9 +5713,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emailIsPreferred": {
-          "type": "boolean"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -5613,15 +5732,6 @@ func init() {
           "example": "David"
         },
         "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
-        },
-        "phoneIsPreferred": {
-          "type": "boolean"
-        },
-        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -6267,9 +6377,6 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -6511,6 +6618,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -6526,6 +6637,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
@@ -6821,11 +6938,6 @@ func init() {
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
-        },
-        "distance": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 500
         },
         "distance": {
           "type": "integer",
@@ -7707,9 +7819,6 @@ func init() {
         "originDutyLocationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "originDutyLocationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -7764,7 +7873,6 @@ func init() {
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
-        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -7797,15 +7905,11 @@ func init() {
     },
     "PPMAdvanceStatus": {
       "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
-        "RECEIVED",
-        "NOT_RECEIVED"
         "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
@@ -7835,7 +7939,6 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
-          "x-omitempty": false,
           "x-omitempty": false,
           "example": 2000
         },
@@ -7937,7 +8040,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingIncentive": {
         "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
@@ -8065,9 +8167,6 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -8136,16 +8235,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasSecondaryDestinationAddress": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "hasSecondaryPickupAddress": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -8159,9 +8248,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -8207,19 +8293,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -8229,19 +8302,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
         },
         "secondaryPickupAddress": {
           "allOf": [
@@ -8796,10 +8856,6 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
-        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -8879,10 +8935,6 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
-        },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
         },
         "orderType": {
           "type": "string",
@@ -9212,11 +9264,6 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
-            "sitAuthorizedEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -9266,9 +9313,6 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -9294,28 +9338,12 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "originDutyLocationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -9887,13 +9915,6 @@ func init() {
             }
           ]
         },
-        "backupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -9913,9 +9934,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emailIsPreferred": {
-          "type": "boolean"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -9930,15 +9948,6 @@ func init() {
           "example": "David"
         },
         "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
-        },
-        "phoneIsPreferred": {
-          "type": "boolean"
-        },
-        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -11007,6 +11016,82 @@ func init() {
         }
       ]
     },
+    "/customer": {
+      "post": {
+        "description": "Creates a customer with option to create an Okta profile account",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Creates a customer with Okta option",
+        "operationId": "createCustomerWithOktaOption",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCustomerPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully created the customer",
+            "schema": {
+              "$ref": "#/definitions/CreatedCustomer"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/customer-support-remarks/{customerSupportRemarkID}": {
       "delete": {
         "description": "Soft deletes a customer support remark by ID",
@@ -12847,11 +12932,6 @@ func init() {
                   "format": "date-time",
                   "x-nullable": true
                 },
-                "deliveryDate": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-nullable": true
-                },
                 "destinationPostalCode": {
                   "type": "string",
                   "x-nullable": true
@@ -12894,11 +12974,6 @@ func init() {
                   "format": "date-time",
                   "x-nullable": true
                 },
-                "pickupDate": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-nullable": true
-                },
                 "shipmentsCount": {
                   "type": "integer",
                   "x-nullable": true
@@ -12925,12 +13000,8 @@ func init() {
                     "type": "string",
                     "enum": [
                       "DRAFT",
-                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
-                      "APPROVED",
-                      "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
                       "SERVICE COUNSELING COMPLETED"
@@ -14327,73 +14398,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
-      "get": {
-        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
-        "operationId": "showAOAPacket",
-        "responses": {
-          "200": {
-            "description": "AOA PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the id for the ppmshipment with aoa to be downloaded",
-          "name": "ppmShipmentId",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
@@ -15107,12 +15111,6 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
-            "in": "query"
           }
         ],
         "responses": {
@@ -15243,12 +15241,6 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -15387,12 +15379,6 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "order type",
-            "name": "orderType",
             "in": "query"
           },
           {
@@ -17206,7 +17192,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          "example": "backupContact@mail.com"
         },
         "name": {
           "type": "string"
@@ -17415,6 +17401,81 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "CreateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "backupMailingAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "createOktaAccount": {
+          "type": "boolean"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         }
       }
     },
@@ -17652,15 +17713,91 @@ func init() {
         }
       }
     },
+    "CreatedCustomer": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Branch of service customer is affilated with"
+        },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "oktaEmail": {
+          "type": "string"
+        },
+        "oktaID": {
+          "type": "string"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "userID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
         "agency": {
           "type": "string",
           "title": "Agency customer is affilated with"
-        },
-        "backupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "backupAddress": {
           "$ref": "#/definitions/Address"
@@ -17686,9 +17823,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emailIsPreferred": {
-          "type": "boolean"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -17708,15 +17842,6 @@ func init() {
           "example": "David"
         },
         "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
-        },
-        "phoneIsPreferred": {
-          "type": "boolean"
-        },
-        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -18362,9 +18487,6 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -18606,6 +18728,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -18621,6 +18747,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
@@ -18916,11 +19048,6 @@ func init() {
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
-        },
-        "distance": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 500
         },
         "distance": {
           "type": "integer",
@@ -19802,9 +19929,6 @@ func init() {
         "originDutyLocationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "originDutyLocationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "packingAndShippingInstructions": {
           "type": "string"
         },
@@ -19859,7 +19983,6 @@ func init() {
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
-        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -19892,15 +20015,11 @@ func init() {
     },
     "PPMAdvanceStatus": {
       "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
-        "RECEIVED",
-        "NOT_RECEIVED"
         "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
@@ -19930,7 +20049,6 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
-          "x-omitempty": false,
           "x-omitempty": false,
           "example": 2000
         },
@@ -20033,7 +20151,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingIncentive": {
         "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
@@ -20161,9 +20278,6 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -20232,16 +20346,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasSecondaryDestinationAddress": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "hasSecondaryPickupAddress": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -20255,9 +20359,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -20303,19 +20404,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -20325,19 +20413,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
         },
         "secondaryPickupAddress": {
           "allOf": [
@@ -20893,10 +20968,6 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
-        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -20976,10 +21047,6 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
-        },
-        "orderType": {
-          "type": "string",
-          "x-nullable": true
         },
         "orderType": {
           "type": "string",
@@ -21312,11 +21379,6 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
-            "sitAuthorizedEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -21375,11 +21437,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "sitAuthorizedEndDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "sitCustomerContacted": {
           "type": "string",
           "format": "date",
@@ -21418,9 +21475,6 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -21446,28 +21500,12 @@ func init() {
         "orderType": {
           "type": "string"
         },
-        "orderType": {
-          "type": "string"
-        },
         "originDutyLocationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
@@ -22045,13 +22083,6 @@ func init() {
             }
           ]
         },
-        "backupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
@@ -22071,9 +22102,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emailIsPreferred": {
-          "type": "boolean"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -22088,15 +22116,6 @@ func init() {
           "example": "David"
         },
         "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
-        },
-        "phoneIsPreferred": {
-          "type": "boolean"
-        },
-        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
