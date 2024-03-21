@@ -2314,8 +2314,6 @@ func init() {
         "login",
         "email",
         "mobilePhone",
-        "cacEdipi",
-        "gsaId",
         "groupId"
       ],
       "properties": {
@@ -5739,8 +5737,6 @@ func init() {
         "login",
         "email",
         "mobilePhone",
-        "cacEdipi",
-        "gsaId",
         "groupId"
       ],
       "properties": {
