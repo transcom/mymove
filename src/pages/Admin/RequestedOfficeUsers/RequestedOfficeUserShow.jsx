@@ -38,13 +38,19 @@ const RequestedOfficeUserShowRoles = () => {
   );
 };
 
+// renders server and rej reason alerts
+// renders approve/reject/edit buttons
+// handles logic of approving/rejecting user
 const RequestedOfficeUserActionButtons = () => {
-  const [rejectionReason, setRejectionReason] = useState('');
   const [serverError, setServerError] = useState('');
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReasonCheck, setRejectionReasonCheck] = useState('');
   const navigate = useNavigate();
   const record = useRecordContext();
 
+  // if approved here, all values are good, but we want to change status to APPROVED
   const approve = async (user) => {
+    setRejectionReasonCheck('');
     const body = {
       edipi: user.edipi,
       firstName: user.firstName,
@@ -66,26 +72,31 @@ const RequestedOfficeUserActionButtons = () => {
       });
   };
 
+  // if rejected here, all values are good, but we want to change status to REJECTED
   const reject = async (user, rejectionReasonInput) => {
-    const body = {
-      edipi: user.edipi,
-      firstName: user.firstName,
-      middleInitials: user.middleInitials,
-      lastName: user.lastName,
-      otherUniqueId: user.otherUniqueId,
-      rejectionReason: rejectionReasonInput,
-      roles: user.roles,
-      status: 'REJECTED',
-      telephone: user.telephone,
-      transportationOfficeId: user.transportationOfficeId,
-    };
-    updateRequestedOfficeUser(record.id, body)
-      .then(() => {
-        navigate(adminRoutes.HOME_PATH);
-      })
-      .catch((error) => {
-        setServerError(error);
-      });
+    if (!rejectionReasonInput || rejectionReasonInput === '') {
+      setRejectionReasonCheck('Please provide a rejection reason.');
+    } else {
+      const body = {
+        edipi: user.edipi,
+        firstName: user.firstName,
+        middleInitials: user.middleInitials,
+        lastName: user.lastName,
+        otherUniqueId: user.otherUniqueId,
+        rejectionReason: rejectionReasonInput,
+        roles: user.roles,
+        status: 'REJECTED',
+        telephone: user.telephone,
+        transportationOfficeId: user.transportationOfficeId,
+      };
+      updateRequestedOfficeUser(record.id, body)
+        .then(() => {
+          navigate(adminRoutes.HOME_PATH);
+        })
+        .catch((error) => {
+          setServerError(error);
+        });
+    }
   };
 
   return (
@@ -95,13 +106,22 @@ const RequestedOfficeUserActionButtons = () => {
           {serverError}
         </Alert>
       )}
+      {rejectionReasonCheck && (
+        <Alert type="error" slim className={styles.error}>
+          {rejectionReasonCheck}
+        </Alert>
+      )}
       <div className={styles.rejectionInput}>
         <Label>Rejection reason (optional)</Label>
         <TextInput
           label="Rejection reason"
           source="rejectionReason"
           value={rejectionReason}
-          onChange={(e) => setRejectionReason(e.target.value)}
+          onChange={(e) => {
+            setRejectionReason(e.target.value);
+            // removing error banner if text is entered
+            setRejectionReasonCheck('');
+          }}
         />
       </div>
       <div className={styles.btnContainer}>
@@ -116,7 +136,7 @@ const RequestedOfficeUserActionButtons = () => {
         <Button
           className={styles.rejectBtn}
           onClick={async () => {
-            await reject(record);
+            await reject(record, rejectionReason);
           }}
         >
           Reject
