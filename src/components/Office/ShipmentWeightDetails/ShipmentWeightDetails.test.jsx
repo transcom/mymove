@@ -25,6 +25,12 @@ const shipmentInfoNoReweigh = {
   shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
+const shipmentInfoNoReweighPPM = {
+  shipmentID: 'shipment1',
+  ifMatchEtag: 'etag1',
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+};
+
 const shipmentInfoReweigh = {
   shipmentID: 'shipment1',
   ifMatchEtag: 'etag1',
@@ -67,6 +73,37 @@ describe('ShipmentWeightDetails', () => {
 
     const actualSpouseProGearWeight = await screen.findByText('Actual spouse pro gear weight');
     expect(actualSpouseProGearWeight).toBeTruthy();
+  });
+
+  it('does not render pro gear for PPMs', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+        <ShipmentWeightDetails
+          estimatedWeight={4500}
+          initialWeight={5000}
+          shipmentInfo={shipmentInfoNoReweighPPM}
+          handleRequestReweighModal={handleRequestReweighModal}
+        />
+      </MockProviders>,
+    );
+
+    const estimatedWeight = await screen.findByText('Estimated weight');
+    expect(estimatedWeight).toBeTruthy();
+
+    const initialWeight = await screen.findByText('Initial weight');
+    expect(initialWeight).toBeTruthy();
+
+    const reweighButton = await screen.findByText('Request reweigh');
+    expect(reweighButton).toBeTruthy();
+
+    const actualWeight = await screen.findByText('Actual shipment weight');
+    expect(actualWeight).toBeTruthy();
+
+    const actualProGearWeight = await screen.queryByText('Actual pro gear weight');
+    expect(actualProGearWeight).toBeNull();
+
+    const actualSpouseProGearWeight = await screen.queryByText('Actual spouse pro gear weight');
+    expect(actualSpouseProGearWeight).toBeNull();
   });
 
   it('renders with estimated weight if not an NTSR', async () => {
