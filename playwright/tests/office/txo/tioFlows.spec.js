@@ -7,6 +7,7 @@
 
 // @ts-check
 import { test, expect, OfficePage } from '../../utils/office/officeTest';
+import findOptionWithinOpenedDropdown from '../../utils/playwrightUtility';
 
 /**
  * TioFlowPage test fixture
@@ -222,13 +223,27 @@ test.describe('TIO user', () => {
       // Check if Payment Request Status options are present
       const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
       await StatusFilter.click();
-      const found = page.locator('label:has(:text("Payment requested"))');
-      await expect(found).toBeVisible();
-      await expect(page.getByText(StatusFilterOptions[0])).toBeVisible();
-      await expect(page.getByText(StatusFilterOptions[2])).toBeVisible();
-      await expect(page.getByText(StatusFilterOptions[3])).toBeVisible();
-      await expect(page.getByText(StatusFilterOptions[4])).toBeVisible();
-      await expect(page.getByText(StatusFilterOptions[5])).toBeVisible();
+
+      for (const item of StatusFilterOptions) {
+        const found = page
+          .locator('[id^="react-select"][id*="listbox"]')
+          .locator(`[id*="option"]:has(:text("${item}"))`);
+        await expect(found).toBeVisible();
+      }
+    });
+    test('Can select a filter status using Payment Request', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchTextSubmit').click();
+
+      // Check if Payment Request Status options are present
+      const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
+      await StatusFilter.click();
+
+      const found = findOptionWithinOpenedDropdown(page, StatusFilterOptions[1]);
+      await found.click();
+      await expect(page.getByText('Results (1)')).toBeVisible();
     });
     test('cant search for empty move code', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
