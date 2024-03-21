@@ -2,7 +2,6 @@ package paperwork
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -436,10 +435,7 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 			currentCell = 1
 		}
 
-		//TODO: REMOVE THE FMT PRINTS
 		csvFile.WriteString(weightTemplateFields + "\n")
-		fmt.Print(weightTemplateFields + "\n")
-
 		csvString := csvStringBuilder.String()
 
 		// we remove the trailing , from the list because pdfcpu doesn't like it and will throw an error when we attempt to fill the pdf
@@ -448,7 +444,33 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 		}
 
 		csvFile.WriteString(csvString)
-		fmt.Print(csvString)
+
+		// fill the pdf template with the data from the csv file
+		var conf = g.pdfConfig
+		templateFile := "paperwork/formtemplates/WeightEstimateLivingRoomPdfTemplate.pdf"
+		outFile, err := g.newTempFile()
+
+		if err != nil {
+			return "nil", errors.Wrap(err, "Creating temp file")
+		}
+
+		lastIndex := strings.LastIndex(outFile.Name(), "/")
+
+		if lastIndex != -1 {
+			outDir := outFile.Name()[:lastIndex]
+			outFileName := outFile.Name()[lastIndex:len(outFile.Name())]
+			err = api.MultiFillFormFile(templateFile, csvFile.Name(), outDir, outFileName, false, conf)
+
+			if err != nil {
+				return "nil", errors.Wrap(err, "Failed to fill excel converted pdf file")
+			}
+
+			outputFileName := outFileName + "_01.pdf"
+
+			return outputFileName, nil
+		} else {
+			return "nil", errors.Wrap(err, "Parsing path to temp file")
+		}
 	}
 
 	images := make([]inputFile, 0)
