@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
@@ -37,11 +37,12 @@ export const ReviewDocuments = () => {
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
   const [currentAllowableWeight, setCurrentAllowableWeight] = useState(0);
+  const [currentMtoShipments, setCurrentMtoShipments] = useState([]);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
-  let documentSets = [];
+  let documentSets = useMemo(() => [], []);
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
@@ -49,15 +50,20 @@ export const ReviewDocuments = () => {
     setCurrentTotalWeight(newWeight);
   };
   useEffect(() => {
-    updateTotalWeight(ppmActualWeight?.actualWeight || 0);
-  }, [mtoShipments, ppmActualWeight?.actualWeight]);
+    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
+      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+    }
+  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
   useEffect(() => {
-    const totalMoveWeight = calculateWeightRequested(mtoShipments);
+    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
     setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
-  }, [mtoShipments, order.entitlement.totalWeight]);
+  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
   useEffect(() => {
     setCurrentAllowableWeight(currentAllowableWeight);
   }, [currentAllowableWeight]);
+  useEffect(() => {
+    setCurrentMtoShipments(mtoShipments);
+  }, [mtoShipments]);
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
@@ -265,7 +271,8 @@ export const ReviewDocuments = () => {
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     order={order}
-                    mtoShipments={mtoShipments}
+                    currentMtoShipments={currentMtoShipments}
+                    setCurrentMtoShipments={setCurrentMtoShipments}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}

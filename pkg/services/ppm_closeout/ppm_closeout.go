@@ -234,7 +234,7 @@ func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (u
 	var totalWeight unit.Pound
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.Status != nil && weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil && *weightTicket.Status != models.PPMDocumentStatusRejected {
+			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil && (weightTicket.Status == nil || *weightTicket.Status != models.PPMDocumentStatusRejected) {
 				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
