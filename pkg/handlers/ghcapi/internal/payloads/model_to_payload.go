@@ -462,6 +462,40 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	return &payload
 }
 
+func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser, backupContact *models.BackupContact) *ghcmessages.CreatedCustomer {
+	if sm == nil || oktaUser == nil || backupContact == nil {
+		return nil
+	}
+
+	bc := &ghcmessages.BackupContact{
+		Name:  &backupContact.Name,
+		Email: &backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
+	payload := ghcmessages.CreatedCustomer{
+		ID:                 strfmt.UUID(sm.ID.String()),
+		UserID:             strfmt.UUID(sm.UserID.String()),
+		OktaID:             oktaUser.ID,
+		OktaEmail:          oktaUser.Profile.Email,
+		Affiliation:        swag.StringValue((*string)(sm.Affiliation)),
+		Edipi:              sm.Edipi,
+		FirstName:          swag.StringValue(sm.FirstName),
+		MiddleName:         sm.MiddleName,
+		LastName:           swag.StringValue(sm.LastName),
+		Suffix:             sm.Suffix,
+		ResidentialAddress: Address(sm.ResidentialAddress),
+		BackupAddress:      Address(sm.BackupMailingAddress),
+		PersonalEmail:      *sm.PersonalEmail,
+		Telephone:          sm.Telephone,
+		SecondaryTelephone: sm.SecondaryTelephone,
+		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
+		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
+		BackupContact:      bc,
+	}
+	return &payload
+}
+
 // Order payload
 func Order(order *models.Order) *ghcmessages.Order {
 	if order == nil {
@@ -721,7 +755,6 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
 		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
 		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
-		SitAuthorizedEndDate: handlers.FmtDatePtr(currentSIT.SITAuthorizedEndDate),
 		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
 		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}
@@ -782,8 +815,6 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
-		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -1404,6 +1435,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts:              MTOServiceItemCustomerContacts(s.CustomerContacts),
 		SitAddressUpdates:             SITAddressUpdates(s.SITAddressUpdates),
+		SitOriginHHGOriginalAddress:   Address(s.SITOriginHHGOriginalAddress),
+		SitOriginHHGActualAddress:     Address(s.SITOriginHHGActualAddress),
 		SitDestinationOriginalAddress: Address(s.SITDestinationOriginalAddress),
 		SitDestinationFinalAddress:    Address(s.SITDestinationFinalAddress),
 		EstimatedWeight:               handlers.FmtPoundPtr(s.EstimatedWeight),
@@ -1414,6 +1447,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ServiceRequestDocuments:       serviceRequestDocs,
 		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
+		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 	}
 }
 
