@@ -121,6 +121,23 @@ func (e PPMNotReadyForCloseoutError) Error() string {
 	return fmt.Sprintf("ID: %s - PPM Shipment is not ready for closeout. Customer must upload PPM documents. %s", e.id.String(), e.message)
 }
 
+type PPMNoWeightTicketsError struct {
+	id      uuid.UUID
+	message string
+}
+
+// NewNotFoundError returns an error for when a struct can not be found
+func NewPPMNoWeightTicketsError(id uuid.UUID, message string) PPMNoWeightTicketsError {
+	return PPMNoWeightTicketsError{
+		id:      id,
+		message: message,
+	}
+}
+
+func (e PPMNoWeightTicketsError) Error() string {
+	return fmt.Sprintf("ID: %s - PPM Shipment has no weight tickets assigned to it, can't calculate any weights. %s", e.id.String(), e.message)
+}
+
 // ErrorCode contains error codes for the route package
 type ErrorCode string
 
