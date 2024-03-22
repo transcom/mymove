@@ -36,7 +36,6 @@ const defaultProps = {
   ppmNumber: 1,
   updateAllowableWeight: mockCallback,
   updateDocumentSetAllowableWeight: mockCallback,
-  setCurrentMtoShipments: mockCallback,
 };
 
 const baseWeightTicketProps = {
@@ -286,7 +285,7 @@ const fullShipmentProps = {
     status: 'APPROVED',
     updatedAt: '2023-12-20T17:33:50.079Z',
   },
-  currentMtoShipments: [
+  mtoShipments: [
     {
       approvedDate: '2020-03-20T00:00:00.000Z',
       calculatedBillableWeight: 980,
