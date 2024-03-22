@@ -1688,6 +1688,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					TacFnBlModCd:      models.StringPointer("W"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -1751,6 +1752,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 
 		// Add TAC/LOA records, with an LOA containing empty strings and nils
 		emptyString := ""
+		loaSysID := factory.MakeRandomString(20)
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
@@ -1758,6 +1760,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					TacFnBlModCd:      models.StringPointer("W"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
@@ -1768,6 +1771,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaEndDt:      &sixMonthsAfter,
 					LoaBgFyTx:     &begYear, // A3 (first part)
 					LoaEndFyTx:    &endYear, // A3 (second part)
+					LoaSysID:      &loaSysID,
 					LoaHsGdsCd:    models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
@@ -1798,6 +1802,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
+		loaSysID := factory.MakeRandomString(20)
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
@@ -1805,11 +1810,12 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					TacFnBlModCd:      models.StringPointer("W"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.StringPointer("123456"),
+					LoaSysID:               &loaSysID,
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
@@ -1872,6 +1878,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
+		loaSysID := factory.MakeRandomString(20)
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
@@ -1879,11 +1886,12 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					TacFnBlModCd:      models.StringPointer("W"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.StringPointer("123456"),
+					LoaSysID:               &loaSysID,
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
@@ -1998,6 +2006,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 						TacFnBlModCd:      models.StringPointer("W"),
 						TrnsprtnAcntBgnDt: &sixMonthsBefore,
 						TrnsprtnAcntEndDt: &sixMonthsAfter,
+						LoaSysID:          loa.LoaSysID,
 					},
 				},
 				{
@@ -2151,6 +2160,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 					TacFnBlModCd:      models.StringPointer("W"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -2190,6 +2200,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 					TacFnBlModCd:      models.StringPointer("1"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          lowestLoa.LoaSysID,
 				},
 			},
 			{
@@ -2206,6 +2217,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 					TacFnBlModCd:      models.StringPointer("2"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          higherLoa.LoaSysID,
 				},
 			},
 			{
@@ -2252,6 +2264,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 					TacFnBlModCd:      models.StringPointer("1"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          oldLoa.LoaSysID,
 				},
 			},
 			{
@@ -2268,6 +2281,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 					TacFnBlModCd:      models.StringPointer("1"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          newLoa.LoaSysID,
 				},
 			},
 			{
@@ -2305,6 +2319,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 					TacFnBlModCd:      models.StringPointer("W"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -2349,6 +2364,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 					TacFnBlModCd:      models.StringPointer("W"),
 					TrnsprtnAcntBgnDt: &sixMonthsBefore,
 					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{

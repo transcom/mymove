@@ -667,7 +667,7 @@ func FetchLongLinesOfAccountingForInvoice(serviceMemberAffiliation models.Servic
 	// then this can be revisited to weight the different LOAs similar to the other services.
 	if serviceMemberAffiliation == models.AffiliationCOASTGUARD {
 		err = appCtx.DB().Q().
-			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
+			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
 			Where("t.tac = ?", tacCode).
 			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
 			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
@@ -680,7 +680,7 @@ func FetchLongLinesOfAccountingForInvoice(serviceMemberAffiliation models.Servic
 	} else {
 		// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
 		err = appCtx.DB().Q().
-			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
+			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
 			Where("t.tac = ?", tacCode).
 			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
 			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
