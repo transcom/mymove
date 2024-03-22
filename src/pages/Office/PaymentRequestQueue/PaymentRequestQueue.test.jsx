@@ -11,8 +11,7 @@ import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
 import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
-import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
-import { generalRoutes, tioRoutes } from 'constants/routes';
+import { generalRoutes } from 'constants/routes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -372,27 +371,4 @@ describe('PaymentRequestQueue', () => {
       expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
     }
   });
-  /* it('can view a move', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
-    render(
-      <reactRouterDom.BrowserRouter>
-        <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
-    );
-    // Simulate user input and form submission
-    const searchSelection = screen.getByLabelText('Customer Name');
-    await userEvent.click(searchSelection);
-
-    const searchInput = screen.getByTestId('searchText');
-    await userEvent.type(searchInput, '3305957632');
-    await userEvent.click(screen.getByTestId('searchTextSubmit'));
-
-    // get the table row
-    const selectedRows = screen.getAllByText('3305957632');
-    await userEvent.click(selectedRows[1]);
-    // Assert search results are displayed
-    expect(screen.queryByText('Billable weights')).toBeInTheDocument();
-    expect(screen.queryByText('Flag move for financial review')).toBeInTheDocument();
-    expect(screen.queryByText('Billable weights')).toBeInTheDocument();
-  }); */
 });
