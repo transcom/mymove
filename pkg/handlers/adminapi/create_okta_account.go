@@ -30,7 +30,6 @@ func payloadToOktaAccountCreationModel(payload *adminmessages.CreateOktaAccount)
 		CacEdipi:    payload.CacEdipi,
 		MobilePhone: *payload.MobilePhone,
 		GsaID:       payload.GsaID,
-		GroupIds:    payload.GroupID,
 	}
 }
 
@@ -80,8 +79,12 @@ func (h CreateOktaAccount) Handle(params userop.CreateOktaAccountParams) middlew
 			// Build Post request body
 			body := models.OktaAccountCreationBody{
 				Profile:  oktaProfileBody,
-				GroupIds: oktaAccountInformation.GroupIds,
+				GroupIds: []string{},
 			}
+
+			// Get Okta Office Group Id and add it to the request
+			oktaOfficeGroupID := v.GetString(cli.OktaOfficeGroupIDFlag)
+			body.GroupIds = append(body.GroupIds, oktaOfficeGroupID)
 
 			// Marshall Post request body
 			marshalledBody, err := json.Marshal(body)

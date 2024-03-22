@@ -54,7 +54,6 @@ func (suite *HandlerSuite) TestCreateOktaAccountHandler2() {
 		CacEdipi:    cacEdipi,
 		MobilePhone: &mobilePhone,
 		GsaID:       gsaID,
-		GroupID:     []string{},
 	}
 
 	defer goth.ClearProviders()

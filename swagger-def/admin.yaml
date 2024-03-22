@@ -112,17 +112,12 @@ definitions:
         maxLength: 10
       gsaId:
         type: string
-      groupId:
-        type: array
-        items:
-          type: string
     required:
       - firstName
       - lastName
       - login
       - email
       - mobilePhone
-      - groupId
   Address:
     type: object
     properties:
