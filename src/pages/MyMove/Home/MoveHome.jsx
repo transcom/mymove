@@ -188,6 +188,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     return move.status === MOVE_STATUSES.APPROVED;
   };
 
+  // checking to see if prime is counseling this move, return true
+  const isPrimeCounseled = () => {
+    return !orders.providesServicesCounseling;
+  };
+
   // logic that handles deleting a shipment
   // calls internal API and updates shipments
   const handleDeleteShipmentConfirmation = (shipmentId) => {
@@ -405,7 +410,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
 
-  const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -421,11 +425,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
-          {isSpecialMove ? (
-            <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-              <p>BLUEBARK</p>
-            </div>
-          ) : null}
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <h2>
               {serviceMember.first_name} {serviceMember.last_name}
@@ -625,11 +624,22 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                           usage authorization or ask any questions.
                         </Description>
                       )}
-                      {!hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                      {!isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
                         <Description>
                           Your service will review your request for an Advance Operating Allowance (AOA). If approved,
                           you will be able to download the paperwork for your request and submit it to your Finance
                           Office to receive your advance.
+                          <br />
+                          <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                          incentive ends up being less than your advance, you will be required to pay back the
+                          difference.
+                        </Description>
+                      )}
+                      {isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                        <Description>
+                          Once you have received counseling for your PPM you will receive emailed instructions on how to
+                          download your Advance Operating Allowance (AOA) packet. Please consult with your
+                          Transportation Office for review of your AOA packet.
                           <br />
                           <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                           incentive ends up being less than your advance, you will be required to pay back the

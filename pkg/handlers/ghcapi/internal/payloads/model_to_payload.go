@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -441,19 +442,23 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	}
 
 	payload := ghcmessages.Customer{
-		Agency:         swag.StringValue((*string)(customer.Affiliation)),
-		CurrentAddress: Address(customer.ResidentialAddress),
-		DodID:          swag.StringValue(customer.Edipi),
-		Email:          customer.PersonalEmail,
-		FirstName:      swag.StringValue(customer.FirstName),
-		ID:             strfmt.UUID(customer.ID.String()),
-		LastName:       swag.StringValue(customer.LastName),
-		Phone:          customer.Telephone,
-		Suffix:         customer.Suffix,
-		MiddleName:     customer.MiddleName,
-		UserID:         strfmt.UUID(customer.UserID.String()),
-		ETag:           etag.GenerateEtag(customer.UpdatedAt),
-		BackupContact:  BackupContact(customer.BackupContacts),
+		Agency:             swag.StringValue((*string)(customer.Affiliation)),
+		CurrentAddress:     Address(customer.ResidentialAddress),
+		DodID:              swag.StringValue(customer.Edipi),
+		Email:              customer.PersonalEmail,
+		FirstName:          swag.StringValue(customer.FirstName),
+		ID:                 strfmt.UUID(customer.ID.String()),
+		LastName:           swag.StringValue(customer.LastName),
+		Phone:              customer.Telephone,
+		Suffix:             customer.Suffix,
+		MiddleName:         customer.MiddleName,
+		UserID:             strfmt.UUID(customer.UserID.String()),
+		ETag:               etag.GenerateEtag(customer.UpdatedAt),
+		BackupContact:      BackupContact(customer.BackupContacts),
+		BackupAddress:      Address(customer.BackupMailingAddress),
+		SecondaryTelephone: customer.SecondaryTelephone,
+		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
+		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
 	}
 	return &payload
 }
@@ -717,7 +722,6 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
 		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
 		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
-		SitAuthorizedEndDate: handlers.FmtDatePtr(currentSIT.SITAuthorizedEndDate),
 		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
 		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}
@@ -778,6 +782,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -1815,7 +1821,7 @@ func Reweigh(reweigh *models.Reweigh, _ *ghcmessages.SITStatus) *ghcmessages.Rew
 }
 
 // SearchMoves payload
-func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
+func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.SearchMoves {
 	searchMoves := make(ghcmessages.SearchMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -1827,6 +1833,54 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 				numShipments++
 			}
 		}
+
+		var pickupDate, deliveryDate *strfmt.Date
+
+		if numShipments > 0 && move.MTOShipments[0].ScheduledPickupDate != nil {
+			pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledPickupDate)
+		} else {
+			pickupDate = nil
+		}
+
+		if numShipments > 0 && move.MTOShipments[0].ScheduledDeliveryDate != nil {
+			deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledDeliveryDate)
+		} else {
+			deliveryDate = nil
+		}
+
+		var originGBLOC ghcmessages.GBLOC
+		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		} else if len(move.ShipmentGBLOC) > 0 {
+			// There is a Pop bug that prevents us from using a has_one association for
+			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
+			// though there can never be more than one GBLOC for a move.
+			if move.ShipmentGBLOC[0].GBLOC != nil {
+				originGBLOC = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+			}
+		} else {
+			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
+			// we need to fall back to the origin duty location GBLOC.  If that's not available for
+			// some reason, then we should get the empty string (no GBLOC).
+			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		}
+
+		var destinationGBLOC ghcmessages.GBLOC
+		var PostalCodeToGBLOC models.PostalCodeToGBLOC
+		var err error
+		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
+			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
+		} else {
+			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
+			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
+		}
+
+		if err != nil {
+			destinationGBLOC = *ghcmessages.NewGBLOC("")
+		} else {
+			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
+		}
+
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
@@ -1839,6 +1893,10 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
 			OrderType:                         string(move.Orders.OrdersType),
+			RequestedPickupDate:               pickupDate,
+			RequestedDeliveryDate:             deliveryDate,
+			OriginGBLOC:                       originGBLOC,
+			DestinationGBLOC:                  destinationGBLOC,
 		}
 	}
 	return &searchMoves
