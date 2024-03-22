@@ -2220,8 +2220,7 @@ func init() {
         "lastName",
         "login",
         "email",
-        "mobilePhone",
-        "groupId"
+        "mobilePhone"
       ],
       "properties": {
         "cacEdipi": {
@@ -2236,12 +2235,6 @@ func init() {
         "firstName": {
           "type": "string",
           "example": "Micheal"
-        },
-        "groupId": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "gsaId": {
           "type": "string"
@@ -5431,8 +5424,7 @@ func init() {
         "lastName",
         "login",
         "email",
-        "mobilePhone",
-        "groupId"
+        "mobilePhone"
       ],
       "properties": {
         "cacEdipi": {
@@ -5447,12 +5439,6 @@ func init() {
         "firstName": {
           "type": "string",
           "example": "Micheal"
-        },
-        "groupId": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "gsaId": {
           "type": "string"

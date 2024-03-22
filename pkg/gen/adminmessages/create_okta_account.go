@@ -34,10 +34,6 @@ type CreateOktaAccount struct {
 	// Required: true
 	FirstName *string `json:"firstName"`
 
-	// group Id
-	// Required: true
-	GroupID []string `json:"groupId"`
-
 	// gsa Id
 	GsaID string `json:"gsaId,omitempty"`
 
@@ -70,10 +66,6 @@ func (m *CreateOktaAccount) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateFirstName(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateGroupID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,15 +111,6 @@ func (m *CreateOktaAccount) validateEmail(formats strfmt.Registry) error {
 func (m *CreateOktaAccount) validateFirstName(formats strfmt.Registry) error {
 
 	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateOktaAccount) validateGroupID(formats strfmt.Registry) error {
-
-	if err := validate.Required("groupId", "body", m.GroupID); err != nil {
 		return err
 	}
 
