@@ -6,7 +6,7 @@ import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { isPPMEnabled, isHHGEnabled, isNTSEnabled, isNTSREnabled } from '../../../../utils/featureFlags';
+import { isFeatureEnabled, FEATURE_FLAG_KEYS } from '../../../../utils/featureFlags';
 
 import styles from './Summary.module.scss';
 
@@ -51,7 +51,6 @@ export class Summary extends Component {
       targetShipmentLabel: null,
       targetShipmentMoveCode: null,
       targetShipmentType: null,
-      enableHHG: true,
       enablePPM: true,
       enableNTS: true,
       enableNTSR: true,
@@ -69,22 +68,17 @@ export class Summary extends Component {
       updateAllMoves(response);
     });
 
-    isHHGEnabled().then((enabled) => {
-      this.setState({
-        enableHHG: enabled,
-      });
-    });
-    isPPMEnabled().then((enabled) => {
+    isFeatureEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         enablePPM: enabled,
       });
     });
-    isNTSEnabled().then((enabled) => {
+    isFeatureEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
       this.setState({
         enableNTS: enabled,
       });
     });
-    isNTSREnabled().then((enabled) => {
+    isFeatureEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
       });
@@ -278,7 +272,6 @@ export class Summary extends Component {
       targetShipmentLabel,
       targetShipmentMoveCode,
       targetShipmentType,
-      enableHHG,
       enablePPM,
       enableNTS,
       enableNTSR,
@@ -414,7 +407,6 @@ export class Summary extends Component {
         <ConnectedAddShipmentModal
           isOpen={showModal}
           closeModal={this.toggleModal}
-          enableHHG={enableHHG}
           enablePPM={enablePPM}
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}

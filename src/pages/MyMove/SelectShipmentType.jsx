@@ -5,7 +5,7 @@ import { func, arrayOf } from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 
-import { isPPMEnabled, isHHGEnabled, isNTSEnabled, isNTSREnabled } from '../../utils/featureFlags';
+import { isFeatureEnabled, FEATURE_FLAG_KEYS } from '../../utils/featureFlags';
 
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
@@ -33,7 +33,6 @@ export class SelectShipmentType extends Component {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
       errorMessage: null,
-      enableHHG: true,
       enablePPM: true,
       enableNTS: true,
       enableNTSR: true,
@@ -43,22 +42,17 @@ export class SelectShipmentType extends Component {
   componentDidMount() {
     const { loadMTOShipments, move } = this.props;
     loadMTOShipments(move.id);
-    isHHGEnabled().then((enabled) => {
-      this.setState({
-        enableHHG: enabled,
-      });
-    });
-    isPPMEnabled().then((enabled) => {
+    isFeatureEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         enablePPM: enabled,
       });
     });
-    isNTSEnabled().then((enabled) => {
+    isFeatureEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
       this.setState({
         enableNTS: enabled,
       });
     });
-    isNTSREnabled().then((enabled) => {
+    isFeatureEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
       });
@@ -98,16 +92,8 @@ export class SelectShipmentType extends Component {
       move,
       mtoShipments,
     } = this.props;
-    const {
-      shipmentType,
-      showStorageInfoModal,
-      showMoveInfoModal,
-      enableHHG,
-      enablePPM,
-      enableNTS,
-      enableNTSR,
-      errorMessage,
-    } = this.state;
+    const { shipmentType, showStorageInfoModal, showMoveInfoModal, enablePPM, enableNTS, enableNTSR, errorMessage } =
+      this.state;
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
@@ -169,18 +155,16 @@ export class SelectShipmentType extends Component {
                 After you set up this shipment, you can add another shipment if you have more personal property to move.
               </p>
 
-              {enableHHG && (
-                <SelectableCard
-                  {...selectableCardDefaultProps}
-                  label="Movers pack and ship it, paid by the government (HHG)"
-                  value={SHIPMENT_OPTIONS.HHG}
-                  id={SHIPMENT_OPTIONS.HHG}
-                  cardText={hhgCardText}
-                  checked={shipmentType === SHIPMENT_OPTIONS.HHG}
-                  disabled={!shipmentInfo.isHHGSelectable}
-                  onHelpClick={this.toggleMoveInfoModal}
-                />
-              )}
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label="Movers pack and ship it, paid by the government (HHG)"
+                value={SHIPMENT_OPTIONS.HHG}
+                id={SHIPMENT_OPTIONS.HHG}
+                cardText={hhgCardText}
+                checked={shipmentType === SHIPMENT_OPTIONS.HHG}
+                disabled={!shipmentInfo.isHHGSelectable}
+                onHelpClick={this.toggleMoveInfoModal}
+              />
 
               {enablePPM && (
                 <SelectableCard
@@ -259,7 +243,6 @@ export class SelectShipmentType extends Component {
         </GridContainer>
         <ConnectedMoveInfoModal
           isOpen={showMoveInfoModal}
-          enableHHG={enableHHG}
           enablePPM={enablePPM}
           closeModal={this.toggleMoveInfoModal}
         />

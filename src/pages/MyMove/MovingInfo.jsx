@@ -5,7 +5,7 @@ import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { isPPMEnabled } from '../../utils/featureFlags';
+import { isFeatureEnabled, FEATURE_FLAG_KEYS } from '../../utils/featureFlags';
 
 import styles from './MovingInfo.module.scss';
 
@@ -40,7 +40,7 @@ export class MovingInfo extends Component {
   componentDidMount() {
     const { serviceMemberId, fetchLatestOrders } = this.props;
     fetchLatestOrders(serviceMemberId);
-    isPPMEnabled().then((enabled) => {
+    isFeatureEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         ppmFeatureFlag: enabled,
       });

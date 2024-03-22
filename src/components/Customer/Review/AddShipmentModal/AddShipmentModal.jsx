@@ -5,13 +5,13 @@ import { Button } from '@trussworks/react-uswds';
 import styles from 'components/Customer/Review/AddShipmentModal/AddShipmentModal.module.scss';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const AddShipmentModal = ({ closeModal, enableHHG, enablePPM, enableNTS, enableNTSR }) => (
+export const AddShipmentModal = ({ closeModal, enablePPM, enableNTS, enableNTSR }) => (
   <Modal className={styles.Modal}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>Reasons you might need another shipment</h3>
     </ModalTitle>
-    {enableHHG && enablePPM && enableNTS && enableNTSR ? (
+    {enablePPM && enableNTS && enableNTSR ? (
       <>
         <ul>
           <li>
@@ -40,7 +40,6 @@ export const AddShipmentModal = ({ closeModal, enableHHG, enablePPM, enableNTS, 
 
 AddShipmentModal.propTypes = {
   closeModal: PropTypes.func,
-  enableHHG: PropTypes.bool,
   enablePPM: PropTypes.bool,
   enableNTS: PropTypes.bool,
   enableNTSR: PropTypes.bool,
@@ -48,7 +47,6 @@ AddShipmentModal.propTypes = {
 
 AddShipmentModal.defaultProps = {
   closeModal: () => {},
-  enableHHG: true,
   enablePPM: true,
   enableNTS: true,
   enableNTSR: true,
