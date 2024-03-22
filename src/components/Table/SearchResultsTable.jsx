@@ -359,13 +359,6 @@ const SearchResultsTable = (props) => {
     [],
   );
 
-  // let activeColumns;
-  // if (isCounselorMoveCreateFFEnabled && roleType === roleTypes.SERVICES_COUNSELOR) {
-  //   activeColumns = columnsWithCreateMove(roleType);
-  // } else {
-  //   activeColumns = columns(roleType);
-  // }
-
   const tableData = useMemo(() => data, [data]);
   const tableColumns = useMemo(
     () => (isCounselorMoveCreateFFEnabled ? columnsWithCreateMove(roleType) : columns(roleType)),
