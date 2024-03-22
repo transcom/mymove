@@ -130,7 +130,7 @@ function ReviewWeightTicket({
     let newWeightTotal = 0;
     const currentShipmentIndex = newMtoShipments.findIndex((shipment) => shipment.id === currentMtoShipmentId);
     for (let i = 0; i < newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets.length; i += 1) {
-      if (newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].status === 'APPROVED') {
+      if (newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].status !== 'REJECTED') {
         newWeightTotal +=
           newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].fullWeight -
           newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].emptyWeight;
