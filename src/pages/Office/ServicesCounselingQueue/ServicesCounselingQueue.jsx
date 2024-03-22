@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
@@ -31,6 +31,9 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import retryPageLoading from 'utils/retryPageLoading';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -202,6 +205,29 @@ const ServicesCounselingQueue = () => {
 
   const navigate = useNavigate();
 
+  const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
+  const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+
+  // Feature Flag
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const isEnabled = await isCounselorMoveCreateEnabled();
+        setisCounselorMoveCreateFFEnabled(isEnabled);
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        setErrorState({
+          hasError: true,
+          error,
+          info: null,
+        });
+        retryPageLoading(error);
+      }
+    };
+    fetchData();
+  }, [setErrorState]);
+
   const handleClick = (values, e) => {
     if (e?.target?.innerHTML === 'Create New Move') {
       navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
@@ -303,6 +329,7 @@ const ServicesCounselingQueue = () => {
             dodID={search.dodID}
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
+            isCounselorMoveCreateFFEnabled={isCounselorMoveCreateFFEnabled}
           />
         )}
       </div>
