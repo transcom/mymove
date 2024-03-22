@@ -492,6 +492,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ppmCloseoutFetcher,
 	}
 
+	ghcAPI.PpmGetPPMActualWeightHandler = GetPPMActualWeightHandler{
+		handlerConfig,
+		ppmCloseoutFetcher,
+		ppmshipment.NewPPMShipmentFetcher(),
+	}
+
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
 
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
