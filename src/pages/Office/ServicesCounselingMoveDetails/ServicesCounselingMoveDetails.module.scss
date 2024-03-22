@@ -25,9 +25,26 @@
     @include u-margin-bottom(4);
   }
 
+  .testdiv {
+    display: flex;
+    justify-content: flex-end;
+  }
+
   .submitMoveDetailsContainer {
     display: flex;
     justify-content: flex-end;
+
+    button {
+      @include u-margin-right(0);
+      align-self: center;
+    }
+  }
+
+  .createNewMove {
+    background-color: inherit;
+    display: flex;
+    justify-content: flex-end;
+    @include u-margin-right(0);
 
     button {
       @include u-margin-right(0);
