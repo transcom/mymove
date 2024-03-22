@@ -860,6 +860,9 @@ commands:
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
             export FEATURE_FLAG_MULTI_MOVE=true
+            export FEATURE_FLAG_PPM=true
+            export FEATURE_FLAG_NTS=true
+            export FEATURE_FLAG_NTSR=true
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -885,6 +888,9 @@ commands:
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
             # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
             FEATURE_FLAG_MULTI_MOVE: 'true'
+            FEATURE_FLAG_PPM: 'true'
+            FEATURE_FLAG_NTS: 'true'
+            FEATURE_FLAG_NTSR: 'true'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
