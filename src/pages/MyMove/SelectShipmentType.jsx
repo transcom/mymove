@@ -5,7 +5,8 @@ import { func, arrayOf } from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 
-import { isFeatureEnabled, FEATURE_FLAG_KEYS } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from '../../shared/constants';
 
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
@@ -14,7 +15,6 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import styles from 'pages/MyMove/SelectShipmentType.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
@@ -42,17 +42,17 @@ export class SelectShipmentType extends Component {
   componentDidMount() {
     const { loadMTOShipments, move } = this.props;
     loadMTOShipments(move.id);
-    isFeatureEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         enablePPM: enabled,
       });
     });
-    isFeatureEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
       this.setState({
         enableNTS: enabled,
       });
     });
-    isFeatureEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
       });

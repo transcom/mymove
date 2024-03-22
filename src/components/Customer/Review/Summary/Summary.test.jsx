@@ -2,10 +2,10 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
 import { Summary } from 'components/Customer/Review/Summary/Summary';
-import { MOVE_STATUSES } from 'shared/constants';
 import { renderWithRouterProp } from 'testUtils';
-import { isFeatureEnabled, FEATURE_FLAG_KEYS } from 'utils/featureFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { customerRoutes } from 'constants/routes';
 import { selectCurrentMoveFromAllMoves } from 'store/entities/selectors';
 
@@ -22,7 +22,7 @@ jest.mock('store/entities/selectors', () => ({
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isFeatureEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const testMove = {
@@ -633,7 +633,7 @@ describe('Summary page', () => {
     });
 
     it('add shipment modal displays default text, nothing is disabled', async () => {
-      isFeatureEnabled.mockImplementation(() => Promise.resolve(true));
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
       renderWithRouterProp(<Summary {...testProps} />, {
         path: customerRoutes.MOVE_REVIEW_PATH,
@@ -654,13 +654,13 @@ describe('Summary page', () => {
       // verify it display default text in modal when nothing is disabled
       expect(await screen.findByText(/If none of these apply to you, you probably/)).toBeInTheDocument();
 
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
     });
 
     it('add shipment modal displays still in dev mode', async () => {
-      isFeatureEnabled.mockImplementation(() => Promise.resolve(false));
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
 
       renderWithRouterProp(<Summary {...testProps} />, {
         path: customerRoutes.MOVE_REVIEW_PATH,
@@ -684,9 +684,9 @@ describe('Summary page', () => {
         ),
       ).toBeInTheDocument();
 
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
     });
   });
   afterEach(jest.clearAllMocks);

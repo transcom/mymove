@@ -3,14 +3,14 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 import { Radio } from '@trussworks/react-uswds';
 
-import { isFeatureEnabled, FEATURE_FLAG_KEYS } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS, MOVE_STATUSES } from '../../shared/constants';
 
-import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { SelectShipmentType } from 'pages/MyMove/SelectShipmentType';
 
 jest.mock('../../utils/featureFlags', () => ({
   ...jest.requireActual('../../utils/featureFlags'),
-  isFeatureEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 describe('SelectShipmentType', () => {
@@ -42,7 +42,7 @@ describe('SelectShipmentType', () => {
   });
 
   describe('modals', () => {
-    isFeatureEnabled.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     const wrapper = getWrapper();
     const storageInfoModal = wrapper.find('ConnectedStorageInfoModal');
@@ -101,7 +101,7 @@ describe('SelectShipmentType', () => {
 
   describe('feature flags for shipment types show/hide', () => {
     it('feature flags for shipment types hide SelectableCard', async () => {
-      isFeatureEnabled.mockImplementation(() => Promise.resolve(false));
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
 
       const props = {};
       const wrapper = shallow(<SelectShipmentType {...defaultProps} {...props} />);
@@ -119,13 +119,13 @@ describe('SelectShipmentType', () => {
       expect(wrapper.state('enableNTS')).toEqual(false);
       expect(wrapper.state('enableNTSR')).toEqual(false);
 
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
     });
 
     it('feature flags for shipment types show SelectableCard', async () => {
-      isFeatureEnabled.mockImplementation(() => Promise.resolve(true));
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
       const props = {};
       const wrapper = shallow(<SelectShipmentType {...defaultProps} {...props} />);
@@ -143,9 +143,9 @@ describe('SelectShipmentType', () => {
       expect(wrapper.state('enableNTS')).toEqual(true);
       expect(wrapper.state('enableNTSR')).toEqual(true);
 
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isFeatureEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
     });
   });
 

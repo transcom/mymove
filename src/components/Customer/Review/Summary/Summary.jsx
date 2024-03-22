@@ -6,7 +6,8 @@ import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { isFeatureEnabled, FEATURE_FLAG_KEYS } from '../../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
 import styles from './Summary.module.scss';
 
@@ -23,7 +24,6 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import {
@@ -68,17 +68,17 @@ export class Summary extends Component {
       updateAllMoves(response);
     });
 
-    isFeatureEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         enablePPM: enabled,
       });
     });
-    isFeatureEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
       this.setState({
         enableNTS: enabled,
       });
     });
-    isFeatureEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
       });
