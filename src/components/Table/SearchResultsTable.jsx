@@ -354,16 +354,11 @@ const SearchResultsTable = (props) => {
     [],
   );
 
-  let activeColumns;
-  if (isCounselorMoveCreateFFEnabled && roleType === roleTypes.SERVICES_COUNSELOR) {
-    activeColumns = columnsWithCreateMove(roleType);
-  } else {
-    activeColumns = columns(roleType);
-  }
-
   const tableData = useMemo(() => data, [data]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const tableColumns = useMemo(() => activeColumns, [roleType]);
+  const tableColumns = useMemo(
+    () => (isCounselorMoveCreateFFEnabled ? columnsWithCreateMove(roleType) : columns(roleType)),
+    [roleType, isCounselorMoveCreateFFEnabled],
+  );
 
   const {
     getTableProps,
