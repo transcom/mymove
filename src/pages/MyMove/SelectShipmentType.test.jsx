@@ -1,10 +1,17 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { Radio } from '@trussworks/react-uswds';
 
-import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS, MOVE_STATUSES } from '../../shared/constants';
+
 import { SelectShipmentType } from 'pages/MyMove/SelectShipmentType';
+
+jest.mock('../../utils/featureFlags', () => ({
+  ...jest.requireActual('../../utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
 
 describe('SelectShipmentType', () => {
   const defaultProps = {
@@ -35,6 +42,8 @@ describe('SelectShipmentType', () => {
   });
 
   describe('modals', () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     const wrapper = getWrapper();
     const storageInfoModal = wrapper.find('ConnectedStorageInfoModal');
     const moveInfoModal = wrapper.find('ConnectedMoveInfoModal');
@@ -87,6 +96,56 @@ describe('SelectShipmentType', () => {
         expect(wrapper.state('showMoveInfoModal')).toEqual(false);
         expect(moveInfoModal.prop('isOpen')).toEqual(false);
       });
+    });
+  });
+
+  describe('feature flags for shipment types show/hide', () => {
+    it('feature flags for shipment types hide SelectableCard', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+      const props = {};
+      const wrapper = shallow(<SelectShipmentType {...defaultProps} {...props} />);
+      await wrapper;
+      const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
+      expect(hhgCard.length).toBe(1);
+      const ppmCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.PPM}"]`);
+      expect(ppmCard.length).toBe(0);
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+      expect(ntsCard.length).toBe(0);
+      const ntsrCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTSR}"]`);
+      expect(ntsrCard.length).toBe(0);
+
+      expect(wrapper.state('enablePPM')).toEqual(false);
+      expect(wrapper.state('enableNTS')).toEqual(false);
+      expect(wrapper.state('enableNTSR')).toEqual(false);
+
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+    });
+
+    it('feature flags for shipment types show SelectableCard', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      const props = {};
+      const wrapper = shallow(<SelectShipmentType {...defaultProps} {...props} />);
+      await wrapper;
+      const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
+      expect(hhgCard.length).toBe(1);
+      const ppmCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.PPM}"]`);
+      expect(ppmCard.length).toBe(1);
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+      expect(ntsCard.length).toBe(1);
+      const ntsrCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTSR}"]`);
+      expect(ntsrCard.length).toBe(1);
+
+      expect(wrapper.state('enablePPM')).toEqual(true);
+      expect(wrapper.state('enableNTS')).toEqual(true);
+      expect(wrapper.state('enableNTSR')).toEqual(true);
+
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
     });
   });
 
@@ -152,8 +211,8 @@ describe('SelectShipmentType', () => {
       mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
       move: { status: MOVE_STATUSES.DRAFT },
     };
-    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
 
+    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
     it('NTS card should render the correct text', () => {
       expect(wrapper.find('.usa-checkbox__label-description').at(2).text()).toContain(
         'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
