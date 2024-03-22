@@ -1,11 +1,11 @@
 package payloads
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -221,4 +221,24 @@ func (suite *PayloadsSuite) TestProofOfServiceDoc() {
 
 		suite.IsType(returnedProofOfServiceDoc, &ghcmessages.ProofOfServiceDoc{})
 	})
+}
+
+func TestReportViolations(t *testing.T) {
+	type args struct {
+		reportViolations models.ReportViolations
+	}
+	tests := []struct {
+		name string
+		args args
+		want ghcmessages.ReportViolations
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ReportViolations(tt.args.reportViolations); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ReportViolations() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
