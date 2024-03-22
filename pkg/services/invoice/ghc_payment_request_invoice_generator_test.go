@@ -1684,8 +1684,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -1752,8 +1754,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -1797,8 +1801,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -1869,8 +1875,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -1986,8 +1994,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 				{
 					Model: models.TransportationAccountingCode{
-						TAC:          *move.Orders.TAC,
-						TacFnBlModCd: models.StringPointer("W"),
+						TAC:               *move.Orders.TAC,
+						TacFnBlModCd:      models.StringPointer("W"),
+						TrnsprtnAcntBgnDt: &sixMonthsBefore,
+						TrnsprtnAcntEndDt: &sixMonthsAfter,
 					},
 				},
 				{
@@ -2137,8 +2147,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -2174,8 +2186,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -2188,8 +2202,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("2"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("2"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -2232,8 +2248,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -2246,8 +2264,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -2281,8 +2301,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{
@@ -2323,8 +2345,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
 				},
 			},
 			{

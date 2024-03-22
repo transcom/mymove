@@ -669,6 +669,7 @@ func FetchLongLinesOfAccountingForInvoice(serviceMemberAffiliation models.Servic
 		err = appCtx.DB().Q().
 			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
 			Where("t.tac = ?", tacCode).
+			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
 			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
 			Where("t.tac_fn_bl_mod_cd != 'P'").
 			Order("t.tac_fn_bl_mod_cd asc").
@@ -681,6 +682,7 @@ func FetchLongLinesOfAccountingForInvoice(serviceMemberAffiliation models.Servic
 		err = appCtx.DB().Q().
 			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
 			Where("t.tac = ?", tacCode).
+			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
 			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
 			Where("t.tac_fn_bl_mod_cd != 'P'").
 			Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
