@@ -193,6 +193,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     return !orders.providesServicesCounseling;
   };
 
+  // checking to see if prime has completed counseling, return true
+  const isPrimeCounselingComplete = () => {
+    return !!move.primeCounselingCompletedAt.IsZero();
+  };
+
   // logic that handles deleting a shipment
   // calls internal API and updates shipments
   const handleDeleteShipmentConfirmation = (shipmentId) => {
@@ -642,15 +647,46 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                         </Description>
                       )}
                       {isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
-                        <Description>
-                          Once you have received counseling for your PPM you will receive emailed instructions on how to
-                          download your Advance Operating Allowance (AOA) packet. Please consult with your
-                          Transportation Office for review of your AOA packet.
-                          <br />
-                          <br /> The amount you receive will be deducted from your PPM incentive payment. If your
-                          incentive ends up being less than your advance, you will be required to pay back the
-                          difference.
-                        </Description>
+                        <>
+                          <Description>
+                            Once you have received counseling for your PPM you will receive emailed instructions on how
+                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
+                            Transportation Office for review of your AOA packet.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                            <br />
+                            <br />
+                          </Description>
+                          {ppmShipments.map((shipment) => {
+                            const { shipmentType } = shipment;
+                            if (shipmentNumbersByType[shipmentType]) {
+                              shipmentNumbersByType[shipmentType] += 1;
+                            } else {
+                              shipmentNumbersByType[shipmentType] = 1;
+                            }
+                            const shipmentNumber = shipmentNumbersByType[shipmentType];
+                            return (
+                              <>
+                                <strong>
+                                  {shipmentTypes[shipment.shipmentType]}
+                                  {` ${shipmentNumber} `}
+                                </strong>
+                                {isPrimeCounselingComplete && (
+                                  <p className={styles.downloadLink}>
+                                    <AsyncPacketDownloadLink
+                                      id={shipment?.ppmShipment?.id}
+                                      label="Download AOA Paperwork (PDF)"
+                                      asyncRetrieval={downloadPPMAOAPacket}
+                                      onFailure={toggleDownloadAOAErrorModal}
+                                    />
+                                  </p>
+                                )}
+                              </>
+                            );
+                          })}
+                        </>
                       )}
                     </SectionWrapper>
                   </Step>

@@ -202,6 +202,12 @@ export class Home extends Component {
     return !orders.provides_services_counseling;
   }
 
+  get isPrimeCounselingComplete() {
+    const { move } = this.props;
+
+    return !move.primeCounselingCompletedAt;
+  }
+
   renderAlert = () => {
     if (this.hasUnapprovedAmendedOrders) {
       return (
@@ -670,15 +676,52 @@ export class Home extends Component {
                           </Description>
                         )}
                         {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && this.isPrimeCounseled && (
-                          <Description>
-                            Once you have received counseling for your PPM you will receive emailed instructions on how
-                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
-                            Transportation Office for review of your AOA packet.
-                            <br />
-                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
-                            incentive ends up being less than your advance, you will be required to pay back the
-                            difference.
-                          </Description>
+                          <>
+                            <Description>
+                              Once you have received counseling for your PPM you will receive emailed instructions on
+                              how to download your Advance Operating Allowance (AOA) packet. Please consult with your
+                              Transportation Office for review of your AOA packet.
+                              <br />
+                              <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                              incentive ends up being less than your advance, you will be required to pay back the
+                              difference.
+                              <br />
+                              <br />
+                            </Description>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {this.isPrimeCounselingComplete && (
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadAOAErrorModal}
+                                      />
+                                    </p>
+                                  )}
+                                  {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
+                                    <Description>Advance request denied</Description>
+                                  )}
+                                  {shipment?.ppmShipment?.advanceStatus == null && (
+                                    <Description>Advance request pending</Description>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
                         )}
                       </SectionWrapper>
                     </Step>
