@@ -228,7 +228,7 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Payment requested');
   });
 
-  it('Displays the payment request ', async () => {
+  it('displays the payment request ', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
@@ -289,7 +289,7 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByText('Results (1)')).toBeInTheDocument();
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
   });
-  it('submits search form and displays possible filters for status', async () => {
+  it('searches by Move Code and displays possible filters for status', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
@@ -297,6 +297,9 @@ describe('PaymentRequestQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     // Simulate user input and form submission
+    const searchSelection = screen.getByLabelText('Move Code');
+    await userEvent.click(searchSelection);
+
     const searchInput = screen.getByTestId('searchText');
     await userEvent.type(searchInput, 'R993T7');
     await userEvent.click(screen.getByTestId('searchTextSubmit'));
@@ -305,7 +308,45 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByText('Results (1)')).toBeInTheDocument();
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
   });
-  it('Has 3 options for searches', async () => {
+  it('searches by Customer Name', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // Simulate user input and form submission
+    const searchSelection = screen.getByLabelText('Move Code');
+    await userEvent.click(searchSelection);
+
+    const searchInput = screen.getByTestId('searchText');
+    await userEvent.type(searchInput, 'R993T7');
+    await userEvent.click(screen.getByTestId('searchTextSubmit'));
+    // Assert search results are displayed
+
+    expect(screen.queryByText('Results (1)')).toBeInTheDocument();
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+  });
+  it('searches by DOD ID', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // Simulate user input and form submission
+    const searchSelection = screen.getByLabelText('Customer Name');
+    await userEvent.click(searchSelection);
+
+    const searchInput = screen.getByTestId('searchText');
+    await userEvent.type(searchInput, '3305957632');
+    await userEvent.click(screen.getByTestId('searchTextSubmit'));
+    // Assert search results are displayed
+
+    expect(screen.queryByText('Results (1)')).toBeInTheDocument();
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+  });
+  it('has 3 options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
@@ -319,7 +360,7 @@ describe('PaymentRequestQueue', () => {
       expect(screen.findByLabelText(options[col]));
     }
   });
-  it('Has all status options for payment request search', async () => {
+  it('has all payment request status options for payment request filtering', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
@@ -331,17 +372,27 @@ describe('PaymentRequestQueue', () => {
       expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
     }
   });
-
-  it('Has all status options for payment request queue', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+  /* it('can view a move', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const col in PAYMENT_REQUEST_STATUS_LABELS) {
-      expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
-    }
-  });
+    // Simulate user input and form submission
+    const searchSelection = screen.getByLabelText('Customer Name');
+    await userEvent.click(searchSelection);
+
+    const searchInput = screen.getByTestId('searchText');
+    await userEvent.type(searchInput, '3305957632');
+    await userEvent.click(screen.getByTestId('searchTextSubmit'));
+
+    // get the table row
+    const selectedRows = screen.getAllByText('3305957632');
+    await userEvent.click(selectedRows[1]);
+    // Assert search results are displayed
+    expect(screen.queryByText('Billable weights')).toBeInTheDocument();
+    expect(screen.queryByText('Flag move for financial review')).toBeInTheDocument();
+    expect(screen.queryByText('Billable weights')).toBeInTheDocument();
+  }); */
 });

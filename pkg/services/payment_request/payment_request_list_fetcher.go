@@ -282,7 +282,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 		var translatedStatuses []string
 		if len(statuses) > 0 {
 			for _, status := range statuses {
-				if strings.EqualFold(status, "Pending") {
+				if strings.EqualFold(status, "Pending") || strings.EqualFold(status, "Payment Requested") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
 
 				} else if strings.EqualFold(status, "Reviewed") {

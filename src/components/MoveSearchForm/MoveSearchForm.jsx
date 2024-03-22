@@ -73,6 +73,7 @@ const MoveSearchForm = ({ onSubmit }) => {
               <Field
                 as={Radio}
                 id="radio-picked-movecode"
+                data-testid="moveCode"
                 type="radio"
                 name="searchType"
                 value="moveCode"
@@ -82,6 +83,7 @@ const MoveSearchForm = ({ onSubmit }) => {
               <Field
                 as={Radio}
                 id="radio-picked-dodid"
+                data-testid="dodID"
                 type="radio"
                 name="searchType"
                 value="dodID"
@@ -91,6 +93,7 @@ const MoveSearchForm = ({ onSubmit }) => {
               <Field
                 as={Radio}
                 id="radio-picked-customername"
+                data-testid="customerName"
                 type="radio"
                 name="searchType"
                 value="customerName"

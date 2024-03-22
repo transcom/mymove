@@ -162,7 +162,7 @@ const PaymentRequestQueue = () => {
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
             to={tioRoutes.BASE_PAYMENT_REQUEST_QUEUE}
           >
-            <span data-testid="payment-request-queue-tab-link" className="tab-title">
+            <span data-testid="payment-request-queue-tab-link" className="tab-title" title="Payment Request Queue">
               Payment Request Queue
             </span>
           </NavLink>,
@@ -171,7 +171,7 @@ const PaymentRequestQueue = () => {
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
             to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
           >
-            <span data-testid="search-tab-link" className="tab-title">
+            <span data-testid="search-tab-link" className="tab-title" title="Search">
               Search
             </span>
           </NavLink>,
