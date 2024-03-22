@@ -145,6 +145,12 @@ properties:
     x-nullable: true
     example: 'USA'
     default: USA
+  county:
+    type: string
+    title: County
+    x-nullable: true
+    example: 'JESSAMINE'
+    default: ''
 required:
   - streetAddress1
   - city
