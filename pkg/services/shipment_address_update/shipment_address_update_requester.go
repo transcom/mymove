@@ -224,9 +224,9 @@ func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, m
 		Join("payment_requests", "payment_requests.id = payment_service_items.payment_request_id").
 		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
 		Where("mto_service_items.mto_shipment_id = ($1)", mtoShipment.ID).
-		Where("payment_requests.status != $2", models.PaymentRequestStatusDeprecated).
-		Where("payment_service_items.status IN ($3, $4, $5)", models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid).
-		Where("re_services.code IN ($6, $7)", models.ReServiceCodeDSH, models.ReServiceCodeDLH).
+		Where("payment_requests.status IN ($2, $3, $4, $5)", models.PaymentRequestStatusReviewed, models.PaymentRequestStatusSentToGex,models.PaymentRequestStatusReceivedByGex, models.PaymentRequestStatusPaid).
+		Where("payment_service_items.status != $6", models.PaymentServiceItemStatusDenied).
+		Where("re_services.code IN ($7, $8)", models.ReServiceCodeDSH, models.ReServiceCodeDLH).
 		All(&mtoShipmentSITPaymentServiceItems)
 	if err != nil {
 		return false, err
