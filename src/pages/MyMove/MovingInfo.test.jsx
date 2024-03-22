@@ -2,7 +2,8 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 
-import { isPPMEnabled } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from '../../shared/constants';
 
 import { MovingInfo } from './MovingInfo';
 
@@ -11,7 +12,7 @@ import { customerRoutes } from 'constants/routes';
 
 jest.mock('../../utils/featureFlags', () => ({
   ...jest.requireActual('../../utils/featureFlags'),
-  isPPMEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 describe('MovingInfo component', () => {
@@ -46,7 +47,7 @@ describe('MovingInfo component', () => {
   });
 
   it('feature flag enable show headers for PPM', async () => {
-    isPPMEnabled.mockImplementation(() => Promise.resolve(true));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     const wrapper = renderWithRouterProp(<MovingInfo {...testProps} entitlementWeight={0} />, routingOptions);
     await wrapper;
@@ -56,15 +57,18 @@ describe('MovingInfo component', () => {
     expect(
       screen.getByRole('heading', { name: /You can get paid for any household goods you move yourself./ }),
     ).toBeInTheDocument();
+    expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
   });
 
   it('feature flag disable hides headers for PPM', async () => {
-    isPPMEnabled.mockImplementation(() => Promise.resolve(false));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
 
     const wrapper = renderWithRouterProp(<MovingInfo {...testProps} entitlementWeight={0} />, routingOptions);
     await wrapper;
 
     expect(screen.queryByText('You still have the option to move some of your belongings yourself.')).toBeNull();
     expect(screen.queryByText('You can get paid for any household goods you move yourself.')).toBeNull();
+
+    expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
   });
 });

@@ -6,7 +6,8 @@ import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { isPPMEnabled, isHHGEnabled, isNTSEnabled, isNTSREnabled } from '../../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
 import styles from './Summary.module.scss';
 
@@ -23,7 +24,6 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import {
@@ -51,7 +51,6 @@ export class Summary extends Component {
       targetShipmentLabel: null,
       targetShipmentMoveCode: null,
       targetShipmentType: null,
-      enableHHG: true,
       enablePPM: true,
       enableNTS: true,
       enableNTSR: true,
@@ -69,22 +68,17 @@ export class Summary extends Component {
       updateAllMoves(response);
     });
 
-    isHHGEnabled().then((enabled) => {
-      this.setState({
-        enableHHG: enabled,
-      });
-    });
-    isPPMEnabled().then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         enablePPM: enabled,
       });
     });
-    isNTSEnabled().then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
       this.setState({
         enableNTS: enabled,
       });
     });
-    isNTSREnabled().then((enabled) => {
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
       });
@@ -280,7 +274,6 @@ export class Summary extends Component {
       targetShipmentLabel,
       targetShipmentMoveCode,
       targetShipmentType,
-      enableHHG,
       enablePPM,
       enableNTS,
       enableNTSR,
@@ -416,7 +409,6 @@ export class Summary extends Component {
         <ConnectedAddShipmentModal
           isOpen={showModal}
           closeModal={this.toggleModal}
-          enableHHG={enableHHG}
           enablePPM={enablePPM}
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}

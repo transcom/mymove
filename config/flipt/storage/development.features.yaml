@@ -17,14 +17,6 @@ flags:
   - segment:
       key: mil-app
       value: true
-- key: hhg
-  name: HHG feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
 - key: ppm
   name: PPM feature flag
   type: BOOLEAN_FLAG_TYPE

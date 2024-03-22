@@ -4,32 +4,28 @@ import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const MoveInfoModal = ({ closeModal, enableHHG, enablePPM }) => (
+export const MoveInfoModal = ({ closeModal, enablePPM }) => (
   <Modal>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>More info about shipments</h3>
     </ModalTitle>
 
-    {enableHHG && (
-      <>
-        <h4>
-          <strong>HHG: Professional movers pack and ship your things, the government pays</strong>
-        </h4>
-        <p>The moving company works out details with you, but handles everything.</p>
-        <h5>Pros</h5>
-        <ul>
-          <li>Everything is packed and moved for you</li>
-          <li>Expert movers care for your things</li>
-          <li>Anything damaged in professional shipments will be replaced</li>
-        </ul>
-        <h5>Cons</h5>
-        <ul>
-          <li>Can only move on weekdays</li>
-          <li>May have to work around availability of movers</li>
-        </ul>
-      </>
-    )}
+    <h4>
+      <strong>HHG: Professional movers pack and ship your things, the government pays</strong>
+    </h4>
+    <p>The moving company works out details with you, but handles everything.</p>
+    <h5>Pros</h5>
+    <ul>
+      <li>Everything is packed and moved for you</li>
+      <li>Expert movers care for your things</li>
+      <li>Anything damaged in professional shipments will be replaced</li>
+    </ul>
+    <h5>Cons</h5>
+    <ul>
+      <li>Can only move on weekdays</li>
+      <li>May have to work around availability of movers</li>
+    </ul>
     {enablePPM && (
       <>
         <h4>
@@ -61,13 +57,11 @@ export const MoveInfoModal = ({ closeModal, enableHHG, enablePPM }) => (
 
 MoveInfoModal.propTypes = {
   closeModal: PropTypes.func,
-  enableHHG: PropTypes.bool,
   enablePPM: PropTypes.bool,
 };
 
 MoveInfoModal.defaultProps = {
   closeModal: () => {},
-  enableHHG: true,
   enablePPM: true,
 };
 
