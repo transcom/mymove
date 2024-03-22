@@ -155,24 +155,26 @@ const columns = (roleType) => [
 ];
 
 const columnsWithCreateMove = (roleType) => [
-  createHeader(
-    'Create Move',
-    (row) => {
-      return (
-        <button
-          onClick={() =>
-            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
-          }
-          type="button"
-          className={styles.createNewMove}
-          data-testid="searchCreateMoveButton"
-        >
-          Create New Move
-        </button>
-      );
-    },
-    { isFilterable: false },
-  ),
+  roleType !== roleTypes.SERVICES_COUNSELOR
+    ? null
+    : createHeader(
+        'Create Move',
+        (row) => {
+          return (
+            <button
+              onClick={() =>
+                useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
+              }
+              type="button"
+              className={styles.createNewMove}
+              data-testid="searchCreateMoveButton"
+            >
+              Create New Move
+            </button>
+          );
+        },
+        { isFilterable: false },
+      ),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -357,16 +359,18 @@ const SearchResultsTable = (props) => {
     [],
   );
 
-  let activeColumns;
-  if (isCounselorMoveCreateFFEnabled && roleType === roleTypes.SERVICES_COUNSELOR) {
-    activeColumns = columnsWithCreateMove(roleType);
-  } else {
-    activeColumns = columns(roleType);
-  }
+  // let activeColumns;
+  // if (isCounselorMoveCreateFFEnabled && roleType === roleTypes.SERVICES_COUNSELOR) {
+  //   activeColumns = columnsWithCreateMove(roleType);
+  // } else {
+  //   activeColumns = columns(roleType);
+  // }
 
   const tableData = useMemo(() => data, [data]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const tableColumns = useMemo(() => activeColumns, [roleType]);
+  const tableColumns = useMemo(
+    () => (isCounselorMoveCreateFFEnabled ? columnsWithCreateMove(roleType) : columns(roleType)),
+    [roleType, isCounselorMoveCreateFFEnabled],
+  );
 
   const {
     getTableProps,
