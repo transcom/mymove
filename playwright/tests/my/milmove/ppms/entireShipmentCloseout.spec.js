@@ -238,7 +238,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
         totalNetWeight: '4,000 lbs',
         proGearWeight: '1,500 lbs',
         expensesClaimed: '450.00',
-        finalIncentiveAmount: '$69,498.74',
+        finalIncentiveAmount: '$48,527.43',
       });
     });
   });
