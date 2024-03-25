@@ -10,7 +10,7 @@ import { logOut as logOutAction } from 'store/auth/actions';
 import { selectIsProfileComplete } from 'store/entities/selectors';
 import { selectCurrentMoveId } from 'store/general/selectors';
 
-const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut, moveId }) => {
+const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const moveID = pathname.split('/')[2];

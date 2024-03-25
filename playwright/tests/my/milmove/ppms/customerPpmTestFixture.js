@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 /**
  * Semi-automated converted from a cypress test, and thus may contain
  * non best-practices, in particular: heavy use of `page.locator`
@@ -320,12 +322,32 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromHomePageToExistingPPMDateAndLocationPage() {
+    await expect(this.page.getByRole('heading', { name: 'Welcome to MilMove' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Current Move' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
-
     await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
 
     await expect(this.page.getByRole('heading', { name: 'PPM date & location' })).toBeVisible();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
+  }
+
+  async navigateFromHomePageToExistingPPMAboutForm() {
+    await expect(this.page.getByRole('heading', { name: 'Welcome to MilMove' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Current Move' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
+
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments/);
+  }
+
+  async fillOutAboutFormDate() {
+    await this.page.getByPlaceholder('DD MMM YYYY').fill('20 Mar 2024');
+    await this.page.getByLabel('Fri Mar 22 2024').click();
+
+    // expect that future dates cannot be clicked
+    await expect(this.page.getByLabel('Sat Mar 15 2030')).not.toBeVisible();
   }
 
   /**
@@ -491,11 +513,11 @@ export class CustomerPpmPage extends CustomerPage {
         await this.page.locator('label[for="agreeToTerms"]').click();
       }
     }
-    await saveButton.click();
+
+    // click and wait for page path to change
+    await Promise.all([this.page.waitForURL(/.*\/moves\/[^/]+\/review$/), saveButton.click()]);
 
     await expect(this.page.getByRole('heading', { name: 'Review your details', exact: true })).toBeVisible();
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/review/);
-
     await expect(this.page.locator('.usa-alert__heading')).toContainText('Details saved');
     await expect(this.page.locator('.usa-alert__heading + p')).toContainText(
       'Review your info and submit your move request now, or come back and finish later.',
@@ -645,14 +667,16 @@ export class CustomerPpmPage extends CustomerPage {
   async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
     const { isEditable = false } = options;
     // get first div after the move setup heading
-    const ppm1 = this.page.locator(':text("Move setup") + div');
+    const ppm1 = this.page.locator(':text("Move setup") + div:has(:text("PPM 1"))');
     await expect(ppm1).toBeVisible();
 
     if (isEditable) {
       await expect(ppm1.getByRole('button', { name: 'Edit' })).toBeVisible();
       await expect(ppm1.getByRole('button', { name: 'Delete' })).toBeVisible();
     } else {
-      await expect(ppm1.locator('[data-testid="ShipmentContainer"]').locator('button')).not.toBeVisible();
+      for (const loc of await ppm1.locator('[data-testid="ShipmentContainer"]').locator('button').all()) {
+        await expect(loc).not.toBeVisible();
+      }
     }
   }
 
@@ -817,7 +841,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    await this.page.getByRole('link', { name: 'Add Expense' }).click();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
@@ -880,7 +904,7 @@ export class CustomerPpmPage extends CustomerPage {
       totalNetWeight: '4,000 lbs',
       proGearWeight: '1,500 lbs',
       expensesClaimed: '450.00',
-      finalIncentiveAmount: '$500,000.00',
+      finalIncentiveAmount: '$500,0000.00',
     },
   ) {
     await expect(

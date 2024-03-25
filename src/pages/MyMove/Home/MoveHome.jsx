@@ -410,6 +410,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
+
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -547,7 +548,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 >
                   {hasSubmittedMove() ? (
                     <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
-                      Move submitted {formatCustomerDate(move.submittedAt)}.<br />
+                      Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.<br />
                       <Button unstyled onClick={handlePrintLegalese} className={styles.printBtn}>
                         Print the legal agreement
                       </Button>

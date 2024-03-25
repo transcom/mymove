@@ -53,7 +53,10 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
-	updatedPPMShipment := mergePPMShipment(*ppmShipment, oldPPMShipment)
+	updatedPPMShipment, err := mergePPMShipment(*ppmShipment, oldPPMShipment)
+	if err != nil {
+		return nil, err
+	}
 
 	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 	if err != nil {

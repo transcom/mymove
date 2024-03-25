@@ -6,6 +6,9 @@ import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS } from '../../../../shared/constants';
+
 import styles from './Summary.module.scss';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
@@ -21,7 +24,6 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import {
@@ -49,6 +51,9 @@ export class Summary extends Component {
       targetShipmentLabel: null,
       targetShipmentMoveCode: null,
       targetShipmentType: null,
+      enablePPM: true,
+      enableNTS: true,
+      enableNTSR: true,
     };
   }
 
@@ -61,6 +66,22 @@ export class Summary extends Component {
 
     getAllMoves(serviceMember.id).then((response) => {
       updateAllMoves(response);
+    });
+
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
+      this.setState({
+        enablePPM: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
+      this.setState({
+        enableNTS: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
+      this.setState({
+        enableNTSR: enabled,
+      });
     });
   }
 
@@ -253,6 +274,9 @@ export class Summary extends Component {
       targetShipmentLabel,
       targetShipmentMoveCode,
       targetShipmentType,
+      enablePPM,
+      enableNTS,
+      enableNTSR,
     } = this.state;
 
     const { pathname } = router.location;
@@ -382,7 +406,13 @@ export class Summary extends Component {
             {officePhone ? ` at ${officePhone}` : ''}.
           </div>
         )}
-        <ConnectedAddShipmentModal isOpen={showModal} closeModal={this.toggleModal} />
+        <ConnectedAddShipmentModal
+          isOpen={showModal}
+          closeModal={this.toggleModal}
+          enablePPM={enablePPM}
+          enableNTS={enableNTS}
+          enableNTSR={enableNTSR}
+        />
       </>
     );
   }
