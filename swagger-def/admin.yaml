@@ -1,19 +1,17 @@
-schemes:
-  - https
-swagger: '2.0'
-host: admin.move.mil # OpenAPI 2.x only supports a single host, while OpenAPI 3.x supports multiple server stanzas.
+swagger: "2.0"
 info:
+  contact:
+    email: milmove-developers@caci.com
   description:
     $ref: info/admin_description.md
-  version: 1.0.0
-  title: MilMove Admin API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
-  contact: # Contact is set to Pagerduty
-    name: MilMove AppEng
-    email: support@movemil.pagerduty.com
+    url: "https://opensource.org/licenses/MIT"
+  title: MilMove Admin API
+  version: 1.0.0
 basePath: /admin/v1
+schemes:
+  - https
 consumes:
   - application/json
 produces:
