@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/okta"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
@@ -63,11 +62,6 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OfficeUsersCreateOfficeUserHandler == nil {
 		api.OfficeUsersCreateOfficeUserHandler = office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
-		})
-	}
-	if api.OktaCreateOktaAccountHandler == nil {
-		api.OktaCreateOktaAccountHandler = okta.CreateOktaAccountHandlerFunc(func(params okta.CreateOktaAccountParams) middleware.Responder {
-			return middleware.NotImplemented("operation okta.CreateOktaAccount has not yet been implemented")
 		})
 	}
 	if api.WebhookSubscriptionsCreateWebhookSubscriptionHandler == nil {
