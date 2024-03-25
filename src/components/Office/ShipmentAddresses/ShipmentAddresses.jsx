@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
+import { connect } from 'react-redux';
 
 import { AddressShape } from '../../../types/address';
 import { formatAddress, formatCityStateAndPostalCode } from '../../../utils/shipmentDisplay';
@@ -16,6 +17,8 @@ import { ShipmentOptionsOneOf, ShipmentStatusesOneOf } from 'types/shipment';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { withContext } from 'shared/AppContext';
+import { roleTypes } from 'constants/userRoles';
 
 const ShipmentAddresses = ({
   pickupAddress,
@@ -24,6 +27,7 @@ const ShipmentAddresses = ({
   destinationDutyLocation,
   handleDivertShipment,
   shipmentInfo,
+  activeRole,
 }) => {
   let pickupHeader;
   let destinationHeader;
@@ -53,9 +57,15 @@ const ShipmentAddresses = ({
           <div className={styles.rightAlignButtonWrapper}>
             {shipmentInfo.status !== shipmentStatuses.CANCELED && (
               <Restricted to={permissionTypes.createShipmentDiversionRequest}>
-                <Button type="button" onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)} unstyled>
-                  Request diversion
-                </Button>
+                {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+                  <Button
+                    type="button"
+                    onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)}
+                    unstyled
+                  >
+                    Request diversion
+                  </Button>
+                )}
               </Restricted>
             )}
           </div>,
@@ -100,4 +110,11 @@ ShipmentAddresses.defaultProps = {
   destinationDutyLocation: {},
 };
 
-export default ShipmentAddresses;
+// Checks user role such that Service Counselors cannot modify service items while on MTO read-only page
+const mapStateToProps = (state) => {
+  return {
+    activeRole: state.auth.activeRole,
+  };
+};
+
+export default withContext(connect(mapStateToProps)(ShipmentAddresses));

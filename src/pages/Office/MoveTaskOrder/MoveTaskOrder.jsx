@@ -60,6 +60,8 @@ import { permissionTypes } from 'constants/permissions';
 import { tooRoutes } from 'constants/routes';
 import { formatDateForSwagger } from 'shared/dates';
 import EditSitEntryDateModal from 'components/Office/EditSitEntryDateModal/EditSitEntryDateModal';
+import { withContext } from 'shared/AppContext';
+import { roleTypes } from 'constants/userRoles';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -125,6 +127,7 @@ export const MoveTaskOrder = (props) => {
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
+    activeRole,
   } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
@@ -922,11 +925,13 @@ export const MoveTaskOrder = (props) => {
               <span>
                 This move is at risk for excess weight.{' '}
                 <Restricted to={permissionTypes.updateBillableWeight}>
-                  <span className={styles.rightAlignButtonWrapper}>
-                    <Button type="button" onClick={handleShowWeightModal} unstyled>
-                      Review billable weight
-                    </Button>
-                  </span>
+                  {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+                    <span className={styles.rightAlignButtonWrapper}>
+                      <Button type="button" onClick={handleShowWeightModal} unstyled>
+                        Review billable weight
+                      </Button>
+                    </span>
+                  )}
                 </Restricted>
               </span>
             </Alert>
@@ -991,12 +996,14 @@ export const MoveTaskOrder = (props) => {
               <h6>Contract #{move?.contractor?.contractNumber}</h6>
               <h6>NAICS: {order?.naics}</h6>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-                <div className={moveTaskOrderStyles.financialReviewContainer}>
-                  <FinancialReviewButton
-                    onClick={handleShowFinancialReviewModal}
-                    reviewRequested={move.financialReviewFlag}
-                  />
-                </div>
+                {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+                  <div className={moveTaskOrderStyles.financialReviewContainer}>
+                    <FinancialReviewButton
+                      onClick={handleShowFinancialReviewModal}
+                      reviewRequested={move.financialReviewFlag}
+                    />
+                  </div>
+                )}
               </Restricted>
             </div>
           </div>
@@ -1131,8 +1138,14 @@ MoveTaskOrder.propTypes = {
   setUnapprovedSITExtensionCount: func.isRequired,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    activeRole: state.auth.activeRole,
+  };
+};
+
 const mapDispatchToProps = {
   setMessage: setFlashMessage,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(MoveTaskOrder);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(MoveTaskOrder));

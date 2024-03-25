@@ -2,6 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Tag } from '@trussworks/react-uswds';
+import { connect } from 'react-redux';
 
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
@@ -14,8 +15,16 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { withContext } from 'shared/AppContext';
+import { roleTypes } from 'constants/userRoles';
 
-const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, handleRequestReweighModal }) => {
+const ShipmentWeightDetails = ({
+  estimatedWeight,
+  initialWeight,
+  shipmentInfo,
+  handleRequestReweighModal,
+  activeRole,
+}) => {
   const emDash = '\u2014';
   const lowestWeight = returnLowestValue(initialWeight, shipmentInfo.reweighWeight);
 
@@ -25,9 +34,11 @@ const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, h
       {!shipmentInfo.reweighID && (
         <div className={styles.rightAlignButtonWrapper}>
           <Restricted to={permissionTypes.createReweighRequest}>
-            <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
-              Request reweigh
-            </Button>
+            {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+              <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
+                Request reweigh
+              </Button>
+            )}
           </Restricted>
         </div>
       )}
@@ -78,4 +89,11 @@ ShipmentWeightDetails.defaultProps = {
   initialWeight: null,
 };
 
-export default ShipmentWeightDetails;
+// Checks user role such that Service Counselors cannot modify service items while on MTO read-only page
+const mapStateToProps = (state) => {
+  return {
+    activeRole: state.auth.activeRole,
+  };
+};
+
+export default withContext(connect(mapStateToProps)(ShipmentWeightDetails));
