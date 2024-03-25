@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Contractor payload
@@ -1060,6 +1061,18 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
 		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+	}
+
+	return payload
+}
+
+// PPMActualWeight payload
+func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
+	if ppmActualWeight == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMActualWeight{
+		ActualWeight: handlers.FmtPoundPtr(ppmActualWeight),
 	}
 
 	return payload
