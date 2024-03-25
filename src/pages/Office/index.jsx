@@ -472,9 +472,7 @@ export class OfficeApp extends Component {
 
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
-                    {activeRole === roleTypes.TOO && (
-                      <Route end path="/*" element={<MoveQueue />} />
-                    )}
+                    {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}
