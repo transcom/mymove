@@ -344,6 +344,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByPlaceholder('DD MMM YYYY').fill('20 Mar 2024');
     await this.page.getByLabel('Fri Mar 22 2024').click();
 
+    // expect that future dates cannot be clicked
     await expect(this.page.getByLabel('Sat Mar 15 2030')).not.toBeVisible();
   }
 
@@ -836,7 +837,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    await this.page.getByRole('link', { name: 'Add Expense' }).click();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
@@ -902,10 +903,9 @@ export class CustomerPpmPage extends CustomerPage {
       finalIncentiveAmount: '$500,0000.00',
     },
   ) {
-    //  TODO: Add back final incentive when fixed
-    //  await expect(this.page.getByRole('heading', { name: `Your final estimated incentive: ${options?.finalIncentiveAmount}` })).toBeVisible();
-
-    await expect(this.page.getByRole('heading').getByText('Your final estimated incentive:')).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: `Your final estimated incentive: ${options?.finalIncentiveAmount}` }),
+    ).toBeVisible();
 
     await expect(this.page.locator('li').getByText(`${options?.totalNetWeight} total net weight`)).toBeVisible();
 
