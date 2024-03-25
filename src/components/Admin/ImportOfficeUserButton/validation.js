@@ -1,4 +1,5 @@
 import { adminOfficeRoles } from 'constants/userRoles';
+import { officeUserPrivileges } from 'constants/userPrivileges';
 
 export const checkRequiredFields = ({ transportationOfficeId, firstName, lastName, roles, email, telephone }) => {
   if (!(transportationOfficeId && firstName && lastName && roles && email && telephone)) {
@@ -46,4 +47,31 @@ export const parseRoles = (roles) => {
 
   // Return the validated array of user roles
   return rolesArray;
+};
+
+export const parsePrivileges = (privileges) => {
+  if (!privileges) {
+    throw new Error('Processing Error: Unable to parse privileges for row.');
+  }
+  const privilegesArray = [];
+
+  // Parse privileges from string at ","
+  const parsedPrivileges = privileges.split(',');
+  parsedPrivileges.forEach((parsedPrivilege) => {
+    let privilegeNotFound = true;
+    // Remove any whitespace in the privilege string
+    const privilege = parsedPrivilege.replace(/\s/g, '');
+    officeUserPrivileges.forEach((officeUserPrivilege) => {
+      if (officeUserPrivilege.privilegeType === privilege) {
+        privilegesArray.push(officeUserPrivilege);
+        privilegeNotFound = false;
+      }
+    });
+    if (privilegeNotFound) {
+      throw new Error('Processing Error: Invalid privileges provided for row.');
+    }
+  });
+
+  // Return the validated array of user privileges
+  return privilegesArray;
 };

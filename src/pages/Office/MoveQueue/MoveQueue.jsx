@@ -20,6 +20,7 @@ import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -28,7 +29,9 @@ const columns = (showBranchFilter = true) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );

@@ -39,6 +39,42 @@ tags:
   - name: tac
   - name: transportationOffice
 paths:
+  /customer:
+    post:
+      summary: Creates a customer with Okta option
+      description: Creates a customer with option to create an Okta profile account
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -3442,7 +3478,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        example: backupContact@mail.com
       phone:
         type: string
         format: telephone
@@ -5699,6 +5735,27 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
   Address:
     description: A postal address
     type: object
@@ -5852,27 +5909,6 @@ definitions:
       - city
       - state
       - postalCode
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - SPACE_FORCE
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      SPACE_FORCE: Space Force
-      OTHER: OTHER
   DutyLocation:
     type: object
     properties:
@@ -6227,10 +6263,17 @@ definitions:
         x-nullable: true
       sitDestinationOriginalAddress:
         $ref: '#/definitions/Address'
+      sitOriginHHGOriginalAddress:
+        $ref: '#/definitions/Address'
+      sitOriginHHGActualAddress:
+        $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
       sitAddressUpdates:
         $ref: '#/definitions/SITAddressUpdates'
+      sitDeliveryMiles:
+        type: integer
+        x-nullable: true
       feeType:
         enum:
           - COUNSELING
@@ -6552,10 +6595,6 @@ definitions:
             format: date
             x-nullable: true
           sitAllowanceEndDate:
-            type: string
-            format: date
-            x-nullable: true
-          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
@@ -7814,6 +7853,18 @@ definitions:
         x-omitempty: false
     required:
       - id
+  PPMActualWeight:
+    description: >-
+      The actual net weight of a single PPM shipment. Used during document
+      review for PPM closeout.
+    properties:
+      actualWeight:
+        example: 2000
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - actualWeight
   MTOServiceItemSingle:
     type: object
     properties:

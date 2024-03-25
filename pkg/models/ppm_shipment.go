@@ -34,6 +34,10 @@ type PPMCloseout struct {
 	SITReimbursement      *unit.Cents
 }
 
+type PPMActualWeight struct {
+	ActualWeight *unit.Pound
+}
+
 // PPMShipmentStatus represents the status of an order record's lifecycle
 type PPMShipmentStatus string
 
@@ -271,7 +275,6 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 	}
 	return &ppmShipment, nil
 }
-
 func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
 	totalNetWeight := unit.Pound(0)
 	for _, weightTicket := range ppm.WeightTickets {
