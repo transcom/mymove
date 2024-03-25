@@ -226,14 +226,19 @@ export default function ReviewDocumentsSidePanel({
                   })
                 : null}
               {expenseTickets.length > 0 ? (
-                <div className={classnames(styles.ItemDetails)}>
-                  <dl>
-                    <span>
-                      <dt>Authorized Receipt Total:</dt>
-                      <dd>${formatCents(total)}</dd>
-                    </span>
-                  </dl>
-                </div>
+                <>
+                  <hr />
+                  <li className={styles.rowContainer}>
+                    <div className={classnames(styles.ItemDetails)}>
+                      <dl>
+                        <span className={classnames(styles.ReceiptTotal)}>
+                          <dt>Authorized Receipt Total:</dt>
+                          <dd>${formatCents(total)}</dd>
+                        </span>
+                      </dl>
+                    </div>
+                  </li>
+                </>
               ) : null}
             </ul>
           </DocumentViewerSidebar.Content>
