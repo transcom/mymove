@@ -62,11 +62,14 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parsePrivilegesCheckboxInput = (input) => {
-    if (rolesSelected.includes('customer')) {
-      return input;
-    }
-    if (rolesSelected.includes('contracting_officer')) {
-      return input;
+    if (rolesSelected.includes('customer') || rolesSelected.includes('contracting_officer')) {
+      var index;
+      if (input.includes('supervisor')) {
+        index = input.indexOf('supervisor');
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
     }
 
     return input.reduce((privilegesArray, privilege) => {

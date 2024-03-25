@@ -2604,7 +2604,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/OfficeUserPrivilege"
-          }
+          },
+          "x-nullable": true
         },
         "roles": {
           "type": "array",
@@ -5904,7 +5905,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/OfficeUserPrivilege"
-          }
+          },
+          "x-nullable": true
         },
         "roles": {
           "type": "array",
