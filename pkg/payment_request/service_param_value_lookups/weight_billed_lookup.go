@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"strconv"
@@ -99,7 +100,8 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		}
 		return value, nil
 	case models.ReServiceCodeDDSFSC,
-		models.ReServiceCodeDOSFSC:
+		models.ReServiceCodeDOSFSC,
+		models.ReServiceCodeFSC:
 
 		var weightBilled string
 
@@ -186,6 +188,7 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 
 			return calculateMinimumBillableWeight(appCtx, *shipmentWithLowestWeight, keyData)
 		}
+
 		// If not a diversion, proceed with calculations normally
 		return calculateMinimumBillableWeight(appCtx, r.MTOShipment, keyData)
 	}
