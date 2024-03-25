@@ -496,52 +496,6 @@ func init() {
         }
       }
     },
-    "/create-okta-account": {
-      "post": {
-        "description": "This endpoint accepts Okta account creation information and makes a POST request to okta's /api/v1/users endpoint to create the Okta account. Creates an Okta account and returns the account information from Okta.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Okta"
-        ],
-        "summary": "Create an Okata Account",
-        "operationId": "createOktaAccount",
-        "parameters": [
-          {
-            "name": "createOktaAccountPayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateOktaAccount"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Request was accepted and the Okta account was successfully created. The Okta account information is returned.",
-            "schema": {
-              "$ref": "#/definitions/OktaAccountInfoResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an Okta Account"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -2304,54 +2258,6 @@ func init() {
         }
       }
     },
-    "CreateOktaAccount": {
-      "type": "object",
-      "required": [
-        "firstName",
-        "lastName",
-        "login",
-        "email",
-        "mobilePhone",
-        "groupId"
-      ],
-      "properties": {
-        "cacEdipi": {
-          "type": "string",
-          "maxLength": 10,
-          "example": "1234567890"
-        },
-        "email": {
-          "type": "string",
-          "example": "user@userdomain.com"
-        },
-        "firstName": {
-          "type": "string",
-          "example": "Micheal"
-        },
-        "groupId": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "gsaId": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string",
-          "example": "Jordan"
-        },
-        "login": {
-          "type": "string",
-          "example": "user@userdomain.com"
-        },
-        "mobilePhone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
-        }
-      }
-    },
     "CreateWebhookSubscription": {
       "type": "object",
       "required": [
@@ -2912,6 +2818,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
@@ -3917,52 +3827,6 @@ func init() {
         }
       }
     },
-    "/create-okta-account": {
-      "post": {
-        "description": "This endpoint accepts Okta account creation information and makes a POST request to okta's /api/v1/users endpoint to create the Okta account. Creates an Okta account and returns the account information from Okta.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Okta"
-        ],
-        "summary": "Create an Okata Account",
-        "operationId": "createOktaAccount",
-        "parameters": [
-          {
-            "name": "createOktaAccountPayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateOktaAccount"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Request was accepted and the Okta account was successfully created. The Okta account information is returned.",
-            "schema": {
-              "$ref": "#/definitions/OktaAccountInfoResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an Okta Account"
-          },
-          "500": {
-            "description": "Server error"
-          }
-        }
-      }
-    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -5725,54 +5589,6 @@ func init() {
         }
       }
     },
-    "CreateOktaAccount": {
-      "type": "object",
-      "required": [
-        "firstName",
-        "lastName",
-        "login",
-        "email",
-        "mobilePhone",
-        "groupId"
-      ],
-      "properties": {
-        "cacEdipi": {
-          "type": "string",
-          "maxLength": 10,
-          "example": "1234567890"
-        },
-        "email": {
-          "type": "string",
-          "example": "user@userdomain.com"
-        },
-        "firstName": {
-          "type": "string",
-          "example": "Micheal"
-        },
-        "groupId": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "gsaId": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string",
-          "example": "Jordan"
-        },
-        "login": {
-          "type": "string",
-          "example": "user@userdomain.com"
-        },
-        "mobilePhone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
-        }
-      }
-    },
     "CreateWebhookSubscription": {
       "type": "object",
       "required": [
@@ -6334,6 +6150,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
