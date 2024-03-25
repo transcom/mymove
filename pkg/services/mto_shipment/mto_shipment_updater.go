@@ -1067,7 +1067,7 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			var milesCalculated int
 
 			if TOOApprovalRequired {
-				if (serviceItem.SITDestinationOriginalAddress != nil) {
+				if serviceItem.SITDestinationOriginalAddress != nil {
 					// if TOO approval was required, shipment destination address has been updated at this point
 					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 				}
