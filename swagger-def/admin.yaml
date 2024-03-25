@@ -87,37 +87,6 @@ definitions:
           type: object
       credentials:
           type: object
-  CreateOktaAccount:
-    type: object
-    properties:
-      firstName:
-        type: string
-        example: Micheal
-      lastName:
-        type: string
-        example: Jordan
-      login:
-        type: string
-        example: 'user@userdomain.com'
-      email:
-        type: string
-        example: 'user@userdomain.com'
-      mobilePhone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-      cacEdipi:
-        type: string
-        example: '1234567890'
-        maxLength: 10
-      gsaId:
-        type: string
-    required:
-      - firstName
-      - lastName
-      - login
-      - email
-      - mobilePhone
   Address:
     type: object
     properties:
@@ -872,6 +841,9 @@ definitions:
         type: string
         title: Last Name
         x-nullable: true
+      email:
+        type: string
+        example: 'user@userdomain.com'
       telephone:
         type: string
         format: telephone
@@ -1574,38 +1546,6 @@ paths:
           description: Must be authenticated to use this end point
         '403':
           description: Not authorized to update an Admin User
-        '500':
-          description: Server error
-  /create-okta-account:
-    post:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      summary: Create an Okata Account
-      description: >
-        This endpoint accepts Okta account creation information and makes a POST request to okta's /api/v1/users endpoint to create the Okta account.
-        Creates an Okta account and returns the account information from Okta.
-      operationId: createOktaAccount
-      tags:
-        - Okta
-      parameters:
-        - in: body
-          name: createOktaAccountPayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateOktaAccount'
-      responses:
-        '200':
-            description: Request was accepted and the Okta account was successfully created. The Okta account information is returned.
-            schema:
-              $ref: '#/definitions/OktaAccountInfoResponse'
-        '400':
-          description: Invalid Request
-        '401':
-          description: Must be authenticated to use this end point
-        '403':
-          description: Not authorized to create an Okta Account
         '500':
           description: Server error
   /client-certificates:

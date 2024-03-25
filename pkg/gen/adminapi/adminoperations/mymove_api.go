@@ -25,7 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/okta"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
@@ -64,9 +63,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
-		}),
-		OktaCreateOktaAccountHandler: okta.CreateOktaAccountHandlerFunc(func(params okta.CreateOktaAccountParams) middleware.Responder {
-			return middleware.NotImplemented("operation okta.CreateOktaAccount has not yet been implemented")
 		}),
 		WebhookSubscriptionsCreateWebhookSubscriptionHandler: webhook_subscriptions.CreateWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.CreateWebhookSubscriptionParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.CreateWebhookSubscription has not yet been implemented")
@@ -201,8 +197,6 @@ type MymoveAPI struct {
 	ClientCertificatesCreateClientCertificateHandler client_certificates.CreateClientCertificateHandler
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
-	// OktaCreateOktaAccountHandler sets the operation handler for the create okta account operation
-	OktaCreateOktaAccountHandler okta.CreateOktaAccountHandler
 	// WebhookSubscriptionsCreateWebhookSubscriptionHandler sets the operation handler for the create webhook subscription operation
 	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
@@ -346,9 +340,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
-	}
-	if o.OktaCreateOktaAccountHandler == nil {
-		unregistered = append(unregistered, "okta.CreateOktaAccountHandler")
 	}
 	if o.WebhookSubscriptionsCreateWebhookSubscriptionHandler == nil {
 		unregistered = append(unregistered, "webhook_subscriptions.CreateWebhookSubscriptionHandler")
@@ -537,10 +528,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/office-users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/create-okta-account"] = okta.NewCreateOktaAccount(o.context, o.OktaCreateOktaAccountHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
