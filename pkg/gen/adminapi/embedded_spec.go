@@ -1292,114 +1292,6 @@ func init() {
             "description": "server error"
           }
         }
-      }
-    },
-    "/requested-office-users": {
-      "get": {
-        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Requested office users"
-        ],
-        "summary": "List of Office Users Requesting Accounts",
-        "operationId": "indexRequestedOfficeUsers",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/OfficeUsers"
-            },
-            "headers": {
-              "Content-Range": {
-                "type": "string",
-                "description": "Used for pagination"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "Office User not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/requested-office-users/{officeUserId}": {
-      "get": {
-        "description": "Retrieving a single office user in any status",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Requested office users"
-        ],
-        "summary": "Get a Requested Office User",
-        "operationId": "getRequestedOfficeUser",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "officeUserId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/OfficeUser"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "Office User not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
       },
       "patch": {
         "description": "Updates a requested office user to include profile data and status",
@@ -2642,6 +2534,12 @@ func init() {
         },
         "otherUniqueId": {
           "type": "string"
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
         },
         "rejectionReason": {
           "type": "string"
@@ -4693,6 +4591,57 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "description": "Updates a requested office user to include profile data and status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Update a Requested Office User",
+        "operationId": "updateRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestedOfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
       }
     },
     "/uploads/{uploadId}": {
@@ -5885,6 +5834,12 @@ func init() {
         },
         "otherUniqueId": {
           "type": "string"
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
         },
         "rejectionReason": {
           "type": "string"

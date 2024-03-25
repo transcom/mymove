@@ -665,18 +665,6 @@ definitions:
           - APPROVED
           - REQUESTED
           - REJECTED
-      edipi:
-        type: string
-      otherUniqueId:
-        type: string
-      rejectionReason:
-        type: string
-      status:
-        type: string
-        enum:
-          - APPROVED
-          - REQUESTED
-          - REJECTED
       privileges:
         type: array
         items:
@@ -1280,6 +1268,40 @@ paths:
           description: request requires user authentication
         '404':
           description: Office User not found
+        '500':
+          description: server error
+    patch:
+      produces:
+        - application/json
+      summary: Update a Requested Office User
+      description: Updates a requested office user to include profile data and status
+      operationId: updateRequestedOfficeUser
+      tags:
+        - Requested office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestedOfficeUserUpdate'
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: server error
   /office-users:

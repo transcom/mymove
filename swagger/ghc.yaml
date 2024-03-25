@@ -1697,6 +1697,33 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/actual-weight:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    get:
+      summary: Get the actual weight for a PPM shipment
+      description: |
+        Retrieves the actual weight for the specified PPM shipment.
+      operationId: getPPMActualWeight
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns actual weight for the specified PPM shipment.
+          schema:
+            $ref: '#/definitions/PPMActualWeight'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
@@ -3076,6 +3103,7 @@ paths:
         - in: query
           name: orderType
           type: string
+          description: order type
       responses:
         '200':
           description: >-
@@ -3555,6 +3583,65 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+  CreatedCustomer:
+    type: object
+    properties:
+      affiliation:
+        type: string
+        title: Branch of service customer is affilated with
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      residentialAddress:
+        $ref: '#/definitions/Address'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      edipi:
+        type: string
+        x-nullable: true
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      oktaID:
+        type: string
+      oktaEmail:
+        type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        $ref: '#/definitions/Address'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3599,6 +3686,58 @@ definitions:
       backupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+  CreateCustomerPayload:
+    type: object
+    properties:
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+      edipi:
+        type: string
+        example: John
+        x-nullable: true
+      firstName:
+        type: string
+        example: John
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      residentialAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      backupMailingAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      createOktaAccount:
+        type: boolean
   Entitlements:
     properties:
       id:
@@ -5426,6 +5565,18 @@ definitions:
         pattern: ^(\d{5})$
       orderType:
         type: string
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:
@@ -5935,12 +6086,14 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
       - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
