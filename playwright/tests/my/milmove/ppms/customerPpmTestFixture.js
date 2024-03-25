@@ -344,14 +344,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByPlaceholder('DD MMM YYYY').fill('20 Mar 2024');
     await this.page.getByLabel('Fri Mar 22 2024').click();
 
-    try {
-      await this.page.getByLabel('Sat Mar 15 2030').click();
-    } catch (error) {
-      const msg = `${error.message}`;
-      if (error instanceof Error && error.message.startsWith('locator.click: Target closed')) {
-        expect(msg).not.toBeNull();
-      }
-    }
+    await expect(this.page.getByLabel('Sat Mar 15 2030')).not.toBeVisible();
   }
 
   /**
