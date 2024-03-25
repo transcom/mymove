@@ -1935,6 +1935,12 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
+			DodID:                             customer.Edipi,
+			Branch:                            customer.Affiliation.String(),
+			Status:                            ghcmessages.MoveStatus(move.Status),
+			ID:                                *handlers.FmtUUID(move.ID),
+			Locator:                           move.Locator,
+			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
 			OrderType:                         string(move.Orders.OrdersType),
