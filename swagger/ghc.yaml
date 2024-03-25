@@ -6540,10 +6540,6 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAuthorizedEndDate:
-            type: string
-            format: date
-            x-nullable: true
           sitCustomerContacted:
             type: string
             format: date
@@ -7791,6 +7787,18 @@ definitions:
         x-omitempty: false
     required:
       - id
+  PPMActualWeight:
+    description: >-
+      The actual net weight of a single PPM shipment. Used during document
+      review for PPM closeout.
+    properties:
+      actualWeight:
+        example: 2000
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - actualWeight
   MTOServiceItemSingle:
     type: object
     properties:
