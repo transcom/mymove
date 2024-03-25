@@ -3279,13 +3279,6 @@ func init() {
       }
     },
     {
-      "description": "Information about okta",
-      "name": "Okta",
-      "externalDocs": {
-        "url": "https://transcom.github.io/mymove-docs/docs/api"
-      }
-    },
-    {
       "description": "Information about Webhook subscriptions",
       "name": "Webhook subscriptions",
       "externalDocs": {
@@ -6556,13 +6549,6 @@ func init() {
     {
       "description": "Information about users",
       "name": "Users",
-      "externalDocs": {
-        "url": "https://transcom.github.io/mymove-docs/docs/api"
-      }
-    },
-    {
-      "description": "Information about okta",
-      "name": "Okta",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
