@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
@@ -241,7 +242,6 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
-                    {/*
                     <Route
                       path="/invoicing/queue"
                       element={
@@ -249,7 +249,7 @@ export class OfficeApp extends Component {
                           <PaymentRequestQueue />
                         </PrivateRoute>
                       }
-                    /> */}
+                    />
 
                     {/* SERVICES_COUNSELOR */}
                     <Route
@@ -462,8 +462,10 @@ export class OfficeApp extends Component {
                     <Route end path="/select-application" element={<ConnectedSelectApplication />} />
 
                     {/* ROOT */}
-                    {activeRole === roleTypes.TIO && <Route end path="/" element={<PaymentRequestQueue />} />}
-                    {activeRole === roleTypes.TOO && <Route end path="/" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
+                    {activeRole === roleTypes.TOO && (
+                      <Route end path="/*" element={<MoveQueue />} />
+                    )}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useNavigate, NavLink, useParams } from 'react-router-dom';
+import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
 
 import styles from './MoveQueue.module.scss';
 
@@ -20,6 +20,7 @@ import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import NotFound from 'components/NotFound/NotFound';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -106,7 +107,7 @@ const columns = (showBranchFilter = true) => [
 
 const MoveQueue = () => {
   const navigate = useNavigate();
-  const queueType = useParams();
+  const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
 
@@ -144,7 +145,9 @@ const MoveQueue = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
+  if (!queueType) {
+    return <Navigate to={tooRoutes.BASE_MOVE_QUEUE} />;
+  }
   const renderNavBar = () => {
     return (
       <TabNav
@@ -168,7 +171,7 @@ const MoveQueue = () => {
       />
     );
   };
-  if (queueType.queueType === generalRoutes.QUEUE_SEARCH_PATH) {
+  if (queueType === generalRoutes.QUEUE_SEARCH_PATH) {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
@@ -193,25 +196,27 @@ const MoveQueue = () => {
       </div>
     );
   }
-
-  return (
-    <div className={styles.MoveQueue} data-testid="move-queue">
-      {renderNavBar()}
-      <TableQueue
-        showFilters
-        showPagination
-        manualSortBy
-        defaultCanSort
-        defaultSortedColumns={[{ id: 'status', desc: false }]}
-        disableMultiSort
-        disableSortBy={false}
-        columns={columns(showBranchFilter)}
-        title="All moves"
-        handleClick={handleClick}
-        useQueries={useMovesQueueQueries}
-      />
-    </div>
-  );
+  if (queueType === tooRoutes.MOVE_QUEUE) {
+    return (
+      <div className={styles.MoveQueue} data-testid="move-queue">
+        {renderNavBar()}
+        <TableQueue
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={columns(showBranchFilter)}
+          title="All moves"
+          handleClick={handleClick}
+          useQueries={useMovesQueueQueries}
+        />
+      </div>
+    );
+  }
+  return <NotFound />;
 };
 
 export default MoveQueue;

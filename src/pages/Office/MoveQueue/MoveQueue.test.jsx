@@ -177,14 +177,14 @@ describe('MoveQueue', () => {
     expect(screen.getByText('Move Queue', { selector: 'span' })).toBeInTheDocument();
     expect(screen.getByText('Search', { selector: 'span' })).toBeInTheDocument();
   });
-  it('renders TableQueue when Move Queue tab is selected', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.BASE_MOVE_QUEUE });
+  it('renders TableQueue when Search tab is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
         <MoveQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    expect(screen.queryByTestId('closeout-tab-link')).toBeInTheDocument();
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
     expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
   });
   it('Has 3 options for searches', async () => {
@@ -215,7 +215,7 @@ describe('MoveQueue', () => {
   });
 
   it('Has all status options for move queue', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.BASE_MOVE_QUEUE });
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
         <MoveQueue />
@@ -225,5 +225,15 @@ describe('MoveQueue', () => {
     for (const col in MOVE_STATUS_OPTIONS) {
       expect(screen.findByLabelText(MOVE_STATUS_OPTIONS[col]));
     }
+  });
+  it('renders a 404 if a bad route is provided', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await expect(screen.getByText('Error - 404')).toBeInTheDocument();
+    await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
   });
 });
