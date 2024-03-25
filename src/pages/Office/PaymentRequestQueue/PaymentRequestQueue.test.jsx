@@ -145,7 +145,7 @@ describe('PaymentRequestQueue', () => {
       'Origin GBLOC',
       'Origin Duty Location',
     ];
-
+    // This pattern allows minimal test changes if the status options were ever to change.
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const col in ExpectedPaymentRequestQueueColumns) {
       expect(screen.findByText(columns[col], { selector: 'th' }));
@@ -349,7 +349,7 @@ describe('PaymentRequestQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     const options = ['Move Code', 'DoD ID', 'Customer Name'];
-
+    // This pattern allows minimal test changes if the search options were ever to change.
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const col in options) {
       expect(screen.findByLabelText(options[col]));
@@ -362,6 +362,7 @@ describe('PaymentRequestQueue', () => {
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
+    // This pattern allows minimal test changes if the status options were ever to change.
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const col in PAYMENT_REQUEST_STATUS_OPTIONS) {
       expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
