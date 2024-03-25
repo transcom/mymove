@@ -1,19 +1,16 @@
 /* eslint-disable no-restricted-syntax */
 import React from 'react';
-import Select from 'react-select';
 import { mount } from 'enzyme';
 import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as reactRouterDom from 'react-router-dom';
 
-import { name } from '../../../../playwright.config';
-
 import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
 import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
-import { generalRoutes, tioRoutes, tooRoutes } from 'constants/routes';
+import { generalRoutes, tioRoutes } from 'constants/routes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -162,17 +159,6 @@ describe('PaymentRequestQueue', () => {
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    const columns = [
-      'Customer name',
-      'DoD ID',
-      'Status',
-      'Age',
-      'Submitted',
-      'Move Code',
-      'Branch',
-      'Origin GBLOC',
-      'Origin Duty Location',
-    ];
     expect(screen.getByRole('cell', { name: 'Spacemen, Leo' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '3305957632' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Payment requested' })).toBeInTheDocument();

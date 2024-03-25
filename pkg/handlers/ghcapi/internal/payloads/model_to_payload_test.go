@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
