@@ -61,10 +61,6 @@ tags:
     description: Information about users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: Okta
-    description: Information about okta
-    externalDocs:
-      url: https://transcom.github.io/mymove-docs/docs/api
   - name: Webhook subscriptions
     description: Information about Webhook subscriptions
     externalDocs:
