@@ -34,7 +34,7 @@ const ImportOfficeUserButton = (props) => {
         const parsedRolesArray = parseRoles(row.roles);
         copyOfRow.roles = parsedRolesArray;
 
-        const parsedPrivilegesArray = parsePrivileges(row.privileges);
+        const parsedPrivilegesArray = row.privileges ? parsePrivileges(row.privileges) : null;
         copyOfRow.privileges = parsedPrivilegesArray;
       } catch (err) {
         notify(`${err.message} \n Row Information: ${Object.values(row)}`);
