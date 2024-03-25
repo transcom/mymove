@@ -34,6 +34,10 @@ type PPMCloseout struct {
 	SITReimbursement      *unit.Cents
 }
 
+type PPMActualWeight struct {
+	ActualWeight *unit.Pound
+}
+
 // PPMShipmentStatus represents the status of an order record's lifecycle
 type PPMShipmentStatus string
 
