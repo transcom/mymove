@@ -7,12 +7,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as reactRouterDom from 'react-router-dom';
 
+import { name } from '../../../../playwright.config';
+
 import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
 import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
-import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
-import { generalRoutes, tioRoutes } from 'constants/routes';
+import { generalRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -120,7 +121,7 @@ describe('PaymentRequestQueue', () => {
   const client = new QueryClient();
 
   it('renders the queue results text', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: '' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
@@ -130,7 +131,7 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('renders the correct column headers', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: '' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
@@ -155,24 +156,32 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('renders the table with data and expected values', () => {
-    const wrapper = mount(
-      <MockProviders client={client}>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
-      </MockProviders>,
+      </reactRouterDom.BrowserRouter>,
     );
-    expect(wrapper.find('Table').exists()).toBe(true);
-    expect(wrapper.find('tbody tr').length).toBe(1);
-
-    expect(wrapper.find('tbody tr td').at(0).text()).toBe('Spacemen, Leo');
-    expect(wrapper.find('tbody tr td').at(1).text()).toBe('3305957632');
-    expect(wrapper.find('tbody tr td').at(2).text()).toBe('Payment requested');
-    expect(wrapper.find('tbody tr td').at(3).text()).toBe('Less than 1 day');
-    expect(wrapper.find('tbody tr td').at(4).text()).toBe('15 Oct 2020');
-    expect(wrapper.find('tbody tr td').at(5).text()).toBe('R993T7');
-    expect(wrapper.find('tbody tr td').at(6).text()).toBe('Army');
-    expect(wrapper.find('tbody tr td').at(7).text()).toBe('LKNQ');
-    expect(wrapper.find('tbody tr td').at(8).text()).toBe('Scott AFB');
+    const columns = [
+      'Customer name',
+      'DoD ID',
+      'Status',
+      'Age',
+      'Submitted',
+      'Move Code',
+      'Branch',
+      'Origin GBLOC',
+      'Origin Duty Location',
+    ];
+    expect(screen.getByRole('cell', { name: 'Spacemen, Leo' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '3305957632' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Payment requested' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Less than 1 day' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '15 Oct 2020' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'R993T7' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Army' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'LKNQ' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Scott AFB' })).toBeInTheDocument();
   });
 
   it('applies the sort to the age column in descending direction', () => {
@@ -372,27 +381,14 @@ describe('PaymentRequestQueue', () => {
       expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
     }
   });
-  /* it('can view a move', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+  it('renders a 404 if a bad route is provided', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    // Simulate user input and form submission
-    const searchSelection = screen.getByLabelText('Customer Name');
-    await userEvent.click(searchSelection);
-
-    const searchInput = screen.getByTestId('searchText');
-    await userEvent.type(searchInput, '3305957632');
-    await userEvent.click(screen.getByTestId('searchTextSubmit'));
-
-    // get the table row
-    const selectedRows = screen.getAllByText('3305957632');
-    await userEvent.click(selectedRows[1]);
-    // Assert search results are displayed
-    expect(screen.queryByText('Billable weights')).toBeInTheDocument();
-    expect(screen.queryByText('Flag move for financial review')).toBeInTheDocument();
-    expect(screen.queryByText('Billable weights')).toBeInTheDocument();
-  }); */
+    await expect(screen.getByText('Error - 404')).toBeInTheDocument();
+    await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
+  });
 });

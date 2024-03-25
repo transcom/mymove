@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useNavigate, NavLink, useParams } from 'react-router-dom';
+import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
 
 import styles from './PaymentRequestQueue.module.scss';
 
@@ -24,6 +24,7 @@ import TabNav from 'components/TabNav';
 import { tioRoutes, generalRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import NotFound from 'components/NotFound/NotFound';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columns = (showBranchFilter = true) => [
@@ -154,7 +155,9 @@ const PaymentRequestQueue = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
+  if (!queueType) {
+    return <Navigate to={tioRoutes.BASE_PAYMENT_REQUEST_QUEUE} />;
+  }
   const renderNavBar = () => {
     return (
       <TabNav
@@ -208,24 +211,27 @@ const PaymentRequestQueue = () => {
       </div>
     );
   }
-  return (
-    <div className={styles.PaymentRequestQueue} data-testid="payment-request-queue">
-      {renderNavBar()}
-      <TableQueue
-        showFilters
-        showPagination
-        manualSortBy
-        defaultCanSort
-        defaultSortedColumns={[{ id: 'age', desc: true }]}
-        disableMultiSort
-        disableSortBy={false}
-        columns={columns(showBranchFilter)}
-        title="Payment requests"
-        handleClick={handleClick}
-        useQueries={usePaymentRequestQueueQueries}
-      />
-    </div>
-  );
+  if (queueType === tioRoutes.PAYMENT_REQUEST_QUEUE) {
+    return (
+      <div className={styles.PaymentRequestQueue} data-testid="payment-request-queue">
+        {renderNavBar()}
+        <TableQueue
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'age', desc: true }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={columns(showBranchFilter)}
+          title="Payment requests"
+          handleClick={handleClick}
+          useQueries={usePaymentRequestQueueQueries}
+        />
+      </div>
+    );
+  }
+  return <NotFound />;
 };
 
 export default PaymentRequestQueue;
