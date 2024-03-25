@@ -51,10 +51,13 @@ const MoveSearchForm = ({ onSubmit }) => {
       initialValues={{ searchType: 'moveCode', searchText: '' }}
       onSubmit={onSubmit}
       validateOnChange
+      // adding a return will break the validation
+      // RA Validator Status: RA Accepted
+      // eslint-disable-next-line consistent-return
       validate={(values) => {
         const schema = getValidationSchema(values);
         try {
-          return schema.validateSync(values, { abortEarly: false });
+          schema.validateSync(values, { abortEarly: false });
         } catch (error) {
           return error.inner.reduce((acc, { path, message }) => ({ ...acc, [path]: message }), {});
         }
