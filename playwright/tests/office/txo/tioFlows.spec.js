@@ -1,3 +1,4 @@
+// Using For in allows for minimal changes to the test cases whenever an option or spelling changes withiout having to update it in multiple places.
 /* eslint-disable guard-for-in */
 /**
  * Semi-automated converted from a cypress test, and thus may contain
@@ -176,9 +177,6 @@ test.describe('TIO user', () => {
     test.beforeEach(async ({ officePage }) => {
       await officePage.signInAsNewTIOUser();
     });
-    /* test('can filter the Payment Request queue', async ({ page }) => {
-      test.slow();
-    }); */
   });
   test.describe('with Search Queue', () => {
     test.beforeEach(async ({ officePage }) => {
