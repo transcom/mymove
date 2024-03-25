@@ -95,7 +95,8 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		}
 		return value, nil
 	case models.ReServiceCodeDDSFSC,
-		models.ReServiceCodeDOSFSC:
+		models.ReServiceCodeDOSFSC,
+		models.ReServiceCodeFSC:
 
 		var weightBilled string
 
