@@ -28,7 +28,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
   const originGBLOC =
     move?.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
     userRole === roleTypes.SERVICES_COUNSELOR ||
-    move?.shipmentGBLOC == null
+    !move?.shipmentGBLOC
       ? order.originDutyLocationGBLOC
       : move.shipmentGBLOC;
   const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
