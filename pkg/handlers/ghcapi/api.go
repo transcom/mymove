@@ -226,6 +226,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		customer.NewCustomerUpdater(),
 	}
+	ghcAPI.CustomerCreateCustomerWithOktaOptionHandler = CreateCustomerWithOktaOptionHandler{
+		handlerConfig,
+	}
 	ghcAPI.OrderGetOrderHandler = GetOrdersHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
@@ -504,6 +507,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmGetPPMCloseoutHandler = GetPPMCloseoutHandler{
 		handlerConfig,
 		ppmCloseoutFetcher,
+	}
+
+	ghcAPI.PpmGetPPMActualWeightHandler = GetPPMActualWeightHandler{
+		handlerConfig,
+		ppmCloseoutFetcher,
+		ppmshipment.NewPPMShipmentFetcher(),
 	}
 
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()

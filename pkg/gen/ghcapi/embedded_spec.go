@@ -166,6 +166,61 @@ func init() {
         }
       ]
     },
+    "/customer": {
+      "post": {
+        "description": "Creates a customer with option to create an Okta profile account",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Creates a customer with Okta option",
+        "operationId": "createCustomerWithOktaOption",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCustomerPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully created the customer",
+            "schema": {
+              "$ref": "#/definitions/CreatedCustomer"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/customer-support-remarks/{customerSupportRemarkID}": {
       "delete": {
         "description": "Soft deletes a customer support remark by ID",
@@ -2738,6 +2793,47 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/actual-weight": {
+      "get": {
+        "description": "Retrieves the actual weight for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the actual weight for a PPM shipment",
+        "operationId": "getPPMActualWeight",
+        "responses": {
+          "200": {
+            "description": "Returns actual weight for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMActualWeight"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
@@ -5074,7 +5170,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          "example": "backupContact@mail.com"
         },
         "name": {
           "type": "string"
@@ -5279,6 +5375,81 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "CreateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "backupMailingAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "createOktaAccount": {
+          "type": "boolean"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         }
       }
     },
@@ -5513,6 +5684,85 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        }
+      }
+    },
+    "CreatedCustomer": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Branch of service customer is affilated with"
+        },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "oktaEmail": {
+          "type": "string"
+        },
+        "oktaID": {
+          "type": "string"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "userID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -6452,6 +6702,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -6467,6 +6721,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
@@ -7901,6 +8161,20 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMActualWeight": {
+      "description": "The actual net weight of a single PPM shipment. Used during document review for PPM closeout.",
+      "required": [
+        "actualWeight"
+      ],
+      "properties": {
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMAdvanceStatus": {
       "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
@@ -9293,11 +9567,6 @@ func init() {
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
             "sitAllowanceEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -11053,6 +11322,82 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/customer": {
+      "post": {
+        "description": "Creates a customer with option to create an Okta profile account",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Creates a customer with Okta option",
+        "operationId": "createCustomerWithOktaOption",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCustomerPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully created the customer",
+            "schema": {
+              "$ref": "#/definitions/CreatedCustomer"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/customer-support-remarks/{customerSupportRemarkID}": {
       "delete": {
@@ -14335,6 +14680,67 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/actual-weight": {
+      "get": {
+        "description": "Retrieves the actual weight for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the actual weight for a PPM shipment",
+        "operationId": "getPPMActualWeight",
+        "responses": {
+          "200": {
+            "description": "Returns actual weight for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMActualWeight"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
@@ -17197,7 +17603,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          "example": "backupContact@mail.com"
         },
         "name": {
           "type": "string"
@@ -17406,6 +17812,81 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "CreateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "backupMailingAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "createOktaAccount": {
+          "type": "boolean"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         }
       }
     },
@@ -17640,6 +18121,85 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        }
+      }
+    },
+    "CreatedCustomer": {
+      "type": "object",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Branch of service customer is affilated with"
+        },
+        "backupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "backupContact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "edipi": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "emailIsPreferred": {
+          "type": "boolean"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middleName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "oktaEmail": {
+          "type": "string"
+        },
+        "oktaID": {
+          "type": "string"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "phoneIsPreferred": {
+          "type": "boolean"
+        },
+        "residentialAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "userID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -18579,6 +19139,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -18594,6 +19158,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
@@ -20028,6 +20598,20 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMActualWeight": {
+      "description": "The actual net weight of a single PPM shipment. Used during document review for PPM closeout.",
+      "required": [
+        "actualWeight"
+      ],
+      "properties": {
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMAdvanceStatus": {
       "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
@@ -21429,11 +22013,6 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
-            "sitAuthorizedEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -21488,11 +22067,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
