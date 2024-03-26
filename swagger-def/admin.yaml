@@ -717,6 +717,7 @@ definitions:
           $ref: '#/definitions/OfficeUserRole'
       privileges:
         type: array
+        x-nullable: true
         items:
           $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserUpdate:
