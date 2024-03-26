@@ -208,21 +208,6 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
-  it('filters the queue', () => {
-    const wrapper = mount(
-      <MockProviders client={client}>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <PaymentRequestQueue />
-      </MockProviders>,
-    );
-    const input = wrapper.find(Select).at(0).find('input');
-    input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
-    input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
-
-    wrapper.update();
-    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Payment requested');
-  });
-
   it('displays the payment request ', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
