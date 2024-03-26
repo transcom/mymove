@@ -86,6 +86,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   );
   return wrapper;
 };
+const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
 describe('MoveQueue', () => {
   it('should render the h1', () => {
     expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (2)');
@@ -165,7 +166,7 @@ describe('MoveQueue', () => {
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
   });
-  it(' renders Search and Move Queue tabs', () => {
+  it('renders Search and Move Queue tabs', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
@@ -187,20 +188,14 @@ describe('MoveQueue', () => {
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
     expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
   });
-  it('Has 3 options for searches', async () => {
+  it('has all options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
         <MoveQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    const options = ['Move Code', 'DoD ID', 'Customer Name'];
-
-    // This pattern allows minimal test changes if the search options were ever to change.
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const col in options) {
-      expect(screen.findByLabelText(options[col]));
-    }
+    SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('Has all status options for move search', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
@@ -209,11 +204,7 @@ describe('MoveQueue', () => {
         <MoveQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    // This pattern allows minimal test changes if the status options were ever to change.
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const col in MOVE_STATUS_OPTIONS) {
-      expect(screen.findByLabelText(MOVE_STATUS_OPTIONS[col]));
-    }
+    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
 
   it('Has all status options for move queue', async () => {
@@ -223,11 +214,7 @@ describe('MoveQueue', () => {
         <MoveQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    // This pattern allows minimal test changes if the status options were ever to change.
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const col in MOVE_STATUS_OPTIONS) {
-      expect(screen.findByLabelText(MOVE_STATUS_OPTIONS[col]));
-    }
+    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
