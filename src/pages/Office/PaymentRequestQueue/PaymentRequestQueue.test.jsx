@@ -103,17 +103,6 @@ jest.mock('hooks/queries', () => ({
     };
   },
 }));
-const ExpectedPaymentRequestQueueColumns = [
-  'Customer name',
-  'DoD ID',
-  'Status',
-  'Age',
-  'Submitted',
-  'Move Code',
-  'Branch',
-  'Origin GBLOC',
-  'Origin Duty Location',
-];
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
 
 describe('PaymentRequestQueue', () => {
