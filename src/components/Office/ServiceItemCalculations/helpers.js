@@ -402,7 +402,7 @@ const fuelSurchargePrice = (params, itemCode) => {
 
   const fuelRateAdjustment = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
-  }: ${toDollarString(formatCents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params)))}`;
+  }: ${formatCents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params), 1, 1)}`;
 
   const fscWeightBasedDistanceMultiplier = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
