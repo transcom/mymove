@@ -4,13 +4,12 @@ SET statement_timeout = 300000;
 SET lock_timeout = 300000;
 SET idle_in_transaction_session_timeout = 300000;
 
-update
-	addresses adr
-set
-	county = (
-	select
-		max(usprc_county_nm) -- using max since some county names/zip combination have multiple records
-	from
-		us_post_region_cities usprc
-	where
-		adr.postal_code = usprc.uspr_zip_id);
+UPDATE addresses adr
+SET county = usprc.max_county
+FROM (
+    SELECT uspr_zip_id, MAX(usprc_county_nm) AS max_county -- using max since some county names/zip combination have multiple records
+    FROM us_post_region_cities
+    GROUP BY uspr_zip_id
+) AS usprc
+where LEFT(adr.postal_code,5) = usprc.uspr_zip_id;
+
