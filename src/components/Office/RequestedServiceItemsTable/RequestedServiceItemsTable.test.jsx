@@ -74,7 +74,7 @@ const testDetails = (wrapper) => {
   expect(detailDefinitions.at(3).text().includes('-')).toBe(true);
   expect(detailTypes.at(4).text()).toBe('Actual pickup address:');
   expect(detailDefinitions.at(4).text().includes('-')).toBe(true);
-  expect(detailTypes.at(5).text()).toBe('Delivery into SIT miles:');
+  expect(detailTypes.at(5).text()).toBe('Delivery miles into SIT:');
   expect(detailDefinitions.at(5).text().includes('-')).toBe(true);
   expect(detailTypes.at(6).text()).toBe('Original delivery address:');
   expect(detailDefinitions.at(6).text().includes('-')).toBe(true);
