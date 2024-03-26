@@ -22,6 +22,16 @@ export const checkTelephone = ({ telephone }) => {
   return true;
 };
 
+export const checkValidRolesWithPrivileges = (row) => {
+  if (
+    (row.roles.indexOf('customer') >= 0 || row.roles.indexOf('contracting_officer') >= 0) &&
+    row.privileges.indexOf('supervisor') >= 0
+  ) {
+    throw new Error('Privileges cannot be selected with Customer or Contracting Officer roles.');
+  }
+  return true;
+};
+
 export const parseRoles = (roles) => {
   if (!roles) {
     throw new Error('Processing Error: Unable to parse roles for row.');

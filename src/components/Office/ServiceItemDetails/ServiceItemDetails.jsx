@@ -88,7 +88,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Final delivery address': details.sitDestinationFinalAddress
                   ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                   : '-',
-                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
             )
@@ -102,7 +102,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Final delivery address': details.sitDestinationFinalAddress
                   ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                   : '-',
-                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
             )
@@ -251,7 +251,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
                 'Actual pickup address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
-                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery miles into SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
             )}
@@ -286,7 +286,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
                 'Actual pickup address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
-                'Delivery into SIT miles': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Delivery miles into SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
             )}
