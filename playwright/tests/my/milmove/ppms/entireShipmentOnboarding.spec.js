@@ -54,6 +54,7 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
       this.page.locator('[data-testid="stepContainer5"]');
     }
 
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(stepContainer.getByRole('button', { name: 'Upload PPM Documents' })).toBeDisabled();
     await expect(
       stepContainer.locator('p').getByText('After a counselor approves your PPM, you will be able to:'),
@@ -104,8 +105,25 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
   }
 }
 
+test.describe('About Form Date flow', () => {
+  /** @type {CustomerPpmOnboardingPage} */
+  let customerPpmOnboardingPage;
+
+  forEachViewport(async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
+      customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
+      await customerPpmOnboardingPage.signInForPPMWithMove(move);
+    });
+
+    test('Fill out About Form Date', async () => {
+      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMAboutForm();
+      await customerPpmOnboardingPage.fillOutAboutFormDate();
+    });
+  });
+});
+
 test.describe('Entire PPM onboarding flow', () => {
-  test.skip(true, 'This test fail due to navigateFromDateAndLocationPageToEstimatedWeightsPage()');
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 
