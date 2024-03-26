@@ -90,6 +90,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler: customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
 		}),
+		CustomerCreateCustomerWithOktaOptionHandler: customer.CreateCustomerWithOktaOptionHandlerFunc(func(params customer.CreateCustomerWithOktaOptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.CreateCustomerWithOktaOption has not yet been implemented")
+		}),
 		EvaluationReportsCreateEvaluationReportHandler: evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		}),
@@ -155,6 +158,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
+		}),
+		PpmGetPPMActualWeightHandler: ppm.GetPPMActualWeightHandlerFunc(func(params ppm.GetPPMActualWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMActualWeight has not yet been implemented")
 		}),
 		PpmGetPPMCloseoutHandler: ppm.GetPPMCloseoutHandlerFunc(func(params ppm.GetPPMCloseoutParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
@@ -355,6 +361,8 @@ type MymoveAPI struct {
 	ShipmentCreateApprovedSITDurationUpdateHandler shipment.CreateApprovedSITDurationUpdateHandler
 	// CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler sets the operation handler for the create customer support remark for move operation
 	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
+	// CustomerCreateCustomerWithOktaOptionHandler sets the operation handler for the create customer with okta option operation
+	CustomerCreateCustomerWithOktaOptionHandler customer.CreateCustomerWithOktaOptionHandler
 	// EvaluationReportsCreateEvaluationReportHandler sets the operation handler for the create evaluation report operation
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
@@ -399,6 +407,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
+	// PpmGetPPMActualWeightHandler sets the operation handler for the get p p m actual weight operation
+	PpmGetPPMActualWeightHandler ppm.GetPPMActualWeightHandler
 	// PpmGetPPMCloseoutHandler sets the operation handler for the get p p m closeout operation
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
@@ -598,6 +608,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler")
 	}
+	if o.CustomerCreateCustomerWithOktaOptionHandler == nil {
+		unregistered = append(unregistered, "customer.CreateCustomerWithOktaOptionHandler")
+	}
 	if o.EvaluationReportsCreateEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportHandler")
 	}
@@ -663,6 +676,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
+	}
+	if o.PpmGetPPMActualWeightHandler == nil {
+		unregistered = append(unregistered, "ppm.GetPPMActualWeightHandler")
 	}
 	if o.PpmGetPPMCloseoutHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMCloseoutHandler")
@@ -931,6 +947,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/customer"] = customer.NewCreateCustomerWithOktaOption(o.context, o.CustomerCreateCustomerWithOktaOptionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{locator}/evaluation-reports"] = evaluation_reports.NewCreateEvaluationReport(o.context, o.EvaluationReportsCreateEvaluationReportHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1016,6 +1036,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/orders/{orderID}"] = order.NewGetOrder(o.context, o.OrderGetOrderHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/actual-weight"] = ppm.NewGetPPMActualWeight(o.context, o.PpmGetPPMActualWeightHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
