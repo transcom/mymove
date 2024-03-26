@@ -122,7 +122,7 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Delivery into SIT miles:')).toBeInTheDocument();
+    expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
   });
   it('renders DDFSIT details', () => {
@@ -138,7 +138,7 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Delivery into SIT miles:')).toBeInTheDocument();
+    expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
   });
 });
@@ -187,7 +187,7 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
     expect(screen.getByText('Actual pickup address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Actual MacDill, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Delivery into SIT miles:')).toBeInTheDocument();
+    expect(screen.getByText('Delivery miles into SIT:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
   });
 
@@ -200,7 +200,7 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
     expect(screen.getByText('Actual pickup address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Actual MacDill, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Delivery into SIT miles:')).toBeInTheDocument();
+    expect(screen.getByText('Delivery miles into SIT:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
   });
 });
