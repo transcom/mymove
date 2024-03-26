@@ -168,7 +168,8 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeIOPSIT,
 			models.ReServiceCodeIDDSIT,
 			models.ReServiceCodeIOSHUT,
-			models.ReServiceCodeIDSHUT:
+			models.ReServiceCodeIDSHUT,
+			models.ReServiceCodeFSC:
 			if weight < 500 {
 				result = 500
 			}
