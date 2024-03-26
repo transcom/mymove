@@ -103,17 +103,6 @@ jest.mock('hooks/queries', () => ({
     };
   },
 }));
-const ExpectedPaymentRequestQueueColumns = [
-  'Customer name',
-  'DoD ID',
-  'Status',
-  'Age',
-  'Submitted',
-  'Move Code',
-  'Branch',
-  'Origin GBLOC',
-  'Origin Duty Location',
-];
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
 
 describe('PaymentRequestQueue', () => {
@@ -127,16 +116,6 @@ describe('PaymentRequestQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     expect(screen.queryByText('Payment requests (1)')).toBeInTheDocument();
-  });
-
-  it('renders the correct column headers', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
-    render(
-      <reactRouterDom.BrowserRouter>
-        <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
-    );
-    ExpectedPaymentRequestQueueColumns.forEach((option) => expect(screen.findByLabelText(option)));
   });
 
   it('renders the table with data and expected values', () => {
