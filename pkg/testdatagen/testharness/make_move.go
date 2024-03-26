@@ -2539,6 +2539,21 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
+// MakeHHGMoveNeedsServicesCounselingUSMC creates an fully ready move as USMC needing SC approval
+func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	locator := models.GenerateLocator()
+	move := scenario.CreateHHGNeedsServicesCounselingUSMC3(appCtx, userUploader, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
 // MakeHHGMoveWithAmendedOrders creates a move needing SC approval with amended orders
 func MakeHHGMoveWithAmendedOrders(appCtx appcontext.AppContext) models.Move {
 	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION

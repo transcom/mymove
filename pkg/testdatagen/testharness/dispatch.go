@@ -41,6 +41,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSC(appCtx)
 	},
+	"HHGMoveAsUSMCNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveNeedsServicesCounselingUSMC(appCtx)
+	},
 	"HHGMoveWithAmendedOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithAmendedOrders(appCtx)
 	},
