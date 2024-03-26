@@ -171,7 +171,12 @@ export function getShipmentModificationType(shipment) {
   return undefined;
 }
 
-export function isArmyOrAirForce(affiliation) {
+/**
+ * @description Returns whether the service member is affilated a branch that is allowed to choose their PPM closeout office.
+ * @param {string} affiliation - String representing the service member's branch (i.e. "AIR_FORCE") (these string constants are defined in src/content/serviceMemberAgencies.js)
+ * @returns {boolean} - True if member is affiliated with any of the branches allowed to choose their PPM closeout office.
+ */
+export function canChoosePPMLocation(affiliation) {
   return (
     affiliation === affiliations.AIR_FORCE ||
     affiliation === affiliations.ARMY ||
