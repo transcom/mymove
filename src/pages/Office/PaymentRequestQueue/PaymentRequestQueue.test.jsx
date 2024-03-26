@@ -114,6 +114,8 @@ const ExpectedPaymentRequestQueueColumns = [
   'Origin GBLOC',
   'Origin Duty Location',
 ];
+const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
+
 describe('PaymentRequestQueue', () => {
   const client = new QueryClient();
 
@@ -134,22 +136,7 @@ describe('PaymentRequestQueue', () => {
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    const columns = [
-      'Customer name',
-      'DoD ID',
-      'Status',
-      'Age',
-      'Submitted',
-      'Move Code',
-      'Branch',
-      'Origin GBLOC',
-      'Origin Duty Location',
-    ];
-    // This pattern allows minimal test changes if the status options were ever to change.
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const col in ExpectedPaymentRequestQueueColumns) {
-      expect(screen.findByText(columns[col], { selector: 'th' }));
-    }
+    ExpectedPaymentRequestQueueColumns.forEach((option) => expect(screen.findByLabelText(option)));
   });
 
   it('renders the table with data and expected values', () => {
@@ -333,12 +320,9 @@ describe('PaymentRequestQueue', () => {
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    const options = ['Move Code', 'DoD ID', 'Customer Name'];
     // This pattern allows minimal test changes if the search options were ever to change.
     // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const col in options) {
-      expect(screen.findByLabelText(options[col]));
-    }
+    SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('has all payment request status options for payment request filtering', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
@@ -347,11 +331,7 @@ describe('PaymentRequestQueue', () => {
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    // This pattern allows minimal test changes if the status options were ever to change.
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const col in PAYMENT_REQUEST_STATUS_OPTIONS) {
-      expect(screen.findByLabelText(PAYMENT_REQUEST_STATUS_OPTIONS[col]));
-    }
+    PAYMENT_REQUEST_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
