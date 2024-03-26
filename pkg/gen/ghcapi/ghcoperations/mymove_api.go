@@ -948,7 +948,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/requested-office-users"] = office_users.NewCreateRequestedOfficeUser(o.context, o.OfficeUsersCreateRequestedOfficeUserHandler)
+	o.handlers["POST"]["/open/requested-office-users"] = office_users.NewCreateRequestedOfficeUser(o.context, o.OfficeUsersCreateRequestedOfficeUserHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

@@ -2160,6 +2160,49 @@ func init() {
         }
       }
     },
+    "/open/requested-office-users": {
+      "post": {
+        "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Create an Office User",
+        "operationId": "createRequestedOfficeUser",
+        "parameters": [
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/OfficeUserCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully requested the creation of provided office user",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -3731,49 +3774,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/requested-office-users": {
-      "post": {
-        "description": "Request the creation of and office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Office users"
-        ],
-        "summary": "Create an Office User",
-        "operationId": "createRequestedOfficeUser",
-        "parameters": [
-          {
-            "description": "Office User information",
-            "name": "officeUser",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/OfficeUserCreate"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "successfully requested the creation of provided office user",
-            "schema": {
-              "$ref": "#/definitions/OfficeUser"
-            }
-          },
-          "422": {
-            "description": "validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
     },
     "/service-item/{mtoServiceItemID}/entry-date-update": {
       "patch": {
@@ -13609,6 +13609,49 @@ func init() {
         }
       }
     },
+    "/open/requested-office-users": {
+      "post": {
+        "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Create an Office User",
+        "operationId": "createRequestedOfficeUser",
+        "parameters": [
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/OfficeUserCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully requested the creation of provided office user",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -15563,49 +15606,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/requested-office-users": {
-      "post": {
-        "description": "Request the creation of and office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Office users"
-        ],
-        "summary": "Create an Office User",
-        "operationId": "createRequestedOfficeUser",
-        "parameters": [
-          {
-            "description": "Office User information",
-            "name": "officeUser",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/OfficeUserCreate"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "successfully requested the creation of provided office user",
-            "schema": {
-              "$ref": "#/definitions/OfficeUser"
-            }
-          },
-          "422": {
-            "description": "validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
     },
     "/service-item/{mtoServiceItemID}/entry-date-update": {
       "patch": {

@@ -35,7 +35,7 @@ func (o *CreateRequestedOfficeUserURL) SetBasePath(bp string) {
 func (o *CreateRequestedOfficeUserURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/requested-office-users"
+	var _path = "/open/requested-office-users"
 
 	_basePath := o._basePath
 	if _basePath == "" {

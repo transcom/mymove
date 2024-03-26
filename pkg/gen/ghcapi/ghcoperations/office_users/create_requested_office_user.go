@@ -30,11 +30,12 @@ func NewCreateRequestedOfficeUser(ctx *middleware.Context, handler CreateRequest
 }
 
 /*
-	CreateRequestedOfficeUser swagger:route POST /requested-office-users Office users createRequestedOfficeUser
+	CreateRequestedOfficeUser swagger:route POST /open/requested-office-users Office users createRequestedOfficeUser
 
 # Create an Office User
 
-Request the creation of and office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an "OR" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an "OR" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
 */
 type CreateRequestedOfficeUser struct {
 	Context *middleware.Context
