@@ -280,6 +280,8 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.Equal(int64(0), payloadMove.ShipmentsCount)
 		suite.NotEmpty(payloadMove.FirstName)
 		suite.NotEmpty(payloadMove.LastName)
+		suite.NotEmpty(payloadMove.OriginGBLOC)
+		suite.NotEmpty(payloadMove.DestinationGBLOC)
 	})
 
 	suite.Run("Successful move search by DoD ID", func() {

@@ -154,6 +154,7 @@ type SSWPPMComputer interface {
 	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (Page1Values, Page2Values)
 }
 
+//go:generate mockery --name SSWPPMGenerator
 type SSWPPMGenerator interface {
 	FillSSWPDFForm(Page1Values, Page2Values) (afero.File, *pdfcpu.PDFInfo, error)
 }

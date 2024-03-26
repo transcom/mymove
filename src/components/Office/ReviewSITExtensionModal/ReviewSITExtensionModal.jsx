@@ -195,7 +195,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
         {/* Total days at current location */}
         <DataTable
           testID="currentSITDateData"
-          columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+          columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
           dataRow={[currentDaysInSit, sitDepartureDate]}
         />
       </div>

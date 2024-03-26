@@ -80,3 +80,27 @@ func BuildFullTransportationAccountingCode(db *pop.Connection) models.Transporta
 
 	return BuildTransportationAccountingCode(db, defaultCustoms, nil)
 }
+
+func BuildTransportationAccountingCodeWithoutAttachedLoa(db *pop.Connection, customs []Customization, traits []Trait) models.TransportationAccountingCode {
+	customs = setupCustomizations(customs, traits)
+
+	var cTransportationAccountingCode models.TransportationAccountingCode
+	if result := findValidCustomization(customs, TransportationAccountingCode); result != nil {
+		cTransportationAccountingCode = result.Model.(models.TransportationAccountingCode)
+		if result.LinkOnly {
+			return cTransportationAccountingCode
+		}
+	}
+
+	transportationAccountingCode := models.TransportationAccountingCode{
+		TAC: "E01A",
+	}
+
+	testdatagen.MergeModels(&transportationAccountingCode, cTransportationAccountingCode)
+
+	if db != nil {
+		mustCreate(db, &transportationAccountingCode)
+	}
+
+	return transportationAccountingCode
+}

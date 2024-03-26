@@ -4,12 +4,24 @@
 
 .TableQueue {
   @include u-display(flex);
+  @include u-margin-x(0);
+  @include u-padding-x(0);
   flex-direction: column;
   flex: auto;
+  min-width: 100%;
+
+  p {
+    @include u-margin(0);
+    @include u-padding-left(0.5);
+  }
+
+  h2 {
+    @include u-margin-top(4);
+    @include u-padding-left(0.5);
+  }
 
   .tableContainer {
     flex: auto;
-
     @include u-margin-top(1);
     max-width: 100%;
     overflow-x: auto;
@@ -22,10 +34,4 @@
       cursor: pointer;
     }
   }
-}
-
-.tableTabs {
-  @include u-margin-x(1);
-  @include u-margin-bottom(2);
-  border-bottom: (2px solid rgb(236, 234, 234));
 }

@@ -425,6 +425,10 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 			model.SITEntryDate = sitEntryDate
 		}
 
+		if originsit.SitDepartureDate != nil {
+			model.SITDepartureDate = handlers.FmtDatePtrToPopPtr(originsit.SitDepartureDate)
+		}
+
 		model.SITPostalCode = originsit.SitPostalCode
 
 		model.SITOriginHHGActualAddress = AddressModel(originsit.SitHHGActualOrigin)

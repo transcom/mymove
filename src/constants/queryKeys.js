@@ -24,3 +24,5 @@ export const EVALUATION_REPORT = 'evaluationReport';
 export const PWS_VIOLATIONS = 'pwsViolations';
 export const REPORT_VIOLATIONS = 'reportViolations';
 export const DOCUMENTS = 'documents';
+export const PPMCLOSEOUT = 'ppmCloseout';
+export const PPMACTUALWEIGHT = 'ppmActualWeight';

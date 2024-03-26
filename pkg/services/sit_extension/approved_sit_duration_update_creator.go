@@ -78,6 +78,7 @@ func (f *approvedSITDurationUpdateCreator) updateSitDaysAllowance(appCtx appcont
 	} else {
 		shipment.SITDaysAllowance = &approvedDays
 	}
+
 	verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
 	if e := f.handleError(shipment.ID, verrs, err); e != nil {
 		return &shipment, e

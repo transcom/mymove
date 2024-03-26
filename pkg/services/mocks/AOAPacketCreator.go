@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	afero "github.com/spf13/afero"
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
@@ -15,7 +16,33 @@ type AOAPacketCreator struct {
 }
 
 // CreateAOAPacket provides a mock function with given fields: appCtx, ppmShipmentID
-func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, error) {
+	ret := _m.Called(appCtx, ppmShipmentID)
+
+	var r0 afero.File
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (afero.File, error)); ok {
+		return rf(appCtx, ppmShipmentID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) afero.File); ok {
+		r0 = rf(appCtx, ppmShipmentID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(afero.File)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, ppmShipmentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// VerifyAOAPacketInternal provides a mock function with given fields: appCtx, ppmShipmentID
+func (_m *AOAPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
 	ret := _m.Called(appCtx, ppmShipmentID)
 
 	var r0 error

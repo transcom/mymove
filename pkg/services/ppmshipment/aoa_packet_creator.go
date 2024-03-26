@@ -5,119 +5,133 @@ import (
 	"io"
 
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // aoaPacketCreator is the concrete struct implementing the AOAPacketCreator interface
 type aoaPacketCreator struct {
-	services.PPMShipmentFetcher
-	// TODO: Add the SSW PDF generation service object here.
-	services.UserUploadToPDFConverter
-	services.PDFMerger
-	services.PPMShipmentUpdater
-	*uploader.UserUploader
+	services.SSWPPMGenerator
+	services.SSWPPMComputer
+	services.PrimeDownloadMoveUploadPDFGenerator
+	uploader.UserUploader
+	pdfGenerator *paperwork.Generator
 }
 
 // NewAOAPacketCreator creates a new AOAPacketCreator with all of its dependencies
 func NewAOAPacketCreator(
-	ppmShipmentFetcher services.PPMShipmentFetcher,
-	userUploadToPDFConverter services.UserUploadToPDFConverter,
-	pdfMerger services.PDFMerger,
-	ppmShipmentUpdater services.PPMShipmentUpdater,
+	sswPPMGenerator services.SSWPPMGenerator,
+	sswPPMComputer services.SSWPPMComputer,
+	primeDownloadMoveUploadPDFGenerator services.PrimeDownloadMoveUploadPDFGenerator,
 	userUploader *uploader.UserUploader,
+	pdfGenerator *paperwork.Generator,
 ) services.AOAPacketCreator {
 	return &aoaPacketCreator{
-		ppmShipmentFetcher,
-		userUploadToPDFConverter,
-		pdfMerger,
-		ppmShipmentUpdater,
-		userUploader,
+		sswPPMGenerator,
+		sswPPMComputer,
+		primeDownloadMoveUploadPDFGenerator,
+		*userUploader,
+		pdfGenerator,
 	}
+}
+
+func (a *aoaPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+	appCtx.Logger().Info("Retrieving ServiceMember to verify authorization")
+	ppmShipment := models.PPMShipment{}
+	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder.Orders.ServiceMember",
+	).Find(&ppmShipment, ppmShipmentID)
+
+	if dbQErr != nil {
+		appCtx.Logger().Error("Could not retrieve query from PPMShipment to ServiceMember")
+		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
+			return models.ErrFetchNotFound
+		}
+		return dbQErr
+	}
+
+	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID == appCtx.Session().ServiceMemberID {
+		return nil
+	}
+
+	// This returns the same client-facing error to prevent fishing for UUIDs after logging unauthorized access.
+	appCtx.Logger().Error("Unauthorized AOA access attempted, Context Member: " +
+		appCtx.Session().ServiceMemberID.String() + " attempted to access AOA Packet records for " +
+		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID.String())
+	return errors.New("Not the authorized service member")
+
 }
 
 // CreateAOAPacket creates an AOA packet for a PPM Shipment, containing the shipment summary worksheet (SSW) and
 // uploaded orders.
-func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, error) {
 	errMsgPrefix := "error creating AOA packet"
 
-	ppmShipment, err := a.PPMShipmentFetcher.GetPPMShipment(
-		appCtx,
-		ppmShipmentID,
-		// TODO: We'll need to update this with any associations we need to build the SSW and to get the correct orders,
-		//  taking amended orders into account if needed.
-		[]string{EagerPreloadAssociationServiceMember, EagerPreloadAssociationAOAPacket},
-		[]string{PostLoadAssociationUploadedOrders},
-	)
-
+	// First we begin by fetching SSW Data, computing obligations, formatting, and filling the SSWPDF
+	ssfd, err := a.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
 	if err != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to load PPMShipment")
-
-		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-
-		return fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	pdfsToMerge := []io.ReadCloser{}
+	page1Data, page2Data := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 
-	// TODO: Call yet-to-be-written SSW PDF generation service object and add it to the list of PDFs to merge.
-	//  using fake names here for the service object and its receiver function as a sample of how this might look
-	//ssw, sswErr := a.SSWPDFGenerator.GenerateSSWPDF(appCtx, ppmShipmentID)
-	//
-	//if sswErr != nil {
-	//	errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "error generating SSW PDF")
-	//
-	//	appCtx.Logger().Error(errMsgPrefix, zap.Error(sswErr))
-	//
-	//	return fmt.Errorf("%s: %w", errMsgPrefix, sswErr)
-	//}
-	//
-	//pdfsToMerge = append(pdfsToMerge, ssw)
-
-	filesToMerge, filesToMergeErr := a.UserUploadToPDFConverter.ConvertUserUploadsToPDF(
-		appCtx,
-		models.UserUploads{ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0]},
-	)
-
-	if filesToMergeErr != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to convert orders to PDF")
-
-		appCtx.Logger().Error(errMsgPrefix, zap.Error(filesToMergeErr))
-
-		return fmt.Errorf("%s: %w", errMsgPrefix, filesToMergeErr)
+	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+	// Ensure SSW PDF is not corrupted
+	if SSWPDFInfo.PageCount != 2 {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	for _, fileToMerge := range filesToMerge {
-		fileToMerge := fileToMerge
+	// Now that SSW is retrieved, find, convert to pdf, and append all orders and amendments
+	// Query move, orders by ppm shipment
+	ppmShipment := models.PPMShipment{}
+	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder",
+		"Shipment.MoveTaskOrder.Orders.ID",
+	).Find(&ppmShipment, ppmShipmentID)
 
-		pdfsToMerge = append(pdfsToMerge, fileToMerge.PDFStream)
+	if dbQErr != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, dbQErr)
 	}
 
-	aoaPacket, mergeErr := a.PDFMerger.MergePDFs(appCtx, pdfsToMerge)
-
-	if mergeErr != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to merge SSW and orders PDFs")
-
-		appCtx.Logger().Error(errMsgPrefix, zap.Error(mergeErr))
-
-		return fmt.Errorf("%s: %w", errMsgPrefix, mergeErr)
+	// Find move attached to PPM Shipment
+	move := models.Move(ppmShipment.Shipment.MoveTaskOrder)
+	// This function retrieves all orders and amendments, converts and merges them into one PDF with bookmarks
+	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, false)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+	// Ensure SSW PDF is not corrupted
+	ordersFileInfo, err := a.pdfGenerator.GetPdfFileInfoByContents(ordersFile)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+	if !(ordersFileInfo.PageCount > 0) {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	saveErr := saveAOAPacket(appCtx, ppmShipment, aoaPacket, a.PPMShipmentUpdater, a.UserUploader)
+	// Calling the PDF merge function in Generator with these filepaths creates issues due to instancing of the memory filesystem
+	// Instead, we use a readseeker to pass in file information to merge the files in Generator.
+	var files []io.ReadSeeker
 
-	if saveErr != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to save AOA packet")
-
-		appCtx.Logger().Error(errMsgPrefix, zap.Error(saveErr))
-
-		return fmt.Errorf("%s: %w", errMsgPrefix, saveErr)
+	files = append(files, SSWPPMWorksheet)
+	files = append(files, ordersFile)
+	// Take all of generated PDFs and merge into a single PDF.
+	mergedPdf, err := a.pdfGenerator.MergePDFFilesByContents(appCtx, files)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	return nil
+	return mergedPdf, nil
 }
 
 // saveAOAPacket uploads the AOA packet to S3 and saves the document data to the database, associating it with the PPM

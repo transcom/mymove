@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
@@ -113,6 +114,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrganizationsIndexOrganizationsHandler: organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
+		}),
+		RequestedOfficeUsersIndexRequestedOfficeUsersHandler: requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
 		}),
 		UsersIndexUsersHandler: users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
@@ -221,6 +225,8 @@ type MymoveAPI struct {
 	TransportationOfficesIndexOfficesHandler transportation_offices.IndexOfficesHandler
 	// OrganizationsIndexOrganizationsHandler sets the operation handler for the index organizations operation
 	OrganizationsIndexOrganizationsHandler organizations.IndexOrganizationsHandler
+	// RequestedOfficeUsersIndexRequestedOfficeUsersHandler sets the operation handler for the index requested office users operation
+	RequestedOfficeUsersIndexRequestedOfficeUsersHandler requested_office_users.IndexRequestedOfficeUsersHandler
 	// UsersIndexUsersHandler sets the operation handler for the index users operation
 	UsersIndexUsersHandler users.IndexUsersHandler
 	// WebhookSubscriptionsIndexWebhookSubscriptionsHandler sets the operation handler for the index webhook subscriptions operation
@@ -375,6 +381,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrganizationsIndexOrganizationsHandler == nil {
 		unregistered = append(unregistered, "organizations.IndexOrganizationsHandler")
+	}
+	if o.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
+		unregistered = append(unregistered, "requested_office_users.IndexRequestedOfficeUsersHandler")
 	}
 	if o.UsersIndexUsersHandler == nil {
 		unregistered = append(unregistered, "users.IndexUsersHandler")
@@ -571,6 +580,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/organizations"] = organizations.NewIndexOrganizations(o.context, o.OrganizationsIndexOrganizationsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/requested-office-users"] = requested_office_users.NewIndexRequestedOfficeUsers(o.context, o.RequestedOfficeUsersIndexRequestedOfficeUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

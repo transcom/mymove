@@ -61,6 +61,9 @@ type PPMShipment struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
+	// destination address
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
 	// ZIP
 	//
 	// The postal code of the destination location where goods are being delivered to.
@@ -104,6 +107,12 @@ type PPMShipment struct {
 	//
 	HasRequestedAdvance *bool `json:"hasRequestedAdvance"`
 
+	// has secondary destination address
+	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
+
+	// has secondary pickup address
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+
 	// Primary auto-generated unique identifier of the PPM shipment object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
@@ -113,6 +122,9 @@ type PPMShipment struct {
 
 	// All expense documentation receipt records of this PPM shipment.
 	MovingExpenses []*MovingExpense `json:"movingExpenses"`
+
+	// pickup address
+	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// ZIP
 	//
@@ -132,12 +144,18 @@ type PPMShipment struct {
 	// Format: date-time
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt"`
 
+	// secondary destination address
+	SecondaryDestinationAddress *Address `json:"secondaryDestinationAddress,omitempty"`
+
 	// ZIP
 	//
 	// An optional secondary location near the destination where goods will be dropped off.
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode"`
+
+	// secondary pickup address
+	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
 	// ZIP
 	// Example: 90210
@@ -230,6 +248,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -250,6 +272,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -262,7 +288,15 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSecondaryDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -400,6 +434,25 @@ func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateDestinationPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("destinationPostalCode", "body", m.DestinationPostalCode); err != nil {
@@ -474,6 +527,25 @@ func (m *PPMShipment) validateMovingExpenses(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validatePickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
+	}
+
+	if m.PickupAddress != nil {
+		if err := m.PickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validatePickupPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("pickupPostalCode", "body", m.PickupPostalCode); err != nil {
@@ -525,6 +597,25 @@ func (m *PPMShipment) validateReviewedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryDestinationAddress != nil {
+		if err := m.SecondaryDestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryDestinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDestinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateSecondaryDestinationPostalCode(formats strfmt.Registry) error {
 	if swag.IsZero(m.SecondaryDestinationPostalCode) { // not required
 		return nil
@@ -532,6 +623,25 @@ func (m *PPMShipment) validateSecondaryDestinationPostalCode(formats strfmt.Regi
 
 	if err := validate.Pattern("secondaryDestinationPostalCode", "body", *m.SecondaryDestinationPostalCode, `^(\d{5})$`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -723,6 +833,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -739,7 +853,19 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateProGearWeightTickets(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -807,6 +933,27 @@ func (m *PPMShipment) contextValidateCreatedAt(ctx context.Context, formats strf
 	return nil
 }
 
+func (m *PPMShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationAddress != nil {
+
+		if swag.IsZero(m.DestinationAddress) { // not required
+			return nil
+		}
+
+		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
@@ -859,6 +1006,27 @@ func (m *PPMShipment) contextValidateMovingExpenses(ctx context.Context, formats
 	return nil
 }
 
+func (m *PPMShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PickupAddress != nil {
+
+		if swag.IsZero(m.PickupAddress) { // not required
+			return nil
+		}
+
+		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) contextValidateProGearWeightTickets(ctx context.Context, formats strfmt.Registry) error {
 
 	for i := 0; i < len(m.ProGearWeightTickets); i++ {
@@ -879,6 +1047,48 @@ func (m *PPMShipment) contextValidateProGearWeightTickets(ctx context.Context, f
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SecondaryDestinationAddress != nil {
+
+		if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+			return nil
+		}
+
+		if err := m.SecondaryDestinationAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryDestinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryDestinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SecondaryPickupAddress != nil {
+
+		if swag.IsZero(m.SecondaryPickupAddress) { // not required
+			return nil
+		}
+
+		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("secondaryPickupAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

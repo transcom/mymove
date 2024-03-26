@@ -53,6 +53,7 @@ func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
 // CustomerToServiceMember transforms UpdateCustomerPayload to ServiceMember model
 func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.ServiceMember {
 	address := AddressModel(&payload.CurrentAddress.Address)
+	backupAddress := AddressModel(&payload.BackupAddress.Address)
 
 	var backupContacts []models.BackupContact
 	if payload.BackupContact != nil {
@@ -64,14 +65,18 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	}
 
 	return models.ServiceMember{
-		ResidentialAddress: address,
-		BackupContacts:     backupContacts,
-		FirstName:          &payload.FirstName,
-		LastName:           &payload.LastName,
-		Suffix:             payload.Suffix,
-		MiddleName:         payload.MiddleName,
-		PersonalEmail:      payload.Email,
-		Telephone:          payload.Phone,
+		ResidentialAddress:   address,
+		BackupContacts:       backupContacts,
+		FirstName:            &payload.FirstName,
+		LastName:             &payload.LastName,
+		Suffix:               payload.Suffix,
+		MiddleName:           payload.MiddleName,
+		PersonalEmail:        payload.Email,
+		Telephone:            payload.Phone,
+		SecondaryTelephone:   payload.SecondaryTelephone,
+		PhoneIsPreferred:     &payload.PhoneIsPreferred,
+		EmailIsPreferred:     &payload.EmailIsPreferred,
+		BackupMailingAddress: backupAddress,
 	}
 }
 

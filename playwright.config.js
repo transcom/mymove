@@ -1,5 +1,5 @@
 // @ts-check
-const { devices } = require('@playwright/test');
+const { devices, defineConfig } = require('@playwright/test');
 
 /**
  * Read environment variables from file.
@@ -16,6 +16,7 @@ const defaultWorkers = process.arch.startsWith('arm') ? 4 : 2;
  * @type {import('@playwright/test').PlaywrightTestConfig}
  */
 const config = {
+  globalSetup: './playwright/tests/globalSetup.js',
   testDir: './playwright/tests',
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
@@ -131,4 +132,4 @@ const config = {
   // },
 };
 
-module.exports = config;
+module.exports = defineConfig(config);

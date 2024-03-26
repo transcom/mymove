@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import styles from './QAECSRMoveSearch.module.scss';
 
-import { useQAECSRMoveSearchQueries } from 'hooks/queries';
+import { useMoveSearchQueries } from 'hooks/queries';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 
@@ -49,7 +49,7 @@ const QAECSRMoveSearch = () => {
             disableSortBy={false}
             title="Results"
             handleClick={handleClick}
-            useQueries={useQAECSRMoveSearchQueries}
+            useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
             customerName={search.customerName}

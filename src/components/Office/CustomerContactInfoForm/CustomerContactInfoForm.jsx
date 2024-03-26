@@ -28,7 +28,12 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     customerTelephone: Yup.string()
       .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
       .required('Required'), // min 12 includes hyphens
+    secondaryPhone: Yup.string().min(
+      12,
+      'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
+    ),
     customerAddress: requiredAddressSchema.required(),
+    backupAddress: requiredAddressSchema.required(),
     name: Yup.string().required('Required'),
     email: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
@@ -36,6 +41,8 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     telephone: Yup.string()
       .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
       .required('Required'), // min 12 includes hyphens
+    phoneIsPreferred: Yup.boolean(),
+    emailIsPreferred: Yup.boolean(),
   });
 
   return (
@@ -60,6 +67,8 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
               />
               <h3 className={styles.sectionHeader}>Current Address</h3>
               <AddressFields name="customerAddress" />
+              <h3 className={styles.sectionHeader}>Backup Address</h3>
+              <AddressFields name="backupAddress" />
             </SectionWrapper>
             <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
               <h2 className={styles.sectionHeader}>Backup contact</h2>

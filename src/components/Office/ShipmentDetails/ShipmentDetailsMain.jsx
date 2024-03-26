@@ -161,8 +161,8 @@ const ShipmentDetailsMain = ({
       plannedMoveDate = ppmShipment.expectedDepartureDate;
       actualMoveDate = ppmShipment.actualMoveDate;
       weightResult = ppmShipment.estimatedWeight;
-      displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      displayedPickupAddress = ppmShipment.pickupAddress;
+      displayedDeliveryAddress = ppmShipment.destinationAddress || destinationDutyLocationAddress;
       break;
     default:
       pickupRequestedDate = requestedPickupDate;
@@ -218,7 +218,7 @@ const ShipmentDetailsMain = ({
           plannedMoveDate={plannedMoveDate ? formatDateWithUTC(plannedMoveDate) : null}
           requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
           scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
-          actualDeliveryDate={actualMoveDate ? formatDateWithUTC(actualDeliveryDate) : null}
+          actualMoveDate={actualMoveDate ? formatDateWithUTC(actualMoveDate) : null}
           isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
         />
       )}

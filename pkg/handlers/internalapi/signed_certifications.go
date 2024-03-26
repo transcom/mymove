@@ -45,16 +45,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 			moveID, _ := uuid.FromString(params.MoveID.String())
 			payload := params.CreateSignedCertificationPayload
 
-			if payload.PersonallyProcuredMoveID != nil {
-				ppmID, err := uuid.FromString((*payload.PersonallyProcuredMoveID).String())
-				if err == nil {
-					_, err = models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-					if err != nil {
-						return handlers.ResponseForError(appCtx.Logger(), err), err
-					}
-				}
-			}
-
 			var ptrCertType *models.SignedCertificationType
 			if payload.CertificationType != nil {
 				certType := models.SignedCertificationType(*payload.CertificationType)

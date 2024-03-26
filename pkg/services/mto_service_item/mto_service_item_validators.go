@@ -87,7 +87,7 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that there aren't any pending payment requests for this service item
-	err = serviceItemData.checkPaymentRequests(appCtx)
+	err = serviceItemData.checkPaymentRequests(appCtx, serviceItemData)
 	if err != nil {
 		return err
 	}
@@ -394,11 +394,15 @@ func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(_ appcontext.
 
 // checkPaymentRequests looks for any existing payment requests connected to this service item and returns a
 // Conflict Error if any are found
-func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 	var paymentServiceItem models.PaymentServiceItem
+
+	// Check what fields are being updated to allow this update
+	allowUpdateBasedOnAllowableFieldChange := paymentRequestCheckAllowableFieldCheck(serviceItemData)
+
 	err := appCtx.DB().Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(&paymentServiceItem)
 
-	if err == nil && paymentServiceItem.ID != uuid.Nil {
+	if err == nil && paymentServiceItem.ID != uuid.Nil && !allowUpdateBasedOnAllowableFieldChange {
 		return apperror.NewConflictError(v.updatedServiceItem.ID,
 			"- this service item has an existing payment request and can no longer be updated.")
 	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
@@ -545,4 +549,32 @@ func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceIte
 		}
 	}
 	return newCustomerContacts
+}
+
+func paymentRequestCheckAllowableFieldCheck(serviceItemData *updateMTOServiceItemData) bool {
+
+	allowableFieldChange, disallowedFieldChange := false, false
+
+	// Fields allowed to change when service item has a payment request
+	if serviceItemData.updatedServiceItem.SITDepartureDate != nil ||
+		serviceItemData.updatedServiceItem.SITRequestedDelivery != nil ||
+		serviceItemData.updatedServiceItem.SITCustomerContacted != nil {
+		allowableFieldChange = true
+	}
+
+	// Fields not allowed to change when service item has a payment request
+	if serviceItemData.updatedServiceItem.ReService.Code.String() != "" &&
+		serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() ||
+		serviceItemData.updatedServiceItem.SITEntryDate != nil ||
+		serviceItemData.updatedServiceItem.Reason != nil ||
+		serviceItemData.updatedServiceItem.SITPostalCode != nil ||
+		serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+		disallowedFieldChange = true
+	}
+
+	if allowableFieldChange && !disallowedFieldChange {
+		return true
+	}
+
+	return false
 }

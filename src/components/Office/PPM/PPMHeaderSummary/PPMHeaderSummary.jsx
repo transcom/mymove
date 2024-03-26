@@ -1,56 +1,84 @@
-import React from 'react';
-import { number } from 'prop-types';
-import { Label } from '@trussworks/react-uswds';
+import { React } from 'react';
+import { number, bool } from 'prop-types';
 import classnames from 'classnames';
 
+import HeaderSection, { sectionTypes } from './HeaderSection';
 import styles from './PPMHeaderSummary.module.scss';
 
-import { PPMShipmentShape } from 'types/shipment';
-import { formatDate, formatCentsTruncateWhole } from 'utils/formatters';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { usePPMCloseoutQuery } from 'hooks/queries';
 
-export default function PPMHeaderSummary({ ppmShipment, ppmNumber }) {
-  const {
-    actualPickupPostalCode,
-    actualDestinationPostalCode,
-    actualMoveDate,
-    hasReceivedAdvance,
-    advanceAmountReceived,
-  } = ppmShipment || {};
+const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
+  const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+  const incentives = {
+    isAdvanceRequested: ppmShipmentInfo.hasRequestedAdvance,
+    isAdvanceReceived: ppmShipmentInfo.hasReceivedAdvance,
+    advanceAmountRequested: ppmShipmentInfo.advanceAmountRequested,
+    advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
+    grossIncentive: ppmCloseout.grossIncentive,
+    gcc: ppmCloseout.gcc,
+    remainingIncentive: ppmCloseout.remainingIncentive,
+  };
+  const incentiveFactors = {
+    haulPrice: ppmCloseout.haulPrice,
+    haulFSC: ppmCloseout.haulFSC,
+    fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
+    dop: ppmCloseout.dop,
+    ddp: ppmCloseout.ddp,
+  };
+
+  return (
+    <>
+      <HeaderSection
+        sectionInfo={{
+          type: sectionTypes.incentives,
+          ...incentives,
+        }}
+      />
+      <hr />
+      <HeaderSection sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }} />
+    </>
+  );
+};
+export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields }) {
+  const shipmentInfo = {
+    plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
+    actualMoveDate: ppmShipmentInfo.actualMoveDate,
+    actualPickupPostalCode: ppmShipmentInfo.actualPickupPostalCode,
+    actualDestinationPostalCode: ppmShipmentInfo.actualDestinationPostalCode,
+    miles: ppmShipmentInfo.miles,
+    estimatedWeight: ppmShipmentInfo.estimatedWeight,
+    actualWeight: ppmShipmentInfo.actualWeight,
+  };
 
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
         <h3>PPM {ppmNumber}</h3>
         <section>
-          <div>
-            <Label className={styles.headerLabel}>Departure date</Label>
-            <span className={styles.light}>{formatDate(actualMoveDate, null, 'DD-MMM-YYYY')}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Starting ZIP</Label>
-            <span className={styles.light}>{actualPickupPostalCode}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Ending ZIP</Label>
-            <span className={styles.light}>{actualDestinationPostalCode}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Advance received</Label>
-            <span className={styles.light}>
-              {hasReceivedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountReceived)}` : 'No'}
-            </span>
-          </div>
+          <HeaderSection
+            sectionInfo={{
+              type: sectionTypes.shipmentInfo,
+              ...shipmentInfo,
+            }}
+          />
         </section>
+        <hr />
+        {showAllFields && <GCCAndIncentiveInfo ppmShipmentInfo={ppmShipmentInfo} />}
       </div>
     </header>
   );
 }
 
 PPMHeaderSummary.propTypes = {
-  ppmShipment: PPMShipmentShape,
   ppmNumber: number.isRequired,
+  showAllFields: bool.isRequired,
 };
 
-PPMHeaderSummary.defaultProps = {
-  ppmShipment: undefined,
-};
+PPMHeaderSummary.defaultProps = {};
+
+// TODO: Add shape/propType/defaults for incentives and GCC components here.

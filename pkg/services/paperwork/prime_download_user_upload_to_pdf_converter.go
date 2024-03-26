@@ -40,7 +40,7 @@ type pdfBatchInfo struct {
 }
 
 // MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move) (afero.File, error) {
+func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool) (afero.File, error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
 
@@ -79,6 +79,10 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames)
 	if err != nil {
 		return nil, errors.Wrap(err, "error merging PDF files into one")
+	}
+
+	if !addBookmarks {
+		return mergedPdf, nil
 	}
 
 	// *** Build Bookmarks ****

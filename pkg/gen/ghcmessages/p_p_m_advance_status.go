@@ -16,7 +16,7 @@ import (
 
 // PPMAdvanceStatus PPM Advance Status
 //
-// Indicates whether an advance status has been accepted, rejected, or edited.
+// # Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received
 //
 // swagger:model PPMAdvanceStatus
 type PPMAdvanceStatus string
@@ -40,6 +40,12 @@ const (
 
 	// PPMAdvanceStatusEDITED captures enum value "EDITED"
 	PPMAdvanceStatusEDITED PPMAdvanceStatus = "EDITED"
+
+	// PPMAdvanceStatusRECEIVED captures enum value "RECEIVED"
+	PPMAdvanceStatusRECEIVED PPMAdvanceStatus = "RECEIVED"
+
+	// PPMAdvanceStatusNOTRECEIVED captures enum value "NOT_RECEIVED"
+	PPMAdvanceStatusNOTRECEIVED PPMAdvanceStatus = "NOT_RECEIVED"
 )
 
 // for schema
@@ -47,7 +53,7 @@ var pPMAdvanceStatusEnum []interface{}
 
 func init() {
 	var res []PPMAdvanceStatus
-	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","EDITED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","EDITED","RECEIVED","NOT_RECEIVED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

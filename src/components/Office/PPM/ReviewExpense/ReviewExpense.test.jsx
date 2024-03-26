@@ -13,16 +13,19 @@ beforeEach(() => {
 });
 
 const defaultProps = {
-  ppmShipment: {
+  ppmShipmentInfo: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+    expectedDepartureDate: '2022-12-02',
+    actualMoveDate: '2022-12-06',
     actualPickupPostalCode: '90210',
-    actualMoveDate: '2022-04-30',
     actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+    miles: 300,
+    estimatedWeight: 3000,
+    actualWeight: 3500,
   },
   tripNumber: 1,
   ppmNumber: 1,
+  showAllFields: false,
   categoryIndex: 1,
 };
 

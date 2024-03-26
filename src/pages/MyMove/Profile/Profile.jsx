@@ -50,7 +50,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   }, [state]);
 
   const handleCreateMoveClick = () => {
-    navigate(customerRoutes.MOVE_HOME_PAGE);
+    navigate(customerRoutes.ORDERS_ADD_PATH);
   };
 
   const handleValidateProfileClick = () => {
@@ -74,11 +74,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           <div className={styles.profileHeader}>
             <h1>Profile</h1>
           </div>
-          {showMessages && (
-            <Alert headingLevel="h4" type="info">
-              You can change these details later by talking to a move counselor or customer care representative.
-            </Alert>
-          )}
           {needsToVerifyProfile && (
             <Alert type="info" className={styles.verifyProfileAlert} data-testid="profileConfirmAlert">
               <strong>
@@ -101,6 +96,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
+          {showMessages && (
+            <Alert headingLevel="h4" type="info">
+              You can change these details later by talking to a move counselor or customer care representative.
+            </Alert>
+          )}
           <SectionWrapper className={formStyles.formSection}>
             <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}

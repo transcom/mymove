@@ -175,6 +175,21 @@ func (g *Generator) PdfConfiguration() *model.Configuration {
 	return g.pdfConfig
 }
 
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
+	file, err := g.fs.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
+	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
+}
+
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
 func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads) (afero.File, error) {
 	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads)
@@ -520,15 +535,29 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker) (
 		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
 	}
 	return outputFile, nil
-
 }
 
-// Get file information of a single PDF
-func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
-	file, err := g.fs.Open(fileName)
+// MergePDFFiles Merges a slice of paths to PDF files into a single PDF
+func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
+	var err error
+
+	// Create a merged file
+	mergedFile, err := g.newTempFile()
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
+	defer mergedFile.Close() // Close merged file after finishing
+
+	// Merge files
+	if err = g.pdfLib.Merge(fileReaders, mergedFile); err != nil {
+		return nil, err
+	}
+
+	// Reload the merged file
+	mergedFile, err = g.fs.Open(mergedFile.Name())
+	if err != nil {
+		return nil, err
+	}
+
+	return mergedFile, nil
 }

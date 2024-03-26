@@ -6,6 +6,7 @@ import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss
 
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
@@ -13,6 +14,7 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import affiliation from 'content/serviceMemberAgencies';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
+import { downloadPPMAOAPacket } from 'services/ghcApi';
 
 const PPMShipmentInfoList = ({
   className,
@@ -22,6 +24,7 @@ const PPMShipmentInfoList = ({
   showWhenCollapsed,
   isExpanded,
   isForEvaluationReport,
+  onErrorModalToggle,
 }) => {
   const {
     hasRequestedAdvance,
@@ -187,9 +190,12 @@ const PPMShipmentInfoList = ({
       <dt>AOA Packet</dt>
       <dd data-testid="aoaPacketDownload">
         <p className={styles.downloadLink}>
-          <a href="">
-            <span>Download AOA Paperwork (PDF)</span>
-          </a>
+          <AsyncPacketDownloadLink
+            id={shipment?.ppmShipment?.id}
+            label="Download AOA Paperwork (PDF)"
+            asyncRetrieval={downloadPPMAOAPacket}
+            onFailure={onErrorModalToggle}
+          />
         </p>
       </dd>
     </div>
@@ -277,6 +283,7 @@ PPMShipmentInfoList.propTypes = {
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   isExpanded: PropTypes.bool,
   isForEvaluationReport: PropTypes.bool,
+  onErrorModalToggle: PropTypes.func,
 };
 
 PPMShipmentInfoList.defaultProps = {
@@ -286,6 +293,7 @@ PPMShipmentInfoList.defaultProps = {
   showWhenCollapsed: [],
   isExpanded: false,
   isForEvaluationReport: false,
+  onErrorModalToggle: undefined,
 };
 
 export default PPMShipmentInfoList;

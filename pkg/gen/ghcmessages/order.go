@@ -109,6 +109,9 @@ type Order struct {
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 
+	// origin duty location g b l o c
+	OriginDutyLocationGBLOC GBLOC `json:"originDutyLocationGBLOC,omitempty"`
+
 	// packing and shipping instructions
 	PackingAndShippingInstructions string `json:"packingAndShippingInstructions,omitempty"`
 
@@ -200,6 +203,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginDutyLocation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginDutyLocationGBLOC(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -450,6 +457,23 @@ func (m *Order) validateOriginDutyLocation(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Order) validateOriginDutyLocationGBLOC(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginDutyLocationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.OriginDutyLocationGBLOC.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("originDutyLocationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originDutyLocationGBLOC")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *Order) validateReportByDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.ReportByDate) { // not required
 		return nil
@@ -531,6 +555,10 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginDutyLocationGBLOC(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -739,6 +767,24 @@ func (m *Order) contextValidateOriginDutyLocation(ctx context.Context, formats s
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateOriginDutyLocationGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OriginDutyLocationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.OriginDutyLocationGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("originDutyLocationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originDutyLocationGBLOC")
+		}
+		return err
 	}
 
 	return nil
