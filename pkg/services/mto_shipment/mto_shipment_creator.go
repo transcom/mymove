@@ -153,9 +153,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 		newDutyLocationAddress := move.Orders.NewDutyLocation.Address
 
-		county, err := models.FindCountyByZipCode(appCtx.DB(), newDutyLocationAddress.PostalCode)
-		if err != nil {
-			return nil, err
+		county, errCounty := models.FindCountyByZipCode(appCtx.DB(), newDutyLocationAddress.PostalCode)
+		if errCounty != nil {
+			return nil, errCounty
 		}
 
 		shipment.DestinationAddress = &models.Address{
@@ -164,7 +164,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			State:          newDutyLocationAddress.State,
 			PostalCode:     newDutyLocationAddress.PostalCode,
 			Country:        newDutyLocationAddress.Country,
-			County:			&county,
+			County:         &county,
 		}
 	}
 
@@ -176,9 +176,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-			county, err := models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
-			if err != nil {
-				return err
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
 			}
 			shipment.PickupAddress.County = &county
 
@@ -192,9 +192,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
 			}
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
-			county, err := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryPickupAddress.PostalCode)
-			if err != nil {
-				return err
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryPickupAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
 			}
 			shipment.SecondaryPickupAddress.County = &county
 		}
@@ -205,9 +205,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
-			county, err := models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return err
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
 			}
 			shipment.DestinationAddress.County = &county
 		}
@@ -218,9 +218,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
 			}
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
-			county, err := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryDeliveryAddress.PostalCode)
-			if err != nil {
-				return err
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryDeliveryAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
 			}
 			shipment.SecondaryDeliveryAddress.County = &county
 		}
@@ -231,9 +231,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
 			}
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
-			county, err := models.FindCountyByZipCode(appCtx.DB(), shipment.StorageFacility.Address.PostalCode)
-			if err != nil {
-				return err
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.StorageFacility.Address.PostalCode)
+			if errCounty != nil {
+				return errCounty
 			}
 			shipment.StorageFacility.Address.County = &county
 
