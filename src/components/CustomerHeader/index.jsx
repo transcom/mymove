@@ -31,7 +31,7 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
   const reportDateLabel = formatLabelReportByDate(orderType);
   // This logic to show different originGLBOC is based on queue table's backend logic
   const originGBLOC =
-    move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+    move?.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
     userRole === roleTypes.SERVICES_COUNSELOR ||
     !move.shipmentGBLOC
       ? order.originDutyLocationGBLOC
