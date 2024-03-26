@@ -43,7 +43,9 @@ export const calculateWeightTicketWeightDifference = (weightTicket) => {
 };
 
 export const getWeightTicketNetWeight = (weightTicket) => {
-  return weightTicket.adjustedNetWeight ?? calculateWeightTicketWeightDifference(weightTicket);
+  if (weightTicket.status !== 'REJECTED')
+    return weightTicket.adjustedNetWeight ?? calculateWeightTicketWeightDifference(weightTicket);
+  return 0;
 };
 export const getAllowableWeight = (weightTicket) => {
   return weightTicket.allowableWeight ?? getWeightTicketNetWeight(weightTicket);
