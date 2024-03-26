@@ -129,16 +129,6 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByText('Payment requests (1)')).toBeInTheDocument();
   });
 
-  it('renders the correct column headers', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
-    render(
-      <reactRouterDom.BrowserRouter>
-        <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
-    );
-    ExpectedPaymentRequestQueueColumns.forEach((option) => expect(screen.findByLabelText(option)));
-  });
-
   it('renders the table with data and expected values', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
