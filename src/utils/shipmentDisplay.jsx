@@ -172,7 +172,11 @@ export function getShipmentModificationType(shipment) {
 }
 
 export function isArmyOrAirForce(affiliation) {
-  return affiliation === affiliations.AIR_FORCE || affiliation === affiliations.ARMY;
+  return (
+    affiliation === affiliations.AIR_FORCE ||
+    affiliation === affiliations.ARMY ||
+    affiliation === affiliations.SPACE_FORCE
+  );
 }
 
 /**
