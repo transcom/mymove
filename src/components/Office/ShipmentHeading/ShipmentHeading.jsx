@@ -2,7 +2,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
 import { Button, Tag } from '@trussworks/react-uswds';
-import { connect } from 'react-redux';
 
 import { AddressShape } from '../../../types/address';
 
@@ -11,8 +10,6 @@ import styles from './shipmentHeading.module.scss';
 import { shipmentStatuses } from 'constants/shipments';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
-import { withContext } from 'shared/AppContext';
-import { roleTypes } from 'constants/userRoles';
 
 function formatDestinationAddress(address) {
   if (address.city) {
@@ -23,7 +20,7 @@ function formatDestinationAddress(address) {
   return `${address.postalCode}`;
 }
 
-function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, activeRole }) {
+function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
   const { shipmentStatus } = shipmentInfo;
   // cancelation modal is visible if shipment is not already canceled, AND if shipment cancellation hasn't already been requested
   const isCancelModalVisible = shipmentStatus !== shipmentStatuses.CANCELED || shipmentStatuses.CANCELLATION_REQUESTED;
@@ -46,11 +43,11 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, activeRole
         </small>
         {isCancelModalVisible && (
           <Restricted to={permissionTypes.createShipmentCancellation}>
-            {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+            <Restricted to={permissionTypes.updateMTOPage}>
               <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
                 Request Cancellation
               </Button>
-            )}
+            </Restricted>
           </Restricted>
         )}
         {isCancellationRequested && <Tag>Cancellation Requested</Tag>}
@@ -76,11 +73,4 @@ ShipmentHeading.propTypes = {
   handleShowCancellationModal: PropTypes.func.isRequired,
 };
 
-// Checks user role such that Service Counselors cannot modify service items while on MTO read-only page
-const mapStateToProps = (state) => {
-  return {
-    activeRole: state.auth.activeRole,
-  };
-};
-
-export default withContext(connect(mapStateToProps)(ShipmentHeading));
+export default ShipmentHeading;

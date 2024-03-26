@@ -3,23 +3,20 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
-import { connect } from 'react-redux';
 
 import styles from 'components/Office/WeightDisplay/WeightDisplay.module.scss';
 import { formatWeight } from 'utils/formatters';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
-import { withContext } from 'shared/AppContext';
-import { roleTypes } from 'constants/userRoles';
 
-const WeightDisplay = ({ heading, weightValue, onEdit, children, activeRole }) => {
+const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
   return (
     <div className={classnames('maxw-tablet', styles.WeightDisplay)}>
       <div className={styles.heading}>
         <div>{heading}</div>
         {onEdit && (
           <Restricted to={permissionTypes.updateBillableWeight}>
-            {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+            <Restricted to={permissionTypes.updateMTOPage}>
               <Button
                 unstyled
                 type="button"
@@ -29,7 +26,7 @@ const WeightDisplay = ({ heading, weightValue, onEdit, children, activeRole }) =
               >
                 <FontAwesomeIcon icon="pen" title="edit" alt="" />
               </Button>
-            )}
+            </Restricted>
           </Restricted>
         )}
       </div>
@@ -46,21 +43,12 @@ WeightDisplay.propTypes = {
   weightValue: PropTypes.number,
   children: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   onEdit: PropTypes.func,
-  activeRole: PropTypes.string,
 };
 
 WeightDisplay.defaultProps = {
   weightValue: null,
   children: null,
   onEdit: null,
-  activeRole: null,
 };
 
-// Checks user role such that Service Counselors cannot modify service items while on MTO read-only page
-const mapStateToProps = (state) => {
-  return {
-    activeRole: state.auth.activeRole,
-  };
-};
-
-export default withContext(connect(mapStateToProps)(WeightDisplay));
+export default WeightDisplay;

@@ -25,10 +25,9 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
               end
               className={({ isActive }) => (isActive ? 'usa-current' : '')}
               to={`/counseling/moves/${moveCode}/mto`}
-              data-testid="MoveDetails-Tab"
+              data-testid="MoveTaskOrder-Tab"
             >
               <span className="tab-title">Move Task Order</span>
-              {unapprovedShipmentCount > 0 && <Tag>{unapprovedShipmentCount}</Tag>}
             </NavLink>,
             <NavLink
               end

@@ -4,7 +4,6 @@ import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useParams } from 'react-router';
-import { connect } from 'react-redux';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
@@ -18,8 +17,6 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
 import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
-import { withContext } from 'shared/AppContext';
-import { roleTypes } from 'constants/userRoles';
 import ToolTip from 'shared/ToolTip/ToolTip';
 
 const ServiceItemsTable = ({
@@ -29,7 +26,6 @@ const ServiceItemsTable = ({
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
   handleShowEditSitEntryDateModal,
-  activeRole,
 }) => {
   const getServiceItemDisplayDate = (item) => {
     const prefix = selectDatePrefixByStatus(statusForTableType);
@@ -180,7 +176,7 @@ const ServiceItemsTable = ({
           <td>
             {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
               <Restricted to={permissionTypes.updateMTOServiceItem}>
-                {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+                <Restricted to={permissionTypes.updateMTOPage}>
                   <div className={styles.statusAction}>
                     <Button
                       type="button"
@@ -206,12 +202,12 @@ const ServiceItemsTable = ({
                       <span>Reject</span>
                     </Button>
                   </div>
-                )}
+                </Restricted>
               </Restricted>
             )}
             {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
               <Restricted to={permissionTypes.updateMTOServiceItem}>
-                {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+                <Restricted to={permissionTypes.updateMTOPage}>
                   <div className={styles.statusAction}>
                     <Button
                       type="button"
@@ -247,12 +243,12 @@ const ServiceItemsTable = ({
                       </div>
                     )}
                   </div>
-                )}
+                </Restricted>
               </Restricted>
             )}
             {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && (
               <Restricted to={permissionTypes.updateMTOServiceItem}>
-                {activeRole !== roleTypes.SERVICES_COUNSELOR && (
+                <Restricted to={permissionTypes.updateMTOPage}>
                   <div className={styles.statusAction}>
                     <Button
                       type="button"
@@ -266,7 +262,7 @@ const ServiceItemsTable = ({
                       Approve
                     </Button>
                   </div>
-                )}
+                </Restricted>
               </Restricted>
             )}
           </td>
@@ -298,11 +294,4 @@ ServiceItemsTable.propTypes = {
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 
-// Checks user role such that Service Counselors cannot modify service items while on MTO read-only page
-const mapStateToProps = (state) => {
-  return {
-    activeRole: state.auth.activeRole,
-  };
-};
-
-export default withContext(connect(mapStateToProps)(ServiceItemsTable));
+export default ServiceItemsTable;
