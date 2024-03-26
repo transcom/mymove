@@ -4160,6 +4160,9 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
+        x-nullable: true
   MoveHistory:
     properties:
       id:
