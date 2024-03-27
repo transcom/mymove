@@ -162,7 +162,7 @@ type CreateOrderHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handle ... updates an order as requested by a services counselor
+// Handle ... creates an order as requested by a services counselor
 func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
