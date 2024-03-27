@@ -202,7 +202,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), newDutyLocationID)
 			if err != nil {
-				err = apperror.NewBadDataError("Service member cannot be verified")
+				err = apperror.NewBadDataError("New duty location cannot be verified")
 				appCtx.Logger().Error(err.Error())
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
