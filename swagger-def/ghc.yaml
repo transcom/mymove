@@ -1,4 +1,4 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   contact:
     email: milmove-developers@caci.com
@@ -6,7 +6,7 @@ info:
     $ref: info/ghc_description.md
   license:
     name: MIT
-    url: "https://opensource.org/licenses/MIT"
+    url: 'https://opensource.org/licenses/MIT'
   title: MilMove GHC API
   version: 0.0.1
 basePath: /ghc/v1
@@ -15,7 +15,7 @@ schemes:
 tags:
   - name: queues
   - name: move
-  - $ref: "tags/order.yaml"
+  - $ref: 'tags/order.yaml'
   - name: moveTaskOrder
   - name: customer
   - name: mtoServiceItem
@@ -27,6 +27,77 @@ tags:
   - name: tac
   - name: transportationOffice
 paths:
+  /open/requested-office-users:
+      post:
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        summary: Create an Office User
+        description: >
+          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+
+          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+          An identification method must be present. The following 2 fields have an "OR" requirement.
+          - edipi
+          - other_unique_id
+          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+        operationId: createRequestedOfficeUser
+        tags:
+          - Office users
+        parameters:
+          - in: body
+            name: officeUser
+            description: Office User information
+            schema:
+              $ref: '#/definitions/OfficeUserCreate'
+        responses:
+          '201':
+            description: successfully requested the creation of provided office user
+            schema:
+              $ref: '#/definitions/OfficeUser'
+          '422':
+            description: validation error
+            schema:
+              $ref: '#/definitions/ValidationError'
+          '500':
+            description: internal server error
+  "/customer":
+    post:
+      summary: Creates a customer with Okta option
+      description: Creates a customer with option to create an Okta profile account
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/CreateCustomerPayload"
+      responses:
+        "200":
+          description: successfully created the customer
+          schema:
+            $ref: "#/definitions/CreatedCustomer"
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "401":
+          $ref: "#/responses/PermissionDenied"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "412":
+          $ref: "#/responses/PreconditionFailed"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
   "/customer/{customerID}":
     parameters:
       - description: ID of customer to use
@@ -40,20 +111,20 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved information on an individual customer
           schema:
-            $ref: "#/definitions/Customer"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Customer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - customer
       description: Returns a given customer
@@ -74,33 +145,33 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdateCustomerPayload"
+            $ref: '#/definitions/UpdateCustomerPayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated instance of orders
           schema:
-            $ref: "#/definitions/Customer"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Customer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.customer
-  "/move/{locator}":
+  '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -112,26 +183,26 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved the individual move
           schema:
-            $ref: "#/definitions/Move"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - move
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
-  "/move/{locator}/history":
+  '/move/{locator}/history':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -151,26 +222,26 @@ paths:
           type: integer
           description: results per page
       responses:
-        "200":
+        '200':
           description: Successfully retrieved the individual move history
           schema:
-            $ref: "#/definitions/MoveHistoryResult"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/MoveHistoryResult'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - move
       description: Returns the history for a given move for a unique alphanumeric locator string
       summary: Returns the history of an identified move
       operationId: getMoveHistory
-  "/moves/{moveID}/shipment-evaluation-reports-list":
+  '/moves/{moveID}/shipment-evaluation-reports-list':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -182,26 +253,26 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Successfully retrieved the move's evaluation reports
           schema:
-            $ref: "#/definitions/EvaluationReportList"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/EvaluationReportList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - move
       description: Returns shipment evaluation reports for the specified move that are visible to the current office user
       summary: Returns shipment evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveShipmentEvaluationReportsList
-  "/moves/{moveID}/counseling-evaluation-reports-list":
+  '/moves/{moveID}/counseling-evaluation-reports-list':
     parameters:
       - description: Code used to identify a move in the system
         in: path
@@ -213,26 +284,26 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Successfully retrieved the move's evaluation reports
           schema:
-            $ref: "#/definitions/EvaluationReportList"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/EvaluationReportList'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - move
       description: Returns counseling evaluation reports for the specified move that are visible to the current office user
       summary: Returns counseling evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
-  "/counseling/orders/{orderID}":
+  '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
         in: path
@@ -255,27 +326,27 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/CounselingUpdateOrderPayload"
+            $ref: '#/definitions/CounselingUpdateOrderPayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated instance of orders
           schema:
-            $ref: "#/definitions/Order"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/orders/{orderID}":
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/orders/{orderID}':
     parameters:
       - description: ID of order to use
         in: path
@@ -298,30 +369,30 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdateOrderPayload"
+            $ref: '#/definitions/UpdateOrderPayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated instance of orders
           schema:
-            $ref: "#/definitions/Order"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Order'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.orders
     get:
@@ -329,26 +400,26 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved order
           schema:
-            $ref: "#/definitions/Order"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Order'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - order
       description: Gets an order
       operationId: getOrder
       summary: Gets an order by ID
-  "/orders/{orderID}/allowances":
+  '/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
         in: path
@@ -371,29 +442,29 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdateAllowancePayload"
+            $ref: '#/definitions/UpdateAllowancePayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated instance of allowance
           schema:
-            $ref: "#/definitions/Order"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.allowances
-  "/orders/{orderID}/acknowledge-excess-weight-risk":
+  '/orders/{orderID}/acknowledge-excess-weight-risk':
     parameters:
       - description: ID of order to use
         in: path
@@ -417,23 +488,23 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated Move
           schema:
-            $ref: "#/definitions/Move"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.excessWeightRisk
-  "/orders/{orderID}/update-billable-weight":
+  '/orders/{orderID}/update-billable-weight':
     parameters:
       - description: ID of order to use
         in: path
@@ -456,29 +527,29 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdateBillableWeightPayload"
+            $ref: '#/definitions/UpdateBillableWeightPayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated Order
           schema:
-            $ref: "#/definitions/Order"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.billableWeight
-  "/orders/{orderID}/update-max-billable-weight/tio":
+  '/orders/{orderID}/update-max-billable-weight/tio':
     parameters:
       - description: ID of order to use
         in: path
@@ -501,26 +572,26 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdateMaxBillableWeightAsTIOPayload"
-        - $ref: "parameters/ifMatch.yaml"
+            $ref: '#/definitions/UpdateMaxBillableWeightAsTIOPayload'
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
-        "200":
+        '200':
           description: updated Order
           schema:
-            $ref: "#/definitions/Order"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.maxBillableWeight
-  "/counseling/orders/{orderID}/allowances":
+  '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
         in: path
@@ -543,27 +614,27 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/CounselingUpdateAllowancePayload"
+            $ref: '#/definitions/CounselingUpdateAllowancePayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated instance of allowance
           schema:
-            $ref: "#/definitions/Order"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/move-task-orders/{moveTaskOrderID}":
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move to use
         in: path
@@ -575,26 +646,26 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved move task order
           schema:
-            $ref: "#/definitions/MoveTaskOrder"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Gets a move
       operationId: getMoveTaskOrder
       summary: Gets a move by ID
-  "/move_task_orders/{moveTaskOrderID}/mto_service_items":
+  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
       - description: ID of move for mto service item to use
         in: path
@@ -607,22 +678,22 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: "definitions/MTOServiceItems.yaml"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOServiceItems.yaml'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Gets all line items for a move
       operationId: listMTOServiceItems
       summary: Gets all line items for a move
-  "/mto-shipments":
+  '/mto-shipments':
     post:
       summary: createMTOShipment
       description: |
@@ -649,21 +720,21 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "#/definitions/CreateMTOShipment"
+            $ref: '#/definitions/CreateMTOShipment'
       responses:
-        "200":
+        '200':
           description: Successfully created a MTO shipment.
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/move_task_orders/{moveTaskOrderID}/mto_shipments":
+            $ref: 'definitions/MTOShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
         in: path
@@ -676,24 +747,24 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved all mto shipments for a move task order
           schema:
-            $ref: "#/definitions/MTOShipments"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/MTOShipments'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - mtoShipment
       description: Gets all shipments for a move task order
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
-  "/shipments/{shipmentID}":
+  '/shipments/{shipmentID}':
     get:
       summary: fetches a shipment by ID
       description: fetches a shipment by ID
@@ -710,20 +781,20 @@ paths:
           format: uuid
           type: string
       responses:
-        "200":
+        '200':
           description: Successfully fetched the shipment
           schema:
-            $ref: "#/definitions/MTOShipment"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a shipment by ID
       description: Soft deletes a shipment by ID
@@ -740,21 +811,21 @@ paths:
           format: uuid
           type: string
       responses:
-        "204":
+        '204':
           description: Successfully soft deleted the shipment
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}":
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
     patch:
       summary: updateMTOShipment
       description: |
@@ -807,27 +878,27 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "#/definitions/UpdateShipment"
+            $ref: '#/definitions/UpdateShipment'
       responses:
-        "200":
+        '200':
           description: Successfully updated the specified MTO shipment.
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/shipments/{shipmentID}/approve":
+            $ref: 'definitions/MTOShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/shipments/{shipmentID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
@@ -846,22 +917,22 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully approved the shipment
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
       description: Approves a shipment
@@ -869,7 +940,7 @@ paths:
       summary: Approves a shipment
       x-permissions:
         - update.shipment
-  "/shipments/{shipmentID}/request-diversion":
+  '/shipments/{shipmentID}/request-diversion':
     parameters:
       - description: ID of the shipment
         in: path
@@ -888,22 +959,22 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully requested the shipment diversion
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
       description: Requests a shipment diversion
@@ -911,7 +982,7 @@ paths:
       summary: Requests a shipment diversion
       x-permissions:
         - create.shipmentDiversionRequest
-  "/shipments/{shipmentID}/approve-diversion":
+  '/shipments/{shipmentID}/approve-diversion':
     parameters:
       - description: ID of the shipment
         in: path
@@ -930,22 +1001,22 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully approved the shipment diversion
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.shipment
       tags:
@@ -953,7 +1024,7 @@ paths:
       description: Approves a shipment diversion
       operationId: approveShipmentDiversion
       summary: Approves a shipment diversion
-  "/shipments/{shipmentID}/reject":
+  '/shipments/{shipmentID}/reject':
     parameters:
       - description: ID of the shipment
         in: path
@@ -975,30 +1046,30 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/RejectShipment"
+            $ref: '#/definitions/RejectShipment'
       responses:
-        "200":
+        '200':
           description: Successfully rejected the shipment
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
       description: rejects a shipment
       operationId: rejectShipment
       summary: rejects a shipment
-  "/shipments/{shipmentID}/request-cancellation":
+  '/shipments/{shipmentID}/request-cancellation':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1017,22 +1088,22 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully requested the shipment cancellation
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
       description: Requests a shipment cancellation
@@ -1040,7 +1111,7 @@ paths:
       summary: Requests a shipment cancellation
       x-permissions:
         - create.shipmentCancellation
-  "/shipments/{shipmentID}/request-reweigh":
+  '/shipments/{shipmentID}/request-reweigh':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1054,22 +1125,22 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Successfully requested a reweigh of the shipment
           schema:
-            $ref: "definitions/Reweigh.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/Reweigh.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
         - reweigh
@@ -1078,7 +1149,7 @@ paths:
       summary: Requests a shipment reweigh
       x-permissions:
         - create.reweighRequest
-  "/shipments/{shipmentID}/review-shipment-address-update":
+  '/shipments/{shipmentID}/review-shipment-address-update':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1112,30 +1183,29 @@ paths:
               - officeRemarks
               - status
       responses:
-        "200":
+        '200':
           description: Successfully requested a shipment address update
           schema:
-            $ref: "definitions/ShipmentAddressUpdate.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/ShipmentAddressUpdate.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
-      description:
-        This endpoint is used to approve a address update request. Office remarks are required.
+      description: This endpoint is used to approve a address update request. Office remarks are required.
         Approving the address update will update the Destination Final Address of the associated service item
       operationId: reviewShipmentAddressUpdate
       summary: Allows TOO to review a shipment address update
-  "/shipments/{shipmentID}/sit-extensions":
+  '/shipments/{shipmentID}/sit-extensions':
     post:
       summary: Create an approved SIT Duration Update
       description: TOO can creates an already-approved SIT Duration Update on behalf of a customer
@@ -1157,7 +1227,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "#/definitions/CreateApprovedSITDurationUpdate"
+            $ref: '#/definitions/CreateApprovedSITDurationUpdate'
           required: true
         - in: header
           description: We want the shipment's eTag rather than the SIT Duration Update eTag as the SIT Duration Update is always associated with a shipment
@@ -1165,23 +1235,23 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully created a SIT Extension.
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - create.SITExtension
-  "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve":
+  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1205,29 +1275,29 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/ApproveSITExtension"
+            $ref: '#/definitions/ApproveSITExtension'
         - in: header
           description: We want the shipment's eTag rather than the SIT extension eTag as the SIT extension is always associated with a shipment
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully approved a SIT extension
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
         - sitExtension
@@ -1236,7 +1306,7 @@ paths:
       summary: Approves a SIT extension
       x-permissions:
         - update.SITExtension
-  "/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny":
+  '/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/deny':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1260,28 +1330,28 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/DenySITExtension"
+            $ref: '#/definitions/DenySITExtension'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully denied a SIT extension
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
         - sitExtension
@@ -1290,7 +1360,7 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense":
+  '/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1308,28 +1378,28 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdateSITServiceItemCustomerExpense"
+            $ref: '#/definitions/UpdateSITServiceItemCustomerExpense'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully converted to customer expense
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
         - mtoServiceItem
@@ -1359,22 +1429,22 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: All PPM documents and associated uploads for the specified PPM shipment.
           schema:
-            $ref: "definitions/PPMDocuments.yaml"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/PPMDocuments.yaml'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
-      - $ref: "parameters/ppmShipmentId.yaml"
-      - $ref: "parameters/weightTicketId.yaml"
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - $ref: 'parameters/weightTicketId.yaml'
     patch:
       summary: Updates a weight ticket document
       description: |
@@ -1388,35 +1458,35 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: "parameters/ifMatch.yaml"
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: updateWeightTicketPayload
           required: true
           schema:
-            $ref: "#/definitions/UpdateWeightTicket"
+            $ref: '#/definitions/UpdateWeightTicket'
       responses:
-        "200":
+        '200':
           description: returns an updated weight ticket object
           schema:
-            $ref: "definitions/WeightTicket.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/WeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
     parameters:
-      - $ref: "parameters/ppmShipmentId.yaml"
-      - $ref: "parameters/movingExpenseId.yaml"
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - $ref: 'parameters/movingExpenseId.yaml'
     patch:
       summary: Updates the moving expense
       description: |
@@ -1430,35 +1500,35 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: "parameters/ifMatch.yaml"
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: updateMovingExpense
           required: true
           schema:
-            $ref: "#/definitions/UpdateMovingExpense"
+            $ref: '#/definitions/UpdateMovingExpense'
       responses:
-        "200":
+        '200':
           description: returns an updated moving expense object
           schema:
-            $ref: "definitions/MovingExpense.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  ? /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}
-  : parameters:
-      - $ref: "parameters/ppmShipmentId.yaml"
-      - $ref: "parameters/proGearWeightTicketId.yaml"
+            $ref: 'definitions/MovingExpense.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - $ref: 'parameters/proGearWeightTicketId.yaml'
     patch:
       summary: Updates a pro-gear weight ticket
       description: |
@@ -1472,31 +1542,31 @@ paths:
       produces:
         - application/json
       parameters:
-        - $ref: "parameters/ifMatch.yaml"
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: updateProGearWeightTicket
           required: true
           schema:
-            $ref: "#/definitions/UpdateProGearWeightTicket"
+            $ref: '#/definitions/UpdateProGearWeightTicket'
       responses:
-        "200":
+        '200':
           description: returns an updated pro-gear weight ticket object
           schema:
-            $ref: "definitions/ProGearWeightTicket.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/ProGearWeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/aoa-packet:
     parameters:
       - description: the id for the ppmshipment with aoa to be downloaded
@@ -1518,7 +1588,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        "200":
+        '200':
           headers:
             Content-Disposition:
               type: string
@@ -1527,19 +1597,19 @@ paths:
           schema:
             format: binary
             type: file
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/finish-document-review:
     parameters:
-      - $ref: "parameters/ppmShipmentId.yaml"
+      - $ref: 'parameters/ppmShipmentId.yaml'
     patch:
       summary: Updates a PPM shipment's status after document review
       description: |
@@ -1557,31 +1627,31 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully finished document review
           schema:
-            $ref: "definitions/PPMShipment.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/PPMShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.shipment
   /ppm-shipments/{ppmShipmentId}/closeout:
     parameters:
-      - $ref: "parameters/ppmShipmentId.yaml"
+      - $ref: 'parameters/ppmShipmentId.yaml'
     get:
       summary: Get the closeout calcuations for the specified PPM shipment
       description: |
@@ -1592,10 +1662,37 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Returns closeout for the specified PPM shipment.
           schema:
-            $ref: "definitions/PPMCloseout.yaml"
+            $ref: 'definitions/PPMCloseout.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/actual-weight:
+    parameters:
+      - $ref: "parameters/ppmShipmentId.yaml"
+    get:
+      summary: Get the actual weight for a PPM shipment
+      description: |
+        Retrieves the actual weight for the specified PPM shipment.
+      operationId: getPPMActualWeight
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Returns actual weight for the specified PPM shipment.
+          schema:
+            $ref: "definitions/PPMActualWeight.yaml"
         "400":
           $ref: "#/responses/InvalidRequest"
         "403":
@@ -1661,22 +1758,22 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved all agents for a move task order
           schema:
-            $ref: "definitions/MTOAgents.yaml"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOAgents.yaml'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - mtoAgent
       description: Fetches a list of agents associated with a move task order.
       operationId: fetchMTOAgentList
       summary: Fetch move task order agents.
-  "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}":
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move to use
         in: path
@@ -1693,26 +1790,26 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved a line item for a move task order by ID
           schema:
-            $ref: "definitions/MTOServiceItemSingle.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOServiceItemSingle.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Gets a line item by ID for a move by ID
       operationId: getMTOServiceItem
       summary: Gets a line item by ID for a move by ID
-  "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status":
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
     parameters:
       - description: ID of move to use
         in: path
@@ -1734,32 +1831,32 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/PatchMTOServiceItemStatusPayload"
+            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: >-
             Successfully updated status for a line item for a move task order by
             ID
           schema:
-            $ref: "definitions/MTOServiceItem.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOServiceItem.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Changes the status of a line item for a move by ID
@@ -1767,7 +1864,7 @@ paths:
       summary: Change the status of a line item for a move by ID
       x-permissions:
         - update.MTOServiceItem
-  "/service-item/{mtoServiceItemID}/entry-date-update":
+  '/service-item/{mtoServiceItemID}/entry-date-update':
     parameters:
       - description: ID of the service item
         in: path
@@ -1784,32 +1881,32 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "definitions/ServiceItemSitEntryDate.yaml"
+            $ref: 'definitions/ServiceItemSitEntryDate.yaml'
       responses:
-        "200":
+        '200':
           description: Successfully updated SIT entry date
           schema:
-            $ref: "definitions/MTOServiceItemSingle.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/MTOServiceItemSingle.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Locates the service item in the database and updates the SIT entry date for the selected service item and returns the service item
       operationId: updateServiceItemSitEntryDate
       summary: Updates a service item's SIT entry date by ID
-  "/move-task-orders/{moveTaskOrderID}/status":
+  '/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
         - application/json
@@ -1828,29 +1925,29 @@ paths:
         - in: body
           name: serviceItemCodes
           schema:
-            $ref: "#/definitions/MTOApprovalServiceItemCodes"
+            $ref: '#/definitions/MTOApprovalServiceItemCodes'
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully updated move task order status
           schema:
-            $ref: "#/definitions/Move"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Changes move task order status to make it available to prime
@@ -1859,7 +1956,7 @@ paths:
       x-permissions:
         - update.move
         - create.serviceItem
-  "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed":
+  '/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed':
     patch:
       consumes:
         - application/json
@@ -1876,33 +1973,33 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully updated move task order status
           schema:
-            $ref: "#/definitions/Move"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Changes move (move task order) status to service counseling completed
       operationId: updateMTOStatusServiceCounselingCompleted
       summary: Changes move (move task order) status to service counseling completed
-  ? "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status"
-  : parameters:
+  '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
+    parameters:
       - description: ID of move to use
         in: path
         name: moveTaskOrderID
@@ -1923,32 +2020,32 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/PaymentServiceItem"
+            $ref: '#/definitions/PaymentServiceItem'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: >-
             Successfully updated status for a line item for a move task order by
             ID
           schema:
-            $ref: "#/definitions/PaymentServiceItem"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/PaymentServiceItem'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - paymentServiceItem
       description: Changes the status of a line item for a move by ID
@@ -1956,7 +2053,7 @@ paths:
       summary: Change the status of a payment service item for a move by ID
       x-permissions:
         - update.paymentServiceItemStatus
-  "/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at":
+  '/move-task-orders/{moveTaskOrderID}/billable-weights-reviewed-at':
     patch:
       consumes:
         - application/json
@@ -1973,31 +2070,31 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully updated move task order billableWeightsReviewedAt field
           schema:
-            $ref: "#/definitions/Move"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
       operationId: updateMTOReviewedBillableWeightsAt
-  "/move-task-orders/{moveTaskOrderID}/tio-remarks":
+  '/move-task-orders/{moveTaskOrderID}/tio-remarks':
     patch:
       consumes:
         - application/json
@@ -2017,33 +2114,33 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/Move"
+            $ref: '#/definitions/Move'
       responses:
-        "200":
+        '200':
           description: Successfully updated move task order tioRemarks field
           schema:
-            $ref: "#/definitions/Move"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Changes move (move task order) billableWeightsReviewedAt field to a timestamp
       operationId: updateMoveTIORemarks
-  "/move-task-orders/{moveTaskOrderID}/entitlements":
+  '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move to use
         in: path
@@ -2057,24 +2154,24 @@ paths:
       tags:
         - moveTaskOrder
       responses:
-        "200":
+        '200':
           description: Successfully retrieved entitlements
           schema:
-            $ref: "#/definitions/Entitlements"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Entitlements'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move by ID
-  "/payment-requests/{paymentRequestID}":
+  '/payment-requests/{paymentRequestID}':
     parameters:
       - description: UUID of payment request
         format: uuid
@@ -2087,20 +2184,20 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: fetched instance of payment request
           schema:
-            $ref: "#/definitions/PaymentRequest"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Fetches an instance of a payment request by id
@@ -2108,7 +2205,7 @@ paths:
       summary: Fetches a payment request by id
       x-permissions:
         - read.paymentRequest
-  "/moves/{locator}/closeout-office":
+  '/moves/{locator}/closeout-office':
     parameters:
       - description: move code to identify a move to update the PPM shipment's closeout office for Army and Air Force service members
         format: string
@@ -2143,25 +2240,25 @@ paths:
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: Successfully set the closeout office for the move
           schema:
-            $ref: "#/definitions/Move"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/moves/{locator}/customer-support-remarks":
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/moves/{locator}/customer-support-remarks':
     parameters:
       - description: move code to identify a move for customer support remarks
         format: string
@@ -2178,20 +2275,20 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "#/definitions/CreateCustomerSupportRemark"
+            $ref: '#/definitions/CreateCustomerSupportRemark'
       responses:
-        "200":
+        '200':
           description: Successfully created customer support remark
           schema:
-            $ref: "definitions/CustomerSupportRemark.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/CustomerSupportRemark.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - customerSupportRemarks
       description: Creates a customer support remark for a move
@@ -2202,24 +2299,24 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: "definitions/CustomerSupportRemarks.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/CustomerSupportRemarks.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - customerSupportRemarks
       description: Fetches customer support remarks for a move
       operationId: getCustomerSupportRemarksForMove
       summary: Fetches customer support remarks using the move code (locator).
-  "/customer-support-remarks/{customerSupportRemarkID}":
+  '/customer-support-remarks/{customerSupportRemarkID}':
     parameters:
       - in: path
         description: the customer support remark ID to be modified
@@ -2242,22 +2339,22 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdateCustomerSupportRemarkPayload"
+            $ref: '#/definitions/UpdateCustomerSupportRemarkPayload'
       responses:
-        "200":
+        '200':
           description: Successfully updated customer support remark
           schema:
-            $ref: "definitions/CustomerSupportRemark.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/CustomerSupportRemark.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Soft deletes a customer support remark by ID
       description: Soft deletes a customer support remark by ID
@@ -2267,21 +2364,21 @@ paths:
       produces:
         - application/json
       responses:
-        "204":
+        '204':
           description: Successfully soft deleted the shipment
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/moves/{locator}/evaluation-reports":
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/moves/{locator}/evaluation-reports':
     parameters:
       - in: path
         name: locator
@@ -2296,20 +2393,20 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "#/definitions/CreateEvaluationReport"
+            $ref: '#/definitions/CreateEvaluationReport'
       responses:
-        "200":
+        '200':
           description: Successfully created evaluation report
           schema:
-            $ref: "#/definitions/EvaluationReport"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - create.evaluationReport
       tags:
@@ -2317,7 +2414,7 @@ paths:
       description: Creates an evaluation report
       operationId: createEvaluationReport
       summary: Creates an evaluation report
-  "/evaluation-reports/{reportID}/download":
+  '/evaluation-reports/{reportID}/download':
     parameters:
       - in: path
         description: the evaluation report ID to be downloaded
@@ -2334,7 +2431,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        "200":
+        '200':
           headers:
             Content-Disposition:
               type: string
@@ -2343,13 +2440,13 @@ paths:
           schema:
             format: binary
             type: file
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/evaluation-reports/{reportID}":
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/evaluation-reports/{reportID}':
     parameters:
       - in: path
         description: the evaluation report ID to be modified
@@ -2366,18 +2463,18 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Successfully got the report
           schema:
-            $ref: "#/definitions/EvaluationReport"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/EvaluationReport'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
     delete:
       summary: Deletes an evaluation report by ID
       description: Deletes an evaluation report by ID
@@ -2389,20 +2486,20 @@ paths:
       produces:
         - application/json
       responses:
-        "204":
+        '204':
           description: Successfully deleted the report
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
     put:
       summary: Saves an evaluation report as a draft
       description: Saves an evaluation report as a draft
@@ -2419,7 +2516,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "#/definitions/EvaluationReport"
+            $ref: '#/definitions/EvaluationReport'
         - in: header
           name: If-Match
           type: string
@@ -2428,23 +2525,23 @@ paths:
             Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
-        "204":
+        '204':
           description: Successfully saved the report
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/evaluation-reports/{reportID}/submit":
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/evaluation-reports/{reportID}/submit':
     parameters:
       - in: path
         description: the evaluation report ID to be modified
@@ -2469,21 +2566,21 @@ paths:
             Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
-        "204":
+        '204':
           description: Successfully submitted an evaluation report with the provided ID
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.evaluationReport
-  "/pws-violations":
+  '/pws-violations':
     get:
       summary: Fetch the possible PWS violations for an evaluation report
       description: Fetch the possible PWS violations for an evaluation report
@@ -2493,19 +2590,19 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Successfully retrieved the PWS violations
           schema:
-            $ref: "#/definitions/PWSViolations"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/report-violations/{reportID}":
+            $ref: '#/definitions/PWSViolations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/report-violations/{reportID}':
     parameters:
       - in: path
         description: the evaluation report ID that has associated violations
@@ -2522,18 +2619,18 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Successfully retrieved the report violations
           schema:
-            $ref: "#/definitions/ReportViolations"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/ReportViolations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
     post:
       summary: Associate violations with an evaluation report
       description: >-
@@ -2552,25 +2649,25 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "#/definitions/AssociateReportViolations"
+            $ref: '#/definitions/AssociateReportViolations'
       responses:
-        "204":
+        '204':
           description: Successfully saved the report violations
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - create.reportViolation
-  "/moves/{locator}/payment-requests":
+  '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
         format: string
@@ -2583,18 +2680,18 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: "#/definitions/PaymentRequests"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/PaymentRequests'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Fetches payment requests for a move
@@ -2602,7 +2699,7 @@ paths:
       summary: Fetches payment requests using the move code (locator).
       x-permissions:
         - read.paymentRequest
-  "/moves/{moveID}/financial-review-flag":
+  '/moves/{moveID}/financial-review-flag':
     parameters:
       - description: ID of move to flag
         in: path
@@ -2640,23 +2737,23 @@ paths:
                 example: false
                 type: boolean
       responses:
-        "200":
+        '200':
           description: updated Move
           schema:
-            $ref: "#/definitions/Move"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.financialReviewFlag
-  "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance":
+  '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
     parameters:
       - description: payment request ID of the payment request with SIT service items being reviewed
         name: paymentRequestID
@@ -2669,18 +2766,18 @@ paths:
         - application/json
       parameters: []
       responses:
-        "200":
+        '200':
           description: Successfully retrieved shipments and their SIT days balance from all payment requests on the move
           schema:
-            $ref: "#/definitions/ShipmentsPaymentSITBalance"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/ShipmentsPaymentSITBalance'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Returns all shipment payment request SIT usage to support partial SIT invoicing
@@ -2688,7 +2785,7 @@ paths:
       summary: Returns all shipment payment request SIT usage to support partial SIT invoicing
       x-permissions:
         - read.shipmentsPaymentSITBalance
-  "/payment-requests/{paymentRequestID}/status":
+  '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
         - application/json
@@ -2705,30 +2802,30 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/UpdatePaymentRequestStatusPayload"
+            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
-        "200":
+        '200':
           description: updated payment request
           schema:
-            $ref: "#/definitions/PaymentRequest"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Updates status of a payment request by id
@@ -2751,24 +2848,24 @@ paths:
           required: true
           description: UUID of the document to return
       responses:
-        "200":
+        '200':
           description: the requested document
           schema:
-            $ref: "definitions/Document.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/Document.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/counseling:
     get:
       produces:
@@ -2885,14 +2982,14 @@ paths:
           type: string
           description: order type
       responses:
-        "200":
+        '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/QueueMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/prime-moves:
     get:
       summary: getPrimeMovesQueue
@@ -2934,14 +3031,14 @@ paths:
           type: string
           description: order type
       responses:
-        "200":
+        '200':
           description: Successfully retrieved moves. A successful fetch might still return zero moves.
           schema:
-            $ref: "#/definitions/ListPrimeMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/ListPrimeMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/moves:
     get:
       produces:
@@ -3024,14 +3121,14 @@ paths:
           type: string
           description: order type
       responses:
-        "200":
+        '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/QueueMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
       x-permissions:
         - update.move
         - create.serviceItem
@@ -3049,17 +3146,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum:
-            [
-              lastName,
-              locator,
-              submittedAt,
-              branch,
-              status,
-              dodID,
-              age,
-              originDutyLocation,
-            ]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3116,14 +3203,14 @@ paths:
           type: string
           description: order type
       responses:
-        "200":
+        '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/QueuePaymentRequestsResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/QueuePaymentRequestsResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/search:
     post:
       produces:
@@ -3216,15 +3303,15 @@ paths:
                 enum: [asc, desc]
           description: field that results should be sorted by
       responses:
-        "200":
+        '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/SearchMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/tac/valid":
+            $ref: '#/definitions/SearchMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/tac/valid':
     get:
       summary: Validation of a TAC value
       description: Returns a boolean based on whether a tac value is valid or not
@@ -3239,20 +3326,20 @@ paths:
           required: true
           description: The tac value to validate
       responses:
-        "200":
+        '200':
           description: Successfully retrieved validation status
           schema:
-            $ref: "#/definitions/TacValid"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/TacValid'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /transportation-offices:
     get:
       produces:
@@ -3270,20 +3357,20 @@ paths:
           minLength: 2
           description: Search string for transportation offices
       responses:
-        "200":
+        '200':
           description: Successfully retrieved transportation offices
           schema:
-            $ref: "#/definitions/TransportationOffices"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -3301,7 +3388,7 @@ definitions:
       - instance
   ValidationError:
     allOf:
-      - $ref: "#/definitions/ClientError"
+      - $ref: '#/definitions/ClientError'
       - type: object
     properties:
       invalid_fields:
@@ -3318,7 +3405,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: backupContact@mail.com
       phone:
         type: string
         format: telephone
@@ -3338,6 +3425,169 @@ definitions:
         type: string
       type:
         type: string
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      roleName:
+        type: string
+        example: Transportation Ordering Officer
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - roleType
+      - roleName
+      - createdAt
+      - updatedAt
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+      middleInitials:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      transportationOfficeId:
+        type: string
+        format: uuid
+      active:
+        type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - firstName
+      - middleInitials
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - active
+      - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
+      - createdAt
+      - updatedAt
+  OfficeUserCreate:
+    type: object
+    properties:
+      email:
+        type: string
+        example: 'user@userdomain.com'
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        example: '1234567890'
+        maxLength: 10
+        title: EDIPI
+        x-nullable: true
+      otherUniqueId:
+        type: string
+        title: Office user identifier when EDIPI is not available
+        x-nullable: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: false
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+        x-nullable: false
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+        x-nullable: false
+    required:
+      - firstName
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - roles
+  OfficeUserRole:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Transportation Ordering Officer'
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: 'transportation_ordering_officer'
+        x-nullable: true
+        title: roleType
   Customer:
     type: object
     properties:
@@ -3369,9 +3619,9 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
       backup_contact:
-        $ref: "#/definitions/BackupContact"
+        $ref: '#/definitions/BackupContact'
       id:
         type: string
         format: uuid
@@ -3383,6 +3633,65 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
+        type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backupAddress:
+        $ref: "definitions/Address.yaml"
+  CreatedCustomer:
+    type: object
+    properties:
+      affiliation:
+        type: string
+        title: Branch of service customer is affilated with
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      residentialAddress:
+        $ref: "definitions/Address.yaml"
+      backupContact:
+        $ref: "#/definitions/BackupContact"
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      edipi:
+        type: string
+        x-nullable: true
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      oktaID:
+        type: string
+      oktaEmail:
         type: string
       phoneIsPreferred:
         type: boolean
@@ -3424,9 +3733,9 @@ definitions:
         x-nullable: true
       current_address:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       backup_contact:
-        $ref: "#/definitions/BackupContact"
+        $ref: '#/definitions/BackupContact'
       phoneIsPreferred:
         type: boolean
       emailIsPreferred:
@@ -3439,6 +3748,58 @@ definitions:
       backupAddress:
         allOf:
           - $ref: "definitions/Address.yaml"
+  CreateCustomerPayload:
+    type: object
+    properties:
+      affiliation:
+        $ref: "definitions/Affiliation.yaml"
+      edipi:
+        type: string
+        example: John
+        x-nullable: true
+      firstName:
+        type: string
+        example: John
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      residentialAddress:
+        allOf:
+          - $ref: "definitions/Address.yaml"
+      backupContact:
+        $ref: "#/definitions/BackupContact"
+      backupMailingAddress:
+        allOf:
+          - $ref: "definitions/Address.yaml"
+      createOktaAccount:
+        type: boolean
   Entitlements:
     properties:
       id:
@@ -3585,22 +3946,22 @@ definitions:
         format: uuid
         x-nullable: true
       contractor:
-        $ref: "#/definitions/Contractor"
+        $ref: '#/definitions/Contractor'
       locator:
         type: string
-        example: "1K43AR"
+        example: '1K43AR'
       ordersId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       orders:
-        $ref: "#/definitions/Order"
+        $ref: '#/definitions/Order'
       referenceId:
         example: 1001-3456
         type: string
         x-nullable: true
       status:
-        $ref: "#/definitions/MoveStatus"
+        $ref: '#/definitions/MoveStatus'
       excess_weight_qualified_at:
         type: string
         format: date-time
@@ -3627,7 +3988,7 @@ definitions:
         x-nullable: true
         readOnly: true
       closeoutOffice:
-        $ref: "definitions/TransportationOffice.yaml"
+        $ref: 'definitions/TransportationOffice.yaml'
       closeoutOfficeId:
         type: string
         format: uuid
@@ -3650,6 +4011,9 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -3659,11 +4023,11 @@ definitions:
         type: string
       historyRecords:
         description: A list of MoveAuditHistory's connected to the move.
-        $ref: "#/definitions/MoveAuditHistories"
+        $ref: '#/definitions/MoveAuditHistories'
       locator:
         description: move locator
         type: string
-        example: "1K43AR"
+        example: '1K43AR'
       referenceId:
         description: move referenceID
         example: 1001-3456
@@ -3685,11 +4049,11 @@ definitions:
         type: string
       historyRecords:
         description: A list of MoveAuditHistory's connected to the move.
-        $ref: "#/definitions/MoveAuditHistories"
+        $ref: '#/definitions/MoveAuditHistories'
       locator:
         description: move locator
         type: string
-        example: "1K43AR"
+        example: '1K43AR'
       referenceId:
         description: move referenceID
         example: 1001-3456
@@ -3698,7 +4062,7 @@ definitions:
   MoveAuditHistories:
     type: array
     items:
-      $ref: "#/definitions/MoveAuditHistory"
+      $ref: '#/definitions/MoveAuditHistory'
   MoveAuditHistory:
     properties:
       id:
@@ -3795,7 +4159,7 @@ definitions:
   MoveAuditHistoryItems:
     type: array
     items:
-      $ref: "#/definitions/MoveAuditHistoryItem"
+      $ref: '#/definitions/MoveAuditHistoryItem'
   MoveAuditHistoryItem:
     properties:
       columnName:
@@ -3861,10 +4225,10 @@ definitions:
         format: uuid
         type: string
       customer:
-        $ref: "#/definitions/Customer"
+        $ref: '#/definitions/Customer'
       moveCode:
         type: string
-        example: "H2XFJF"
+        example: 'H2XFJF'
       first_name:
         type: string
         example: John
@@ -3874,17 +4238,17 @@ definitions:
         example: Doe
         readOnly: true
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
       agency:
-        $ref: "definitions/Affiliation.yaml"
+        $ref: 'definitions/Affiliation.yaml'
       entitlement:
-        $ref: "#/definitions/Entitlements"
+        $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
-        $ref: "definitions/DutyLocation.yaml"
+        $ref: 'definitions/DutyLocation.yaml'
       originDutyLocation:
-        $ref: "definitions/DutyLocation.yaml"
+        $ref: 'definitions/DutyLocation.yaml'
       originDutyLocationGBLOC:
-        $ref: "#/definitions/GBLOC"
+        $ref: '#/definitions/GBLOC'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3905,42 +4269,42 @@ definitions:
       order_number:
         type: string
         x-nullable: true
-        example: "030-00362"
+        example: '030-00362'
       order_type:
-        $ref: "definitions/OrdersType.yaml"
+        $ref: 'definitions/OrdersType.yaml'
       order_type_detail:
-        $ref: "#/definitions/OrdersTypeDetail"
+        $ref: '#/definitions/OrdersTypeDetail'
         x-nullable: true
       date_issued:
         type: string
         format: date
-        example: "2020-01-01"
+        example: '2020-01-01'
       report_by_date:
         type: string
         format: date
-        example: "2020-01-01"
+        example: '2020-01-01'
       department_indicator:
-        $ref: "#/definitions/DeptIndicator"
+        $ref: '#/definitions/DeptIndicator'
         x-nullable: true
       tac:
         type: string
         title: TAC
-        example: "F8J1"
+        example: 'F8J1'
         x-nullable: true
       sac:
         type: string
         title: SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         x-nullable: true
       ntsTac:
         type: string
         title: NTS TAC
-        example: "F8J1"
+        example: 'F8J1'
         x-nullable: true
       ntsSac:
         type: string
         title: NTS SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         x-nullable: true
       has_dependents:
         type: boolean
@@ -3968,25 +4332,25 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         title: Report-by date
       ordersType:
-        $ref: "definitions/OrdersType.yaml"
+        $ref: 'definitions/OrdersType.yaml'
       ordersTypeDetail:
-        $ref: "#/definitions/OrdersTypeDetail"
+        $ref: '#/definitions/OrdersTypeDetail'
       ordersNumber:
         type: string
         title: Orders Number
         x-nullable: true
-        example: "030-00362"
+        example: '030-00362'
       departmentIndicator:
-        $ref: "#/definitions/DeptIndicator"
+        $ref: '#/definitions/DeptIndicator'
         x-nullable: true
       originDutyLocationId:
         type: string
@@ -4001,24 +4365,24 @@ definitions:
         title: HHG TAC
         minLength: 4
         maxLength: 4
-        example: "F8J1"
+        example: 'F8J1'
         x-nullable: true
       sac:
         title: HHG SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       ntsTac:
         title: NTS TAC
         minLength: 4
         maxLength: 4
-        example: "F8J1"
+        example: 'F8J1'
         $ref: definitions/NullableString.yaml
       ntsSac:
         title: NTS SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -4032,18 +4396,18 @@ definitions:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         title: Orders date
       reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: "2018-04-26"
+        example: '2018-04-26'
         title: Report-by date
       ordersType:
-        $ref: "definitions/OrdersType.yaml"
+        $ref: 'definitions/OrdersType.yaml'
       ordersTypeDetail:
-        $ref: "#/definitions/OrdersTypeDetail"
+        $ref: '#/definitions/OrdersTypeDetail'
       originDutyLocationId:
         type: string
         format: uuid
@@ -4056,37 +4420,37 @@ definitions:
         type: string
         title: Orders Number
         x-nullable: true
-        example: "030-00362"
+        example: '030-00362'
       tac:
         type: string
         title: HHG TAC
         minLength: 4
         maxLength: 4
-        example: "F8J1"
+        example: 'F8J1'
         x-nullable: true
       sac:
         title: HHG SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       ntsTac:
         title: NTS TAC
         minLength: 4
         maxLength: 4
-        example: "F8J1"
+        example: 'F8J1'
         $ref: definitions/NullableString.yaml
       ntsSac:
         title: NTS SAC
-        example: "N002214CSW32Y9"
+        example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       departmentIndicator:
-        $ref: "#/definitions/DeptIndicator"
+        $ref: '#/definitions/DeptIndicator'
         x-nullable: true
       ordersAcknowledgement:
         description: Confirmation that the new amended orders were reviewed after previously approving the original orders
         type: boolean
         x-nullable: true
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -4097,12 +4461,12 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
       dependentsAuthorized:
         type: boolean
         x-nullable: true
       agency:
-        $ref: "definitions/Affiliation.yaml"
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         description: unit is in lbs
         example: 2000
@@ -4166,12 +4530,12 @@ definitions:
     type: object
     properties:
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
       dependentsAuthorized:
         type: boolean
         x-nullable: true
       agency:
-        $ref: "definitions/Affiliation.yaml"
+        $ref: 'definitions/Affiliation.yaml'
       proGearWeight:
         minimum: 0
         maximum: 2000
@@ -4218,7 +4582,7 @@ definitions:
         type: string
       locator:
         type: string
-        example: "1K43AR"
+        example: '1K43AR'
       referenceId:
         example: 1001-3456
         type: string
@@ -4234,9 +4598,9 @@ definitions:
         format: date-time
         type: string
       destinationAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
       pickupAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
       destinationDutyLocation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -4246,7 +4610,7 @@ definitions:
         format: uuid
         type: string
       entitlements:
-        $ref: "#/definitions/Entitlements"
+        $ref: '#/definitions/Entitlements'
       requestedPickupDate:
         format: date
         type: string
@@ -4259,12 +4623,12 @@ definitions:
     type: object
   MoveTaskOrders:
     items:
-      $ref: "#/definitions/MoveTaskOrder"
+      $ref: '#/definitions/MoveTaskOrder'
     type: array
   PaymentRequest:
     properties:
       proofOfServiceDocs:
-        $ref: "#/definitions/ProofOfServiceDocs"
+        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -4274,7 +4638,7 @@ definitions:
         default: false
         type: boolean
       moveTaskOrder:
-        $ref: "#/definitions/Move"
+        $ref: '#/definitions/Move'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -4284,9 +4648,9 @@ definitions:
         type: string
         x-nullable: true
       serviceItems:
-        $ref: "#/definitions/PaymentServiceItems"
+        $ref: '#/definitions/PaymentServiceItems'
       status:
-        $ref: "#/definitions/PaymentRequestStatus"
+        $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
         example: 1234-5678-1
         readOnly: true
@@ -4309,11 +4673,11 @@ definitions:
     type: object
   PaymentRequests:
     items:
-      $ref: "#/definitions/PaymentRequest"
+      $ref: '#/definitions/PaymentRequest'
     type: array
   PaymentServiceItems:
     items:
-      $ref: "#/definitions/PaymentServiceItem"
+      $ref: '#/definitions/PaymentServiceItem'
     type: array
   PaymentServiceItem:
     properties:
@@ -4340,14 +4704,14 @@ definitions:
         example: Move management
         type: string
       mtoShipmentType:
-        $ref: "definitions/MTOShipmentType.yaml"
+        $ref: 'definitions/MTOShipmentType.yaml'
       mtoShipmentID:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
       status:
-        $ref: "definitions/PaymentServiceItemStatus.yaml"
+        $ref: 'definitions/PaymentServiceItemStatus.yaml'
       priceCents:
         type: integer
         format: cents
@@ -4362,15 +4726,15 @@ definitions:
         readOnly: true
         format: string
       paymentServiceItemParams:
-        $ref: "definitions/PaymentServiceItemParams.yaml"
+        $ref: 'definitions/PaymentServiceItemParams.yaml'
       eTag:
         type: string
     type: object
   PaymentRequestStatus:
-    $ref: "definitions/PaymentRequestStatus.yaml"
+    $ref: 'definitions/PaymentRequestStatus.yaml'
   ProofOfServiceDocs:
     items:
-      $ref: "#/definitions/ProofOfServiceDoc"
+      $ref: '#/definitions/ProofOfServiceDoc'
     type: array
   ProofOfServiceDoc:
     properties:
@@ -4378,11 +4742,11 @@ definitions:
         type: boolean
       uploads:
         items:
-          $ref: "definitions/Upload.yaml"
+          $ref: 'definitions/Upload.yaml'
         type: array
   ShipmentsPaymentSITBalance:
     items:
-      $ref: "#/definitions/ShipmentPaymentSITBalance"
+      $ref: '#/definitions/ShipmentPaymentSITBalance'
     type: array
   ShipmentPaymentSITBalance:
     properties:
@@ -4422,7 +4786,7 @@ definitions:
     type: object
     properties:
       shipmentType:
-        $ref: "definitions/MTOShipmentType.yaml"
+        $ref: 'definitions/MTOShipmentType.yaml'
       requestedPickupDate:
         format: date
         type: string
@@ -4451,16 +4815,16 @@ definitions:
         x-nullable: true
       pickupAddress:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
@@ -4478,14 +4842,14 @@ definitions:
         x-nullable: true
         x-omitempty: false
       destinationType:
-        $ref: "definitions/DestinationType.yaml"
+        $ref: 'definitions/DestinationType.yaml'
       agents:
-        $ref: "definitions/MTOAgents.yaml"
+        $ref: 'definitions/MTOAgents.yaml'
         x-nullable: true
       tacType:
-        $ref: "definitions/LOATypeNullable.yaml"
+        $ref: 'definitions/LOATypeNullable.yaml'
       sacType:
-        $ref: "definitions/LOATypeNullable.yaml"
+        $ref: 'definitions/LOATypeNullable.yaml'
       usesExternalVendor:
         type: boolean
         example: false
@@ -4501,9 +4865,9 @@ definitions:
         x-nullable: true
       storageFacility:
         x-nullable: true
-        $ref: "definitions/StorageFacility.yaml"
+        $ref: 'definitions/StorageFacility.yaml'
       ppmShipment:
-        $ref: "#/definitions/UpdatePPMShipment"
+        $ref: '#/definitions/UpdatePPMShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -4522,39 +4886,39 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       w2Address:
         x-nullable: true
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
       sitExpected:
         type: boolean
         x-nullable: true
       sitLocation:
         allOf:
-          - $ref: "definitions/SITLocationType.yaml"
+          - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
       sitEstimatedWeight:
         type: integer
@@ -4595,7 +4959,7 @@ definitions:
         format: cents
         x-nullable: true
       advanceStatus:
-        $ref: "definitions/PPMAdvanceStatus.yaml"
+        $ref: 'definitions/PPMAdvanceStatus.yaml'
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -4615,7 +4979,7 @@ definitions:
         description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
         type: boolean
       status:
-        $ref: "definitions/PPMDocumentStatus.yaml"
+        $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
@@ -4645,7 +5009,7 @@ definitions:
         type: string
         format: date
       status:
-        $ref: "definitions/PPMDocumentStatus.yaml"
+        $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
@@ -4663,13 +5027,13 @@ definitions:
         type: integer
         minimum: 0
       status:
-        $ref: "definitions/PPMDocumentStatus.yaml"
+        $ref: 'definitions/PPMDocumentStatus.yaml'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
   MTOShipments:
     items:
-      $ref: "definitions/MTOShipment.yaml"
+      $ref: 'definitions/MTOShipment.yaml'
     type: array
   CreateMTOShipment:
     type: object
@@ -4715,28 +5079,28 @@ definitions:
         example: handle with care
         x-nullable: true
       agents:
-        $ref: "definitions/MTOAgents.yaml"
+        $ref: 'definitions/MTOAgents.yaml'
       mtoServiceItems:
-        $ref: "definitions/MTOServiceItems.yaml"
+        $ref: 'definitions/MTOServiceItems.yaml'
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       destinationType:
-        $ref: "definitions/DestinationType.yaml"
+        $ref: 'definitions/DestinationType.yaml'
       shipmentType:
-        $ref: "definitions/MTOShipmentType.yaml"
+        $ref: 'definitions/MTOShipmentType.yaml'
       tacType:
         allOf:
-          - $ref: "definitions/LOAType.yaml"
+          - $ref: 'definitions/LOAType.yaml'
           - x-nullable: true
       sacType:
         allOf:
-          - $ref: "definitions/LOAType.yaml"
+          - $ref: 'definitions/LOAType.yaml'
           - x-nullable: true
       usesExternalVendor:
         type: boolean
@@ -4753,9 +5117,9 @@ definitions:
         x-formatting: weight
       storageFacility:
         x-nullable: true
-        $ref: "definitions/StorageFacility.yaml"
+        $ref: 'definitions/StorageFacility.yaml'
       ppmShipment:
-        $ref: "#/definitions/CreatePPMShipment"
+        $ref: '#/definitions/CreatePPMShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -4772,33 +5136,33 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       secondaryPickupPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       secondaryDestinationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       sitExpected:
         type: boolean
       sitLocation:
         allOf:
-          - $ref: "definitions/SITLocationType.yaml"
+          - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
       sitEstimatedWeight:
         type: integer
@@ -4848,7 +5212,7 @@ definitions:
         minimum: 1
       requestReason:
         description: Reason from service counselor-provided picklist for SIT Duration Update
-        example: "AWAITING_COMPLETION_OF_RESIDENCE"
+        example: 'AWAITING_COMPLETION_OF_RESIDENCE'
         type: string
         enum:
           - SERIOUS_ILLNESS_MEMBER
@@ -4895,7 +5259,7 @@ definitions:
     properties:
       requestReason:
         description: Reason from service counselor-provided picklist for SIT Duration Update
-        example: "AWAITING_COMPLETION_OF_RESIDENCE"
+        example: 'AWAITING_COMPLETION_OF_RESIDENCE'
         type: string
         enum:
           - SERIOUS_ILLNESS_MEMBER
@@ -4956,14 +5320,14 @@ definitions:
         type: string
         x-nullable: true
       status:
-        $ref: "#/definitions/PaymentRequestStatus"
+        $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
     type: object
   QueueMoves:
     type: array
     items:
-      $ref: "#/definitions/QueueMove"
+      $ref: '#/definitions/QueueMove'
   QueueMove:
     type: object
     properties:
@@ -4971,9 +5335,9 @@ definitions:
         type: string
         format: uuid
       customer:
-        $ref: "#/definitions/Customer"
+        $ref: '#/definitions/Customer'
       status:
-        $ref: "#/definitions/MoveStatus"
+        $ref: '#/definitions/MoveStatus'
       locator:
         type: string
       submittedAt:
@@ -4989,15 +5353,15 @@ definitions:
         type: string
         x-nullable: true
       departmentIndicator:
-        $ref: "#/definitions/DeptIndicator"
+        $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
         type: integer
       originDutyLocation:
-        $ref: "definitions/DutyLocation.yaml"
+        $ref: 'definitions/DutyLocation.yaml'
       destinationDutyLocation:
-        $ref: "definitions/DutyLocation.yaml"
+        $ref: 'definitions/DutyLocation.yaml'
       originGBLOC:
-        $ref: "#/definitions/GBLOC"
+        $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
         enum: [FULL, PARTIAL]
@@ -5022,7 +5386,7 @@ definitions:
       totalCount:
         type: integer
       queueMoves:
-        $ref: "#/definitions/QueueMoves"
+        $ref: '#/definitions/QueueMoves'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
@@ -5035,7 +5399,7 @@ definitions:
         type: string
       moveCode:
         type: string
-        example: "HYXFJF"
+        example: 'HYXFJF'
         readOnly: true
       createdAt:
         format: date-time
@@ -5070,7 +5434,7 @@ definitions:
   ListPrimeMoves:
     type: array
     items:
-      $ref: "#/definitions/ListPrimeMove"
+      $ref: '#/definitions/ListPrimeMove'
   ListPrimeMovesResult:
     type: object
     properties:
@@ -5081,7 +5445,7 @@ definitions:
       totalCount:
         type: integer
       queueMoves:
-        $ref: "#/definitions/ListPrimeMoves"
+        $ref: '#/definitions/ListPrimeMoves'
   QueuePaymentRequest:
     type: object
     properties:
@@ -5092,9 +5456,9 @@ definitions:
         type: string
         format: uuid
       customer:
-        $ref: "#/definitions/Customer"
+        $ref: '#/definitions/Customer'
       status:
-        $ref: "#/definitions/QueuePaymentRequestStatus"
+        $ref: '#/definitions/QueuePaymentRequestStatus'
       age:
         type: number
         format: double
@@ -5105,18 +5469,18 @@ definitions:
       locator:
         type: string
       departmentIndicator:
-        $ref: "#/definitions/DeptIndicator"
+        $ref: '#/definitions/DeptIndicator'
       originGBLOC:
-        $ref: "#/definitions/GBLOC"
+        $ref: '#/definitions/GBLOC'
       originDutyLocation:
-        $ref: "definitions/DutyLocation.yaml"
+        $ref: 'definitions/DutyLocation.yaml'
       orderType:
         type: string
         x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
-      $ref: "#/definitions/QueuePaymentRequest"
+      $ref: '#/definitions/QueuePaymentRequest'
   QueuePaymentRequestsResult:
     type: object
     properties:
@@ -5127,7 +5491,7 @@ definitions:
       totalCount:
         type: integer
       queuePaymentRequests:
-        $ref: "#/definitions/QueuePaymentRequests"
+        $ref: '#/definitions/QueuePaymentRequests'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested
@@ -5139,7 +5503,7 @@ definitions:
   SearchMoves:
     type: array
     items:
-      $ref: "#/definitions/SearchMove"
+      $ref: '#/definitions/SearchMove'
   SearchMove:
     type: object
     properties:
@@ -5159,7 +5523,7 @@ definitions:
         example: 1234567890
         x-nullable: true
       status:
-        $ref: "#/definitions/MoveStatus"
+        $ref: '#/definitions/MoveStatus'
       locator:
         type: string
       branch:
@@ -5170,13 +5534,13 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       destinationDutyLocationPostalCode:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
       orderType:
         type: string
@@ -5189,7 +5553,7 @@ definitions:
         format: date
         x-nullable: true
       originGBLOC:
-        $ref: "#/definitions/GBLOC"
+        $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: "#/definitions/GBLOC"
   SearchMovesResult:
@@ -5202,7 +5566,7 @@ definitions:
       totalCount:
         type: integer
       searchMoves:
-        $ref: "#/definitions/SearchMoves"
+        $ref: '#/definitions/SearchMoves'
   GBLOC:
     type: string
     enum:
@@ -5297,7 +5661,7 @@ definitions:
   EvaluationReportList:
     type: array
     items:
-      $ref: "#/definitions/EvaluationReport"
+      $ref: '#/definitions/EvaluationReport'
   EvaluationReport:
     type: object
     description: An evaluation report
@@ -5319,25 +5683,25 @@ definitions:
         x-nullable: true
         readOnly: true
       type:
-        $ref: "#/definitions/EvaluationReportType"
+        $ref: '#/definitions/EvaluationReportType'
       inspectionType:
-        $ref: "#/definitions/EvaluationReportInspectionType"
+        $ref: '#/definitions/EvaluationReportInspectionType'
         x-nullable: true
       inspectionDate:
         type: string
         format: date
         x-nullable: true
       officeUser:
-        $ref: "#/definitions/EvaluationReportOfficeUser"
+        $ref: '#/definitions/EvaluationReportOfficeUser'
       location:
-        $ref: "#/definitions/EvaluationReportLocation"
+        $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
       ReportViolations:
-        $ref: "#/definitions/ReportViolations"
+        $ref: '#/definitions/ReportViolations'
         x-nullable: true
       locationDescription:
         type: string
-        example: "Route 66 at crash inspection site 3"
+        example: 'Route 66 at crash inspection site 3'
         x-nullable: true
       observedShipmentDeliveryDate:
         type: string
@@ -5350,18 +5714,18 @@ definitions:
       timeDepart:
         type: string
         x-nullable: true
-        pattern: "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"
-        example: "14:30"
+        pattern: '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'
+        example: '14:30'
       evalStart:
         type: string
         x-nullable: true
-        pattern: "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"
-        example: "15:00"
+        pattern: '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'
+        example: '15:00'
       evalEnd:
         type: string
         x-nullable: true
-        pattern: "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"
-        example: "18:00"
+        pattern: '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$'
+        example: '18:00'
       violationsObserved:
         type: boolean
         x-nullable: true
@@ -5460,7 +5824,7 @@ definitions:
   PWSViolations:
     type: array
     items:
-      $ref: "#/definitions/PWSViolation"
+      $ref: '#/definitions/PWSViolation'
   AssociateReportViolations:
     type: object
     description: A list of PWS violation string ids to associate with an evaluation report
@@ -5489,41 +5853,41 @@ definitions:
         format: uuid
         type: string
       violation:
-        $ref: "#/definitions/PWSViolation"
+        $ref: '#/definitions/PWSViolation'
   ReportViolations:
     type: array
     items:
-      $ref: "#/definitions/ReportViolation"
+      $ref: '#/definitions/ReportViolation'
   TransportationOffices:
     type: array
     items:
-      $ref: "definitions/TransportationOffice.yaml"
+      $ref: 'definitions/TransportationOffice.yaml'
 responses:
   InvalidRequest:
     description: The request payload is invalid
     schema:
-      $ref: "#/definitions/Error"
+      $ref: '#/definitions/Error'
   NotFound:
     description: The requested resource wasn't found
     schema:
-      $ref: "#/definitions/Error"
+      $ref: '#/definitions/Error'
   Conflict:
     description: Conflict error
     schema:
-      $ref: "#/definitions/Error"
+      $ref: '#/definitions/Error'
   PermissionDenied:
     description: The request was denied
     schema:
-      $ref: "#/definitions/Error"
+      $ref: '#/definitions/Error'
   ServerError:
     description: A server error occurred
     schema:
-      $ref: "#/definitions/Error"
+      $ref: '#/definitions/Error'
   PreconditionFailed:
     description: Precondition failed
     schema:
-      $ref: "#/definitions/Error"
+      $ref: '#/definitions/Error'
   UnprocessableEntity:
     description: The payload was unprocessable.
     schema:
-      $ref: "#/definitions/ValidationError"
+      $ref: '#/definitions/ValidationError'

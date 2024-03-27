@@ -52,14 +52,16 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
+	userRolesCreator := usersroles.NewUsersRolesCreator()
+	newRolesFetcher := roles.NewRolesFetcher()
+
 	adminAPI.RequestedOfficeUsersGetRequestedOfficeUserHandler = GetRequestedOfficeUserHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
+		newRolesFetcher,
 		query.NewQueryFilter,
 	}
 
-	userRolesCreator := usersroles.NewUsersRolesCreator()
-	newRolesFetcher := roles.NewRolesFetcher()
 	adminAPI.RequestedOfficeUsersUpdateRequestedOfficeUserHandler = UpdateRequestedOfficeUserHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserUpdater(queryBuilder),
@@ -86,6 +88,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
+		newRolesFetcher,
 		userPrivilegesCreator,
 	}
 
