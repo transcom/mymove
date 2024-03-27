@@ -214,7 +214,6 @@ describe('Office App', () => {
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
       expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
       expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
-      screen.debug();
       await expect(screen.getByText('Error - 404')).toBeInTheDocument();
       await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
     });
