@@ -157,7 +157,7 @@ func (h CounselingUpdateOrderHandler) Handle(
 		})
 }
 
-// CounselingUpdateOrderHandler create an order via POST /counseling/orders
+// CounselingUpdateOrderHandler create an order via POST /orders
 type CreateOrderHandler struct {
 	handlers.HandlerConfig
 }
