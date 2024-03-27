@@ -841,12 +841,15 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			moveID := shipment.MoveTaskOrderID
 			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
-			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewReweighRequested(moveID, *shipment),
-			)
-			if err != nil {
-				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+			/* Don't send emails for BLUEBARK moves */
+			if shipment.MoveTaskOrder.Orders.OrdersType != "BLUEBARK" {
+				err = h.NotificationSender().SendNotification(appCtx,
+					notifications.NewReweighRequested(moveID, *shipment),
+				)
+				if err != nil {
+					appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
 			}
 
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
