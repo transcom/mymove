@@ -72,7 +72,7 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 	return payload
 }
 
-func CreateAccountOkta(appCtx appcontext.AppContext, params requested_office_users.UpdateRequestedOfficeUserParams) (*http.Response, error) {
+func CreateOfficeOktaAccount(appCtx appcontext.AppContext, params requested_office_users.UpdateRequestedOfficeUserParams) (*http.Response, error) {
 
 	// Payload to OktaAccountCreationTemplate
 	oktaAccountInformation := payloadToOktaAccountCreationModel(params.Body)
@@ -254,7 +254,7 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			// Only attempt to create an Okta account IF params.Body.Status is APPROVED
 			// Track if Okta account was successfully created or not
 			if params.Body.Status == "APPROVED" {
-				oktaAccountCreationResponse, createAccountError := CreateAccountOkta(appCtx, params)
+				oktaAccountCreationResponse, createAccountError := CreateOfficeOktaAccount(appCtx, params)
 				if createAccountError != nil || oktaAccountCreationResponse.StatusCode != http.StatusOK {
 					// If there is an error creating the account or there is a respopnse code other than 200 then the account was not succssfully created
 					appCtx.Logger().Error("Error creating okta account", zap.Error(err))
