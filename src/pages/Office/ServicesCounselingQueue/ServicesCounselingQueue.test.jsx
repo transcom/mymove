@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
@@ -358,6 +359,9 @@ describe('ServicesCounselingQueue', () => {
         const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
         expect(searchActive).toBeInTheDocument();
         expect(MoveSearchForm).toBeInTheDocument();
+        userEvent.type(screen.getByLabelText('Search'), 'Joe');
+        const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
+        expect(addCustomer).toBeInTheDocument();
       }
     });
   });

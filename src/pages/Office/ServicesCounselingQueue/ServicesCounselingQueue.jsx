@@ -1,9 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
@@ -31,6 +33,7 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -206,8 +209,13 @@ const ServicesCounselingQueue = () => {
     navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
+  const handleAddCustomerClick = () => {
+    navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
+  };
+
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -283,6 +291,7 @@ const ServicesCounselingQueue = () => {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
+        <ConnectedFlashMessage />
         <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
         {searchHappened && (
