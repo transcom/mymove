@@ -1193,7 +1193,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested Office users"
+          "Requested office users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -1245,6 +1245,99 @@ func init() {
           },
           "404": {
             "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/requested-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Get a Requested Office User",
+        "operationId": "getRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a requested office user to include profile data and status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Update a Requested Office User",
+        "operationId": "updateRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestedOfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "server error"
@@ -2636,6 +2729,62 @@ func init() {
         "$ref": "#/definitions/Organization"
       }
     },
+    "RequestedOfficeUserUpdate": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "Q."
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Role": {
       "type": "object",
       "required": [
@@ -3084,6 +3233,13 @@ func init() {
     {
       "description": "Information about uploads",
       "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
@@ -4280,7 +4436,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested Office users"
+          "Requested office users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -4332,6 +4488,99 @@ func init() {
           },
           "404": {
             "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/requested-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Get a Requested Office User",
+        "operationId": "getRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a requested office user to include profile data and status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Update a Requested Office User",
+        "operationId": "updateRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestedOfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "server error"
@@ -5724,6 +5973,62 @@ func init() {
         "$ref": "#/definitions/Organization"
       }
     },
+    "RequestedOfficeUserUpdate": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "Q."
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Role": {
       "type": "object",
       "required": [
@@ -6176,6 +6481,13 @@ func init() {
     {
       "description": "Information about uploads",
       "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
