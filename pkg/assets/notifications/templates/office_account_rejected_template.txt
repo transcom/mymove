@@ -1,10 +1,10 @@
 Hi {{.FirstName}} {{.LastName}},
 
-Your request for a MilMove account was denied for the following reason(s):
+     Your request for a MilMove account was denied for the following reason(s):
 
-{{.RejectionReason}}
+    {{.RejectionReason}}
 
-If you have any questions, you can contact the System Response Center (SRC) Help Desk at 1-800-462-2176.
+    If you have any questions, you can contact the System Response Center (SRC) Help Desk at 1-800-462-2176.
 
 V/R,
 
