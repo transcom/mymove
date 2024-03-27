@@ -95,8 +95,8 @@ const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpda
     email: customer.backup_contact.email || '',
     customerAddress: customer.current_address || '',
     backupAddress: customer.backupAddress || '',
-    emailIsPreferred: customer.emailIsPreferred || '',
-    phoneIsPreferred: customer.phoneIsPreferred || '',
+    emailIsPreferred: customer.emailIsPreferred || false,
+    phoneIsPreferred: customer.phoneIsPreferred || false,
   };
 
   return (
