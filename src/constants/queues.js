@@ -23,6 +23,12 @@ export const MOVE_STATUS_LABELS = {
 };
 
 export const SERVICE_COUNSELING_MOVE_STATUS_OPTIONS = [
+  { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
+  { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
+  { value: MOVE_STATUSES.APPROVED, label: 'Move Approved' },
+];
+
+export const SERVICE_COUNSELING_SEARCH_MOVE_STATUS_OPTIONS = [
   { value: MOVE_STATUSES.DRAFT, label: 'Draft' },
   { value: MOVE_STATUSES.SUBMITTED, label: 'New Move' },
   { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
@@ -45,7 +51,7 @@ export const PAYMENT_REQUEST_STATUS_OPTIONS = [
 ];
 
 export const ROLE_TYPE_OPTIONS = {
-  [roleTypes.SERVICES_COUNSELOR]: SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
+  [roleTypes.SERVICES_COUNSELOR]: SERVICE_COUNSELING_SEARCH_MOVE_STATUS_OPTIONS,
   [roleTypes.QAE_CSR]: MOVE_STATUS_OPTIONS,
   [roleTypes.TIO]: PAYMENT_REQUEST_STATUS_OPTIONS,
 };
