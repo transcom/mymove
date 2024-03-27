@@ -78,7 +78,7 @@ const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpda
       backupAddress,
       phoneIsPreferred,
       emailIsPreferred,
-      secondaryTelephone: secondaryPhone,
+      secondaryTelephone: secondaryPhone || null,
     };
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
