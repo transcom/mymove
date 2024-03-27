@@ -337,7 +337,7 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountAccepted span').at(1).text().includes('30 Nov 2020')).toBe(true);
+      expect(wrapper.find('.amountAccepted span').at(1).text().includes('01 Dec 2020')).toBe(true);
     });
 
     it('sums the rejected service items total', () => {
@@ -345,7 +345,7 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountRejected span').at(1).text().includes('30 Nov 2020')).toBe(true);
+      expect(wrapper.find('.amountRejected span').at(1).text().includes('01 Dec 2020')).toBe(true);
     });
 
     it('displays the payment request details ', () => {
