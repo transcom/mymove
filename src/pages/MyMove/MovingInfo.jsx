@@ -5,6 +5,8 @@ import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { isMultiMoveEnabled } from '../../utils/featureFlags';
+
 import styles from './MovingInfo.module.scss';
 
 import { customerRoutes, generalRoutes } from 'constants/routes';
@@ -38,6 +40,11 @@ export class MovingInfo extends Component {
   componentDidMount() {
     const { serviceMemberId, fetchLatestOrders } = this.props;
     fetchLatestOrders(serviceMemberId);
+    isMultiMoveEnabled().then((enabled) => {
+      this.setState({
+        multiMoveFeatureFlag: enabled,
+      });
+    });
   }
 
   render() {
@@ -48,6 +55,12 @@ export class MovingInfo extends Component {
         params: { moveId },
       },
     } = this.props;
+
+    let multiMove = false;
+    if (this.state) {
+      const { multiMoveFeatureFlag } = this.state;
+      multiMove = multiMoveFeatureFlag;
+    }
 
     const nextPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
       moveId,
@@ -113,7 +126,11 @@ export class MovingInfo extends Component {
                 navigate(nextPath);
               }}
               onCancelClick={() => {
-                navigate(generalRoutes.HOME_PATH);
+                if (multiMove) {
+                  navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+                } else {
+                  navigate(generalRoutes.HOME_PATH);
+                }
               }}
             />
           </Grid>

@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import { isMultiMoveEnabled } from '../../../../../utils/featureFlags';
+
 import styles from './Expenses.module.scss';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -12,7 +14,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   createUploadForPPMDocument,
@@ -26,6 +28,7 @@ import { convertDollarsToCents } from 'shared/utils';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -37,6 +40,9 @@ const Expenses = () => {
   );
 
   useEffect(() => {
+    isMultiMoveEnabled().then((enabled) => {
+      setMultiMove(enabled);
+    });
     if (!expenseId) {
       createMovingExpense(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -98,7 +104,11 @@ const Expenses = () => {
   };
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
