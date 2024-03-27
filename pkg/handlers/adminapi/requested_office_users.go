@@ -259,7 +259,6 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			var err error
 			requestedOfficeUserID, err := uuid.FromString(params.OfficeUserID.String())
 			if err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
