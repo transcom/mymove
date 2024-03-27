@@ -37,7 +37,6 @@ const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpda
     },
     onError: () => {
       onUpdate('error');
-      handleClose();
     },
   });
 
