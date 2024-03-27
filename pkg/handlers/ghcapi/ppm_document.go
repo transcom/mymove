@@ -135,11 +135,7 @@ func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocument
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
 			/* Don't send emails to BLUEBARK moves */
-			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), ppmShipment.Shipment.MoveTaskOrderID)
-			if err != nil {
-				return nil, nil
-			}
-
+			move, _ := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), ppmShipment.Shipment.MoveTaskOrderID)
 			if move.Orders.OrdersType != "BLUEBARK" {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewPpmPacketEmail(ppmShipment.ID),
