@@ -1,23 +1,21 @@
-schemes:
-  - https
 swagger: '2.0'
-host: admin.move.mil
 info:
+  contact:
+    email: milmove-developers@caci.com
   description: >
     The Admin API is a RESTful API that enables the Admin application for
     MilMove.
 
 
     All endpoints are located under `/admin/v1`.
-  version: 1.0.0
-  title: MilMove Admin API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
-  contact:
-    name: MilMove AppEng
-    email: support@movemil.pagerduty.com
+    url: https://opensource.org/licenses/MIT
+  title: MilMove Admin API
+  version: 1.0.0
 basePath: /admin/v1
+schemes:
+  - https
 consumes:
   - application/json
 produces:
@@ -726,6 +724,7 @@ definitions:
           $ref: '#/definitions/OfficeUserRole'
       privileges:
         type: array
+        x-nullable: true
         items:
           $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserUpdate:

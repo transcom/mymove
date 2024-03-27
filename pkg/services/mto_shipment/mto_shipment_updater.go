@@ -650,11 +650,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 	if len(autoReweighShipments) > 0 {
 		for _, shipment := range autoReweighShipments {
-			err := f.sender.SendNotification(appCtx,
-				notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
-			)
-			if err != nil {
-				return err
+			/* Don't send emails to BLUEBARK moves */
+			if shipment.MoveTaskOrder.Orders.OrdersType != "BLUEBARK" {
+				err := f.sender.SendNotification(appCtx,
+					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
+				)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -1075,8 +1078,10 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			var milesCalculated int
 
 			if TOOApprovalRequired {
-				// if TOO approval was required, shipment destination address has been updated at this point
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				if serviceItem.SITDestinationOriginalAddress != nil {
+					// if TOO approval was required, shipment destination address has been updated at this point
+					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				}
 			} else {
 				// if TOO approval was not required, use the newAddress
 				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
