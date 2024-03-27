@@ -32,6 +32,16 @@ func payloadForRole(r roles.Role) *adminmessages.Role {
 	}
 }
 
+func payloadForPrivilege(r models.Privilege) *adminmessages.Privilege {
+	return &adminmessages.Privilege{
+		ID:            *handlers.FmtUUID(r.ID),
+		PrivilegeType: *handlers.FmtString(string(r.PrivilegeType)),
+		PrivilegeName: *handlers.FmtString(string(r.PrivilegeName)),
+		CreatedAt:     *handlers.FmtDateTime(r.CreatedAt),
+		UpdatedAt:     *handlers.FmtDateTime(r.UpdatedAt),
+	}
+}
+
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	var user models.User
 	if o.UserID != nil {
@@ -58,6 +68,9 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	}
 	for _, role := range user.Roles {
 		payload.Roles = append(payload.Roles, payloadForRole(role))
+	}
+	for _, privilege := range user.Privileges {
+		payload.Privileges = append(payload.Privileges, payloadForPrivilege(privilege))
 	}
 	return payload
 }
@@ -96,6 +109,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 
 			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 				query.NewQueryAssociation("User.Roles"),
+				query.NewQueryAssociation("User.Privileges"),
 			})
 
 			var officeUsers models.OfficeUsers
@@ -152,6 +166,12 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 			if roleError != nil {
 				return handlers.ResponseForError(appCtx.Logger(), roleError), roleError
 			}
+			privilegeError := appCtx.DB().Q().Join("users_privileges", "users_privileges.privilege_id = privileges.id").
+				Where("users_privileges.deleted_at IS NULL AND users_privileges.user_id = ?", (officeUser.User.ID)).
+				All(&officeUser.User.Privileges)
+			if privilegeError != nil {
+				return handlers.ResponseForError(appCtx.Logger(), privilegeError), privilegeError
+			}
 			payload := payloadForOfficeUserModel(officeUser)
 
 			return officeuserop.NewGetOfficeUserOK().WithPayload(payload), nil
@@ -164,6 +184,7 @@ type CreateOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
+	services.UserPrivilegeAssociator
 }
 
 // Handle creates an office user
@@ -232,6 +253,13 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
+			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
+			_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *createdOfficeUser.UserID, updatedPrivileges)
+			if err != nil {
+				appCtx.Logger().Error("Error updating user privileges", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+
 			_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
 			if err != nil {
 				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
@@ -248,6 +276,7 @@ type UpdateOfficeUserHandler struct {
 	services.OfficeUserUpdater
 	services.NewQueryFilter
 	services.UserRoleAssociator
+	services.UserPrivilegeAssociator
 	services.UserSessionRevocation
 }
 
@@ -256,7 +285,6 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	payload := params.OfficeUser
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			officeUserID, err := uuid.FromString(params.OfficeUserID.String())
 			if err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
@@ -273,6 +301,39 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
 				if err != nil {
 					appCtx.Logger().Error("Error updating user roles", zap.Error(err))
+					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+				}
+
+				boolean := true
+				revokeOfficeSessionPayload := adminmessages.UserUpdate{
+					RevokeOfficeSession: &boolean,
+				}
+
+				_, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(
+					appCtx,
+					*updatedOfficeUser.UserID,
+					&revokeOfficeSessionPayload,
+					h.SessionManagers(),
+				)
+
+				if revokeErr != nil {
+					err = apperror.NewInternalServerError("Error revoking user session")
+					appCtx.Logger().Error(err.Error(), zap.Error(revokeErr))
+					return userop.NewUpdateUserInternalServerError(), revokeErr
+				}
+
+				if validationErrors != nil {
+					err = apperror.NewInternalServerError("Error revoking user session")
+					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
+					return userop.NewUpdateUserInternalServerError(), validationErrors
+				}
+			}
+
+			if updatedOfficeUser.UserID != nil && payload.Privileges != nil {
+				updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
+				_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *updatedOfficeUser.UserID, updatedPrivileges)
+				if err != nil {
+					appCtx.Logger().Error("Error updating user privileges", zap.Error(err))
 					return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 				}
 
@@ -325,6 +386,16 @@ func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleTy
 	for _, role := range payload {
 		if role.RoleType != nil {
 			rt = append(rt, roles.RoleType(*role.RoleType))
+		}
+	}
+	return rt
+}
+
+func privilegesPayloadToModel(payload []*adminmessages.OfficeUserPrivilege) []models.PrivilegeType {
+	var rt []models.PrivilegeType
+	for _, privilege := range payload {
+		if privilege.PrivilegeType != nil {
+			rt = append(rt, models.PrivilegeType(*privilege.PrivilegeType))
 		}
 	}
 	return rt

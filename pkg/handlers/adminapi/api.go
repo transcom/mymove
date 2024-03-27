@@ -23,6 +23,7 @@ import (
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
+	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 )
@@ -64,11 +65,13 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	userRolesCreator := usersroles.NewUsersRolesCreator()
+	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
+		userPrivilegesCreator,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -76,6 +79,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		officeUpdater,
 		query.NewQueryFilter,
 		userRolesCreator,
+		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
 	}
 

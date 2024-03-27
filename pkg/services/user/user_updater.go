@@ -40,7 +40,6 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
 	var userActivityEmail notifications.Notification
-
 	if user == nil {
 		return nil, nil, nil
 	}

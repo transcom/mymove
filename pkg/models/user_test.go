@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	userroles "github.com/transcom/mymove/pkg/services/users_roles"
@@ -147,6 +148,29 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
 	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
+
+	rs2 := []models.Privilege{{
+		ID:            uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
+		PrivilegeType: models.PrivilegeTypeSupervisor,
+	},
+	}
+	suite.NoError(suite.DB().Create(&rs2))
+	supervisorPrivilege := rs2[0]
+	sueOktaID := factory.MakeRandomString(20)
+	sue := factory.BuildUser(suite.DB(), []factory.Customization{
+		{
+			Model: User{
+				OktaID:     sueOktaID,
+				Active:     true,
+				Privileges: []models.Privilege{supervisorPrivilege},
+			},
+		},
+	}, nil)
+
+	identity, err = FetchUserIdentity(suite.DB(), sue.OktaID)
+	suite.Nil(err, "loading sue's identity")
+	suite.NotNil(identity)
+	suite.Equal(len(identity.Privileges), 1)
 }
 
 func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
