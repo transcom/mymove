@@ -12,7 +12,7 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import {
   SERVICE_COUNSELING_BRANCH_OPTIONS,
-  SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
+  SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
@@ -74,8 +74,10 @@ const counselingColumns = () => [
     {
       id: 'status',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_MOVE_STATUS_OPTIONS} {...props} />,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS} {...props} />
+      ),
     },
   ),
   createHeader(
