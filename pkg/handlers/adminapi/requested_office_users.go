@@ -259,31 +259,27 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			var err error
 			requestedOfficeUserID, err := uuid.FromString(params.OfficeUserID.String())
-			body := params.Body
 			if err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
 			}
 
+			body := params.Body
+
 			// roles are associated with users and not office_users, so we need to handle this logic separately
 			updatedRoles := rolesPayloadToModel(body.Roles)
 			if len(updatedRoles) == 0 {
-				err = apperror.NewBadDataError("No roles were matched from payload")
+				err := apperror.NewBadDataError("No roles were matched from payload")
 				appCtx.Logger().Error(err.Error())
 				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
 			}
 
 			// Only attempt to create an Okta account IF params.Body.Status is APPROVED
-			runCreateOktaAccount := false
-			if params.Body.Status == "APPROVED" {
-				runCreateOktaAccount = true
-			}
-
 			// Track if Okta account was successfully created or not
-			oktaAccountCreated := false
-			if runCreateOktaAccount {
-				oktaAccountCreationResponse, err := CreateAccountOkta(appCtx, params)
-				if err != nil || oktaAccountCreationResponse.StatusCode != http.StatusOK {
+			if params.Body.Status == "APPROVED" {
+				oktaAccountCreationResponse, createAccountError := CreateAccountOkta(appCtx, params)
+				if createAccountError != nil || oktaAccountCreationResponse.StatusCode != http.StatusOK {
 					// If there is an error creating the account or there is a respopnse code other than 200 then the account was not succssfully created
 					appCtx.Logger().Error("Error creating okta account", zap.Error(err))
 					return requested_office_users.NewGetRequestedOfficeUserInternalServerError(), err
@@ -291,12 +287,9 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 
 				if oktaAccountCreationResponse.StatusCode == http.StatusOK {
 
-					// If okta account was successfully created a 200 response code of 200 would be returned. If so switch bool signifying successful creation
-					oktaAccountCreated = true
-
 					// Get the response Body
-					response, err := io.ReadAll(oktaAccountCreationResponse.Body)
-					if err != nil {
+					response, responseErr := io.ReadAll(oktaAccountCreationResponse.Body)
+					if responseErr != nil {
 						appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" could not read response body")))
 					}
 
@@ -313,44 +306,33 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			}
 
 			// UpdateRequestedOfficeUser runs in all cases EXCEPT the case that an attempt to create an Okta account has failed
-			runUpdateRequestedOfficeUser := true
-			if runCreateOktaAccount && !oktaAccountCreated {
-				runUpdateRequestedOfficeUser = false
+			requestedOfficeUser, verrs, err := h.RequestedOfficeUserUpdater.UpdateRequestedOfficeUser(appCtx, requestedOfficeUserID, params.Body)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			if verrs != nil {
+				appCtx.Logger().Error(err.Error())
+				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), verrs
 			}
 
-			// UpdateRequestedOfficeUser runs in all cases EXCEPT the case that an attempt to create an Okta account has failed
-			if runUpdateRequestedOfficeUser {
-				requestedOfficeUser, verrs, err := h.RequestedOfficeUserUpdater.UpdateRequestedOfficeUser(appCtx, requestedOfficeUserID, params.Body)
+			if requestedOfficeUser.UserID != nil && body.Roles != nil {
+				_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *requestedOfficeUser.UserID, updatedRoles)
 				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-				if verrs != nil {
-					appCtx.Logger().Error(err.Error())
-					return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), verrs
-				}
-
-				if requestedOfficeUser.UserID != nil && body.Roles != nil {
-					_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *requestedOfficeUser.UserID, updatedRoles)
-					if err != nil {
-						appCtx.Logger().Error("Error updating user roles", zap.Error(err))
-						return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
-					}
-				}
-
-				roles, err := h.RoleAssociater.FetchRoles(appCtx, *requestedOfficeUser.UserID)
-				if err != nil {
-					appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+					appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 					return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
 				}
-
-				requestedOfficeUser.User.Roles = roles
-
-				payload := payloadForRequestedOfficeUserModel(*requestedOfficeUser)
-
-				return requested_office_users.NewUpdateRequestedOfficeUserOK().WithPayload(payload), nil
 			}
 
-			return requested_office_users.NewGetRequestedOfficeUserInternalServerError(), nil
+			roles, err := h.RoleAssociater.FetchRoles(appCtx, *requestedOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+				return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
+			}
 
+			requestedOfficeUser.User.Roles = roles
+
+			payload := payloadForRequestedOfficeUserModel(*requestedOfficeUser)
+
+			return requested_office_users.NewUpdateRequestedOfficeUserOK().WithPayload(payload), nil
 		})
 }
