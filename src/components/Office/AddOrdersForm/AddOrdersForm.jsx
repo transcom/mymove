@@ -48,6 +48,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) =
                     as={Radio}
                     label="Yes"
                     id="hasDependentsYes"
+                    data-testid="hasDependentsYes"
                     name="hasDependents"
                     value="yes"
                     title="Yes, dependents are included in my orders"
@@ -57,6 +58,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) =
                     as={Radio}
                     label="No"
                     id="hasDependentsNo"
+                    data-testid="hasDependentsNo"
                     name="hasDependents"
                     value="no"
                     title="No, dependents are not included in my orders"
@@ -71,7 +73,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) =
                 id="originDutyLocation"
                 required
               />
-              <DutyLocationInput name="newDutyLocation" label="New duty location" displayAddress={false} />
+              <DutyLocationInput name="newDutyLocation" label="New duty location" required />
               <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
             </SectionWrapper>
 
