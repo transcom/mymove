@@ -139,6 +139,16 @@ const ServiceItemsTable = ({
     }
     const resubmittedToolTip = renderToolTipWithOldDataIfResubmission(id);
 
+    // we don't want to display the "Accept" button for a DLH or DSH service item that was rejected by a shorthaul to linehaul change or vice versa
+    let rejectedDSHorDLHServiceItem = false;
+    if (
+      (serviceItem.code === 'DLH' || serviceItem.code === 'DSH') &&
+      serviceItem.details.rejectionReason ===
+        'Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul.'
+    ) {
+      rejectedDSHorDLHServiceItem = true;
+    }
+
     return (
       <React.Fragment key={`sit-alert-${id}`}>
         <tr key={id}>
@@ -246,7 +256,7 @@ const ServiceItemsTable = ({
                 </Restricted>
               </Restricted>
             )}
-            {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && (
+            {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && !rejectedDSHorDLHServiceItem && (
               <Restricted to={permissionTypes.updateMTOServiceItem}>
                 <Restricted to={permissionTypes.updateMTOPage}>
                   <div className={styles.statusAction}>
