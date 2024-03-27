@@ -195,7 +195,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // checking to see if prime has completed counseling, return true
   const isPrimeCounselingComplete = () => {
-    return !!move.primeCounselingCompletedAt.IsZero();
+    return move.primeCounselingCompletedAt.indexOf('0001-01-01') < 0;
   };
 
   // logic that handles deleting a shipment
@@ -641,18 +641,20 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                         </Description>
                       )}
                       {isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                        <Description>
+                          Once you have received counseling for your PPM you will receive emailed instructions on how to
+                          download your Advance Operating Allowance (AOA) packet. Please consult with your
+                          Transportation Office for review of your AOA packet.
+                          <br />
+                          <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                          incentive ends up being less than your advance, you will be required to pay back the
+                          difference.
+                          <br />
+                          <br />
+                        </Description>
+                      )}
+                      {isPrimeCounselingComplete() && (
                         <>
-                          <Description>
-                            Once you have received counseling for your PPM you will receive emailed instructions on how
-                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
-                            Transportation Office for review of your AOA packet.
-                            <br />
-                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
-                            incentive ends up being less than your advance, you will be required to pay back the
-                            difference.
-                            <br />
-                            <br />
-                          </Description>
                           {ppmShipments.map((shipment) => {
                             const { shipmentType } = shipment;
                             if (shipmentNumbersByType[shipmentType]) {
@@ -667,7 +669,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                   {shipmentTypes[shipment.shipmentType]}
                                   {` ${shipmentNumber} `}
                                 </strong>
-                                {isPrimeCounselingComplete && (
+                                {shipment?.ppmShipment?.hasRequestedAdvance && (
                                   <p className={styles.downloadLink}>
                                     <AsyncPacketDownloadLink
                                       id={shipment?.ppmShipment?.id}
@@ -676,6 +678,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       onFailure={toggleDownloadAOAErrorModal}
                                     />
                                   </p>
+                                )}
+                                {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                  <>
+                                    <br />
+                                    <br />
+                                  </>
                                 )}
                               </>
                             );
