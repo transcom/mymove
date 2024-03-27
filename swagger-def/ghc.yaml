@@ -775,6 +775,8 @@ paths:
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
@@ -4444,6 +4446,14 @@ definitions:
         x-omitempty: false
       hasSecondaryDeliveryAddress:
         type: boolean
+        x-nullable: true
+        x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
         x-nullable: true
         x-omitempty: false
       destinationType:
