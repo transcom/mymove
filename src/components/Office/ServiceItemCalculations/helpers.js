@@ -373,7 +373,7 @@ const priceEscalationFactorWithoutContractYear = (params) => {
 
 const fuelSurchargePrice = (params, itemCode) => {
   // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
-  // which gets the dollar value
+  // which gets the value in Cents to the tenths decimal place
   let distanceZip;
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DDSFSC:
@@ -390,7 +390,7 @@ const fuelSurchargePrice = (params, itemCode) => {
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
         getParamValue(distanceZip, params),
     ),
-  ).toFixed(2);
+  ).toFixed(1);
   const label =
     itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
       ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
