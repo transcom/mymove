@@ -52,6 +52,7 @@ const RequestedOfficeUserActionButtons = () => {
   const approve = async (user) => {
     setRejectionReasonCheck('');
     const body = {
+      email: user.email,
       edipi: user.edipi,
       firstName: user.firstName,
       middleInitials: user.middleInitials,
@@ -78,6 +79,7 @@ const RequestedOfficeUserActionButtons = () => {
       setRejectionReasonCheck('Please provide a rejection reason.');
     } else {
       const body = {
+        email: user.email,
         edipi: user.edipi,
         firstName: user.firstName,
         middleInitials: user.middleInitials,
