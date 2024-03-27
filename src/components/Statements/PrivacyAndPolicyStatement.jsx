@@ -37,13 +37,12 @@ function PrivacyPolicy() {
           personal property to include facilitating payment to Service-members. Certain information, limited to rolodex
           contact information, is disclosed to contracted Transportation Services Providers in order to effect the
           movement of household goods and personal property. Use of information in this system is restricted to MilMove
-          / DPS Prototype account holders and disclosure is prohibited without the written consent of the DPS Program
-          Management Office.
+          account holders and disclosure is prohibited without the written consent of the Defense Personal Property
+          Management Office (DPMO).
         </p>
         <p>
           DISCLOSURE: Voluntary. However, failure to provide the requested information may result in the Service-member
-          being unable to use the DPS(MilMove) prototype system to effectuate their household goods or personal property
-          movement.
+          being unable to use the MilMove system to effectuate their household goods or personal property movement.
         </p>
       </div>
     </div>
