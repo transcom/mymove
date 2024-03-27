@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Contractor payload
@@ -721,7 +722,6 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
 		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
 		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
-		SitAuthorizedEndDate: handlers.FmtDatePtr(currentSIT.SITAuthorizedEndDate),
 		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
 		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}
@@ -1027,6 +1027,18 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
 		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
 		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+	}
+
+	return payload
+}
+
+// PPMActualWeight payload
+func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
+	if ppmActualWeight == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMActualWeight{
+		ActualWeight: handlers.FmtPoundPtr(ppmActualWeight),
 	}
 
 	return payload
