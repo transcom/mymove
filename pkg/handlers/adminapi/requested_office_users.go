@@ -74,10 +74,8 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 
 func CreateAccountOkta(appCtx appcontext.AppContext, params requested_office_users.UpdateRequestedOfficeUserParams) (*http.Response, error) {
 
-	fmt.Println("TP1")
 	// Payload to OktaAccountCreationTemplate
 	oktaAccountInformation := payloadToOktaAccountCreationModel(params.Body)
-	fmt.Println("TP1")
 
 	// Get Okta provider
 	provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
