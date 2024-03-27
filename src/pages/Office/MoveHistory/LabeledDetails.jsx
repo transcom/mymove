@@ -45,6 +45,13 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = emptyValue;
   }
 
+  if (fieldName === 'has_received_advance') {
+    return {
+      displayName,
+      displayValue: (!`${value}` && '—') || (value && displayValue) || 'No',
+    };
+  }
+
   return {
     displayName,
     displayValue,
