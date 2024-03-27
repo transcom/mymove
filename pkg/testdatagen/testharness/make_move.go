@@ -547,7 +547,7 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipmentFields := models.MTOShipment{
-		Status:                models.MTOShipmentStatusApproved,
+		Status:                models.MTOShipmentStatusSubmitted,
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 	}

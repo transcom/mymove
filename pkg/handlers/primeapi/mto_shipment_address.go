@@ -10,7 +10,9 @@ import (
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // UpdateMTOShipmentAddressHandler is the handler to update an address
@@ -29,6 +31,18 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 			eTag := params.IfMatch
 			mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 			addressID := uuid.FromStringOrNil(params.AddressID.String())
+
+			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipmentID, "DestinationAddress")
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(
+					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			if dbShipment.Status == models.MTOShipmentStatusApproved &&
+				(*dbShipment.DestinationAddressID == addressID) {
+				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"This shipment is approved, please use the updateShipmentDestinationAddress endpoint to update the destination address of an approved shipment", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
+			}
 
 			// Get the new address model
 			newAddress := payloads.AddressModel(payload)

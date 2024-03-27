@@ -62,6 +62,7 @@ test.describe('Prime simulator user', () => {
     await expect(page.getByText(moveLocator)).toBeVisible();
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
     // waits for the move details page to load
+    await expect(page.getByText('SUBMITTED')).toHaveCount(1);
     await page.getByRole('link', { name: 'Update Shipment', exact: true }).click();
 
     // waits for the update shipment page to load

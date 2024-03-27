@@ -2039,6 +2039,56 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		}
 	})
 
+	suite.Run("PATCH sends back unprocessable response when dest address is updated for approved shipment", func() {
+		handler, move := setupTestData()
+
+		// Create shipment with populated estimated weight and scheduled date
+		tenDaysFromNow := now.AddDate(0, 0, 11)
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+
+		// setting shipment status to approved
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					PrimeEstimatedWeight: &primeEstimatedWeight,
+					ScheduledPickupDate:  &tenDaysFromNow,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+
+		// adding destination address to update to get back error
+		update := primemessages.UpdateMTOShipment{
+			DestinationAddress: getFakeAddress(),
+		}
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &update,
+			IfMatch:       etag.GenerateEtag(oldShipment.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+
+		// CHECK RESPONSE
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+
+	})
+
 	suite.Run("PATCH Success 200 RequiredDeliveryDate updated on destinationAddress creation", func() {
 		// Under test: updateMTOShipmentHandler.Handle, RequiredDeliveryDate logic
 		// Mocked:     Planner
@@ -2058,7 +2108,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
+					Status:               models.MTOShipmentStatusSubmitted,
 					ApprovedDate:         &now,
 					PrimeEstimatedWeight: &primeEstimatedWeight,
 					ScheduledPickupDate:  &tenDaysFromNow,
