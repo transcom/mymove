@@ -75,6 +75,35 @@ func (e *NotFoundError) Unwrap() error {
 	return e.err
 }
 
+// UpdateError is returned when a service cannot be updated
+type UpdateError struct {
+	id      uuid.UUID
+	message string
+	err     error
+}
+
+// NewUpdateError returns an error for when a service cannot be updated
+func NewUpdateError(id uuid.UUID, message string) UpdateError {
+	return UpdateError{
+		id:      id,
+		message: message,
+	}
+}
+
+func (e UpdateError) Error() string {
+	return fmt.Sprintf("Update Error %s", e.message)
+}
+
+// Wrap lets the caller add an error to be wrapped in the NewUpdateError
+func (e *UpdateError) Wrap(err error) {
+	e.err = err
+}
+
+// Unwrap returns the wrapped error, could be nil
+func (e *UpdateError) Unwrap() error {
+	return e.err
+}
+
 type PPMNotReadyForCloseoutError struct {
 	id      uuid.UUID
 	message string
