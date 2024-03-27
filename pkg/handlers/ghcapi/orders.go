@@ -157,7 +157,7 @@ func (h CounselingUpdateOrderHandler) Handle(
 		})
 }
 
-// CounselingUpdateOrderHandler create an order via POST /counseling/orders/{orderId}
+// CounselingUpdateOrderHandler create an order via POST /counseling/orders
 type CreateOrderHandler struct {
 	handlers.HandlerConfig
 }
@@ -170,29 +170,41 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				err = apperror.NewBadDataError("Error processing Service Member ID")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				err = apperror.NewBadDataError("Service member cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
 			originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				err = apperror.NewBadDataError("Error processing origin duty location ID")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 			originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				err = apperror.NewBadDataError("Origin duty location cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
 			newDutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				err = apperror.NewBadDataError("Error processing new duty location ID")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), newDutyLocationID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				err = apperror.NewBadDataError("Service member cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
 			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
@@ -224,7 +236,9 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr), saveEntitlementErr
+				err = apperror.NewBadDataError("Error saving entitlement")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
 			var deptIndicator *string
@@ -240,7 +254,9 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			contractor, err := models.FetchGHCPrimeContractor(appCtx.DB())
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				err = apperror.NewBadDataError("Error fetching contractor")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
 			packingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber

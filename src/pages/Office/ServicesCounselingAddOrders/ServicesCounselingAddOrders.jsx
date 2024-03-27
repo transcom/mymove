@@ -1,7 +1,9 @@
 import React from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { generatePath, useNavigate } from 'react-router';
+import { generatePath, useNavigate } from 'react-router-dom';
+
+import styles from './ServicesCounselingAddOrders.module.scss';
 
 import { dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
@@ -15,7 +17,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 const ServicesCounselingAddOrders = ({ customer }) => {
   const navigate = useNavigate();
   const handleBack = () => {
-    navigate('/');
+    navigate(-1);
   };
   const handleClose = (moveCode) => {
     const path = generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, {
@@ -71,7 +73,7 @@ const ServicesCounselingAddOrders = ({ customer }) => {
 
   return (
     <GridContainer data-testid="main-container">
-      <Grid row data-testid="orders-form-container">
+      <Grid row className={styles.ordersFormContainer} data-testid="orders-form-container">
         <Grid col>
           <AddOrdersForm
             onSubmit={handleSubmit}

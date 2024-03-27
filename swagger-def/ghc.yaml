@@ -302,6 +302,8 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           description: internal server error
   '/orders/{orderID}':

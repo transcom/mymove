@@ -83,20 +83,20 @@ const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpda
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
   const initialValues = {
-    firstName: customer.first_name,
-    lastName: customer.last_name,
-    middleName: customer.middle_name,
-    suffix: customer.suffix,
-    customerTelephone: customer.phone,
-    customerEmail: customer.email,
-    name: customer.backup_contact.name,
-    telephone: customer.backup_contact.phone,
-    secondaryPhone: customer.secondaryTelephone,
-    email: customer.backup_contact.email,
-    customerAddress: customer.current_address,
-    backupAddress: customer.backupAddress,
-    emailIsPreferred: customer.emailIsPreferred,
-    phoneIsPreferred: customer.phoneIsPreferred,
+    firstName: customer.first_name || '',
+    lastName: customer.last_name || '',
+    middleName: customer.middle_name || '',
+    suffix: customer.suffix || '',
+    customerTelephone: customer.phone || '',
+    customerEmail: customer.email || '',
+    name: customer.backup_contact.name || '',
+    telephone: customer.backup_contact.phone || '',
+    secondaryPhone: customer.secondaryTelephone || '',
+    email: customer.backup_contact.email || '',
+    customerAddress: customer.current_address || '',
+    backupAddress: customer.backupAddress || '',
+    emailIsPreferred: customer.emailIsPreferred || '',
+    phoneIsPreferred: customer.phoneIsPreferred || '',
   };
 
   return (
