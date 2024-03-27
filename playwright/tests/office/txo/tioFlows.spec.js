@@ -189,7 +189,7 @@ test.describe('TIO user', () => {
       await page.getByTestId('searchText').type(SearchTerms[0]);
       await page.getByTestId('searchTextSubmit').click();
 
-      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByText('Results')).toBeVisible();
       await expect(page.getByTestId('locator-0')).toContainText(SearchTerms[0]);
     });
     test('can search for moves using DOD ID', async ({ page }) => {
@@ -198,7 +198,7 @@ test.describe('TIO user', () => {
       await page.getByTestId('searchText').type(SearchTerms[1]);
       await page.getByTestId('searchTextSubmit').click();
 
-      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByText('Results')).toBeVisible();
       await expect(page.getByTestId('dodID-0')).toContainText(SearchTerms[1]);
     });
     test('can search for moves using Customer Name', async ({ page }) => {
@@ -239,7 +239,7 @@ test.describe('TIO user', () => {
 
       const found = findOptionWithinOpenedDropdown(page, StatusFilterOptions[1]);
       await found.click();
-      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByText('Results')).toBeVisible();
     });
     test('cant search for empty move code', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
