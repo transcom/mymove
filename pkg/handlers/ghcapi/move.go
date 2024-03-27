@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -81,8 +82,13 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				appCtx.Logger().Error("Error searching for move", zap.Error(err))
 				return moveop.NewSearchMovesInternalServerError(), err
 			}
+			var searchMoves *ghcmessages.SearchMoves
+			if appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+				searchMoves = payloads.SearchMovesWithPaymentRequestAttributes(moves, searchMovesParams.Status)
 
-			searchMoves := payloads.SearchMoves(appCtx, moves)
+			} else {
+				searchMoves = payloads.SearchMoves(appCtx, moves)
+			}
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        searchMovesParams.Page,
 				PerPage:     searchMovesParams.PerPage,
