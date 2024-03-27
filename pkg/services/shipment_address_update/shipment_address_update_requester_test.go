@@ -799,14 +799,18 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
 		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
 
-		// Assert that all service items were rejected
-		rejectedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusRejected)
-		approvedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusApproved)
+		// Assert that the DLH service item was rejected and has the correct rejection reason
+		rejectedServiceItems := suite.getServiceItemsByCode(update.Shipment.MTOServiceItems, models.ReServiceCodeDLH)
+		suite.Equal(rejectedServiceItems[0].Status, models.MTOServiceItemStatusRejected)
 		autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
+		suite.Equal(autoRejectionRemark, *rejectedServiceItems[0].RejectionReason)
+
+		// Assert that the DSH service was created and is in an approved state
+		approvedServiceItems := suite.getServiceItemsByCode(update.Shipment.MTOServiceItems, models.ReServiceCodeDSH)
+		suite.Equal(approvedServiceItems[0].Status, models.MTOServiceItemStatusApproved)
 
 		// Should have an equal number of rejected and approved service items
 		suite.Equal(len(approvedServiceItems), len(rejectedServiceItems))
-		suite.Equal(autoRejectionRemark, *rejectedServiceItems[0].RejectionReason)
 	})
 
 	suite.Run("Service items were already rejected are not regenerated when pricing type changes post TOO approval", func() {

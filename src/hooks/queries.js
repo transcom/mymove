@@ -30,6 +30,7 @@ import {
   getServicesCounselingPPMQueue,
   getPrimeSimulatorAvailableMoves,
   getPPMCloseout,
+  getPPMActualWeight,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -61,6 +62,7 @@ import {
   DOCUMENTS,
   PRIME_SIMULATOR_AVAILABLE_MOVES,
   PPMCLOSEOUT,
+  PPMACTUALWEIGHT,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -143,6 +145,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
+    move,
     order,
     customerData,
     isLoading,
@@ -258,10 +261,20 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  const ppmShipmentId = mtoShipment?.ppmShipment?.id;
+  const { data: ppmActualWeight, ...ppmActualWeightQuery } = useQuery(
+    [PPMACTUALWEIGHT, ppmShipmentId],
+    ({ queryKey }) => getPPMActualWeight(...queryKey),
+    {
+      enabled: !!ppmShipmentId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery, ppmActualWeightQuery]);
   return {
     mtoShipment,
     documents,
+    ppmActualWeight,
     isLoading,
     isError,
     isSuccess,

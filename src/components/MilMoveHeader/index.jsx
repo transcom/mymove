@@ -6,7 +6,11 @@ import MmLogo from '../../shared/images/milmove-logo.svg';
 
 import styles from './index.module.scss';
 
-const MilMoveHeader = ({ children }) => {
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+
+const MilMoveHeader = ({ specialOrderType, children }) => {
+  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(specialOrderType);
+
   return (
     <Header basic className={styles.mmHeader}>
       <div className="usa-nav-container">
@@ -17,6 +21,11 @@ const MilMoveHeader = ({ children }) => {
             </a>
           </Title>
         </div>
+        {isSpecialMove ? (
+          <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
+            <p>{SPECIAL_ORDERS_TYPES[`${specialOrderType}`]}</p>
+          </div>
+        ) : null}
         <div className={styles.contents}>{children}</div>
       </div>
     </Header>
@@ -24,11 +33,13 @@ const MilMoveHeader = ({ children }) => {
 };
 
 MilMoveHeader.defaultProps = {
+  specialOrderType: null,
   children: null,
 };
 
 MilMoveHeader.propTypes = {
   children: PropTypes.node,
+  specialOrderType: PropTypes.string,
 };
 
 export default MilMoveHeader;

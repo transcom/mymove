@@ -83,6 +83,10 @@ export async function getPPMCloseout(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
 }
 
+export async function getPPMActualWeight(key, ppmShipmentId) {
+  return makeGHCRequest('ppm.getPPMActualWeight', { ppmShipmentId }, { normalize: false });
+}
+
 export async function patchPPMDocumentsSetStatus({ ppmShipmentId, eTag }) {
   return makeGHCRequest(
     'ppm.finishDocumentReview',
@@ -343,6 +347,11 @@ export async function updateMaxBillableWeightAsTIO({ orderID, ifMatchETag, body 
 export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   const operationPath = 'order.acknowledgeExcessWeightRisk';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
+}
+
+export async function createCustomerWithOktaOption({ body }) {
+  const operationPath = 'customer.createCustomerWithOktaOption';
+  return makeGHCRequest(operationPath, { body });
 }
 
 export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
@@ -670,4 +679,8 @@ export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, bod
 
 export async function downloadPPMAOAPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
+}
+
+export async function downloadPPMPaymentPacket(ppmShipmentId) {
+  return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }

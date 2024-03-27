@@ -1,19 +1,17 @@
-schemes:
-  - https
-swagger: '2.0'
-host: admin.move.mil # OpenAPI 2.x only supports a single host, while OpenAPI 3.x supports multiple server stanzas.
+swagger: "2.0"
 info:
+  contact:
+    email: milmove-developers@caci.com
   description:
     $ref: info/admin_description.md
-  version: 1.0.0
-  title: MilMove Admin API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
-  contact: # Contact is set to Pagerduty
-    name: MilMove AppEng
-    email: support@movemil.pagerduty.com
+    url: "https://opensource.org/licenses/MIT"
+  title: MilMove Admin API
+  version: 1.0.0
 basePath: /admin/v1
+schemes:
+  - https
 consumes:
   - application/json
 produces:
@@ -658,6 +656,10 @@ definitions:
           - APPROVED
           - REQUESTED
           - REJECTED
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -713,6 +715,11 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
+      privileges:
+        type: array
+        x-nullable: true
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserUpdate:
     type: object
     properties:
@@ -746,6 +753,10 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserRole:
     type: object
     properties:
@@ -759,6 +770,19 @@ definitions:
         example: 'transportation_ordering_officer'
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Supervisor'
+        x-nullable: true
+        title: name
+      privilegeType:
+        type: string
+        example: 'supervisor'
+        x-nullable: true
+        title: privilegeType
   OfficeUsers:
     type: array
     items:
@@ -802,6 +826,48 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Organization'
+  RequestedOfficeUserUpdate:
+    type: object
+    properties:
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: true
+      middleInitials:
+        type: string
+        title: Middle Initials
+        example: Q.
+        x-nullable: true
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+        x-nullable: true
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REJECTED
   Role:
     type: object
     properties:
@@ -829,6 +895,27 @@ definitions:
       - roleName
       - createdAt
       - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   ServiceMember:
     type: object
     properties:
@@ -1164,6 +1251,40 @@ paths:
             $ref: '#/definitions/OfficeUser'
         '400':
           description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
+    patch:
+      produces:
+        - application/json
+      summary: Update a Requested Office User
+      description: Updates a requested office user to include profile data and status
+      operationId: updateRequestedOfficeUser
+      tags:
+        - Requested office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestedOfficeUserUpdate'
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '401':
           description: request requires user authentication
         '404':
