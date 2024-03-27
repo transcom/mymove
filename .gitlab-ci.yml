@@ -8,6 +8,7 @@ stages:
 
 variables:
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
+  DOCKER_TLS_CERTDIR: "/certs"
   #circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
   #load_tester: &load_tester cimg/python:3.11.3
   #postgres: &postgres cimg/postgres:12.11
@@ -38,7 +39,12 @@ pre_checks:
 pre_deps_golang:
   stage: pre_checks
   # Ensure you use the correct Docker image that has all the necessary tools installed.
-  image: mymove_compiler_image # Uncomment this and replace with the actual Docker image of the `mymove_compiler`.
+  image:  docker:19.03.12 # Uncomment this and replace with the actual Docker image of the `mymove_compiler`.
+  before script: 
+    - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+    - docker pull mymove_compiler_image # Replace with the actual image path
+    - docker tag mymove_compiler_image mymove_compiler:latest
+
   script:
      - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin
      - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
