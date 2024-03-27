@@ -54,7 +54,7 @@ pre_deps_golang:
 
 anti_virus:
   stage: pre_checks
-  #image: av_medium_image # This can reB-18585-gitlab-pipeline-work as is, or use any lightweight image since we're skipping the actual work.
+  image: av_medium_image # This can reB-18585-gitlab-pipeline-work as is, or use any lightweight image since we're skipping the actual work.
   script:
     # - clamscan --version
     # - cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
