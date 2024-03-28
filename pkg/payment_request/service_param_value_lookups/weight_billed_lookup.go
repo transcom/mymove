@@ -117,12 +117,12 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			return weightBilled, nil
 		} else if keyData.MTOServiceItem.MTOShipment.PPMShipment != nil {
 			if len((string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)) > 0 {
-				return (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap), nil
+				weightBilled = (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)
 			}
 		}
-		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
+		estimatedWeight = keyData.MTOServiceItem.MTOShipment.PrimeEstimatedWeight
 
-		originalWeight = r.MTOShipment.PrimeActualWeight
+		originalWeight = keyData.MTOServiceItem.MTOShipment.PrimeActualWeight
 
 		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
@@ -136,8 +136,10 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			} else {
 				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 			}
-			return value, nil
+		} else {
+			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 		}
+		return value, nil
 
 	default:
 		// Shipments that are a diversion must utilize the lowest weight that can be found
