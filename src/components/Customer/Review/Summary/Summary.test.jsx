@@ -2,9 +2,10 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
 import { Summary } from 'components/Customer/Review/Summary/Summary';
-import { MOVE_STATUSES } from 'shared/constants';
 import { renderWithRouterProp } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { customerRoutes } from 'constants/routes';
 import { selectCurrentMoveFromAllMoves } from 'store/entities/selectors';
 
@@ -17,6 +18,11 @@ jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectServiceMemberFromLoggedInUser: jest.fn(),
   selectCurrentMoveFromAllMoves: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const testMove = {
@@ -624,6 +630,63 @@ describe('Summary page', () => {
       expect(
         screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
       ).toBeInTheDocument();
+    });
+
+    it('add shipment modal displays default text, nothing is disabled', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      renderWithRouterProp(<Summary {...testProps} />, {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: '123' },
+      });
+
+      expect(
+        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
+      ).not.toBeInTheDocument();
+
+      expect(screen.getByTitle('Help with adding shipments')).toBeInTheDocument();
+      await userEvent.click(screen.getByTitle('Help with adding shipments'));
+
+      expect(
+        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
+      ).toBeInTheDocument();
+
+      // verify it display default text in modal when nothing is disabled
+      expect(await screen.findByText(/If none of these apply to you, you probably/)).toBeInTheDocument();
+
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+    });
+
+    it('add shipment modal displays still in dev mode', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+      renderWithRouterProp(<Summary {...testProps} />, {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: '123' },
+      });
+
+      expect(
+        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
+      ).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByTitle('Help with adding shipments'));
+
+      expect(
+        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
+      ).toBeInTheDocument();
+
+      // verify it display default text in modal feature flag is enabled. display under construction text
+      expect(
+        await screen.findByText(
+          /Some shipment types are still being developed and will become available at a later date./,
+        ),
+      ).toBeInTheDocument();
+
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
     });
   });
   afterEach(jest.clearAllMocks);
