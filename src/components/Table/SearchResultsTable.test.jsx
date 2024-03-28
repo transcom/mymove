@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import SearchResultsTable from './SearchResultsTable';
 
+import { roleTypes } from 'constants/userRoles';
+
 const mockTableData = [
   {
     branch: 'ARMY',
@@ -71,6 +73,20 @@ describe('SearchResultsTable', () => {
     expect(originGBLOC).toBeInTheDocument();
     const destinationGBLOC = screen.queryByText('CNNQ');
     expect(destinationGBLOC).toBeInTheDocument();
+  });
+  it('renders create move button when logged in as SC and FF is enabled', () => {
+    render(
+      <SearchResultsTable
+        handleClick={() => {}}
+        title="Results"
+        useQueries={mockQueries}
+        roleType={roleTypes.SERVICES_COUNSELOR}
+        isCounselorMoveCreateFFEnabled
+      />,
+    );
+
+    const createMoveButton = screen.queryByTestId('searchCreateMoveButton');
+    expect(createMoveButton).toBeInTheDocument();
   });
   it('loading', () => {
     render(

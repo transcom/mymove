@@ -196,13 +196,17 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 			}
 
 			mtoPayload := payloads.MoveTaskOrder(mto)
-			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewPrimeCounselingComplete(*mtoPayload),
-			)
-			if err != nil {
-				appCtx.Logger().Error(err.Error())
-				return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(
-					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+
+			/* Don't send prime related emails on BLUEBARK moves */
+			if mto.Orders.OrdersType != "BLUEBARK" {
+				err = h.NotificationSender().SendNotification(appCtx,
+					notifications.NewPrimeCounselingComplete(*mtoPayload),
+				)
+				if err != nil {
+					appCtx.Logger().Error(err.Error())
+					return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
 			}
 
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload), nil

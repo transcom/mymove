@@ -75,7 +75,7 @@ test.describe('(MultiMove) Expenses', () => {
       await customerPpmPage.submitExpensePage();
     });
 
-    test.skip(`edit expense page loads`, async ({ page }) => {
+    test(`edit expense page loads`, async ({ page }) => {
       // edit the first expense receipt
       const receipt1 = page.getByText('Receipt 1', { exact: true });
       await expect(receipt1).toBeVisible();

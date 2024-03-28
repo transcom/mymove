@@ -164,3 +164,9 @@ export const DATE_FORMAT_STRING = 'DD MMM YYYY';
 export const DATE_TIME_FORMAT_STRING = 'DD MMM YYYY, hh:mm a';
 
 export const DEFAULT_EMPTY_VALUE = '—'; // emdash
+
+export const FEATURE_FLAG_KEYS = {
+  PPM: 'ppm',
+  NTS: 'nts',
+  NTSR: 'ntsr',
+};

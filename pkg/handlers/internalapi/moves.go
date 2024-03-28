@@ -95,6 +95,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			MoveCode:       move.Locator,
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
+			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
@@ -235,12 +236,15 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewMoveSubmitted(moveID),
-			)
-			if err != nil {
-				logger.Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
+			/* Don't send Move Creation email if orders type is BLUEBARK */
+			if move.Orders.OrdersType != "BLUEBARK" {
+				err = h.NotificationSender().SendNotification(appCtx,
+					notifications.NewMoveSubmitted(moveID),
+				)
+				if err != nil {
+					logger.Error("problem sending email to user", zap.Error(err))
+					return handlers.ResponseForError(logger, err), err
+				}
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

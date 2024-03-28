@@ -1697,6 +1697,7 @@ definitions:
       - SEPARATION
       - GHC
       - NTS
+      - WOUNDED_WARRIOR
       - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
@@ -1705,6 +1706,7 @@ definitions:
       SEPARATION: Separation
       GHC: GHC
       NTS: NTS
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
   OrdersTypeDetail:
     type: string

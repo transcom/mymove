@@ -165,6 +165,7 @@ describe('when given a PPM shipment update', () => {
   it('it correctly renders details of a customer completing a PPM', () => {
     const result = getTemplate(w2Record);
     render(result.getDetails(w2Record));
+    expect(result.getEventNameDisplay(w2Record)).toEqual('Customer Began PPM Document Process');
     expect(screen.getByText('W2 Address')).toBeInTheDocument();
     expect(screen.getByText(': 123 Dad St, Missoula, MT 59801')).toBeInTheDocument();
     expect(screen.getByText('Departure date')).toBeInTheDocument();

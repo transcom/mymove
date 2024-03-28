@@ -19,6 +19,12 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
+	// actual pro gear weight
+	ActualProGearWeight *int64 `json:"actualProGearWeight"`
+
+	// actual spouse pro gear weight
+	ActualSpouseProGearWeight *int64 `json:"actualSpouseProGearWeight"`
+
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 

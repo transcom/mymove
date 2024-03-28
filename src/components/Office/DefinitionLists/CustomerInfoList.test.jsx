@@ -14,6 +14,12 @@ const info = {
     state: 'TX',
     postalCode: '78234',
   },
+  backupAddress: {
+    streetAddress1: '813 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
   backupContact: {
     name: 'Quinn Ocampo',
     email: 'quinnocampo@myemail.com',
@@ -25,7 +31,7 @@ describe('CustomerInfoList', () => {
   it('renders customer info', () => {
     render(<CustomerInfoList customerInfo={info} />);
     Object.keys(info)
-      .filter((k) => k !== 'currentAddress' && k !== 'backupContact')
+      .filter((k) => k !== 'currentAddress' && k !== 'backupAddress' && k !== 'backupContact')
       .forEach((key) => {
         expect(screen.getByText(info[key])).toBeInTheDocument();
       });
@@ -34,6 +40,11 @@ describe('CustomerInfoList', () => {
   it('renders formatted current address', () => {
     render(<CustomerInfoList customerInfo={info} />);
     expect(screen.getByText('812 S 129th St, San Antonio, TX 78234')).toBeInTheDocument();
+  });
+
+  it('renders formatted backup address', () => {
+    render(<CustomerInfoList customerInfo={info} />);
+    expect(screen.getByText('813 S 129th St, San Antonio, TX 78234')).toBeInTheDocument();
   });
 
   it('renders formatted backup contact name', () => {

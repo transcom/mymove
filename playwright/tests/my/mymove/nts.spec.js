@@ -69,6 +69,9 @@ test.describe('(MultiMove) NTS', () => {
     const userId = move.Orders.ServiceMember.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
+    // Navigate from MM Dashboard to Move
+    await customerPage.navigateFromMMDashboardToMove(move);
+
     // Navigate to create a new shipment
     await customerPage.waitForPage.home();
     await page.getByTestId('shipment-selection-btn').click();

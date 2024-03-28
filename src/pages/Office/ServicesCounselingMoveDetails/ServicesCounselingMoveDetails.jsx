@@ -282,6 +282,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     phone: `+1 ${customer.phone}`,
     email: customer.email,
     currentAddress: customer.current_address,
+    backupAddress: customerData.backupAddress,
     backupContact: customer.backup_contact,
   };
 
@@ -467,25 +468,27 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
-            {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
-              <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-                {(counselorCanEdit || counselorCanEditNonPPM) && (
-                  <Button
-                    disabled={
-                      !mtoShipments.length ||
-                      allShipmentsDeleted ||
-                      disableSubmit ||
-                      disableSubmitDueToMissingOrderInfo ||
-                      hasInvalidProGearAllowances
-                    }
-                    type="button"
-                    onClick={handleShowCancellationModal}
-                  >
-                    Submit move details
-                  </Button>
-                )}
-              </Grid>
-            )}
+            <Grid col={6} className={scMoveDetailsStyles.testdiv}>
+              {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
+                <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
+                  {(counselorCanEdit || counselorCanEditNonPPM) && (
+                    <Button
+                      disabled={
+                        !mtoShipments.length ||
+                        allShipmentsDeleted ||
+                        disableSubmit ||
+                        disableSubmitDueToMissingOrderInfo ||
+                        hasInvalidProGearAllowances
+                      }
+                      type="button"
+                      onClick={handleShowCancellationModal}
+                    >
+                      Submit move details
+                    </Button>
+                  )}
+                </Grid>
+              )}
+            </Grid>
           </Grid>
 
           {hasInvalidProGearAllowances ? (

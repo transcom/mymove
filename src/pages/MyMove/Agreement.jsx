@@ -44,7 +44,7 @@ export const Agreement = ({ updateMove, setFlashMessage }) => {
       .then((response) => {
         updateMove(response);
         setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
-        navigate('/');
+        navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
       })
       .catch((error) => {
         // TODO - log error internally?

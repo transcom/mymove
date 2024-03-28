@@ -551,6 +551,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
+	mockPlanner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("TOO approves address change", func() {
@@ -652,6 +657,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		}, nil)
 		shipment := addressChange.Shipment
 		reService := factory.BuildDDFSITReService(suite.DB())
+		sitDestinationOriginalAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -665,6 +671,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model:    reService,
 				LinkOnly: true,
+			},
+			{
+				Model:    sitDestinationOriginalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationOriginalAddress,
 			},
 		}, nil)
 		officeRemarks := "This is a TOO remark"
@@ -788,14 +799,18 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
 		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
 
-		// Assert that all service items were rejected
-		rejectedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusRejected)
-		approvedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusApproved)
+		// Assert that the DLH service item was rejected and has the correct rejection reason
+		rejectedServiceItems := suite.getServiceItemsByCode(update.Shipment.MTOServiceItems, models.ReServiceCodeDLH)
+		suite.Equal(rejectedServiceItems[0].Status, models.MTOServiceItemStatusRejected)
 		autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
+		suite.Equal(autoRejectionRemark, *rejectedServiceItems[0].RejectionReason)
+
+		// Assert that the DSH service was created and is in an approved state
+		approvedServiceItems := suite.getServiceItemsByCode(update.Shipment.MTOServiceItems, models.ReServiceCodeDSH)
+		suite.Equal(approvedServiceItems[0].Status, models.MTOServiceItemStatusApproved)
 
 		// Should have an equal number of rejected and approved service items
 		suite.Equal(len(approvedServiceItems), len(rejectedServiceItems))
-		suite.Equal(autoRejectionRemark, *rejectedServiceItems[0].RejectionReason)
 	})
 
 	suite.Run("Service items were already rejected are not regenerated when pricing type changes post TOO approval", func() {

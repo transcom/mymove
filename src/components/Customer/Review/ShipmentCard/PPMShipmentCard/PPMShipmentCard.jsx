@@ -10,7 +10,7 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel, isArmyOrAirForce, getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, canChoosePPMLocation, getMoveCodeLabel } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
 import { isPPMShipmentComplete } from 'utils/shipments';
@@ -111,7 +111,7 @@ const PPMShipmentCard = ({
               <dd>{secondaryDestinationPostalCode}</dd>
             </div>
           )}
-          {isArmyOrAirForce(affiliation) && closeoutOffice !== '' ? (
+          {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (
             <div className={styles.row}>
               <dt>Closeout office</dt>
               <dd>{closeoutOffice}</dd>

@@ -10,7 +10,6 @@ import { expect, test } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
-  test.skip(true, 'This test fail due to navigateFromDateAndLocationPageToEstimatedWeightsPage()');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);

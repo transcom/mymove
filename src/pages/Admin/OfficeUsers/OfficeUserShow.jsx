@@ -30,6 +30,19 @@ const OfficeUserShowRoles = () => {
   );
 };
 
+const OfficeUserShowPrivileges = () => {
+  const record = useRecordContext();
+  if (!record?.privileges) return <p>No privileges assigned to this office user.</p>;
+
+  return (
+    <ArrayField source="privileges">
+      <Datagrid bulkActionButtons={false}>
+        <TextField source="privilegeName" />
+      </Datagrid>
+    </ArrayField>
+  );
+};
+
 const OfficeUserShow = () => {
   return (
     <Show title={<OfficeUserShowTitle />}>
@@ -43,6 +56,7 @@ const OfficeUserShow = () => {
         <TextField source="telephone" />
         <BooleanField source="active" />
         <OfficeUserShowRoles />
+        <OfficeUserShowPrivileges />
         <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" sortBy="name">
           <TextField component="pre" source="name" />
         </ReferenceField>

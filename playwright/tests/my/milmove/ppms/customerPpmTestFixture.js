@@ -86,7 +86,9 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateToPPMReviewPage() {
     await this.clickOnUploadPPMDocumentsButton();
 
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
+
+    await this.page.getByText('Save & Continue').click();
 
     await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
   }
@@ -318,12 +320,32 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromHomePageToExistingPPMDateAndLocationPage() {
+    await expect(this.page.getByRole('heading', { name: 'Welcome to MilMove' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Current Move' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
-
     await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
 
     await expect(this.page.getByRole('heading', { name: 'PPM date & location' })).toBeVisible();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
+  }
+
+  async navigateFromHomePageToExistingPPMAboutForm() {
+    await expect(this.page.getByRole('heading', { name: 'Welcome to MilMove' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Current Move' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
+
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments/);
+  }
+
+  async fillOutAboutFormDate() {
+    await this.page.getByPlaceholder('DD MMM YYYY').fill('20 Mar 2024');
+    await this.page.getByLabel('Fri Mar 22 2024').click();
+
+    // expect that future dates cannot be clicked
+    await expect(this.page.getByLabel('Sat Mar 15 2030')).not.toBeVisible();
   }
 
   /**
@@ -489,11 +511,11 @@ export class CustomerPpmPage extends CustomerPage {
         await this.page.locator('label[for="agreeToTerms"]').click();
       }
     }
-    await saveButton.click();
+
+    // click and wait for page path to change
+    await Promise.all([this.page.waitForURL(/.*\/moves\/[^/]+\/review$/), saveButton.click()]);
 
     await expect(this.page.getByRole('heading', { name: 'Review your details', exact: true })).toBeVisible();
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/review/);
-
     await expect(this.page.locator('.usa-alert__heading')).toContainText('Details saved');
     await expect(this.page.locator('.usa-alert__heading + p')).toContainText(
       'Review your info and submit your move request now, or come back and finish later.',
@@ -643,14 +665,16 @@ export class CustomerPpmPage extends CustomerPage {
   async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
     const { isEditable = false } = options;
     // get first div after the move setup heading
-    const ppm1 = this.page.locator(':text("Move setup") + div');
+    const ppm1 = this.page.locator(':text("Move setup") + div:has(:text("PPM 1"))');
     await expect(ppm1).toBeVisible();
 
     if (isEditable) {
       await expect(ppm1.getByRole('button', { name: 'Edit' })).toBeVisible();
       await expect(ppm1.getByRole('button', { name: 'Delete' })).toBeVisible();
     } else {
-      await expect(ppm1.locator('[data-testid="ShipmentContainer"]').locator('button')).not.toBeVisible();
+      for (const loc of await ppm1.locator('[data-testid="ShipmentContainer"]').locator('button').all()) {
+        await expect(loc).not.toBeVisible();
+      }
     }
   }
 
@@ -702,11 +726,13 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {string} moveId
+   * returns {Promise<void>}
    */
-  async cancelAddLineItemAndReturnToCloseoutReviewPage() {
+  async cancelAddLineItemAndReturnToCloseoutReviewPage(moveId) {
     // calculate the home url to wait for it after click
     const url = new URL(this.page.url());
-    url.pathname = '/';
+    url.pathname = `/move/${moveId}`;
     await this.page.getByRole('button', { name: 'Return to Homepage' }).click();
     await this.page.waitForURL(url.href);
     await this.navigateToPPMReviewPage();
@@ -813,7 +839,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    await this.page.getByRole('link', { name: 'Add Expense' }).click();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
@@ -876,7 +902,7 @@ export class CustomerPpmPage extends CustomerPage {
       totalNetWeight: '4,000 lbs',
       proGearWeight: '1,500 lbs',
       expensesClaimed: '450.00',
-      finalIncentiveAmount: '$500,000.00',
+      finalIncentiveAmount: '$500,0000.00',
     },
   ) {
     await expect(
@@ -894,12 +920,13 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * returns {Promise<void>}
    */
-  async signCloseoutAgreement() {
+  async signCloseoutAgreement(moveId) {
     await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
 
     // calculate the home url to wait for it after click
     const url = new URL(this.page.url());
-    url.pathname = '/';
+    url.pathname = `/move/${moveId}`;
+
     await this.page.getByRole('button', { name: 'Submit PPM Documentation' }).click();
     await this.page.waitForURL(url.href);
 
@@ -911,7 +938,7 @@ export class CustomerPpmPage extends CustomerPage {
       stepContainer = this.page.locator('[data-testid="stepContainer5"]');
     }
 
-    await expect(stepContainer.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
+    await expect(stepContainer.getByRole('button', { name: 'Download Payment Packet' })).toBeDisabled();
     await expect(stepContainer.getByText(/PPM documentation submitted: \d{2} \w{3} \d{4}/)).toBeVisible();
   }
 
@@ -923,9 +950,9 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {string} [options.finalIncentiveAmount='$500,000.00']
    * returns {Promise<void>}
    */
-  async submitFinalCloseout(options) {
+  async submitFinalCloseout(moveId, options) {
     await this.verifyFinalIncentiveAndTotals(options);
-    await this.signCloseoutAgreement();
+    await this.signCloseoutAgreement(moveId);
   }
 }
 

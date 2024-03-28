@@ -7,12 +7,6 @@ const InternalAPIName string = "internalapi"
 
 // -------------------- ENDPOINT KEYS --------------------
 
-// InternalShowPPMEstimateEndpointKey is the key for the showPPMEstimate endpoint in internal
-const InternalShowPPMEstimateEndpointKey = "Internal.ShowPPMEstimate"
-
-// InternalShowPPMSitEstimateEndpointKey is the key for the showPPMSitEstimate endpoint in internal
-const InternalShowPPMSitEstimateEndpointKey = "Internal.ShowPPMSitEstimate"
-
 // InternalShowLoggedInUserEndpointKey is the key for the showLoggedInUser endpoint in internal
 const InternalShowLoggedInUserEndpointKey = "Internal.ShowLoggedInUser"
 
@@ -153,14 +147,6 @@ const InternalUpdateWeightTicketEndpointKey = "Internal.UpdateWeightTicket"
 
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var internalEndpoints = EndpointMapType{
-	InternalShowPPMEstimateEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "showPPMEstimate",
-	},
-	InternalShowPPMSitEstimateEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "showPPMSitEstimate",
-	},
 	InternalShowLoggedInUserEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "showLoggedInUser",

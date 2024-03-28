@@ -5,7 +5,7 @@ import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -125,7 +125,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const homePath = generatePath(generalRoutes.HOME_PATH);
+const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
 const weightTicketsEditPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -241,7 +241,7 @@ describe('Weight Tickets page', () => {
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockNavigate).toHaveBeenCalledWith(homePath);
+    expect(mockNavigate).toHaveBeenCalledWith(movePath);
   });
 
   it('calls patch weight ticket with the appropriate payload', async () => {

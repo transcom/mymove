@@ -89,7 +89,7 @@ describe('ReviewDocumentsSidePanel', () => {
     );
 
     const listItems = await screen.getAllByRole('listitem');
-    expect(listItems).toHaveLength(8);
+    expect(listItems).toHaveLength(9);
 
     // weight ticket 1
     expect(listItems[0]).toHaveTextContent(/Trip 1/);

@@ -15,13 +15,16 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso } from 'utils/formatters';
 import { usePrimeSimulatorAvailableMovesQueries, useUserQueries } from 'hooks/queries';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columnHeaders = () => [
   createHeader(
     'Move ID',
     (row) => (
       <div>
-        {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+        {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+          <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+        ) : null}
         {`${row.id}`}
       </div>
     ),

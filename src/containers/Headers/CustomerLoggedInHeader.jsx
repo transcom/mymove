@@ -8,16 +8,17 @@ import CustomerUserInfo from 'components/MilMoveHeader/CustomerUserInfo';
 import { LogoutUser } from 'utils/api';
 import { logOut as logOutAction } from 'store/auth/actions';
 import { selectIsProfileComplete } from 'store/entities/selectors';
+import { selectCurrentMoveId } from 'store/general/selectors';
 
-const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut }) => {
+const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut, moveId }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const moveID = pathname.split('/')[2];
 
-  let isSpecialMove = false;
+  let specialOrderType = '';
   if (Object.keys(state.entities.orders).length > 0) {
     const currentOrderType = Object.values(state.entities.orders).filter((order) => order.moves[0] === moveID)[0];
-    isSpecialMove = ['BLUEBARK'].includes(currentOrderType?.orders_type);
+    specialOrderType = currentOrderType?.orders_type;
   }
 
   const handleLogout = () => {
@@ -35,8 +36,8 @@ const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut }) => {
   };
 
   return (
-    <MilMoveHeader isSpecialMove={isSpecialMove}>
-      <CustomerUserInfo showProfileLink={isProfileComplete} handleLogout={handleLogout} />
+    <MilMoveHeader specialOrderType={specialOrderType}>
+      <CustomerUserInfo showProfileLink={isProfileComplete} handleLogout={handleLogout} moveId={moveId} />
     </MilMoveHeader>
   );
 };
@@ -53,6 +54,8 @@ CustomerLoggedInHeader.defaultProps = {
 const mapStateToProps = (state) => ({
   state,
   isProfileComplete: selectIsProfileComplete(state),
+  // Grab moveId from state that was set from the most recent navigation to a move
+  moveId: selectCurrentMoveId(state),
 });
 
 const mapDispatchToProps = {

@@ -24,7 +24,7 @@ describe('when given a Create mto shipment history record', () => {
   it('correctly matches the Create basic service item event', () => {
     const result = getTemplate(historyRecord);
     expect(result).toMatchObject(e);
-    expect(result.getEventNameDisplay(result)).toEqual('Created shipment');
+    expect(result.getEventNameDisplay(historyRecord)).toEqual('Created shipment');
   });
   describe('it correctly renders the details component for Create MTO shipments', () => {
     it.each([

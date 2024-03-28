@@ -152,6 +152,13 @@ export const MoveTaskOrder = (props) => {
         rejectionReason: item.rejectionReason,
         sitDepartureDate: item.sitDepartureDate,
         sitEntryDate: item.sitEntryDate,
+        sitOriginHHGOriginalAddress: item.sitOriginHHGOriginalAddress,
+        sitOriginHHGActualAddress: item.sitOriginHHGActualAddress,
+        sitDestinationFinalAddress: item.sitDestinationFinalAddress,
+        sitDestinationOriginalAddress: item.sitDestinationOriginalAddress,
+        sitCustomerContacted: item.sitCustomerContacted,
+        sitRequestedDelivery: item.sitRequestedDelivery,
+        sitDeliveryMiles: item.sitDeliveryMiles,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -1089,6 +1096,8 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1098,6 +1107,8 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
@@ -1106,6 +1117,8 @@ export const MoveTaskOrder = (props) => {
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
               </ShipmentContainer>

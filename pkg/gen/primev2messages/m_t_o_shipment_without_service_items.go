@@ -28,6 +28,14 @@ type MTOShipmentWithoutServiceItems struct {
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
+	// The actual weight of any pro gear being shipped.
+	//
+	ActualProGearWeight *int64 `json:"actualProGearWeight"`
+
+	// The actual weight of any spouse pro gear being shipped.
+	//
+	ActualSpouseProGearWeight *int64 `json:"actualSpouseProGearWeight"`
+
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
