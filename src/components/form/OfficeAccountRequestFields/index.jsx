@@ -1,0 +1,98 @@
+import React from 'react';
+import { func, node, string } from 'prop-types';
+import { Fieldset } from '@trussworks/react-uswds';
+
+import TextField from 'components/form/fields/TextField/TextField';
+import { DropdownInput } from 'components/form/fields/DropdownInput';
+import { CheckboxField } from 'components/form/fields';
+
+export const OfficeAccountRequestFields = ({ legend, className, render }) => {
+  const firstNameFieldName = 'officeAccountRequestFirstName';
+  const middleInitialFieldName = 'officeAccountRequestMiddleInitial';
+  const lastNameFieldName = 'officeAccountRequestLastName';
+  const emailField = 'officeAccountRequestEmail';
+  const telephoneFieldName = 'officeAccountRequestTelehpone';
+  const edipiFieldName = 'officeAccountRequestEdipi';
+  const otherUniqueIdName = 'officeAccountOtherUniqueId';
+  const transportationOfficeDropDown = 'officeAccountTransportationOffice';
+
+  return (
+    <Fieldset legend={legend} className={className}>
+      {render(
+        <>
+          <TextField label="First Name" name={firstNameFieldName} id="officeAccountRequestFirstName" required />
+          <TextField
+            label="Middle Initial"
+            name={middleInitialFieldName}
+            id="officeAccountRequestMiddleInitial"
+            optional
+          />
+          <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" required />
+          <TextField label="Email" name={emailField} id="officeAccountRequestEmail" required />
+          <TextField label="Telephone" name={telephoneFieldName} id="officeAccountRequestTelephone" required />
+          <TextField
+            label="DoD ID number | EDIPI"
+            labelHint="10 digit number"
+            name={edipiFieldName}
+            id="officeAccountRequestEdipi"
+            maxLength="10"
+            inputMode="numeric"
+          />
+          <TextField
+            label="Other unique identifier"
+            labelHint="If using PIV"
+            name={otherUniqueIdName}
+            id="officeAccountRequestOtherUniqueId"
+            maxLength="10"
+            inputMode="numeric"
+          />
+          <DropdownInput
+            name={transportationOfficeDropDown}
+            id="officeAccountRequestTransportationOfficeDropdown"
+            label="Transportation Office"
+            placeHolderText="Select Transportation Office"
+
+            // options={transportationOfficeList}
+            // validate={validators?.transportationOffice}
+          />
+          <h4>Requested Role(s)</h4>
+          <CheckboxField
+            id="transportationOrderingOfficerCheckBox"
+            name="transportationOrderingOfficerCheckBox"
+            label="Transportation Ordering Officer"
+          />
+          <CheckboxField
+            id="transportationInvoicingOfficerCheckBox"
+            name="transportationInvoicingOfficerCheckBox"
+            label="Transportation Invoicing Officer"
+          />
+          <CheckboxField
+            id="transportationContractingOfficerCheckBox"
+            name="transportationContractingOfficerCheckBox"
+            label="Contracting Officer"
+          />
+          <CheckboxField id="servicesCounselorCheckBox" name="servicesCounselorCheckBox" label="Services Counselor" />
+          <CheckboxField
+            id="qualityAssuranceAndCustomerSupportCheckBox"
+            name="qualityAssuranceAndCustomerSupportCheckBox"
+            label="Quality Assurance & Customer Support"
+          />
+        </>,
+      )}
+    </Fieldset>
+  );
+};
+
+OfficeAccountRequestFields.propTypes = {
+  legend: node,
+  className: string,
+  render: func,
+};
+
+OfficeAccountRequestFields.defaultProps = {
+  legend: '',
+  className: '',
+  render: (fields) => fields,
+};
+
+export default OfficeAccountRequestFields;
