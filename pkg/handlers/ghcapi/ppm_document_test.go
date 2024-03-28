@@ -368,10 +368,13 @@ func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
 	setUpPPMShipment := func() models.PPMShipment {
 		ppmShipment = factory.BuildPPMShipmentWithApprovedDocuments(nil)
 
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
 		ppmShipment.UpdatedAt = ppmShipment.CreatedAt.AddDate(0, 0, 5)
 		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Must(uuid.NewV4())
+		ppmShipment.Shipment.MoveTaskOrderID = move.ID
 
 		return ppmShipment
 	}
