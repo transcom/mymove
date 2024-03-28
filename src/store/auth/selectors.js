@@ -13,3 +13,7 @@ export function selectGetCurrentUserIsLoading(state) {
 export function selectGetCurrentUserIsError(state) {
   return state.auth.hasErrored;
 }
+
+export const selectCacValidated = (serviceMember) => {
+  return serviceMember?.cac_validated || false;
+};
