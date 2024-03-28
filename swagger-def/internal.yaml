@@ -669,6 +669,8 @@ definitions:
         $ref: "#/definitions/IndexServiceMemberBackupContactsPayload"
       is_profile_complete:
         type: boolean
+      cac_validated:
+        type: boolean
       created_at:
         type: string
         format: date-time

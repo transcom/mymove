@@ -456,7 +456,8 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	switch userType {
 	case MilMoveUserType:
 		newServiceMember := models.ServiceMember{
-			UserID: user.ID,
+			UserID:       user.ID,
+			CacValidated: true,
 		}
 		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
