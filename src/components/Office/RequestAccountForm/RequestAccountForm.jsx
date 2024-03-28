@@ -11,13 +11,19 @@ import { OfficeAccountRequestFields } from 'components/form/OfficeAccountRequest
 import '@trussworks/react-uswds/lib/index.css';
 import { Form } from 'components/form/Form';
 import { withContext } from 'shared/AppContext';
+import { officeAccountRequestSchema } from 'utils/validation';
 
 const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
   const sectionStyles = classnames(formStyles.formSection, requestAccountFormStyles.formSection);
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit}>
-      {({ handleSubmit }) => {
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validateOnMount
+      validationSchema={officeAccountRequestSchema}
+    >
+      {({ isValid, handleSubmit }) => {
         return (
           <Form className={classnames(formStyles.form, requestAccountFormStyles.form)}>
             <SectionWrapper className={sectionStyles}>
@@ -36,10 +42,15 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
             </SectionWrapper>
 
             <div className={requestAccountFormStyles.buttonRow}>
-              <Button type="button" onClick={() => handleSubmit} data-testid="requestOfficeAccountSubmitButton">
+              <Button
+                type="button"
+                disabled={!isValid}
+                onClick={() => handleSubmit()}
+                data-testid="requestOfficeAccountSubmitButton"
+              >
                 Request Account
               </Button>
-              <Button type="button" onClick={() => onCancel} data-testid="requestOfficeAccountCancelButton">
+              <Button type="button" onClick={() => onCancel()} data-testid="requestOfficeAccountCancelButton">
                 Cancel
               </Button>
             </div>
