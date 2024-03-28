@@ -33,9 +33,9 @@ export class SelectShipmentType extends Component {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
       errorMessage: null,
-      enablePPM: true,
-      enableNTS: true,
-      enableNTSR: true,
+      enablePPM: false,
+      enableNTS: false,
+      enableNTSR: false,
     };
   }
 
