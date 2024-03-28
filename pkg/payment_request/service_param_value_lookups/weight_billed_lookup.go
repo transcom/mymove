@@ -117,28 +117,31 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			return "", err
 		} else if len(weightBilled) > 0 {
 			return weightBilled, nil
-		} else {
-			estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
-
-			originalWeight = keyData.MTOServiceItem.ActualWeight
-
-			if originalWeight == nil {
-				// TODO: Do we need a different error -- is this a "normal" scenario?
-				return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		} else if keyData.MTOServiceItem.MTOShipment.PPMShipment != nil {
+			if len((string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)) > 0 {
+				weightBilled = (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)
 			}
+		}
+		estimatedWeight = keyData.MTOServiceItem.MTOShipment.PrimeEstimatedWeight
 
-			if estimatedWeight != nil {
-				estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
-				if float64(*originalWeight) > estimatedWeightCap {
-					value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
-				} else {
-					value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
-				}
+		originalWeight = keyData.MTOServiceItem.MTOShipment.PrimeActualWeight
+
+		if originalWeight == nil {
+			// TODO: Do we need a different error -- is this a "normal" scenario?
+			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		}
+
+		if estimatedWeight != nil {
+			estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
+			if float64(*originalWeight) > estimatedWeightCap {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
 			} else {
 				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 			}
-			return value, nil
+		} else {
+			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 		}
+		return value, nil
 
 	default:
 		// Shipments that are a diversion must utilize the lowest weight that can be found
