@@ -22,4 +22,11 @@ describe('When a customer signs and submits a move request', () => {
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Received customer signature')).toBeInTheDocument();
   });
+
+  it('displays event name', () => {
+    const template = getTemplate(historyRecord);
+
+    render(template.getEventNameDisplay());
+    expect(screen.getByText('Customer Signature')).toBeInTheDocument();
+  });
 });
