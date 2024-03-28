@@ -346,6 +346,37 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/orders':
+    post:
+      summary: Creates an orders model for a logged-in user
+      description: Creates an instance of orders tied to a service member, which allow for creation of a move and an entitlement. Orders are required before the creation of a move
+      operationId: createOrder
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: createOrders
+          schema:
+            $ref: '#/definitions/CreateOrders'
+      responses:
+        '200':
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/Order'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          description: internal server error
   '/orders/{orderID}':
     parameters:
       - description: ID of order to use
@@ -4011,6 +4042,9 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -4322,6 +4356,74 @@ definitions:
       eTag:
         type: string
     type: object
+  OrderBody:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+  CreateOrders:
+    type: object
+    properties:
+      serviceMemberId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        title: Report-by date
+      ordersType:
+        $ref: 'definitions/OrdersType.yaml'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      spouseHasProGear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+      newDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ordersNumber:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: '030-00362'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      grade:
+        $ref: '#/definitions/Grade'
+      originDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    required:
+      - serviceMemberId
+      - issueDate
+      - reportByDate
+      - ordersType
+      - hasDependents
+      - spouseHasProGear
+      - newDutyLocationId
   CounselingUpdateOrderPayload:
     type: object
     properties:

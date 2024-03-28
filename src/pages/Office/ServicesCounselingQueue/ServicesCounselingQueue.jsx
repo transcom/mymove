@@ -1,11 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
@@ -35,6 +35,8 @@ import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import retryPageLoading from 'utils/retryPageLoading';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -210,8 +212,37 @@ const ServicesCounselingQueue = () => {
 
   const navigate = useNavigate();
 
-  const handleClick = (values) => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+  const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
+  const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+
+  // Feature Flag
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const isEnabled = await isCounselorMoveCreateEnabled();
+        setisCounselorMoveCreateFFEnabled(isEnabled);
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        setErrorState({
+          hasError: true,
+          error,
+          info: null,
+        });
+        retryPageLoading(error);
+      }
+    };
+    fetchData();
+  }, [setErrorState]);
+
+  const handleClick = (values, e) => {
+    if (e?.target?.innerHTML === 'Create New Move') {
+      navigate(
+        generatePath(servicesCounselingRoutes.BASE_CREATE_MOVE_EDIT_CUSTOMER_PATH, { moveCode: values.locator }),
+      );
+    } else {
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
 
   const handleAddCustomerClick = () => {
@@ -320,6 +351,7 @@ const ServicesCounselingQueue = () => {
             dodID={search.dodID}
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
+            isCounselorMoveCreateFFEnabled={isCounselorMoveCreateFFEnabled}
           />
         )}
       </div>

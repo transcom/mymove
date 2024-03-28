@@ -42,6 +42,7 @@ import WebhookSubscriptionShow from 'pages/Admin/WebhookSubscriptions/WebhookSub
 import WebhookSubscriptionCreate from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionCreate';
 import RequestedOfficeUserList from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserList';
 import RequestedOfficeUserShow from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserShow';
+import RequestedOfficeUserEdit from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserEdit';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -76,7 +77,7 @@ const Home = () => (
         options={{ label: 'Requested Office Users' }}
         list={RequestedOfficeUserList}
         show={RequestedOfficeUserShow}
-        edit={OfficeUserEdit}
+        edit={RequestedOfficeUserEdit}
       />
       <Resource
         name="office-users"
