@@ -91,4 +91,18 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Contains(errors.ValidationErrors.Keys(), "state")
 		suite.Contains(errors.ValidationErrors.Keys(), "postal_code")
 	})
+
+	suite.Run("Fails when zip code is invalid", func() {
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     "11111",
+		})
+
+		suite.Nil(address)
+		suite.NotNil(err)
+		suite.Equal("No county found for provided zip code 11111", err.Error())
+	})
 }

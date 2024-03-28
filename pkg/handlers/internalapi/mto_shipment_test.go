@@ -139,6 +139,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 				PickupAddress: &internalmessages.Address{
 					City:           &subtestData.pickupAddress.City,
 					Country:        subtestData.pickupAddress.Country,
+					County:         subtestData.pickupAddress.County,
 					PostalCode:     &subtestData.pickupAddress.PostalCode,
 					State:          &subtestData.pickupAddress.State,
 					StreetAddress1: &subtestData.pickupAddress.StreetAddress1,
@@ -148,6 +149,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 				SecondaryPickupAddress: &internalmessages.Address{
 					City:           &secondaryPickupAddress.City,
 					Country:        secondaryPickupAddress.Country,
+					County:         secondaryPickupAddress.County,
 					PostalCode:     &secondaryPickupAddress.PostalCode,
 					State:          &secondaryPickupAddress.State,
 					StreetAddress1: &secondaryPickupAddress.StreetAddress1,
@@ -157,6 +159,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 				DestinationAddress: &internalmessages.Address{
 					City:           &destinationAddress.City,
 					Country:        destinationAddress.Country,
+					County:         destinationAddress.County,
 					PostalCode:     &destinationAddress.PostalCode,
 					State:          &destinationAddress.State,
 					StreetAddress1: &destinationAddress.StreetAddress1,
@@ -166,6 +169,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 				SecondaryDeliveryAddress: &internalmessages.Address{
 					City:           &secondaryDeliveryAddress.City,
 					Country:        secondaryDeliveryAddress.Country,
+					County:         secondaryDeliveryAddress.County,
 					PostalCode:     &secondaryDeliveryAddress.PostalCode,
 					State:          &secondaryDeliveryAddress.State,
 					StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
