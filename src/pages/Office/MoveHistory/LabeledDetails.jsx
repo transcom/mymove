@@ -10,6 +10,7 @@ import monetaryFields from 'constants/MoveHistory/Database/MonetaryFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/OptionFields';
+import { expenseTypeLabels } from 'constants/ppmExpenseTypes.js';
 import {
   formatCents,
   formatCustomerDate,
@@ -33,6 +34,8 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = optionFields[displayValue];
   } else if (statusFields[displayValue]) {
     displayValue = statusFields[displayValue];
+  } else if (expenseTypeLabels[displayValue]) {
+    displayValue = expenseTypeLabels[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
   } else if (booleanFields[fieldName]) {
@@ -53,6 +56,7 @@ const retrieveTextToDisplay = (fieldName, value) => {
 
 const LabeledDetails = ({ historyRecord }) => {
   const changedValuesToUse = historyRecord.changedValues;
+  const oldValuesToUse = historyRecord.oldValues;
   let shipmentDisplay = '';
 
   // Check for shipment_type to use it as a header for the row
@@ -67,16 +71,26 @@ const LabeledDetails = ({ historyRecord }) => {
     delete changedValuesToUse.service_item_name;
   }
 
-  if ('moving_expense_type' in changedValuesToUse) {
-    shipmentDisplay += `, ${changedValuesToUse.moving_expense_type}`;
-    delete changedValuesToUse.moving_expense_type;
+  if (oldValuesToUse && 'belongs_to_self' in oldValuesToUse) {
+    shipmentDisplay += `, ${oldValuesToUse.belongs_to_self ? 'Service Member' : 'Spouse'}`;
+  }
+
+  if ('moving_expense_type' in changedValuesToUse && oldValuesToUse && oldValuesToUse.moving_expense_type) {
+    // display old moving expense label first if changed
+    shipmentDisplay += `, ${expenseTypeLabels[oldValuesToUse.moving_expense_type]}`;
+  } else if (changedValuesToUse && changedValuesToUse.moving_expense_type) {
+    // display new moving expense label is there is no old moving expense label
+    shipmentDisplay += `, ${expenseTypeLabels[changedValuesToUse.moving_expense_type]}`;
+  } else if ('moving_expense_type' in historyRecord.context[0]) {
+    // display existing moving expense label if not changed
+    shipmentDisplay += `, ${expenseTypeLabels[historyRecord.context[0].moving_expense_type]}`;
   }
 
   /* Filter out empty values unless they used to be non-empty
      These values may be non-nullish in oldValues and nullish in changedValues */
   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
     return (
-      changedValuesToUse[dbField] ||
+      (dbField in changedValuesToUse && changedValuesToUse[dbField] !== null && changedValuesToUse[dbField] !== '') ||
       (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
     );
   });

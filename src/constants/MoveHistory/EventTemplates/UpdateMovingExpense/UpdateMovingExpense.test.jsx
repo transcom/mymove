@@ -74,6 +74,27 @@ describe('When given an updated expense document it', () => {
     });
   });
 
+  describe('properly renders updated expenses', () => {
+    it.each(expenseTypes)('%s documents', (label, docType) => {
+      expenseRecord.context[0].moving_expense_type = docType;
+      expenseRecord.changedValues = {
+        missing_receipt: true,
+        moving_expense_type: docType,
+        paid_with_gtcc: false,
+      };
+      const template = getTemplate(expenseRecord);
+
+      render(template.getDetails(expenseRecord));
+      expect(screen.getByText(`PPM shipment #71F6F, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText('Paid with gtcc')).toBeInTheDocument();
+      expect(screen.getByText(': No')).toBeInTheDocument();
+      expect(screen.getByText('Missing receipt')).toBeInTheDocument();
+      expect(screen.getByText(': Yes')).toBeInTheDocument();
+      expect(screen.getByText('Expense type')).toBeInTheDocument();
+      expect(screen.getByText(`: ${label}`)).toBeInTheDocument();
+    });
+  });
+
   it('handles SIT dates', () => {
     expenseRecord.changedValues = {
       sit_end_date: '2024-01-01',

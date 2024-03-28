@@ -47,11 +47,26 @@ describe('When given a updated weight', () => {
     tableName: t.progear_weight_tickets,
   };
 
-  it('displays shipment type, shipment ID, and service item name properly', () => {
+  it('displays shipment type, shipment ID, and service member properly', () => {
     const template = getTemplate(progearRecord);
 
     render(template.getDetails(progearRecord));
-    expect(screen.getByText('PPM shipment #F10BE')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #F10BE, Service Member')).toBeInTheDocument();
+  });
+
+  it('displays shipment type, shipment ID, and spouse properly', () => {
+    const template = getTemplate(spouseProgearRecord);
+
+    render(template.getDetails(spouseProgearRecord));
+    expect(screen.getByText('PPM shipment #F10BE, Spouse')).toBeInTheDocument();
+  });
+
+  it('displays weight updates', () => {
+    const template = getTemplate(progearRecord);
+
+    render(template.getDetails(progearRecord));
+    expect(screen.getByText('Weight')).toBeInTheDocument();
+    expect(screen.getByText(': 1,000 lbs')).toBeInTheDocument();
   });
 
   it('displays an approved request', () => {

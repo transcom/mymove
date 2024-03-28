@@ -13,8 +13,15 @@ const formatChangedValues = (historyRecord) => {
     ...getMtoShipmentLabel(historyRecord),
     ...formatDataForPPM(historyRecord),
   };
+  let newOldValues;
+  if (historyRecord.context[0]?.moving_expense_type) {
+    newOldValues = {
+      ...historyRecord.oldValues,
+      moving_expense_type: historyRecord.context[0].moving_expense_type,
+    };
+  }
 
-  return { ...historyRecord, changedValues: newChangedValues };
+  return { ...historyRecord, changedValues: newChangedValues, oldValues: newOldValues };
 };
 
 export default {
