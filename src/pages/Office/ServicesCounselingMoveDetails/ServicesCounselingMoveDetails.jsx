@@ -465,12 +465,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 </Alert>
               </Grid>
             )}
-            <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
+            <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
-            </Grid>
-            <Grid col={6} className={scMoveDetailsStyles.testdiv}>
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
-                <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
+                <div>
                   {(counselorCanEdit || counselorCanEditNonPPM) && (
                     <Button
                       disabled={
@@ -486,7 +484,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                       Submit move details
                     </Button>
                   )}
-                </Grid>
+                </div>
               )}
             </Grid>
           </Grid>

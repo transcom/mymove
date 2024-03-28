@@ -237,6 +237,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		order.NewOrderUpdater(moveRouter),
 	}
+	ghcAPI.OrderCreateOrderHandler = CreateOrderHandler{
+		handlerConfig,
+	}
 
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		handlerConfig,
