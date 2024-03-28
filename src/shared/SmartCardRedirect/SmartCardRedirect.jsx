@@ -13,6 +13,8 @@ const SmartCardRedirect = () => (
         Please sign out and authenticate with your smart card.
         <br />
         Once you sign in with your smart card, it is an optional authentication method going forward.
+        <br />
+        You can then use any other authenticator you have set up.
       </p>
       <br />
       <br />
