@@ -439,6 +439,21 @@ func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	return move, nil
 }
 
+func FetchMoveByMoveIDWithOrders(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	err := db.Q().Eager(
+		"Orders",
+	).Where("show = TRUE").Find(&move, moveID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Move{}, ErrFetchNotFound
+		}
+		return Move{}, err
+	}
+	return move, nil
+}
+
 // IsCanceled returns true if the Move's status is `CANCELED`, false otherwise
 func (m Move) IsCanceled() *bool {
 	if m.Status == MoveStatusCANCELED {
