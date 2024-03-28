@@ -946,11 +946,17 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 	if appCtx.Session().IsMilApp() &&
 		appCtx.Session().OktaSessionInfo.SignedInWithSmartCard &&
 		!*(userIdentity.ServiceMemberCacValidated) {
-		sm, _ := models.FetchServiceMember(appCtx.DB(), *userIdentity.ServiceMemberID)
+		sm, err := models.FetchServiceMember(appCtx.DB(), *userIdentity.ServiceMemberID)
+		if err != nil {
+			appCtx.Logger().Error("Error fetching service member to update", zap.Error(err))
+		}
 		sm.CacValidated = true
 		smVerrs, err := models.SaveServiceMember(appCtx, &sm)
-		if smVerrs.HasAny() || err != nil {
+		if err != nil {
 			appCtx.Logger().Error("Error updating service member's cac_verified value", zap.Error(err))
+		}
+		if smVerrs.HasAny() {
+			appCtx.Logger().Error("Error updating service member's cac_verified value", zap.Error(smVerrs))
 		}
 	}
 
