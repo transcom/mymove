@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Routes, Link, matchPath, Navigate } from 'react-router-dom';
@@ -282,6 +281,28 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+                    {activeRole === roleTypes.TIO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+                            <PaymentRequestQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+                    {activeRole === roleTypes.TOO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <MoveQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
@@ -448,8 +469,8 @@ export class OfficeApp extends Component {
                     <Route end path="/select-application" element={<ConnectedSelectApplication />} />
 
                     {/* ROOT */}
-                    {activeRole === roleTypes.TIO && <Route end path="/" element={<PaymentRequestQueue />} />}
-                    {activeRole === roleTypes.TOO && <Route end path="/" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
+                    {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}

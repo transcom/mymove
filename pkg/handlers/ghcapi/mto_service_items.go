@@ -264,7 +264,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			if err != nil {
 				appCtx.Logger().Error(
 					"Error fetching move task order: ",
-					zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)),
+					zap.Error(fmt.Errorf("move Task Order ID: %s", moveTaskOrder.ID)),
 					zap.Error(err))
 
 				return mtoserviceitemop.NewListMTOServiceItemsNotFound(), err
