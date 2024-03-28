@@ -819,7 +819,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify access token
-	_, verificationError := verifyToken(exchange.IDToken, returnedState, *provider)
+	jwtResult, verificationError := verifyToken(exchange.IDToken, returnedState, *provider)
 
 	if verificationError != nil {
 		appCtx.Logger().Error("token exchange verification", zap.Error(err))
@@ -841,13 +841,22 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// adding Okta profile data with intent to use for Okta profile editing from MilMove app
 	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().Email = profileData.Email
+
+	// checking to see if user signed in with smart card
+	// this will be leveraged in the customer app to ensure they authenticate with SC at least once
+	var loggedInWithSmartCard bool
+	if didUserSignInWithSmartCard(jwtResult.Claims, "sc") {
+		loggedInWithSmartCard = true
+	}
+
 	oktaInfo := auth.OktaSessionInfo{
-		Login:     profileData.PreferredUsername,
-		Email:     profileData.Email,
-		FirstName: profileData.GivenName,
-		LastName:  profileData.FamilyName,
-		Edipi:     profileData.Edipi,
-		Sub:       profileData.Sub,
+		Login:                 profileData.PreferredUsername,
+		Email:                 profileData.Email,
+		FirstName:             profileData.GivenName,
+		LastName:              profileData.FamilyName,
+		Edipi:                 profileData.Edipi,
+		Sub:                   profileData.Sub,
+		SignedInWithSmartCard: loggedInWithSmartCard,
 	}
 	appCtx.Session().OktaSessionInfo = oktaInfo
 
@@ -862,6 +871,24 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case authorizationResultAuthorized:
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 	}
+}
+
+// didUserSignInWithSmartCard checks if the given value is present in the "amr" claim of the JWT claims interface
+func didUserSignInWithSmartCard(claims map[string]interface{}, value string) bool {
+	// isolate amr claim
+	amr, ok := claims["amr"].([]interface{})
+	if !ok {
+		return false
+	}
+
+	// sift through to find the passed in value
+	for _, v := range amr {
+		if str, ok := v.(string); ok && str == value {
+			return true
+		}
+	}
+
+	return false
 }
 
 func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser models.OktaUser, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
@@ -912,6 +939,19 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 	appCtx.Session().UserID = userIdentity.ID
 	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
 		appCtx.Session().ServiceMemberID = *(userIdentity.ServiceMemberID)
+	}
+
+	// we want to check if the service member is signing in with CAC for the first time
+	// if they are, their account is now validated with CAC and this check won't happen again
+	if appCtx.Session().IsMilApp() &&
+		appCtx.Session().OktaSessionInfo.SignedInWithSmartCard &&
+		!*(userIdentity.ServiceMemberCacValidated) {
+		sm, _ := models.FetchServiceMember(appCtx.DB(), *userIdentity.ServiceMemberID)
+		sm.CacValidated = true
+		smVerrs, err := models.SaveServiceMember(appCtx, &sm)
+		if smVerrs.HasAny() || err != nil {
+			appCtx.Logger().Error("Error updating service member's cac_verified value", zap.Error(err))
+		}
 	}
 
 	if appCtx.Session().IsOfficeApp() {
@@ -1104,9 +1144,14 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		// onboarding home page (via /src/sagas/onboarding.js). This meant that
 		// on the very first sign in, a user's `CurrentMilSessionId` would be
 		// empty, which was misleading and prevented us from revoking their session.
+
+		// setting cac_verified to false due to initial registration not allowing for smart card authentication
+		// this will let the user into the application, but show them an error page telling them to sign in with CAC
 		newServiceMember := models.ServiceMember{
-			UserID: user.ID,
+			UserID:       user.ID,
+			CacValidated: false,
 		}
+
 		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
