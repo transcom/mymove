@@ -146,6 +146,11 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode)
+			if err != nil {
+				return err
+			}
+			serviceMember.ResidentialAddress.County = &county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -155,6 +160,11 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		}
 
 		if serviceMember.BackupMailingAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode)
+			if err != nil {
+				return err
+			}
+			serviceMember.BackupMailingAddress.County = &county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
