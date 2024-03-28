@@ -29,6 +29,10 @@ describe('SelectShipmentType', () => {
 
   it('should render radio buttons with no option selected', () => {
     const wrapper = getWrapper();
+    // set state to true for mount render
+    wrapper.setState({ enablePPM: true });
+    wrapper.setState({ enableNTS: true });
+    wrapper.setState({ enableNTSR: true });
     expect(wrapper.find(Radio).length).toBe(4);
 
     // Ppm and HHG text renders
@@ -45,6 +49,10 @@ describe('SelectShipmentType', () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     const wrapper = getWrapper();
+    // set state to true for mount render for test case
+    wrapper.setState({ enablePPM: true });
+    wrapper.setState({ enableNTS: true });
+    wrapper.setState({ enableNTSR: true });
     const storageInfoModal = wrapper.find('ConnectedStorageInfoModal');
     const moveInfoModal = wrapper.find('ConnectedMoveInfoModal');
 
@@ -152,6 +160,10 @@ describe('SelectShipmentType', () => {
   describe('when no PPMs or shipments have been created', () => {
     it('should render the correct text', () => {
       const wrapper = getWrapper();
+      // set state to true for mount render for test case
+      wrapper.setState({ enablePPM: true });
+      wrapper.setState({ enableNTS: true });
+      wrapper.setState({ enableNTSR: true });
       expect(wrapper.find('h1').text()).toContain('How should this shipment move?');
       expect(wrapper.find('.usa-checkbox__label-description').at(1).text()).toContain(
         'You pack and move your personal property or make other arrangements, The government pays you for the weight you move. This is a Personally Procured Move (PPM).',
@@ -167,6 +179,10 @@ describe('SelectShipmentType', () => {
     };
     it('should render the correct text', () => {
       const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
+      // set state to true for mount render for test case
+      wrapper.setState({ enablePPM: true });
+      wrapper.setState({ enableNTS: true });
+      wrapper.setState({ enableNTSR: true });
       expect(wrapper.find(Radio).at(1).text()).toContain('PPM');
       expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
@@ -213,6 +229,10 @@ describe('SelectShipmentType', () => {
     };
 
     const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
+    // set state to true for mount render for test case
+    wrapper.setState({ enablePPM: true });
+    wrapper.setState({ enableNTS: true });
+    wrapper.setState({ enableNTSR: true });
     it('NTS card should render the correct text', () => {
       expect(wrapper.find('.usa-checkbox__label-description').at(2).text()).toContain(
         'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
@@ -232,6 +252,10 @@ describe('SelectShipmentType', () => {
       move: { status: MOVE_STATUSES.DRAFT },
     };
     const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
+    // set state to true for mount render for test case
+    wrapper.setState({ enablePPM: true });
+    wrapper.setState({ enableNTS: true });
+    wrapper.setState({ enableNTSR: true });
     it('NTSr card should render the correct text', () => {
       expect(wrapper.find('.usa-checkbox__label-description').at(3).text()).toContain(
         'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
@@ -253,6 +277,10 @@ describe('SelectShipmentType', () => {
       move: { status: MOVE_STATUSES.DRAFT },
     };
     const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
+    // set state to true for mount render for test case
+    wrapper.setState({ enablePPM: true });
+    wrapper.setState({ enableNTS: true });
+    wrapper.setState({ enableNTSR: true });
     it('should render the correct text', () => {
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
         'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.',
@@ -271,6 +299,10 @@ describe('SelectShipmentType', () => {
       },
     };
     const wrapper = getWrapper(props);
+    // set state to true for mount render for test case
+    wrapper.setState({ enablePPM: true });
+    wrapper.setState({ enableNTS: true });
+    wrapper.setState({ enableNTSR: true });
     it('should render the correct text', () => {
       expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
