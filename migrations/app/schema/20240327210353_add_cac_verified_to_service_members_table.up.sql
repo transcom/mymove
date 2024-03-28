@@ -1,4 +1,5 @@
--- Adds new column to office_users table
+-- Adds new column to service_members table
+-- this will be checked on user creation and sign in to enforce authentication with smart card
 ALTER TABLE service_members
 ADD COLUMN IF NOT EXISTS cac_validated BOOLEAN DEFAULT FALSE;
 
