@@ -26,9 +26,11 @@ const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, h
       {!shipmentInfo.reweighID && (
         <div className={styles.rightAlignButtonWrapper}>
           <Restricted to={permissionTypes.createReweighRequest}>
-            <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
-              Request reweigh
-            </Button>
+            <Restricted to={permissionTypes.updateMTOPage}>
+              <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
+                Request reweigh
+              </Button>
+            </Restricted>
           </Restricted>
         </div>
       )}

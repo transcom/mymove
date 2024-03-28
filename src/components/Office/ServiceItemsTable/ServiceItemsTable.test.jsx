@@ -193,7 +193,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -227,7 +227,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -272,6 +272,37 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('button[data-testid="rejectTextButton"]').length).toBeFalsy();
   });
 
+  it('does not show accept or reject buttons when updateMTOPage permission is missing', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('button[data-testid="acceptButton"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="rejectButton"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="approveTextButton"]').length).toBeFalsy();
+    expect(wrapper.find('button[data-testid="rejectTextButton"]').length).toBeFalsy();
+  });
+
   it('does not show accept button when DSH is rejected as a result of destination address change', () => {
     const serviceItems = [
       {
@@ -288,7 +319,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -321,7 +352,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -354,7 +385,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -387,7 +418,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -444,7 +475,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -470,7 +501,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -496,7 +527,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -524,7 +555,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -551,7 +582,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -581,7 +612,7 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <ServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}

@@ -16,15 +16,17 @@ const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
         <div>{heading}</div>
         {onEdit && (
           <Restricted to={permissionTypes.updateBillableWeight}>
-            <Button
-              unstyled
-              type="button"
-              className={styles.editButton}
-              onClick={onEdit}
-              data-testid="weightDisplayEdit"
-            >
-              <FontAwesomeIcon icon="pen" title="edit" alt="" />
-            </Button>
+            <Restricted to={permissionTypes.updateMTOPage}>
+              <Button
+                unstyled
+                type="button"
+                className={styles.editButton}
+                onClick={onEdit}
+                data-testid="weightDisplayEdit"
+              >
+                <FontAwesomeIcon icon="pen" title="edit" alt="" />
+              </Button>
+            </Restricted>
           </Restricted>
         )}
       </div>

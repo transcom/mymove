@@ -46,7 +46,7 @@ const handleRequestReweighModal = jest.fn();
 describe('ShipmentWeightDetails', () => {
   it('renders without crashing', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+      <MockProviders permissions={[permissionTypes.createReweighRequest, permissionTypes.updateMTOPage]}>
         <ShipmentWeightDetails
           estimatedWeight={4500}
           initialWeight={5000}
@@ -77,7 +77,7 @@ describe('ShipmentWeightDetails', () => {
 
   it('does not render pro gear for PPMs', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+      <MockProviders permissions={[permissionTypes.createReweighRequest, permissionTypes.updateMTOPage]}>
         <ShipmentWeightDetails
           estimatedWeight={4500}
           initialWeight={5000}
@@ -157,7 +157,7 @@ describe('ShipmentWeightDetails', () => {
 
   it('calls the submit function when submit button is clicked', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+      <MockProviders permissions={[permissionTypes.createReweighRequest, permissionTypes.updateMTOPage]}>
         <ShipmentWeightDetails
           estimatedWeight={11000}
           initialWeight={12000}
@@ -173,7 +173,7 @@ describe('ShipmentWeightDetails', () => {
 
   it('renders without the reweigh button if a reweigh has been requested', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+      <MockProviders permissions={[permissionTypes.createReweighRequest, permissionTypes.updateMTOPage]}>
         <ShipmentWeightDetails
           estimatedWeight={11000}
           initialWeight={12000}
@@ -204,6 +204,22 @@ describe('ShipmentWeightDetails', () => {
         shipmentInfo={shipmentInfoNoReweigh}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
+    );
+
+    const reweighButton = await screen.queryByText('Request reweigh');
+    expect(reweighButton).toBeFalsy();
+  });
+
+  it('renders without the rewiegh button when the user does not have updateMTOPage permission', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createReweighRequest]}>
+        <ShipmentWeightDetails
+          estimatedWeight={11000}
+          initialWeight={12000}
+          shipmentInfo={shipmentInfoNoReweigh}
+          handleRequestReweighModal={handleRequestReweighModal}
+        />
+      </MockProviders>,
     );
 
     const reweighButton = await screen.queryByText('Request reweigh');
