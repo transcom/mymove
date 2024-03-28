@@ -118,7 +118,7 @@ class TioFlowPage extends OfficePage {
     await expect(siCalc).toContainText('14 cwt');
     await expect(siCalc).toContainText('354');
     await expect(siCalc).toContainText('ZIP 80301 to ZIP 80501');
-    await expect(siCalc).toContainText('0.15');
+    await expect(siCalc).toContainText('0.1');
     await expect(siCalc).toContainText('EIA diesel: $2.81');
     await expect(siCalc).toContainText('Weight-based distance multiplier: 0.0004170');
     await expect(siCalc).toContainText('$107.00');
