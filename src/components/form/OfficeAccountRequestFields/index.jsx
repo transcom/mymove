@@ -11,25 +11,25 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
   const middleInitialFieldName = 'officeAccountRequestMiddleInitial';
   const lastNameFieldName = 'officeAccountRequestLastName';
   const emailField = 'officeAccountRequestEmail';
-  const telephoneFieldName = 'officeAccountRequestTelehpone';
+  const telephoneFieldName = 'officeAccountRequestTelephone';
   const edipiFieldName = 'officeAccountRequestEdipi';
-  const otherUniqueIdName = 'officeAccountOtherUniqueId';
+  const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
 
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="First Name" name={firstNameFieldName} id="officeAccountRequestFirstName" required />
+          <TextField label="First Name" name={firstNameFieldName} id="officeAccountRequestFirstName" />
           <TextField
             label="Middle Initial"
             name={middleInitialFieldName}
             id="officeAccountRequestMiddleInitial"
             optional
           />
-          <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" required />
-          <TextField label="Email" name={emailField} id="officeAccountRequestEmail" required />
-          <TextField label="Telephone" name={telephoneFieldName} id="officeAccountRequestTelephone" required />
+          <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" />
+          <TextField label="Email" name={emailField} id="officeAccountRequestEmail" />
+          <TextField label="Telephone" name={telephoneFieldName} id="officeAccountRequestTelephone" />
           <TextField
             label="DoD ID number | EDIPI"
             labelHint="10 digit number"
@@ -51,9 +51,6 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
             id="officeAccountRequestTransportationOfficeDropdown"
             label="Transportation Office"
             placeHolderText="Select Transportation Office"
-
-            // options={transportationOfficeList}
-            // validate={validators?.transportationOffice}
           />
           <h4>Requested Role(s)</h4>
           <CheckboxField

@@ -1,15 +1,22 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAccountForm';
 
 export const RequestAccount = () => {
+  const navigate = useNavigate();
+
   const initialValues = {};
 
-  const handleCancel = () => {};
+  const handleCancel = () => {
+    navigate(-1);
+  };
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    navigate(-1);
+  };
 
   return (
     <GridContainer>
