@@ -49,6 +49,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async clickOnUploadPPMDocumentsButton() {
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
 
     await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
@@ -318,12 +319,33 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromHomePageToExistingPPMDateAndLocationPage() {
+    await expect(this.page.getByRole('heading', { name: 'Welcome to MilMove' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Current Move' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
     await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
 
     await expect(this.page.getByRole('heading', { name: 'PPM date & location' })).toBeVisible();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
+  }
+
+  async navigateFromHomePageToExistingPPMAboutForm() {
+    await expect(this.page.getByRole('heading', { name: 'Welcome to MilMove' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Current Move' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
+    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
+
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments/);
+  }
+
+  async fillOutAboutFormDate() {
+    await this.page.getByPlaceholder('DD MMM YYYY').fill('20 Mar 2024');
+    await this.page.getByLabel('Fri Mar 22 2024').click();
+
+    // expect that future dates cannot be clicked
+    await expect(this.page.getByLabel('Sat Mar 15 2030')).not.toBeVisible();
   }
 
   /**
@@ -813,7 +835,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    await this.page.getByRole('link', { name: 'Add Expense' }).click();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
