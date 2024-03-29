@@ -35,7 +35,7 @@ describe('When given a deleted pro-gear weight ticket upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #125D1')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #125D1, Spouse pro-gear')).toBeInTheDocument();
   });
 
   it('displays details the deleted document', () => {
