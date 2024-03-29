@@ -108,6 +108,7 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			// Initialize to maximum int value of 32. This is done to replicate `Number.MAX_SAFE_INTEGER` and comparing down like it was
 			// done on the frontend with JavaScript
 			var lowestWeight = math.MaxInt32
+			var shipmentWithLowestWeight *models.MTOShipment
 			for _, divertedShipment := range *diversionChain {
 				if divertedShipment.PrimeActualWeight == nil {
 					// ! Payments should never be created for a diverted shipment that has a nil PrimeActualWeight inside the chain
@@ -127,14 +128,15 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 				// Update the lowest weight if the current shipment's weight is lower
 				if billableWeightInt < lowestWeight {
 					lowestWeight = billableWeightInt
+					newDivertedShipmentMemoryRef := divertedShipment
+					shipmentWithLowestWeight = &newDivertedShipmentMemoryRef
 				}
 			}
-			if lowestWeight == math.MaxInt32 {
+			if shipmentWithLowestWeight == nil || lowestWeight == math.MaxInt32 {
 				return "", fmt.Errorf("unexpected error when calculating the minimum billable weight for a chain of diverted shipments, a lowest weight could not be identified")
 			}
 
-			// Once we have looped over all shipments in the diversion chain, return the minimim billable weight for this item
-			return strconv.Itoa(lowestWeight), nil
+			return calculateMinimumBillableWeight(appCtx, *shipmentWithLowestWeight, keyData)
 		}
 
 		// If not a diversion, proceed with calculations normally
@@ -211,7 +213,8 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeIOPSIT,
 			models.ReServiceCodeIDDSIT,
 			models.ReServiceCodeIOSHUT,
-			models.ReServiceCodeIDSHUT:
+			models.ReServiceCodeIDSHUT,
+			models.ReServiceCodeFSC:
 			if weight < 500 {
 				result = 500
 			}

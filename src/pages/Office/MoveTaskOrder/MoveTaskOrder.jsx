@@ -946,11 +946,13 @@ export const MoveTaskOrder = (props) => {
               <span>
                 This move is at risk for excess weight.{' '}
                 <Restricted to={permissionTypes.updateBillableWeight}>
-                  <span className={styles.rightAlignButtonWrapper}>
-                    <Button type="button" onClick={handleShowWeightModal} unstyled>
-                      Review billable weight
-                    </Button>
-                  </span>
+                  <Restricted to={permissionTypes.updateMTOPage}>
+                    <span className={styles.rightAlignButtonWrapper}>
+                      <Button type="button" onClick={handleShowWeightModal} unstyled>
+                        Review billable weight
+                      </Button>
+                    </span>
+                  </Restricted>
                 </Restricted>
               </span>
             </Alert>
@@ -1015,12 +1017,14 @@ export const MoveTaskOrder = (props) => {
               <h6>Contract #{move?.contractor?.contractNumber}</h6>
               <h6>NAICS: {order?.naics}</h6>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-                <div className={moveTaskOrderStyles.financialReviewContainer}>
-                  <FinancialReviewButton
-                    onClick={handleShowFinancialReviewModal}
-                    reviewRequested={move.financialReviewFlag}
-                  />
-                </div>
+                <Restricted to={permissionTypes.updateMTOPage}>
+                  <div className={moveTaskOrderStyles.financialReviewContainer}>
+                    <FinancialReviewButton
+                      onClick={handleShowFinancialReviewModal}
+                      reviewRequested={move.financialReviewFlag}
+                    />
+                  </div>
+                </Restricted>
               </Restricted>
             </div>
           </div>
