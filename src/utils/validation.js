@@ -192,7 +192,7 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .nullable(),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: emailSchema.required('Required'),
-  officeAccountTransportationOffice: Yup.string().required('Required'),
+  // officeAccountTransportationOffice: Yup.string().required('Required'),
   transportationOrderingOfficerCheckBox: Yup.bool().test(
     'roleRequestedRequired',
     'Please select a role to request.',
