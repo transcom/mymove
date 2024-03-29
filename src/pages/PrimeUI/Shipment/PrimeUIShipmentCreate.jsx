@@ -19,9 +19,12 @@ import { isEmpty, isValidWeight } from 'shared/utils';
 import { formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
-import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import {
+  RequiredPlaceSchema,
+  AdditionalAddressSchema,
+  OptionalAddressSchema,
+} from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
 
 const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -77,10 +80,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         counselorRemarks,
         ppmShipment: {
           expectedDepartureDate,
-          pickupPostalCode,
-          secondaryPickupPostalCode,
-          destinationPostalCode,
-          secondaryDestinationPostalCode,
+          pickupAddress,
+          secondaryPickupAddress,
+          destinationAddress,
+          secondaryDestinationAddress,
           sitExpected,
           sitLocation,
           sitEstimatedWeight,
@@ -99,10 +102,12 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         counselorRemarks: counselorRemarks || null,
         ppmShipment: {
           expectedDepartureDate: expectedDepartureDate ? formatSwaggerDate(expectedDepartureDate) : null,
-          pickupPostalCode,
-          secondaryPickupPostalCode: secondaryPickupPostalCode || null,
-          destinationPostalCode,
-          secondaryDestinationPostalCode: secondaryDestinationPostalCode || null,
+          pickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(pickupAddress),
+          secondaryPickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(secondaryPickupAddress),
+          destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
+          secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
+            ? null
+            : formatAddressForPrimeAPI(secondaryDestinationAddress),
           sitExpected,
           ...(sitExpected && {
             sitLocation: sitLocation || null,
@@ -152,10 +157,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
     counselorRemarks: '',
     ppmShipment: {
       expectedDepartureDate: '',
-      pickupPostalCode: '',
-      secondaryPickupPostalCode: '',
-      destinationPostalCode: '',
-      secondaryDestinationPostalCode: '',
+      pickupAddress: {},
+      secondaryPickupAddress: {},
+      destinationAddress: {},
+      secondaryDestinationAddress: {},
       sitExpected: false,
       sitLocation: '',
       sitEstimatedWeight: '',
@@ -187,10 +192,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           expectedDepartureDate: Yup.date()
             .required('Required')
             .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-          pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-          secondaryPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
-          destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-          secondaryDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).nullable(),
+          pickupAddress: OptionalAddressSchema,
+          secondaryPickupAddress: OptionalAddressSchema,
+          destinationAddress: OptionalAddressSchema,
+          secondaryDestinationAddress: OptionalAddressSchema,
           sitExpected: Yup.boolean().required('Required'),
           sitLocation: Yup.string().when('sitExpected', {
             is: true,
