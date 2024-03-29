@@ -30,7 +30,7 @@ describe('When given a deleted expense receipt upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Deleted upload')).toBeInTheDocument();
+    expect(screen.getByText('Deleted document')).toBeInTheDocument();
   });
 
   describe('properly renders shipment labels for ', () => {

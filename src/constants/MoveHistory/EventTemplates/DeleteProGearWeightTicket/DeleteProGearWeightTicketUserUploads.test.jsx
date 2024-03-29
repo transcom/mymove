@@ -28,7 +28,7 @@ describe('When given a deleted pro-gear weight ticket upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Deleted upload')).toBeInTheDocument();
+    expect(screen.getByText('Deleted document')).toBeInTheDocument();
   });
 
   it('displays details of shipment type, shipment ID', () => {
