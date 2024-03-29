@@ -163,7 +163,7 @@ describe('RequestedServiceItemsTable', () => {
 
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <RequestedServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -189,7 +189,7 @@ describe('RequestedServiceItemsTable', () => {
     serviceItemWithContact.status = 'APPROVED';
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <RequestedServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -211,7 +211,7 @@ describe('RequestedServiceItemsTable', () => {
     serviceItemWithContact.status = 'REJECTED';
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <RequestedServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
