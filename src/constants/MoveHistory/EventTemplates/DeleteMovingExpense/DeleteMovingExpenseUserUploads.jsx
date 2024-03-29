@@ -14,7 +14,11 @@ const formatChangedValues = (historyRecord) => {
     ...formatDataForPPM(historyRecord),
   };
 
-  return { ...historyRecord, changedValues: newChangedValues };
+  const newOldValues = { ...historyRecord.oldValues };
+  if (historyRecord.context[0]?.moving_expense_type)
+    newOldValues.moving_expense_type = historyRecord.context[0].moving_expense_type;
+
+  return { ...historyRecord, changedValues: newChangedValues, oldValues: newOldValues };
 };
 
 export default {

@@ -14,7 +14,11 @@ const formatChangedValues = (historyRecord) => {
     ...formatDataForPPM(historyRecord),
   };
 
-  return { ...historyRecord, changedValues: newChangedValues };
+  const newOldValues = { ...historyRecord.oldValues };
+  if (historyRecord.context[0]?.upload_type === 'proGearWeightTicket') newOldValues.belongs_to_self = true;
+  else if (historyRecord.context[0]?.upload_type === 'spouseProGearWeightTicket') newOldValues.belongs_to_self = false;
+
+  return { ...historyRecord, changedValues: newChangedValues, oldValues: newOldValues };
 };
 
 export default {
