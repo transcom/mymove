@@ -684,3 +684,7 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
+
+export async function createOfficeAccountRequest({ body }) {
+  return makeGHCRequest('officeUsers.CreateRequestedOfficeUser', { body });
+}

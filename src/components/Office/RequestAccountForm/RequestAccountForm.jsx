@@ -61,8 +61,4 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
   );
 };
 
-RequestAccountForm.propTypes = {};
-
-RequestAccountForm.defaultProps = {};
-
 export default withContext(RequestAccountForm);
