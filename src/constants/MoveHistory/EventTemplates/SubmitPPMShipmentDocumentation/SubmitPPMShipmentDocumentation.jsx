@@ -20,6 +20,6 @@ export default {
   action: a.UPDATE,
   eventName: o.submitPPMShipmentDocumentation,
   tableName: t.ppm_shipments,
-  getEventNameDisplay: () => 'Submitted shipment',
+  getEventNameDisplay: () => 'Submitted PPM Documentation',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
