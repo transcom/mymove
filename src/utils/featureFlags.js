@@ -152,6 +152,24 @@ export function isMultiMoveEnabled() {
     });
 }
 
+// isMultiMoveEnabled returns the Flipt feature flag value of multi move
+export function isBooleanFlagEnabled(flagKey) {
+  return getBooleanFeatureFlagForUser(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        // Found feature flag, "match" is its boolean value
+        return result.match;
+      }
+      throw new Error(`feature flag  is undefined ${flagKey}`);
+    })
+    .catch((error) => {
+      // On error, log it and then just return false setting it to be disabled.
+      // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}
+
 export function isCounselorMoveCreateEnabled() {
   const flagKey = 'counselor_move_create';
   return getBooleanFeatureFlagForUser(flagKey, {})
