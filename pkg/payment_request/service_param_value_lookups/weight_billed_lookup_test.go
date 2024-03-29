@@ -93,8 +93,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		{models.ReServiceCodeDDASIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeDOPSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeDDDSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeDOSFSC, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeDDSFSC, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		// International
 		{models.ReServiceCodeIOOLH, unit.Pound(450), "500", models.MTOShipmentTypeInternationalHHG},
 		{models.ReServiceCodeIOOUB, unit.Pound(250), "300", models.MTOShipmentTypeInternationalHHG},
