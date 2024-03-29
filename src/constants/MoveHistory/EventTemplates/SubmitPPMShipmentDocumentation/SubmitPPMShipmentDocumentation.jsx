@@ -7,9 +7,8 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
-  const { changedValues } = historyRecord;
   const newChangedValues = {
-    ...changedValues,
+    status: 'Ready for PPM Closeout',
     ...getMtoShipmentLabel(historyRecord),
   };
 
