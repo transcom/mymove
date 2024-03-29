@@ -211,6 +211,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
 			}
 
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.PostalCode)
+			if errCounty != nil {
+				return nil, nil, errCounty
+			}
+			serviceItem.SITOriginHHGActualAddress.County = &county
+
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
 			serviceItem.SITOriginHHGOriginalAddress = mtoShipment.PickupAddress.Copy()
