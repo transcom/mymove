@@ -22,8 +22,6 @@ import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfo
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import DestinationZIPInfo from 'components/Office/DestinationZIPInfo/DestinationZIPInfo';
-import OriginZIPInfo from 'components/Office/OriginZIPInfo/OriginZIPInfo';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
 import ShipmentFormRemarks from 'components/Office/ShipmentFormRemarks/ShipmentFormRemarks';
@@ -42,7 +40,7 @@ import { deleteShipment, reviewShipmentAddressUpdate, updateMoveCloseoutOffice }
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
-import { AddressShape, SimpleAddressShape } from 'types/address';
+import { AddressShape } from 'types/address';
 import { ShipmentShape } from 'types/shipment';
 import { TransportationOfficeShape } from 'types/transportationOffice';
 import {
@@ -52,12 +50,10 @@ import {
   formatPpmShipmentForDisplay,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
-import { validateDate, validatePostalCode } from 'utils/validation';
+import { validateDate } from 'utils/validation';
 
 const ShipmentForm = (props) => {
   const {
-    originDutyLocationAddress,
-    newDutyLocationAddress,
     shipmentType,
     isCreatePage,
     isForServicesCounseling,
@@ -813,15 +809,6 @@ const ShipmentForm = (props) => {
                             />
                           ) : (
                             <div>
-                              <p>
-                                We can use the zip of their{' '}
-                                {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
-                                <br />
-                                <strong>
-                                  {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
-                                  {newDutyLocationAddress.postalCode}{' '}
-                                </strong>
-                              </p>
                               {displayDestinationType && (
                                 <DropdownInput
                                   label="Destination type"
@@ -848,13 +835,90 @@ const ShipmentForm = (props) => {
 
                 {isPPM && !isAdvancePage && (
                   <>
-                    <OriginZIPInfo
-                      postalCodeValidator={validatePostalCode}
-                      currentZip={originDutyLocationAddress.postalCode}
+                    <AddressFields
+                      name="pickup.address"
+                      legend="Pickup location"
+                      render={(fields) => (
+                        <>
+                          <p>What address are the movers picking up from?</p>
+                          <Checkbox
+                            data-testid="useCurrentResidence"
+                            label="Use my current address"
+                            name="useCurrentResidence"
+                            onChange={handleUseCurrentResidenceChange}
+                            id="useCurrentResidenceCheckbox"
+                          />
+                          {fields}
+                          <h4>Second pickup location</h4>
+                          <FormGroup>
+                            <p>
+                              Will the movers pick up any belongings from a second address? (Must be near the pickup
+                              address. Subject to approval.)
+                            </p>
+                            <div className={formStyles.radioGroup}>
+                              <Field
+                                as={Radio}
+                                id="has-secondary-pickup"
+                                data-testid="has-secondary-pickup"
+                                label="Yes"
+                                name="hasSecondaryPickup"
+                                value="yes"
+                                title="Yes, there is a second pickup location"
+                                checked={hasSecondaryPickup === 'yes'}
+                              />
+                              <Field
+                                as={Radio}
+                                id="no-secondary-pickup"
+                                data-testid="no-secondary-pickup"
+                                label="No"
+                                name="hasSecondaryPickup"
+                                value="no"
+                                title="No, there is not a second pickup location"
+                                checked={hasSecondaryPickup !== 'yes'}
+                              />
+                            </div>
+                          </FormGroup>
+                          {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
+                        </>
+                      )}
                     />
-                    <DestinationZIPInfo
-                      postalCodeValidator={validatePostalCode}
-                      dutyZip={newDutyLocationAddress.postalCode}
+                    <AddressFields
+                      name="delivery.address"
+                      render={(fields) => (
+                        <>
+                          {fields}
+                          <h4>Second delivery location</h4>
+                          <FormGroup>
+                            <p>
+                              Will the movers deliver any belongings to a second address? (Must be near the delivery
+                              address. Subject to approval.)
+                            </p>
+                            <div className={formStyles.radioGroup}>
+                              <Field
+                                as={Radio}
+                                data-testid="has-secondary-delivery"
+                                id="has-secondary-delivery"
+                                label="Yes"
+                                name="hasSecondaryDelivery"
+                                value="yes"
+                                title="Yes, there is a second destination location"
+                                checked={hasSecondaryDelivery === 'yes'}
+                              />
+                              <Field
+                                as={Radio}
+                                data-testid="no-secondary-delivery"
+                                id="no-secondary-delivery"
+                                label="No"
+                                name="hasSecondaryDelivery"
+                                value="no"
+                                title="No, there is not a second destination location"
+                                checked={hasSecondaryDelivery !== 'yes'}
+                              />
+                            </div>
+                          </FormGroup>
+                          {hasSecondaryDelivery === 'yes' && <AddressFields name="secondaryDelivery.address" />}
+                        </>
+                      )}
                     />
                     {showCloseoutOffice && (
                       <SectionWrapper>
@@ -962,8 +1026,6 @@ ShipmentForm.propTypes = {
   isCreatePage: bool,
   isForServicesCounseling: bool,
   currentResidence: AddressShape.isRequired,
-  originDutyLocationAddress: SimpleAddressShape,
-  newDutyLocationAddress: SimpleAddressShape,
   shipmentType: string.isRequired,
   mtoShipment: ShipmentShape,
   moveTaskOrderID: string.isRequired,
@@ -990,16 +1052,7 @@ ShipmentForm.defaultProps = {
   isCreatePage: false,
   isForServicesCounseling: false,
   onUpdate: () => {},
-  originDutyLocationAddress: {
-    city: '',
-    state: '',
-    postalCode: '',
-  },
-  newDutyLocationAddress: {
-    city: '',
-    state: '',
-    postalCode: '',
-  },
+
   mtoShipment: ShipmentShape,
   TACs: {},
   SACs: {},
