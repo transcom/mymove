@@ -328,7 +328,7 @@ describe('ReviewBillableWeight', () => {
       expect(screen.getByTestId('totalBillableWeight').textContent).toBe('8,000 lbs');
     });
 
-    it('renders max billable weight and edit view', async () => {
+    it('renders 110% estimated weight and edit view', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
       renderWithProviders(<ReviewBillableWeight />);
 
