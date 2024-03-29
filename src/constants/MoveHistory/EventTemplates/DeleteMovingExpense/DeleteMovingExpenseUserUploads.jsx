@@ -26,7 +26,7 @@ export default {
   eventName: o.deleteMovingExpense,
   tableName: t.user_uploads,
   getEventNameDisplay: () => {
-    return <div>Deleted upload</div>;
+    return <div>Deleted document</div>;
   },
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
