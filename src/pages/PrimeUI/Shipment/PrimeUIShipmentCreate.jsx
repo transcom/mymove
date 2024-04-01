@@ -10,7 +10,7 @@ import { func } from 'prop-types';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import scrollToTop from 'shared/scrollToTop';
-import { createPrimeMTOShipmentV2 } from 'services/primeApi';
+import { createPrimeMTOShipmentV3 } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -19,11 +19,7 @@ import { isEmpty, isValidWeight } from 'shared/utils';
 import { formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
-import {
-  RequiredPlaceSchema,
-  AdditionalAddressSchema,
-  OptionalAddressSchema,
-} from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
@@ -34,7 +30,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
-  const { mutateAsync: mutateCreateMTOShipment } = useMutation(createPrimeMTOShipmentV2, {
+  const { mutateAsync: mutateCreateMTOShipment } = useMutation(createPrimeMTOShipmentV3, {
     onSuccess: (createdMTOShipment) => {
       setFlashMessage(
         `MSG_CREATE_PAYMENT_SUCCESS${createdMTOShipment.id}`,
