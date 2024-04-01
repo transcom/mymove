@@ -1,39 +1,35 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import SmartCardRedirect from './SmartCardRedirect';
 
-import SomethingWentWrong from './index';
-
-describe('SomethingWentWrong tests', () => {
+describe('SmartCardRedirect tests', () => {
   it('renders without crashing', async () => {
-    const { container } = render(<SomethingWentWrong />);
+    const { container } = render(<SmartCardRedirect />);
 
     const errorPage = await container.querySelector('.usa-grid');
     expect(errorPage).toBeInTheDocument();
   });
 
-  it('should render the correct image on the page', () => {
-    render(<SomethingWentWrong />);
+  it('should render the smart card image on the page', () => {
+    render(<SmartCardRedirect />);
 
     const image = screen.getByRole('img');
     expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', 'sad-computer.png');
+    expect(image).toHaveAttribute('src', 'smart-card.png');
   });
 
-  it('should render the correct text on the page', () => {
-    render(<SomethingWentWrong />);
+  it('should render the text on the page', () => {
+    render(<SmartCardRedirect />);
 
     const oopsMsg = screen.getByRole('heading', { level: 2 });
     expect(oopsMsg).toBeInTheDocument();
-    expect(oopsMsg).toHaveTextContent('Oops!Something went wrong.');
+    expect(oopsMsg).toHaveTextContent('You must sign in with your smart card first.');
 
-    const tryAgainMsg = screen.getByText('Please try again in a few moments.');
-    expect(tryAgainMsg).toBeInTheDocument();
+    const helperText = screen.getByTestId('helperText');
+    expect(helperText).toBeInTheDocument();
 
     const contactMsg = screen.getByTestId('contactMsg');
     expect(contactMsg).toBeInTheDocument();
-    expect(contactMsg).toHaveTextContent(
-      'If you continue to receive this error, call (800) 462-2176, Option 2 or email us.',
-    );
 
     const email = screen.getByRole('link', { name: 'email us' });
     expect(email).toBeInTheDocument();
