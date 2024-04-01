@@ -11,7 +11,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/xuri/excelize/v2"
 	"go.uber.org/zap"
 )
@@ -154,7 +156,12 @@ type WeightEstimatorPage2 struct {
 	LivingRoomWeight       string
 }
 
-type WeightEstimatorGenerator struct {
+// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
+type WeightTicketParserComputer struct {
+}
+
+// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
+type WeightTicketParserGenerator struct {
 	generator      paperwork.Generator
 	templateReader *bytes.Reader
 }
@@ -169,8 +176,21 @@ type textField struct {
 	Locked    bool   `json:"locked"`
 }
 
+// NewWeightTicketParserGenerator creates a WeightTicketParserGenerator
+func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services.WeightTicketParserGenerator, error) {
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &WeightTicketParserGenerator{
+		generator:      *pdfGenerator,
+		templateReader: templateReader,
+	}, nil
+}
+
 // FillWeightEstimatorPDFForm takes form data and fills an existing PDF form template with said data
-func (WeightEstimatorGenerator *WeightEstimatorGenerator) FillWeightEstimatorPDFForm(Page1Values WeightEstimatorPage1, Page2Values WeightEstimatorPage2) (weightEstimatorFile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(Page1Values WeightEstimatorPage1, Page2Values WeightEstimatorPage2) (weightEstimatorFile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -216,13 +236,13 @@ func (WeightEstimatorGenerator *WeightEstimatorGenerator) FillWeightEstimatorPDF
 		return
 	}
 
-	WeightWorksheet, err := WeightEstimatorGenerator.generator.FillPDFForm(jsonData, WeightEstimatorGenerator.templateReader)
+	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
-	pdfInfoResult, err := WeightEstimatorGenerator.generator.GetPdfFileInfo(WeightWorksheet.Name())
+	pdfInfoResult, err := WeightTicketParserGenerator.generator.GetPdfFileInfo(WeightWorksheet.Name())
 	if err != nil || pdfInfoResult.PageCount != 2 {
 		return nil, nil, errors.Wrap(err, "WeightEstimatorPPMGenerator output a corrupted or incorrectly altered PDF")
 	}
@@ -263,7 +283,7 @@ func mergeTextFields(fields1, fields2 []textField) []textField {
 	return append(fields1, fields2...)
 }
 
-func ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, path string, weightGenerator paperwork.Generator) (string, error) {
+func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, path string) (string, error) {
 	tempFile, err := weightGenerator.FileSystem().Fs.Open(path)
 
 	if err != nil {
@@ -299,7 +319,6 @@ func ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, path string, we
 	const totalCubeSectionString = "Total cube for this section"
 	const constructedWeightSectionString = "Constructed Weight for this section"
 	const itemString = "Item"
-	const weightTemplateFields = "lr cu ft 1,lr pieces 1,lr total 1,lr cu ft 2,lr pieces 2,lr total 2,lr cu ft 3,lr pieces 3,lr total 3,lr cu ft 4,lr pieces 4,lr total 4,lr cu ft 5,lr pieces 5,lr total 5,lr cu ft 6,lr pieces 6,lr total 6,lr cu ft 7,lr pieces 7,lr total 7,lr cu ft 8,lr pieces 8,lr total 8,lr cu ft 9,lr pieces 9,lr total 9,lr cu ft 10,lr pieces 10,lr total 10,lr cu ft 11,lr pieces 11,lr total 11,lr cu ft 12,lr pieces 12,lr total 12,lr cu ft 13,lr pieces 13,lr total 13,lr cu ft 14,lr pieces 14,lr total 14,lr cu ft 15,lr pieces 15,lr total 15,lr cu ft 16,lr pieces 16,lr total 16,lr cu ft 17,lr pieces 17,lr total 17,lr cu ft 18,lr pieces 18,lr total 18,lr cu ft 19,lr pieces 19,lr total 19,lr cu ft 20,lr pieces 20,lr total 20,lr cu ft 21,lr pieces 21,lr total 21,lr cu ft 22,lr pieces 22,lr total 22,lr cu ft 23,lr pieces 23,lr total 23,lr cu ft 24,lr pieces 24,lr total 24,lr cu ft 25,lr pieces 25,lr total 25,lr cu ft 26,lr pieces 26,lr total 26,lr cu ft 27,lr pieces 27,lr total 27,lr cu ft 28,lr pieces 28,lr total 28,lr cu ft 29,lr pieces 29,lr total 29,lr cu ft 30,lr pieces 30,lr total 30,lr cu ft 31,lr pieces 31,lr total 31,lr cu ft 32,lr pieces 32,lr total 33,lr cu ft 34,lr pieces 34,lr total 34,lr cu ft 35,lr pieces 35,lr total 35,lr cu ft 36,lr pieces 36,lr total 36,lr cu ft 37,lr pieces 37,lr total 37,lr cu ft 38,lr pieces 38,lr total 38,lr cu ft 39,lr pieces 39,lr total 39,lr cu ft 40,lr pieces 40,lr total 40,lr cu ft 41,lr pieces 41,lr total 41,lr pieces total 1,lr cu ft total 1,lr cu ft 43,lr pieces 43,lr total 43,lr pieces total 2,lr cu ft total 2,lr total items,lr total cube,lr weight"
 	var csvStringBuilder strings.Builder
 
 	var page1Values WeightEstimatorPage1
@@ -391,4 +410,13 @@ func ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, path string, we
 	// fill the pdf template with the data from the excel file
 
 	return "", nil
+}
+
+func createAssetByteReader(path string) (*bytes.Reader, error) {
+	asset, err := assets.Asset(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating asset from path; check image path : "+path)
+	}
+
+	return bytes.NewReader(asset), nil
 }

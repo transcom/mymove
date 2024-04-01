@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
-	"github.com/xuri/excelize/v2"
 )
 
 // Default values for PDF generation
@@ -317,160 +316,13 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 	if upload.ContentType == uploader.FileTypePDF {
 		return path, nil
 	} else if upload.ContentType == uploader.FileTypeExcel || upload.ContentType == uploader.FileTypeExcelXLSX {
-		tempFile, err := g.fs.Open(outputFile.Name())
+		weightTicketPath, err := weightticketparser.ParseWeightEstimatorExcelFile(appCtx, path, g)
 
 		if err != nil {
-			return "nil", errors.Wrap(err, "error g.fs.Open on reload from memstore")
+			return "nil", errors.Wrap(err, "Failed to parse weight ticket file")
 		}
 
-		excelFile, err := excelize.OpenReader(tempFile)
-
-		if err != nil {
-			return "nil", errors.Wrap(err, "Opening excel file")
-		}
-
-		defer func() {
-			// Close the spreadsheet.
-			if err := excelFile.Close(); err != nil {
-				appCtx.Logger().Debug("Failed to close file", zap.Error(err))
-			}
-		}()
-
-		// Get all the rows in the Sheet1.
-		rows, err := excelFile.GetRows("CUBE SHEET-ITO-TMO-ONLY")
-		if err != nil {
-			return path, nil
-		}
-
-		tempCSVFile, err := g.newTempFile()
-
-		if err != nil {
-			return "nil", errors.Wrap(err, "Creating temp file")
-		}
-
-		csvFile, err := g.fs.Open(tempCSVFile.Name())
-
-		if err != nil {
-			return "nil", errors.Wrap(err, "error g.fs.Open on reload from memstore")
-		}
-
-		defer func() {
-			// Close the spreadsheet.
-			if err := excelFile.Close(); err != nil {
-				appCtx.Logger().Debug("Failed to close file", zap.Error(err))
-			}
-		}()
-
-		// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
-		// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
-		// have 2 numbers.
-		rowCount := 1
-		var cellColumnData []string
-		const cellColumnCount = 4
-		const totalItemSectionString = "Total number of items in this section"
-		const totalCubeSectionString = "Total cube for this section"
-		const constructedWeightSectionString = "Constructed Weight for this section"
-		const itemString = "Item"
-		const weightTemplateFields = "lr cu ft 1,lr pieces 1,lr total 1,lr cu ft 2,lr pieces 2,lr total 2,lr cu ft 3,lr pieces 3,lr total 3,lr cu ft 4,lr pieces 4,lr total 4,lr cu ft 5,lr pieces 5,lr total 5,lr cu ft 6,lr pieces 6,lr total 6,lr cu ft 7,lr pieces 7,lr total 7,lr cu ft 8,lr pieces 8,lr total 8,lr cu ft 9,lr pieces 9,lr total 9,lr cu ft 10,lr pieces 10,lr total 10,lr cu ft 11,lr pieces 11,lr total 11,lr cu ft 12,lr pieces 12,lr total 12,lr cu ft 13,lr pieces 13,lr total 13,lr cu ft 14,lr pieces 14,lr total 14,lr cu ft 15,lr pieces 15,lr total 15,lr cu ft 16,lr pieces 16,lr total 16,lr cu ft 17,lr pieces 17,lr total 17,lr cu ft 18,lr pieces 18,lr total 18,lr cu ft 19,lr pieces 19,lr total 19,lr cu ft 20,lr pieces 20,lr total 20,lr cu ft 21,lr pieces 21,lr total 21,lr cu ft 22,lr pieces 22,lr total 22,lr cu ft 23,lr pieces 23,lr total 23,lr cu ft 24,lr pieces 24,lr total 24,lr cu ft 25,lr pieces 25,lr total 25,lr cu ft 26,lr pieces 26,lr total 26,lr cu ft 27,lr pieces 27,lr total 27,lr cu ft 28,lr pieces 28,lr total 28,lr cu ft 29,lr pieces 29,lr total 29,lr cu ft 30,lr pieces 30,lr total 30,lr cu ft 31,lr pieces 31,lr total 31,lr cu ft 32,lr pieces 32,lr total 33,lr cu ft 34,lr pieces 34,lr total 34,lr cu ft 35,lr pieces 35,lr total 35,lr cu ft 36,lr pieces 36,lr total 36,lr cu ft 37,lr pieces 37,lr total 37,lr cu ft 38,lr pieces 38,lr total 38,lr cu ft 39,lr pieces 39,lr total 39,lr cu ft 40,lr pieces 40,lr total 40,lr cu ft 41,lr pieces 41,lr total 41,lr pieces total 1,lr cu ft total 1,lr cu ft 43,lr pieces 43,lr total 43,lr pieces total 2,lr cu ft total 2,lr total items,lr total cube,lr weight"
-		var csvStringBuilder strings.Builder
-
-		for _, row := range rows {
-			//secondDataSection := false
-			currentCell := 1
-			writeData := false
-			blankCell := false
-
-			for _, colCell := range row {
-				// We skip the first two rows of the table
-				if rowCount <= 2 {
-					continue
-				} else if blankCell {
-					blankCell = false
-				} else if currentCell == cellColumnCount {
-					cellColumnData = append(cellColumnData, colCell)
-					writeData = true
-				} else if currentCell < cellColumnCount {
-					cellColumnData = append(cellColumnData, colCell)
-
-					// The total cube section only has 3 columns of data and we need to make sure we write out its value in the 3rd column
-					if cellColumnData[0] == totalCubeSectionString && currentCell == cellColumnCount-1 {
-						writeData = true
-					}
-
-					currentCell++
-				}
-
-				if writeData {
-					currentCell = 1
-					writeData = false
-
-					// If the first cell contains Item in the string or all 4 cells are empty, then its a section of just headers and no data
-					// so we do cleanup and skip to the next set of data
-					if cellColumnData[0] == itemString || (len(cellColumnData) == 4 && cellColumnData[0] == "" && cellColumnData[1] == "" &&
-						cellColumnData[2] == "" && cellColumnData[3] == "") {
-						cellColumnData = cellColumnData[:0]
-						blankCell = true
-						continue
-					} else if strings.Contains(cellColumnData[0], totalItemSectionString) ||
-						strings.Contains(cellColumnData[0], constructedWeightSectionString) {
-						csvStringBuilder.WriteString(cellColumnData[3] + ",")
-					} else if strings.Contains(cellColumnData[0], totalCubeSectionString) {
-						csvStringBuilder.WriteString(cellColumnData[2] + ",")
-					} else if cellColumnData[0] == "" {
-						csvStringBuilder.WriteString(cellColumnData[2] + ",")
-						csvStringBuilder.WriteString(cellColumnData[3] + ",")
-					} else {
-						csvStringBuilder.WriteString(cellColumnData[1] + ",")
-						csvStringBuilder.WriteString(cellColumnData[2] + ",")
-						csvStringBuilder.WriteString(cellColumnData[3] + ",")
-					}
-
-					cellColumnData = cellColumnData[:0]
-					blankCell = true
-				}
-			}
-
-			rowCount++
-			cellColumnData = nil
-			currentCell = 1
-		}
-
-		csvFile.WriteString(weightTemplateFields + "\n")
-		csvString := csvStringBuilder.String()
-
-		// we remove the trailing , from the list because pdfcpu doesn't like it and will throw an error when we attempt to fill the pdf
-		if len(csvString) > 0 {
-			csvString = csvString[:len(csvString)-1]
-		}
-
-		csvFile.WriteString(csvString)
-
-		// fill the pdf template with the data from the csv file
-		var conf = g.pdfConfig
-		templateFile := "paperwork/formtemplates/WeightEstimateLivingRoomPdfTemplate.pdf"
-		outFile, err := g.newTempFile()
-
-		if err != nil {
-			return "nil", errors.Wrap(err, "Creating temp file")
-		}
-
-		lastIndex := strings.LastIndex(outFile.Name(), "/")
-
-		if lastIndex != -1 {
-			outDir := outFile.Name()[:lastIndex]
-			outFileName := outFile.Name()[lastIndex:len(outFile.Name())]
-			err = api.MultiFillFormFile(templateFile, csvFile.Name(), outDir, outFileName, false, conf)
-
-			if err != nil {
-				return "nil", errors.Wrap(err, "Failed to fill excel converted pdf file")
-			}
-
-			outputFileName := outFileName + "_01.pdf"
-
-			return outputFileName, nil
-		} else {
-			return "nil", errors.Wrap(err, "Parsing path to temp file")
-		}
+		return weightTicketPath, nil
 	}
 
 	images := make([]inputFile, 0)
