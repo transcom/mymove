@@ -72,7 +72,7 @@ const PrimeUIShipmentCreateForm = () => {
           />
           <h2 className={styles.sectionHeader}>Origin Info</h2>
           <AddressFields
-            name="pickupAddress.address"
+            name="ppmShipment.pickupAddress"
             render={(fields) => (
               <>
                 <p>What address are the movers picking up from?</p>
@@ -86,24 +86,24 @@ const PrimeUIShipmentCreateForm = () => {
                       data-testid="yes-secondary-pickup-address"
                       id="yes-secondary-pickup-address"
                       label="Yes"
-                      name="hasSecondaryPickupAddress"
+                      name="ppmShipment.hasSecondaryPickupAddress"
                       value="true"
-                      checked={values.hasSecondaryPickupAddress === 'true'}
+                      checked={values.ppmShipment.hasSecondaryPickupAddress === 'true'}
                     />
                     <Field
                       as={Radio}
                       data-testid="no-secondary-pickup-address"
                       id="no-secondary-pickup-address"
                       label="No"
-                      name="hasSecondaryPickupAddress"
+                      name="ppmShipment.hasSecondaryPickupAddress"
                       value="false"
-                      checked={values.hasSecondaryPickupAddress === 'false'}
+                      checked={values.ppmShipment.hasSecondaryPickupAddress === 'false'}
                     />
                   </Fieldset>
                 </FormGroup>
-                {values.hasSecondaryPickupAddress === 'true' && (
+                {values.ppmShipment.hasSecondaryPickupAddress === 'true' && (
                   <>
-                    <AddressFields name="secondaryPickupAddress.address" />
+                    <AddressFields name="ppmShipment.secondaryPickupAddress" />
                     <Hint className={ppmStyles.hint}>
                       <p>A second origin address could mean that your final incentive is lower than your estimate.</p>
                       <p>
@@ -118,7 +118,7 @@ const PrimeUIShipmentCreateForm = () => {
           />
           <h2 className={styles.sectionHeader}>Destination Info</h2>
           <AddressFields
-            name="destinationAddress.address"
+            name="ppmShipment.destinationAddress"
             render={(fields) => (
               <>
                 <p>Please input Delivery Address</p>
@@ -131,24 +131,24 @@ const PrimeUIShipmentCreateForm = () => {
                       data-testid="yes-secondary-destination-address"
                       id="hasSecondaryDestinationAddressYes"
                       label="Yes"
-                      name="hasSecondaryDestinationAddress"
+                      name="ppmShipment.hasSecondaryDestinationAddress"
                       value="true"
-                      checked={values.hasSecondaryDestinationAddress === 'true'}
+                      checked={values.ppmShipment.hasSecondaryDestinationAddress === 'true'}
                     />
                     <Field
                       as={Radio}
                       data-testid="no-secondary-destination-address"
                       id="hasSecondaryDestinationAddressNo"
                       label="No"
-                      name="hasSecondaryDestinationAddress"
+                      name="ppmShipment.hasSecondaryDestinationAddress"
                       value="false"
-                      checked={values.hasSecondaryDestinationAddress === 'false'}
+                      checked={values.ppmShipment.hasSecondaryDestinationAddress === 'false'}
                     />
                   </Fieldset>
                 </FormGroup>
-                {values.hasSecondaryDestinationAddress === 'true' && (
+                {values.ppmShipment.hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <AddressFields name="secondaryDestinationAddress.address" />
+                    <AddressFields name="ppmShipment.secondaryDestinationAddress" />
                     <Hint className={ppmStyles.hint}>
                       <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
                       <p>

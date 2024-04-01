@@ -73,6 +73,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
           </>
         )}
       />
+      <h2 className={styles.sectionHeader}>Destination Info</h2>
       <AddressFields
         name="destinationAddress.address"
         render={(fields) => (

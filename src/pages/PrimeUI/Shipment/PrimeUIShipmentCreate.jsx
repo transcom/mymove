@@ -153,10 +153,34 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
     counselorRemarks: '',
     ppmShipment: {
       expectedDepartureDate: '',
-      pickupAddress: {},
-      secondaryPickupAddress: {},
-      destinationAddress: {},
-      secondaryDestinationAddress: {},
+      pickupAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+      secondaryPickupAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+      destinationAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+      secondaryDestinationAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
       sitExpected: false,
       sitLocation: '',
       sitEstimatedWeight: '',
@@ -166,6 +190,8 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
       hasProGear: false,
       proGearWeight: '',
       spouseProGearWeight: '',
+      hasSecondaryPickupAddress: 'false',
+      hasSecondaryDestinationAddress: 'false',
     },
 
     // Other shipment types
@@ -189,9 +215,15 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
             .required('Required')
             .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
           pickupAddress: OptionalAddressSchema,
-          secondaryPickupAddress: OptionalAddressSchema,
+          secondaryPickupAddress: Yup.object().when('hasSecondaryPickupAddress', {
+            is: (hasSecondaryPickupAddress) => hasSecondaryPickupAddress === true,
+            then: () => OptionalAddressSchema,
+          }),
           destinationAddress: OptionalAddressSchema,
-          secondaryDestinationAddress: OptionalAddressSchema,
+          secondaryDestinationAddress: Yup.object().when('hasSecondaryDestinationAddress', {
+            is: (hasSecondaryDestinationAddress) => hasSecondaryDestinationAddress === true,
+            then: () => OptionalAddressSchema,
+          }),
           sitExpected: Yup.boolean().required('Required'),
           sitLocation: Yup.string().when('sitExpected', {
             is: true,

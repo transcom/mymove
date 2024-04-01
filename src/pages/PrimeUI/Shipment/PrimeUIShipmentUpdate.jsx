@@ -237,16 +237,16 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     initialValues = {
       ppmShipment: {
         pickupAddress: isEmpty(shipment.ppmShipment.pickupAddress)
-          ? null
+          ? emptyAddress
           : formatAddressForPrimeAPI(shipment.ppmShipment.pickupAddress),
         secondaryPickupAddress: isEmpty(shipment.ppmShipment.pickupAddress)
-          ? null
+          ? emptyAddress
           : formatAddressForPrimeAPI(shipment.ppmShipment.secondaryPickupAddress),
         destinationAddress: isEmpty(shipment.ppmShipment.destinationAddress)
-          ? null
+          ? emptyAddress
           : formatAddressForPrimeAPI(shipment.ppmShipment.destinationAddress),
         secondaryDestinationAddress: isEmpty(shipment.ppmShipment.secondaryDestinationAddress)
-          ? null
+          ? emptyAddress
           : formatAddressForPrimeAPI(shipment.ppmShipment.secondaryDestinationAddress),
         sitExpected: shipment.ppmShipment.sitExpected,
         sitLocation: shipment.ppmShipment.sitLocation,
@@ -257,6 +257,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         hasProGear: shipment.ppmShipment.hasProGear,
         proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
+        hasSecondaryPickupAddress: shipment.ppmShipment.hasSecondaryPickupAddress,
+        hasSecondaryDesinationAddress: shipment.ppmShipment.hasSecondaryDesinationAddress,
       },
       counselorRemarks: shipment.counselorRemarks || '',
     };
@@ -267,7 +269,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
         pickupAddress: Yup.object().matches(OptionalAddressSchema).required('Required'),
         secondaryPickupAddress: Yup.object().matches(OptionalAddressSchema),
-        destinationAddress: Yup.object().matches(OptionalAddressSchema).required(),
+        destinationAddress: Yup.object().matches(OptionalAddressSchema).required('Required'),
         secondaryDestinationAddress: Yup.object().matches(OptionalAddressSchema),
         sitExpected: Yup.boolean().required('Required'),
         sitLocation: Yup.string().when('sitExpected', {
