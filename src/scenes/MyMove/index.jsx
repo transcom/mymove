@@ -104,12 +104,6 @@ export class CustomerApp extends Component {
       });
     });
     document.title = generatePageTitle('Sign In');
-    const script = document.createElement('script');
-
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-    script.async = true;
-
-    document.body.appendChild(script);
   }
 
   componentDidCatch(error, info) {
@@ -127,6 +121,11 @@ export class CustomerApp extends Component {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading, cacValidated } = props;
     const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag } = this.state;
+    const script = document.createElement('script');
+
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+    document.body.appendChild(script);
 
     return (
       <>
