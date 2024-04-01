@@ -5960,7 +5960,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -10412,7 +10412,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -18546,7 +18546,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -23056,7 +23056,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
