@@ -35,6 +35,7 @@ var TOO = RolePermissions{
 		"update.SITExtension",
 		"update.MTOServiceItem",
 		"update.excessWeightRisk",
+		"update.customer",
 		"view.closeoutOffice",
 	},
 }
@@ -51,6 +52,7 @@ var TIO = RolePermissions{
 		"update.maxBillableWeight",
 		"update.paymentRequest",
 		"update.paymentServiceItemStatus",
+		"update.customer",
 	},
 }
 
