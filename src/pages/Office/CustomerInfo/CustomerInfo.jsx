@@ -33,13 +33,13 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       });
       queryClient.invalidateQueries([CUSTOMER, variables.customerId]);
       queryClient.invalidateQueries([ORDERS, ordersId]);
-      onUpdate('success');
       handleClose();
+      onUpdate('success');
     },
     onError: () => {
       // TODO: Handle error some how - see https://dp3.atlassian.net/browse/MB-5597
-      onUpdate('error');
       handleClose();
+      onUpdate('error');
     },
   });
 
