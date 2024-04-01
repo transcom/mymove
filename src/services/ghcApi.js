@@ -677,5 +677,5 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 }
 
 export async function createOfficeAccountRequest({ body }) {
-  return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
+  return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body });
 }
