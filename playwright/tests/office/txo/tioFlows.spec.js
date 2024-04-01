@@ -200,20 +200,21 @@ test.describe('TIO user', () => {
     test('can search for moves using DOD ID', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[1]);
+      await page.getByTestId('searchText').type(testMove.Orders.ServiceMember.edipi);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
-      await expect(page.getByTestId('dodID-0')).toContainText(SearchTerms[1]);
+      await expect(page.getByTestId('dodID-0')).toContainText(testMove.Orders.ServiceMember.edipi);
     });
     test('can search for moves using Customer Name', async ({ page }) => {
+      const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[2]);
+      await page.getByTestId('searchText').type(CustomerName);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
-      await expect(page.getByTestId('customerName-0')).toContainText(SearchTerms[2]);
+      await expect(page.getByTestId('customerName-0')).toContainText(CustomerName);
     });
     test('Can filter status using Payment Request Status', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
