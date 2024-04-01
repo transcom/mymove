@@ -102,24 +102,25 @@ func UpdateUserOktaID(db *pop.Connection, user *User, oktaID string) error {
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                     uuid.UUID   `db:"id"`
-	Active                 bool        `db:"active"`
-	Email                  string      `db:"email"`
-	ServiceMemberID        *uuid.UUID  `db:"sm_id"`
-	ServiceMemberFirstName *string     `db:"sm_fname"`
-	ServiceMemberLastName  *string     `db:"sm_lname"`
-	ServiceMemberMiddle    *string     `db:"sm_middle"`
-	OfficeUserID           *uuid.UUID  `db:"ou_id"`
-	OfficeUserFirstName    *string     `db:"ou_fname"`
-	OfficeUserLastName     *string     `db:"ou_lname"`
-	OfficeUserMiddle       *string     `db:"ou_middle"`
-	OfficeActive           *bool       `db:"ou_active"`
-	AdminUserID            *uuid.UUID  `db:"au_id"`
-	AdminUserRole          *AdminRole  `db:"au_role"`
-	AdminUserFirstName     *string     `db:"au_fname"`
-	AdminUserLastName      *string     `db:"au_lname"`
-	AdminUserActive        *bool       `db:"au_active"`
-	Roles                  roles.Roles `many_to_many:"users_roles" primary_id:"user_id"`
+	ID                        uuid.UUID   `db:"id"`
+	Active                    bool        `db:"active"`
+	Email                     string      `db:"email"`
+	ServiceMemberID           *uuid.UUID  `db:"sm_id"`
+	ServiceMemberFirstName    *string     `db:"sm_fname"`
+	ServiceMemberLastName     *string     `db:"sm_lname"`
+	ServiceMemberMiddle       *string     `db:"sm_middle"`
+	ServiceMemberCacValidated *bool       `db:"sm_cac_validated"`
+	OfficeUserID              *uuid.UUID  `db:"ou_id"`
+	OfficeUserFirstName       *string     `db:"ou_fname"`
+	OfficeUserLastName        *string     `db:"ou_lname"`
+	OfficeUserMiddle          *string     `db:"ou_middle"`
+	OfficeActive              *bool       `db:"ou_active"`
+	AdminUserID               *uuid.UUID  `db:"au_id"`
+	AdminUserRole             *AdminRole  `db:"au_role"`
+	AdminUserFirstName        *string     `db:"au_fname"`
+	AdminUserLastName         *string     `db:"au_lname"`
+	AdminUserActive           *bool       `db:"au_active"`
+	Roles                     roles.Roles `many_to_many:"users_roles" primary_id:"user_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -132,6 +133,7 @@ func FetchUserIdentity(db *pop.Connection, oktaID string) (*UserIdentity, error)
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,
 				sm.middle_name AS sm_middle,
+				sm.cac_validated AS sm_cac_validated,
 				ou.id AS ou_id,
 				ou.first_name AS ou_fname,
 				ou.last_name AS ou_lname,
