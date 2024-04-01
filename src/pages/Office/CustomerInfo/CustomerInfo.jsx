@@ -116,6 +116,11 @@ CustomerInfo.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   isError: PropTypes.bool.isRequired,
   ordersId: PropTypes.string.isRequired,
-  onUpdate: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func,
 };
+
+CustomerInfo.defaultProps = {
+  onUpdate: () => {},
+};
+
 export default CustomerInfo;

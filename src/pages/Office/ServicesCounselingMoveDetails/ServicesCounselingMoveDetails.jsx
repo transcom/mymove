@@ -614,7 +614,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Customer info"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
+                <Restricted to={permissionTypes.updateCustomer}>
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
@@ -622,7 +622,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   >
                     Edit customer info
                   </Link>
-                )
+                </Restricted>
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
