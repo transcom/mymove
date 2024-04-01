@@ -564,15 +564,20 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 				r.Method("GET", "/docs", http.NotFoundHandler())
 			}
 
+			api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
+			tracingMiddleware := middleware.OpenAPITracing(api)
+
+			// Mux for GHC API open routes
+			r.Route("/open", func(rOpen chi.Router) {
+				rOpen.Mount("/", api.Serve(tracingMiddleware))
+			})
 			// Mux for GHC API that enforces auth
 			r.Route("/", func(rAuth chi.Router) {
 				rAuth.Use(userAuthMiddleware)
 				rAuth.Use(addAuditUserToRequestContextMiddleware)
 				rAuth.Use(middleware.NoCache())
-				api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
 				permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
 				rAuth.Use(permissionsMiddleware)
-				tracingMiddleware := middleware.OpenAPITracing(api)
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
 			})
 		})

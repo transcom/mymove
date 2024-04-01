@@ -114,6 +114,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       if (normalizeData) {
         /* TODO - deprecrate the below & require an explicit schemaKey parameter */
         const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
+
         if (!routeDefinition) {
           throw new Error(`Could not find routeDefinition for ${operationPath}`);
         }
