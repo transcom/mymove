@@ -38,6 +38,15 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 
+	// Fetch new county if postal code has been modified from its original
+	if originalAddress.PostalCode != address.PostalCode {
+		county, err := models.FindCountyByZipCode(appCtx.DB(), address.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+		address.County = &county
+	}
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedAddress)
 		if verrs != nil && verrs.HasAny() {
