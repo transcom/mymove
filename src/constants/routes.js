@@ -78,6 +78,8 @@ export const servicesCounselingRoutes = {
   SHIPMENT_ADVANCE_PATH: 'shipments/:shipmentId/advance',
   BASE_MOVE_HISTORY_PATH: `${BASE_COUNSELING_MOVE_PATH}/history`,
   MOVE_HISTORY_PATH: 'history',
+  BASE_MTO_PATH: `${BASE_COUNSELING_MOVE_PATH}/mto`,
+  MTO_PATH: 'mto',
   BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer-support-remarks`,
   CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
   BASE_SHIPMENT_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/document-review`,

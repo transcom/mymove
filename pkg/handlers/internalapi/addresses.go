@@ -25,6 +25,7 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 		State:          *rawAddress.State,
 		PostalCode:     *rawAddress.PostalCode,
 		Country:        rawAddress.Country,
+		County:         rawAddress.County,
 	}
 }
 
@@ -36,6 +37,7 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	a.State = *payload.State
 	a.PostalCode = *payload.PostalCode
 	a.Country = payload.Country
+	a.County = payload.County
 }
 
 // ShowAddressHandler returns an address

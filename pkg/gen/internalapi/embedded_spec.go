@@ -3124,6 +3124,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -6131,6 +6137,9 @@ func init() {
         },
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "created_at": {
           "type": "string",
@@ -10826,6 +10835,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -13838,6 +13853,9 @@ func init() {
         },
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "created_at": {
           "type": "string",
