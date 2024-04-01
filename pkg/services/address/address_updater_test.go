@@ -48,7 +48,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
 		suite.Equal(originalAddress.Country, updatedAddress.Country)
-		suite.Equal(county, *desiredAddress.County)
+		suite.Equal(county, desiredAddress.County)
 	})
 
 	suite.Run("Fails to updates because of stale etag", func() {

@@ -27,7 +27,8 @@ func CreateTestShippingOffice(suite *ModelSuite) TransportationOffice {
 		StreetAddress1: "123 washington Ave",
 		City:           "Springfield",
 		State:          "AK",
-		PostalCode:     "99515"}
+		PostalCode:     "99515",
+		County:         "ANCHORAGE"}
 	suite.MustSave(&address)
 	office := TransportationOffice{
 		Name:      "JPSO Supreme",

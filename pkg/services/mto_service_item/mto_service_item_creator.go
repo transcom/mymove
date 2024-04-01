@@ -215,7 +215,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			if errCounty != nil {
 				return nil, nil, errCounty
 			}
-			serviceItem.SITOriginHHGActualAddress.County = &county
+			serviceItem.SITOriginHHGActualAddress.County = county
 
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
