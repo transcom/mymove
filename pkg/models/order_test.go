@@ -388,6 +388,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
+		County:         "county",
 	}
 	suite.MustSave(&address)
 

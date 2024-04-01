@@ -13,6 +13,7 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "12345",
+		County:         "county",
 	}
 	suite.MustSave(&address)
 
@@ -68,6 +69,7 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "23456",
+		County:         "county",
 	}
 	suite.MustSave(&address2)
 

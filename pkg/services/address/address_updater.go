@@ -44,7 +44,7 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
-		address.County = &county
+		address.County = county
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
