@@ -171,6 +171,7 @@ const StatusFilterOptions = ['Payment requested', 'Reviewed', 'Rejected', 'Paid'
 test.describe('TIO user', () => {
   /** @type {TioFlowPage} */
   let tioFlowPage;
+  let testMove;
   test.describe('with Payment Requests Queue', () => {
     test.beforeEach(async ({ officePage }) => {
       await officePage.signInAsNewTIOUser();
@@ -178,7 +179,11 @@ test.describe('TIO user', () => {
   });
   test.describe('with Search Queue', () => {
     test.beforeEach(async ({ officePage }) => {
+      testMove = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestsForTIO();
       await officePage.signInAsNewTIOUser();
+
+      tioFlowPage = new TioFlowPage(officePage, testMove);
+
       const searchTab = officePage.page.getByTitle(TIOTabsTitles[1]);
       await searchTab.click();
     });
@@ -186,11 +191,11 @@ test.describe('TIO user', () => {
     test('can search for moves using Move Code', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchText').type(testMove.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
-      await expect(page.getByTestId('locator-0')).toContainText(SearchTerms[0]);
+      await expect(page.getByTestId('locator-0')).toContainText(testMove.locator);
     });
     test('can search for moves using DOD ID', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
