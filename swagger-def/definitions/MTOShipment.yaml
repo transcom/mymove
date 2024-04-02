@@ -169,3 +169,6 @@ properties:
     $ref: 'PPMShipment.yaml'
   deliveryAddressUpdate:
     $ref: 'ShipmentAddressUpdate.yaml'
+  shipmentLocator:
+    type: string
+    example: '1K43AR-01'

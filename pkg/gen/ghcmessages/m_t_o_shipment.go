@@ -165,6 +165,10 @@ type MTOShipment struct {
 	// service order number
 	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
 
+	// shipment locator
+	// Example: 1K43AR-01
+	ShipmentLocator string `json:"shipmentLocator,omitempty"`
+
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
