@@ -184,7 +184,7 @@ type WeightTicketParserGenerator struct {
 
 // NewWeightTicketParserGenerator creates a WeightTicketParserGenerator
 func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services.WeightTicketParserGenerator, error) {
-	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/WeightEstimateLivingRoomPdfTemplate.pdf")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -241,7 +241,6 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator Error marshaling JSON")
 	}
 
-	fmt.Print(jsonData)
 	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader)
 	if err != nil {
 		return nil, nil, err
