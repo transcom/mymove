@@ -4,7 +4,7 @@ import { arrayOf, bool } from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { Link, useLocation, useNavigate, generatePath } from 'react-router-dom';
 
-import { isMultiMoveEnabled } from '../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import styles from './Profile.module.scss';
 
@@ -51,7 +51,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     } else {
       setNeedsToVerifyProfile(false);
     }
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
   }, [state]);

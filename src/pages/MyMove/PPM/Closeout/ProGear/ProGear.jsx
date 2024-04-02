@@ -3,7 +3,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { isMultiMoveEnabled } from '../../../../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import { selectMTOShipmentById, selectProGearWeightTicketAndIndexById } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -43,7 +43,7 @@ const ProGear = () => {
   );
 
   useEffect(() => {
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
     if (!proGearId) {

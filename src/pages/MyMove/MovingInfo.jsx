@@ -5,7 +5,8 @@ import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { isMultiMoveEnabled } from '../../utils/featureFlags';
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from '../../shared/constants';
 
 import styles from './MovingInfo.module.scss';
 
@@ -40,9 +41,14 @@ export class MovingInfo extends Component {
   componentDidMount() {
     const { serviceMemberId, fetchLatestOrders } = this.props;
     fetchLatestOrders(serviceMemberId);
-    isMultiMoveEnabled().then((enabled) => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
       this.setState({
         multiMoveFeatureFlag: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
+      this.setState({
+        ppmFeatureFlag: enabled,
       });
     });
   }
@@ -57,9 +63,11 @@ export class MovingInfo extends Component {
     } = this.props;
 
     let multiMove = false;
+    let enablePPM = true;
     if (this.state) {
-      const { multiMoveFeatureFlag } = this.state;
+      const { multiMoveFeatureFlag, ppmFeatureFlag } = this.state;
       multiMove = multiMoveFeatureFlag;
+      enablePPM = ppmFeatureFlag;
     }
 
     const nextPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
@@ -101,22 +109,29 @@ export class MovingInfo extends Component {
                   </ul>
                 </div>
               </IconSection>
-              <IconSection icon="car" headline="You still have the option to move some of your belongings yourself.">
-                <p>
-                  Most people utilize a professional moving company to pack, pick-up and deliver the majority of their
-                  personal property and move a few important or necessary items themselves. This is called a partial
-                  Personally Procured Move (PPM).
-                </p>
-              </IconSection>
-              <IconSection
-                icon="hand-holding-usd"
-                headline="You can get paid for any household goods you move yourself."
-              >
-                <p>
-                  Remember to obtain and submit documents to the government to verify the weight of your PPM shipment in
-                  order to receive your payment.
-                </p>
-              </IconSection>
+              {enablePPM ? (
+                <>
+                  <IconSection
+                    icon="car"
+                    headline="You still have the option to move some of your belongings yourself."
+                  >
+                    <p>
+                      Most people utilize a professional moving company to pack, pick-up and deliver the majority of
+                      their personal property and move a few important or necessary items themselves. This is called a
+                      partial Personally Procured Move (PPM).
+                    </p>
+                  </IconSection>
+                  <IconSection
+                    icon="hand-holding-usd"
+                    headline="You can get paid for any household goods you move yourself."
+                  >
+                    <p>
+                      Remember to obtain and submit documents to the government to verify the weight of your PPM
+                      shipment in order to receive your payment.
+                    </p>
+                  </IconSection>
+                </>
+              ) : null}
             </SectionWrapper>
 
             <WizardNavigation

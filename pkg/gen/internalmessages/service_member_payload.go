@@ -29,6 +29,9 @@ type ServiceMemberPayload struct {
 	// backup mailing address
 	BackupMailingAddress *Address `json:"backup_mailing_address,omitempty"`
 
+	// cac validated
+	CacValidated bool `json:"cac_validated,omitempty"`
+
 	// created at
 	// Required: true
 	// Format: date-time
