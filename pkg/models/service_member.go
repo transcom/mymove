@@ -148,6 +148,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		if serviceMember.ResidentialAddress != nil {
 			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode)
 			if err != nil {
+				responseError = err
 				return err
 			}
 			serviceMember.ResidentialAddress.County = &county
@@ -162,6 +163,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		if serviceMember.BackupMailingAddress != nil {
 			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode)
 			if err != nil {
+				responseError = err
 				return err
 			}
 			serviceMember.BackupMailingAddress.County = &county
