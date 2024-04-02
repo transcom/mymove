@@ -236,7 +236,7 @@ test.describe('TIO user', () => {
     test('Can select a filter status using Payment Request', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchText').type(testMove.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       // Check if Payment Request Status options are present
