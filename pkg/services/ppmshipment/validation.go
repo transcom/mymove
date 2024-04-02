@@ -124,6 +124,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.HasSecondaryPickupAddress = newPPMShipment.HasSecondaryPickupAddress
 		ppmShipment.SecondaryPickupAddress = nil
 		ppmShipment.SecondaryPickupAddressID = nil
+		ppmShipment.SecondaryPickupPostalCode = nil
 	} else if newPPMShipment.SecondaryPickupAddress != nil {
 		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
 		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
@@ -144,6 +145,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.HasSecondaryDestinationAddress = newPPMShipment.HasSecondaryDestinationAddress
 		ppmShipment.SecondaryDestinationAddress = nil
 		ppmShipment.SecondaryDestinationAddressID = nil
+		ppmShipment.SecondaryDestinationPostalCode = nil
 	} else if newPPMShipment.SecondaryDestinationAddress != nil {
 		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
 		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)

@@ -5174,35 +5174,26 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -5445,33 +5436,26 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       sitLocation:
@@ -5505,8 +5489,8 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
+      - pickupAddress
+      - destinationAddress
       - sitExpected
       - estimatedWeight
       - hasProGear
