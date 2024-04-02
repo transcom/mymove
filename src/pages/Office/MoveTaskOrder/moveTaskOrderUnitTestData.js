@@ -207,7 +207,19 @@ export const someShipmentsApprovedMTOQuery = {
     {
       id: '8',
       reServiceName: 'Move management',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'MS',
+    },
+    {
+      id: '9',
+      reServiceName: 'Move management',
       status: SERVICE_ITEM_STATUS.APPROVED,
+      reServiceCode: 'MS',
+    },
+    {
+      id: '10',
+      reServiceName: 'Move management',
+      status: SERVICE_ITEM_STATUS.REJECTED,
       reServiceCode: 'MS',
     },
   ],

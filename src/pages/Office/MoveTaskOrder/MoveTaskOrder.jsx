@@ -1117,19 +1117,19 @@ export const MoveTaskOrder = (props) => {
                 {requestedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={requestedMoveServiceItems}
-                    statusForTableType="Move Task Order Requested "
+                    statusForTableType="Move Task Order Requested"
                   />
                 )}
                 {approvedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={approvedMoveServiceItems}
-                    statusForTableType="Move Task Order Approved "
+                    statusForTableType="Move Task Order Approved"
                   />
                 )}
                 {rejectedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={rejectedMoveServiceItems}
-                    statusForTableType="Move Task Order Rejected "
+                    statusForTableType="Move Task Order Rejected"
                   />
                 )}
               </ShipmentContainer>
