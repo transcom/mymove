@@ -1704,7 +1704,13 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "PENDING",
+                      "REVIEWED",
+                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                      "PAID",
+                      "DEPRECATED",
+                      "EDI_ERROR"
                     ]
                   }
                 }
@@ -3727,12 +3733,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -7681,7 +7687,18 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "EDI_ERROR",
+        "DEPRECATED",
+        "ERROR",
+        "REJECTED",
+        "PAYMENT REQUESTED"
       ]
     },
     "MoveTaskOrder": {
@@ -13457,7 +13474,13 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "PENDING",
+                      "REVIEWED",
+                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                      "PAID",
+                      "DEPRECATED",
+                      "EDI_ERROR"
                     ]
                   }
                 }
@@ -15976,12 +15999,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -20267,7 +20290,18 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "EDI_ERROR",
+        "DEPRECATED",
+        "ERROR",
+        "REJECTED",
+        "PAYMENT REQUESTED"
       ]
     },
     "MoveTaskOrder": {
