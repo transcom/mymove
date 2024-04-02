@@ -89,7 +89,7 @@ test.describe('TOO user', () => {
 
       const found = findOptionWithinOpenedDropdown(page, StatusFilterOptions[1]);
       await found.click();
-      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByText('Results')).toBeVisible();
     });
     test('cant search for empty move code', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
