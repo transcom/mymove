@@ -440,6 +440,7 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
+		County:         "county",
 	}
 	suite.MustSave(&address)
 

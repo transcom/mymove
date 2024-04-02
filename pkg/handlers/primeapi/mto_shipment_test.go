@@ -2730,6 +2730,7 @@ func getFakeAddress() struct{ primemessages.Address } {
 			PostalCode:     models.StringPointer("92102"),
 			State:          models.StringPointer("CA"),
 			StreetAddress1: &streetAddr,
+			County:         models.StringPointer("County"),
 		},
 	}
 }
