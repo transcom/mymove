@@ -154,5 +154,5 @@ type WeightTicketParserComputer interface {
 
 //go:generate mockery --name SSWPPMGenerator
 type WeightTicketParserGenerator interface {
-	FillWeightEstimatorPDFForm(Page1Values WeightEstimatorPage1, Page2Values WeightEstimatorPage2) (afero.File, *pdfcpu.PDFInfo, error)
+	FillWeightEstimatorPDFForm(Page1Values WeightEstimatorPage1, Page2Values WeightEstimatorPage2, fileName string) (afero.File, *pdfcpu.PDFInfo, error)
 }

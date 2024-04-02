@@ -247,14 +247,15 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 
 			uploadedFile := file
 
-			if params.WeightReceipt {
-				// TODO: check if this is an excel file and parse if it is
-				// contentType, detectContentTypeErr := storage.DetectContentType(file)
+			// check if this is an excel file and parse if it is
+			// contentType, detectContentTypeErr := mimetype.DetectFile(file.Header.Filename)
 
-				// if detectContentTypeErr != nil {
-				// 	appCtx.Logger().Error("Could not detect content type", zap.Error(detectContentTypeErr))
-				// 	return nil, responseVErrors, detectContentTypeErr
-				// }
+			// if detectContentTypeErr != nil {
+			// 	appCtx.Logger().Error("Could not detect content type", zap.Error(detectContentTypeErr))
+			// 	return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+			// }
+
+			if params.WeightReceipt /*&& contentType.Extension() == ".xlsx"*/ {
 				userUploader, uploaderErr := uploader.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 
 				if uploaderErr != nil {
@@ -280,7 +281,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				aFile, pdfInfo, err := weightGenerator.FillWeightEstimatorPDFForm(*page1Values, *page2Values)
+				aFile, pdfInfo, err := weightGenerator.FillWeightEstimatorPDFForm(*page1Values, *page2Values, file.Header.Filename)
 
 				// Ensure weight receipt PDF is not corrupted
 				if err != nil || pdfInfo.PageCount != 2 {

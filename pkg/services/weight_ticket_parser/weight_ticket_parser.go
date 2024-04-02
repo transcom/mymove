@@ -196,7 +196,7 @@ func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services
 }
 
 // FillWeightEstimatorPDFForm takes form data and fills an existing PDF form template with said data
-func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(Page1Values services.WeightEstimatorPage1, Page2Values services.WeightEstimatorPage2) (afero.File, *pdfcpu.PDFInfo, error) {
+func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(Page1Values services.WeightEstimatorPage1, Page2Values services.WeightEstimatorPage2, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -241,7 +241,7 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator Error marshaling JSON")
 	}
 
-	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader)
+	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader, fileName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -258,7 +258,6 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 	return WeightWorksheet, pdfInfo, err
 }
 
-// TODO: LOOK AT MOVING THIS TO A HELPER FILE SO IT CAN BE RE-USED
 // CreateTextFields formats the SSW Page data to match PDF-accepted JSON
 func createTextFields(data interface{}, pages ...int) []textField {
 	var textFields []textField
