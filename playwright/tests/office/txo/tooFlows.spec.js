@@ -21,10 +21,14 @@ const StatusFilterOptions = ['New Move', 'Approvals requested', 'Move approved']
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
+  let testMove;
 
   test.describe('with Search Queue', () => {
     test.beforeEach(async ({ officePage }) => {
+      testMove = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
       await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, testMove);
+
       const searchTab = officePage.page.getByTitle(TOOTabsTitles[1]);
       await searchTab.click();
     });
@@ -32,29 +36,30 @@ test.describe('TOO user', () => {
     test('can search for moves using Move Code', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchText').type(testMove.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results (1)')).toBeVisible();
-      await expect(page.getByTestId('locator-0')).toContainText(SearchTerms[0]);
+      await expect(page.getByTestId('locator-0')).toContainText(testMove.locator);
     });
     test('can search for moves using DOD ID', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[1]);
+      await page.getByTestId('searchText').type(testMove.Orders.ServiceMember.edipi);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results (1)')).toBeVisible();
-      await expect(page.getByTestId('dodID-0')).toContainText(SearchTerms[1]);
+      await expect(page.getByTestId('dodID-0')).toContainText(testMove.Orders.ServiceMember.edipi);
     });
     test('can search for moves using Customer Name', async ({ page }) => {
+      const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[2]);
+      await page.getByTestId('searchText').type(CustomerName);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
-      await expect(page.getByTestId('customerName-0')).toContainText(SearchTerms[2]);
+      await expect(page.getByTestId('customerName-0')).toContainText(CustomerName);
     });
     test('Can filter status using Move Status', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
