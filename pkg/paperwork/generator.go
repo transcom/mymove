@@ -315,15 +315,16 @@ func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload mode
 
 	if upload.ContentType == uploader.FileTypePDF {
 		return path, nil
-	} else if upload.ContentType == uploader.FileTypeExcel || upload.ContentType == uploader.FileTypeExcelXLSX {
-		weightTicketPath, err := weightticketparser.ParseWeightEstimatorExcelFile(appCtx, path, g)
-
-		if err != nil {
-			return "nil", errors.Wrap(err, "Failed to parse weight ticket file")
-		}
-
-		return weightTicketPath, nil
 	}
+	// else if upload.ContentType == uploader.FileTypeExcel || upload.ContentType == uploader.FileTypeExcelXLSX {
+	// 	weightTicketPath, err := weightticketparser.ParseWeightEstimatorExcelFile(appCtx, path, g)
+
+	// 	if err != nil {
+	// 		return "nil", errors.Wrap(err, "Failed to parse weight ticket file")
+	// 	}
+
+	// 	return weightTicketPath, nil
+	// }
 
 	images := make([]inputFile, 0)
 	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"io"
+
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -147,10 +149,10 @@ type WeightEstimatorPage2 struct {
 
 //go:generate mockery --name SSWPPMComputer
 type WeightTicketParserComputer interface {
-	ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, path string, weightGenerator paperwork.Generator) (string, error)
+	ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*WeightEstimatorPage1, *WeightEstimatorPage2, error)
 }
 
 //go:generate mockery --name SSWPPMGenerator
 type WeightTicketParserGenerator interface {
-	FillWeightEstimatorPDFForm(Page1Values WeightEstimatorPage1, Page2Values WeightEstimatorPage2) (weightEstimatorFile afero.File, pdfInfo *pdfcpu.PDFInfo, err error)
+	FillWeightEstimatorPDFForm(Page1Values WeightEstimatorPage1, Page2Values WeightEstimatorPage2) (afero.File, *pdfcpu.PDFInfo, error)
 }

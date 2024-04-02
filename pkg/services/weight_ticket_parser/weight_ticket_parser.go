@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"reflect"
 	"strings"
 
@@ -156,16 +157,6 @@ type WeightEstimatorPage2 struct {
 	LivingRoomWeight       string
 }
 
-// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
-type WeightTicketParserComputer struct {
-}
-
-// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
-type WeightTicketParserGenerator struct {
-	generator      paperwork.Generator
-	templateReader *bytes.Reader
-}
-
 // textField represents a text field within a form.
 type textField struct {
 	Pages     []int  `json:"pages"`
@@ -174,6 +165,21 @@ type textField struct {
 	Value     string `json:"value"`
 	Multiline bool   `json:"multiline"`
 	Locked    bool   `json:"locked"`
+}
+
+// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
+type WeightTicketParserComputer struct {
+}
+
+// NewWeightTicketParserComputer creates a WeightTicketParserComputer
+func NewWeightTicketParserComputer() services.WeightTicketParserComputer {
+	return &WeightTicketParserComputer{}
+}
+
+// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
+type WeightTicketParserGenerator struct {
+	generator      paperwork.Generator
+	templateReader *bytes.Reader
 }
 
 // NewWeightTicketParserGenerator creates a WeightTicketParserGenerator
@@ -190,7 +196,7 @@ func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services
 }
 
 // FillWeightEstimatorPDFForm takes form data and fills an existing PDF form template with said data
-func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(Page1Values WeightEstimatorPage1, Page2Values WeightEstimatorPage2) (weightEstimatorFile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(Page1Values services.WeightEstimatorPage1, Page2Values services.WeightEstimatorPage2) (afero.File, *pdfcpu.PDFInfo, error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -232,10 +238,10 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 	// Marshal the FormData struct into a JSON-encoded byte slice
 	jsonData, err := json.MarshalIndent(formData, "", "  ")
 	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
-		return
+		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator Error marshaling JSON")
 	}
 
+	fmt.Print(jsonData)
 	WeightWorksheet, err := WeightTicketParserGenerator.generator.FillPDFForm(jsonData, WeightTicketParserGenerator.templateReader)
 	if err != nil {
 		return nil, nil, err
@@ -244,11 +250,11 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
 	pdfInfoResult, err := WeightTicketParserGenerator.generator.GetPdfFileInfo(WeightWorksheet.Name())
 	if err != nil || pdfInfoResult.PageCount != 2 {
-		return nil, nil, errors.Wrap(err, "WeightEstimatorPPMGenerator output a corrupted or incorrectly altered PDF")
+		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator output a corrupted or incorrectly altered PDF")
 	}
 
 	// Return PDFInfo for additional testing in other functions
-	pdfInfo = pdfInfoResult
+	pdfInfo := pdfInfoResult
 
 	return WeightWorksheet, pdfInfo, err
 }
@@ -283,17 +289,11 @@ func mergeTextFields(fields1, fields2 []textField) []textField {
 	return append(fields1, fields2...)
 }
 
-func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, path string) (string, error) {
-	tempFile, err := weightGenerator.FileSystem().Fs.Open(path)
+func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*services.WeightEstimatorPage1, *services.WeightEstimatorPage2, error) {
+	excelFile, err := excelize.OpenReader(file)
 
 	if err != nil {
-		return "nil", errors.Wrap(err, "error g.fs.Open on reload from memstore")
-	}
-
-	excelFile, err := excelize.OpenReader(tempFile)
-
-	if err != nil {
-		return "nil", errors.Wrap(err, "Opening excel file")
+		return nil, nil, errors.Wrap(err, "Opening excel file")
 	}
 
 	defer func() {
@@ -306,46 +306,41 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 	// Get all the rows in the Sheet1.
 	rows, err := excelFile.GetRows("CUBE SHEET-ITO-TMO-ONLY")
 	if err != nil {
-		return "nil", errors.Wrap(err, "Parsing excel file")
+		return nil, nil, errors.Wrap(err, "Parsing excel file")
 	}
 
 	// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
 	// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
 	// have 2 numbers.
-	rowCount := 1
-	var cellColumnData []string
 	const cellColumnCount = 4
 	const totalItemSectionString = "Total number of items in this section"
 	const totalCubeSectionString = "Total cube for this section"
 	const constructedWeightSectionString = "Constructed Weight for this section"
 	const itemString = "Item"
-	var csvStringBuilder strings.Builder
 
-	var page1Values WeightEstimatorPage1
-	var page2Values WeightEstimatorPage2
+	rowCount := 1
+	var cellColumnData []string
+	var page1Values services.WeightEstimatorPage1
+	var page2Values services.WeightEstimatorPage2
 
-	page1Reflect := reflect.ValueOf(page1Values)
-	page2Reflect := reflect.ValueOf(page2Values)
+	page1Reflect := reflect.ValueOf(&page1Values).Elem()
+	page2Reflect := reflect.ValueOf(&page2Values).Elem()
 
-	for i := 0; i < page1Reflect.NumField(); i++ {
-		fmt.Print(page1Reflect.Type().Field(i))
-		fmt.Print(", ")
-	}
-	fmt.Print("\n")
-	for i := 0; i < page2Reflect.NumField(); i++ {
-		fmt.Print(page2Reflect.Type().Field(i))
-		fmt.Print(", ")
-	}
+	var page1Counter = 0
+	var page2Counter = 0
+	var page1Write = true
+	var page2Write = false
 
-	// TODO: loop through and populate the page data structs
-	//        could potentially use reflection to make sure the data is populated into struct in order.
-	//        would need to know when to switch to the 2nd page struct
 	for _, row := range rows {
 		currentCell := 1
 		writeData := false
 		blankCell := false
 
 		for _, colCell := range row {
+			writeColumn1 := false
+			writeColumn2 := false
+			writeColumn3 := false
+
 			// We skip the first two rows of the table
 			if rowCount <= 2 {
 				continue
@@ -376,18 +371,62 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 					cellColumnData = cellColumnData[:0]
 					blankCell = true
 					continue
-				} else if strings.Contains(cellColumnData[0], totalItemSectionString) ||
-					strings.Contains(cellColumnData[0], constructedWeightSectionString) {
-					csvStringBuilder.WriteString(cellColumnData[3] + ",")
+				} else if strings.Contains(cellColumnData[0], totalItemSectionString) || strings.Contains(cellColumnData[0], constructedWeightSectionString) {
+					writeColumn3 = true
 				} else if strings.Contains(cellColumnData[0], totalCubeSectionString) {
-					csvStringBuilder.WriteString(cellColumnData[2] + ",")
+					writeColumn2 = true
 				} else if cellColumnData[0] == "" {
-					csvStringBuilder.WriteString(cellColumnData[2] + ",")
-					csvStringBuilder.WriteString(cellColumnData[3] + ",")
+					writeColumn2 = true
+					writeColumn3 = true
 				} else {
-					csvStringBuilder.WriteString(cellColumnData[1] + ",")
-					csvStringBuilder.WriteString(cellColumnData[2] + ",")
-					csvStringBuilder.WriteString(cellColumnData[3] + ",")
+					writeColumn1 = true
+					writeColumn2 = true
+					writeColumn3 = true
+				}
+
+				if writeColumn1 {
+					if page1Write {
+						page1Reflect.Field(page1Counter).SetString(cellColumnData[1])
+						page1Counter++
+
+						if page1Counter == page1Reflect.NumField() {
+							page1Write = false
+							page2Write = true
+						}
+					} else if page2Write {
+						page2Reflect.Field(page2Counter).SetString(cellColumnData[1])
+						page2Counter++
+					}
+				}
+
+				if writeColumn2 {
+					if page1Write {
+						page1Reflect.Field(page1Counter).SetString(cellColumnData[2])
+						page1Counter++
+
+						if page1Counter == page1Reflect.NumField() {
+							page1Write = false
+							page2Write = true
+						}
+					} else if page2Write {
+						page2Reflect.Field(page2Counter).SetString(cellColumnData[2])
+						page2Counter++
+					}
+				}
+
+				if writeColumn3 {
+					if page1Write {
+						page1Reflect.Field(page1Counter).SetString(cellColumnData[3])
+						page1Counter++
+
+						if page1Counter == page1Reflect.NumField() {
+							page1Write = false
+							page2Write = true
+						}
+					} else if page2Write {
+						page2Reflect.Field(page2Counter).SetString(cellColumnData[3])
+						page2Counter++
+					}
 				}
 
 				cellColumnData = cellColumnData[:0]
@@ -400,16 +439,7 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 		currentCell = 1
 	}
 
-	csvString := csvStringBuilder.String()
-
-	// we remove the trailing , from the list because pdfcpu doesn't like it and will throw an error when we attempt to fill the pdf
-	if len(csvString) > 0 {
-		csvString = csvString[:len(csvString)-1]
-	}
-
-	// fill the pdf template with the data from the excel file
-
-	return "", nil
+	return &page1Values, &page2Values, nil
 }
 
 func createAssetByteReader(path string) (*bytes.Reader, error) {
