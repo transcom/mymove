@@ -585,10 +585,14 @@ describe('MoveTaskOrder', () => {
     it('renders the RequestedServiceItemsTable for requested, approved, and rejected service items', () => {
       const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
       // There should be 1 of each status table requested, approved, rejected service items
-      expect(requestedServiceItemsTable.length).toBe(3);
+      // Plus an approved move-level service item separate from the shipment items
+      expect(requestedServiceItemsTable.length).toBe(6);
       expect(requestedServiceItemsTable.at(0).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
       expect(requestedServiceItemsTable.at(1).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.APPROVED);
       expect(requestedServiceItemsTable.at(2).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.REJECTED);
+      expect(requestedServiceItemsTable.at(3).prop('statusForTableType')).toBe('Move Task Order Requested');
+      expect(requestedServiceItemsTable.at(4).prop('statusForTableType')).toBe('Move Task Order Approved');
+      expect(requestedServiceItemsTable.at(5).prop('statusForTableType')).toBe('Move Task Order Rejected');
     });
 
     it('updates the unapproved shipments tag state', () => {
