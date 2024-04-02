@@ -4004,6 +4004,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), updatedShipment.PpmShipment.ExpectedDepartureDate)
 		suite.NotNil(updatedShipment.PpmShipment.PickupAddress)
 		suite.NotNil(updatedShipment.PpmShipment.DestinationAddress)
+
 		// expect secondary addresses to be added
 		suite.NotNil(updatedShipment.PpmShipment.SecondaryPickupAddress)
 		suite.NotNil(updatedShipment.PpmShipment.SecondaryDestinationAddress)
@@ -4011,6 +4012,11 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(expectedSecondaryPickupAddressStreet3, *updatedShipment.PpmShipment.SecondaryPickupAddress.StreetAddress3)
 		suite.Equal(expectedDestinationAddressStreet3, *updatedShipment.PpmShipment.DestinationAddress.StreetAddress3)
 		suite.Equal(expectedSecondaryDestinationAddressStreet3, *updatedShipment.PpmShipment.SecondaryDestinationAddress.StreetAddress3)
+		suite.Equal(pickupAddress.PostalCode, updatedShipment.PpmShipment.PickupPostalCode)
+		suite.Equal(secondaryPickupAddress.PostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
+		suite.Equal(destinationAddress.PostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
+		suite.Equal(secondaryDestinationAddress.PostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+
 		suite.Equal(sitExpected, *updatedShipment.PpmShipment.SitExpected)
 		suite.Equal(&sitLocation, updatedShipment.PpmShipment.SitLocation)
 		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), updatedShipment.PpmShipment.SitEstimatedWeight)
@@ -4022,6 +4028,161 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
+	})
+
+	suite.Run("Successful PATCH Delete Addresses - Integration Test (PPM)", func() {
+		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
+		handler := UpdateShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			sitstatus.NewShipmentSITStatus(),
+		}
+
+		hasProGear := true
+		ppmShipment := factory.BuildFullAddressPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasProGear: &hasProGear,
+				},
+			},
+		}, nil)
+
+		// we expect initial setup data to have no secondary addresses
+		suite.NotNil(ppmShipment.SecondaryPickupAddress)
+		suite.NotNil(ppmShipment.SecondaryDestinationAddress)
+		suite.NotNil(ppmShipment.SecondaryPickupPostalCode)
+		suite.NotNil(ppmShipment.SecondaryDestinationPostalCode)
+
+		estimatedIncentive := 654321
+		sitEstimatedCost := 67500
+
+		params := suite.getUpdateShipmentParams(ppmShipment.Shipment)
+		params.Body.ShipmentType = ghcmessages.MTOShipmentTypePPM
+		params.Body.PpmShipment = &ghcmessages.UpdatePPMShipment{
+			HasSecondaryPickupAddress:      models.BoolPointer(false),
+			HasSecondaryDestinationAddress: models.BoolPointer(false),
+		}
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
+
+		suite.NotNil(updatedShipment.PpmShipment.PickupAddress)
+		suite.NotNil(updatedShipment.PpmShipment.DestinationAddress)
+		// expect secondary addresses to be deleted
+		suite.Nil(updatedShipment.PpmShipment.SecondaryPickupAddress)
+		suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationAddress)
+		suite.Nil(updatedShipment.PpmShipment.SecondaryPickupPostalCode)
+		suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+
+		suite.False(*updatedShipment.PpmShipment.HasSecondaryPickupAddress)
+		suite.False(*updatedShipment.PpmShipment.HasSecondaryDestinationAddress)
+	})
+
+	suite.Run("Successful PATCH does not Delete Addresses w/o has flag - Integration Test (PPM)", func() {
+		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator)
+		ppmEstimator := mocks.PPMEstimator{}
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
+		handler := UpdateShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			sitstatus.NewShipmentSITStatus(),
+		}
+
+		hasProGear := true
+		ppmShipment := factory.BuildFullAddressPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasProGear: &hasProGear,
+				},
+			},
+		}, nil)
+
+		// we expect initial setup data to have no secondary addresses
+		suite.NotNil(ppmShipment.SecondaryPickupAddress)
+		suite.NotNil(ppmShipment.SecondaryDestinationAddress)
+		suite.NotNil(ppmShipment.SecondaryPickupPostalCode)
+		suite.NotNil(ppmShipment.SecondaryDestinationPostalCode)
+
+		estimatedIncentive := 654321
+		sitEstimatedCost := 67500
+
+		params := suite.getUpdateShipmentParams(ppmShipment.Shipment)
+		params.Body.ShipmentType = ghcmessages.MTOShipmentTypePPM
+		params.Body.PpmShipment = &ghcmessages.UpdatePPMShipment{
+			HasProGear: &hasProGear,
+		}
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+		suite.Equal(ppmShipment.Shipment.ID.String(), updatedShipment.ID.String())
+
+		suite.NotNil(updatedShipment.PpmShipment.PickupAddress)
+		suite.NotNil(updatedShipment.PpmShipment.DestinationAddress)
+		// expect secondary addresses not to be deleted
+		suite.NotNil(updatedShipment.PpmShipment.SecondaryPickupAddress)
+		suite.NotNil(updatedShipment.PpmShipment.SecondaryDestinationAddress)
+		suite.NotNil(updatedShipment.PpmShipment.SecondaryPickupPostalCode)
+		suite.NotNil(updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+
+		suite.True(*updatedShipment.PpmShipment.HasSecondaryPickupAddress)
+		suite.True(*updatedShipment.PpmShipment.HasSecondaryDestinationAddress)
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
