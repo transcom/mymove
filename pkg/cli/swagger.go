@@ -39,6 +39,7 @@ func InitSwaggerFlags(flag *pflag.FlagSet) {
 	flag.String(PrimeSwaggerFlag, "swagger/prime.yaml", "The location of the Prime API swagger definition")
 	flag.String(PrimeV2SwaggerFlag, "swagger/prime_v2.yaml", "The location of the Prime V2 API swagger definition")
 	flag.String(PrimeV3SwaggerFlag, "swagger/prime_v3.yaml", "The location of the Prime V3 API swagger definition")
+	flag.String(SupportSwaggerFlag, "swagger/support.yaml", "The location of the Support API swagger definition")
 	flag.Bool(ServeSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 }
 
@@ -53,6 +54,7 @@ func CheckSwagger(v *viper.Viper) error {
 		PrimeSwaggerFlag,
 		PrimeV2SwaggerFlag,
 		PrimeV3SwaggerFlag,
+		SupportSwaggerFlag,
 	}
 
 	for _, c := range swaggerVars {
