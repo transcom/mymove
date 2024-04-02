@@ -6240,6 +6240,9 @@ func init() {
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
         },
+        "cac_validated": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -14044,6 +14047,9 @@ func init() {
         },
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "created_at": {
           "type": "string",
