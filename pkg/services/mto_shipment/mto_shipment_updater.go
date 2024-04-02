@@ -35,19 +35,21 @@ type UpdateMTOShipmentQueryBuilder interface {
 type mtoShipmentUpdater struct {
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
-	planner      route.Planner
-	moveRouter   services.MoveRouter
-	moveWeights  services.MoveWeights
-	sender       notifications.NotificationSender
-	recalculator services.PaymentRequestShipmentRecalculator
-	checks       []validator
+	addressUpdater services.AddressUpdater
+	planner        route.Planner
+	moveRouter     services.MoveRouter
+	moveWeights    services.MoveWeights
+	sender         notifications.NotificationSender
+	recalculator   services.PaymentRequestShipmentRecalculator
+	checks         []validator
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator, addressUpdater services.AddressUpdater) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
+		addressUpdater,
 		planner,
 		moveRouter,
 		moveWeights,
@@ -59,10 +61,11 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fet
 
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the CUSTOMER
-func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator, addressUpdater services.AddressUpdater) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
+		addressUpdater,
 		planner,
 		moveRouter,
 		moveWeights,
@@ -72,10 +75,11 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ serv
 	}
 }
 
-func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator, addressUpdater services.AddressUpdater) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
+		addressUpdater,
 		planner,
 		moveRouter,
 		moveWeights,
@@ -87,10 +91,11 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ servic
 
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the PRIME
-func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
+func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator, addressUpdater services.AddressUpdater) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		builder,
 		fetch.NewFetcher(builder),
+		addressUpdater,
 		planner,
 		moveRouter,
 		moveWeights,
@@ -408,13 +413,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			// If there is an existing DestinationAddressID, tx.Save will use it
 			// to find and update the existing record. If there isn't, it will create
 			// a new record.
-			err := txnAppCtx.DB().Save(newShipment.DestinationAddress)
+
+			newDestinationAddress, err := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.DestinationAddress, etag.GenerateEtag(dbShipment.DestinationAddress.UpdatedAt))
 			if err != nil {
 				return err
 			}
+
 			// Make sure the shipment has the updated DestinationAddressID to store
 			// in mto_shipments table
-			newShipment.DestinationAddressID = &newShipment.DestinationAddress.ID
+			newShipment.DestinationAddressID = &newDestinationAddress.ID
 
 		}
 
@@ -423,12 +430,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.PickupAddress.ID = *dbShipment.PickupAddressID
 			}
 
-			err := txnAppCtx.DB().Save(newShipment.PickupAddress)
+			newPickupAddress, err := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.PickupAddress, etag.GenerateEtag(dbShipment.PickupAddress.UpdatedAt))
 			if err != nil {
 				return err
 			}
 
-			newShipment.PickupAddressID = &newShipment.PickupAddress.ID
+			newShipment.PickupAddressID = &newPickupAddress.ID
 		}
 		if newShipment.HasSecondaryPickupAddress != nil {
 			if !*newShipment.HasSecondaryPickupAddress {
