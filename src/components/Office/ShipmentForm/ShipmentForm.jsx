@@ -843,7 +843,7 @@ const ShipmentForm = (props) => {
                           <p>What address are the movers picking up from?</p>
                           <Checkbox
                             data-testid="useCurrentResidence"
-                            label="Use my current address"
+                            label="Use current address"
                             name="useCurrentResidence"
                             onChange={handleUseCurrentResidenceChange}
                             id="useCurrentResidenceCheckbox"
@@ -884,6 +884,7 @@ const ShipmentForm = (props) => {
                     />
                     <AddressFields
                       name="delivery.address"
+                      legend="Delivery location"
                       render={(fields) => (
                         <>
                           {fields}
