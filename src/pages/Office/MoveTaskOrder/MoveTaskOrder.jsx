@@ -133,10 +133,6 @@ export const MoveTaskOrder = (props) => {
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
     mtoServiceItems?.forEach((item) => {
-      // We're not interested in basic service items
-      if (!item.mtoShipmentID) {
-        return;
-      }
       const newItem = { ...item };
       newItem.code = item.reServiceCode;
       newItem.serviceItem = item.reServiceName;
@@ -157,7 +153,7 @@ export const MoveTaskOrder = (props) => {
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
         serviceItemsForShipment[`${newItem.mtoShipmentID}`].push(newItem);
       } else {
-        serviceItemsForShipment[`${newItem.mtoShipmentID}`] = [newItem];
+        serviceItemsForShipment[`${newItem.mtoShipmentID}`] = [newItem]; // Basic service items belong under shipmentServiceItems[`${undefined}`]
       }
     });
     return serviceItemsForShipment;
@@ -1043,6 +1039,16 @@ export const MoveTaskOrder = (props) => {
             const rejectedServiceItems = serviceItemsForShipment?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
+            const serviceItemsForMove = shipmentServiceItems[`${undefined}`];
+            const requestedMoveServiceItems = serviceItemsForMove?.filter(
+              (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
+            );
+            const approvedMoveServiceItems = serviceItemsForMove?.filter(
+              (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
+            );
+            const rejectedMoveServiceItems = serviceItemsForMove?.filter(
+              (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
+            );
             const dutyLocationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
@@ -1106,6 +1112,24 @@ export const MoveTaskOrder = (props) => {
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
+                  />
+                )}
+                {requestedMoveServiceItems?.length > 0 && (
+                  <RequestedServiceItemsTable
+                    serviceItems={requestedMoveServiceItems}
+                    statusForTableType="Move Task Order Requested "
+                  />
+                )}
+                {approvedMoveServiceItems?.length > 0 && (
+                  <RequestedServiceItemsTable
+                    serviceItems={approvedMoveServiceItems}
+                    statusForTableType="Move Task Order Approved "
+                  />
+                )}
+                {rejectedMoveServiceItems?.length > 0 && (
+                  <RequestedServiceItemsTable
+                    serviceItems={rejectedMoveServiceItems}
+                    statusForTableType="Move Task Order Rejected "
                   />
                 )}
               </ShipmentContainer>
