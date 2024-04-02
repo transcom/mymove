@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -248,14 +249,9 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			uploadedFile := file
 
 			// check if this is an excel file and parse if it is
-			// contentType, detectContentTypeErr := mimetype.DetectFile(file.Header.Filename)
+			extension := filepath.Ext(file.Header.Filename)
 
-			// if detectContentTypeErr != nil {
-			// 	appCtx.Logger().Error("Could not detect content type", zap.Error(detectContentTypeErr))
-			// 	return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-			// }
-
-			if params.WeightReceipt /*&& contentType.Extension() == ".xlsx"*/ {
+			if params.WeightReceipt && extension == ".xlsx" {
 				userUploader, uploaderErr := uploader.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 
 				if uploaderErr != nil {
