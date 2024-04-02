@@ -585,7 +585,7 @@ describe('MoveTaskOrder', () => {
     it('renders the RequestedServiceItemsTable for requested, approved, and rejected service items', () => {
       const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
       // There should be 1 of each status table requested, approved, rejected service items
-      // Plus an approved move-level service item separate from the shipment items
+      // Plus approved move-level service items separate from the shipment items
       expect(requestedServiceItemsTable.length).toBe(6);
       expect(requestedServiceItemsTable.at(0).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
       expect(requestedServiceItemsTable.at(1).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.APPROVED);
