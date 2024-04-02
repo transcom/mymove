@@ -334,6 +334,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &pickupAddress.StreetAddress1,
 					StreetAddress2: pickupAddress.StreetAddress2,
 					StreetAddress3: pickupAddress.StreetAddress3,
+					County:         &pickupAddress.County,
 				},
 				DestinationAddress: &internalmessages.Address{
 					City:           &destinationAddress.City,
@@ -343,6 +344,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &destinationAddress.StreetAddress1,
 					StreetAddress2: destinationAddress.StreetAddress2,
 					StreetAddress3: destinationAddress.StreetAddress3,
+					County:         &destinationAddress.County,
 				},
 				SecondaryPickupAddress: &internalmessages.Address{
 					City:           &secondaryPickupAddress.City,
@@ -352,6 +354,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &secondaryPickupAddress.StreetAddress1,
 					StreetAddress2: secondaryPickupAddress.StreetAddress2,
 					StreetAddress3: secondaryPickupAddress.StreetAddress3,
+					County:         &secondaryPickupAddress.County,
 				},
 				SecondaryDestinationAddress: &internalmessages.Address{
 					City:           &secondaryDestinationAddress.City,
@@ -361,6 +364,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress1: &secondaryDestinationAddress.StreetAddress1,
 					StreetAddress2: secondaryDestinationAddress.StreetAddress2,
 					StreetAddress3: secondaryDestinationAddress.StreetAddress3,
+					County:         &secondaryDestinationAddress.County,
 				},
 			},
 			ShipmentType: &ppmShipmentType,
@@ -703,6 +707,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress1: &destinationAddress.StreetAddress1,
 				StreetAddress2: destinationAddress.StreetAddress2,
 				StreetAddress3: destinationAddress.StreetAddress3,
+				County:         &destinationAddress.County,
 			},
 			SecondaryDeliveryAddress: &internalmessages.Address{
 				City:           &secondaryDeliveryAddress.City,
@@ -712,6 +717,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
 				StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
 				StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
+				County:         &secondaryDeliveryAddress.County,
 			},
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
 			PickupAddress: &internalmessages.Address{
@@ -722,6 +728,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress1: &pickupAddress.StreetAddress1,
 				StreetAddress2: pickupAddress.StreetAddress2,
 				StreetAddress3: pickupAddress.StreetAddress3,
+				County:         &pickupAddress.County,
 			},
 			SecondaryPickupAddress: &internalmessages.Address{
 				City:           &secondaryPickupAddress.City,
@@ -731,6 +738,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress1: &secondaryPickupAddress.StreetAddress1,
 				StreetAddress2: secondaryPickupAddress.StreetAddress2,
 				StreetAddress3: secondaryPickupAddress.StreetAddress3,
+				County:         &secondaryPickupAddress.County,
 			},
 			HasSecondaryPickupAddress: handlers.FmtBool(true),
 			RequestedPickupDate:       handlers.FmtDatePtr(originalShipment.RequestedPickupDate),
@@ -1126,6 +1134,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						City:           &city,
 						State:          &state,
 						PostalCode:     &zipcode,
+						County:         models.StringPointer("county"),
 					},
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
@@ -1160,6 +1169,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						City:           &city,
 						State:          &state,
 						PostalCode:     &zipcode,
+						County:         models.StringPointer("county"),
 					},
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
@@ -1188,6 +1198,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						City:           &city,
 						State:          &state,
 						PostalCode:     &zipcode,
+						County:         models.StringPointer("county"),
 					},
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
@@ -1443,6 +1454,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 				State:          "TX",
 				PostalCode:     "79916",
 				Country:        models.StringPointer("US"),
+				County:         "county",
 			},
 		},
 	}, nil)
@@ -1458,6 +1470,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 				State:          "NH",
 				PostalCode:     "03801",
 				Country:        models.StringPointer("US"),
+				County:         "county",
 			},
 		},
 	}, nil)

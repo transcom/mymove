@@ -56,7 +56,8 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 		StreetAddress1: "456 Lincoln St",
 		City:           "Sitka",
 		State:          "AK",
-		PostalCode:     "99835"}
+		PostalCode:     "99835",
+		County:         "county"}
 	suite.MustSave(&ppoAddress)
 	ppo := TransportationOffice{
 		Name:             "Best PPO of the North",
