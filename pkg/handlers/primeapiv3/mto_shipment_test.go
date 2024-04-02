@@ -171,14 +171,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		address1 := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "NY",
-			PostalCode:     "12345",
+			State:          "CA",
+			PostalCode:     "90210",
 		}
 		address2 := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "NY",
-			PostalCode:     "11111",
+			State:          "IL",
+			PostalCode:     "62225",
 		}
 
 		expectedPickupAddress := address1
