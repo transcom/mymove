@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		City:           "Framington",
 		State:          "MA",
 		PostalCode:     "94055",
-		County:         models.StringPointer("County"),
+		County:         "County",
 	}
 
 	suite.Run("Success updating address", func() {
@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			City:           "Alameda",
 			State:          "CA",
 			PostalCode:     "94055",
-			County:         models.StringPointer("LOS ANGELES"),
+			County:         "LOS ANGELES",
 		}
 
 		// Update with new address

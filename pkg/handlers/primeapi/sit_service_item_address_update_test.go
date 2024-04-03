@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 					StreetAddress1: &newAddress.StreetAddress1,
 					StreetAddress2: newAddress.StreetAddress2,
 					StreetAddress3: newAddress.StreetAddress3,
-					County:         newAddress.County,
+					County:         &newAddress.County,
 				},
 			},
 		}
