@@ -42,6 +42,7 @@ test.describe('(MultiMove) PPM Request Payment - Begin providing documents flow'
     });
 
     test('has upload documents button enabled', async ({ page }) => {
+      await page.getByRole('button', { name: 'Go to Move' }).click();
       await expect(page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
       let stepContainer = page.getByTestId('stepContainer6');
 

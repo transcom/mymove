@@ -87,6 +87,8 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateToPPMReviewPage() {
     await this.clickOnUploadPPMDocumentsButton();
 
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
 
     await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
@@ -573,9 +575,7 @@ export class CustomerPpmPage extends CustomerPage {
   async submitMove() {
     await this.page.getByRole('button', { name: 'Complete' }).click();
 
-    await expect(this.page.locator('.usa-alert--success')).toContainText('You’ve submitted your move request.');
-
-    await expect(this.page.getByRole('heading', { name: 'Next step: Your move gets approved' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Now for the official part' })).toBeVisible();
 
     // ensure that shipment list doesn't have a button to edit or delete
     await expect(this.page.locator('[data-testid="shipment-list-item-container"] button')).not.toBeVisible();
@@ -927,14 +927,13 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByRole('button', { name: 'Submit PPM Documentation' }).click();
     await this.page.waitForURL(url.href);
 
-    await expect(this.page.locator('.usa-alert--success')).toContainText('You submitted documentation for review.');
-
     let stepContainer = this.page.locator('[data-testid="stepContainer6"]');
 
     if (stepContainer == null) {
       stepContainer = this.page.locator('[data-testid="stepContainer5"]');
     }
 
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(stepContainer.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
     await expect(stepContainer.getByText(/PPM documentation submitted: \d{2} \w{3} \d{4}/)).toBeVisible();
   }

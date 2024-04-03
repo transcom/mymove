@@ -180,7 +180,6 @@ test.describe('(MultiMove) Entire PPM onboarding flow', () => {
     });
 
     test('flows through happy path for existing shipment', async () => {
-      test.skip(true, 'Test fails at navigateFromDateAndLocationPageToEstimatedWeightsPage()');
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmOnboardingPage.submitsDateAndLocation();
       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
