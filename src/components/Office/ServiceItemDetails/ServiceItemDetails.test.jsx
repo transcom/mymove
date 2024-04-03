@@ -98,8 +98,8 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
     expect(screen.getByText('12 Mar 2024')).toBeInTheDocument();
 
-    expect(screen.getByText('Customer contacted homesafe:')).toBeInTheDocument();
-    expect(screen.getByText('14 Mar 2024')).toBeInTheDocument();
+    expect(screen.queryByText('Customer contacted homesafe:')).not.toBeInTheDocument();
+    expect(screen.queryByText('14 Mar 2024')).not.toBeInTheDocument();
 
     expect(screen.getByText('# of days approved for:')).toBeInTheDocument();
     expect(screen.getByText('89 days')).toBeInTheDocument();
@@ -107,11 +107,11 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     expect(screen.getByText('SIT expiration date:')).toBeInTheDocument();
     expect(screen.getByText('17 Mar 2024')).toBeInTheDocument();
 
-    expect(screen.getByText('Customer requested delivery date:')).toBeInTheDocument();
-    expect(screen.getByText('15 Mar 2024')).toBeInTheDocument();
+    expect(screen.queryByText('Customer requested delivery date:')).not.toBeInTheDocument();
+    expect(screen.queryByText('15 Mar 2024')).not.toBeInTheDocument();
 
-    expect(screen.getByText('SIT departure date:')).toBeInTheDocument();
-    expect(screen.getByText('16 Mar 2024')).toBeInTheDocument();
+    expect(screen.queryByText('SIT departure date:')).not.toBeInTheDocument();
+    expect(screen.queryByText('16 Mar 2024')).not.toBeInTheDocument();
   });
 
   it('renders DDDSIT details', () => {
@@ -124,6 +124,15 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
     expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
+
+    expect(screen.getByText('Customer contacted homesafe:')).toBeInTheDocument();
+    expect(screen.getByText('14 Mar 2024')).toBeInTheDocument();
+
+    expect(screen.getByText('Customer requested delivery date:')).toBeInTheDocument();
+    expect(screen.getByText('15 Mar 2024')).toBeInTheDocument();
+
+    expect(screen.getByText('SIT departure date:')).toBeInTheDocument();
+    expect(screen.getByText('16 Mar 2024')).toBeInTheDocument();
   });
   it('renders DDFSIT details', () => {
     render(<ServiceItemDetails id="1" code="DDFSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
