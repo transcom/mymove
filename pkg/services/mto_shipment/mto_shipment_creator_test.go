@@ -32,7 +32,7 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(customs []factory.Custom
 	moveRouter := moverouter.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
-	
+
 	subtestData.shipmentCreator = NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 
 	return subtestData
