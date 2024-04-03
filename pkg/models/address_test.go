@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,7 +13,7 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         models.StringPointer("County"),
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -42,7 +43,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "county",
+		County:         models.StringPointer("county"),
 	}
 
 	var expected *string
@@ -71,7 +72,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		State:          "state",
 		PostalCode:     "90210",
 		Country:        StringPointer("US"),
-		County:         "county",
+		County:         models.StringPointer("county"),
 	}
 	countryCode, err = usCountry.CountryCode()
 	suite.NoError(err)
@@ -84,7 +85,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "county",
+		County:         models.StringPointer("county"),
 		Country:        StringPointer("Ireland"),
 	}
 

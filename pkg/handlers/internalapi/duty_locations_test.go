@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 		City:           "city",
 		State:          "CA",
 		PostalCode:     "12345",
-		County:         "County",
+		County:         models.StringPointer("County"),
 	}
 	suite.MustSave(&address)
 

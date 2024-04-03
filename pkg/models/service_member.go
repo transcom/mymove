@@ -151,7 +151,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				responseError = err
 				return err
 			}
-			serviceMember.ResidentialAddress.County = county
+			serviceMember.ResidentialAddress.County = &county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -166,7 +166,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				responseError = err
 				return err
 			}
-			serviceMember.BackupMailingAddress.County = county
+			serviceMember.BackupMailingAddress.County = &county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
