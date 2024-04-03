@@ -4188,6 +4188,7 @@ func init() {
         "submittedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "updatedAt": {
@@ -11987,6 +11988,7 @@ func init() {
         "submittedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "updatedAt": {
