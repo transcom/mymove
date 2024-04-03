@@ -8,6 +8,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { ShipmentShape } from 'types/shipment';
+import { formatAddress } from 'utils/shipmentDisplay';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -85,7 +86,7 @@ const PPMShipmentInfoList = ({
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
       <dt>Pickup Address</dt>
-      <dd data-testid="pickupAddress">{pickupAddress}</dd>
+      <dd data-testid="pickupAddress">{pickupAddress ? formatAddress(pickupAddress) : '-'}</dd>
     </div>
   );
 
@@ -93,7 +94,9 @@ const PPMShipmentInfoList = ({
   const secondaryPickupAddressElement = (
     <div className={secondaryPickupAddressElementFlags.classes}>
       <dt>Secondary Pickup Address</dt>
-      <dd data-testid="secondaryPickupAddress">{secondaryPickupAddress}</dd>
+      <dd data-testid="secondaryPickupAddress">
+        {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
+      </dd>
     </div>
   );
 
@@ -101,7 +104,7 @@ const PPMShipmentInfoList = ({
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Destination Address</dt>
-      <dd data-testid="destinationAddress">{destinationAddress}</dd>
+      <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '-'}</dd>
     </div>
   );
 
@@ -109,7 +112,9 @@ const PPMShipmentInfoList = ({
   const secondaryDestinationAddressElement = (
     <div className={secondaryDestinationAddressElementFlags.classes}>
       <dt>Secondary Destination Address</dt>
-      <dd data-testid="secondaryDestinationAddress">{secondaryDestinationAddress}</dd>
+      <dd data-testid="secondaryDestinationAddress">
+        {secondaryDestinationAddress ? formatAddress(secondaryDestinationAddress) : '—'}
+      </dd>
     </div>
   );
 
@@ -220,9 +225,9 @@ const PPMShipmentInfoList = ({
     >
       {expectedDepartureDateElement}
       {pickupAddressElement}
-      {showElement(secondaryPickupAddressElementFlags) && secondaryPickupAddressElement}
+      {secondaryPickupAddressElement}
       {destinationAddressElement}
-      {showElement(secondaryDestinationAddressElementFlags) && secondaryDestinationAddressElement}
+      {secondaryDestinationAddressElement}
       <Restricted to={permissionTypes.viewCloseoutOffice}>{closeoutOfficeElement}</Restricted>
       {sitPlannedElement}
       {estimatedWeightElement}

@@ -30,13 +30,13 @@ const ppmShipmentSchema = ({
     pickup: Yup.object().shape({
       address: requiredAddressSchema,
     }),
-    delivery: Yup.object().shape({
+    destination: Yup.object().shape({
       address: requiredAddressSchema,
     }),
     secondaryPickup: Yup.object().shape({
       address: OptionalAddressSchema,
     }),
-    secondaryDelivery: Yup.object().shape({
+    secondaryDestination: Yup.object().shape({
       address: OptionalAddressSchema,
     }),
 
