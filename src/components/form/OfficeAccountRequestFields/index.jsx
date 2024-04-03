@@ -37,6 +37,7 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
             id="officeAccountRequestEdipi"
             maxLength="10"
             inputMode="numeric"
+            data-testid="officeAccountRequestEdipi"
           />
           <TextField
             label="Other unique identifier"
@@ -45,6 +46,7 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
             id="officeAccountRequestOtherUniqueId"
             maxLength="10"
             inputMode="numeric"
+            data-testid="officeAccountRequestOtherUniqueId"
           />
           <DutyLocationInput
             name={transportationOfficeDropDown}
@@ -55,22 +57,31 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
           <h4>Requested Role(s)</h4>
           <CheckboxField
             id="transportationOrderingOfficerCheckBox"
+            data-testid="transportationOrderingOfficerCheckBox"
             name="transportationOrderingOfficerCheckBox"
             label="Transportation Ordering Officer"
           />
           <CheckboxField
             id="transportationInvoicingOfficerCheckBox"
+            data-testid="transportationInvoicingOfficerCheckBox"
             name="transportationInvoicingOfficerCheckBox"
             label="Transportation Invoicing Officer"
           />
           <CheckboxField
             id="transportationContractingOfficerCheckBox"
+            data-testid="transportationContractingOfficerCheckBox"
             name="transportationContractingOfficerCheckBox"
             label="Contracting Officer"
           />
-          <CheckboxField id="servicesCounselorCheckBox" name="servicesCounselorCheckBox" label="Services Counselor" />
+          <CheckboxField
+            id="servicesCounselorCheckBox"
+            data-testid="servicesCounselorCheckBox"
+            name="servicesCounselorCheckBox"
+            label="Services Counselor"
+          />
           <CheckboxField
             id="qualityAssuranceAndCustomerSupportCheckBox"
+            data-testid="qualityAssuranceAndCustomerSupportCheckBox"
             name="qualityAssuranceAndCustomerSupportCheckBox"
             label="Quality Assurance & Customer Support"
           />
