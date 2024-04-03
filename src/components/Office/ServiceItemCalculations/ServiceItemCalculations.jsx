@@ -62,39 +62,41 @@ const ServiceItemCalculations = ({
           [styles.flexGridSmall]: tableSize === 'small',
         })}
       >
-        {calculations.map((calc, index) => {
-          return (
-            <div data-testid="column" key={calc.label} className={styles.col}>
-              <div data-testid="row" key={calc.value} className={styles.row}>
-                <small data-testid="label" className={styles.descriptionTitle}>
-                  {calc.label}
-                </small>
-                <small data-testid="value" className={styles.value}>
-                  {calc.value}
-                  {appendSign(index, calculations.length)}
-                </small>
+        <div data-testid="ServiceItemCalculations">
+          {calculations.map((calc, index) => {
+            return (
+              <div data-testid="column" key={calc.label} className={styles.col}>
+                <div data-testid="row" key={calc.value} className={styles.row}>
+                  <small data-testid="label" className={styles.descriptionTitle}>
+                    {calc.label}
+                  </small>
+                  <small data-testid="value" className={styles.value}>
+                    {calc.value}
+                    {appendSign(index, calculations.length)}
+                  </small>
+                </div>
+                {calc.details &&
+                  calc.details.map((detail) => {
+                    return (
+                      <div data-testid="details" className={styles.row}>
+                        <small>
+                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
+                            ? `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}:`
+                            : detail.text}
+                        </small>
+                        <small>
+                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
+                            ? detail.text.substring(detail.text.indexOf(':') + 1)
+                            : ''}
+                        </small>
+                      </div>
+                    );
+                  })}
+                <hr />
               </div>
-              {calc.details &&
-                calc.details.map((detail) => {
-                  return (
-                    <div data-testid="details" className={styles.row}>
-                      <small>
-                        {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
-                          ? `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}:`
-                          : detail.text}
-                      </small>
-                      <small>
-                        {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
-                          ? detail.text.substring(detail.text.indexOf(':') + 1)
-                          : ''}
-                      </small>
-                    </div>
-                  );
-                })}
-              <hr />
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
