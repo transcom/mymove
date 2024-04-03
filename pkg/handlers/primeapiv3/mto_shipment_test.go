@@ -2,6 +2,7 @@ package primeapiv3
 
 import (
 	"errors"
+	"fmt"
 	"net/http/httptest"
 	"time"
 
@@ -10,20 +11,24 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primev3api/primev3operations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primev3messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/unit"
@@ -49,7 +54,20 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primev3messages.Address
+	var secondaryPickupAddress primev3messages.Address
 	var destinationAddress primev3messages.Address
+	var secondaryDestinationAddress primev3messages.Address
+
+	planner := &routemocks.Planner{}
+	addressUpdater := address.NewAddressUpdater()
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
 	setupTestData := func() (CreateMTOShipmentHandler, models.Move) {
 
@@ -129,7 +147,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
-	suite.Run("Successful POST - Integration Test (PPM)", func() {
+	suite.Run("Successful POST/PATCH - Integration Test (PPM)", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:      Create a PPM shipment on an available move
 		// Expected:   Successful submission, status should be SUBMITTED
@@ -150,22 +168,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		estimatedIncentive := 123456
 		sitEstimatedCost := 67500
 
-		var pickupAddress primev3messages.Address
-		var secondaryPickupAddress primev3messages.Address
-		var destinationAddress primev3messages.Address
-		var secondaryDestinationAddress primev3messages.Address
-
 		address1 := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "NY",
-			PostalCode:     "12345",
+			State:          "CA",
+			PostalCode:     "90210",
 		}
 		address2 := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "NY",
-			PostalCode:     "11111",
+			State:          "IL",
+			PostalCode:     "62225",
 		}
 
 		expectedPickupAddress := address1
@@ -270,6 +283,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(address2.PostalCode, *createdPPM.SecondaryDestinationAddress.PostalCode)
 		suite.Equal(&sitExpected, createdPPM.SitExpected)
 		suite.Equal(&sitLocation, createdPPM.SitLocation)
+		suite.True(*models.BoolPointer(*createdPPM.HasSecondaryPickupAddress))
+		suite.True(*models.BoolPointer(*createdPPM.HasSecondaryDestinationAddress))
 		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), createdPPM.SitEstimatedWeight)
 		suite.Equal(handlers.FmtDate(sitEstimatedEntryDate), createdPPM.SitEstimatedEntryDate)
 		suite.Equal(handlers.FmtDate(sitEstimatedDepartureDate), createdPPM.SitEstimatedDepartureDate)
@@ -280,6 +295,93 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(int64(estimatedIncentive), *createdPPM.EstimatedIncentive)
 		suite.Equal(int64(sitEstimatedCost), *createdPPM.SitEstimatedCost)
 
+		// ************
+		// PATCH TESTS
+		// ************
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Times(2)
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+		}
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
+
+		var mtoShipment models.MTOShipment
+		err := suite.DB().Find(&mtoShipment, createdPPM.ShipmentID)
+		suite.NoError(err)
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: createdPPM.ShipmentID,
+			IfMatch:       eTag,
+		}
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			ShipmentType: primev3messages.MTOShipmentTypePPM,
+		}
+		// *************************************************************************************
+		// *************************************************************************************
+		// Run it without any flags, no deletes should occur for secondary addresses
+		// *************************************************************************************
+		patchParams.Body.PpmShipment = &primev3messages.UpdatePPMShipment{
+			HasProGear: &hasProGear,
+		}
+
+		// Validate incoming payload
+		suite.NoError(patchParams.Body.Validate(strfmt.Default))
+
+		patchResponse := patchHandler.Handle(patchParams)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+		okPatchResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		updatedShipment := okPatchResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+
+		updatedPPM := updatedShipment.PpmShipment
+		suite.NotNil(updatedPPM.SecondaryPickupAddress)
+		suite.NotNil(updatedPPM.SecondaryDestinationAddress)
+		suite.True(*models.BoolPointer(*updatedPPM.HasSecondaryPickupAddress))
+		suite.True(*models.BoolPointer(*updatedPPM.HasSecondaryDestinationAddress))
+
+		// *************************************************************************************
+		// *************************************************************************************
+		// Run it second time, but really delete secondary addresses with has flags set to false
+		// *************************************************************************************
+		err = suite.DB().Find(&mtoShipment, createdPPM.ShipmentID)
+		suite.NoError(err)
+		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
+		patchParams.IfMatch = eTag
+		patchParams.Body.PpmShipment = &primev3messages.UpdatePPMShipment{
+			HasProGear:                     &hasProGear,
+			HasSecondaryPickupAddress:      models.BoolPointer(false),
+			HasSecondaryDestinationAddress: models.BoolPointer(false),
+		}
+		suite.NoError(patchParams.Body.Validate(strfmt.Default))
+		patchResponse = patchHandler.Handle(patchParams)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+		okPatchResponse = patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		updatedShipment = okPatchResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+
+		updatedPPM = updatedShipment.PpmShipment
+		// secondary should be all nils
+		suite.Nil(updatedPPM.SecondaryPickupAddress)
+		suite.Nil(updatedPPM.SecondaryDestinationAddress)
+		suite.False(*models.BoolPointer(*updatedPPM.HasSecondaryPickupAddress))
+		suite.False(*models.BoolPointer(*updatedPPM.HasSecondaryDestinationAddress))
 	})
 
 	suite.Run("Successful POST with Shuttle service items without primeEstimatedWeight - Integration Test", func() {

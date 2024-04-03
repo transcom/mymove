@@ -4486,35 +4486,6 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      # pickupPostalCode:
-      #   description: zip code
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      #   x-nullable: true
-      # secondaryPickupPostalCode:
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      #   x-nullable: true
-      # destinationPostalCode:
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      #   x-nullable: true
-      # secondaryDestinationPostalCode:
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      #   x-nullable: true
       pickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -4756,33 +4727,6 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      # pickupPostalCode:
-      #   description: zip code
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      # secondaryPickupPostalCode:
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      #   x-nullable: true
-      # destinationPostalCode:
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      # secondaryDestinationPostalCode:
-      #   format: zip
-      #   type: string
-      #   title: ZIP
-      #   example: '90210'
-      #   pattern: ^(\d{5})$
-      #   x-nullable: true
       pickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -4836,8 +4780,6 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      # - pickupPostalCode
-      # - destinationPostalCode
       - pickupAddress
       - destinationAddress
       - sitExpected

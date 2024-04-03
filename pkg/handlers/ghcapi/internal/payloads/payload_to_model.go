@@ -250,10 +250,8 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	}
 
 	model := &models.PPMShipment{
-		Status:      models.PPMShipmentStatusSubmitted,
-		SITExpected: ppmShipment.SitExpected,
-		// SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		// SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		Status:          models.PPMShipmentStatusSubmitted,
+		SITExpected:     ppmShipment.SitExpected,
 		EstimatedWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:      ppmShipment.HasProGear,
 	}
