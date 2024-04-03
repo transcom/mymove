@@ -133,7 +133,7 @@ describe('Shipment Heading with shipment cancellation requested', () => {
 
 describe('Shipment Heading shows cancellation button with permissions', () => {
   const wrapper = mount(
-    <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
       <ShipmentHeading
         shipmentInfo={headingInfo}
         handleUpdateMTOShipmentStatus={jest.fn()}
@@ -154,6 +154,22 @@ describe('Shipment Heading hides cancellation button without permissions', () =>
       handleUpdateMTOShipmentStatus={jest.fn()}
       handleShowCancellationModal={jest.fn()}
     />,
+  );
+
+  it('renders withour request shipment cancellation when user does not have permission', () => {
+    expect(wrapper.find('button').length).toBeFalsy();
+  });
+});
+
+describe('Shipment Heading hides cancellation button without updateMTOPage permission', () => {
+  const wrapper = mount(
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
+      <ShipmentHeading
+        shipmentInfo={headingInfo}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+      />
+    </MockProviders>,
   );
 
   it('renders withour request shipment cancellation when user does not have permission', () => {

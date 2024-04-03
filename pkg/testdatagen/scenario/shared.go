@@ -186,6 +186,7 @@ func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
 				LastName:      models.StringPointer("UserPerson2"),
 				Edipi:         models.StringPointer("6833908164"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -223,6 +224,7 @@ func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
 				FirstName:     models.StringPointer("NEEDS"),
 				LastName:      models.StringPointer("ORDERS"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -255,6 +257,7 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 				LastName:      models.StringPointer(moveInfo.LastName),
 				PersonalEmail: models.StringPointer(moveInfo.Email),
 				Affiliation:   &branch,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -415,6 +418,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 				LastName:      models.StringPointer("Ppmhhg"),
 				Edipi:         models.StringPointer("6833908165"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -559,6 +563,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 				LastName:      models.StringPointer(moveInfo.LastName),
 				Edipi:         models.StringPointer(factory.RandomEdipi()),
 				PersonalEmail: models.StringPointer(moveInfo.Email),
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -2554,6 +2559,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 				LastName:      models.StringPointer(moveInfo.LastName),
 				PersonalEmail: models.StringPointer(moveInfo.Email),
 				Affiliation:   &branch,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -2696,6 +2702,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 				LastName:      models.StringPointer("Submitted"),
 				PersonalEmail: models.StringPointer(email),
 				Affiliation:   &branch,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -2818,6 +2825,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 				LastName:      models.StringPointer("Submitted"),
 				PersonalEmail: models.StringPointer(email),
 				Affiliation:   &branch,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -2941,6 +2949,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 				LastName:      models.StringPointer("Submitted"),
 				PersonalEmail: models.StringPointer(email),
 				Affiliation:   &branch,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3048,6 +3057,7 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 				LastName:      models.StringPointer(moveInfo.LastName),
 				PersonalEmail: models.StringPointer(moveInfo.Email),
 				Affiliation:   &branch,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3166,6 +3176,7 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 				FirstName:     models.StringPointer(moveInfo.FirstName),
 				LastName:      models.StringPointer(moveInfo.LastName),
 				PersonalEmail: models.StringPointer(moveInfo.Email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3262,6 +3273,7 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 				FirstName:     models.StringPointer("PPMSC"),
 				LastName:      models.StringPointer("Submitted with SIT"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3430,6 +3442,7 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 				FirstName:     models.StringPointer("PPM"),
 				LastName:      models.StringPointer("Submitted"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3607,6 +3620,7 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 				LastName:      models.StringPointer("Hhg"),
 				Edipi:         models.StringPointer("5833908165"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3676,6 +3690,7 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 				LastName:      models.StringPointer("Hhg"),
 				Edipi:         models.StringPointer("5833908165"),
 				PersonalEmail: &email,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3772,6 +3787,7 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 				LastName:      models.StringPointer("Hhg"),
 				Edipi:         models.StringPointer("5833908165"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3875,6 +3891,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				LastName:      models.StringPointer("Hhg"),
 				Edipi:         models.StringPointer("5833908165"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3975,6 +3992,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 				FirstName:     models.StringPointer(strings.ToTitle(string(opts.moveStatus))),
 				LastName:      models.StringPointer("Nts&Nts-r"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4064,8 +4082,9 @@ func createNTSMove(appCtx appcontext.AppContext) {
 	factory.BuildMoveWithShipment(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
-				FirstName: models.StringPointer("Spaceman"),
-				LastName:  models.StringPointer("NTS"),
+				FirstName:    models.StringPointer("Spaceman"),
+				LastName:     models.StringPointer("NTS"),
+				CacValidated: true,
 			},
 		},
 		{
@@ -4081,8 +4100,9 @@ func createNTSRMove(appCtx appcontext.AppContext) {
 	factory.BuildMoveWithShipment(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
-				FirstName: models.StringPointer("Spaceman"),
-				LastName:  models.StringPointer("NTS-release"),
+				FirstName:    models.StringPointer("Spaceman"),
+				LastName:     models.StringPointer("NTS-release"),
+				CacValidated: true,
 			},
 		},
 		{
@@ -5359,7 +5379,8 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	db := appCtx.DB()
 	logger := appCtx.Logger()
 	serviceMember := models.ServiceMember{
-		Affiliation: &affiliation,
+		Affiliation:  &affiliation,
+		CacValidated: true,
 	}
 	customer := factory.BuildExtendedServiceMember(db, []factory.Customization{
 		{
@@ -5497,7 +5518,8 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	orders8 := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
-				ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+				ID:           uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
+				CacValidated: true,
 			},
 		},
 		{
@@ -6050,7 +6072,8 @@ func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploade
 	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
-				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+				ID:           uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+				CacValidated: true,
 			},
 		},
 		{
@@ -8149,7 +8172,8 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx app
 	orders7 := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.ServiceMember{
-				ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-ffffffffffff"),
+				ID:           uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-ffffffffffff"),
+				CacValidated: true,
 			},
 		},
 		{
@@ -9394,6 +9418,7 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 				LastName:      models.StringPointer("PaymentRequest"),
 				Edipi:         models.StringPointer("6833908165"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -9492,6 +9517,7 @@ func createReweighWithShipmentEDIErrorPaymentRequest(appCtx appcontext.AppContex
 				LastName:      models.StringPointer("PaymentRequest"),
 				Edipi:         models.StringPointer("6833908166"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -10335,8 +10361,9 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 		},
 		{
 			Model: models.ServiceMember{
-				Edipi:     models.StringPointer(dodID),
-				FirstName: models.StringPointer("QAECSRTestFirst"),
+				Edipi:        models.StringPointer(dodID),
+				FirstName:    models.StringPointer("QAECSRTestFirst"),
+				CacValidated: true,
 			},
 		},
 	}, nil)
@@ -10509,9 +10536,10 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 		},
 		{
 			Model: models.ServiceMember{
-				Affiliation: &marineCorps,
-				LastName:    models.StringPointer("Marine"),
-				FirstName:   models.StringPointer("Ted"),
+				Affiliation:  &marineCorps,
+				LastName:     models.StringPointer("Marine"),
+				FirstName:    models.StringPointer("Ted"),
+				CacValidated: true,
 			},
 		},
 		{
@@ -10579,9 +10607,10 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 		},
 		{
 			Model: models.ServiceMember{
-				Affiliation: &marineCorps,
-				LastName:    models.StringPointer("Marine"),
-				FirstName:   models.StringPointer("Barbara"),
+				Affiliation:  &marineCorps,
+				LastName:     models.StringPointer("Marine"),
+				FirstName:    models.StringPointer("Barbara"),
+				CacValidated: true,
 			},
 		},
 		{
@@ -10615,6 +10644,77 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 		},
 	}, nil)
 
+}
+
+func CreateHHGNeedsServicesCounselingUSMC3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string) models.Move {
+	db := appCtx.DB()
+
+	marineCorps := models.AffiliationMARINES
+	submittedAt := time.Now()
+
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marineCorps,
+				LastName:    models.StringPointer("Marine"),
+				FirstName:   models.StringPointer("Ted"),
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
+	return move
 }
 
 func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
@@ -12013,6 +12113,7 @@ func createRandomMove(
 	randomFirst, randomLast := fakedata.RandomName()
 	serviceMemberTemplate.FirstName = &randomFirst
 	serviceMemberTemplate.LastName = &randomLast
+	serviceMemberTemplate.CacValidated = true
 
 	// assertions passed in means we cannot yet convert to BuildOrder
 	var order models.Order
@@ -12128,6 +12229,7 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 				LastName:      models.StringPointer("Smith"),
 				Edipi:         models.StringPointer("8362534853"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -12385,6 +12487,7 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 				LastName:      models.StringPointer("James"),
 				Edipi:         models.StringPointer("8362534857"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -12619,6 +12722,7 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 				LastName:      models.StringPointer("Ken"),
 				Edipi:         models.StringPointer("8362534854"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -12914,6 +13018,7 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 				LastName:      models.StringPointer("Ross"),
 				Edipi:         models.StringPointer("8362534852"),
 				PersonalEmail: models.StringPointer(email),
+				CacValidated:  true,
 			},
 		},
 		{

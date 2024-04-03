@@ -11,8 +11,11 @@ import {
   ORDERS_PAY_GRADE_OPTIONS,
   SPECIAL_ORDERS_TYPES,
 } from 'constants/orders.js';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+import MOVE_STATUSES from 'constants/moves';
+import { roleTypes } from 'constants/userRoles';
 
-const CustomerHeader = ({ customer, order, moveCode }) => {
+const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
   // eslint-disable-next-line camelcase
   const { order_type: orderType } = order;
 
@@ -26,6 +29,15 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
    * Date of separation (SEPARATION)
    */
   const reportDateLabel = formatLabelReportByDate(orderType);
+  // This logic to show different originGLBOC is based on queue table's backend logic
+  const originGBLOC =
+    move?.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+    userRole === roleTypes.SERVICES_COUNSELOR ||
+    !move?.shipmentGBLOC
+      ? order.originDutyLocationGBLOC
+      : move.shipmentGBLOC;
+  const originGBLOCDisplay =
+    order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${order.originDutyLocationGBLOC} / USMC` : originGBLOC;
 
   return (
     <div className={styles.custHeader}>
@@ -69,6 +81,10 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
         <div>
           <p data-testid="reportDateLabel">{reportDateLabel}</p>
           <h4>{formatCustomerDate(order.report_by_date)}</h4>
+        </div>
+        <div>
+          <p data-testid="originGBLOC">Origin GBLOC</p>
+          <h4>{originGBLOCDisplay}</h4>
         </div>
       </div>
     </div>

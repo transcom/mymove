@@ -28,6 +28,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
@@ -98,6 +99,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		}),
+		OrderCreateOrderHandler: order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
+		}),
+		OfficeUsersCreateRequestedOfficeUserHandler: office_users.CreateRequestedOfficeUserHandlerFunc(func(params office_users.CreateRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.CreateRequestedOfficeUser has not yet been implemented")
 		}),
 		CustomerSupportRemarksDeleteCustomerSupportRemarkHandler: customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
@@ -367,6 +374,10 @@ type MymoveAPI struct {
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// OrderCreateOrderHandler sets the operation handler for the create order operation
+	OrderCreateOrderHandler order.CreateOrderHandler
+	// OfficeUsersCreateRequestedOfficeUserHandler sets the operation handler for the create requested office user operation
+	OfficeUsersCreateRequestedOfficeUserHandler office_users.CreateRequestedOfficeUserHandler
 	// CustomerSupportRemarksDeleteCustomerSupportRemarkHandler sets the operation handler for the delete customer support remark operation
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
@@ -616,6 +627,12 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+	if o.OrderCreateOrderHandler == nil {
+		unregistered = append(unregistered, "order.CreateOrderHandler")
+	}
+	if o.OfficeUsersCreateRequestedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "office_users.CreateRequestedOfficeUserHandler")
 	}
 	if o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.DeleteCustomerSupportRemarkHandler")
@@ -956,6 +973,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/orders"] = order.NewCreateOrder(o.context, o.OrderCreateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/requested-office-users"] = office_users.NewCreateRequestedOfficeUser(o.context, o.OfficeUsersCreateRequestedOfficeUserHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

@@ -6,12 +6,170 @@
 
 // @ts-check
 import { test, expect, DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
+import findOptionWithinOpenedDropdown from '../../utils/playwrightUtility';
 
 import { TooFlowPage } from './tooTestFixture';
+
+const TOOTabsTitles = ['Move Queue', 'Search'];
+
+const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
+
+const SearchTerms = ['SITEXT', '8796353598', 'Spacemen'];
+
+const StatusFilterOptions = ['New Move', 'Approvals requested', 'Move approved'];
 
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
+  let testMove;
+
+  test.describe('with Search Queue', () => {
+    test.beforeEach(async ({ officePage }) => {
+      testMove = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, testMove);
+
+      const searchTab = officePage.page.getByTitle(TOOTabsTitles[1]);
+      await searchTab.click();
+    });
+
+    test('can search for moves using Move Code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(testMove.locator);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByTestId('locator-0')).toContainText(testMove.locator);
+    });
+    test('can search for moves using DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(testMove.Orders.ServiceMember.edipi);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByTestId('dodID-0')).toContainText(testMove.Orders.ServiceMember.edipi);
+    });
+    test('can search for moves using Customer Name', async ({ page }) => {
+      const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(CustomerName);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results')).toBeVisible();
+      await expect(page.getByTestId('customerName-0')).toContainText(CustomerName);
+    });
+    test('Can filter status using Move Status', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchTextSubmit').click();
+
+      const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
+      await StatusFilter.click();
+
+      for (const item of StatusFilterOptions) {
+        const found = page
+          .locator('[id^="react-select"][id*="listbox"]')
+          .locator(`[id*="option"]:has(:text("${item}"))`);
+        await expect(found).toBeVisible();
+      }
+    });
+    test('Can select a filter status using Payment Request', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(testMove.locator);
+      await page.getByTestId('searchTextSubmit').click();
+
+      // Check if Payment Request Status options are present
+      const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
+      await StatusFilter.click();
+
+      const found = findOptionWithinOpenedDropdown(page, StatusFilterOptions[1]);
+      await found.click();
+      await expect(page.getByText('Results')).toBeVisible();
+    });
+    test('cant search for empty move code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for short move code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('MOVE');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for long move code', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('ASUPERLONGMOVE');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for empty DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('');
+      await SearchBox.blur();
+
+      await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for short DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('1234567');
+      await SearchBox.blur();
+
+      await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for long DOD ID', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('123456789011');
+      await SearchBox.blur();
+
+      await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+    test('cant search for empty Customer Name', async ({ page }) => {
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
+      await selectedRadio.click();
+
+      const SearchBox = page.getByTestId('searchText');
+      await SearchBox.type('');
+      await SearchBox.blur();
+
+      await expect(page.getByText('Customer search must contain a value')).toBeVisible();
+      await expect(page.getByRole('table')).not.toBeVisible();
+    });
+  });
+
   test.describe('with HHG Moves', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
@@ -405,6 +563,12 @@ test.describe('TOO user', () => {
       // Make sure we go to move details page
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/details`);
     });
+
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
   });
 
   test.describe('with retiree moves', () => {
@@ -438,6 +602,56 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="submitForm"]').click();
 
       await tooFlowPage.waitForPage.moveDetails();
+    });
+  });
+
+  let moveLoc;
+  test.describe('with payment requests', () => {
+    test.beforeEach(async ({ officePage, page }) => {
+      const move = await officePage.testHarness.buildHHGMoveInSITEndsToday();
+      moveLoc = move.locator;
+      await officePage.signInAsNewMultiRoleUser();
+
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select prime_simulator' }).click();
+      await page.locator('#moveCode').click();
+      await page.locator('#moveCode').fill(moveLoc);
+      await page.locator('#moveCode').press('Enter');
+      await page.getByTestId('moveCode-0').click();
+      await page.getByRole('link', { name: 'Create Payment Request' }).click();
+      await page.waitForSelector('h3:has-text("Domestic origin SIT fuel surcharge")');
+      const serviceItemID = await page.$eval(
+        `//h3[text()='Domestic origin SIT fuel surcharge']/following-sibling::div[contains(@class, 'descriptionList_row__TsTvp')]//dt[text()='ID:']/following-sibling::dd[1]`,
+        (ddElement) => ddElement.textContent.trim(),
+      );
+      await page.locator(`label[for="${serviceItemID}"]`).nth(0).check();
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).fill('10000');
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
+      await page.getByTestId('form').getByTestId('button').click();
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select transportation_ordering_officer' }).click();
+    });
+    test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
+      await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .fill(moveLoc);
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .press('Enter');
+      await page.getByTestId('locator-0').click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByRole('button', { name: 'Review weights' }).click();
+      await page.getByRole('button', { name: 'Review shipment weights' }).click();
+      await page.getByRole('button', { name: 'Back' }).click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByTestId('reviewBtn').click();
+      await page.getByTestId('toggleCalculations').click();
+      await expect(page.getByText('Weight-based distance multiplier: 0.0006255')).toBeVisible();
     });
   });
 

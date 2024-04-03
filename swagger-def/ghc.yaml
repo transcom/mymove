@@ -27,6 +27,41 @@ tags:
   - name: tac
   - name: transportationOffice
 paths:
+  /open/requested-office-users:
+      post:
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        summary: Create an Office User
+        description: >
+          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+
+          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+          An identification method must be present. The following 2 fields have an "OR" requirement.
+          - edipi
+          - other_unique_id
+          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+        operationId: createRequestedOfficeUser
+        tags:
+          - Office users
+        parameters:
+          - in: body
+            name: officeUser
+            description: Office User information
+            schema:
+              $ref: '#/definitions/OfficeUserCreate'
+        responses:
+          '201':
+            description: successfully requested the creation of provided office user
+            schema:
+              $ref: '#/definitions/OfficeUser'
+          '422':
+            description: validation error
+            schema:
+              $ref: '#/definitions/ValidationError'
+          '500':
+            description: internal server error
   "/customer":
     post:
       summary: Creates a customer with Okta option
@@ -311,6 +346,37 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/orders':
+    post:
+      summary: Creates an orders model for a logged-in user
+      description: Creates an instance of orders tied to a service member, which allow for creation of a move and an entitlement. Orders are required before the creation of a move
+      operationId: createOrder
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: createOrders
+          schema:
+            $ref: '#/definitions/CreateOrders'
+      responses:
+        '200':
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/Order'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          description: internal server error
   '/orders/{orderID}':
     parameters:
       - description: ID of order to use
@@ -3157,12 +3223,12 @@ paths:
           items:
             type: string
             enum:
-              - Payment requested
-              - Reviewed
-              - Rejected
-              - Paid
-              - Deprecated
-              - Error
+              - PENDING
+              - REVIEWED
+              - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+              - PAID
+              - DEPRECATED
+              - EDI_ERROR
         - in: query
           name: orderType
           type: string
@@ -3228,6 +3294,12 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - PENDING
+                    - REVIEWED
+                    - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+                    - PAID
+                    - DEPRECATED
+                    - EDI_ERROR
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -3390,6 +3462,169 @@ definitions:
         type: string
       type:
         type: string
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      roleName:
+        type: string
+        example: Transportation Ordering Officer
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - roleType
+      - roleName
+      - createdAt
+      - updatedAt
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+      middleInitials:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      transportationOfficeId:
+        type: string
+        format: uuid
+      active:
+        type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - firstName
+      - middleInitials
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - active
+      - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
+      - createdAt
+      - updatedAt
+  OfficeUserCreate:
+    type: object
+    properties:
+      email:
+        type: string
+        example: 'user@userdomain.com'
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        example: '1234567890'
+        maxLength: 10
+        title: EDIPI
+        x-nullable: true
+      otherUniqueId:
+        type: string
+        title: Office user identifier when EDIPI is not available
+        x-nullable: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: false
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+        x-nullable: false
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+        x-nullable: false
+    required:
+      - firstName
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - roles
+  OfficeUserRole:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Transportation Ordering Officer'
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: 'transportation_ordering_officer'
+        x-nullable: true
+        title: roleType
   Customer:
     type: object
     properties:
@@ -3813,6 +4048,9 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -3975,6 +4213,17 @@ definitions:
       - APPROVALS REQUESTED
       - APPROVED
       - CANCELED
+      - PENDING
+      - REVIEWED
+      - SENT_TO_GEX
+      - RECEIVED_BY_GEX
+      - PAID
+      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+      - EDI_ERROR
+      - DEPRECATED
+      - ERROR
+      - REJECTED
+      - PAYMENT REQUESTED
   DeptIndicator:
     type: string
     title: Dept. indicator
@@ -4124,6 +4373,74 @@ definitions:
       eTag:
         type: string
     type: object
+  OrderBody:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+  CreateOrders:
+    type: object
+    properties:
+      serviceMemberId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        title: Report-by date
+      ordersType:
+        $ref: 'definitions/OrdersType.yaml'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      spouseHasProGear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+      newDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ordersNumber:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: '030-00362'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      grade:
+        $ref: '#/definitions/Grade'
+      originDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    required:
+      - serviceMemberId
+      - issueDate
+      - reportByDate
+      - ordersType
+      - hasDependents
+      - spouseHasProGear
+      - newDutyLocationId
   CounselingUpdateOrderPayload:
     type: object
     properties:

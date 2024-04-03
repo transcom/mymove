@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -43,6 +44,13 @@ func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
 		return nil
 	}
+	// Adds shipmentGBLOC to be used for TOO/TIO's origin GBLOC
+	var gbloc ghcmessages.GBLOC
+	if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+	} else if move.Orders.OriginDutyLocationGBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
 
 	payload := &ghcmessages.Move{
 		ID:                           strfmt.UUID(move.ID.String()),
@@ -68,6 +76,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
+		ShipmentGBLOC:                gbloc,
 	}
 
 	return payload
@@ -1948,6 +1957,44 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			OriginGBLOC:                       originGBLOC,
 			DestinationGBLOC:                  destinationGBLOC,
 		}
+	}
+	return &searchMoves
+}
+
+func SearchMovesWithPaymentRequestAttributes(moves models.Moves, ProvidedStatusParameters []string) *ghcmessages.SearchMoves {
+	var searchMoves ghcmessages.SearchMoves
+	for _, move := range moves {
+		customer := move.Orders.ServiceMember
+
+		numShipments := 0
+
+		for _, shipment := range move.MTOShipments {
+			if shipment.Status != models.MTOShipmentStatusDraft {
+				numShipments++
+			}
+		}
+		for _, PaymentAttribute := range move.PaymentRequests {
+			// If status parameters are provided, and PRQ status does not match status parameters, then skip adding this payment request to the payload.
+			// This is due to a bug in the search query if a move contains multiple payment requests of different status.
+			StatusProvidedButPRQSNotMatch := len(ProvidedStatusParameters) > 0 && !slices.Contains(ProvidedStatusParameters, PaymentAttribute.Status.String())
+			if !(StatusProvidedButPRQSNotMatch) {
+				tempMove := ghcmessages.SearchMove{
+					FirstName:                         customer.FirstName,
+					LastName:                          customer.LastName,
+					DodID:                             customer.Edipi,
+					Branch:                            customer.Affiliation.String(),
+					Status:                            ghcmessages.MoveStatus(PaymentAttribute.Status),
+					ID:                                *handlers.FmtUUID(move.ID),
+					Locator:                           move.Locator,
+					ShipmentsCount:                    int64(numShipments),
+					OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
+					DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+				}
+				searchMoves = append(searchMoves, &tempMove)
+			}
+
+		}
+
 	}
 	return &searchMoves
 }

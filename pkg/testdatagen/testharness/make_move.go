@@ -87,6 +87,7 @@ func MakeMoveWithOrders(db *pop.Connection) models.Move {
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -108,6 +109,7 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 				PersonalEmail: models.StringPointer(userInfo.email),
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -133,6 +135,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -207,6 +210,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -833,6 +837,7 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Edipi:         models.StringPointer(dodID),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -902,6 +907,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1088,6 +1094,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1605,6 +1612,7 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -2539,6 +2547,21 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
+// MakeHHGMoveNeedsServicesCounselingUSMC creates an fully ready move as USMC needing SC approval
+func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	locator := models.GenerateLocator()
+	move := scenario.CreateHHGNeedsServicesCounselingUSMC3(appCtx, userUploader, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
 // MakeHHGMoveWithAmendedOrders creates a move needing SC approval with amended orders
 func MakeHHGMoveWithAmendedOrders(appCtx appcontext.AppContext) models.Move {
 	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -3010,7 +3033,6 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 
 func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
-
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
@@ -3889,6 +3911,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4021,6 +4044,7 @@ func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4153,6 +4177,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4283,6 +4308,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4398,6 +4424,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4535,6 +4562,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4648,6 +4676,7 @@ func MakeHHGMoveInSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4761,6 +4790,7 @@ func MakeHHGMoveInSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4874,6 +4904,7 @@ func MakeHHGMoveInSITDeparted(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4988,6 +5019,7 @@ func MakeHHGMoveInSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5099,6 +5131,7 @@ func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5219,6 +5252,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5302,6 +5336,7 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5384,6 +5419,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5477,6 +5513,7 @@ func MakeMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Affiliation:   &userAffiliation,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -6115,6 +6152,7 @@ func MakeCoastGuardMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Affiliation:   &userAffiliation,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -6759,6 +6797,7 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
