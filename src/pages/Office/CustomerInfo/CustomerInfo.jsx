@@ -80,7 +80,7 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       backupAddress,
       phoneIsPreferred,
       emailIsPreferred,
-      secondaryTelephone: secondaryPhone,
+      secondaryTelephone: secondaryPhone || null,
     };
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };

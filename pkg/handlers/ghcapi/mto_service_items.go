@@ -264,7 +264,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			if err != nil {
 				appCtx.Logger().Error(
 					"Error fetching move task order: ",
-					zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)),
+					zap.Error(fmt.Errorf("move Task Order ID: %s", moveTaskOrder.ID)),
 					zap.Error(err))
 
 				return mtoserviceitemop.NewListMTOServiceItemsNotFound(), err
@@ -279,6 +279,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryAssociation("Dimensions"),
 				query.NewQueryAssociation("SITDestinationOriginalAddress"),
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
+				query.NewQueryAssociation("SITOriginHHGOriginalAddress"),
+				query.NewQueryAssociation("SITOriginHHGActualAddress"),
 			})
 
 			var serviceItems models.MTOServiceItems

@@ -3045,6 +3045,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: JESSAMINE
     required:
       - streetAddress1
       - city
@@ -3164,12 +3169,14 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
       - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
   Order:
     type: object
@@ -4312,6 +4319,18 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      actualProGearWeight:
+        description: |
+          The actual weight of any pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        description: |
+          The actual weight of any spouse pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:

@@ -875,11 +875,11 @@ describe('makeCalculations', () => {
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
-        value: '0.09',
+        value: '0.1',
         label: 'Fuel surcharge price (per mi)',
         details: [
           { text: 'EIA diesel: $2.73', styles: {} },
-          { text: 'FRA: $2.00', styles: {} },
+          { text: 'FRA: 2.0', styles: {} },
           { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
         ],
@@ -906,11 +906,11 @@ describe('makeCalculations', () => {
         details: [{ text: 'ZIP 90210 to ZIP 90211', styles: {} }],
       },
       {
-        value: '0.01',
+        value: '0.0',
         label: 'SIT fuel surcharge price (per mi)',
         details: [
           { text: 'EIA diesel: $2.73', styles: {} },
-          { text: 'FRA: $2.00', styles: {} },
+          { text: 'FRA: 2.0', styles: {} },
           { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
         ],
@@ -937,11 +937,11 @@ describe('makeCalculations', () => {
         details: [{ text: 'ZIP 91910 to ZIP 94535', styles: {} }],
       },
       {
-        value: '0.01',
+        value: '0.0',
         label: 'SIT fuel surcharge price (per mi)',
         details: [
           { text: 'EIA diesel: $2.73', styles: {} },
-          { text: 'FRA: $2.00', styles: {} },
+          { text: 'FRA: 2.0', styles: {} },
           { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
         ],

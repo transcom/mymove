@@ -41,6 +41,11 @@ export class MovingInfo extends Component {
   componentDidMount() {
     const { serviceMemberId, fetchLatestOrders } = this.props;
     fetchLatestOrders(serviceMemberId);
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      this.setState({
+        multiMoveFeatureFlag: enabled,
+      });
+    });
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
       this.setState({
         ppmFeatureFlag: enabled,
@@ -56,6 +61,12 @@ export class MovingInfo extends Component {
         params: { moveId },
       },
     } = this.props;
+
+    let multiMove = false;
+    if (this.state) {
+      const { multiMoveFeatureFlag } = this.state;
+      multiMove = multiMoveFeatureFlag;
+    }
 
     let enablePPM = true;
     if (this.state) {
@@ -134,7 +145,11 @@ export class MovingInfo extends Component {
                 navigate(nextPath);
               }}
               onCancelClick={() => {
-                navigate(generalRoutes.HOME_PATH);
+                if (multiMove) {
+                  navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+                } else {
+                  navigate(generalRoutes.HOME_PATH);
+                }
               }}
             />
           </Grid>

@@ -50,6 +50,39 @@ const (
 
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
+
+	// MoveStatusPENDING captures enum value "PENDING"
+	MoveStatusPENDING MoveStatus = "PENDING"
+
+	// MoveStatusREVIEWED captures enum value "REVIEWED"
+	MoveStatusREVIEWED MoveStatus = "REVIEWED"
+
+	// MoveStatusSENTTOGEX captures enum value "SENT_TO_GEX"
+	MoveStatusSENTTOGEX MoveStatus = "SENT_TO_GEX"
+
+	// MoveStatusRECEIVEDBYGEX captures enum value "RECEIVED_BY_GEX"
+	MoveStatusRECEIVEDBYGEX MoveStatus = "RECEIVED_BY_GEX"
+
+	// MoveStatusPAID captures enum value "PAID"
+	MoveStatusPAID MoveStatus = "PAID"
+
+	// MoveStatusREVIEWEDANDALLSERVICEITEMSREJECTED captures enum value "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+	MoveStatusREVIEWEDANDALLSERVICEITEMSREJECTED MoveStatus = "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+
+	// MoveStatusEDIERROR captures enum value "EDI_ERROR"
+	MoveStatusEDIERROR MoveStatus = "EDI_ERROR"
+
+	// MoveStatusDEPRECATED captures enum value "DEPRECATED"
+	MoveStatusDEPRECATED MoveStatus = "DEPRECATED"
+
+	// MoveStatusERROR captures enum value "ERROR"
+	MoveStatusERROR MoveStatus = "ERROR"
+
+	// MoveStatusREJECTED captures enum value "REJECTED"
+	MoveStatusREJECTED MoveStatus = "REJECTED"
+
+	// MoveStatusPAYMENTREQUESTED captures enum value "PAYMENT REQUESTED"
+	MoveStatusPAYMENTREQUESTED MoveStatus = "PAYMENT REQUESTED"
 )
 
 // for schema
@@ -57,7 +90,7 @@ var moveStatusEnum []interface{}
 
 func init() {
 	var res []MoveStatus
-	if err := json.Unmarshal([]byte(`["DRAFT","NEEDS SERVICE COUNSELING","SERVICE COUNSELING COMPLETED","SUBMITTED","APPROVALS REQUESTED","APPROVED","CANCELED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","NEEDS SERVICE COUNSELING","SERVICE COUNSELING COMPLETED","SUBMITTED","APPROVALS REQUESTED","APPROVED","CANCELED","PENDING","REVIEWED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID","REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED","EDI_ERROR","DEPRECATED","ERROR","REJECTED","PAYMENT REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

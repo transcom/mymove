@@ -173,6 +173,12 @@ const newMoveDetailsQuery = {
     first_name: 'Smith',
     dodID: '999999999',
     agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
   },
   order: {
     id: '1',

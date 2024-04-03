@@ -28,7 +28,7 @@ test.describe('Office Users List Page', () => {
     expect(page.url()).toContain('/system/moves');
 
     // now we'll come back to the office users page:
-    await page.getByRole('menuitem', { name: 'Office users' }).click();
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
     expect(page.url()).toContain('/system/office-users');
     await expect(page.locator('header')).toContainText('Office Users');
 
@@ -43,10 +43,12 @@ test.describe('Office User Create Page', () => {
     await adminPage.signInAsNewAdminUser();
     // we tested the side nav in the previous test,
     // so let's work with the assumption that we were already redirected to this page:
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
     expect(page.url()).toContain('/system/office-users');
 
     await page.getByRole('link', { name: 'Create' }).click();
-    await expect(page.getByRole('heading', { name: 'Create Office Users' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Create Office Users', exact: true })).toBeVisible();
 
     expect(page.url()).toContain('/system/office-users/create');
 
@@ -64,6 +66,7 @@ test.describe('Office User Create Page', () => {
     await page.getByLabel('Email').fill(testEmail);
     await page.getByLabel('Telephone').fill('222-555-1234');
     await page.getByText('Services Counselor').click();
+    await page.getByText('Supervisor').click();
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
     await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
@@ -95,8 +98,10 @@ test.describe('Office Users Show Page', () => {
     await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     await adminPage.signInAsNewAdminUser();
 
-    expect(page.url()).toContain('/system/office-users');
+    expect(page.url()).toContain('/system/requested-office-users');
     await adminPage.waitForPage.adminPage();
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
 
     // Click first office user row
     await page.locator('tbody >> tr').first().click();
@@ -135,6 +140,8 @@ test.describe('Office Users Edit Page', () => {
 
     await adminPage.signInAsNewAdminUser();
 
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
     expect(page.url()).toContain('/system/office-users');
     await searchForOfficeUser(page, email);
     await page.getByText(email).click();

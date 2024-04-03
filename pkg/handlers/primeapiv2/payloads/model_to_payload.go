@@ -457,6 +457,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		ShipmentType:                     primev2messages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
+		ActualProGearWeight:              handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:        handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
 		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),

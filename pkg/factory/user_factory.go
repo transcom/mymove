@@ -83,6 +83,60 @@ func BuildUserAndUsersRoles(db *pop.Connection, customs []Customization, _ []Tra
 	return user
 }
 
+// BuildUserAndUsersRolesAndUsersPrivileges creates a User
+//   - If the user has Roles in the customizations, Roles and UsersRoles will also be created
+//   - If the user has Privileges in the customizations, Privileges and UsersPrivileges will also be created
+//
+// Params:
+// - customs is a slice that will be modified by the factory
+// - db can be set to nil to create a stubbed model that is not stored in DB, but Roles and UsersRoles won't be created
+func BuildUserAndUsersRolesAndUsersPrivileges(db *pop.Connection, customs []Customization, _ []Trait) models.User {
+
+	user := BuildUser(db, customs, nil)
+	if db != nil {
+		for _, userRole := range user.Roles {
+			// make sure role exists
+			role := FetchOrBuildRoleByRoleType(db, userRole.RoleType)
+			BuildUsersRoles(db, []Customization{
+				{
+					Model: models.UsersRoles{
+						UserID: user.ID,
+						RoleID: role.ID,
+					},
+				},
+			}, nil)
+		}
+
+		for _, userPrivilege := range user.Privileges {
+			// make sure privilege exists
+			privilege := FetchOrBuildPrivilegeByPrivilegeType(db, models.PrivilegeType(userPrivilege.PrivilegeType))
+			BuildUsersPrivileges(db, []Customization{
+				{
+					Model: models.UsersPrivileges{
+						UserID:      user.ID,
+						PrivilegeID: privilege.ID,
+					},
+				},
+			}, nil)
+		}
+
+		// Find the user and eager load roles so user is returned with associated roles
+		if user.Roles != nil {
+			err := db.Eager("Roles").Where("id=$1", user.ID).First(&user)
+			if err != nil && err != sql.ErrNoRows {
+				log.Panic(err)
+			}
+		}
+		if user.Privileges != nil {
+			err := db.Eager("Privileges").Where("id=$1", user.ID).First(&user)
+			if err != nil && err != sql.ErrNoRows {
+				log.Panic(err)
+			}
+		}
+	}
+	return user
+}
+
 // BuildUsersRoles creates UsersRoles and ties roles to the user
 // Params:
 // - customs is a slice that will be modified by the factory
@@ -114,6 +168,39 @@ func BuildUsersRoles(db *pop.Connection, customs []Customization, traits []Trait
 	}
 
 	return usersRoles
+}
+
+// BuildUsersPrivileges creates UsersPrivileges and ties privileges to the user
+// Params:
+// - customs is a slice that will be modified by the factory
+//   - UserID and PrivilegeID are required to be in customs
+//
+// - db can be set to nil to create a stubbed model that is not stored in DB.
+func BuildUsersPrivileges(db *pop.Connection, customs []Customization, traits []Trait) models.UsersPrivileges {
+	customs = setupCustomizations(customs, traits)
+
+	// Find privilege assertion and convert to model UsersPrivileges
+	var cUsersPrivileges models.UsersPrivileges
+	if result := findValidCustomization(customs, UsersPrivileges); result != nil {
+		cUsersPrivileges = result.Model.(models.UsersPrivileges)
+		if result.LinkOnly {
+			return cUsersPrivileges
+		}
+	}
+
+	// create UsersPrivileges
+	usersPrivileges := models.UsersPrivileges{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	// Overwrite values with those from assertions
+	testdatagen.MergeModels(&usersPrivileges, cUsersPrivileges)
+
+	if db != nil {
+		mustCreate(db, &usersPrivileges)
+	}
+
+	return usersPrivileges
 }
 
 // BuildDefaultUser creates an active user

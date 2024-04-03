@@ -15,6 +15,8 @@ import WaitForCustomerPage from './waitForCustomerPage';
  */
 export const milmoveUserType = 'milmove';
 
+export const { expect } = base;
+
 /**
  * CustomerPage
  * @extends BaseTestPage
@@ -54,6 +56,17 @@ export class CustomerPage extends BaseTestPage {
   /**
    * returns {Promise<void>}
    */
+  async navigateFromMMDashboardToMove(move) {
+    await expect(this.page.getByTestId('goToMoveBtn')).toBeVisible();
+
+    await this.page.getByTestId('goToMoveBtn').click();
+
+    await expect(this.page.getByText(`${move.locator}`)).toBeVisible();
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
   async navigateBack() {
     await this.page.getByTestId('wizardCancelButton').click();
   }
@@ -63,6 +76,21 @@ export class CustomerPage extends BaseTestPage {
    */
   async navigateForward() {
     await this.page.getByTestId('wizardNextButton').click();
+  }
+
+  /**
+   * @param {Object} move
+   * returns {Promise<void>}
+   */
+  async signInForPPMWithMove(move) {
+    await this.signInAsExistingCustomer(move.Orders.ServiceMember.user_id);
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
+  async createMoveButtonClick() {
+    await this.page.getByTestId('createMoveBtn').click();
   }
 }
 
@@ -121,7 +149,5 @@ const officeFixtures = {
 };
 
 export const test = base.test.extend(officeFixtures);
-
-export const { expect } = base;
 
 export default test;

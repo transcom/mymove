@@ -361,10 +361,14 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 		actualWeight := int64(1000)
 		ntsRecordedWeight := int64(2000)
 		estimatedWeight := int64(1500)
+		actualProGearWeight := int64(1000)
+		actualSpouseProGearWeight := int64(250)
 		mtoShipment := &primev2messages.UpdateMTOShipment{
-			PrimeActualWeight:    &actualWeight,
-			NtsRecordedWeight:    &ntsRecordedWeight,
-			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:         &actualWeight,
+			NtsRecordedWeight:         &ntsRecordedWeight,
+			PrimeEstimatedWeight:      &estimatedWeight,
+			ActualProGearWeight:       &actualProGearWeight,
+			ActualSpouseProGearWeight: &actualSpouseProGearWeight,
 		}
 		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
@@ -372,6 +376,8 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 		suite.NotNil(model.PrimeActualWeight)
 		suite.NotNil(model.NTSRecordedWeight)
 		suite.NotNil(model.PrimeEstimatedWeight)
+		suite.Equal(model.ActualProGearWeight, handlers.PoundPtrFromInt64Ptr(&actualProGearWeight))
+		suite.Equal(model.ActualSpouseProGearWeight, handlers.PoundPtrFromInt64Ptr(&actualSpouseProGearWeight))
 	})
 
 	suite.Run("ppm", func() {

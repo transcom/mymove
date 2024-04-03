@@ -3,7 +3,13 @@ import { useNotify } from 'react-admin';
 import { ImportButton } from 'react-admin-import-csv';
 import PropTypes from 'prop-types';
 
-import { checkRequiredFields, checkTelephone, parseRoles } from './validation';
+import {
+  checkRequiredFields,
+  checkTelephone,
+  checkValidRolesWithPrivileges,
+  parseRoles,
+  parsePrivileges,
+} from './validation';
 
 // Note: There is not a test file or story for ImportOfficeUserButton beacuse this component HAS to render within a react-admin app
 const ImportOfficeUserButton = (props) => {
@@ -31,8 +37,13 @@ const ImportOfficeUserButton = (props) => {
     rows.forEach((row) => {
       const copyOfRow = row;
       try {
-        const parsedRolesArray = parseRoles(row.roles);
-        copyOfRow.roles = parsedRolesArray;
+        if (checkValidRolesWithPrivileges(row)) {
+          const parsedRolesArray = parseRoles(row.roles);
+          copyOfRow.roles = parsedRolesArray;
+
+          const parsedPrivilegesArray = row.privileges ? parsePrivileges(row.privileges) : null;
+          copyOfRow.privileges = parsedPrivilegesArray;
+        }
       } catch (err) {
         notify(`${err.message} \n Row Information: ${Object.values(row)}`);
         throw err;

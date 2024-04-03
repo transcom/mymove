@@ -34,17 +34,29 @@ const CustomerInfoList = ({ customerInfo }) => {
           </dd>
         </div>
         <div className={descriptionListStyles.row}>
+          <dt>Backup address</dt>
+          <dd data-testid="backupAddress">
+            {customerInfo.backupAddress?.streetAddress1
+              ? `${customerInfo.backupAddress.streetAddress1}, ${customerInfo.backupAddress.city}, ${customerInfo.backupAddress.state} ${customerInfo.backupAddress.postalCode}`
+              : '—'}
+          </dd>
+        </div>
+        <div className={descriptionListStyles.row}>
           <dt>Backup contact name</dt>
-          <dd data-testid="backupContactName">{customerInfo.backupContact?.name}</dd>
+          <dd data-testid="backupContactName">
+            {customerInfo.backupContact?.name ? customerInfo.backupContact.name : '—'}
+          </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact email</dt>
-          <dd data-testid="backupContactEmail">{customerInfo.backupContact?.email}</dd>
+          <dd data-testid="backupContactEmail">
+            {customerInfo.backupContact?.email ? customerInfo.backupContact.email : '—'}
+          </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact phone</dt>
           <dd data-testid="backupContactPhone">
-            {customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : ''}
+            {customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : '—'}
           </dd>
         </div>
       </dl>
@@ -59,6 +71,7 @@ CustomerInfoList.propTypes = {
     phone: PropTypes.string,
     email: PropTypes.string,
     currentAddress: ResidentialAddressShape,
+    backupAddress: ResidentialAddressShape,
     backupContact: BackupContactShape,
   }).isRequired,
 };

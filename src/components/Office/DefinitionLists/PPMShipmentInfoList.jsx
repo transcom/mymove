@@ -11,10 +11,11 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { ppmShipmentStatuses } from 'constants/shipments';
 import affiliation from 'content/serviceMemberAgencies';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
-import { downloadPPMAOAPacket } from 'services/ghcApi';
+import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
 
 const PPMShipmentInfoList = ({
   className,
@@ -30,6 +31,7 @@ const PPMShipmentInfoList = ({
     hasRequestedAdvance,
     advanceAmountRequested,
     advanceStatus,
+    status,
     destinationPostalCode,
     estimatedIncentive,
     estimatedWeight,
@@ -201,6 +203,21 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
+  const paymentPacketElement = (
+    <div>
+      <dt>Payment Packet</dt>
+      <dd data-testid="aoaPacketDownload">
+        <p className={styles.downloadLink}>
+          <AsyncPacketDownloadLink
+            id={shipment?.ppmShipment?.id}
+            label="Download Payment Packet (PDF)"
+            asyncRetrieval={downloadPPMPaymentPacket}
+            onFailure={onErrorModalToggle}
+          />
+        </p>
+      </dd>
+    </div>
+  );
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -234,6 +251,8 @@ const PPMShipmentInfoList = ({
       {hasRequestedAdvanceElement}
       {hasRequestedAdvance === true && advanceStatusElement}
       {advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && aoaPacketElement}
+      {(status === ppmShipmentStatuses.PAYMENT_APPROVED || status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) &&
+        paymentPacketElement}
       {counselorRemarksElement}
     </dl>
   );

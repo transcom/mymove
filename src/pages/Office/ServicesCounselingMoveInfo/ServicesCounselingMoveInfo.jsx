@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { roleTypes } from 'constants/userRoles';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -21,20 +22,28 @@ const ServicesCounselingMoveDetails = lazy(() =>
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
+const ServicesCounselingAddOrders = lazy(() =>
+  import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
+);
 const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
+const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
+const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
 
 const ServicesCounselingMoveInfo = () => {
-  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = useState(0);
-
+  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
+  const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
+  const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
+  const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
+  const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const onInfoSavedUpdate = (alertType) => {
@@ -69,7 +78,7 @@ const ServicesCounselingMoveInfo = () => {
   }, [infoSavedAlert, location]);
 
   const { moveCode } = useParams();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -114,6 +123,20 @@ const ServicesCounselingMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_ORDERS_ADD_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_CREATE_MOVE_EDIT_CUSTOMER_PATH,
+        end: true,
+      },
+      pathname,
     );
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -121,7 +144,13 @@ const ServicesCounselingMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader
+        move={move}
+        order={order}
+        customer={customerData}
+        moveCode={moveCode}
+        userRole={roleTypes.SERVICES_COUNSELOR}
+      />
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
@@ -132,7 +161,16 @@ const ServicesCounselingMoveInfo = () => {
         </SystemError>
       )}
 
-      {!hideNav && <ServicesCounselorTabNav unapprovedShipmentCount={unapprovedShipmentCount} moveCode={moveCode} />}
+      {!hideNav && (
+        <ServicesCounselorTabNav
+          unapprovedShipmentCount={unapprovedShipmentCount}
+          moveCode={moveCode}
+          unapprovedServiceItemCount={unapprovedServiceItemCount}
+          unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
+          excessWeightRiskCount={excessWeightRiskCount}
+          unapprovedSITExtensionCount={unapprovedSITExtensionCount}
+        />
+      )}
 
       <Suspense fallback={<LoadingPlaceholder />}>
         <Routes>
@@ -158,6 +196,19 @@ const ServicesCounselingMoveInfo = () => {
             path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
             end
             element={<CustomerSupportRemarks />}
+          />
+          <Route
+            path={servicesCounselingRoutes.MTO_PATH}
+            end
+            element={
+              <MoveTaskOrder
+                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+                setExcessWeightRiskCount={setExcessWeightRiskCount}
+                setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+              />
+            }
           />
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
           <Route
@@ -209,6 +260,31 @@ const ServicesCounselingMoveInfo = () => {
             path={servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH}
             exact
             element={<ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
+          />
+          <Route
+            path={servicesCounselingRoutes.CREATE_MOVE_EDIT_CUSTOMER_PATH}
+            exact
+            element={
+              <CreateMoveCustomerInfo
+                ordersId={order.id}
+                customer={customerData}
+                isLoading={isLoading}
+                isError={isError}
+                onUpdate={onInfoSavedUpdate}
+              />
+            }
+          />
+          <Route
+            path={servicesCounselingRoutes.ORDERS_ADD_PATH}
+            exact
+            element={
+              <ServicesCounselingAddOrders
+                ordersId={order.id}
+                customer={customerData}
+                isLoading={isLoading}
+                isError={isError}
+              />
+            }
           />
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={servicesCounselingRoutes.MOVE_VIEW_PATH} replace />} />

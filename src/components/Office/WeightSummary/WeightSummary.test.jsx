@@ -79,7 +79,7 @@ describe('WeightSummary', () => {
     expect(screen.getByText('Max billable weight')).toBeInTheDocument();
     expect(screen.getByText('Weight requested')).toBeInTheDocument();
     expect(screen.getByText('Weight allowance')).toBeInTheDocument();
-    expect(screen.getByText('Total billable weight')).toBeInTheDocument();
+    expect(screen.getByText('Actual billable weight')).toBeInTheDocument();
 
     // weights
     expect(screen.getByText(formatWeight(defaultProps.maxBillableWeight))).toBeInTheDocument();
@@ -88,9 +88,9 @@ describe('WeightSummary', () => {
     expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
 
     // shipment weights
-    expect(screen.getByText(formatWeight(noOverweightShipments[0].calculatedBillableWeight))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(noOverweightShipments[1].calculatedBillableWeight))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(noOverweightShipments[2].calculatedBillableWeight))).toBeInTheDocument();
+    expect(screen.getByText('6,000 lbs HHG 1')).toBeInTheDocument();
+    expect(screen.getByText('400 lbs HHG 2')).toBeInTheDocument();
+    expect(screen.getByText('3,400 lbs HHG 3')).toBeInTheDocument();
   });
 
   it('does not display flags when not appropriate', async () => {

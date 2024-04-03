@@ -14,6 +14,7 @@ const formatChangedValues = (historyRecord) => {
     ...getMtoShipmentLabel(historyRecord),
     reweigh_weight: changedValues.weight,
   };
+  delete newChangedValues.weight;
 
   return { ...historyRecord, changedValues: newChangedValues };
 };

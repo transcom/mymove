@@ -24,6 +24,14 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
             <NavLink
               end
               className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={`/counseling/moves/${moveCode}/mto`}
+              data-testid="MoveTaskOrder-Tab"
+            >
+              <span className="tab-title">Move Task Order</span>
+            </NavLink>,
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
               to={`/counseling/moves/${moveCode}/customer-support-remarks`}
             >
               <span className="tab-title">Customer support remarks</span>

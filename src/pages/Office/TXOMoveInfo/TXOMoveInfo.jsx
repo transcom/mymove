@@ -40,7 +40,7 @@ const TXOMoveInfo = () => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const hideNav =
     matchPath(
@@ -77,7 +77,7 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
