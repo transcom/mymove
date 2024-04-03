@@ -2991,7 +2991,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
@@ -3073,7 +3073,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
@@ -3127,7 +3127,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
@@ -3177,7 +3177,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
@@ -3222,7 +3222,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		builder := subtestData.builder
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
@@ -3278,7 +3278,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		handlerConfig := suite.HandlerConfig()
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter())
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter(), addressCreator)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
@@ -3410,7 +3410,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		handlerConfig := suite.HandlerConfig()
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter())
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter(), addressCreator)
 		ppmEstimator := mocks.PPMEstimator{}
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}

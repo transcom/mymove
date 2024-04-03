@@ -23,28 +23,31 @@ type createMTOShipmentQueryBuilder interface {
 type mtoShipmentCreator struct {
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	moveRouter services.MoveRouter
-	checks     []validator
+	moveRouter     services.MoveRouter
+	addressCreator services.AddressCreator
+	checks         []validator
 }
 
 // NewMTOShipmentCreatorV1 creates a new struct with the service dependencies
 // This is utilized in Prime API V1
-func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
+func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter, addressCreator services.AddressCreator) services.MTOShipmentCreator {
 	return &mtoShipmentCreator{
 		builder,
 		fetcher,
 		moveRouter,
+		addressCreator,
 		[]validator{protectV1Diversion()},
 	}
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
 // This is utilized in Prime API V2
-func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
+func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter, addressCreator services.AddressCreator) services.MTOShipmentCreator {
 	return &mtoShipmentCreator{
 		builder,
 		fetcher,
 		moveRouter,
+		addressCreator,
 		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule()},
 	}
 }
@@ -186,10 +189,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.PickupAddress)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
+			pickupAddress, pickupAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
+			if pickupAddressCreateErr != nil {
+				return fmt.Errorf("failed to create pickup address %#v %e", verrs, pickupAddressCreateErr)
 			}
+			shipment.PickupAddress = pickupAddress
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
 			if errCounty != nil {
@@ -202,10 +206,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryPickupAddress)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+			secondaryPickupAddress, secondPickupAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
+			if secondPickupAddressCreateErr != nil {
+				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, secondPickupAddressCreateErr)
 			}
+			shipment.SecondaryPickupAddress = secondaryPickupAddress
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryPickupAddress.PostalCode)
 			if errCounty != nil {
@@ -215,10 +220,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.DestinationAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.DestinationAddress)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
+			destinationAddress, destinationAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
+			if destinationAddressCreateErr != nil {
+				return fmt.Errorf("failed to create destination address %#v %e", verrs, destinationAddressCreateErr)
 			}
+			shipment.DestinationAddress = destinationAddress
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
 			if errCounty != nil {
@@ -228,10 +234,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.SecondaryDeliveryAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryDeliveryAddress)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+			secondaryDeliveryAddress, secondDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
+			if secondDeliveryCreateErr != nil {
+				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, secondDeliveryCreateErr)
 			}
+			shipment.SecondaryDeliveryAddress = secondaryDeliveryAddress
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryDeliveryAddress.PostalCode)
 			if errCounty != nil {
@@ -241,10 +248,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.StorageFacility != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, &shipment.StorageFacility.Address)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
+			storageFacility, storageFacilityCreateErr := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
+			if storageFacilityCreateErr != nil {
+				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, storageFacilityCreateErr)
 			}
+			shipment.StorageFacility.Address = *storageFacility
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.StorageFacility.Address.PostalCode)
 			if errCounty != nil {
@@ -252,9 +260,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 			shipment.StorageFacility.Address.County = county
 
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create storage facility %#v %e", verrs, err)
+			verrs, storageFacilityCreateErr = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
+			if verrs != nil || storageFacilityCreateErr != nil {
+				return fmt.Errorf("failed to create storage facility %#v %e", verrs, storageFacilityCreateErr)
 			}
 			shipment.StorageFacilityID = &shipment.StorageFacility.ID
 		}
