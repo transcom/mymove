@@ -6,6 +6,7 @@ import { setFlashMessage } from 'store/flash/actions';
 import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAccountForm';
 import { createOfficeAccountRequest } from 'services/ghcApi';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { generalRoutes } from 'constants/routes';
 
 export const RequestAccount = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export const RequestAccount = () => {
   };
 
   const handleCancel = () => {
-    navigate(-1);
+    navigate(generalRoutes.SIGN_IN_PATH);
   };
 
   const handleSubmit = async (values) => {
@@ -75,7 +76,7 @@ export const RequestAccount = () => {
     return createOfficeAccountRequest({ body })
       .then(() => {
         setFlashMessage('OFFICE_ACCOUNT_REQUEST_SUCCESS', 'success', `Request for office account successful.`);
-        navigate(-1);
+        navigate(generalRoutes.SIGN_IN_PATH);
       })
       .catch(() => {
         const errorMessage = 'Failed to submit office account request due to server error';
@@ -90,7 +91,7 @@ export const RequestAccount = () => {
       {serverError && (
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert type="error" headingLevel="h4" heading="An error occurred">
+            <Alert data-testid="alert2" type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
           </Grid>
