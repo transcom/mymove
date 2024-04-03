@@ -197,98 +197,97 @@ test.describe('TOO user', () => {
       await officePage.tooNavigateToMove(move.locator);
     });
 
-    // TODO: B-18864 - Temorarily commented out. UI changes need to synch with current test.
-    // test('TOO can view and edit Domestic NTS-R Shipments handled by the Prime on the MTO page', async ({ page }) => {
-    //   // This test is almost exactly a duplicate of the test in
-    //   // tooFlowsNTS.
-    //   await page.getByTestId('MoveTaskOrder-Tab').click();
-    //   await tooFlowPage.waitForLoading();
+    test('TOO can view and edit Domestic NTS-R Shipments handled by the Prime on the MTO page', async ({ page }) => {
+      // This test is almost exactly a duplicate of the test in
+      // tooFlowsNTS.
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForLoading();
 
-    //   await expect(
-    //     page.locator('[id="move-weights"] div').getByText('1 shipment not moved by GHC prime.'),
-    //   ).not.toBeVisible();
+      await expect(
+        page.locator('[id="move-weights"] div').getByText('1 shipment not moved by GHC prime.'),
+      ).not.toBeVisible();
 
-    //   await expect(page.locator('[data-testid="ShipmentContainer"]')).toHaveCount(2);
+      await expect(page.locator('[data-testid="ShipmentContainer"]')).toHaveCount(2);
 
-    //   let lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
+      let lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
 
-    //   // non-temp storage header
-    //   await expect(lastShipment.locator('h2')).toContainText('Non-temp storage');
-    //   // delivery address header
-    //   await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-    //     'Delivery address',
-    //   );
-    //   // facility address header
-    //   await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-    //     'Facility address',
-    //   );
+      // non-temp storage header
+      await expect(lastShipment.locator('h2')).toContainText('Non-temp storage');
+      // delivery address header
+      await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
+        'Delivery address',
+      );
+      // facility address header
+      await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
+        'Facility address',
+      );
 
-    //   // edit facility info and address
-    //   await page.locator('[data-testid="edit-facility-info-modal-open"]').click();
+      // edit facility info and address
+      await page.locator('[data-testid="edit-facility-info-modal-open"]').click();
 
-    //   await expect(page.getByTestId('modal')).toBeVisible();
-    //   let modal = page.getByTestId('modal');
-    //   // Storage facility info
-    //   await modal.locator('#facilityName').clear();
-    //   await modal.locator('#facilityName').type('New Facility Name');
-    //   await modal.locator('#facilityPhone').clear();
-    //   await modal.locator('#facilityPhone').type('999-999-9999');
-    //   await modal.locator('#facilityEmail').clear();
-    //   await modal.locator('#facilityEmail').type('new@example.com');
-    //   await modal.locator('#facilityServiceOrderNumber').clear();
-    //   await modal.locator('#facilityServiceOrderNumber').type('098098');
+      await expect(page.getByTestId('modal')).toBeVisible();
+      let modal = page.getByTestId('modal');
+      // Storage facility info
+      await modal.locator('#facilityName').clear();
+      await modal.locator('#facilityName').type('New Facility Name');
+      await modal.locator('#facilityPhone').clear();
+      await modal.locator('#facilityPhone').type('999-999-9999');
+      await modal.locator('#facilityEmail').clear();
+      await modal.locator('#facilityEmail').type('new@example.com');
+      await modal.locator('#facilityServiceOrderNumber').clear();
+      await modal.locator('#facilityServiceOrderNumber').type('098098');
 
-    //   // Storage facility address
-    //   await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
-    //   await modal.locator('input[name="storageFacility.address.streetAddress1"]').type('265 S East St');
-    //   await modal.locator('#facilityLotNumber').clear();
-    //   await modal.locator('#facilityLotNumber').type('1111111');
+      // Storage facility address
+      await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
+      await modal.locator('input[name="storageFacility.address.streetAddress1"]').type('265 S East St');
+      await modal.locator('#facilityLotNumber').clear();
+      await modal.locator('#facilityLotNumber').type('1111111');
 
-    //   await modal.locator('button[type="submit"]').click();
-    //   await expect(modal).not.toBeVisible();
+      await modal.locator('button[type="submit"]').click();
+      await expect(modal).not.toBeVisible();
 
-    //   lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
-    //   let sidebar = lastShipment.locator('[class*="ShipmentDetailsSidebar"]');
-    //   await expect(sidebar.locator('section header').first()).toContainText('Facility info and address');
-    //   await expect(sidebar.locator('section').first()).toContainText('New Facility Name');
-    //   await expect(sidebar.locator('section').first()).toContainText('265 S East St');
-    //   await expect(sidebar.locator('section').first()).toContainText('Lot 1111111');
+      lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
+      let sidebar = lastShipment.locator('[class*="ShipmentDetailsSidebar"]');
+      await expect(sidebar.locator('section header').first()).toContainText('Facility info and address');
+      await expect(sidebar.locator('section').first()).toContainText('New Facility Name');
+      await expect(sidebar.locator('section').first()).toContainText('265 S East St');
+      await expect(sidebar.locator('section').first()).toContainText('Lot 1111111');
 
-    //   // edit service order number
-    //   await lastShipment.locator('[data-testid="service-order-number-modal-open"]').click();
+      // edit service order number
+      await lastShipment.locator('[data-testid="service-order-number-modal-open"]').click();
 
-    //   await expect(page.getByTestId('modal')).toBeVisible();
-    //   modal = page.getByTestId('modal');
+      await expect(page.getByTestId('modal')).toBeVisible();
+      modal = page.getByTestId('modal');
 
-    //   await modal.locator('[data-testid="textInput"]').clear();
-    //   await modal.locator('[data-testid="textInput"]').type('ORDER456');
+      await modal.locator('[data-testid="textInput"]').clear();
+      await modal.locator('[data-testid="textInput"]').type('ORDER456');
 
-    //   await modal.locator('button[type="submit"]').click();
-    //   await expect(modal).not.toBeVisible();
+      await modal.locator('button[type="submit"]').click();
+      await expect(modal).not.toBeVisible();
 
-    //   lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
-    //   await expect(lastShipment.locator('[class*="ShipmentDetailsSidebar"] section').nth(1)).toContainText('ORDER456');
+      lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
+      await expect(lastShipment.locator('[class*="ShipmentDetailsSidebar"] section').nth(1)).toContainText('ORDER456');
 
-    //   // edit accounting codes
-    //   await lastShipment.locator('[data-testid="edit-accounting-codes-modal-open"]').click();
+      // edit accounting codes
+      await lastShipment.locator('[data-testid="edit-accounting-codes-modal-open"]').click();
 
-    //   await expect(page.getByTestId('modal')).toBeVisible();
-    //   modal = page.getByTestId('modal');
-    //   await modal.locator('[data-testid="radio"] [for="tacType-HHG"]').click();
-    //   await modal.locator('[data-testid="radio"] [for="sacType-NTS"]').click();
+      await expect(page.getByTestId('modal')).toBeVisible();
+      modal = page.getByTestId('modal');
+      await modal.locator('[data-testid="radio"] [for="tacType-HHG"]').click();
+      await modal.locator('[data-testid="radio"] [for="sacType-NTS"]').click();
 
-    //   await modal.locator('button[type="submit"]').click();
-    //   await expect(modal).not.toBeVisible();
+      await modal.locator('button[type="submit"]').click();
+      await expect(modal).not.toBeVisible();
 
-    //   lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
-    //   sidebar = lastShipment.locator('[class*="ShipmentDetailsSidebar"]');
-    //   await expect(sidebar.locator('section').last()).toContainText('F123');
-    //   await expect(sidebar.locator('section').last()).toContainText('4K988AS098F');
+      lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
+      sidebar = lastShipment.locator('[class*="ShipmentDetailsSidebar"]');
+      await expect(sidebar.locator('section').last()).toContainText('F123');
+      await expect(sidebar.locator('section').last()).toContainText('4K988AS098F');
 
-    //   await expect(lastShipment.locator('[data-testid="ApprovedServiceItemsTable"] h3').last()).toContainText(
-    //     'Approved service items (5 items)',
-    //   );
-    // });
+      await expect(lastShipment.locator('[data-testid="ApprovedServiceItemsTable"] h3').last()).toContainText(
+        'Approved service items (5 items)',
+      );
+    });
   });
 
   test.describe('with HHG Move plus NTS-R Shipment handled by external vendor', () => {
