@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	// mocks, or objects that can be modified in subtests should instead be set up in makeCreateSubtestData.
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
 	addressCreator := address.NewAddressCreator()
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 

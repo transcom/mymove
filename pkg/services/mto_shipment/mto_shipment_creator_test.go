@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -30,8 +31,9 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(customs []factory.Custom
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
-
-	subtestData.shipmentCreator = NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+	addressCreator := address.NewAddressCreator()
+	
+	subtestData.shipmentCreator = NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 
 	return subtestData
 }
@@ -45,8 +47,9 @@ func (suite *MTOShipmentServiceSuite) createSubtestDataV2(customs []factory.Cust
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
+	addressCreator := address.NewAddressCreator()
 
-	subtestData.shipmentCreator = NewMTOShipmentCreatorV2(builder, fetcher, moveRouter)
+	subtestData.shipmentCreator = NewMTOShipmentCreatorV2(builder, fetcher, moveRouter, addressCreator)
 
 	return subtestData
 }

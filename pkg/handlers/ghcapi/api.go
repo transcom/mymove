@@ -262,6 +262,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		queryBuilder,
 		fetch.NewFetcher(queryBuilder),
 		moveRouter,
+		addressCreator,
 	)
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
