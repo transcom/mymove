@@ -205,7 +205,7 @@ export class Home extends Component {
   get isPrimeCounselingComplete() {
     const { move } = this.props;
 
-    return !move.primeCounselingCompletedAt;
+    return move.primeCounselingCompletedAt.indexOf('0001-01-01') < 0;
   }
 
   renderAlert = () => {
@@ -676,18 +676,20 @@ export class Home extends Component {
                           </Description>
                         )}
                         {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && this.isPrimeCounseled && (
+                          <Description>
+                            Once you have received counseling for your PPM you will receive emailed instructions on how
+                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
+                            Transportation Office for review of your AOA packet.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                            <br />
+                            <br />
+                          </Description>
+                        )}
+                        {this.isPrimeCounselingComplete && (
                           <>
-                            <Description>
-                              Once you have received counseling for your PPM you will receive emailed instructions on
-                              how to download your Advance Operating Allowance (AOA) packet. Please consult with your
-                              Transportation Office for review of your AOA packet.
-                              <br />
-                              <br /> The amount you receive will be deducted from your PPM incentive payment. If your
-                              incentive ends up being less than your advance, you will be required to pay back the
-                              difference.
-                              <br />
-                              <br />
-                            </Description>
                             {ppmShipments.map((shipment) => {
                               const { shipmentType } = shipment;
                               if (shipmentNumbersByType[shipmentType]) {
@@ -702,7 +704,7 @@ export class Home extends Component {
                                     {shipmentTypes[shipment.shipmentType]}
                                     {` ${shipmentNumber} `}
                                   </strong>
-                                  {this.isPrimeCounselingComplete && (
+                                  {shipment?.ppmShipment?.hasRequestedAdvance && (
                                     <p className={styles.downloadLink}>
                                       <AsyncPacketDownloadLink
                                         id={shipment?.ppmShipment?.id}
@@ -712,11 +714,11 @@ export class Home extends Component {
                                       />
                                     </p>
                                   )}
-                                  {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
-                                    <Description>Advance request denied</Description>
-                                  )}
-                                  {shipment?.ppmShipment?.advanceStatus == null && (
-                                    <Description>Advance request pending</Description>
+                                  {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <>
+                                      <br />
+                                      <br />
+                                    </>
                                   )}
                                 </>
                               );
