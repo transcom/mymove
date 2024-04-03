@@ -27,17 +27,14 @@ test.describe('WebhookSubscriptions Details Show Page', () => {
   //   const webhook = await adminPage.testHarness.buildWebhookSubscription();
   //   const id = webhook.ID;
   //   await adminPage.signInAsNewAdminUser();
-
   //   await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
   //   await adminPage.waitForPage.adminPage();
   //   await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
   //   await page.getByText(id).click();
   //   await adminPage.waitForPage.adminPage();
-
   //   // check that the webhookSubscription's ID is shown in the page title
   //   expect(page.url()).toContain(id);
   //   await expect(page.getByRole('heading', { name: `Webhook Subscription ID: ${id}` })).toBeVisible();
-
   //   const labels = [
   //     'Id',
   //     'Subscriber Id',
@@ -58,13 +55,11 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
   //   const webhook = await adminPage.testHarness.buildWebhookSubscription();
   //   const id = webhook.ID;
   //   await adminPage.signInAsNewAdminUser();
-
   //   await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
   //   await adminPage.waitForPage.adminPage();
   //   await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
   //   await page.getByText(id).click();
   //   await adminPage.waitForPage.adminPage();
-
   //   // check labels on edit page
   //   const labels = [
   //     'Id',
@@ -77,19 +72,14 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
   //     'Severity',
   //   ];
   //   await adminPage.expectLabels(labels);
-
   //   await page.getByRole('link', { name: 'Edit' }).click();
   //   await adminPage.waitForPage.adminPage();
-
   //   // Change webhook subscription status
   //   // await page.locator('label', { hasText: 'Status' }).click();
-
   //   await page.getByRole('button', { name: 'Status Active' }).click();
   //   await page.getByRole('option', { name: 'Disabled' }).click();
-
   //   await page.getByRole('button', { name: 'Save' }).click();
   //   await adminPage.waitForPage.adminPage();
-
   //   // Check that the webhook subscription status was changed
   //   await expect(page.locator(`tr:has(:text("${id}")) >> td.column-status`)).toHaveText('DISABLED');
   // });
