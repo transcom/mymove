@@ -3,10 +3,8 @@ import { func, node, string } from 'prop-types';
 import { Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField/TextField';
-// import { DropdownInput } from 'components/form/fields/DropdownInput';
-// import { CheckboxField, DutyLocationInput } from 'components/form/fields';
-import { CheckboxField } from 'components/form/fields';
-// import { searchTransportationOffices } from 'services/ghcApi';
+import { CheckboxField, DutyLocationInput } from 'components/form/fields';
+import { searchTransportationOfficesOpen } from 'services/ghcApi';
 
 export const OfficeAccountRequestFields = ({ legend, className, render }) => {
   const firstNameFieldName = 'officeAccountRequestFirstName';
@@ -16,7 +14,7 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
   const telephoneFieldName = 'officeAccountRequestTelephone';
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
-  // const transportationOfficeDropDown = 'officeAccountTransportationOffice';
+  const transportationOfficeDropDown = 'officeAccountTransportationOffice';
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -48,18 +46,12 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
             maxLength="10"
             inputMode="numeric"
           />
-          {/* <DropdownInput
-            name={transportationOfficeDropDown}
-            id="officeAccountRequestTransportationOfficeDropdown"
-            label="Transportation Office"
-            placeHolderText="Select Transportation Office"
-          /> */}
-          {/* <DutyLocationInput
+          <DutyLocationInput
             name={transportationOfficeDropDown}
             label="Transportation Office"
             placeHolderText="Select Transportation Office"
-            searchLocations={searchTransportationOffices}
-          /> */}
+            searchLocations={searchTransportationOfficesOpen}
+          />
           <h4>Requested Role(s)</h4>
           <CheckboxField
             id="transportationOrderingOfficerCheckBox"

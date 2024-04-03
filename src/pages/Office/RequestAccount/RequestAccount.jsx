@@ -10,6 +10,17 @@ export const RequestAccount = () => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
+  const initialValues = {
+    officeAccountRequestFirstName: '',
+    officeAccountRequestMiddleInitial: '',
+    officeAccountRequestLastName: '',
+    officeAccountRequestEmail: '',
+    officeAccountRequestTelephone: '',
+    officeAccountRequestEdipi: '',
+    officeAccountRequestOtherUniqueId: '',
+    officeAccountTransportationOffice: undefined,
+  };
+
   const handleCancel = () => {
     navigate(-1);
   };
@@ -56,7 +67,7 @@ export const RequestAccount = () => {
       middleInitials: values.officeAccountRequestMiddleInitial,
       lastName: values.officeAccountRequestLastName,
       telephone: values.officeAccountRequestTelephone,
-      transportationOfficeId: values.transportationOfficeId || '00261210-4dc5-46ff-812c-3e121f02a370', // test with a local Transportation office id
+      transportationOfficeId: values.officeAccountTransportationOffice.id,
       roles: requestedRoles,
     };
 
@@ -86,7 +97,7 @@ export const RequestAccount = () => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <RequestAccountForm onCancel={handleCancel} onSubmit={handleSubmit} />
+          <RequestAccountForm onCancel={handleCancel} onSubmit={handleSubmit} initialValues={initialValues} />
         </Grid>
       </Grid>
     </GridContainer>
