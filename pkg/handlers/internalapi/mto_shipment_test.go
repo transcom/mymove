@@ -623,12 +623,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	addressUpdater := address.NewAddressUpdater()
-
-	mtoShipmentUpdater := mtoshipment.NewCustomerMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater)
+	addressCreator := address.NewAddressCreator()
+	mtoShipmentUpdater := mtoshipment.NewCustomerMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 	ppmEstimator := mocks.PPMEstimator{}
 
-	addressCreator := address.NewAddressCreator()
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)

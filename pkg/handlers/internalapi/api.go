@@ -194,6 +194,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
 			addressUpdater,
+			addressCreator,
 		),
 		ppmShipmentUpdater,
 	)
