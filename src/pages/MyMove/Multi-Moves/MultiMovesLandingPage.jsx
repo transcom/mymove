@@ -60,7 +60,10 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
   // if they have previous moves, they'll need to validate their profile
   // if they do not have previous moves, then they don't need to validate
   const handleCreateMoveBtnClick = () => {
-    if (serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length !== 0) {
+    if (
+      (serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length !== 0) ||
+      (serviceMemberMoves && serviceMemberMoves.currentMove && serviceMemberMoves.currentMove.length !== 0)
+    ) {
       const profileEditPath = customerRoutes.PROFILE_PATH;
       navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
     } else {
@@ -90,7 +93,11 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-          {serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length === 0 ? (
+          {serviceMemberMoves &&
+          serviceMemberMoves.previousMoves &&
+          serviceMemberMoves.previousMoves.length === 0 &&
+          serviceMemberMoves.currentMove &&
+          serviceMemberMoves.currentMove.length === 0 ? (
             <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
               <p data-testid="welcomeHeader">
                 Select &quot;Create a Move&quot; to get started. <br />
@@ -104,7 +111,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
               <p data-testid="welcomeHeaderPrevMoves">
                 Select &quot;Create a Move&quot; to get started. <br />
                 <br />
-                Once you have validated your profile, pleasee click the &quot;Validate&quot; button and proceed to
+                Once you have validated your profile, please click the &quot;Validate&quot; button and proceed to
                 starting your move. <br />
                 If you encounter any issues please contact your local Transportation Office or the Help Desk for further
                 assistance.
