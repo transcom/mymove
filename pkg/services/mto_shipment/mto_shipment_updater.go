@@ -418,9 +418,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			// Only call the address updater service if there is an original destination address to be updated at all
 			if dbShipment.DestinationAddress != nil {
-				newDestinationAddress, err := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.DestinationAddress, etag.GenerateEtag(dbShipment.DestinationAddress.UpdatedAt))
-				if err != nil {
-					return err
+				newDestinationAddress, destAddErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.DestinationAddress, etag.GenerateEtag(dbShipment.DestinationAddress.UpdatedAt))
+				if destAddErr != nil {
+					return destAddErr
 				}
 				// Make sure the shipment has the updated DestinationAddressID to store
 				// in mto_shipments table
@@ -430,9 +430,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				if newShipment.DestinationAddress.ID == uuid.Nil {
 					// And this new address does not have an ID.
 					// We need to create a new one.
-					newDestinationAddress, err := f.addressCreator.CreateAddress(appCtx, newShipment.DestinationAddress)
-					if err != nil {
-						return err
+					newDestinationAddress, newDestAddErr := f.addressCreator.CreateAddress(appCtx, newShipment.DestinationAddress)
+					if newDestAddErr != nil {
+						return newDestAddErr
 					}
 					newShipment.DestinationAddressID = &newDestinationAddress.ID
 				} else {
@@ -451,9 +451,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			// If there is an existing, original address then we need to update it
 			if dbShipment.PickupAddress != nil {
-				newPickupAddress, err := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.PickupAddress, etag.GenerateEtag(dbShipment.PickupAddress.UpdatedAt))
-				if err != nil {
-					return err
+				newPickupAddress, newPickupErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.PickupAddress, etag.GenerateEtag(dbShipment.PickupAddress.UpdatedAt))
+				if newPickupErr != nil {
+					return newPickupErr
 				}
 
 				newShipment.PickupAddressID = &newPickupAddress.ID
@@ -462,9 +462,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				if newShipment.PickupAddress.ID == uuid.Nil {
 					// And this new address does not have an ID.
 					// We need to create a new one.
-					newPickupAddress, err := f.addressCreator.CreateAddress(appCtx, newShipment.PickupAddress)
-					if err != nil {
-						return err
+					newPickupAddress, newPickupAddCreateErr := f.addressCreator.CreateAddress(appCtx, newShipment.PickupAddress)
+					if newPickupAddCreateErr != nil {
+						return newPickupAddCreateErr
 					}
 					newShipment.PickupAddressID = &newPickupAddress.ID
 				} else {
@@ -492,17 +492,17 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			if dbShipment.SecondaryPickupAddress != nil {
 				// Secondary pickup address exists, meaning it should be updated
-				newSecondaryPickupAddress, err := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.SecondaryPickupAddress, etag.GenerateEtag(dbShipment.SecondaryPickupAddress.UpdatedAt))
-				if err != nil {
-					return err
+				newSecondaryPickupAddress, newSecondaryPickupUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.SecondaryPickupAddress, etag.GenerateEtag(dbShipment.SecondaryPickupAddress.UpdatedAt))
+				if newSecondaryPickupUpdateErr != nil {
+					return newSecondaryPickupUpdateErr
 				}
 				newShipment.SecondaryPickupAddressID = &newSecondaryPickupAddress.ID
 			} else if newShipment.SecondaryPickupAddressID == nil {
 				// Secondary pickup address appears to not exist yet, meaning it should be created
 				if newShipment.SecondaryPickupAddress.ID == uuid.Nil {
-					newSecondaryPickupAddress, err := f.addressCreator.CreateAddress(txnAppCtx, newShipment.SecondaryPickupAddress)
-					if err != nil {
-						return err
+					newSecondaryPickupAddress, newSecondaryPickupCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.SecondaryPickupAddress)
+					if newSecondaryPickupCreateErr != nil {
+						return newSecondaryPickupCreateErr
 					}
 					newShipment.SecondaryPickupAddressID = &newSecondaryPickupAddress.ID
 				} else {
@@ -519,17 +519,17 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			if dbShipment.SecondaryDeliveryAddress != nil {
 				// Secondary delivery address exists, meaning it should be updated
-				newSecondaryDeliveryAddress, err := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.SecondaryDeliveryAddress, etag.GenerateEtag(dbShipment.SecondaryDeliveryAddress.UpdatedAt))
-				if err != nil {
-					return err
+				newSecondaryDeliveryAddress, secondaryDeliveryUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.SecondaryDeliveryAddress, etag.GenerateEtag(dbShipment.SecondaryDeliveryAddress.UpdatedAt))
+				if secondaryDeliveryUpdateErr != nil {
+					return secondaryDeliveryUpdateErr
 				}
 				newShipment.SecondaryDeliveryAddressID = &newSecondaryDeliveryAddress.ID
 			} else if newShipment.SecondaryDeliveryAddressID == nil {
 				// Secondary delivery address appears to not exist yet, meaning it should be created
 				if newShipment.SecondaryDeliveryAddress.ID == uuid.Nil {
-					newSecondaryDeliveryAddress, err := f.addressCreator.CreateAddress(txnAppCtx, newShipment.SecondaryDeliveryAddress)
-					if err != nil {
-						return err
+					newSecondaryDeliveryAddress, secondaryDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.SecondaryDeliveryAddress)
+					if secondaryDeliveryCreateErr != nil {
+						return secondaryDeliveryCreateErr
 					}
 					newShipment.SecondaryDeliveryAddressID = &newSecondaryDeliveryAddress.ID
 				} else {
@@ -548,9 +548,29 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.StorageFacility.Address.ID = dbShipment.StorageFacility.AddressID
 				newShipment.StorageFacility.AddressID = dbShipment.StorageFacility.AddressID
 			}
-			err := txnAppCtx.DB().Save(&newShipment.StorageFacility.Address)
-			if err != nil {
-				return err
+			if dbShipment.StorageFacility != nil {
+				// Storage facility address exists, meaning we should update
+				newStorageFacilityAddress, storageFacilityUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, &newShipment.StorageFacility.Address, etag.GenerateEtag(dbShipment.StorageFacility.Address.UpdatedAt))
+				if storageFacilityUpdateErr != nil {
+					return storageFacilityUpdateErr
+				}
+				// Assign updated storage facility address to the updated shipment
+				newShipment.StorageFacility.AddressID = newStorageFacilityAddress.ID
+			} else {
+				// Make sure that the new storage facility address doesn't already have an ID.
+				// If it does, we just assign it. Otherwise, we need to create it.
+				if newShipment.StorageFacility.Address.ID != uuid.Nil && newShipment.StorageFacility.AddressID == uuid.Nil {
+					// Assign
+					newShipment.StorageFacility.AddressID = newShipment.StorageFacility.ID
+				} else if newShipment.StorageFacility.Address.ID == uuid.Nil {
+					// Create
+					newStorageFacilityAddress, storageFacilityCreateErr := f.addressCreator.CreateAddress(txnAppCtx, &newShipment.StorageFacility.Address)
+					if storageFacilityCreateErr != nil {
+						return storageFacilityCreateErr
+					}
+					// Assign newly created storage facility address to the updated shipment
+					newShipment.StorageFacility.AddressID = newStorageFacilityAddress.ID
+				}
 			}
 
 			err = txnAppCtx.DB().Save(newShipment.StorageFacility)
