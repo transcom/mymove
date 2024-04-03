@@ -97,6 +97,7 @@ services:
       - OKTA_OFFICE_CLIENT_ID=q1q1w2w2w1
       - OKTA_TENANT_CALLBACK_PORT=4000
       - OKTA_TENANT_CALLBACK_PROTOCOL=http
+      - OKTA_OFFICE_GROUP_ID=notrealgroupId
       - PGPASSWORD=mysecretpassword
       - REDIS_HOST=redis
       - SERVE_ADMIN=true
