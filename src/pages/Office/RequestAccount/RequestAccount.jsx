@@ -1,19 +1,26 @@
-import React from 'react';
-// import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
-import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 
-// import { setFlashMessage } from 'store/flash/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAccountForm';
-// import { createOfficeAccountRequest } from 'services/ghcApi';
-// import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { createOfficeAccountRequest } from 'services/ghcApi';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 export const RequestAccount = () => {
   const navigate = useNavigate();
-  // const [serverError, setServerError] = useState(null);
+  const [serverError, setServerError] = useState(null);
 
-  const initialValues = {};
+  const initialValues = {
+    officeAccountRequestFirstName: '',
+    officeAccountRequestMiddleInitial: '',
+    officeAccountRequestLastName: '',
+    officeAccountRequestEmail: '',
+    officeAccountRequestTelephone: '',
+    officeAccountRequestEdipi: '',
+    officeAccountRequestOtherUniqueId: '',
+    officeAccountTransportationOffice: undefined,
+  };
 
   const handleCancel = () => {
     navigate(-1);
@@ -53,34 +60,32 @@ export const RequestAccount = () => {
       });
     }
 
-    // const body = {
-    //   email: values.officeAccountRequestEmail,
-    //   edipi: values.officeAccountRequestEdipi,
-    //   otherUniqueId: values.officeAccountRequestOtherUniqueId,
-    //   firstName: values.officeAccountRequestFirstName,
-    //   middleInitials: values.officeAccountRequestMiddleInitial,
-    //   lastName: values.officeAccountRequestLastName,
-    //   telephone: values.officeAccountRequestTelephone,
-    //   transportationOfficeId: values.transportationOfficeId || 'c56a4180-65aa-42ec-a945-5fd21dec0538', // test with c56a4180-65aa-42ec-a945-5fd21dec0538
-    //   roles: requestedRoles,
-    // };
+    const body = {
+      email: values.officeAccountRequestEmail,
+      edipi: values.officeAccountRequestEdipi,
+      otherUniqueId: values.officeAccountRequestOtherUniqueId,
+      firstName: values.officeAccountRequestFirstName,
+      middleInitials: values.officeAccountRequestMiddleInitial,
+      lastName: values.officeAccountRequestLastName,
+      telephone: values.officeAccountRequestTelephone,
+      transportationOfficeId: values.officeAccountTransportationOffice.id,
+      roles: requestedRoles,
+    };
 
-    // console.log(body);
-
-    // return createOfficeAccountRequest({ body })
-    //   .then(() => {
-    //     setFlashMessage('OFFICE_ACCOUNT_REQUEST_SUCCESS', 'success', `Request for office account successful.`);
-    //     navigate(-1);
-    //   })
-    //   .catch(() => {
-    //     const errorMessage = 'Failed to submit office account request due to server error';
-    //     setServerError(errorMessage);
-    //   });
+    return createOfficeAccountRequest({ body })
+      .then(() => {
+        setFlashMessage('OFFICE_ACCOUNT_REQUEST_SUCCESS', 'success', `Request for office account successful.`);
+        navigate(-1);
+      })
+      .catch(() => {
+        const errorMessage = 'Failed to submit office account request due to server error';
+        setServerError(errorMessage);
+      });
   };
 
   return (
     <GridContainer>
-      {/* <NotificationScrollToTop dependency={serverError} />
+      <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
         <Grid row>
@@ -90,11 +95,11 @@ export const RequestAccount = () => {
             </Alert>
           </Grid>
         </Grid>
-      )} */}
+      )}
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <RequestAccountForm initialValues={initialValues} onCancel={handleCancel} onSubmit={handleSubmit} />
+          <RequestAccountForm onCancel={handleCancel} onSubmit={handleSubmit} initialValues={initialValues} />
         </Grid>
       </Grid>
     </GridContainer>
