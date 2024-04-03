@@ -16,7 +16,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
+        value: { styles: {}, text: '210' },
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -36,7 +36,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -60,7 +60,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
+        value: { styles: {}, text: '210' },
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -80,7 +80,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -104,7 +104,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
+        value: { styles: {}, text: '210' },
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -124,7 +124,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -149,7 +149,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
+        value: { styles: {}, text: '210' },
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -169,7 +169,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -193,7 +193,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
+        value: { styles: {}, text: '210' },
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -213,7 +213,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -231,7 +231,7 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
+        value: { styles: {}, text: '210' },
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -251,7 +251,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -284,7 +284,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.98',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -317,7 +317,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -350,7 +350,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -383,7 +383,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -421,7 +421,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -459,7 +459,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -497,7 +497,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -536,7 +536,7 @@ describe('makeCalculations', () => {
         },
         {
           value: '$999.99',
-          label: 'Total amount requested',
+          label: 'Fuel rate adjustment',
           details: [{ text: '', styles: {} }],
         },
       ]);
@@ -574,7 +574,7 @@ describe('makeCalculations', () => {
         },
         {
           value: '$999.99',
-          label: 'Total amount requested',
+          label: 'Fuel rate adjustment',
           details: [{ text: '', styles: {} }],
         },
       ]);
@@ -608,7 +608,7 @@ describe('makeCalculations', () => {
         },
         {
           value: '$999.99',
-          label: 'Total amount requested',
+          label: 'Fuel rate adjustment',
           details: [{ text: '', styles: {} }],
         },
       ]);
@@ -642,7 +642,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -680,7 +680,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -713,7 +713,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -746,7 +746,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -779,7 +779,7 @@ describe('makeCalculations', () => {
       },
       {
         details: [{ text: '', styles: {} }],
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         value: '$999.99',
       },
     ]);
@@ -812,7 +812,7 @@ describe('makeCalculations', () => {
       },
       {
         details: [{ text: '', styles: {} }],
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         value: '$999.99',
       },
     ]);
@@ -845,7 +845,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -870,23 +870,22 @@ describe('makeCalculations', () => {
         details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
       },
       {
-        value: '210',
+        value: { styles: {}, text: '210' },
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
       {
-        value: '0.1',
-        label: 'Fuel surcharge price (per mi)',
+        value: '0.088',
+        label: 'Mileage factor',
         details: [
-          { text: 'EIA diesel: $2.73', styles: {} },
-          { text: 'FRA: 2.0', styles: {} },
-          { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
+          { text: 'EIA diesel: $2.733', styles: {} },
+          { text: 'Baseline rate difference: 2.0 ¢', styles: {} },
         ],
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -906,18 +905,17 @@ describe('makeCalculations', () => {
         details: [{ text: 'ZIP 90210 to ZIP 90211', styles: {} }],
       },
       {
-        value: '0.0',
-        label: 'SIT fuel surcharge price (per mi)',
+        value: '0.012',
+        label: 'SIT mileage factor',
         details: [
-          { text: 'EIA diesel: $2.73', styles: {} },
-          { text: 'FRA: 2.0', styles: {} },
-          { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
+          { text: 'EIA diesel: $2.733', styles: {} },
+          { text: 'Baseline rate difference: 2.0 ¢', styles: {} },
         ],
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -937,18 +935,17 @@ describe('makeCalculations', () => {
         details: [{ text: 'ZIP 91910 to ZIP 94535', styles: {} }],
       },
       {
-        value: '0.0',
-        label: 'SIT fuel surcharge price (per mi)',
+        value: '0.012',
+        label: 'SIT mileage factor',
         details: [
-          { text: 'EIA diesel: $2.73', styles: {} },
-          { text: 'FRA: 2.0', styles: {} },
-          { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
+          { text: 'EIA diesel: $2.733', styles: {} },
+          { text: 'Baseline rate difference: 2.0 ¢', styles: {} },
         ],
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);

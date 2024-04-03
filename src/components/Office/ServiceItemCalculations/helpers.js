@@ -7,6 +7,7 @@ import {
   formatWeightCWTFromLbs,
   formatDollarFromMillicents,
   toDollarString,
+  formatDistanceUnitMiles,
 } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -90,6 +91,13 @@ const formatDetail = (detail, styles = {}) => {
   };
 };
 
+const formatMileage = (detail, styles = {}) => {
+  return {
+    text: formatDistanceUnitMiles(detail, false),
+    styles,
+  };
+};
+
 // billable weight calculation
 const formatWeightFromParams = (params, key) => {
   return formatWeight(parseInt(getParamValue(key, params), 10));
@@ -102,7 +110,7 @@ const formatWeightDetailText = (params, key) => {
   return paramValue ? detailText : '';
 };
 
-const billableWeight = (params) => {
+const billableWeight = (params, itemCode) => {
   const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
 
@@ -152,6 +160,17 @@ const billableWeight = (params) => {
     details.push(formatDetail(weightEstimatedDetail));
   }
 
+  const fscWeightBasedDistanceMultiplier = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
+  switch (itemCode) {
+    case (SERVICE_ITEM_CODES.DDSFSC, SERVICE_ITEM_CODES.DOSFSC, SERVICE_ITEM_CODES.FSC):
+      details.push(formatDetail(fscWeightBasedDistanceMultiplier));
+      break;
+    default:
+      break;
+  }
+
   return calculation(value, label, ...details);
 };
 
@@ -171,7 +190,7 @@ const shuttleBillableWeight = (params) => {
 };
 
 const mileageZip = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params);
+  const value = formatMileage(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
@@ -371,8 +390,8 @@ const priceEscalationFactorWithoutContractYear = (params) => {
   return calculation(value, label);
 };
 
-const fuelSurchargePrice = (params, itemCode) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
+const mileageFactor = (params, itemCode) => {
+  // to get the mileage factor (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
   // which gets the value in Cents to the tenths decimal place
   let distanceZip;
   switch (itemCode) {
@@ -390,35 +409,32 @@ const fuelSurchargePrice = (params, itemCode) => {
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
         getParamValue(distanceZip, params),
     ),
-  ).toFixed(1);
+  ).toFixed(3);
   const label =
     itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
       ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
       : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
 
-  const eiaFuelPrice = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
-  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params))}`;
-
-  const fuelRateAdjustment = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
-  }: ${formatCents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params), 1, 1)}`;
-
-  const fscWeightBasedDistanceMultiplier = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
-  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
-
   const actualPickupDate = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]
   }: ${formatDateWithUTC(getParamValue(SERVICE_ITEM_PARAM_KEYS.ActualPickupDate, params), 'DD MMM YYYY')}`;
 
+  const eiaFuelPrice = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
+  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params), 3)}`;
+
+  const baselineRateDifference = `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}: ${formatCents(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params),
+    1,
+    1,
+  )} \u00A2`;
+
   return calculation(
     value,
     label,
-    formatDetail(eiaFuelPrice),
-    formatDetail(fuelRateAdjustment),
-    formatDetail(fscWeightBasedDistanceMultiplier),
     formatDetail(actualPickupDate),
+    formatDetail(eiaFuelPrice),
+    formatDetail(baselineRateDifference),
   );
 };
 
@@ -599,7 +615,7 @@ const cratingSize = (params, mtoParams) => {
 // totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
-  const label = SERVICE_ITEM_CALCULATION_LABELS.TotalAmountRequested;
+  const label = SERVICE_ITEM_CALCULATION_LABELS.FuelRateAdjustment;
   const detail = '';
 
   return calculation(value, label, formatDetail(detail));
@@ -647,7 +663,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZip(params),
-        fuelSurchargePrice(params, itemCode),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
@@ -656,7 +672,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZipSIT(params, itemCode),
-        fuelSurchargePrice(params, itemCode),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
@@ -665,7 +681,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZipSIT(params, itemCode),
-        fuelSurchargePrice(params, itemCode),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
