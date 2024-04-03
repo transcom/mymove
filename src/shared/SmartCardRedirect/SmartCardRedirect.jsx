@@ -22,7 +22,7 @@ const SmartCardRedirect = () => (
       <p data-testid="contactMsg">
         If you continue to receive this error even after authenticating with a smart card,
         <br /> call (800) 462-2176, Option 2 or{' '}
-        <a href="mailto:usarmy.scott.sddc.mbx.g6-src-dps-hd@mail.mil" className="usa-link">
+        <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil" className="usa-link">
           email us
         </a>
         .

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Routes, Link, matchPath, Navigate } from 'react-router-dom';
@@ -203,10 +202,10 @@ export class OfficeApp extends Component {
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
                   If that doesn&apos;t fix it, contact the{' '}
-                  <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">
+                  <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
                     Technical Help Desk
                   </a>{' '}
-                  (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil) and give them this code: <strong>{traceId}</strong>
+                  (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
                 </SystemError>
               )}
               {oktaLoggedOut && <OktaLoggedOutBanner />}
@@ -282,6 +281,28 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+                    {activeRole === roleTypes.TIO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+                            <PaymentRequestQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+                    {activeRole === roleTypes.TOO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <MoveQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
@@ -448,8 +469,8 @@ export class OfficeApp extends Component {
                     <Route end path="/select-application" element={<ConnectedSelectApplication />} />
 
                     {/* ROOT */}
-                    {activeRole === roleTypes.TIO && <Route end path="/" element={<PaymentRequestQueue />} />}
-                    {activeRole === roleTypes.TOO && <Route end path="/" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
+                    {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}

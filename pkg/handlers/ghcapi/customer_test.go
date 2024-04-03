@@ -138,14 +138,14 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		StreetAddress1: handlers.FmtString("123 New Street"),
 		City:           handlers.FmtString("Newcity"),
 		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("12345"),
+		PostalCode:     handlers.FmtString("02110"),
 	}
 
 	backupAddress := ghcmessages.Address{
 		StreetAddress1: handlers.FmtString("123 Backup Street"),
 		City:           handlers.FmtString("Backupcity"),
 		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("67890"),
+		PostalCode:     handlers.FmtString("02115"),
 	}
 
 	affiliation := ghcmessages.AffiliationARMY

@@ -190,6 +190,220 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.Len(moves, 0)
 	})
 
+	suite.Run("search as TOO should return only moves with certain statuses", func() {
+		allowedTOOStatus := []models.MoveStatus{models.MoveStatusSUBMITTED, models.MoveStatusAPPROVALSREQUESTED, models.MoveStatusAPPROVED}
+		tioUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           tioUser.User.Roles,
+			OfficeUserID:    tioUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "AAAAAA",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+
+		factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "BBBBBB",
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+
+		factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "CCCCCC",
+					Status:  models.MoveStatusCANCELED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+
+		moves, totalCount, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{
+			CustomerName: models.StringPointer("grace griffin"),
+		})
+
+		for _, moveResult := range moves {
+			suite.Contains(allowedTOOStatus, moveResult.Status)
+		}
+
+		suite.NoError(err)
+		suite.Equal(2, totalCount)
+	})
+
+	suite.Run("search as TIO should return only moves containing certain statuses", func() {
+		allowedTIOStatus := []models.PaymentRequestStatus{models.PaymentRequestStatusReviewed, models.PaymentRequestStatusReviewedAllRejected, models.PaymentRequestStatusPaid, models.PaymentRequestStatusEDIError, models.PaymentRequestStatusDeprecated, models.PaymentRequestStatusPending}
+		tooUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           tooUser.User.Roles,
+			OfficeUserID:    tooUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		firstMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "AAAAAA",
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					MoveTaskOrderID: firstMove.ID,
+					Status:          models.PaymentRequestStatusPending,
+				},
+			},
+		}, nil)
+
+		secondMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "BBBBBB",
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					MoveTaskOrderID: secondMove.ID,
+					Status:          models.PaymentRequestStatusPaid,
+				},
+			},
+		}, nil)
+
+		thirdMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "CCCCCC",
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					MoveTaskOrderID: thirdMove.ID,
+					Status:          models.PaymentRequestStatusDeprecated,
+				},
+			},
+		}, nil)
+
+		fourthMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "DDDDDD",
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					MoveTaskOrderID: fourthMove.ID,
+					Status:          models.PaymentRequestStatusReceivedByGex,
+				},
+			},
+		}, nil)
+
+		fifthMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "EEEEEE",
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Grace"),
+					LastName:  models.StringPointer("Griffin"),
+				},
+			},
+		}, nil)
+
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					MoveTaskOrderID: fifthMove.ID,
+					Status:          models.PaymentRequestStatusSentToGex,
+				},
+			},
+		}, nil)
+
+		moves, totalCount, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{
+			CustomerName: models.StringPointer("Grace Griffin"),
+		})
+
+		for _, moveResult := range moves {
+
+			for _, paymentRequest := range moveResult.PaymentRequests {
+				suite.Contains(allowedTIOStatus, paymentRequest.Status)
+			}
+
+		}
+
+		suite.NoError(err)
+		suite.Equal(3, totalCount)
+	})
+
 	suite.Run("test pagination", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		session := auth.Session{
