@@ -78,6 +78,10 @@ type MTOShipment struct {
 	// secondary pickup address
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
+	// shipment locator
+	// Example: 1K43AR-01
+	ShipmentLocator string `json:"shipmentLocator,omitempty"`
+
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 

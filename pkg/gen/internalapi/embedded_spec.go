@@ -4384,6 +4384,10 @@ func init() {
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "shipmentLocator": {
+          "type": "string",
+          "example": "1K43AR-01"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
@@ -12182,6 +12186,10 @@ func init() {
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"

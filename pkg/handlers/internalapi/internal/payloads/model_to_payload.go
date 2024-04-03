@@ -140,6 +140,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ShipmentLocator:             *handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
 	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
 		payload.SecondaryPickupAddress = nil
