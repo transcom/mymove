@@ -11,7 +11,7 @@ export const DownloadAOAErrorModal = ({ closeModal }) => (
     <ModalClose handleClick={closeModal} />
     <SystemError>
       Something went wrong downloading PPM AOA paperwork. Please try again later. If that doesn&apos;t fix it, contact
-      the &nbsp;<a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>.
+      the &nbsp;<a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">Technical Help Desk</a>.
     </SystemError>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal} className={styles.Button}>
