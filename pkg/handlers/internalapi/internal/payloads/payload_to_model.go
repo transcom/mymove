@@ -25,7 +25,7 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
-		County:         address.County,
+		County:         *address.County,
 	}
 }
 

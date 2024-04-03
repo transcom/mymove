@@ -167,20 +167,20 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			State:          newDutyLocationAddress.State,
 			PostalCode:     newDutyLocationAddress.PostalCode,
 			Country:        newDutyLocationAddress.Country,
-			County:         &county,
+			County:         county,
 		}
 	}
 
 	// Populate address county information
-	if shipment.PickupAddress != nil && shipment.PickupAddress.County == nil {
-		*shipment.PickupAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
+	if shipment.PickupAddress != nil && shipment.PickupAddress.County == "" {
+		shipment.PickupAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == nil {
-		*shipment.DestinationAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
+	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == "" {
+		shipment.DestinationAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
@@ -199,7 +199,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			if errCounty != nil {
 				return errCounty
 			}
-			shipment.PickupAddress.County = &county
+			shipment.PickupAddress.County = county
 
 		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
@@ -216,7 +216,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			if errCounty != nil {
 				return errCounty
 			}
-			shipment.SecondaryPickupAddress.County = &county
+			shipment.SecondaryPickupAddress.County = county
 		}
 
 		if shipment.DestinationAddress != nil {
@@ -230,7 +230,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			if errCounty != nil {
 				return errCounty
 			}
-			shipment.DestinationAddress.County = &county
+			shipment.DestinationAddress.County = county
 		}
 
 		if shipment.SecondaryDeliveryAddress != nil {
@@ -244,7 +244,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			if errCounty != nil {
 				return errCounty
 			}
-			shipment.SecondaryDeliveryAddress.County = &county
+			shipment.SecondaryDeliveryAddress.County = county
 		}
 
 		if shipment.StorageFacility != nil {
@@ -258,7 +258,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			if errCounty != nil {
 				return errCounty
 			}
-			shipment.StorageFacility.Address.County = &county
+			shipment.StorageFacility.Address.County = county
 
 			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
 			if verrs != nil || err != nil {

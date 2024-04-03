@@ -471,7 +471,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
-			County:         models.StringPointer("County"),
+			County:         "County",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -544,7 +544,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
-			County:         models.StringPointer("County"),
+			County:         "County",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -616,7 +616,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
-			County:         models.StringPointer("County"),
+			County:         "County",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -688,7 +688,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
-			County:         models.StringPointer("County"),
+			County:         "County",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -760,7 +760,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
-			County:         models.StringPointer("County"),
+			County:         "County",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -833,7 +833,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
-			County:         models.StringPointer("County"),
+			County:         "County",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)

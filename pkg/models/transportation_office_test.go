@@ -10,7 +10,6 @@
 package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 )
 
@@ -29,7 +28,7 @@ func CreateTestShippingOffice(suite *ModelSuite) TransportationOffice {
 		City:           "Springfield",
 		State:          "AK",
 		PostalCode:     "99515",
-		County:         models.StringPointer("ANCHORAGE")}
+		County:         "ANCHORAGE"}
 	suite.MustSave(&address)
 	office := TransportationOffice{
 		Name:      "JPSO Supreme",
@@ -58,7 +57,7 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 		City:           "Sitka",
 		State:          "AK",
 		PostalCode:     "99835",
-		County:         models.StringPointer("county")}
+		County:         "county"}
 	suite.MustSave(&ppoAddress)
 	ppo := TransportationOffice{
 		Name:             "Best PPO of the North",

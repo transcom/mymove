@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -389,7 +388,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
-		County:         models.StringPointer("county"),
+		County:         "county",
 	}
 	suite.MustSave(&address)
 
@@ -441,7 +440,7 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
-		County:         models.StringPointer("county"),
+		County:         "county",
 	}
 	suite.MustSave(&address)
 

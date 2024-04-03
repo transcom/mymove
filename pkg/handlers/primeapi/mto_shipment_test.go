@@ -91,7 +91,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress1: &newAddress.StreetAddress1,
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
-			County:         newAddress.County,
+			County:         &newAddress.County,
 		}
 		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		destinationAddress = primemessages.Address{
@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress1: &newAddress.StreetAddress1,
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
-			County:         newAddress.County,
+			County:         &newAddress.County,
 		}
 		return handler, move
 
