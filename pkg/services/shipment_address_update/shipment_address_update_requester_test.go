@@ -808,7 +808,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		// Assert that the DSH service was created and is in an approved state
 		approvedServiceItems := suite.getServiceItemsByCode(update.Shipment.MTOServiceItems, models.ReServiceCodeDSH)
 		suite.Equal(approvedServiceItems[0].Status, models.MTOServiceItemStatusApproved)
-		
+
 		// Should have an equal number of rejected and approved service items
 		suite.Equal(len(approvedServiceItems), len(rejectedServiceItems))
 	})
