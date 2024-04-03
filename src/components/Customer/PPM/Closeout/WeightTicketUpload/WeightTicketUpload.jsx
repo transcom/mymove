@@ -8,10 +8,11 @@ import Hint from 'components/Hint';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import {
-  DocumentAndImageUploadInstructions,
+  WeightTicketUploadInstructions,
   SpreadsheetUploadInstructions,
   UploadDropZoneLabel,
   UploadDropZoneLabelMobile,
+  WeightEstimatorUrl,
 } from 'content/uploads';
 
 export const acceptableFileTypes = [
@@ -94,7 +95,7 @@ const WeightTicketUpload = ({
   const weightTicketUploadHint = () => {
     return missingWeightTicket && !weightTicketRentalAgreement
       ? SpreadsheetUploadInstructions
-      : DocumentAndImageUploadInstructions;
+      : WeightTicketUploadInstructions;
   };
 
   const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
@@ -115,7 +116,10 @@ const WeightTicketUpload = ({
           </Label>
         </div>
         {showError && <ErrorMessage>{errors[`${fieldName}`]}</ErrorMessage>}
-        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint()}</Hint>
+        <Hint className={styles.uploadTypeHint}>
+          {weightTicketUploadHint()}
+          <a href={WeightEstimatorUrl}>Weight Estimator spreadsheet</a>
+        </Hint>
         <FileUpload
           name={fieldName}
           className={fieldName}
