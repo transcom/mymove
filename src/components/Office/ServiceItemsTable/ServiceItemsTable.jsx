@@ -21,9 +21,9 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { ShipmentShape } from 'types';
 
 // Sorts service items in an order preferred by the customer
-// Currently only SIT & linehauls receives special sorting
+// Currently only SIT & shorthaul/linehaul receives special sorting
 // this current listed order goes:
-// linehaul
+// shorthaul & linehaul
 // other service items
 // origin SIT
 // destination SIT
