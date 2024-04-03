@@ -1661,6 +1661,33 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/actual-weight:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    get:
+      summary: Get the actual weight for a PPM shipment
+      description: |
+        Retrieves the actual weight for the specified PPM shipment.
+      operationId: getPPMActualWeight
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns actual weight for the specified PPM shipment.
+          schema:
+            $ref: '#/definitions/PPMActualWeight'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -7767,6 +7794,18 @@ definitions:
         x-omitempty: false
     required:
       - id
+  PPMActualWeight:
+    description: >-
+      The actual net weight of a single PPM shipment. Used during document
+      review for PPM closeout.
+    properties:
+      actualWeight:
+        example: 2000
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - actualWeight
   MTOServiceItemSingle:
     type: object
     properties:
