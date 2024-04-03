@@ -4188,6 +4188,7 @@ func init() {
         "submittedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "updatedAt": {
@@ -6233,6 +6234,9 @@ func init() {
         },
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "created_at": {
           "type": "string",
@@ -11984,6 +11988,7 @@ func init() {
         "submittedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "updatedAt": {
@@ -14032,6 +14037,9 @@ func init() {
         },
         "backup_mailing_address": {
           "$ref": "#/definitions/Address"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "created_at": {
           "type": "string",
