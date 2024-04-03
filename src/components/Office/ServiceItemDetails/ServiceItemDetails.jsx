@@ -66,15 +66,6 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                   : '-',
                 '# of days approved for': shipment.sitDaysAllowance ? `${numberOfDaysApprovedForDOASIT} days` : '-',
                 'SIT expiration date': sitEndDate || '-',
-                'Customer contacted homesafe': details.sitCustomerContacted
-                  ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
-                  : '-',
-                'Customer requested delivery date': details.sitRequestedDelivery
-                  ? formatDateWithUTC(details.sitRequestedDelivery, 'DD MMM YYYY')
-                  : '-',
-                'SIT departure date': details.sitDepartureDate
-                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
-                  : '-',
               },
               id,
             )
@@ -103,6 +94,15 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                   ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                   : '-',
                 'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
+                'Customer contacted homesafe': details.sitCustomerContacted
+                  ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
+                  : '-',
+                'Customer requested delivery date': details.sitRequestedDelivery
+                  ? formatDateWithUTC(details.sitRequestedDelivery, 'DD MMM YYYY')
+                  : '-',
+                'SIT departure date': details.sitDepartureDate
+                  ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
+                  : '-',
               },
               id,
             )
