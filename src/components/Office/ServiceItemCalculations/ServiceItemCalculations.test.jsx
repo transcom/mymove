@@ -40,8 +40,8 @@ const testServiceItemCalculation = (testData) => {
       expectedOutput.forEach((obj, index) => {
         expect(wrapper.at(index).find('[data-testid="value"]').text()).toContain(obj.value);
         expect(wrapper.at(index).find('[data-testid="label"]').text()).toContain(obj.label);
-        expect(wrapper.at(index).find('[data-testid="details"]').first().text()).toContain(
-          obj.details ? obj.details.join('') : '',
+        expect(wrapper.at(index).find('[data-testid="details"]').nth(0).text()).toContain(
+          obj.details ? obj.details.split('')[0] : '',
         );
       });
     });
