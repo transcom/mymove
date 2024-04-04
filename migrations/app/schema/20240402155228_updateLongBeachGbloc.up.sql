@@ -1,0 +1,1 @@
+update transportation_offices set gbloc = 'KKFA' where id ='f3ce3548-fb03-4e2e-b986-386a1adf2400';
