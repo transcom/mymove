@@ -289,6 +289,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		queryBuilder,
 		fetch.NewFetcher(queryBuilder),
 		moveRouter,
+		addressCreator,
 	)
 
 	primeDownloadMoveUploadPDFGenerator, err := paperwork_service.NewMoveUserUploadToPDFDownloader(pdfGenerator)
