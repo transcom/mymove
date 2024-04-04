@@ -1782,6 +1782,14 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       eTag:
         type: string
   MTOShipments:
@@ -2046,6 +2054,14 @@ definitions:
         $ref: '#/definitions/Address'
       hasSecondaryDeliveryAddress:
         type: boolean
+        x-nullable: true
+        x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
         x-nullable: true
         x-omitempty: false
       agents:
@@ -5341,6 +5357,8 @@ paths:
         * Delivery Address
         * Customer Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
