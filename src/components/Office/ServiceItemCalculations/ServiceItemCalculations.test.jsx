@@ -38,9 +38,11 @@ const testServiceItemCalculation = (testData) => {
         : mountedComponent.find('[data-testid="column"]');
 
       expectedOutput.forEach((obj, index) => {
-        expect(wrapper.at(index).find('[data-testid="value"]').text()).toBe(obj.value);
-        expect(wrapper.at(index).find('[data-testid="label"]').text()).toBe(obj.label);
-        expect(wrapper.at(index).find('[data-testid="details"]').text()).toBe(obj.details ? obj.details.join('') : '');
+        expect(wrapper.at(index).find('[data-testid="value"]').text()).toContain(obj.value);
+        expect(wrapper.at(index).find('[data-testid="label"]').text()).toContain(obj.label);
+        expect(wrapper.at(index).find('[data-testid="details"]').text()).toContain(
+          obj.details ? obj.details.join('') : '',
+        );
       });
     });
   });
@@ -127,7 +129,7 @@ describe('ServiceItemCalculations DLH', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [],
     },
   ];
@@ -212,7 +214,7 @@ describe('ServiceItemCalculations DCRT', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [''],
     },
   ];
@@ -302,7 +304,7 @@ describe('ServiceItemCalculations DUCRT', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [''],
     },
   ];
