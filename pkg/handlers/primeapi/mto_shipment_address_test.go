@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -13,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
@@ -37,11 +39,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 	setupTestData := func() (UpdateMTOShipmentAddressHandler, models.Move) {
 		// Make an available MTO
 		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{
 			suite.HandlerConfig(),
-			mtoshipment.NewMTOShipmentAddressUpdater(),
+			mtoshipment.NewMTOShipmentAddressUpdater(planner),
 		}
 		return handler, availableMove
 	}

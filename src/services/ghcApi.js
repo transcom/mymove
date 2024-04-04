@@ -83,6 +83,10 @@ export async function getPPMCloseout(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
 }
 
+export async function getPPMActualWeight(key, ppmShipmentId) {
+  return makeGHCRequest('ppm.getPPMActualWeight', { ppmShipmentId }, { normalize: false });
+}
+
 export async function patchPPMDocumentsSetStatus({ ppmShipmentId, eTag }) {
   return makeGHCRequest(
     'ppm.finishDocumentReview',
@@ -670,4 +674,8 @@ export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, bod
 
 export async function downloadPPMAOAPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
+}
+
+export async function downloadPPMPaymentPacket(ppmShipmentId) {
+  return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
