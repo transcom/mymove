@@ -133,7 +133,6 @@ export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
   };
 };
 
-
 // isBooleanFlagEnabled returns the Flipt feature flag value
 export function isBooleanFlagEnabled(flagKey) {
   return getBooleanFeatureFlagForUser(flagKey, {})
