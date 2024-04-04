@@ -913,7 +913,7 @@ export class CustomerPpmPage extends CustomerPage {
       stepContainer = this.page.locator('[data-testid="stepContainer5"]');
     }
 
-    await expect(stepContainer.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
+    await expect(stepContainer.getByRole('button', { name: 'Download Payment Packet' })).toBeDisabled();
     await expect(stepContainer.getByText(/PPM documentation submitted: \d{2} \w{3} \d{4}/)).toBeVisible();
   }
 
