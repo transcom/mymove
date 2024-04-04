@@ -535,5 +535,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		closeoutOfficeUpdater,
 	}
 
+	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{
+		handlerConfig,
+	}
+
 	return ghcAPI
 }

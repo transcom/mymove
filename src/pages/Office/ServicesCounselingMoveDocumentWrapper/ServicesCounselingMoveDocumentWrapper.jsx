@@ -15,11 +15,11 @@ const ServicesCounselingMoveDocumentWrapper = () => {
   const { pathname } = useLocation();
 
   const { upload, amendedUpload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
+  const hasDocuments = documentsForViewer?.length > 0;
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
 
   const showOrders = matchPath(
     {
@@ -37,7 +37,7 @@ const ServicesCounselingMoveDocumentWrapper = () => {
         </div>
       )}
       {showOrders ? (
-        <ServicesCounselingOrders moveCode={moveCode} />
+        <ServicesCounselingOrders moveCode={moveCode} hasDocuments={hasDocuments} />
       ) : (
         <ServicesCounselingMoveAllowances moveCode={moveCode} />
       )}
