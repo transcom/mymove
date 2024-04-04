@@ -48,6 +48,10 @@ const ServiceItemCalculations = ({
     shipmentType,
   );
 
+  function checkForEmptyString(input) {
+    return input.length > 0 ? input : '';
+  }
+
   return (
     <div
       className={classnames(styles.ServiceItemCalculations, {
@@ -81,7 +85,7 @@ const ServiceItemCalculations = ({
                         <small>
                           {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
                             ? `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}:`
-                            : detail.text}
+                            : checkForEmptyString(detail.text)}
                         </small>
                         <small>
                           {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
