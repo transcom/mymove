@@ -239,7 +239,7 @@ const ServicesCounselingQueue = () => {
   };
 
   const handleAddCustomerClick = () => {
-    navigate(generatePath(servicesCounselingRoutes.CUSTOMER_NAME_PATH));
+    navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
   };
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
