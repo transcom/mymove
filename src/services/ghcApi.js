@@ -675,3 +675,7 @@ export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, bod
 export async function downloadPPMAOAPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
 }
+
+export async function downloadPPMPaymentPacket(ppmShipmentId) {
+  return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}
