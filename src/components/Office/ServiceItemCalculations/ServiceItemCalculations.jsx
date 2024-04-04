@@ -7,7 +7,7 @@ import { makeCalculations } from './helpers';
 import styles from './ServiceItemCalculations.module.scss';
 
 import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
-import { allowedServiceItemCalculations } from 'constants/serviceItems';
+import { allowedServiceItemCalculations, SERVICE_ITEM_CALCULATION_LABELS } from 'constants/serviceItems';
 
 const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
 const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
@@ -48,9 +48,12 @@ const ServiceItemCalculations = ({
     shipmentType,
   );
 
+  function checkForEmptyString(input) {
+    return input.length > 0 ? input : '';
+  }
+
   return (
     <div
-      data-testid="ServiceItemCalculations"
       className={classnames(styles.ServiceItemCalculations, {
         [styles.ServiceItemCalculationsSmall]: tableSize === 'small',
       })}
@@ -62,36 +65,41 @@ const ServiceItemCalculations = ({
           [styles.flexGridSmall]: tableSize === 'small',
         })}
       >
-        {calculations.map((calc, index) => {
-          return (
-            <div data-testid="column" key={calc.label} className={styles.col}>
-              <p data-testid="value" className={styles.value}>
-                {appendSign(index, calculations.length)}
-                {calc.value}
-              </p>
-              <hr />
-              <div>
-                <p>
+        <div>
+          {calculations.map((calc, index) => {
+            return (
+              <div data-testid="column" key={calc.label} className={styles.col}>
+                <div data-testid="row" key={calc.value} className={styles.row}>
                   <small data-testid="label" className={styles.descriptionTitle}>
                     {calc.label}
                   </small>
-                </p>
-                <ul data-testid="details" className={styles.descriptionContent}>
-                  {calc.details &&
-                    calc.details.map((detail) => {
-                      return (
-                        <li key={detail.text}>
-                          <p>
-                            <small style={detail.styles}>{detail.text}</small>
-                          </p>
-                        </li>
-                      );
-                    })}
-                </ul>
+                  <small data-testid="value" className={styles.value}>
+                    {appendSign(index, calculations.length)}
+                    {calc.value}
+                  </small>
+                </div>
+                {calc.details &&
+                  calc.details.map((detail) => {
+                    return (
+                      <div data-testid="details" className={styles.row}>
+                        <small>
+                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
+                            ? `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}:`
+                            : checkForEmptyString(detail.text)}
+                        </small>
+                        <small>
+                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
+                            ? detail.text.substring(detail.text.indexOf(':') + 1)
+                            : ''}
+                        </small>
+                      </div>
+                    );
+                  })}
+                <hr />
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

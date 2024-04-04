@@ -127,7 +127,7 @@ describe('ServiceItemCalculations DLH', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [],
     },
   ];
@@ -212,7 +212,7 @@ describe('ServiceItemCalculations DCRT', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [''],
     },
   ];
@@ -302,7 +302,7 @@ describe('ServiceItemCalculations DUCRT', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [''],
     },
   ];
