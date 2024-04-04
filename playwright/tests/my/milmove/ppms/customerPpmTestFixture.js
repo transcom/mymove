@@ -49,7 +49,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async clickOnUploadPPMDocumentsButton() {
-    await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    // testing break circleCI tests
+    // await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
 
     await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
