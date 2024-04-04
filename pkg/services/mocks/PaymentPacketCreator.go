@@ -3,8 +3,11 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	io "io"
+
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
+	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -14,18 +17,56 @@ type PaymentPacketCreator struct {
 	mock.Mock
 }
 
-// CreatePaymentPacket provides a mock function with given fields: appCtx, ppmShipmentID
-func (_m *PaymentPacketCreator) CreatePaymentPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
-	ret := _m.Called(appCtx, ppmShipmentID)
+// Generate provides a mock function with given fields: appCtx, ppmShipmentID, addBookmarks, addWaterMarks
+func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (io.ReadCloser, error) {
+	ret := _m.Called(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r0 = rf(appCtx, ppmShipmentID)
+	var r0 io.ReadCloser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool, bool) (io.ReadCloser, error)); ok {
+		return rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool, bool) io.ReadCloser); ok {
+		r0 = rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(io.ReadCloser)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool, bool) error); ok {
+		r1 = rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GenerateDefault provides a mock function with given fields: appCtx, ppmShipmentID
+func (_m *PaymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
+	ret := _m.Called(appCtx, ppmShipmentID)
+
+	var r0 io.ReadCloser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (io.ReadCloser, error)); ok {
+		return rf(appCtx, ppmShipmentID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) io.ReadCloser); ok {
+		r0 = rf(appCtx, ppmShipmentID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(io.ReadCloser)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, ppmShipmentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewPaymentPacketCreator creates a new instance of PaymentPacketCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

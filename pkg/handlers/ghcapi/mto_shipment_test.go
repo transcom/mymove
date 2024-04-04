@@ -3605,10 +3605,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:             models.MTOShipmentStatusSubmitted,
-					UsesExternalVendor: true,
-					TACType:            &hhgLOAType,
-					Diversion:          true,
+					Status:                    models.MTOShipmentStatusSubmitted,
+					UsesExternalVendor:        true,
+					TACType:                   &hhgLOAType,
+					Diversion:                 true,
+					ActualProGearWeight:       models.PoundPointer(1000),
+					ActualSpouseProGearWeight: models.PoundPointer(253),
 				},
 			},
 		}, nil)
@@ -3625,6 +3627,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NoError(updatedShipment.Validate(strfmt.Default))
 
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(oldShipment.ActualProGearWeight, handlers.PoundPtrFromInt64Ptr(updatedShipment.ActualProGearWeight))
+		suite.Equal(oldShipment.ActualSpouseProGearWeight, handlers.PoundPtrFromInt64Ptr(updatedShipment.ActualSpouseProGearWeight))
 		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
 		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
