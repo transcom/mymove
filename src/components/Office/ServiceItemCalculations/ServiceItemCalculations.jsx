@@ -54,6 +54,7 @@ const ServiceItemCalculations = ({
 
   return (
     <div
+      data-testid="ServiceItemCalculations"
       className={classnames(styles.ServiceItemCalculations, {
         [styles.ServiceItemCalculationsSmall]: tableSize === 'small',
       })}
