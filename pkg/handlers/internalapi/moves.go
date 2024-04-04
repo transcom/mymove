@@ -98,6 +98,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			MoveCode:       move.Locator,
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
+			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
 		}
 
 		if move.PrimeCounselingCompletedAt != nil {
