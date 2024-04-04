@@ -168,7 +168,7 @@ func init() {
     },
     "/customer": {
       "post": {
-        "description": "Creates a customer with option to create an Okta profile account",
+        "description": "Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.",
         "consumes": [
           "application/json"
         ],
@@ -10987,7 +10987,7 @@ func init() {
     },
     "/customer": {
       "post": {
-        "description": "Creates a customer with option to create an Okta profile account",
+        "description": "Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.",
         "consumes": [
           "application/json"
         ],
