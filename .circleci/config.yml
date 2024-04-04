@@ -745,6 +745,8 @@ commands:
             export OKTA_ADMIN_SECRET_KEY=notrealkey2
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
 
             make server_test
@@ -775,6 +777,9 @@ commands:
             OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
             OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
             OKTA_API_KEY: notrealapikey8675309
+            OKTA_OFFICE_GROUP_ID: notrealgroupId
+            OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
   # SLOOOOOOW
@@ -842,6 +847,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
@@ -853,6 +861,11 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
+            export FEATURE_FLAG_PPM=true
+            export FEATURE_FLAG_NTS=true
+            export FEATURE_FLAG_NTSR=true
+            export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
+
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
 
@@ -875,7 +888,11 @@ commands:
             PLAYWRIGHT_MY_URL: http://milmovelocal:4000
             PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
-          # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            FEATURE_FLAG_PPM: 'true'
+            FEATURE_FLAG_NTS: 'true'
+            FEATURE_FLAG_NTSR: 'true'
+            FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -947,6 +964,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -1033,6 +1053,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
@@ -1240,7 +1263,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v9-spectral-lint-
+            - v11-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1299,7 +1322,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v9-spectral-lint-{{ .BuildNum }}
+                key: v11-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:

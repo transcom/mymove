@@ -775,6 +775,8 @@ paths:
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
@@ -1603,6 +1605,69 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/actual-weight:
+    parameters:
+      - $ref: "parameters/ppmShipmentId.yaml"
+    get:
+      summary: Get the actual weight for a PPM shipment
+      description: |
+        Retrieves the actual weight for the specified PPM shipment.
+      operationId: getPPMActualWeight
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Returns actual weight for the specified PPM shipment.
+          schema:
+            $ref: "definitions/PPMActualWeight.yaml"
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
+  /ppm-shipments/{ppmShipmentId}/payment-packet:
+    get:
+      summary: Returns PPM payment packet
+      description: Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.
+      operationId: showPaymentPacket
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppmShipment
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: PPM Payment Packet PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: ppm not found
+        '500':
+          description: internal server error
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -3138,6 +3203,14 @@ paths:
               shipmentsCount:
                 type: integer
                 x-nullable: true
+              pickupDate:
+                type: string
+                format: date-time
+                x-nullable: true
+              deliveryDate:
+                type: string
+                format: date-time
+                x-nullable: true
               sort:
                 type: string
                 x-nullable: true
@@ -4411,6 +4484,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       agents:
@@ -5112,6 +5193,18 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
       orderType:
         type: string
   SearchMovesResult:

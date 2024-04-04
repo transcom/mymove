@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
+	paperwork "github.com/transcom/mymove/pkg/paperwork"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/address"
 	customerserviceremarks "github.com/transcom/mymove/pkg/services/customer_support_remarks"
@@ -24,7 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	order "github.com/transcom/mymove/pkg/services/order"
-	"github.com/transcom/mymove/pkg/services/paperwork"
+	paperwork_service "github.com/transcom/mymove/pkg/services/paperwork"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
@@ -60,7 +60,18 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		moveRouter,
 	)
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
-	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator()
+
+	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	pdfGenerator, err := paperwork.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -264,19 +275,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		moveRouter,
 	)
 
-	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	primeDownloadMoveUploadPDFGenerator, err := paperwork_service.NewMoveUserUploadToPDFDownloader(pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(userUploader)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	Generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
-
-	AOAPacketCreator := ppmshipment.NewAOAPacketCreator(SSWPPMGenerator, SSWPPMComputer, primeDownloadMoveUploadPDFGenerator, userUploader, Generator)
+	AOAPacketCreator := ppmshipment.NewAOAPacketCreator(SSWPPMGenerator, SSWPPMComputer, primeDownloadMoveUploadPDFGenerator, userUploader, pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -492,6 +496,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ppmCloseoutFetcher,
 	}
 
+	ghcAPI.PpmGetPPMActualWeightHandler = GetPPMActualWeightHandler{
+		handlerConfig,
+		ppmCloseoutFetcher,
+		ppmshipment.NewPPMShipmentFetcher(),
+	}
+
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
 
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
@@ -528,6 +538,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		closeoutOfficeUpdater,
 	}
+
+	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
+	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
+	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	return ghcAPI
 }

@@ -48,6 +48,8 @@ Optional fields include:
 * Delivery Address
 * Customer Remarks
 * Releasing / Receiving agents
+* Actual Pro Gear Weight
+* Actual Spouse Pro Gear Weight
 */
 type UpdateMTOShipment struct {
 	Context *middleware.Context

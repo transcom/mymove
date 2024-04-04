@@ -156,6 +156,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		}),
+		PpmGetPPMActualWeightHandler: ppm.GetPPMActualWeightHandlerFunc(func(params ppm.GetPPMActualWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMActualWeight has not yet been implemented")
+		}),
 		PpmGetPPMCloseoutHandler: ppm.GetPPMCloseoutHandlerFunc(func(params ppm.GetPPMCloseoutParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		}),
@@ -224,6 +227,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmShowAOAPacketHandler: ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
+		}),
+		PpmShowPaymentPacketHandler: ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
 		}),
 		EvaluationReportsSubmitEvaluationReportHandler: evaluation_reports.SubmitEvaluationReportHandlerFunc(func(params evaluation_reports.SubmitEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SubmitEvaluationReport has not yet been implemented")
@@ -396,6 +402,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
+	// PpmGetPPMActualWeightHandler sets the operation handler for the get p p m actual weight operation
+	PpmGetPPMActualWeightHandler ppm.GetPPMActualWeightHandler
 	// PpmGetPPMCloseoutHandler sets the operation handler for the get p p m closeout operation
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
@@ -442,6 +450,8 @@ type MymoveAPI struct {
 	MoveSetFinancialReviewFlagHandler move.SetFinancialReviewFlagHandler
 	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
 	PpmShowAOAPacketHandler ppm.ShowAOAPacketHandler
+	// PpmShowPaymentPacketHandler sets the operation handler for the show payment packet operation
+	PpmShowPaymentPacketHandler ppm.ShowPaymentPacketHandler
 	// EvaluationReportsSubmitEvaluationReportHandler sets the operation handler for the submit evaluation report operation
 	EvaluationReportsSubmitEvaluationReportHandler evaluation_reports.SubmitEvaluationReportHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
@@ -659,6 +669,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
 	}
+	if o.PpmGetPPMActualWeightHandler == nil {
+		unregistered = append(unregistered, "ppm.GetPPMActualWeightHandler")
+	}
 	if o.PpmGetPPMCloseoutHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMCloseoutHandler")
 	}
@@ -727,6 +740,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmShowAOAPacketHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowAOAPacketHandler")
+	}
+	if o.PpmShowPaymentPacketHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowPaymentPacketHandler")
 	}
 	if o.EvaluationReportsSubmitEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SubmitEvaluationReportHandler")
@@ -1011,6 +1027,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/actual-weight"] = ppm.NewGetPPMActualWeight(o.context, o.PpmGetPPMActualWeightHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/closeout"] = ppm.NewGetPPMCloseout(o.context, o.PpmGetPPMCloseoutHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1100,6 +1120,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/aoa-packet"] = ppm.NewShowAOAPacket(o.context, o.PpmShowAOAPacketHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/payment-packet"] = ppm.NewShowPaymentPacket(o.context, o.PpmShowPaymentPacketHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
