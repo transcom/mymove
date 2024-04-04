@@ -115,7 +115,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
 		statusQuery = paymentRequestsStatusFilter(params.Status)
 	} else {
-		statusQuery = moveStatusFilter(params.Status)
+		statusQuery = moveStatusFilter(params.Status, appCtx.Session().Roles.HasRole(roles.RoleTypeTOO))
 	}
 
 	shipmentsCountQuery := shipmentsCountFilter(params.ShipmentsCount)
@@ -190,16 +190,20 @@ func destinationPostalCodeFilter(postalCode *string) QueryOption {
 	}
 }
 
-func moveStatusFilter(statuses []string) QueryOption {
+func moveStatusFilter(statuses []string, isTOO bool) QueryOption {
 	return func(query *pop.Query) {
 		if len(statuses) > 0 {
 			var translatedStatuses []string
-			for _, status := range statuses {
-				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
-				} else {
-					translatedStatuses = append(translatedStatuses, status)
+			if isTOO {
+				for _, status := range statuses {
+					if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
+						translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
+					} else {
+						translatedStatuses = append(translatedStatuses, status)
+					}
 				}
+			} else {
+				translatedStatuses = statuses
 			}
 			query.Where("moves.status in (?)", translatedStatuses)
 		}

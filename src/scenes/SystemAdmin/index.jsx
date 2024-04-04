@@ -43,12 +43,6 @@ class AdminWrapper extends Component {
         oktaNeedsLoggedOut: true,
       });
     }
-    const script = document.createElement('script');
-
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-    script.async = true;
-
-    document.body.appendChild(script);
   }
 
   componentDidCatch(error, info) {
@@ -59,6 +53,12 @@ class AdminWrapper extends Component {
 
   render() {
     const { oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
+    const script = document.createElement('script');
+
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+
+    document.body.appendChild(script);
     return (
       <>
         <div id="app-root">
