@@ -8,6 +8,9 @@ import { GetLoggedInUser } from 'utils/api';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
+import CUIHeader from 'components/CUIHeader/CUIHeader';
+
+import style from './index.module.scss';
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -62,16 +65,19 @@ class AdminWrapper extends Component {
     return (
       <>
         <div id="app-root">
+          <CUIHeader />
           {oktaLoggedOut && <OktaLoggedOutBanner />}
           {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
-          <Routes>
-            {/* no auth */}
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-            {/* system is basename of admin app, see https://marmelab.com/react-admin/Routing.html#using-react-admin-inside-a-route */}
-            <Route path="/system/*" element={this.state.isLoggedIn ? <Home /> : <SignIn />} />)
-            <Route path="*" element={<Navigate to="/system" />} />
-          </Routes>
+          <div className={style.center}>
+            <Routes>
+              {/* no auth */}
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/invalid-permissions" element={<InvalidPermissions />} />
+              {/* system is basename of admin app, see https://marmelab.com/react-admin/Routing.html#using-react-admin-inside-a-route */}
+              <Route path="/system/*" element={this.state.isLoggedIn ? <Home /> : <SignIn />} />)
+              <Route path="*" element={<Navigate to="/system" />} />
+            </Routes>
+          </div>
         </div>
         <div id="modal-root" />
       </>
