@@ -111,6 +111,8 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		shipmentaddressupdate.NewShipmentAddressUpdateRequester(handlerConfig.HHGPlanner(), addressCreator, moveRouter),
 	}
 
+	addressUpdater := address.NewAddressUpdater()
+
 	mtoShipmentUpdater := mtoshipment.NewPrimeMTOShipmentUpdater(
 		builder,
 		fetcher,
@@ -119,6 +121,8 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		moveWeights,
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
+		addressUpdater,
+		addressCreator,
 	)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
@@ -126,7 +130,6 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		moveRouter,
 	)
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
-	addressUpdater := address.NewAddressUpdater()
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
@@ -178,7 +181,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
 		handlerConfig,
-		mtoshipment.NewMTOShipmentAddressUpdater(handlerConfig.HHGPlanner()),
+		mtoshipment.NewMTOShipmentAddressUpdater(handlerConfig.HHGPlanner(), addressCreator, addressUpdater),
 	}
 
 	primeAPI.MtoShipmentCreateMTOAgentHandler = CreateMTOAgentHandler{
@@ -193,7 +196,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
 		handlerConfig,
-		mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, handlerConfig.HHGPlanner(), moveRouter, moveWeights, handlerConfig.NotificationSender(), paymentRequestShipmentRecalculator),
+		mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, handlerConfig.HHGPlanner(), moveRouter, moveWeights, handlerConfig.NotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter), handlerConfig.HHGPlanner()),
 	}

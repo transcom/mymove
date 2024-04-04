@@ -380,6 +380,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
+	addressUpdater := address.NewAddressUpdater()
+
 	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
 		handlerConfig,
 		mtoshipment.NewShipmentReweighRequester(),
@@ -392,6 +394,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
+			addressUpdater,
+			addressCreator,
 		),
 	}
 	mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(
@@ -402,9 +406,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
+		addressUpdater,
+		addressCreator,
 	)
 
-	addressUpdater := address.NewAddressUpdater()
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
