@@ -50,7 +50,6 @@ const ServiceItemCalculations = ({
 
   return (
     <div
-      data-testid="ServiceItemCalculations"
       className={classnames(styles.ServiceItemCalculations, {
         [styles.ServiceItemCalculationsSmall]: tableSize === 'small',
       })}
@@ -62,7 +61,7 @@ const ServiceItemCalculations = ({
           [styles.flexGridSmall]: tableSize === 'small',
         })}
       >
-        <div data-testid="ServiceItemCalculations">
+        <div>
           {calculations.map((calc, index) => {
             return (
               <div data-testid="column" key={calc.label} className={styles.col}>
