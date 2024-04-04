@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -31,9 +32,10 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
-import { isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -236,8 +238,13 @@ const ServicesCounselingQueue = () => {
     }
   };
 
+  const handleAddCustomerClick = () => {
+    navigate(generatePath(servicesCounselingRoutes.CUSTOMER_NAME_PATH));
+  };
+
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -313,7 +320,15 @@ const ServicesCounselingQueue = () => {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
-        <h1>Search for a move</h1>
+        <ConnectedFlashMessage />
+        <div className={styles.searchFormContainer}>
+          <h1>Search for a move</h1>
+          {searchHappened && counselorMoveCreateFeatureFlag && (
+            <Button type="submit" onClick={handleAddCustomerClick} className={styles.addCustomerBtn}>
+              Add Customer
+            </Button>
+          )}
+        </div>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
         {searchHappened && (
           <SearchResultsTable
