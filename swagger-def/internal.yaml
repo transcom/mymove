@@ -669,6 +669,8 @@ definitions:
         $ref: "#/definitions/IndexServiceMemberBackupContactsPayload"
       is_profile_complete:
         type: boolean
+      cac_validated:
+        type: boolean
       created_at:
         type: string
         format: date-time
@@ -2099,6 +2101,7 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+        x-nullable: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
       closeoutOffice:

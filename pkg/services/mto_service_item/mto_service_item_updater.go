@@ -298,7 +298,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		// Authorized End Date and Required Delivery Date
 		if (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
 			updatedServiceItem.Status == models.MTOServiceItemStatusApproved {
-			err = calculateSITAuthorizedAndRequirededDates(appCtx, mtoServiceItem, shipment, planner)
+			err = calculateSITDates(appCtx, mtoServiceItem, shipment, planner)
 		}
 	}
 
@@ -365,9 +365,9 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	return &requiredDeliveryDate, nil
 }
 
-// Calculate the Authorized End Date and the Required Delivery Date for the service item based on business logic using the
+// Calculate the Required Delivery Date for the service item based on business logic using the
 // Customer Contact Date, Customer Requested Delivery Date, and SIT Departure Date
-func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
+func calculateSITDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
 	planner route.Planner) error {
 	location := DestinationSITLocation
 
@@ -377,17 +377,7 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 
 	sitDepartureDate := serviceItem.SITDepartureDate
 
-	// Calculate authorized end date and required delivery date based on sitCustomerContacted and sitRequestedDelivery
-	// using the below business logic.
-	sitAuthorizedEndDate := sitDepartureDate
-
 	if location == OriginSITLocation {
-		// Origin SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
-		calculatedAuthorizedEndDate := serviceItem.SITCustomerContacted.AddDate(0, 0, GracePeriodDays)
-
-		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
-			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
-		}
 
 		if sitDepartureDate != nil {
 			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner,
@@ -399,49 +389,21 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 
 			shipment.RequiredDeliveryDate = requiredDeliveryDate
 		} else {
-			return apperror.NewNotFoundError(shipment.ID, "sit departure date not found")
-		}
-	} else if location == DestinationSITLocation {
-		// Destination SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
-		calculatedAuthorizedEndDate := serviceItem.SITRequestedDelivery.AddDate(0, 0, GracePeriodDays)
-
-		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
-			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
+			return apperror.NewNotFoundError(shipment.ID, "sit departure date not found, cannot update Required Delivery Date")
 		}
 	}
 
-	var verrs *validate.Errors
-	var err error
-
 	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
 	if location == OriginSITLocation {
-		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
+		var verrs *validate.Errors
+
+		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
 
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
 		} else if err != nil {
 			return apperror.NewQueryError("Shipment", err, "")
 		}
-	}
-
-	// We retrieve the old service item so we can get the required values to update with the new value for Authorized End Date
-	oldServiceItem, err := models.FetchServiceItem(appCtx.DB(), serviceItem.ID)
-	if err != nil {
-		switch err {
-		case models.ErrFetchNotFound:
-			return apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
-		default:
-			return apperror.NewQueryError("MTOServiceItem", err, "")
-		}
-	}
-
-	oldServiceItem.SITAuthorizedEndDate = sitAuthorizedEndDate
-	verrs, err = appCtx.DB().ValidateAndUpdate(&oldServiceItem)
-
-	if verrs != nil && verrs.HasAny() {
-		return apperror.NewInvalidInputError(oldServiceItem.ID, err, verrs, "invalid input found while updating the sit service item")
-	} else if err != nil {
-		return apperror.NewQueryError("Service item", err, "")
 	}
 
 	return nil

@@ -129,8 +129,7 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 			}
 
-			// We need to get the shipment in case we need to update the Authorized End Date and Required Delivery Dates
-			// for an Origin or Destination SIT service item
+			// We need to get the shipment in case we need to update the Required Delivery Date for an Origin SIT
 			eagerAssociations := []string{"MoveTaskOrder",
 				"PickupAddress",
 				"DestinationAddress",
@@ -181,6 +180,10 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 					}
 					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.UnprocessableEntityError:
+					verrs := validate.NewErrors()
+					return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 				default:
 					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err

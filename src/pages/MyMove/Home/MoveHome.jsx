@@ -410,7 +410,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
 
-  const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -426,11 +425,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
-          {isSpecialMove ? (
-            <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-              <p>BLUEBARK</p>
-            </div>
-          ) : null}
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <h2>
               {serviceMember.first_name} {serviceMember.last_name}
@@ -553,7 +547,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 >
                   {hasSubmittedMove() ? (
                     <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
-                      Move submitted {formatCustomerDate(move.submittedAt)}.<br />
+                      Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.<br />
                       <Button unstyled onClick={handlePrintLegalese} className={styles.printBtn}>
                         Print the legal agreement
                       </Button>

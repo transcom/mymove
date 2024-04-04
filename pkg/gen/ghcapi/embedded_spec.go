@@ -1572,6 +1572,11 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
+                "deliveryDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
+                },
                 "destinationPostalCode": {
                   "type": "string",
                   "x-nullable": true
@@ -1608,6 +1613,11 @@ func init() {
                 },
                 "perPage": {
                   "type": "integer"
+                },
+                "pickupDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
                 },
                 "shipmentsCount": {
                   "type": "integer",
@@ -2685,6 +2695,47 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/actual-weight": {
+      "get": {
+        "description": "Retrieves the actual weight for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the actual weight for a PPM shipment",
+        "operationId": "getPPMActualWeight",
+        "responses": {
+          "200": {
+            "description": "Returns actual weight for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMActualWeight"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
@@ -7608,6 +7659,20 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMActualWeight": {
+      "description": "The actual net weight of a single PPM shipment. Used during document review for PPM closeout.",
+      "required": [
+        "actualWeight"
+      ],
+      "properties": {
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMAdvanceStatus": {
       "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
@@ -8969,11 +9034,6 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
-            "sitAuthorizedEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -9020,6 +9080,9 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -9051,6 +9114,19 @@ func init() {
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"
@@ -12535,6 +12611,11 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
+                "deliveryDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
+                },
                 "destinationPostalCode": {
                   "type": "string",
                   "x-nullable": true
@@ -12571,6 +12652,11 @@ func init() {
                 },
                 "perPage": {
                   "type": "integer"
+                },
+                "pickupDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
                 },
                 "shipmentsCount": {
                   "type": "integer",
@@ -13928,6 +14014,67 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/actual-weight": {
+      "get": {
+        "description": "Retrieves the actual weight for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the actual weight for a PPM shipment",
+        "operationId": "getPPMActualWeight",
+        "responses": {
+          "200": {
+            "description": "Returns actual weight for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMActualWeight"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
@@ -19381,6 +19528,20 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMActualWeight": {
+      "description": "The actual net weight of a single PPM shipment. Used during document review for PPM closeout.",
+      "required": [
+        "actualWeight"
+      ],
+      "properties": {
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMAdvanceStatus": {
       "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
@@ -20747,11 +20908,6 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
-            "sitAuthorizedEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -20810,11 +20966,6 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "sitAuthorizedEndDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
         "sitCustomerContacted": {
           "type": "string",
           "format": "date",
@@ -20850,6 +21001,9 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -20881,6 +21035,19 @@ func init() {
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"
