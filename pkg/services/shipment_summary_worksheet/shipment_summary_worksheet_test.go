@@ -18,8 +18,11 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheet() {
@@ -731,8 +734,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
+	suite.FatalNoError(uploaderErr)
+	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNil(err)
+
 	SSWPPMComputer := NewSSWPPMComputer()
-	ppmGenerator, err := NewSSWPPMGenerator()
+	ppmGenerator, err := NewSSWPPMGenerator(generator)
 	suite.FatalNoError(err)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
