@@ -68,8 +68,8 @@ const ServiceItemCalculations = ({
         <div>
           {calculations.map((calc, index) => {
             return (
-              <div data-testid="column" key={calc.label} className={styles.col}>
-                <div data-testid="row" key={calc.value} className={styles.row}>
+              <div data-testid="column" className={styles.col}>
+                <div data-testid="row" className={styles.row}>
                   <small data-testid="label" className={styles.descriptionTitle}>
                     {calc.label}
                   </small>
