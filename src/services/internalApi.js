@@ -441,40 +441,6 @@ export async function deleteProGearWeightTicket(ppmShipmentId, proGearWeightTick
   );
 }
 
-/** PPMS */
-export async function calculatePPMEstimate(moveDate, originZip, originDutyLocationZip, ordersId, weightEstimate) {
-  return makeInternalRequest(
-    'ppm.showPPMEstimate',
-    {
-      original_move_date: moveDate,
-      origin_zip: originZip,
-      origin_duty_location_zip: originDutyLocationZip,
-      orders_id: ordersId,
-      weight_estimate: weightEstimate,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
-export async function calculatePPMSITEstimate(ppmId, moveDate, sitDays, originZip, ordersId, weightEstimate) {
-  return makeInternalRequest(
-    'ppm.showPPMSitEstimate',
-    {
-      personally_procured_move_id: ppmId,
-      original_move_date: moveDate,
-      days_in_storage: sitDays,
-      origin_zip: originZip,
-      orders_id: ordersId,
-      weight_estimate: weightEstimate,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
 export async function createMovingExpense(ppmShipmentId) {
   return makeInternalRequest(
     'ppm.createMovingExpense',
