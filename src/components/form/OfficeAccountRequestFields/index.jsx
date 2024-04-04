@@ -1,12 +1,12 @@
 import React from 'react';
-import { func, node, string } from 'prop-types';
+import { func } from 'prop-types';
 import { Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
 
-export const OfficeAccountRequestFields = ({ legend, className, render }) => {
+export const OfficeAccountRequestFields = ({ render }) => {
   const firstNameFieldName = 'officeAccountRequestFirstName';
   const middleInitialFieldName = 'officeAccountRequestMiddleInitial';
   const lastNameFieldName = 'officeAccountRequestLastName';
@@ -17,7 +17,7 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
 
   return (
-    <Fieldset legend={legend} className={className}>
+    <Fieldset>
       {render(
         <>
           <TextField label="First Name" name={firstNameFieldName} id="officeAccountRequestFirstName" />
@@ -92,14 +92,10 @@ export const OfficeAccountRequestFields = ({ legend, className, render }) => {
 };
 
 OfficeAccountRequestFields.propTypes = {
-  legend: node,
-  className: string,
   render: func,
 };
 
 OfficeAccountRequestFields.defaultProps = {
-  legend: '',
-  className: '',
   render: (fields) => fields,
 };
 
