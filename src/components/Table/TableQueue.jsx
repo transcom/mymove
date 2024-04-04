@@ -108,7 +108,7 @@ const TableQueue = ({
     }
   }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]);
 
-  if (isLoading) return <LoadingPlaceholder />;
+  if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   return (

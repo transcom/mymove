@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/move"
@@ -85,11 +86,17 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	setupHandler := func() UpdateMoveHandler {
 		builder := query.NewQueryBuilder()
 		moveRouter := move.NewMoveRouter()
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		return UpdateMoveHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(
 				builder,
-				mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
 				moveRouter,
 			),
 		}
