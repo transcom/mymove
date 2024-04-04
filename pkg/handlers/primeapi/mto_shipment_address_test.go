@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		StreetAddress1: "7 Q St",
 		City:           "Framington",
 		State:          "MA",
-		PostalCode:     "94055",
+		PostalCode:     "35004",
 	}
 
 	suite.Run("Success updating address", func() {
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
 			City:           "Alameda",
 			State:          "CA",
-			PostalCode:     "94055",
+			PostalCode:     "35004",
 		}
 
 		// Update with new address
@@ -268,7 +268,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			StreetAddress1: "7 Q St",
 			City:           "Framington",
 			State:          "MA",
-			PostalCode:     "94055",
+			PostalCode:     "35004",
 		}
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
