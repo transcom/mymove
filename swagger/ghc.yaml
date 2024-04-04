@@ -1659,6 +1659,33 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/actual-weight:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    get:
+      summary: Get the actual weight for a PPM shipment
+      description: |
+        Retrieves the actual weight for the specified PPM shipment.
+      operationId: getPPMActualWeight
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns actual weight for the specified PPM shipment.
+          schema:
+            $ref: '#/definitions/PPMActualWeight'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
