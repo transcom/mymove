@@ -332,6 +332,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
 		})
 	}
+	if api.PpmShowPaymentPacketHandler == nil {
+		api.PpmShowPaymentPacketHandler = ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
+		})
+	}
 	if api.EvaluationReportsSubmitEvaluationReportHandler == nil {
 		api.EvaluationReportsSubmitEvaluationReportHandler = evaluation_reports.SubmitEvaluationReportHandlerFunc(func(params evaluation_reports.SubmitEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SubmitEvaluationReport has not yet been implemented")
