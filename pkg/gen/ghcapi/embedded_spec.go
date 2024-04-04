@@ -9109,8 +9109,7 @@ func init() {
           "type": "string"
         },
         "orderType": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "originDutyLocationPostalCode": {
           "type": "string",
@@ -21034,8 +21033,7 @@ func init() {
           "type": "string"
         },
         "orderType": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "originDutyLocationPostalCode": {
           "type": "string",

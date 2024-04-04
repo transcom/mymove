@@ -5162,7 +5162,6 @@ definitions:
         $ref: '#/definitions/GBLOC'
       orderType:
         type: string
-        x-nullable: true
   SearchMovesResult:
     type: object
     properties:
