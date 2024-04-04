@@ -117,7 +117,7 @@ test.describe('About Form Date flow', () => {
     });
 
     test('Fill out About Form Date', async () => {
-      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMAboutForm();
+      await customerPpmOnboardingPage.navigateToAboutPage();
       await customerPpmOnboardingPage.fillOutAboutFormDate();
     });
   });
