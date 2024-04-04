@@ -18,8 +18,17 @@ test.describe('Services counselor user', () => {
     await page.locator('[data-testid="ShipmentContainer"] ').click();
 
     await expect(page.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2020');
-    await expect(page.locator('[data-testid="originZIP"]')).toContainText('90210');
-    await expect(page.locator('[data-testid="destinationZIP"]')).toContainText('30813');
+
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('SomeCity - Secondary');
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('CA');
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText('90210');
+
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('123 Street');
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('SomeCity');
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('TX');
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText('76127');
+
     await expect(page.locator('[data-testid="sitPlanned"]')).toContainText('No');
     await expect(page.locator('[data-testid="estimatedWeight"]')).toContainText('4,000 lbs');
     await expect(page.locator('[data-testid="hasRequestedAdvance"]')).toContainText('Yes, $5,987');
