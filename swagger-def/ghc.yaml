@@ -3465,6 +3465,9 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      gunSafe:
+        example: true
+        type: boolean
       eTag:
         type: string
     type: object
