@@ -181,7 +181,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
 		handlerConfig,
-		mtoshipment.NewMTOShipmentAddressUpdater(handlerConfig.HHGPlanner()),
+		mtoshipment.NewMTOShipmentAddressUpdater(handlerConfig.HHGPlanner(), addressCreator, addressUpdater),
 	}
 
 	primeAPI.MtoShipmentCreateMTOAgentHandler = CreateMTOAgentHandler{
