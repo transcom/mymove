@@ -190,7 +190,7 @@ const shuttleBillableWeight = (params) => {
 };
 
 const mileageZip = (params) => {
-  const value = formatMileage(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params));
+  const value = `${formatMileage(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params))}`;
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
