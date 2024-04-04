@@ -326,6 +326,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		if err != nil {
 			return nil, err
 		}
+
 		// calculating distance between the new address update & the SIT
 		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
 		if err != nil {
@@ -418,6 +419,11 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			if err != nil {
 				return err
 			}
+
+			err = mtoshipment.UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, &shipment, &addressUpdate.NewAddress, updateNeedsTOOReview)
+			if err != nil {
+				return err
+			}
 		}
 
 		// If the request needs TOO review, this will just update the UpdatedAt timestamp on the shipment
@@ -443,7 +449,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -455,8 +461,8 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
-		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator)
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, f.moveRouter)
+		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator)
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter)
 
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
@@ -552,6 +558,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 		if len(shipment.MTOServiceItems) > 0 {
 			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
+		}
+		if err != nil {
+			return err
+		}
+
+		if len(shipment.MTOServiceItems) > 0 {
+			err = mtoshipment.UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, &shipment, &addressUpdate.NewAddress, true)
 		}
 		if err != nil {
 			return err
