@@ -17,6 +17,38 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: cac_validated_login
+  name: CAC validated feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: ppm
+  name: PPM feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: nts
+  name: NTS feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: ntsr
+  name: NTSR feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: boolean_flag
   name: Boolean Flag
   type: BOOLEAN_FLAG_TYPE
