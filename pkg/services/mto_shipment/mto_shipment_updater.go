@@ -650,11 +650,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 	if len(autoReweighShipments) > 0 {
 		for _, shipment := range autoReweighShipments {
-			err := f.sender.SendNotification(appCtx,
-				notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
-			)
-			if err != nil {
-				return err
+			/* Don't send emails to BLUEBARK moves */
+			if shipment.MoveTaskOrder.Orders.OrdersType != "BLUEBARK" {
+				err := f.sender.SendNotification(appCtx,
+					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
+				)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
