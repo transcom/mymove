@@ -5080,6 +5080,11 @@ func init() {
         "grade": {
           "$ref": "#/definitions/Grade"
         },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -9628,6 +9633,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -16945,6 +16955,11 @@ func init() {
         "grade": {
           "$ref": "#/definitions/Grade"
         },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -21551,6 +21566,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
