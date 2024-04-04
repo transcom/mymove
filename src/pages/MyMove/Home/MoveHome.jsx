@@ -17,7 +17,7 @@ import {
 } from './HomeHelpers';
 
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
+import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -81,7 +81,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
-  const [showDownloadPPMAOAPaperworkErrorAlert, setShowDownloadPPMAOAPaperworkErrorAlert] = useState(false);
+  const [showDownloadPPMPaperworkErrorAlert, setShowDownloadPPMPaperworkErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -374,8 +374,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   };
 
-  const toggleDownloadAOAErrorModal = () => {
-    setShowDownloadPPMAOAPaperworkErrorAlert(!showDownloadPPMAOAPaperworkErrorAlert);
+  const togglePPMPacketErrorModal = () => {
+    setShowDownloadPPMPaperworkErrorAlert(!showDownloadPPMPaperworkErrorAlert);
   };
 
   // early return if loading user/service member
@@ -422,7 +422,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
+      <DownloadPacketErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -602,7 +602,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       id={shipment?.ppmShipment?.id}
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
-                                      onFailure={toggleDownloadAOAErrorModal}
+                                      onFailure={togglePPMPacketErrorModal}
                                     />
                                   </p>
                                 )}
@@ -655,7 +655,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     completedHeaderText="Manage your PPM"
                     step={hasAdvanceRequested() ? '6' : '5'}
                   >
-                    <PPMSummaryList shipments={ppmShipments} onUploadClick={handlePPMUploadClick} />
+                    <PPMSummaryList
+                      shipments={ppmShipments}
+                      onUploadClick={handlePPMUploadClick}
+                      onDownloadError={togglePPMPacketErrorModal}
+                    />
                   </Step>
                 )}
               </SectionWrapper>
