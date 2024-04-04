@@ -204,6 +204,16 @@ describe('Orders page', () => {
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
       expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
     });
+
+    it('renders an upload orders button when no orders are present', async () => {
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      expect(await screen.findByText('Add Orders')).toBeInTheDocument();
+    });
   });
 
   describe('TAC validation', () => {
