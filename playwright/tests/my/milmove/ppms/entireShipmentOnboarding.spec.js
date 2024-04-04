@@ -54,7 +54,6 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
       this.page.locator('[data-testid="stepContainer5"]');
     }
 
-    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(stepContainer.getByRole('button', { name: 'Upload PPM Documents' })).toBeDisabled();
     await expect(
       stepContainer.locator('p').getByText('After a counselor approves your PPM, you will be able to:'),
