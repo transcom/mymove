@@ -50,7 +50,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async clickOnUploadPPMDocumentsButton() {
     // testing break circleCI tests
-    // await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
 
     await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
@@ -89,7 +89,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.clickOnUploadPPMDocumentsButton();
 
     // test breaks circleCI tests
-    // await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
 
@@ -936,7 +936,7 @@ export class CustomerPpmPage extends CustomerPage {
     }
 
     // test breaks circleCI tests
-    // await this.page.getByRole('button', { name: 'Go to Move' }).click();
+    await this.page.getByRole('button', { name: 'Go to Move' }).click();
     await expect(stepContainer.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
     await expect(stepContainer.getByText(/PPM documentation submitted: \d{2} \w{3} \d{4}/)).toBeVisible();
   }
