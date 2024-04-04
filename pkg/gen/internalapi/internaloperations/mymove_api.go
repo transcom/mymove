@@ -204,6 +204,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersShowOrdersHandler: orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		}),
+		PpmShowPaymentPacketHandler: ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
+		}),
 		QueuesShowQueueHandler: queues.ShowQueueHandlerFunc(func(params queues.ShowQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.ShowQueue has not yet been implemented")
 		}),
@@ -397,6 +400,8 @@ type MymoveAPI struct {
 	OktaProfileShowOktaInfoHandler okta_profile.ShowOktaInfoHandler
 	// OrdersShowOrdersHandler sets the operation handler for the show orders operation
 	OrdersShowOrdersHandler orders.ShowOrdersHandler
+	// PpmShowPaymentPacketHandler sets the operation handler for the show payment packet operation
+	PpmShowPaymentPacketHandler ppm.ShowPaymentPacketHandler
 	// QueuesShowQueueHandler sets the operation handler for the show queue operation
 	QueuesShowQueueHandler queues.ShowQueueHandler
 	// ServiceMembersShowServiceMemberHandler sets the operation handler for the show service member operation
@@ -653,6 +658,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrdersShowOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.ShowOrdersHandler")
+	}
+	if o.PpmShowPaymentPacketHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowPaymentPacketHandler")
 	}
 	if o.QueuesShowQueueHandler == nil {
 		unregistered = append(unregistered, "queues.ShowQueueHandler")
@@ -984,6 +992,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/orders/{ordersId}"] = orders.NewShowOrders(o.context, o.OrdersShowOrdersHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/payment-packet"] = ppm.NewShowPaymentPacket(o.context, o.PpmShowPaymentPacketHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
