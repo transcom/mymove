@@ -114,14 +114,6 @@ definitions:
     properties:
       certificate:
         $ref: '#/definitions/CreateSignedCertificationPayload'
-  PPMSitEstimate:
-    type: object
-    properties:
-      estimate:
-        type: integer
-        title: Value in cents of SIT estimate for PPM
-    required:
-      - estimate
   PPMEstimateRange:
     type: object
     properties:
@@ -1790,6 +1782,14 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       eTag:
         type: string
   MTOShipments:
@@ -2054,6 +2054,14 @@ definitions:
         $ref: '#/definitions/Address'
       hasSecondaryDeliveryAddress:
         type: boolean
+        x-nullable: true
+        x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
         x-nullable: true
         x-omitempty: false
       agents:
@@ -3372,115 +3380,6 @@ definitions:
         package: github.com/transcom/mymove/pkg/swagger/nullable
       type: String
 paths:
-  /estimates/ppm:
-    get:
-      summary: Return a PPM cost estimate
-      description: Calculates a reimbursement range for a PPM move (excluding SIT)
-      operationId: showPPMEstimate
-      tags:
-        - ppm
-      parameters:
-        - in: query
-          name: original_move_date
-          type: string
-          format: date
-          required: true
-        - in: query
-          name: origin_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: origin_duty_location_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: orders_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: weight_estimate
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: Made estimate of PPM cost range
-          schema:
-            $ref: '#/definitions/PPMEstimateRange'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: >-
-            ppm discount not found for provided postal codes and original move
-            date
-        '409':
-          description: distance is less than 50 miles (no short haul moves)
-        '422':
-          description: cannot process request with given information
-        '500':
-          description: internal server error
-  /estimates/ppm_sit:
-    get:
-      summary: Return a PPM move's SIT cost estimate
-      description: Calculates a reimbursment for a PPM move's SIT
-      operationId: showPPMSitEstimate
-      tags:
-        - ppm
-      parameters:
-        - in: query
-          name: personally_procured_move_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: original_move_date
-          type: string
-          format: date
-          required: true
-        - in: query
-          name: days_in_storage
-          type: integer
-          required: true
-        - in: query
-          name: origin_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: orders_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: weight_estimate
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: show PPM SIT estimate
-          schema:
-            $ref: '#/definitions/PPMSitEstimate'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '409':
-          description: distance is less than 50 miles (no short haul moves)
-        '422':
-          description: the payload was unprocessable
-        '500':
-          description: internal server error
   /feature-flags/user-boolean/{key}:
     post:
       summary: Determines if a user has a feature flag enabled
@@ -4245,6 +4144,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/payment-packet:
+    get:
+      summary: Returns PPM payment packet
+      description: >-
+        Generates a PDF containing all user uploaded documentations for PPM.
+        Contains SSW form, orders, weight and expense documentations.
+      operationId: showPaymentPacket
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppmShipment
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: PPM Payment Packet PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: ppm not found
+        '500':
+          description: internal server error
   /documents:
     post:
       summary: Create a new document
@@ -5425,6 +5362,8 @@ paths:
         * Delivery Address
         * Customer Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
