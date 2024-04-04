@@ -23,3 +23,15 @@
   display: block;
   color: red;
 }
+
+.searchFormContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.addCustomerBtn {
+  height: 43px;
+  width: 150px;
+  background-color: $link;
+}
