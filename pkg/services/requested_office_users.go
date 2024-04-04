@@ -6,7 +6,7 @@ import (
 )
 
 // RequestedOfficeUserListFetcher is the exported interface for fetching multiple requested office users
-
+//
 //go:generate mockery --name RequestedOfficeUserListFetcher
 type RequestedOfficeUserListFetcher interface {
 	FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.OfficeUsers, error)

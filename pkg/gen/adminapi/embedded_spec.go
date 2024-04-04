@@ -1254,7 +1254,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user that is in a REQUESTED status",
+        "description": "Retrieving a single office user in any status",
         "produces": [
           "application/json"
         ],
@@ -3131,6 +3131,13 @@ func init() {
       }
     },
     {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
       "description": "Information about users",
       "name": "Users",
       "externalDocs": {
@@ -4383,7 +4390,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user that is in a REQUESTED status",
+        "description": "Retrieving a single office user in any status",
         "produces": [
           "application/json"
         ],
@@ -6260,6 +6267,13 @@ func init() {
     {
       "description": "Information about uploads",
       "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

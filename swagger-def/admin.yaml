@@ -55,6 +55,10 @@ tags:
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
+  - name: Requested Office Users
+    description: Information about requested office users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: Users
     description: Information about users
     externalDocs:
@@ -1147,7 +1151,7 @@ paths:
       produces:
         - application/json
       summary: Get a Requested Office User
-      description: Retrieving a single office user that is in a REQUESTED status
+      description: Retrieving a single office user in any status
       operationId: getRequestedOfficeUser
       tags:
         - Requested office users

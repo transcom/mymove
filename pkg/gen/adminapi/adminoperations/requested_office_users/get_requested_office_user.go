@@ -34,7 +34,7 @@ func NewGetRequestedOfficeUser(ctx *middleware.Context, handler GetRequestedOffi
 
 # Get a Requested Office User
 
-Retrieving a single office user that is in a REQUESTED status
+Retrieving a single office user in any status
 */
 type GetRequestedOfficeUser struct {
 	Context *middleware.Context
