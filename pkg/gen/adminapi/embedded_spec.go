@@ -1193,7 +1193,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested Office users"
+          "Requested office users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -1235,6 +1235,48 @@ func init() {
                 "type": "string",
                 "description": "Used for pagination"
               }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/requested-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Get a Requested Office User",
+        "operationId": "getRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
             }
           },
           "400": {
@@ -3153,6 +3195,13 @@ func init() {
       }
     },
     {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
       "description": "Information about users",
       "name": "Users",
       "externalDocs": {
@@ -4344,7 +4393,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested Office users"
+          "Requested office users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -4386,6 +4435,48 @@ func init() {
                 "type": "string",
                 "description": "Used for pagination"
               }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/requested-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Get a Requested Office User",
+        "operationId": "getRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
             }
           },
           "400": {
@@ -6304,6 +6395,13 @@ func init() {
     {
       "description": "Information about uploads",
       "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
