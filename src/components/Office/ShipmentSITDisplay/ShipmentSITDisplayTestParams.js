@@ -82,7 +82,6 @@ export const SITStatusOriginAuthorized = {
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
     sitAllowanceEndDate: '2021-08-28',
-    sitAuthorizedEndDate: '2021-08-13',
     sitCustomerContacted: '2021-08-26',
     sitRequestedDelivery: '2021-08-30',
   },

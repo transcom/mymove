@@ -34,6 +34,10 @@ type PPMCloseout struct {
 	SITReimbursement      *unit.Cents
 }
 
+type PPMActualWeight struct {
+	ActualWeight *unit.Pound
+}
+
 // PPMShipmentStatus represents the status of an order record's lifecycle
 type PPMShipmentStatus string
 
@@ -53,7 +57,7 @@ const (
 	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
-	PPMShipmentStatusComplete PPMStatus = "COMPLETED"
+	PPMShipmentStatusComplete PPMShipmentStatus = "COMPLETED"
 )
 
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
@@ -257,8 +261,19 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 
 }
+func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, weightTicket := range ppm.WeightTickets {
+		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
+			totalNetWeight += *weightTicket.AdjustedNetWeight
+		} else {
+			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
+		}
+	}
+	return totalNetWeight
+}
 
-// FetchMoveByMoveID returns a Move for a given id
+// FetchPPMShipmentByPPMShipmentID returns a PPM Shipment for a given id
 func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 	err := db.Q().Find(&ppmShipment, ppmShipmentID)
@@ -270,15 +285,4 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
-}
-func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
-	totalNetWeight := unit.Pound(0)
-	for _, weightTicket := range ppm.WeightTickets {
-		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
-			totalNetWeight += *weightTicket.AdjustedNetWeight
-		} else {
-			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
-		}
-	}
-	return totalNetWeight
 }

@@ -6,11 +6,13 @@ import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
 
 import Table from 'components/Table/Table';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, ROLE_TYPE_OPTIONS, SortShape } from 'constants/queues';
-import { serviceMemberAgencyLabel } from 'utils/formatters';
+import { DATE_FORMAT_STRING } from 'shared/constants';
+import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
@@ -27,7 +29,12 @@ const columns = (roleType) => [
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.lastName}, ${row.firstName}`;
+      return (
+        <div>
+          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {`${row.lastName}, ${row.firstName}`}
+        </div>
+      );
     },
     {
       id: 'customerName',
@@ -54,26 +61,6 @@ const columns = (roleType) => [
     },
   ),
   createHeader(
-    'Origin ZIP',
-    (row) => {
-      return row.originDutyLocationPostalCode;
-    },
-    {
-      id: 'originPostalCode',
-      isFilterable: true,
-    },
-  ),
-  createHeader(
-    'Destination ZIP',
-    (row) => {
-      return row.destinationDutyLocationPostalCode;
-    },
-    {
-      id: 'destinationPostalCode',
-      isFilterable: true,
-    },
-  ),
-  createHeader(
     'Branch',
     (row) => {
       return serviceMemberAgencyLabel(row.branch);
@@ -93,6 +80,72 @@ const columns = (roleType) => [
       return Number(row.shipmentsCount || 0);
     },
     { id: 'shipmentsCount', isFilterable: true },
+  ),
+  createHeader(
+    'Pickup Date',
+    (row) => {
+      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'pickupDate',
+      disableSortBy: true,
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
+    'Origin ZIP',
+    (row) => {
+      return row.originDutyLocationPostalCode;
+    },
+    {
+      id: 'originPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Origin GBLOC',
+    (row) => {
+      return row.originGBLOC;
+    },
+    {
+      id: 'originGBLOC',
+      disableSortBy: true,
+    },
+  ),
+  createHeader(
+    'Delivery Date',
+    (row) => {
+      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'deliveryDate',
+      disableSortBy: true,
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
+    'Destination ZIP',
+    (row) => {
+      return row.destinationDutyLocationPostalCode;
+    },
+    {
+      id: 'destinationPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Destination GBLOC',
+    (row) => {
+      return row.destinationGBLOC;
+    },
+    {
+      id: 'destinationGBLOC',
+      disableSortBy: true,
+    },
   ),
 ];
 

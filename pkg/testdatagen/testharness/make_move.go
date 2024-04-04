@@ -14,7 +14,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -88,6 +87,7 @@ func MakeMoveWithOrders(db *pop.Connection) models.Move {
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -109,6 +109,7 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 				PersonalEmail: models.StringPointer(userInfo.email),
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -120,64 +121,6 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	}, nil)
 
 	return move
-}
-
-func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
-	userInfo := newUserInfo("customer")
-	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
-			},
-		},
-	}, nil)
-
-	cal := dates.NewUSCalendar()
-	nextValidMoveDate := dates.NextValidMoveDate(time.Now(), cal)
-
-	nextValidMoveDateMinusTen := dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
-	pastTime := nextValidMoveDateMinusTen
-
-	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        user.ID,
-			PersonalEmail: models.StringPointer(userInfo.email),
-			FirstName:     models.StringPointer(userInfo.firstName),
-			LastName:      models.StringPointer(userInfo.lastName),
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &pastTime,
-		},
-	})
-
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    ppm1.Move,
-			LinkOnly: true,
-		},
-	}, nil)
-	moveRouter := moverouter.NewMoveRouter()
-	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = moveRouter.Approve(appCtx, &ppm1.Move)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
-	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-	}
-
-	// re-fetch the move so that we ensure we have exactly what is in
-	// the db
-	move, err := models.FetchMove(appCtx.DB(), &auth.Session{}, ppm1.Move.ID)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
-	}
-	return *move
 }
 
 func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
@@ -192,6 +135,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -266,6 +210,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -892,6 +837,7 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Edipi:         models.StringPointer(dodID),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -961,6 +907,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1147,6 +1094,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1664,6 +1612,7 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -3069,7 +3018,6 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 
 func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
-
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
@@ -3859,6 +3807,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3991,6 +3940,7 @@ func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4123,6 +4073,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4253,6 +4204,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4368,6 +4320,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4505,6 +4458,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4618,6 +4572,7 @@ func MakeHHGMoveInSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4731,6 +4686,7 @@ func MakeHHGMoveInSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4844,6 +4800,7 @@ func MakeHHGMoveInSITDeparted(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4958,6 +4915,7 @@ func MakeHHGMoveInSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5069,6 +5027,7 @@ func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5189,6 +5148,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5272,6 +5232,7 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5354,6 +5315,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5447,6 +5409,7 @@ func MakeMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Affiliation:   &userAffiliation,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -6085,6 +6048,7 @@ func MakeCoastGuardMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Affiliation:   &userAffiliation,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -6729,6 +6693,7 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{

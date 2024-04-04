@@ -156,6 +156,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		}),
+		PpmGetPPMActualWeightHandler: ppm.GetPPMActualWeightHandlerFunc(func(params ppm.GetPPMActualWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMActualWeight has not yet been implemented")
+		}),
 		PpmGetPPMCloseoutHandler: ppm.GetPPMCloseoutHandlerFunc(func(params ppm.GetPPMCloseoutParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		}),
@@ -399,6 +402,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
+	// PpmGetPPMActualWeightHandler sets the operation handler for the get p p m actual weight operation
+	PpmGetPPMActualWeightHandler ppm.GetPPMActualWeightHandler
 	// PpmGetPPMCloseoutHandler sets the operation handler for the get p p m closeout operation
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
@@ -663,6 +668,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
+	}
+	if o.PpmGetPPMActualWeightHandler == nil {
+		unregistered = append(unregistered, "ppm.GetPPMActualWeightHandler")
 	}
 	if o.PpmGetPPMCloseoutHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMCloseoutHandler")
@@ -1016,6 +1024,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/orders/{orderID}"] = order.NewGetOrder(o.context, o.OrderGetOrderHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/actual-weight"] = ppm.NewGetPPMActualWeight(o.context, o.PpmGetPPMActualWeightHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

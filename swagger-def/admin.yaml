@@ -55,6 +55,10 @@ tags:
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
+  - name: Requested Office Users
+    description: Information about requested office users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: Users
     description: Information about users
     externalDocs:
@@ -646,6 +650,22 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -664,6 +684,10 @@ definitions:
       - transportationOfficeId
       - active
       - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
       - createdAt
       - updatedAt
   OfficeUserCreate:
@@ -697,6 +721,11 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
+      privileges:
+        type: array
+        x-nullable: true
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserUpdate:
     type: object
     properties:
@@ -730,6 +759,10 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserRole:
     type: object
     properties:
@@ -743,6 +776,19 @@ definitions:
         example: 'transportation_ordering_officer'
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Supervisor'
+        x-nullable: true
+        title: name
+      privilegeType:
+        type: string
+        example: 'supervisor'
+        x-nullable: true
+        title: privilegeType
   OfficeUsers:
     type: array
     items:
@@ -813,6 +859,27 @@ definitions:
       - roleName
       - createdAt
       - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   ServiceMember:
     type: object
     properties:
@@ -1083,6 +1150,77 @@ definitions:
       FAILING: Failing
       DISABLED: Disabled
 paths:
+  /requested-office-users:
+    get:
+      produces:
+        - application/json
+      summary: List of Office Users Requesting Accounts
+      description:
+        $ref: paths/office-users/get/description.md
+      operationId: indexRequestedOfficeUsers
+      tags:
+        - Requested office users
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/OfficeUsers'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
+  /requested-office-users/{officeUserId}:
+    get:
+      produces:
+        - application/json
+      summary: Get a Requested Office User
+      description: Retrieving a single office user in any status
+      operationId: getRequestedOfficeUser
+      tags:
+        - Requested office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
   /office-users:
     get:
       produces:

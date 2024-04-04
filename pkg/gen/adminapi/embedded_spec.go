@@ -1186,6 +1186,114 @@ func init() {
         }
       }
     },
+    "/requested-office-users": {
+      "get": {
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "List of Office Users Requesting Accounts",
+        "operationId": "indexRequestedOfficeUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/requested-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Get a Requested Office User",
+        "operationId": "getRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
@@ -2335,6 +2443,10 @@ func init() {
         "transportationOfficeId",
         "active",
         "roles",
+        "edipi",
+        "otherUniqueId",
+        "rejectionReason",
+        "status",
         "createdAt",
         "updatedAt"
       ],
@@ -2346,6 +2458,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "edipi": {
+          "type": "string"
         },
         "email": {
           "type": "string",
@@ -2366,11 +2481,31 @@ func init() {
         "middleInitials": {
           "type": "string"
         },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
         "roles": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
           }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REQUESTED",
+            "REJECTED"
+          ]
         },
         "telephone": {
           "type": "string",
@@ -2414,6 +2549,13 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": true
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -2430,6 +2572,23 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -2472,6 +2631,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "roles": {
           "type": "array",
@@ -2547,6 +2712,34 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
       }
     },
     "Role": {
@@ -2997,6 +3190,13 @@ func init() {
     {
       "description": "Information about uploads",
       "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
@@ -4186,6 +4386,114 @@ func init() {
         }
       }
     },
+    "/requested-office-users": {
+      "get": {
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "List of Office Users Requesting Accounts",
+        "operationId": "indexRequestedOfficeUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/requested-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested office users"
+        ],
+        "summary": "Get a Requested Office User",
+        "operationId": "getRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
@@ -5336,6 +5644,10 @@ func init() {
         "transportationOfficeId",
         "active",
         "roles",
+        "edipi",
+        "otherUniqueId",
+        "rejectionReason",
+        "status",
         "createdAt",
         "updatedAt"
       ],
@@ -5347,6 +5659,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "edipi": {
+          "type": "string"
         },
         "email": {
           "type": "string",
@@ -5367,11 +5682,31 @@ func init() {
         "middleInitials": {
           "type": "string"
         },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
         "roles": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
           }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REQUESTED",
+            "REJECTED"
+          ]
         },
         "telephone": {
           "type": "string",
@@ -5415,6 +5750,13 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          },
+          "x-nullable": true
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -5431,6 +5773,23 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
         }
       }
     },
@@ -5473,6 +5832,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "roles": {
           "type": "array",
@@ -5548,6 +5913,34 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
       }
     },
     "Role": {
@@ -6002,6 +6395,13 @@ func init() {
     {
       "description": "Information about uploads",
       "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

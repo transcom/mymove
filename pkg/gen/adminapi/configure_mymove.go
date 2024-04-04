@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
@@ -93,6 +94,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		})
 	}
+	if api.RequestedOfficeUsersGetRequestedOfficeUserHandler == nil {
+		api.RequestedOfficeUsersGetRequestedOfficeUserHandler = requested_office_users.GetRequestedOfficeUserHandlerFunc(func(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.GetRequestedOfficeUser has not yet been implemented")
+		})
+	}
 	if api.UploadsGetUploadHandler == nil {
 		api.UploadsGetUploadHandler = uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
@@ -146,6 +152,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OrganizationsIndexOrganizationsHandler == nil {
 		api.OrganizationsIndexOrganizationsHandler = organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
+		})
+	}
+	if api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
+		api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler = requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
 		})
 	}
 	if api.UsersIndexUsersHandler == nil {
