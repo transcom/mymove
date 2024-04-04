@@ -326,8 +326,14 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
   }
 
-  async fillOutAboutFormDate() {
-    await this.page.getByPlaceholder('DD MMM YYYY').fill('20 Mar 2024');
+  async navigateToAboutPageAndFillOutAboutFormDate() {
+    await this.clickOnUploadPPMDocumentsButton();
+
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/about/);
+
+    await expect(this.page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
+
+    await this.page.locator('input[placeholder="DD MMM YYYY"]').click();
 
     // Use Playwright's selectors to find the element that represents today
     const todaySelector = '.DayPicker-Day--today';
