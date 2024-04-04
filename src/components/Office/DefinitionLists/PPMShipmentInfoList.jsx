@@ -8,6 +8,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { ShipmentShape } from 'types/shipment';
+import { formatAddress } from 'utils/shipmentDisplay';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -30,14 +31,14 @@ const PPMShipmentInfoList = ({
     hasRequestedAdvance,
     advanceAmountRequested,
     advanceStatus,
-    destinationPostalCode,
+    destinationAddress,
     estimatedIncentive,
     estimatedWeight,
     expectedDepartureDate,
-    pickupPostalCode,
+    pickupAddress,
     proGearWeight,
-    secondaryDestinationPostalCode,
-    secondaryPickupPostalCode,
+    secondaryDestinationAddress,
+    secondaryPickupAddress,
     sitExpected,
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
@@ -81,37 +82,39 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
-  const originZIPElementFlags = getDisplayFlags('originZIP');
-  const originZIPElement = (
-    <div className={originZIPElementFlags.classes}>
-      <dt>Origin ZIP</dt>
-      <dd data-testid="originZIP">{pickupPostalCode}</dd>
+  const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
+  const pickupAddressElement = (
+    <div className={pickupAddressElementFlags.classes}>
+      <dt>Pickup Address</dt>
+      <dd data-testid="pickupAddress">{pickupAddress ? formatAddress(pickupAddress) : '-'}</dd>
     </div>
   );
 
-  const secondOriginZIPElementFlags = getDisplayFlags('secondOriginZIP');
-  const secondOriginZIPElement = (
-    <div className={secondOriginZIPElementFlags.classes}>
-      <dt>Second origin ZIP</dt>
-      <dd data-testid="secondOriginZIP">{secondaryPickupPostalCode}</dd>
-    </div>
-  );
-
-  const destinationZIPElementFlags = getDisplayFlags('DestinationZIP');
-  const destinationZIPElement = (
-    <div className={destinationZIPElementFlags.classes}>
-      <dt className={shipmentDefinitionListsStyles.ppmRightLonerDataRow}>Destination ZIP</dt>
-      <dd className={shipmentDefinitionListsStyles.ppmRightLonerDataRow} data-testid="destinationZIP">
-        {destinationPostalCode}
+  const secondaryPickupAddressElementFlags = getDisplayFlags('secondaryPickupAddress');
+  const secondaryPickupAddressElement = (
+    <div className={secondaryPickupAddressElementFlags.classes}>
+      <dt>Secondary Pickup Address</dt>
+      <dd data-testid="secondaryPickupAddress">
+        {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
     </div>
   );
 
-  const secondDestinationZIPElementFlags = getDisplayFlags('secondDestinationZIP');
-  const secondDestinationZIPElement = (
-    <div className={secondDestinationZIPElementFlags.classes}>
-      <dt>Second destination ZIP</dt>
-      <dd data-testid="secondDestinationZIP">{secondaryDestinationPostalCode}</dd>
+  const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
+  const destinationAddressElement = (
+    <div className={destinationAddressElementFlags.classes}>
+      <dt>Destination Address</dt>
+      <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '-'}</dd>
+    </div>
+  );
+
+  const secondaryDestinationAddressElementFlags = getDisplayFlags('secondaryDestinationAddress');
+  const secondaryDestinationAddressElement = (
+    <div className={secondaryDestinationAddressElementFlags.classes}>
+      <dt>Secondary Destination Address</dt>
+      <dd data-testid="secondaryDestinationAddress">
+        {secondaryDestinationAddress ? formatAddress(secondaryDestinationAddress) : '—'}
+      </dd>
     </div>
   );
 
@@ -221,10 +224,10 @@ const PPMShipmentInfoList = ({
       data-testid="ppm-shipment-info-list"
     >
       {expectedDepartureDateElement}
-      {originZIPElement}
-      {showElement(secondOriginZIPElementFlags) && secondOriginZIPElement}
-      {destinationZIPElement}
-      {showElement(secondDestinationZIPElementFlags) && secondDestinationZIPElement}
+      {pickupAddressElement}
+      {secondaryPickupAddressElement}
+      {destinationAddressElement}
+      {secondaryDestinationAddressElement}
       <Restricted to={permissionTypes.viewCloseoutOffice}>{closeoutOfficeElement}</Restricted>
       {sitPlannedElement}
       {estimatedWeightElement}
@@ -251,7 +254,7 @@ const PPMShipmentInfoList = ({
           )}
           data-testid="shipment-info-list-left"
         >
-          {isExpanded && originZIPElement}
+          {isExpanded && pickupAddressElement}
           {isExpanded && expectedDepartureDateElement}
         </dl>
       </div>
@@ -266,7 +269,7 @@ const PPMShipmentInfoList = ({
           )}
           data-testid="shipment-info-list-right"
         >
-          {isExpanded && destinationZIPElement}
+          {isExpanded && destinationAddressElement}
         </dl>
       </div>
     </div>

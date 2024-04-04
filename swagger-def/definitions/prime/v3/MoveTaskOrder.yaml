@@ -1,0 +1,80 @@
+type: object
+required:
+  - mtoShipments
+  - mtoServiceItems
+  - paymentRequests
+properties:
+  id:
+    example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
+    format: uuid
+    type: string
+  moveCode:
+    type: string
+    example: 'HYXFJF'
+    readOnly: true
+  createdAt:
+    format: date-time
+    type: string
+    readOnly: true
+  orderID:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    type: string
+  order:
+    $ref: 'Order.yaml'
+  referenceId:
+    example: 1001-3456
+    type: string
+  availableToPrimeAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    readOnly: true
+  updatedAt:
+    format: date-time
+    type: string
+    readOnly: true
+  primeCounselingCompletedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    readOnly: true
+  paymentRequests:
+    $ref: '../PaymentRequests.yaml'
+  mtoServiceItems:
+    type: array
+    items:
+      $ref: '../MTOServiceItem.yaml'
+  mtoShipments:
+    $ref: 'MTOShipmentsWithoutServiceObjects.yaml'
+  ppmType:
+    type: string
+    enum:
+      - PARTIAL
+      - FULL
+  ppmEstimatedWeight:
+    type: integer
+  excessWeightQualifiedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  excessWeightAcknowledgedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  excessWeightUploadId:
+    type: string
+    format: uuid
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  contractNumber:
+    type: string
+    readOnly: true
+  eTag:
+    type: string
+    readOnly: true
