@@ -222,3 +222,68 @@ func (suite *PayloadsSuite) TestProofOfServiceDoc() {
 		suite.IsType(returnedProofOfServiceDoc, &ghcmessages.ProofOfServiceDoc{})
 	})
 }
+
+func (suite *PayloadsSuite) TestCreateCustomer() {
+	id, _ := uuid.NewV4()
+	id2, _ := uuid.NewV4()
+	oktaID := "thisIsNotARealID"
+
+	oktaUser := models.CreatedOktaUser{
+		ID: oktaID,
+		Profile: struct {
+			FirstName   string `json:"firstName"`
+			LastName    string `json:"lastName"`
+			MobilePhone string `json:"mobilePhone"`
+			SecondEmail string `json:"secondEmail"`
+			Login       string `json:"login"`
+			Email       string `json:"email"`
+		}{
+			Email: "john.doe@example.com",
+		},
+	}
+
+	residentialAddress := models.Address{
+		StreetAddress1: "123 New St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89503",
+		Country:        models.StringPointer("United States"),
+	}
+
+	backupAddress := models.Address{
+		StreetAddress1: "123 Old St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89502",
+		Country:        models.StringPointer("United States"),
+	}
+
+	phone := "444-555-6677"
+	backupContact := models.BackupContact{
+		Name:  "Billy Bob",
+		Email: "billBob@mail.mil",
+		Phone: &phone,
+	}
+
+	firstName := "First"
+	lastName := "Last"
+	affiliation := models.AffiliationARMY
+	email := "dontEmailMe@gmail.com"
+	sm := models.ServiceMember{
+		ID:                   id,
+		UserID:               id2,
+		FirstName:            &firstName,
+		LastName:             &lastName,
+		Affiliation:          &affiliation,
+		PersonalEmail:        &email,
+		Telephone:            &phone,
+		ResidentialAddress:   &residentialAddress,
+		BackupMailingAddress: &backupAddress,
+	}
+
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+		returnedShipmentAddressUpdate := CreatedCustomer(&sm, &oktaUser, &backupContact)
+
+		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.CreatedCustomer{})
+	})
+}
