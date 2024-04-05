@@ -28,7 +28,7 @@ import { no_op } from 'shared/utils';
 import { generatePageTitle } from 'hooks/custom';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
-import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
+import { selectCacValidated, selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -51,6 +51,7 @@ import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPag
 import MoveHome from 'pages/MyMove/Home/MoveHome';
 import AddOrders from 'pages/MyMove/AddOrders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
+import SmartCardRedirect from 'shared/SmartCardRedirect/SmartCardRedirect';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -82,6 +83,7 @@ export class CustomerApp extends Component {
       error: undefined,
       info: undefined,
       multiMoveFeatureFlag: false,
+      cacValidatedFeatureFlag: false,
     };
   }
 
@@ -94,6 +96,11 @@ export class CustomerApp extends Component {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
       this.setState({
         multiMoveFeatureFlag: enabled,
+      });
+    });
+    isBooleanFlagEnabled('cac_validated_login').then((enabled) => {
+      this.setState({
+        cacValidatedFeatureFlag: enabled,
       });
     });
     document.title = generatePageTitle('Sign In');
@@ -118,8 +125,8 @@ export class CustomerApp extends Component {
 
   render() {
     const { props } = this;
-    const { userIsLoggedIn, loginIsLoading } = props;
-    const { hasError, multiMoveFeatureFlag } = this.state;
+    const { userIsLoggedIn, loginIsLoading, cacValidated } = props;
+    const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag } = this.state;
 
     return (
       <>
@@ -149,6 +156,9 @@ export class CustomerApp extends Component {
             </div>
 
             {hasError && <SomethingWentWrong />}
+
+            {/* Showing Smart Card info page until user signs in with SC one time */}
+            {userIsLoggedIn && !cacValidated && cacValidatedFeatureFlag && <SmartCardRedirect />}
 
             {/* No Auth Routes */}
             {!userIsLoggedIn && (
@@ -182,87 +192,195 @@ export class CustomerApp extends Component {
               </Routes>
             )}
 
-            {/* Auth Required Routes (no error and user logged in) */}
-            {!hasError && !props.swaggerError && userIsLoggedIn && (
-              <Routes>
-                {/* no auth routes should still exist */}
-                <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
-                <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
-                <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
-                <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
+            {/* when the cacValidated feature flag is on, we need to check for the cacValidated value for rendering */}
+            {cacValidatedFeatureFlag
+              ? !hasError &&
+                !props.swaggerError &&
+                userIsLoggedIn &&
+                cacValidated && (
+                  <Routes>
+                    {/* no auth routes should still exist */}
+                    <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                    <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
+                    <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
+                    <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
 
-                {/* auth required */}
-                {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
+                    {/* auth required */}
+                    {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
-                {/* ROOT */}
-                {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
-                {multiMoveFeatureFlag ? (
-                  <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
-                ) : (
-                  <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                    {/* ROOT */}
+                    {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
+                    {multiMoveFeatureFlag ? (
+                      <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                    ) : (
+                      <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                    )}
+
+                    {getWorkflowRoutes(props)}
+
+                    <Route end path={customerRoutes.MOVE_HOME_PAGE} element={<Home />} />
+                    <Route end path={customerRoutes.MOVE_HOME_PATH} element={<MoveHome />} />
+                    <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
+                    <Route end path="/moves/:moveId/edit" element={<Edit />} />
+                    <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
+                    <Route end path={customerRoutes.SERVICE_INFO_EDIT_PATH} element={<EditServiceInfo />} />
+                    <Route path={customerRoutes.SHIPMENT_CREATE_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
+                    <Route end path={customerRoutes.PROFILE_PATH} element={<Profile />} />
+                    <Route
+                      end
+                      path={customerRoutes.SHIPMENT_EDIT_PATH}
+                      element={<ConnectedCreateOrEditMtoShipment />}
+                    />
+                    <Route
+                      path={customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH}
+                      element={<EstimatedWeightsProGear />}
+                    />
+                    <Route
+                      end
+                      path={customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH}
+                      element={<EstimatedIncentive />}
+                    />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} element={<Advance />} />
+                    <Route end path={customerRoutes.CONTACT_INFO_EDIT_PATH} element={<EditContactInfo />} />
+                    <Route end path={customerRoutes.EDIT_OKTA_PROFILE_PATH} element={<EditOktaInfo />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} element={<About />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} element={<WeightTickets />} />
+                    <Route
+                      end
+                      path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH}
+                      element={<WeightTickets />}
+                    />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH} element={<PPMReview />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
+                    <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
+                    <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
+                    <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />
+                    <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
+                    <Route end path="/infected-upload" element={<InfectedUpload />} />
+                    <Route end path="/processing-upload" element={<ProcessingUpload />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
+
+                    {/* Errors */}
+                    <Route
+                      end
+                      path="/forbidden"
+                      element={
+                        <div className="usa-grid">
+                          <h2>You are forbidden to use this endpoint</h2>
+                        </div>
+                      }
+                    />
+                    <Route
+                      end
+                      path="/server_error"
+                      element={
+                        <div className="usa-grid">
+                          <h2>We are experiencing an internal server error</h2>
+                        </div>
+                      }
+                    />
+                    <Route end path="/invalid-permissions" element={<InvalidPermissions />} />
+
+                    {/* 404 - user logged in but at unknown route */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                )
+              : !hasError &&
+                !props.swaggerError &&
+                userIsLoggedIn && (
+                  <Routes>
+                    {/* no auth routes should still exist */}
+                    <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                    <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
+                    <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
+                    <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
+
+                    {/* auth required */}
+                    {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
+
+                    {/* ROOT */}
+                    {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
+                    {multiMoveFeatureFlag ? (
+                      <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                    ) : (
+                      <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                    )}
+
+                    {getWorkflowRoutes(props)}
+
+                    <Route end path={customerRoutes.MOVE_HOME_PAGE} element={<Home />} />
+                    <Route end path={customerRoutes.MOVE_HOME_PATH} element={<MoveHome />} />
+                    <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
+                    <Route end path="/moves/:moveId/edit" element={<Edit />} />
+                    <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
+                    <Route end path={customerRoutes.SERVICE_INFO_EDIT_PATH} element={<EditServiceInfo />} />
+                    <Route path={customerRoutes.SHIPMENT_CREATE_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
+                    <Route end path={customerRoutes.PROFILE_PATH} element={<Profile />} />
+                    <Route
+                      end
+                      path={customerRoutes.SHIPMENT_EDIT_PATH}
+                      element={<ConnectedCreateOrEditMtoShipment />}
+                    />
+                    <Route
+                      path={customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH}
+                      element={<EstimatedWeightsProGear />}
+                    />
+                    <Route
+                      end
+                      path={customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH}
+                      element={<EstimatedIncentive />}
+                    />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} element={<Advance />} />
+                    <Route end path={customerRoutes.CONTACT_INFO_EDIT_PATH} element={<EditContactInfo />} />
+                    <Route end path={customerRoutes.EDIT_OKTA_PROFILE_PATH} element={<EditOktaInfo />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} element={<About />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} element={<WeightTickets />} />
+                    <Route
+                      end
+                      path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH}
+                      element={<WeightTickets />}
+                    />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH} element={<PPMReview />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
+                    <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
+                    <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
+                    <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />
+                    <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
+                    <Route end path="/infected-upload" element={<InfectedUpload />} />
+                    <Route end path="/processing-upload" element={<ProcessingUpload />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
+
+                    {/* Errors */}
+                    <Route
+                      end
+                      path="/forbidden"
+                      element={
+                        <div className="usa-grid">
+                          <h2>You are forbidden to use this endpoint</h2>
+                        </div>
+                      }
+                    />
+                    <Route
+                      end
+                      path="/server_error"
+                      element={
+                        <div className="usa-grid">
+                          <h2>We are experiencing an internal server error</h2>
+                        </div>
+                      }
+                    />
+                    <Route end path="/invalid-permissions" element={<InvalidPermissions />} />
+
+                    {/* 404 - user logged in but at unknown route */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
                 )}
-
-                {getWorkflowRoutes(props)}
-
-                <Route end path={customerRoutes.MOVE_HOME_PAGE} element={<Home />} />
-                <Route end path={customerRoutes.MOVE_HOME_PATH} element={<MoveHome />} />
-                <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
-                <Route end path="/moves/:moveId/edit" element={<Edit />} />
-                <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
-                <Route end path={customerRoutes.SERVICE_INFO_EDIT_PATH} element={<EditServiceInfo />} />
-                <Route path={customerRoutes.SHIPMENT_CREATE_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
-                <Route end path={customerRoutes.PROFILE_PATH} element={<Profile />} />
-                <Route end path={customerRoutes.SHIPMENT_EDIT_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
-                <Route path={customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH} element={<EstimatedWeightsProGear />} />
-                <Route
-                  end
-                  path={customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH}
-                  element={<EstimatedIncentive />}
-                />
-                <Route end path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} element={<Advance />} />
-                <Route end path={customerRoutes.CONTACT_INFO_EDIT_PATH} element={<EditContactInfo />} />
-                <Route end path={customerRoutes.EDIT_OKTA_PROFILE_PATH} element={<EditOktaInfo />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} element={<About />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} element={<WeightTickets />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH} element={<WeightTickets />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_REVIEW_PATH} element={<PPMReview />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
-                <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
-                <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
-                <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />
-                <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
-                <Route end path="/infected-upload" element={<InfectedUpload />} />
-                <Route end path="/processing-upload" element={<ProcessingUpload />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
-                <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
-
-                {/* Errors */}
-                <Route
-                  end
-                  path="/forbidden"
-                  element={
-                    <div className="usa-grid">
-                      <h2>You are forbidden to use this endpoint</h2>
-                    </div>
-                  }
-                />
-                <Route
-                  end
-                  path="/server_error"
-                  element={
-                    <div className="usa-grid">
-                      <h2>We are experiencing an internal server error</h2>
-                    </div>
-                  }
-                />
-                <Route end path="/invalid-permissions" element={<InvalidPermissions />} />
-
-                {/* 404 - user logged in but at unknown route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            )}
           </main>
           <Footer />
         </div>
@@ -310,6 +428,7 @@ const mapStateToProps = (state) => {
   return {
     loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
+    cacValidated: selectCacValidated(serviceMember),
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: selectHasCanceledMove(state),
     moveId: move?.id,

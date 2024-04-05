@@ -21,8 +21,19 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { ShipmentShape } from 'types';
 
 // Sorts service items in an order preferred by the customer
-// Currently only SIT receives special sorting
+// Currently only SIT & shorthaul/linehaul receives special sorting
+// this current listed order goes:
+// shorthaul & linehaul
+// other service items
+// origin SIT
+// destination SIT
 function sortServiceItems(items) {
+  // Prioritize service items with codes 'DSH' (shorthaul) and 'DLH' (linehaul) to be at the top of the list
+  const haulTypeServiceItemCodes = ['DSH', 'DLH'];
+  const haulTypeServiceItems = items.filter((item) => haulTypeServiceItemCodes.includes(item.code));
+  const sortedHaulTypeServiceItems = haulTypeServiceItems.sort(
+    (a, b) => haulTypeServiceItemCodes.indexOf(a.code) - haulTypeServiceItemCodes.indexOf(b.code),
+  );
   // Filter and sort destination SIT. Code index is also the sort order
   const destinationServiceItemCodes = ['DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC'];
   const destinationServiceItems = items.filter((item) => destinationServiceItemCodes.includes(item.code));
@@ -38,10 +49,18 @@ function sortServiceItems(items) {
 
   // Filter all service items that are not specifically sorted
   const remainingServiceItems = items.filter(
-    (item) => !destinationServiceItemCodes.includes(item.code) && !originServiceItemCodes.includes(item.code),
+    (item) =>
+      !haulTypeServiceItemCodes.includes(item.code) &&
+      !destinationServiceItemCodes.includes(item.code) &&
+      !originServiceItemCodes.includes(item.code),
   );
 
-  return [...remainingServiceItems, ...sortedOriginServiceItems, ...sortedDestinationServiceItems];
+  return [
+    ...sortedHaulTypeServiceItems,
+    ...remainingServiceItems,
+    ...sortedOriginServiceItems,
+    ...sortedDestinationServiceItems,
+  ];
 }
 
 const ServiceItemsTable = ({
@@ -215,87 +234,93 @@ const ServiceItemsTable = ({
           <td>
             {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
               <Restricted to={permissionTypes.updateMTOServiceItem}>
-                <div className={styles.statusAction}>
-                  <Button
-                    type="button"
-                    className="usa-button--icon usa-button--small acceptButton"
-                    data-testid="acceptButton"
-                    onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
-                  >
-                    <span className="icon">
-                      <FontAwesomeIcon icon="check" />
-                    </span>
-                    <span>Accept</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    secondary
-                    className="usa-button--small usa-button--icon margin-left-1 rejectButton"
-                    data-testid="rejectButton"
-                    onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
-                  >
-                    <span className="icon">
-                      <FontAwesomeIcon icon="times" />
-                    </span>
-                    <span>Reject</span>
-                  </Button>
-                </div>
+                <Restricted to={permissionTypes.updateMTOPage}>
+                  <div className={styles.statusAction}>
+                    <Button
+                      type="button"
+                      className="usa-button--icon usa-button--small acceptButton"
+                      data-testid="acceptButton"
+                      onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="check" />
+                      </span>
+                      <span>Accept</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      secondary
+                      className="usa-button--small usa-button--icon margin-left-1 rejectButton"
+                      data-testid="rejectButton"
+                      onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="times" />
+                      </span>
+                      <span>Reject</span>
+                    </Button>
+                  </div>
+                </Restricted>
               </Restricted>
             )}
             {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
               <Restricted to={permissionTypes.updateMTOServiceItem}>
-                <div className={styles.statusAction}>
-                  <Button
-                    type="button"
-                    data-testid="rejectTextButton"
-                    className="text-blue usa-button--unstyled margin-left-1"
-                    onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
-                  >
-                    <span className="icon">
-                      <FontAwesomeIcon icon="times" />
-                    </span>{' '}
-                    Reject
-                  </Button>
-                  {ALLOWED_SIT_UPDATE_SI_CODES.includes(code) && (
-                    <div>
-                      <Button
-                        type="button"
-                        data-testid="editTextButton"
-                        className="text-blue usa-button--unstyled margin-left-1"
-                        disabled={hasPaymentRequestBeenMade}
-                        onClick={() => {
-                          if (code === 'DDFSIT' || code === 'DOFSIT') {
-                            handleShowEditSitEntryDateModal(id, mtoShipmentID);
-                          } else {
-                            handleShowEditSitAddressModal(id, mtoShipmentID);
-                          }
-                        }}
-                      >
-                        <span>
-                          <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
-                        </span>{' '}
-                        Edit
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                <Restricted to={permissionTypes.updateMTOPage}>
+                  <div className={styles.statusAction}>
+                    <Button
+                      type="button"
+                      data-testid="rejectTextButton"
+                      className="text-blue usa-button--unstyled margin-left-1"
+                      onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="times" />
+                      </span>{' '}
+                      Reject
+                    </Button>
+                    {ALLOWED_SIT_UPDATE_SI_CODES.includes(code) && (
+                      <div>
+                        <Button
+                          type="button"
+                          data-testid="editTextButton"
+                          className="text-blue usa-button--unstyled margin-left-1"
+                          disabled={hasPaymentRequestBeenMade}
+                          onClick={() => {
+                            if (code === 'DDFSIT' || code === 'DOFSIT') {
+                              handleShowEditSitEntryDateModal(id, mtoShipmentID);
+                            } else {
+                              handleShowEditSitAddressModal(id, mtoShipmentID);
+                            }
+                          }}
+                        >
+                          <span>
+                            <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
+                          </span>{' '}
+                          Edit
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </Restricted>
               </Restricted>
             )}
             {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && !rejectedDSHorDLHServiceItem && (
               <Restricted to={permissionTypes.updateMTOServiceItem}>
-                <div className={styles.statusAction}>
-                  <Button
-                    type="button"
-                    data-testid="approveTextButton"
-                    className="text-blue usa-button--unstyled"
-                    onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
-                  >
-                    <span className="icon">
-                      <FontAwesomeIcon icon="check" />
-                    </span>{' '}
-                    Approve
-                  </Button>
-                </div>
+                <Restricted to={permissionTypes.updateMTOPage}>
+                  <div className={styles.statusAction}>
+                    <Button
+                      type="button"
+                      data-testid="approveTextButton"
+                      className="text-blue usa-button--unstyled"
+                      onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                    >
+                      <span className="icon">
+                        <FontAwesomeIcon icon="check" />
+                      </span>{' '}
+                      Approve
+                    </Button>
+                  </div>
+                </Restricted>
               </Restricted>
             )}
           </td>

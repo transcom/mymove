@@ -3,6 +3,8 @@ export const generalRoutes = {
   SIGN_IN_PATH: '/sign-in',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
+  QUEUE_SEARCH_PATH: 'Search',
+  BASE_QUEUE_SEARCH_PATH: '/Search',
 };
 
 export const customerRoutes = {
@@ -55,8 +57,6 @@ export const servicesCounselingRoutes = {
   BASE_QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: 'PPM-closeout',
   BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
-  QUEUE_SEARCH_PATH: 'Search',
-  BASE_QUEUE_SEARCH_PATH: '/Search',
   BASE_COUNSELING_MOVE_PATH,
   BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
@@ -78,6 +78,8 @@ export const servicesCounselingRoutes = {
   SHIPMENT_ADVANCE_PATH: 'shipments/:shipmentId/advance',
   BASE_MOVE_HISTORY_PATH: `${BASE_COUNSELING_MOVE_PATH}/history`,
   MOVE_HISTORY_PATH: 'history',
+  BASE_MTO_PATH: `${BASE_COUNSELING_MOVE_PATH}/mto`,
+  MTO_PATH: 'mto',
   BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer-support-remarks`,
   CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
   BASE_SHIPMENT_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/document-review`,
@@ -95,12 +97,16 @@ export const moveRoutes = {
 
 export const tioRoutes = {
   BASE_PAYMENT_REQUESTS_PATH: `${BASE_MOVES_PATH}/payment-requests`,
+  PAYMENT_REQUEST_QUEUE: 'PaymentRequests',
+  BASE_PAYMENT_REQUEST_QUEUE: '/PaymentRequests',
   PAYMENT_REQUESTS_PATH: 'payment-requests',
   BILLABLE_WEIGHT_PATH: 'billable-weight',
 };
 
 export const tooRoutes = {
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
+  MOVE_QUEUE: `MoveQueue`,
+  BASE_MOVE_QUEUE: `/MoveQueue`,
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
   BASE_MOVE_VIEW_PATH: `${BASE_MOVES_PATH}/details`,
   MOVE_VIEW_PATH: 'details',
