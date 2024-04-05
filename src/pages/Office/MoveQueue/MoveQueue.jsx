@@ -155,7 +155,7 @@ const MoveQueue = () => {
         items={[
           <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={tooRoutes.BASE_MOVE_QUEUE}>
             <span data-testid="closeout-tab-link" className="tab-title" title="Move Queue">
-              Move Queue
+              Task Order Queue
             </span>
           </NavLink>,
           <NavLink
