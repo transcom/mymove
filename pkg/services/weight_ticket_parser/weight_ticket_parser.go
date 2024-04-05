@@ -201,16 +201,12 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 	const cellColumnCount = 4
 	const totalCubeSectionString = "Total cube for this section"
 	const packingMaterialString = "10% packing Material allow Military only"
-	const militaryString = "Military"
-	const civilianString = "Civilian"
-	const cartonsString = "CARTONS"
 
-	oneColumnStrings := []string{"PROFESSIONAL GEAR Constructed Weight", "PROFESSIONAL GEAR Number of Pieces"}
-	thirdColumnStrings := []string{"Total number of items in this section", "Constructed Weight for this section "}
-	twoColumnSectionStrings := []string{"", "Total number of items", "Total cube", "Constructed Weight ", "Pro Gear", "Minus Pro Gear", "10% packing Material allow Military only", "Weight Chargeable to Member", "Enter Members Weight Allowance ", "Amount Over/Under Weight allowance"}
+	thirdColumnStrings := []string{"Total number of items in this section", "Constructed Weight for this section ", "PROFESSIONAL GEAR Constructed Weight", "PROFESSIONAL GEAR Number of Pieces"}
+	twoColumnSectionStrings := []string{"", "Total number of items ", "Total cube ", "Constructed Weight ", "Pro Gear", "Minus Pro Gear", "10% packing Material allow Military only", "Weight Chargeable to Member", "Enter Members Weight Allowance ", "Amount Over/Under Weight allowance"}
 	skipSectionStrings := []string{"Item", "Bed-To Include Box Spring & Mattress", "Refrigerator, Cubic Cap", "Freezer Cubic Cap", "CARTONS", "PROFESSIONAL PAPERS, GEAR, EQUIPMENT"}
 	rowCount := 1
-	skipRows := []int{2, 31, 45, 64, 80, 93, 107, 123, 145, 158, 181} // TODO: CHANGE THIS TO USE HEADER NAMES INSTEAD OF ROW NUMBERS
+	skipRows := []int{2, 31, 45, 64, 80, 93, 107, 123, 145, 158, 181, 195}
 	var cellColumnData []string
 	var pageValues services.WeightEstimatorPages
 
@@ -270,13 +266,11 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 				// If the first cell contains Item in the string or all 4 cells are empty, then its a section of just headers and no data
 				// so we do cleanup and skip to the next set of data
 				if slices.Contains(skipSectionStrings, cellColumnData[0]) ||
-					(len(cellColumnData) == 4 && (cellColumnData[0] == "" && cellColumnData[1] == "" && cellColumnData[2] == "" && cellColumnData[3] == "")) ||
-					(slices.Contains(cellColumnData, militaryString) || slices.Contains(cellColumnData, civilianString)) {
+					(len(cellColumnData) == 4 && (cellColumnData[0] == "" && cellColumnData[1] == "" &&
+						cellColumnData[2] == "" && cellColumnData[3] == "")) {
 					cellColumnData = cellColumnData[:0]
 					blankCell = true
 					continue
-				} else if slices.Contains(oneColumnStrings, cellColumnData[0]) {
-					writeColumn1 = true
 				} else if strings.Contains(cellColumnData[0], totalCubeSectionString) || strings.Contains(cellColumnData[0], packingMaterialString) {
 					writeColumn2 = true
 				} else if slices.Contains(thirdColumnStrings, cellColumnData[0]) {
@@ -297,10 +291,6 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 					if sectionCounter == pagesStructs[pageIndex].NumField() {
 						pageIndex++
 						sectionCounter = 0
-
-						if pageIndex == 10 {
-							fmt.Println("page 11")
-						}
 					}
 				}
 
@@ -311,10 +301,6 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 					if sectionCounter == pagesStructs[pageIndex].NumField() {
 						pageIndex++
 						sectionCounter = 0
-
-						if pageIndex == 10 {
-							fmt.Println("page 11")
-						}
 					}
 				}
 
@@ -325,10 +311,6 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 					if sectionCounter == pagesStructs[pageIndex].NumField() {
 						pageIndex++
 						sectionCounter = 0
-
-						if pageIndex == 10 {
-							fmt.Println("page 11")
-						}
 					}
 				}
 
