@@ -745,11 +745,12 @@ commands:
             export OKTA_ADMIN_SECRET_KEY=notrealkey2
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
 
             make server_test
           no_output_timeout: 20m
-
           environment:
             APPLICATION: '<< parameters.application >>'
             # 8 since this runs on xlarge with 8 CPUs
@@ -776,6 +777,9 @@ commands:
             OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
             OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
             OKTA_API_KEY: notrealapikey8675309
+            OKTA_OFFICE_GROUP_ID: notrealgroupId
+            OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
   # SLOOOOOOW
@@ -843,6 +847,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
@@ -957,6 +964,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -1043,6 +1053,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
@@ -1250,7 +1263,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v11-spectral-lint-
+            - v12-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1309,7 +1322,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v11-spectral-lint-{{ .BuildNum }}
+                key: v12-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
@@ -2349,8 +2362,8 @@ workflows:
             - compile_app_server
             # limiting this run to integrationBranch only due to multiple branch pipeline
           filters:
-              branches:
-                only: integrationTesting
+            branches:
+              only: integrationTesting
 
       - client_test:
           requires:
@@ -2595,7 +2608,7 @@ workflows:
 
       - prod_auth_check:
           requires:
-           - approve_prd_deploy
+            - approve_prd_deploy
           filters:
             branches:
               only: main

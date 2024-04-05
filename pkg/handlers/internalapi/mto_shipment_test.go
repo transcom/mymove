@@ -69,9 +69,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		testMTOShipmentObjects.builder,
-		mtoserviceitem.NewMTOServiceItemCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),
 		testMTOShipmentObjects.moveRouter,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
@@ -724,6 +730,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			RequestedPickupDate:       handlers.FmtDatePtr(originalShipment.RequestedPickupDate),
 			RequestedDeliveryDate:     handlers.FmtDatePtr(originalShipment.RequestedDeliveryDate),
 			ShipmentType:              internalmessages.MTOShipmentTypeHHG,
+			ActualProGearWeight:       handlers.FmtInt64(1860),
+			ActualSpouseProGearWeight: handlers.FmtInt64(202),
 		}
 
 		return &mtoUpdateSubtestData{
@@ -745,6 +753,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		suite.Equal(subtestData.mtoShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
+		suite.Equal(*params.Body.ActualProGearWeight, *updatedShipment.ActualProGearWeight)
+		suite.Equal(*params.Body.ActualSpouseProGearWeight, *updatedShipment.ActualSpouseProGearWeight)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *updatedShipment.DestinationAddress.StreetAddress1)

@@ -59,7 +59,7 @@ type InternalMove struct {
 	// submitted at
 	// Read Only: true
 	// Format: date-time
-	SubmittedAt strfmt.DateTime `json:"submittedAt,omitempty"`
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
 	// updated at
 	// Read Only: true
@@ -316,7 +316,7 @@ func (m *InternalMove) contextValidateStatus(ctx context.Context, formats strfmt
 
 func (m *InternalMove) contextValidateSubmittedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "submittedAt", "body", strfmt.DateTime(m.SubmittedAt)); err != nil {
+	if err := validate.ReadOnly(ctx, "submittedAt", "body", m.SubmittedAt); err != nil {
 		return err
 	}
 
