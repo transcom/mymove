@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -18,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Contractor payload
@@ -85,10 +87,7 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
-	}
-
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
+		OrderType:          string(move.Orders.OrdersType),
 	}
 
 	if move.PPMType != nil {
@@ -443,19 +442,23 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	}
 
 	payload := ghcmessages.Customer{
-		Agency:         swag.StringValue((*string)(customer.Affiliation)),
-		CurrentAddress: Address(customer.ResidentialAddress),
-		DodID:          swag.StringValue(customer.Edipi),
-		Email:          customer.PersonalEmail,
-		FirstName:      swag.StringValue(customer.FirstName),
-		ID:             strfmt.UUID(customer.ID.String()),
-		LastName:       swag.StringValue(customer.LastName),
-		Phone:          customer.Telephone,
-		Suffix:         customer.Suffix,
-		MiddleName:     customer.MiddleName,
-		UserID:         strfmt.UUID(customer.UserID.String()),
-		ETag:           etag.GenerateEtag(customer.UpdatedAt),
-		BackupContact:  BackupContact(customer.BackupContacts),
+		Agency:             swag.StringValue((*string)(customer.Affiliation)),
+		CurrentAddress:     Address(customer.ResidentialAddress),
+		DodID:              swag.StringValue(customer.Edipi),
+		Email:              customer.PersonalEmail,
+		FirstName:          swag.StringValue(customer.FirstName),
+		ID:                 strfmt.UUID(customer.ID.String()),
+		LastName:           swag.StringValue(customer.LastName),
+		Phone:              customer.Telephone,
+		Suffix:             customer.Suffix,
+		MiddleName:         customer.MiddleName,
+		UserID:             strfmt.UUID(customer.UserID.String()),
+		ETag:               etag.GenerateEtag(customer.UpdatedAt),
+		BackupContact:      BackupContact(customer.BackupContacts),
+		BackupAddress:      Address(customer.BackupMailingAddress),
+		SecondaryTelephone: customer.SecondaryTelephone,
+		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
+		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
 	}
 	return &payload
 }
@@ -472,7 +475,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
 	}
 	entitlements := Entitlement(order.Entitlement)
 
@@ -534,6 +537,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
+		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(*order.OriginDutyLocationGBLOC),
 	}
 
 	return &payload
@@ -778,6 +782,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -962,6 +968,7 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
+		AllowableWeight:                   handlers.FmtPoundPtr(weightTicket.AllowableWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}
@@ -1001,25 +1008,37 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		return nil
 	}
 	payload := &ghcmessages.PPMCloseout{
-		ID:                         strfmt.UUID(ppmCloseout.ID.String()),
-		PlannedMoveDate:            handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate),
-		ActualMoveDate:             handlers.FmtDatePtr(ppmCloseout.ActualMoveDate),
-		Miles:                      handlers.FmtIntPtrToInt64(ppmCloseout.Miles),
-		EstimatedWeight:            handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight),
-		ActualWeight:               handlers.FmtPoundPtr(ppmCloseout.ActualWeight),
-		ProGearWeightCustomer:      handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer),
-		ProGearWeightSpouse:        handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse),
-		GrossIncentive:             handlers.FmtCost(ppmCloseout.GrossIncentive),
-		Gcc:                        handlers.FmtCost(ppmCloseout.GCC),
-		Aoa:                        handlers.FmtCost(ppmCloseout.AOA),
-		RemainingReimbursementOwed: handlers.FmtCost(ppmCloseout.RemainingReimbursementOwed),
-		HaulPrice:                  handlers.FmtCost(ppmCloseout.HaulPrice),
-		HaulFSC:                    handlers.FmtCost(ppmCloseout.HaulFSC),
-		Dop:                        handlers.FmtCost(ppmCloseout.DOP),
-		Ddp:                        handlers.FmtCost(ppmCloseout.DDP),
-		PackPrice:                  handlers.FmtCost(ppmCloseout.PackPrice),
-		UnpackPrice:                handlers.FmtCost(ppmCloseout.UnpackPrice),
-		SITReimbursement:           handlers.FmtCost(ppmCloseout.SITReimbursement),
+		ID:                    strfmt.UUID(ppmCloseout.ID.String()),
+		PlannedMoveDate:       handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate),
+		ActualMoveDate:        handlers.FmtDatePtr(ppmCloseout.ActualMoveDate),
+		Miles:                 handlers.FmtIntPtrToInt64(ppmCloseout.Miles),
+		EstimatedWeight:       handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight),
+		ActualWeight:          handlers.FmtPoundPtr(ppmCloseout.ActualWeight),
+		ProGearWeightCustomer: handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer),
+		ProGearWeightSpouse:   handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse),
+		GrossIncentive:        handlers.FmtCost(ppmCloseout.GrossIncentive),
+		Gcc:                   handlers.FmtCost(ppmCloseout.GCC),
+		Aoa:                   handlers.FmtCost(ppmCloseout.AOA),
+		RemainingIncentive:    handlers.FmtCost(ppmCloseout.RemainingIncentive),
+		HaulPrice:             handlers.FmtCost(ppmCloseout.HaulPrice),
+		HaulFSC:               handlers.FmtCost(ppmCloseout.HaulFSC),
+		Dop:                   handlers.FmtCost(ppmCloseout.DOP),
+		Ddp:                   handlers.FmtCost(ppmCloseout.DDP),
+		PackPrice:             handlers.FmtCost(ppmCloseout.PackPrice),
+		UnpackPrice:           handlers.FmtCost(ppmCloseout.UnpackPrice),
+		SITReimbursement:      handlers.FmtCost(ppmCloseout.SITReimbursement),
+	}
+
+	return payload
+}
+
+// PPMActualWeight payload
+func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
+	if ppmActualWeight == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMActualWeight{
+		ActualWeight: handlers.FmtPoundPtr(ppmActualWeight),
 	}
 
 	return payload
@@ -1032,13 +1051,16 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	}
 
 	payload := &ghcmessages.ShipmentAddressUpdate{
-		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
-		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
-		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
-		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
-		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
-		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
-		Status:            ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		ID:                    strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:            strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:            Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:       Address(&shipmentAddressUpdate.OriginalAddress),
+		SitOriginalAddress:    Address(shipmentAddressUpdate.SitOriginalAddress),
+		ContractorRemarks:     shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:         shipmentAddressUpdate.OfficeRemarks,
+		Status:                ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		NewSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.NewSitDistanceBetween),
+		OldSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.OldSitDistanceBetween),
 	}
 
 	return payload
@@ -1082,6 +1104,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
+	}
+
+	if mtoShipment.Distance != nil {
+		payload.Distance = handlers.FmtInt64(int64(*mtoShipment.Distance))
 	}
 
 	if sitStatusPayload != nil {
@@ -1671,6 +1697,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
+			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 		}
 	}
 	return &queueMoves
@@ -1775,6 +1802,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
+			OrderType:          (*string)(orders.OrdersType.Pointer()),
 		}
 
 		if orders.DepartmentIndicator != nil {
@@ -1805,7 +1833,7 @@ func Reweigh(reweigh *models.Reweigh, _ *ghcmessages.SITStatus) *ghcmessages.Rew
 }
 
 // SearchMoves payload
-func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
+func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.SearchMoves {
 	searchMoves := make(ghcmessages.SearchMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -1815,6 +1843,53 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++
 			}
+		}
+
+		var pickupDate, deliveryDate *strfmt.Date
+
+		if numShipments > 0 && move.MTOShipments[0].ScheduledPickupDate != nil {
+			pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledPickupDate)
+		} else {
+			pickupDate = nil
+		}
+
+		if numShipments > 0 && move.MTOShipments[0].ScheduledDeliveryDate != nil {
+			deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledDeliveryDate)
+		} else {
+			deliveryDate = nil
+		}
+
+		var originGBLOC ghcmessages.GBLOC
+		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		} else if len(move.ShipmentGBLOC) > 0 {
+			// There is a Pop bug that prevents us from using a has_one association for
+			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
+			// though there can never be more than one GBLOC for a move.
+			if move.ShipmentGBLOC[0].GBLOC != nil {
+				originGBLOC = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+			}
+		} else {
+			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
+			// we need to fall back to the origin duty location GBLOC.  If that's not available for
+			// some reason, then we should get the empty string (no GBLOC).
+			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		}
+
+		var destinationGBLOC ghcmessages.GBLOC
+		var PostalCodeToGBLOC models.PostalCodeToGBLOC
+		var err error
+		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
+			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
+		} else {
+			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
+			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
+		}
+
+		if err != nil {
+			destinationGBLOC = *ghcmessages.NewGBLOC("")
+		} else {
+			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
@@ -1828,6 +1903,11 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			OrderType:                         string(move.Orders.OrdersType),
+			RequestedPickupDate:               pickupDate,
+			RequestedDeliveryDate:             deliveryDate,
+			OriginGBLOC:                       originGBLOC,
+			DestinationGBLOC:                  destinationGBLOC,
 		}
 	}
 	return &searchMoves

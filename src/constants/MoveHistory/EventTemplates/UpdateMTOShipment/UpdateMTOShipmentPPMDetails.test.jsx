@@ -66,6 +66,43 @@ describe('when given a PPM shipment update', () => {
     ],
   };
 
+  const incentiveRecord = {
+    action: a.UPDATE,
+    eventName: o.updateMTOShipment,
+    tableName: t.ppm_shipments,
+    changedValues: {
+      final_incentive: 46855239,
+    },
+    context: [
+      {
+        shipment_type: 'PPM',
+        shipment_id_abbr: '12992',
+      },
+    ],
+  };
+
+  const w2Record = {
+    action: a.UPDATE,
+    eventName: o.updateMTOShipment,
+    tableName: t.ppm_shipments,
+    changedValues: {
+      actual_destination_postal_code: '20889',
+      actual_move_date: '2024-02-01',
+      actual_pickup_postal_code: '59801',
+      advance_amount_received: 2278600,
+      has_received_advance: true,
+      w2_address_id: '6c1df26c-76bc-42c4-9c7f-c626a78739d3',
+    },
+    context: [
+      {
+        shipment_id_abbr: '125d1',
+        shipment_type: 'PPM',
+        w2_address:
+          '{"id":"6c1df26c-76bc-42c4-9c7f-c626a78739d3","street_address_1":"123 Dad St","street_address_2":null,"city":"Missoula","state":"MT","postal_code":"59801","created_at":"2024-02-15T08:39:41.692044","updated_at":"2024-02-16T03:36:51.388835","street_address_3":null,"country":null}',
+      },
+    ],
+  };
+
   it('correctly matches the the event', () => {
     const result = getTemplate(historyRecord);
     expect(result).toMatchObject(e);
@@ -80,9 +117,9 @@ describe('when given a PPM shipment update', () => {
       ['Estimated weight', ': 2,233 lbs'],
       ['Expected departure date', ': 08 Dec 2023'],
       ['Sit expected', ': Yes'],
-      ['Estimated storage start', ': 22 Mar 2020'],
-      ['Estimated storage end', ': 13 Apr 2020'],
-      ['Estimated storage weight', ': 6,877 lbs'],
+      ['SIT estimated storage start', ': 22 Mar 2020'],
+      ['SIT estimated storage end', ': 13 Apr 2020'],
+      ['SIT estimated storage weight', ': 6,877 lbs'],
       ['Pickup postal code', ': 20906'],
       ['Destination postal code', ': 59801'],
       ['Secondary pickup postal code', ': 20832'],
@@ -118,5 +155,23 @@ describe('when given a PPM shipment update', () => {
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(value)).toBeInTheDocument();
     });
+  });
+  it('it correctly renders the final incentive amount in dollars', () => {
+    const result = getTemplate(incentiveRecord);
+    render(result.getDetails(incentiveRecord));
+    expect(screen.getByText('Final incentive')).toBeInTheDocument();
+    expect(screen.getByText(': $468,552.39')).toBeInTheDocument();
+  });
+  it('it correctly renders details of a customer completing a PPM', () => {
+    const result = getTemplate(w2Record);
+    render(result.getDetails(w2Record));
+    expect(screen.getByText('W2 Address')).toBeInTheDocument();
+    expect(screen.getByText(': 123 Dad St, Missoula, MT 59801')).toBeInTheDocument();
+    expect(screen.getByText('Departure date')).toBeInTheDocument();
+    expect(screen.getByText(': 01 Feb 2024')).toBeInTheDocument();
+    expect(screen.getByText('Starting ZIP')).toBeInTheDocument();
+    expect(screen.getByText(': 59801')).toBeInTheDocument();
+    expect(screen.getByText('Ending ZIP')).toBeInTheDocument();
+    expect(screen.getByText(': 20889')).toBeInTheDocument();
   });
 });

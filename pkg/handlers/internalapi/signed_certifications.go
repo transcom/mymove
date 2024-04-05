@@ -22,15 +22,14 @@ func payloadForSignedCertificationModel(cert models.SignedCertification) *intern
 	}
 
 	return &internalmessages.SignedCertificationPayload{
-		CertificationText:        handlers.FmtString(cert.CertificationText),
-		CertificationType:        ptrCertificationType,
-		CreatedAt:                handlers.FmtDateTime(cert.CreatedAt),
-		Date:                     handlers.FmtDateTime(cert.Date),
-		ID:                       handlers.FmtUUID(cert.ID),
-		MoveID:                   handlers.FmtUUID(cert.MoveID),
-		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(cert.PersonallyProcuredMoveID),
-		Signature:                handlers.FmtString(cert.Signature),
-		UpdatedAt:                handlers.FmtDateTime(cert.UpdatedAt),
+		CertificationText: handlers.FmtString(cert.CertificationText),
+		CertificationType: ptrCertificationType,
+		CreatedAt:         handlers.FmtDateTime(cert.CreatedAt),
+		Date:              handlers.FmtDateTime(cert.Date),
+		ID:                handlers.FmtUUID(cert.ID),
+		MoveID:            handlers.FmtUUID(cert.MoveID),
+		Signature:         handlers.FmtString(cert.Signature),
+		UpdatedAt:         handlers.FmtDateTime(cert.UpdatedAt),
 	}
 }
 
@@ -45,17 +44,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID, _ := uuid.FromString(params.MoveID.String())
 			payload := params.CreateSignedCertificationPayload
-
-			var ppmID *uuid.UUID
-			if payload.PersonallyProcuredMoveID != nil {
-				ppmID, err := uuid.FromString((*payload.PersonallyProcuredMoveID).String())
-				if err == nil {
-					_, err = models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), ppmID)
-					if err != nil {
-						return handlers.ResponseForError(appCtx.Logger(), err), err
-					}
-				}
-			}
 
 			var ptrCertType *models.SignedCertificationType
 			if payload.CertificationType != nil {
@@ -73,7 +61,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 				*payload.CertificationText,
 				*payload.Signature,
 				(time.Time)(*payload.Date),
-				ppmID,
 				ptrCertType)
 			if verrs.HasAny() || err != nil {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

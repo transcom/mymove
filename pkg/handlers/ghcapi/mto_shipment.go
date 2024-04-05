@@ -97,7 +97,8 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"SecondaryDeliveryAddress",
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
-				"PPMShipment"}
+				"PPMShipment",
+				"Distance"}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 
@@ -287,7 +288,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					), err
 				}
 			}
-			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
+			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc")
 			if err != nil {
 				return handleError(err)
 			}

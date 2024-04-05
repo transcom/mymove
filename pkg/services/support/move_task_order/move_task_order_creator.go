@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/support"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 type moveTaskOrderCreator struct {
@@ -276,7 +275,6 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 		ID:            uuid.FromStringOrNil(customer.ID.String()),
 		Affiliation:   (*models.ServiceMemberAffiliation)(customer.Agency),
 		Edipi:         customer.DodID,
-		Rank:          (*models.ServiceMemberRank)(customer.Rank),
 		FirstName:     customer.FirstName,
 		LastName:      customer.LastName,
 		PersonalEmail: customer.Email,
@@ -302,7 +300,8 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.Rank != nil {
-		model.Grade = models.StringPointer((string)(*orderPayload.Rank))
+		grade := internalmessages.OrderPayGrade(*orderPayload.Rank) // Convert support API "Rank" into our internal tracking of "Grade"
+		model.Grade = &grade
 	}
 
 	if orderPayload.Status != nil {
@@ -385,15 +384,14 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload == nil {
 		return nil
 	}
-	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
+
 	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:        &mtoPayload.ReferenceID,
-		Locator:            mtoPayload.MoveCode,
-		PPMEstimatedWeight: &ppmEstimatedWeight,
-		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       &contractorID,
-		Status:             (models.MoveStatus)(mtoPayload.Status),
+		ReferenceID:  &mtoPayload.ReferenceID,
+		Locator:      mtoPayload.MoveCode,
+		PPMType:      &mtoPayload.PpmType,
+		ContractorID: &contractorID,
+		Status:       (models.MoveStatus)(mtoPayload.Status),
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {

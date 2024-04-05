@@ -14,7 +14,10 @@ export default {
   separation_date: 'separation_date',
   expected_departure_date: 'expected_departure_date',
   sit_estimated_departure_date: 'sit_estimated_departure_date',
+  sit_requested_delivery: 'sit_requested_delivery',
   sit_estimated_entry_date: 'sit_estimated_entry_date',
   sit_start_date: 'sit_start_date',
   sit_end_date: 'sit_end_date',
+  sit_customer_contacted: 'sit_customer_contacted',
+  actual_move_date: 'actual_move_date',
 };

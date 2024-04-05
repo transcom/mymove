@@ -22,7 +22,6 @@ import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { getWeightTicketNetWeight } from 'utils/shipmentWeights';
-import { calculateWeightRequested } from 'hooks/custom';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const validationSchema = Yup.object().shape({
@@ -48,7 +47,9 @@ const validationSchema = Yup.object().shape({
 
 function ReviewWeightTicket({
   mtoShipment,
-  mtoShipments,
+  ppmShipmentInfo,
+  currentMtoShipments,
+  setCurrentMtoShipments,
   order,
   weightTicket,
   tripNumber,
@@ -57,6 +58,7 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
+  updateDocumentSetAllowableWeight,
 }) {
   const {
     vehicleDescription,
@@ -74,21 +76,73 @@ function ReviewWeightTicket({
   const currentAllowableWeight = useRef(
     allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
   );
+  if (!allowableWeight || (allowableWeight && currentAllowableWeight.current !== allowableWeight)) {
+    const newWeight = weightTicket.allowableWeight
+      ? weightTicket.allowableWeight
+      : weightTicket.fullWeight - weightTicket.emptyWeight;
+    currentAllowableWeight.current = newWeight;
+    // updateAllowableWeight(newWeight);
+  }
   const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
   const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
   const [canEditRejection, setCanEditRejection] = useState(true);
   const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
-  const [currentMtoShipments, setCurrentMtoShipments] = useState(mtoShipments);
   const { mutate: patchWeightTicketMutation } = useMutation({
     mutationFn: patchWeightTicket,
     onSuccess,
     onError,
   });
-  const ppmShipment = mtoShipment?.ppmShipment;
 
   const weightAllowance = order.entitlement?.totalWeight;
 
+  const createUpdatedWeightTicketWithUpdatedValues = (updatedFormValues) => {
+    const updatedWeightTicket = {
+      ...weightTicket,
+      emptyWeight: parseInt(removeCommas(updatedFormValues.emptyWeight), 10),
+      fullWeight: parseInt(removeCommas(updatedFormValues.fullWeight), 10),
+      allowableWeight: parseInt(removeCommas(updatedFormValues.allowableWeight), 10),
+      status: updatedFormValues.status,
+    };
+    return updatedWeightTicket;
+  };
+  const updateMtoShipmentsWithNewWeightValues = (MtoShipmentsToUpdate, updatedWeightTicket) => {
+    const mtoShipmentIndex = MtoShipmentsToUpdate.findIndex((index) => index.id === mtoShipment.id);
+    const updatedPPMShipment = {
+      ...MtoShipmentsToUpdate[mtoShipmentIndex].ppmShipment,
+    };
+    const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
+      (ticket) => ticket.id === updatedWeightTicket.id,
+    );
+    updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
+    const updatedMtoShipment = {
+      ...mtoShipment,
+      ppmShipment: updatedPPMShipment,
+    };
+    const updatedMtoShipments = MtoShipmentsToUpdate;
+    updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
+    return updatedMtoShipments;
+  };
+  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, currentMtoShipmentId, updatedFormValues) => {
+    const updatedWeightTicket = createUpdatedWeightTicketWithUpdatedValues(updatedFormValues);
+    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(MtoShipmentsToUpdate, updatedWeightTicket);
+    setCurrentMtoShipments(newMtoShipments);
+    let newWeightTotal = 0;
+    const currentShipmentIndex = newMtoShipments.findIndex((shipment) => shipment.id === currentMtoShipmentId);
+    for (let i = 0; i < newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets.length; i += 1) {
+      if (newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].status !== 'REJECTED') {
+        newWeightTotal +=
+          newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].fullWeight -
+          newMtoShipments[currentShipmentIndex].ppmShipment.weightTickets[i].emptyWeight;
+      }
+    }
+    setCurrentWeightTicket(updatedWeightTicket);
+    updateTotalWeight(newWeightTotal);
+  };
+
   const handleSubmit = (formValues) => {
+    if (currentMtoShipments !== undefined && currentMtoShipments.length > 0) {
+      getNewNetWeightCalculation(currentMtoShipments, mtoShipment.id, formValues);
+    }
     const ownsTrailerSubmit = formValues.ownsTrailer === 'true';
     const trailerMeetsCriteriaSubmit = ownsTrailerSubmit ? formValues.trailerMeetsCriteria === 'true' : false;
     const payload = {
@@ -119,40 +173,6 @@ function ReviewWeightTicket({
   } else {
     isTrailerClaimable = '';
   }
-  const createUpdatedWeightTicketWithUpdatedValues = (updatedFormValues) => {
-    const updatedWeightTicket = {
-      ...weightTicket,
-      emptyWeight: parseInt(removeCommas(updatedFormValues.emptyWeight), 10),
-      fullWeight: parseInt(removeCommas(updatedFormValues.fullWeight), 10),
-      allowableWeight: parseInt(removeCommas(updatedFormValues.allowableWeight), 10),
-    };
-    return updatedWeightTicket;
-  };
-  const updateMtoShipmentsWithNewWeightValues = (MtoShipmentsToUpdate, updatedWeightTicket) => {
-    const mtoShipmentIndex = MtoShipmentsToUpdate.findIndex((index) => index.id === mtoShipment.id);
-    const updatedPPMShipment = {
-      ...MtoShipmentsToUpdate[mtoShipmentIndex].ppmShipment,
-    };
-    const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
-      (ticket) => ticket.id === updatedWeightTicket.id,
-    );
-    updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
-    const updatedMtoShipment = {
-      ...mtoShipment,
-      ppmShipment: updatedPPMShipment,
-    };
-    const updatedMtoShipments = MtoShipmentsToUpdate;
-    updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
-    return updatedMtoShipments;
-  };
-  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, updatedFormValues) => {
-    const updatedWeightTicket = createUpdatedWeightTicketWithUpdatedValues(updatedFormValues);
-    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(MtoShipmentsToUpdate, updatedWeightTicket);
-    const newWeightTotal = calculateWeightRequested(newMtoShipments);
-    setCurrentWeightTicket(updatedWeightTicket);
-    setCurrentMtoShipments(newMtoShipments);
-    updateTotalWeight(newWeightTotal);
-  };
   // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
   const initialValues = {
     emptyWeight: `${currentEmptyWeight.current}`,
@@ -189,6 +209,8 @@ function ReviewWeightTicket({
             if (newApprovalState === false) {
               setCanEditRejection(true);
               setFieldValue('rejectionReason', '');
+            } else if (newApprovalState === true) {
+              setFieldValue('rejectionReason', '');
             }
             handleChange(event);
           };
@@ -203,10 +225,14 @@ function ReviewWeightTicket({
               currentFullWeight.current = `${removeCommas(event.target.value)}`;
             }
             if (event.target.name === 'allowableWeight') {
-              currentAllowableWeight.current = `${removeCommas(event.target.value)}`;
+              const trimmedValue = removeCommas(event.target.value);
+              if (parseInt(trimmedValue, 10) !== currentAllowableWeight.current) {
+                currentAllowableWeight.current = trimmedValue;
+                updateDocumentSetAllowableWeight(currentAllowableWeight.current);
+              }
             }
-            if (mtoShipments !== undefined && mtoShipments.length > 0) {
-              getNewNetWeightCalculation(mtoShipments, values);
+            if (currentMtoShipments !== undefined && currentMtoShipments.length > 0) {
+              getNewNetWeightCalculation(currentMtoShipments, mtoShipment.id, values);
             }
             setFieldTouched(true);
           };
@@ -226,7 +252,7 @@ function ReviewWeightTicket({
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
-              <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
@@ -417,7 +443,7 @@ ReviewWeightTicket.propTypes = {
   ppmNumber: number.isRequired,
   onSuccess: func,
   formRef: object,
-  mtoShipments: PropTypes.arrayOf(ShipmentShape),
+  currentMtoShipments: PropTypes.arrayOf(ShipmentShape),
   order: OrderShape.isRequired,
 };
 
@@ -426,6 +452,6 @@ ReviewWeightTicket.defaultProps = {
   mtoShipment: null,
   onSuccess: null,
   formRef: null,
-  mtoShipments: [],
+  currentMtoShipments: [],
 };
 export default React.memo(ReviewWeightTicket);

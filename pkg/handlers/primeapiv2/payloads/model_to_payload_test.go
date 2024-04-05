@@ -47,7 +47,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		PaymentRequests:            models.PaymentRequests{},
 		SubmittedAt:                &submittedAt,
 		UpdatedAt:                  time.Now(),
-		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},
 		MTOServiceItems:            models.MTOServiceItems{},
@@ -270,7 +269,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberRankE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
 
 		payload := Entitlement(&entitlement)
 
@@ -309,7 +308,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberRankE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
 
 		payload := Entitlement(&entitlement)
 

@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import { profileStates } from 'constants/customerStates';
-import { MOVE_STATUSES, NULL_UUID } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 
 /**
  * Use this file for selecting "slices" of state from Redux and for computed
@@ -28,11 +28,6 @@ export const selectServiceMemberFromLoggedInUser = (state) => {
   return state.entities.serviceMembers?.[`${user.service_member}`] || null;
 };
 
-export const selectCurrentDutyLocation = (state) => {
-  const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  return serviceMember?.current_location || null;
-};
-
 export const selectServiceMemberAffiliation = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   return serviceMember?.affiliation || null;
@@ -43,7 +38,6 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
 
   /* eslint-disable camelcase */
   const {
-    rank,
     edipi,
     affiliation,
     first_name,
@@ -52,18 +46,15 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
     personal_email,
     phone_is_preferred,
     email_is_preferred,
-    current_location,
     residential_address,
     backup_mailing_address,
     backup_contacts,
   } = serviceMember;
 
-  if (!rank || !edipi || !affiliation) return profileStates.EMPTY_PROFILE;
+  if (!edipi || !affiliation) return profileStates.EMPTY_PROFILE;
   if (!first_name || !last_name) return profileStates.DOD_INFO_COMPLETE;
   if (!telephone || !personal_email || !(phone_is_preferred || email_is_preferred)) return profileStates.NAME_COMPLETE;
-  if (!current_location || !current_location.id || current_location.id === NULL_UUID)
-    return profileStates.CONTACT_INFO_COMPLETE;
-  if (!residential_address) return profileStates.DUTY_LOCATION_COMPLETE;
+  if (!residential_address) return profileStates.CONTACT_INFO_COMPLETE;
   if (!backup_mailing_address) return profileStates.ADDRESS_COMPLETE;
   if (!backup_contacts || !backup_contacts.length) return profileStates.BACKUP_ADDRESS_COMPLETE;
   return profileStates.BACKUP_CONTACTS_COMPLETE;
@@ -76,14 +67,12 @@ export const selectIsProfileComplete = createSelector(
   (serviceMember) =>
     !!(
       serviceMember &&
-      serviceMember.rank &&
       serviceMember.edipi &&
       serviceMember.affiliation &&
       serviceMember.first_name &&
       serviceMember.last_name &&
       serviceMember.telephone &&
       serviceMember.personal_email &&
-      serviceMember.current_location?.id &&
       serviceMember.residential_address?.postalCode &&
       serviceMember.backup_mailing_address?.postalCode &&
       serviceMember.backup_contacts?.length > 0
@@ -127,6 +116,11 @@ export const selectUploadsForCurrentAmendedOrders = (state) => {
   return orders ? orders.uploaded_amended_orders?.uploads : [];
 };
 
+export const selectCurrentDutyLocation = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders?.origin_duty_location || null;
+};
+
 /** Moves */
 export const selectMovesForLoggedInUser = (state) => {
   const orders = selectOrdersForLoggedInUser(state);
@@ -149,6 +143,28 @@ export const selectCurrentMove = (state) => {
     (m) => ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'].indexOf(m?.status) > -1,
   );
   return activeMove || moves[0] || null;
+};
+
+export const selectAllMoves = (state) => {
+  if (state.entities.serviceMemberMoves) return state.entities.serviceMemberMoves;
+  return { currentMove: [], previousMoves: [] };
+};
+
+export const selectCurrentMoveFromAllMoves = (serviceMemberMoves, moveId) => {
+  const currentMove = serviceMemberMoves.currentMove?.find((m) => m.id === moveId);
+  const previousMove = serviceMemberMoves.previousMoves?.find((m) => m.id === moveId);
+  const move = currentMove || previousMove;
+  return move;
+};
+
+export const selectShipmentsFromMove = (move) => {
+  const shipments = move?.mtoShipments || {};
+  return shipments;
+};
+
+export const selectCurrentShipmentFromMove = (move, shipmentId) => {
+  const currentShipment = move?.mtoShipments?.find((s) => s.id === shipmentId) || {};
+  return currentShipment;
 };
 
 export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
@@ -240,16 +256,8 @@ export const selectHasCurrentPPM = (state) => {
   return !!selectCurrentPPM(state);
 };
 
-export function selectPPMEstimateRange(state) {
-  return state.entities?.ppmEstimateRanges?.undefined || null;
-}
-
 export function selectPPMSitEstimate(state) {
   return state.entities?.ppmSitEstimate?.undefined?.estimate || null;
-}
-
-export function selectReimbursementById(state, reimbursementId) {
-  return state.entities?.reimbursements?.[`${reimbursementId}`] || null;
 }
 
 export const selectWeightAllotmentsForLoggedInUser = createSelector(
@@ -257,17 +265,13 @@ export const selectWeightAllotmentsForLoggedInUser = createSelector(
   selectCurrentOrders,
   (serviceMember, orders) => {
     const weightAllotment = {
-      pro_gear: serviceMember.weight_allotment?.pro_gear_weight,
-      pro_gear_spouse: orders?.spouse_has_pro_gear ? serviceMember.weight_allotment?.pro_gear_weight_spouse : 0,
+      proGear: orders?.entitlement.proGear,
+      proGearSpouse: orders?.entitlement.proGearSpouse,
     };
 
-    if (orders?.has_dependents) {
-      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self_plus_dependents;
-    } else {
-      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self;
-    }
+    weightAllotment.weight = orders.authorizedWeight;
 
-    weightAllotment.sum = [weightAllotment.weight, weightAllotment.pro_gear, weightAllotment.pro_gear_spouse].reduce(
+    weightAllotment.sum = [weightAllotment.weight, weightAllotment.proGear, weightAllotment.proGearSpouse].reduce(
       (acc, num) => acc + num,
       0,
     );

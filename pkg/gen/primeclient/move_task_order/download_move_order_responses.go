@@ -61,7 +61,7 @@ func (o *DownloadMoveOrderReader) ReadResponse(response runtime.ClientResponse, 
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[GET /moves/{locator}/order/download] downloadMoveOrder", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /moves/{locator}/documents] downloadMoveOrder", response, response.Code())
 	}
 }
 
@@ -118,11 +118,11 @@ func (o *DownloadMoveOrderOK) Code() int {
 }
 
 func (o *DownloadMoveOrderOK) Error() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderOK  %+v", 200, o.Payload)
 }
 
 func (o *DownloadMoveOrderOK) String() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderOK  %+v", 200, o.Payload)
 }
 
 func (o *DownloadMoveOrderOK) GetPayload() io.Writer {
@@ -191,11 +191,11 @@ func (o *DownloadMoveOrderBadRequest) Code() int {
 }
 
 func (o *DownloadMoveOrderBadRequest) Error() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *DownloadMoveOrderBadRequest) String() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *DownloadMoveOrderBadRequest) GetPayload() *primemessages.ClientError {
@@ -259,11 +259,11 @@ func (o *DownloadMoveOrderForbidden) Code() int {
 }
 
 func (o *DownloadMoveOrderForbidden) Error() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderForbidden  %+v", 403, o.Payload)
 }
 
 func (o *DownloadMoveOrderForbidden) String() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderForbidden  %+v", 403, o.Payload)
 }
 
 func (o *DownloadMoveOrderForbidden) GetPayload() *primemessages.ClientError {
@@ -327,11 +327,11 @@ func (o *DownloadMoveOrderNotFound) Code() int {
 }
 
 func (o *DownloadMoveOrderNotFound) Error() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderNotFound  %+v", 404, o.Payload)
 }
 
 func (o *DownloadMoveOrderNotFound) String() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderNotFound  %+v", 404, o.Payload)
 }
 
 func (o *DownloadMoveOrderNotFound) GetPayload() *primemessages.ClientError {
@@ -395,11 +395,11 @@ func (o *DownloadMoveOrderUnprocessableEntity) Code() int {
 }
 
 func (o *DownloadMoveOrderUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *DownloadMoveOrderUnprocessableEntity) String() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *DownloadMoveOrderUnprocessableEntity) GetPayload() *primemessages.ValidationError {
@@ -463,11 +463,11 @@ func (o *DownloadMoveOrderInternalServerError) Code() int {
 }
 
 func (o *DownloadMoveOrderInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *DownloadMoveOrderInternalServerError) String() string {
-	return fmt.Sprintf("[GET /moves/{locator}/order/download][%d] downloadMoveOrderInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[GET /moves/{locator}/documents][%d] downloadMoveOrderInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *DownloadMoveOrderInternalServerError) GetPayload() *primemessages.Error {

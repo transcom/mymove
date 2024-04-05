@@ -1,6 +1,6 @@
 import Swagger from 'swagger-client';
 
-import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
+import { makeSwaggerRequest, requestInterceptor, responseInterceptor, makeSwaggerRequestRaw } from './swaggerRequest';
 
 let internalClient = null;
 
@@ -26,6 +26,11 @@ export function getResponseError(response, defaultErrorMessage) {
 export async function makeInternalRequest(operationPath, params = {}, options = {}) {
   const client = await getInternalClient();
   return makeSwaggerRequest(client, operationPath, params, options);
+}
+
+export async function makeInternalRequestRaw(operationPath, params = {}) {
+  const client = await getInternalClient();
+  return makeSwaggerRequestRaw(client, operationPath, params);
 }
 
 export async function getLoggedInUser(normalize = true) {
@@ -148,6 +153,18 @@ export async function getOrdersForServiceMember(serviceMemberId) {
   );
 }
 
+export async function getOrders(ordersId) {
+  return makeInternalRequest(
+    'orders.showOrders',
+    {
+      ordersId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createOrders(orders) {
   return makeInternalRequest(
     'orders.createOrders',
@@ -226,11 +243,12 @@ export async function createUploadForPPMDocument(ppmShipmentId, documentId, file
   );
 }
 
-export async function deleteUpload(uploadId) {
+export async function deleteUpload(uploadId, orderId) {
   return makeInternalRequest(
     'uploads.deleteUpload',
     {
       uploadId,
+      orderId,
     },
     {
       normalize: false,
@@ -239,6 +257,18 @@ export async function deleteUpload(uploadId) {
 }
 
 /** MOVES */
+export async function getAllMoves(serviceMemberId) {
+  return makeInternalRequest(
+    'moves.getAllMoves',
+    {
+      serviceMemberId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getMove(moveId) {
   return makeInternalRequest(
     'moves.showMove',
@@ -412,20 +442,6 @@ export async function deleteProGearWeightTicket(ppmShipmentId, proGearWeightTick
 }
 
 /** PPMS */
-export async function patchPPM(moveId, ppm) {
-  return makeInternalRequest(
-    'ppm.patchPersonallyProcuredMove',
-    {
-      moveId,
-      personallyProcuredMoveId: ppm.id,
-      patchPersonallyProcuredMovePayload: ppm,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
 export async function calculatePPMEstimate(moveDate, originZip, originDutyLocationZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMEstimate',
@@ -452,18 +468,6 @@ export async function calculatePPMSITEstimate(ppmId, moveDate, sitDays, originZi
       origin_zip: originZip,
       orders_id: ordersId,
       weight_estimate: weightEstimate,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
-export async function requestPayment(ppmId) {
-  return makeInternalRequest(
-    'ppm.requestPPMPayment',
-    {
-      personallyProcuredMoveId: ppmId,
     },
     {
       normalize: false,
@@ -526,4 +530,8 @@ export async function submitPPMShipmentSignedCertification(ppmShipmentId, payloa
 
 export async function searchTransportationOffices(search) {
   return makeInternalRequest('transportation_offices.getTransportationOffices', { search }, { normalize: false });
+}
+
+export async function downloadPPMAOAPacket(ppmShipmentId) {
+  return makeInternalRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
 }

@@ -13,22 +13,30 @@ beforeEach(() => {
 
 jest.setTimeout(60000);
 
+const mockCallback = jest.fn();
+
 const defaultProps = {
   order: {
     entitlement: {
       totalWeight: 2000,
     },
   },
-  ppmShipment: {
+  ppmShipmentInfo: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+    expectedDepartureDate: '2022-12-02',
+    actualMoveDate: '2022-12-06',
     actualPickupPostalCode: '90210',
-    actualMoveDate: '2022-04-30',
     actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+    miles: 300,
+    estimatedWeight: 3000,
+    actualWeight: 3500,
   },
   tripNumber: 1,
+  showAllFields: false,
   ppmNumber: 1,
+  updateAllowableWeight: mockCallback,
+  updateDocumentSetAllowableWeight: mockCallback,
+  setCurrentMtoShipments: mockCallback,
 };
 
 const baseWeightTicketProps = {
@@ -278,7 +286,7 @@ const fullShipmentProps = {
     status: 'APPROVED',
     updatedAt: '2023-12-20T17:33:50.079Z',
   },
-  mtoShipments: [
+  currentMtoShipments: [
     {
       approvedDate: '2020-03-20T00:00:00.000Z',
       calculatedBillableWeight: 980,
@@ -499,11 +507,14 @@ describe('ReviewWeightTicket component', () => {
     });
 
     it('populates edit form with existing weight ticket values and modifies them to alter the net weight calculation', async () => {
-      const mockCallback = jest.fn();
-
       render(
         <MockProviders>
-          <ReviewWeightTicket updateTotalWeight={mockCallback} {...defaultProps} {...fullShipmentProps} />
+          <ReviewWeightTicket
+            updateTotalWeight={mockCallback}
+            updateDocumentSetAllowableWeight={mockCallback}
+            {...defaultProps}
+            {...fullShipmentProps}
+          />
         </MockProviders>,
       );
 
