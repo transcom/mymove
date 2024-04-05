@@ -4,6 +4,7 @@ import { makeSwaggerRequest, makeSwaggerRequestRaw, requestInterceptor, response
 
 let primeSimulatorClient = null;
 let primeSimulatorClientV2 = null;
+let primeSimulatorClientV3 = null;
 
 // setting up the same config from Swagger/api.js
 export async function getPrimeSimulatorClient() {
@@ -31,14 +32,14 @@ export async function getPrimeSimulatorClientV2() {
 
 // setting up the same config from Swagger/api.js
 export async function getPrimeSimulatorClientV3() {
-  if (!primeSimulatorClientV2) {
-    primeSimulatorClientV2 = await Swagger({
+  if (!primeSimulatorClientV3) {
+    primeSimulatorClientV3 = await Swagger({
       url: '/prime/v3/swagger.yaml',
       requestInterceptor,
       responseInterceptor,
     });
   }
-  return primeSimulatorClientV2;
+  return primeSimulatorClientV3;
 }
 
 export async function makePrimeSimulatorRequest(operationPath, params = {}, options = {}) {
@@ -62,7 +63,7 @@ export async function getPrimeSimulatorAvailableMoves() {
 }
 
 export async function getPrimeSimulatorMove(key, locator) {
-  return makePrimeSimulatorRequestV2('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
+  return makePrimeSimulatorRequestV3('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
 }
 
 export async function createPaymentRequest({ moveTaskOrderID, serviceItems }) {
@@ -142,7 +143,7 @@ export function updatePrimeMTOShipment({
   body,
 }) {
   const operationPath = 'mtoShipment.updateMTOShipment';
-  return makePrimeSimulatorRequest(
+  return makePrimeSimulatorRequestV3(
     operationPath,
     {
       mtoShipmentID,

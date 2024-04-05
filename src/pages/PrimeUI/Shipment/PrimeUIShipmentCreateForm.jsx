@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, FormGroup, Fieldset, Label, Textarea } from '@trussworks/react-uswds';
+import { Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 import { Field, useField, useFormikContext } from 'formik';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -9,8 +9,6 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
-import Hint from 'components/Hint/index';
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { dropdownInputOptions } from 'utils/formatters';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
@@ -20,7 +18,7 @@ const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 const PrimeUIShipmentCreateForm = () => {
   const { values } = useFormikContext();
   const { shipmentType } = values;
-  const { sitExpected, hasProGear } = values.ppmShipment;
+  const { sitExpected, hasProGear, hasSecondaryDestination, hasSecondaryPickup } = values.ppmShipment;
   const [, , checkBoxHelperProps] = useField('diversion');
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
@@ -73,91 +71,81 @@ const PrimeUIShipmentCreateForm = () => {
           <h2 className={styles.sectionHeader}>Origin Info</h2>
           <AddressFields
             name="ppmShipment.pickupAddress"
+            legend="Pickup Address"
             render={(fields) => (
               <>
                 <p>What address are the movers picking up from?</p>
                 {fields}
                 <h4>Second pickup location</h4>
                 <FormGroup>
-                  <Fieldset>
-                    <legend className="usa-label">Will you add items to your PPM from a different address?</legend>
+                  <p>
+                    Will the movers pick up any belongings from a second address? (Must be near the pickup address.
+                    Subject to approval.)
+                  </p>
+                  <div className={formStyles.radioGroup}>
                     <Field
                       as={Radio}
-                      data-testid="yes-secondary-pickup-address"
-                      id="yes-secondary-pickup-address"
+                      id="has-secondary-pickup"
+                      data-testid="has-secondary-pickup"
                       label="Yes"
-                      name="ppmShipment.hasSecondaryPickupAddress"
+                      name="ppmShipment.hasSecondaryPickup"
                       value="true"
-                      checked={values.ppmShipment.hasSecondaryPickupAddress === 'true'}
+                      title="Yes, there is a second pickup location"
+                      checked={hasSecondaryPickup === 'true'}
                     />
                     <Field
                       as={Radio}
-                      data-testid="no-secondary-pickup-address"
-                      id="no-secondary-pickup-address"
+                      id="no-secondary-pickup"
+                      data-testid="no-secondary-pickup"
                       label="No"
-                      name="ppmShipment.hasSecondaryPickupAddress"
+                      name="hasSecondaryPickup"
                       value="false"
-                      checked={values.ppmShipment.hasSecondaryPickupAddress === 'false'}
+                      title="No, there is not a second pickup location"
+                      checked={hasSecondaryPickup !== 'true'}
                     />
-                  </Fieldset>
+                  </div>
                 </FormGroup>
-                {values.ppmShipment.hasSecondaryPickupAddress === 'true' && (
-                  <>
-                    <AddressFields name="ppmShipment.secondaryPickupAddress" />
-                    <Hint className={ppmStyles.hint}>
-                      <p>A second origin address could mean that your final incentive is lower than your estimate.</p>
-                      <p>
-                        Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
-                        your move counselor for more detailed information.
-                      </p>
-                    </Hint>
-                  </>
-                )}
+                {hasSecondaryPickup === 'true' && <AddressFields name="ppmShipment.secondaryPickupAddress" />}
               </>
             )}
           />
           <h2 className={styles.sectionHeader}>Destination Info</h2>
           <AddressFields
             name="ppmShipment.destinationAddress"
+            legend="Destination Address"
             render={(fields) => (
               <>
-                <p>Please input Delivery Address</p>
                 {fields}
+                <h4>Second destination address</h4>
                 <FormGroup>
-                  <Fieldset>
-                    <legend className="usa-label">Will you deliver part of your PPM to a different address?</legend>
+                  <p>
+                    Will the movers deliver any belongings to a second address? (Must be near the destination address.
+                    Subject to approval.)
+                  </p>
+                  <div className={formStyles.radioGroup}>
                     <Field
                       as={Radio}
-                      data-testid="yes-secondary-destination-address"
-                      id="hasSecondaryDestinationAddressYes"
+                      data-testid="has-secondary-destination"
+                      id="has-secondary-destination"
                       label="Yes"
-                      name="ppmShipment.hasSecondaryDestinationAddress"
+                      name="ppmShipment.hasSecondaryDestination"
                       value="true"
-                      checked={values.ppmShipment.hasSecondaryDestinationAddress === 'true'}
+                      title="Yes, there is a second destination location"
+                      checked={hasSecondaryDestination === 'true'}
                     />
                     <Field
                       as={Radio}
-                      data-testid="no-secondary-destination-address"
-                      id="hasSecondaryDestinationAddressNo"
+                      data-testid="no-secondary-destination"
+                      id="no-secondary-destination"
                       label="No"
-                      name="ppmShipment.hasSecondaryDestinationAddress"
+                      name="ppmShipment.hasSecondaryDestination"
                       value="false"
-                      checked={values.ppmShipment.hasSecondaryDestinationAddress === 'false'}
+                      title="No, there is not a second destination location"
+                      checked={hasSecondaryDestination !== 'true'}
                     />
-                  </Fieldset>
+                  </div>
                 </FormGroup>
-                {values.ppmShipment.hasSecondaryDestinationAddress === 'true' && (
-                  <>
-                    <AddressFields name="ppmShipment.secondaryDestinationAddress" />
-                    <Hint className={ppmStyles.hint}>
-                      <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
-                      <p>
-                        Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
-                        your move counselor for more detailed information.
-                      </p>
-                    </Hint>
-                  </>
-                )}
+                {hasSecondaryDestination === 'true' && <AddressFields name="ppmShipment.secondaryDestinationAddress" />}
               </>
             )}
           />
