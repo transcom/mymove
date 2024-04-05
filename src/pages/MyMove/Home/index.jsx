@@ -56,7 +56,7 @@ import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete }
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
+import DownloadPacketErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
@@ -84,7 +84,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
-      showDownloadPPMAOAPaperworkErrorAlert: false,
+      showDownloadPPMPaperworkErrorAlert: false,
     };
   }
 
@@ -364,9 +364,9 @@ export class Home extends Component {
     navigate(path);
   };
 
-  toggleDownloadAOAErrorModal = () => {
+  toggleDownloadPacketErrorModal = () => {
     this.setState((prevState) => ({
-      showDownloadPPMAOAPaperworkErrorAlert: !prevState.showDownloadPPMAOAPaperworkErrorAlert,
+      showDownloadPPMPaperworkErrorAlert: !prevState.showDownloadPPMPaperworkErrorAlert,
     }));
   };
 
@@ -400,7 +400,7 @@ export class Home extends Component {
       targetShipmentId,
       showDeleteSuccessAlert,
       showDeleteErrorAlert,
-      showDownloadPPMAOAPaperworkErrorAlert,
+      showDownloadPPMPaperworkErrorAlert,
     } = this.state;
 
     // early return if loading user/service member
@@ -448,9 +448,9 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
-        <DownloadAOAErrorModal
-          isOpen={showDownloadPPMAOAPaperworkErrorAlert}
-          closeModal={this.toggleDownloadAOAErrorModal}
+        <DownloadPacketErrorModal
+          isOpen={showDownloadPPMPaperworkErrorAlert}
+          closeModal={this.toggleDownloadPacketErrorModal}
         />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
@@ -637,7 +637,7 @@ export class Home extends Component {
                                         id={shipment?.ppmShipment?.id}
                                         label="Download AOA Paperwork (PDF)"
                                         asyncRetrieval={downloadPPMAOAPacket}
-                                        onFailure={this.toggleDownloadAOAErrorModal}
+                                        onFailure={this.toggleDownloadPacketErrorModal}
                                       />
                                     </p>
                                   )}
@@ -690,7 +690,11 @@ export class Home extends Component {
                       completedHeaderText="Manage your PPM"
                       step={this.hasAdvanceRequested ? '6' : '5'}
                     >
-                      <PPMSummaryList shipments={ppmShipments} onUploadClick={this.handlePPMUploadClick} />
+                      <PPMSummaryList
+                        shipments={ppmShipments}
+                        onUploadClick={this.handlePPMUploadClick}
+                        onDownloadError={this.toggleDownloadPacketErrorModal}
+                      />
                     </Step>
                   )}
                 </SectionWrapper>

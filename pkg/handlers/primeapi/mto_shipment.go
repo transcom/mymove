@@ -180,6 +180,14 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
+			if dbShipment.Status == models.MTOShipmentStatusApproved &&
+				(params.Body.DestinationAddress.City != nil ||
+					params.Body.DestinationAddress.State != nil ||
+					params.Body.DestinationAddress.PostalCode != nil) {
+				return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"This shipment is approved, please use the updateShipmentDestinationAddress endpoint to update the destination address", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
+			}
+
 			var agents []models.MTOAgent
 			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
 			if err != nil {
