@@ -1,7 +1,42 @@
-ALTER TABLE moves ADD COLUMN shipment_seq_num INT DEFAULT 0;
-ALTER TABLE mto_shipments ADD COLUMN shipment_locator TEXT;
+-- Alter tables outside of transaction blocks due to auto-commit behavior
+ALTER TABLE moves ADD COLUMN IF NOT EXISTS shipment_seq_num INT;
+ALTER TABLE mto_shipments ADD COLUMN IF NOT EXISTS shipment_locator TEXT;
 
+-- Use a separate block for transactional operations
+DO $$
+BEGIN
+    -- Update existing 'mto_shipments' rows with a 'shipment_locator'
+    WITH calculated_values AS (
+        SELECT
+            s.id AS shipment_id,
+            m.id AS move_id,
+            m.locator || '-' || LPAD((COALESCE(m.shipment_seq_num, 0) + ROW_NUMBER() OVER (PARTITION BY m.id ORDER BY s.created_at))::text, 2, '0') AS new_locator
+        FROM mto_shipments s
+        JOIN moves m ON m.id = s.move_id
+        WHERE s.shipment_locator IS NULL OR s.shipment_locator = ''
+    )
+    UPDATE mto_shipments s
+    SET shipment_locator = cv.new_locator
+    FROM calculated_values cv
+    WHERE s.id = cv.shipment_id;
 
+    -- Update the 'shipment_seq_num' in the 'moves' table to reflect the highest sequence number used
+    WITH max_seq_nums AS (
+        SELECT
+            move_id,
+            MAX(SUBSTRING(shipment_locator FROM '.*-(\d+)$')::INT) AS max_seq_num
+        FROM mto_shipments
+        GROUP BY move_id
+    )
+    UPDATE moves m
+    SET shipment_seq_num = msn.max_seq_num
+    FROM max_seq_nums msn
+    WHERE m.id = msn.move_id
+    AND (m.shipment_seq_num IS NULL OR m.shipment_seq_num = 0);
+
+END $$;
+
+-- Separate function and trigger definitions to avoid transaction block conflicts
 CREATE OR REPLACE FUNCTION generate_shipment_locator()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -22,6 +57,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_generate_shipment_locator ON mto_shipments;
 CREATE TRIGGER trigger_generate_shipment_locator
 BEFORE INSERT ON mto_shipments
 FOR EACH ROW

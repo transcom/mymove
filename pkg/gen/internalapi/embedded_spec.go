@@ -4386,6 +4386,8 @@ func init() {
         },
         "shipmentLocator": {
           "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
           "example": "1K43AR-01"
         },
         "shipmentType": {
@@ -12189,6 +12191,8 @@ func init() {
         },
         "shipmentLocator": {
           "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
           "example": "1K43AR-01"
         },
         "shipmentType": {

@@ -7599,6 +7599,8 @@ definitions:
         $ref: '#/definitions/ShipmentAddressUpdate'
       shipmentLocator:
         type: string
+        x-nullable: true
+        readOnly: true
         example: 1K43AR-01
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
