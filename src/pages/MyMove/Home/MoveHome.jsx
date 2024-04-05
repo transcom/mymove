@@ -195,7 +195,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // checking to see if prime has completed counseling, return true
   const isPrimeCounselingComplete = () => {
-    return move.primeCounselingCompletedAt.indexOf('0001-01-01') < 0;
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   };
 
   // logic that handles deleting a shipment

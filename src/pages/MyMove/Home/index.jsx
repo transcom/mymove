@@ -205,7 +205,7 @@ export class Home extends Component {
   get isPrimeCounselingComplete() {
     const { move } = this.props;
 
-    return move.primeCounselingCompletedAt.indexOf('0001-01-01') < 0;
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   }
 
   renderAlert = () => {
