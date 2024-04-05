@@ -82,6 +82,7 @@ export const servicesCounselingRoutes = {
   SHIPMENT_REVIEW_PATH: 'shipments/:shipmentId/document-review',
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
+  CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
 };
 
 const BASE_MOVES_PATH = '/moves/:moveCode';
