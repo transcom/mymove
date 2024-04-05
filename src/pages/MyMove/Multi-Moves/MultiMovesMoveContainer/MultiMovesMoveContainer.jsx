@@ -92,12 +92,12 @@ const MultiMovesMoveContainer = ({ moves }) => {
       ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue &&
       ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED
     ) {
+      dropdownOptions['AOA Packet'] = 'AOA Paperwork (PDF)';
       dropdownOptions['PPM Packet'] = 'PPM Packet';
-      dropdownOptions['AOA Paperwork (PDF)'] = 'AOA Paperwork (PDF)';
     } else if (ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED) {
       dropdownOptions['PPM Packet'] = 'PPM Packet';
     } else {
-      dropdownOptions['AOA Paperwork (PDF)'] = 'AOA Paperwork (PDF)';
+      dropdownOptions['AOA Packet'] = 'AOA Paperwork (PDF)';
     }
 
     return Object.entries(dropdownOptions).map(([value], index) => ({
