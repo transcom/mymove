@@ -349,6 +349,11 @@ export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
 }
 
+export async function createCustomerWithOktaOption({ body }) {
+  const operationPath = 'customer.createCustomerWithOktaOption';
+  return makeGHCRequest(operationPath, { body });
+}
+
 export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
   const operationPath = 'customer.updateCustomer';
   return makeGHCRequest(operationPath, { customerID: customerId, 'If-Match': ifMatchETag, body });
