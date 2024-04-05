@@ -1283,7 +1283,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
         "consumes": [
           "application/json"
         ],
@@ -1872,6 +1872,59 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "ppm not found"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -4163,6 +4216,16 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -6655,6 +6718,16 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -8515,7 +8588,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
         "consumes": [
           "application/json"
         ],
@@ -9245,6 +9318,59 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "ppm not found"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -11795,6 +11921,16 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -14291,6 +14427,16 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },

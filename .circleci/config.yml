@@ -751,7 +751,6 @@ commands:
 
             make server_test
           no_output_timeout: 20m
-
           environment:
             APPLICATION: '<< parameters.application >>'
             # 8 since this runs on xlarge with 8 CPUs
@@ -2363,8 +2362,8 @@ workflows:
             - compile_app_server
             # limiting this run to integrationBranch only due to multiple branch pipeline
           filters:
-              branches:
-                only: integrationTesting
+            branches:
+              only: integrationTesting
 
       - client_test:
           requires:
@@ -2609,7 +2608,7 @@ workflows:
 
       - prod_auth_check:
           requires:
-           - approve_prd_deploy
+            - approve_prd_deploy
           filters:
             branches:
               only: main
