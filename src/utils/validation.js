@@ -156,3 +156,66 @@ export const oktaInfoSchema = Yup.object().shape({
     .matches(/^[0-9]*$/, numericOnlyErrorMsg)
     .nullable(),
 });
+
+export const otherUniqueIdErrorMsg = 'Must be 10 digits in length';
+export const middleInitialErrorMsg = 'Must be a single uppercase character';
+
+// Validation method for Office Account Request Form checkbox fields
+const validateRoleRequestedMethod = (value, testContext) => {
+  return (
+    testContext.parent.transportationOrderingOfficerCheckBox ||
+    testContext.parent.transportationInvoicingOfficerCheckBox ||
+    testContext.parent.servicesCounselorCheckBox ||
+    testContext.parent.transportationContractingOfficerCheckBox ||
+    testContext.parent.qualityAssuranceAndCustomerSupportCheckBox
+  );
+};
+
+// checking request office account form
+export const officeAccountRequestSchema = Yup.object().shape({
+  officeAccountRequestFirstName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  officeAccountRequestMiddleInitial: Yup.string().matches(/^[A-Z]$/, middleInitialErrorMsg),
+  officeAccountRequestLastName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  officeAccountRequestEdipi: Yup.string()
+    .min(10, edipiMaxErrorMsg)
+    .max(10, edipiMaxErrorMsg)
+    .matches(/^[0-9]*$/, numericOnlyErrorMsg)
+    .nullable(),
+  officeAccountRequestOtherUniqueId: Yup.string()
+    .min(10, otherUniqueIdErrorMsg)
+    .max(10, otherUniqueIdErrorMsg)
+    .matches(/^[0-9]*$/, numericOnlyErrorMsg)
+    .nullable(),
+  officeAccountRequestTelephone: phoneSchema.required('Required'),
+  officeAccountRequestEmail: emailSchema.required('Required'),
+  officeAccountTransportationOffice: Yup.object().required('Required'),
+  transportationOrderingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'Please select a role to request.',
+    validateRoleRequestedMethod,
+  ),
+  transportationInvoicingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'Please select a role to request.',
+    validateRoleRequestedMethod,
+  ),
+  servicesCounselorCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'Please select a role to request.',
+    validateRoleRequestedMethod,
+  ),
+  transportationContractingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'Please select a role to request.',
+    validateRoleRequestedMethod,
+  ),
+  qualityAssuranceAndCustomerSupportCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'Please select a role to request.',
+    validateRoleRequestedMethod,
+  ),
+});

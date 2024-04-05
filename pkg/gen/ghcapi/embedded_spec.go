@@ -2231,7 +2231,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -11350,6 +11350,9 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "officeUsers"
     }
   ]
 }`))
@@ -14179,7 +14182,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -24084,6 +24087,9 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "officeUsers"
     }
   ]
 }`))

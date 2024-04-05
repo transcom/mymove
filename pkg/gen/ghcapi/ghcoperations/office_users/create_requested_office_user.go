@@ -30,7 +30,7 @@ func NewCreateRequestedOfficeUser(ctx *middleware.Context, handler CreateRequest
 }
 
 /*
-	CreateRequestedOfficeUser swagger:route POST /open/requested-office-users Office users createRequestedOfficeUser
+	CreateRequestedOfficeUser swagger:route POST /open/requested-office-users officeUsers createRequestedOfficeUser
 
 # Create an Office User
 

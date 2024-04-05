@@ -38,6 +38,7 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
+  - name: officeUsers
 paths:
   /open/requested-office-users:
     post:
@@ -59,7 +60,7 @@ paths:
         handled at the application level.
       operationId: createRequestedOfficeUser
       tags:
-        - Office users
+        - officeUsers
       parameters:
         - in: body
           name: officeUser
