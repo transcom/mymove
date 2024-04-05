@@ -19,6 +19,12 @@ const info = {
     state: 'TX',
     postalCode: '78234',
   },
+  backupAddress: {
+    streetAddress1: '813 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
   backupContact: {
     name: 'Quinn Ocampo',
     email: 'quinnocampo@myemail.com',
