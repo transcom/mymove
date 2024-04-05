@@ -46,7 +46,13 @@ function ButtonDropdownMenu({ title, items, multiSelect = false, divClassName, o
   let buttonContent;
   if (outline) {
     buttonContent = (
-      <Button className={styles.btn} onClick={() => handleButtonClick()} secondary outline>
+      <Button
+        className={styles.btn}
+        onClick={() => handleButtonClick()}
+        secondary
+        outline
+        data-testid="button-dropdown-menu"
+      >
         <span>{title}</span>
         <div>
           <FontAwesomeIcon icon="download" />
@@ -55,7 +61,13 @@ function ButtonDropdownMenu({ title, items, multiSelect = false, divClassName, o
     );
   } else if (minimal) {
     buttonContent = (
-      <Button className={styles.btnMinimal} onClick={() => handleButtonClick()} secondary outline>
+      <Button
+        className={styles.btnMinimal}
+        onClick={() => handleButtonClick()}
+        secondary
+        outline
+        data-testid="button-dropdown-menu"
+      >
         <span>{title}</span>
         <div>
           <FontAwesomeIcon icon="download" />
@@ -64,7 +76,7 @@ function ButtonDropdownMenu({ title, items, multiSelect = false, divClassName, o
     );
   } else {
     buttonContent = (
-      <Button className={styles.btn} onClick={() => handleButtonClick()}>
+      <Button className={styles.btn} onClick={() => handleButtonClick()} data-testid="button-dropdown-menu">
         <span>{title}</span>
         <div>
           <FontAwesomeIcon icon="download" />
