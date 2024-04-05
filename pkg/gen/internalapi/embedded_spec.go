@@ -29,7 +29,7 @@ func init() {
     "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
     "title": "MilMove Internal API",
     "contact": {
-      "email": "ppp@truss.works"
+      "email": "Milmove-Developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -7291,7 +7291,7 @@ func init() {
     "description": "The Internal API is a RESTful API that enables the Customer application for\nMilMove.\n\nAll endpoints are located under ` + "`" + `/internal` + "`" + `.\n",
     "title": "MilMove Internal API",
     "contact": {
-      "email": "ppp@truss.works"
+      "email": "Milmove-Developers@caci.com"
     },
     "license": {
       "name": "MIT",
