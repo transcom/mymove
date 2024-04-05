@@ -167,62 +167,102 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			State:          newDutyLocationAddress.State,
 			PostalCode:     newDutyLocationAddress.PostalCode,
 			Country:        newDutyLocationAddress.Country,
-			County:         &county,
+			County:         county,
+		}
+	}
+
+	// Populate address county information
+	if shipment.PickupAddress != nil && shipment.PickupAddress.County == "" {
+		shipment.PickupAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == "" {
+		shipment.DestinationAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
-			pickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
+			pickupAddress, pickupAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
+			if pickupAddressCreateErr != nil {
+				return fmt.Errorf("failed to create pickup address %#v %e", verrs, pickupAddressCreateErr)
 			}
 			shipment.PickupAddress = pickupAddress
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.PickupAddress.County = county
 
 		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
-			secondaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+			secondaryPickupAddress, secondPickupAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
+			if secondPickupAddressCreateErr != nil {
+				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, secondPickupAddressCreateErr)
 			}
 			shipment.SecondaryPickupAddress = secondaryPickupAddress
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryPickupAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.SecondaryPickupAddress.County = county
 		}
 
 		if shipment.DestinationAddress != nil {
-			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
+			destinationAddress, destinationAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
+			if destinationAddressCreateErr != nil {
+				return fmt.Errorf("failed to create destination address %#v %e", verrs, destinationAddressCreateErr)
 			}
 			shipment.DestinationAddress = destinationAddress
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.DestinationAddress.County = county
 		}
 
 		if shipment.SecondaryDeliveryAddress != nil {
-			secondaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+			secondaryDeliveryAddress, secondDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
+			if secondDeliveryCreateErr != nil {
+				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, secondDeliveryCreateErr)
 			}
 			shipment.SecondaryDeliveryAddress = secondaryDeliveryAddress
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryDeliveryAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.SecondaryDeliveryAddress.County = county
 		}
 
 		if shipment.StorageFacility != nil {
-			storageFacility, errAddress := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
+			storageFacility, storageFacilityCreateErr := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
+			if storageFacilityCreateErr != nil {
+				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, storageFacilityCreateErr)
 			}
 			shipment.StorageFacility.Address = *storageFacility
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.StorageFacility.Address.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.StorageFacility.Address.County = county
 
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create storage facility %#v %e", verrs, err)
+			verrs, storageFacilityCreateErr = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
+			if verrs != nil || storageFacilityCreateErr != nil {
+				return fmt.Errorf("failed to create storage facility %#v %e", verrs, storageFacilityCreateErr)
 			}
 			shipment.StorageFacilityID = &shipment.StorageFacility.ID
 		}
