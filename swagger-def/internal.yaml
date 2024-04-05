@@ -166,6 +166,10 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -2123,6 +2127,10 @@ definitions:
       closeoutOffice:
         $ref: "definitions/TransportationOffice.yaml"
       eTag:
+        type: string
+        readOnly: true
+      primeCounselingCompletedAt:
+        format: date-time
         type: string
         readOnly: true
 paths:
