@@ -29,11 +29,14 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		models.ReServiceCodeIDSHUT:
 		estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
 
-		originalWeight = keyData.MTOServiceItem.ActualWeight
-
-		if originalWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		// Check both the service item weight and if it can't find that then check the shipment's weight
+		if keyData.MTOServiceItem.ActualWeight == nil {
+			originalWeight = r.MTOShipment.PrimeActualWeight
+			if originalWeight == nil {
+				return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s] or for MTOShipmentID [%s]", keyData.MTOServiceItem.ID, r.MTOShipment.ID)
+			}
+		} else {
+			originalWeight = keyData.MTOServiceItem.ActualWeight
 		}
 
 		if estimatedWeight != nil {
