@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
@@ -19,11 +19,11 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import { onPacketDownloadSuccessHandler } from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/internalApi';
 import { ppmShipmentStatuses } from 'constants/shipments';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import scrollToTop from 'shared/scrollToTop';
 
-const MultiMovesMoveContainer = ({ moves }) => {
+const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
-  // TODO once work in E-05362 is completed, we can turn this true or just remove it entirely and take out the conditional check in the render
-  const [displayDropdown] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -34,22 +34,6 @@ const MultiMovesMoveContainer = ({ moves }) => {
       [index]: !prev[index],
     }));
   };
-
-  // when an item is selected in the dropdown, this function will handle that logic
-  const handleDropdownItemClick = (selectedItem) => {
-    return selectedItem.value;
-  };
-
-  const dropdownMenuItems = [
-    {
-      id: 1,
-      value: 'PCS Orders',
-    },
-    {
-      id: 2,
-      value: 'PPM Packet',
-    },
-  ];
 
   // handles the title of the shipment header below each move
   const generateShipmentTypeTitle = (shipmentType) => {
@@ -84,6 +68,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
     navigate(`${customerRoutes.MOVE_HOME_PAGE}/${id}`);
   };
 
+  // this will determine what the PPM dropdown menu will show based on ppmShipment values present in the object
   const handlePPMDropdownOptions = (shipment) => {
     const { ppmShipment } = shipment;
     const dropdownOptions = {};
@@ -106,18 +91,37 @@ const MultiMovesMoveContainer = ({ moves }) => {
     }));
   };
 
-  // when an item is selected in the dropdown, this function will handle that logic
+  // when an item is selected in the dropdown, this function handles API calls
   const handlePPMDropdownClick = (selectedItem, id) => {
     if (selectedItem.value === 'PPM Packet') {
-      downloadPPMPaymentPacket(id).then((response) => {
-        onPacketDownloadSuccessHandler(response);
-      });
+      downloadPPMPaymentPacket(id)
+        .then((response) => {
+          onPacketDownloadSuccessHandler(response);
+          setFlashMessage('PPM_PACKET_DOWNLOAD_SUCCESS', 'success', 'PPM Packet successfully downloaded');
+        })
+        .catch(() => {
+          setFlashMessage(
+            'PPM_PACKET_DOWNLOAD_FAILURE',
+            'error',
+            'An error occurred when attempting download of PPM Packet',
+          );
+        });
     }
-    if (selectedItem.value === 'AOA Paperwork (PDF)') {
-      downloadPPMAOAPacket(id).then((response) => {
-        onPacketDownloadSuccessHandler(response);
-      });
+    if (selectedItem.value === 'AOA Packet') {
+      downloadPPMAOAPacket(id)
+        .then((response) => {
+          onPacketDownloadSuccessHandler(response);
+          setFlashMessage('AOA_PACKET_DOWNLOAD_SUCCESS', 'success', 'AOA Packet successfully downloaded');
+        })
+        .catch(() => {
+          setFlashMessage(
+            'AOA_PACKET_DOWNLOAD_FAILURE',
+            'error',
+            'An error occurred when attempting download of AOA Packet',
+          );
+        });
     }
+    scrollToTop();
   };
 
   const moveList = moves.map((m, index) => (
@@ -129,16 +133,6 @@ const MultiMovesMoveContainer = ({ moves }) => {
             <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
           ) : null}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            {displayDropdown ?? (
-              <ButtonDropdownMenu
-                data-testid="downloadBtn"
-                title="Download"
-                items={dropdownMenuItems}
-                divClassName={styles.dropdownBtn}
-                onItemClick={handleDropdownItemClick}
-                outline
-              />
-            )}
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
@@ -169,7 +163,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
               {m.mtoShipments && m.mtoShipments.length > 0 ? (
                 m.mtoShipments.map((s, sIndex) => (
                   <React.Fragment key={sIndex}>
-                    <div className={styles.shipment}>
+                    <div className={styles.shipment} data-testid="shipment-container">
                       <ShipmentContainer
                         key={s.id}
                         shipmentType={s.shipmentType}
@@ -181,7 +175,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
                             {s?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
                             s?.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ? (
                               <ButtonDropdownMenu
-                                data-testid="downloadBtn"
+                                data-testid="ppmDownloadBtn"
                                 title="Download"
                                 items={handlePPMDropdownOptions(s)}
                                 divClassName={styles.ppmDropdownBtn}
@@ -215,4 +209,8 @@ const MultiMovesMoveContainer = ({ moves }) => {
   );
 };
 
-export default MultiMovesMoveContainer;
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(MultiMovesMoveContainer);
