@@ -144,4 +144,20 @@ describe('SignIn tests', () => {
     shallow(<SignIn />, div);
     expect(document.title).toContain('Sign In');
   });
+  it('renders red warning text', () => {
+    const context = { siteName: 'TestMove', showLoginWarning: true };
+    render(
+      <MockRouterProvider>
+        <SignIn context={context} />
+      </MockRouterProvider>,
+    );
+    expect(
+      screen.getByText('Use of this system is by invitation only, following mandatory screening for'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('DO NOT PROCEED if you have not gone through that')).toBeInTheDocument();
+    expect(
+      screen.getByText('Failure to do so will likely result in you having to resubmit your shipment in the'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('and could cause a delay in your shipment being moved.')).toBeInTheDocument();
+  });
 });
