@@ -96,7 +96,7 @@ type Move struct {
 	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
 
 	// shipment g b l o c
-	ShipmentGBLOC GBLOC `json:"shipmentGBLOC,omitempty"`
+	ShipmentGBLOC *GBLOC `json:"shipmentGBLOC,omitempty"`
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`
@@ -390,13 +390,15 @@ func (m *Move) validateShipmentGBLOC(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.ShipmentGBLOC.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("shipmentGBLOC")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("shipmentGBLOC")
+	if m.ShipmentGBLOC != nil {
+		if err := m.ShipmentGBLOC.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("shipmentGBLOC")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("shipmentGBLOC")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -564,17 +566,20 @@ func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registr
 
 func (m *Move) contextValidateShipmentGBLOC(ctx context.Context, formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ShipmentGBLOC) { // not required
-		return nil
-	}
+	if m.ShipmentGBLOC != nil {
 
-	if err := m.ShipmentGBLOC.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("shipmentGBLOC")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("shipmentGBLOC")
+		if swag.IsZero(m.ShipmentGBLOC) { // not required
+			return nil
 		}
-		return err
+
+		if err := m.ShipmentGBLOC.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("shipmentGBLOC")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("shipmentGBLOC")
+			}
+			return err
+		}
 	}
 
 	return nil
