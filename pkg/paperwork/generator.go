@@ -15,6 +15,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -185,6 +186,10 @@ func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
 	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
 
+func (g *Generator) GetPdfFileInfoForReadSeeker(rs io.ReadSeeker) (*pdfcpu.PDFInfo, error) {
+	return api.PDFInfo(rs, "", nil, g.pdfConfig)
+}
+
 // Get file information of a single PDF
 func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
 	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
@@ -280,6 +285,41 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 	}
 
 	return pdfs, nil
+}
+
+func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload models.Upload) (string, error) {
+
+	download, err := g.uploader.Download(appCtx, &upload)
+	if err != nil {
+		return "nil", errors.Wrap(err, "Downloading file from upload")
+	}
+
+	defer func() {
+		if downloadErr := download.Close(); downloadErr != nil {
+			appCtx.Logger().Debug("Failed to close file", zap.Error(downloadErr))
+		}
+	}()
+
+	outputFile, err := g.newTempFile()
+
+	if err != nil {
+		return "nil", errors.Wrap(err, "Creating temp file")
+	}
+
+	_, err = io.Copy(outputFile, download)
+	if err != nil {
+		return "nil", errors.Wrap(err, "Copying to afero file")
+	}
+
+	path := outputFile.Name()
+
+	if upload.ContentType == uploader.FileTypePDF {
+		return path, nil
+	}
+
+	images := make([]inputFile, 0)
+	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
+	return g.PDFFromImages(appCtx, images)
 }
 
 // convert between image MIME types and the values expected by gofpdf
@@ -560,4 +600,35 @@ func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders
 	}
 
 	return mergedFile, nil
+}
+
+func (g *Generator) AddWatermarks(inputFile afero.File, m map[int][]*model.Watermark) (afero.File, error) {
+	buf := new(bytes.Buffer)
+	err := api.AddWatermarksSliceMap(inputFile, buf, m, g.pdfConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	pdfWithWatermarks, err := g.fs.Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+
+	return pdfWithWatermarks, nil
+}
+
+func (g *Generator) CreateTextWatermark(text, desc string, onTop, update bool, u types.DisplayUnit) (*model.Watermark, error) {
+	return api.TextWatermark(text, desc, onTop, update, u)
 }
