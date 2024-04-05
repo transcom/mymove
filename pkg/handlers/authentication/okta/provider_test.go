@@ -260,6 +260,25 @@ func TestGetUserURL(t *testing.T) {
 	}
 }
 
+func TestGetCreateUserURL(t *testing.T) {
+	// Create a new instance of your Provider with the desired orgURL
+	orgURL := "https://mock-okta-org-url.com"
+	callbackURL := "https://mock-callback-url.com"
+	clientID := "mock-client-ID"
+	secret := "mock-secret"
+	provider := okta.NewProvider(orgURL, callbackURL, clientID, secret)
+
+	activate := "true"
+
+	// Call the GetTokenURL function
+	url := provider.GetUserURL(activate)
+
+	expectedURL := orgURL + "/api/v1/users/" + activate
+	if url != expectedURL {
+		t.Errorf("Expected URL to be '%s', got: '%s'", expectedURL, url)
+	}
+}
+
 func TestGenerateNonce(t *testing.T) {
 	nonce := okta.GenerateNonce()
 
