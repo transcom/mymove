@@ -20,8 +20,8 @@ import (
 type BackupContact struct {
 
 	// email
+	// Example: backupContact@mail.com
 	// Required: true
-	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email"`
 
 	// name
@@ -59,10 +59,6 @@ func (m *BackupContact) Validate(formats strfmt.Registry) error {
 func (m *BackupContact) validateEmail(formats strfmt.Registry) error {
 
 	if err := validate.Required("email", "body", m.Email); err != nil {
-		return err
-	}
-
-	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
