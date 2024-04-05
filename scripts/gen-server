@@ -51,8 +51,10 @@ generate_server swagger/orders.yaml   ordersmessages   ordersapi   ordersoperati
 generate_server swagger/prime.yaml    primemessages    primeapi    primeoperations
 generate_server swagger/prime_v2.yaml    primev2messages    primev2api    primev2operations
 generate_server swagger/support.yaml supportmessages supportapi supportoperations
+generate_server swagger/pptas.yaml    pptasmessages    pptasapi    pptasoperations
 
 # Generate Client Code
+generate_client swagger/pptas.yaml pptasmessages pptasclient
 generate_client swagger/prime.yaml primemessages primeclient
 generate_client swagger/prime_v2.yaml primev2messages primev2client
 generate_client swagger/support.yaml supportmessages supportclient

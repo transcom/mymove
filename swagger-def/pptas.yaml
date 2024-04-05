@@ -1,0 +1,16 @@
+swagger: '2.0'
+info:
+  title: PPTAS API
+  description: This API does things. For more information, see our detailed documentation.
+  version: 0.0.1
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  contact:
+    email: milmove-developers@caci.com
+host: 'localhost'
+schemes: ['https']
+tags:
+  $ref: 'tags/pptas_tags.yaml'
+paths:
+  $ref: 'paths/pptas-paths/pptasEndpointPaths.yaml'

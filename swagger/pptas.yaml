@@ -1,0 +1,88 @@
+swagger: '2.0'
+info:
+  title: PPTAS API
+  description: This API does things. For more information, see our detailed documentation.
+  version: 0.0.1
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  contact:
+    email: milmove-developers@caci.com
+host: localhost
+schemes:
+  - https
+tags:
+  - name: test
+    description: tag to describe test endpoints
+  - name: moves
+    description: describes all endpoints relating to moves
+paths:
+  /test/getMovesSince/{movesSince}/{numMoves}:
+    get:
+      tags:
+        - moves
+      summary: summary
+      description: summary2
+      operationId: testMethod
+      produces:
+        - application/json
+      parameters:
+        - name: movesSince
+          in: path
+          description: some parameter
+          required: true
+          type: string
+        - name: numMoves
+          in: path
+          description: some parameter
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Sucessfully Returned moves.
+          schema:
+            $ref: '#/definitions/GetMovesSince'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/InvalidRequest'
+        '500':
+          $ref: '#/responses/ServerError'
+definitions:
+  GetMovesSince:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+responses:
+  InvalidRequest:
+    description: The request was invalid as called.
+    schema:
+      $ref: '#/definitions/ClientError'
+  ServerError:
+    description: An unexpected error has occurred in the server.
+    schema:
+      $ref: '#/definitions/ClientError'

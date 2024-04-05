@@ -1,0 +1,13 @@
+type: object
+properties:
+  title:
+    type: string
+  detail:
+    type: string
+  instance:
+    type: string
+    format: uuid
+required:
+  - title
+  - detail
+  - instance
