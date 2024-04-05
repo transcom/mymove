@@ -561,7 +561,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async signAgreement() {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/agreement/);
-    await expect(this.page.getByRole('heading', { name: 'Next step: Your move gets approved' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
 
     await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
     await expect(this.page.getByRole('button', { name: 'Complete' })).toBeEnabled();
@@ -930,7 +930,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByRole('button', { name: 'Submit PPM Documentation' }).click();
     await this.page.waitForURL(url.href);
 
-    await expect(this.page.locator('.usa-alert--success')).toContainText('You’ve submitted your move request.');
+    await expect(this.page.locator('.usa-alert--success')).toContainText('You submitted documentation for review.');
 
     let stepContainer = this.page.locator('[data-testid="stepContainer6"]');
 
