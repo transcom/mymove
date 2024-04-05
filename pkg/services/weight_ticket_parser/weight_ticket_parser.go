@@ -61,6 +61,7 @@ func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services
 
 // FillWeightEstimatorPDFForm takes form data and fills an existing PDF form template with said data
 func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
+	const weightEstimatePages = 11
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -83,9 +84,9 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 	}
 
 	var weightEstimatorHeader = header{
-		Source:   "WeightEstimateLivingRoomPdfTemplate.pdf",
+		Source:   "WeightEstimateTemplate.pdf",
 		Version:  "pdfcpu v0.7.0 dev",
-		Creation: "2024-03-21 14:27:28 CDT",
+		Creation: "2024-04-05 17:40:51 CDT",
 		Creator:  "Writer",
 		Producer: "LibreOffice 24.2",
 	}
@@ -124,7 +125,7 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 
 	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
 	pdfInfoResult, err := WeightTicketParserGenerator.generator.GetPdfFileInfo(WeightWorksheet.Name())
-	if err != nil || pdfInfoResult.PageCount != 8 {
+	if err != nil || pdfInfoResult.PageCount != weightEstimatePages {
 		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator output a corrupted or incorrectly altered PDF")
 	}
 
