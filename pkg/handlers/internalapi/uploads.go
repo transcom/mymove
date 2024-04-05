@@ -24,6 +24,8 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
+const weightEstimatePages = 11
+
 // CreateUploadHandler creates a new upload via POST /uploads?documentId={documentId}
 type CreateUploadHandler struct {
 	handlers.HandlerConfig
@@ -271,16 +273,16 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				page1Values, page2Values, err := parserComputer.ParseWeightEstimatorExcelFile(appCtx, file, generator)
+				pageValues, err := parserComputer.ParseWeightEstimatorExcelFile(appCtx, file, generator)
 
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				aFile, pdfInfo, err := weightGenerator.FillWeightEstimatorPDFForm(*page1Values, *page2Values, file.Header.Filename)
+				aFile, pdfInfo, err := weightGenerator.FillWeightEstimatorPDFForm(*pageValues, file.Header.Filename)
 
 				// Ensure weight receipt PDF is not corrupted
-				if err != nil || pdfInfo.PageCount != 2 {
+				if err != nil || pdfInfo.PageCount != weightEstimatePages {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 

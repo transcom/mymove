@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -18,144 +20,6 @@ import (
 	"github.com/xuri/excelize/v2"
 	"go.uber.org/zap"
 )
-
-// WeightEstimatorPage1 is an object representing fields from Page 1 of the pdf
-type WeightEstimatorPage1 struct {
-	LivingRoomCuFt1    string
-	LivingRoomPieces1  string
-	LivingRoomTotal1   string
-	LivingRoomCuFt2    string
-	LivingRoomPieces2  string
-	LivingRoomTotal2   string
-	LivingRoomCuFt3    string
-	LivingRoomPieces3  string
-	LivingRoomTotal3   string
-	LivingRoomCuFt4    string
-	LivingRoomPieces4  string
-	LivingRoomTotal4   string
-	LivingRoomCuFt5    string
-	LivingRoomPieces5  string
-	LivingRoomTotal5   string
-	LivingRoomCuFt6    string
-	LivingRoomPieces6  string
-	LivingRoomTotal6   string
-	LivingRoomCuFt7    string
-	LivingRoomPieces7  string
-	LivingRoomTotal7   string
-	LivingRoomCuFt8    string
-	LivingRoomPieces8  string
-	LivingRoomTotal8   string
-	LivingRoomCuFt9    string
-	LivingRoomPieces9  string
-	LivingRoomTotal9   string
-	LivingRoomCuFt10   string
-	LivingRoomPieces10 string
-	LivingRoomTotal10  string
-	LivingRoomCuFt11   string
-	LivingRoomPieces11 string
-	LivingRoomTotal11  string
-	LivingRoomCuFt12   string
-	LivingRoomPieces12 string
-	LivingRoomTotal12  string
-	LivingRoomCuFt13   string
-	LivingRoomPieces13 string
-	LivingRoomTotal13  string
-	LivingRoomCuFt14   string
-	LivingRoomPieces14 string
-	LivingRoomTotal14  string
-	LivingRoomCuFt15   string
-	LivingRoomPieces15 string
-	LivingRoomTotal15  string
-	LivingRoomCuFt16   string
-	LivingRoomPieces16 string
-	LivingRoomTotal16  string
-	LivingRoomCuFt17   string
-	LivingRoomPieces17 string
-	LivingRoomTotal17  string
-	LivingRoomCuFt18   string
-	LivingRoomPieces18 string
-	LivingRoomTotal18  string
-	LivingRoomCuFt19   string
-	LivingRoomPieces19 string
-	LivingRoomTotal19  string
-	LivingRoomCuFt20   string
-	LivingRoomPieces20 string
-	LivingRoomTotal20  string
-	LivingRoomCuFt21   string
-	LivingRoomPieces21 string
-	LivingRoomTotal21  string
-	LivingRoomCuFt22   string
-	LivingRoomPieces22 string
-	LivingRoomTotal22  string
-	LivingRoomCuFt23   string
-	LivingRoomPieces23 string
-	LivingRoomTotal23  string
-	LivingRoomCuFt24   string
-	LivingRoomPieces24 string
-	LivingRoomTotal24  string
-	LivingRoomCuFt25   string
-	LivingRoomPieces25 string
-	LivingRoomTotal25  string
-	LivingRoomCuFt26   string
-	LivingRoomPieces26 string
-	LivingRoomTotal26  string
-	LivingRoomCuFt27   string
-	LivingRoomPieces27 string
-	LivingRoomTotal27  string
-	LivingRoomCuFt28   string
-	LivingRoomPieces28 string
-	LivingRoomTotal28  string
-	LivingRoomCuFt29   string
-	LivingRoomPieces29 string
-	LivingRoomTotal29  string
-	LivingRoomCuFt30   string
-	LivingRoomPieces30 string
-	LivingRoomTotal30  string
-	LivingRoomCuFt31   string
-	LivingRoomPieces31 string
-	LivingRoomTotal31  string
-	LivingRoomCuFt32   string
-	LivingRoomPieces32 string
-	LivingRoomTotal33  string
-}
-
-// WeightEstimatorPage2 is an object representing fields from Page 2 of the pdf
-type WeightEstimatorPage2 struct {
-	LivingRoomCuFt34       string
-	LivingRoomPieces34     string
-	LivingRoomTotal34      string
-	LivingRoomCuFt35       string
-	LivingRoomPieces35     string
-	LivingRoomTotal35      string
-	LivingRoomCuFt36       string
-	LivingRoomPieces36     string
-	LivingRoomTotal36      string
-	LivingRoomCuFt37       string
-	LivingRoomPieces37     string
-	LivingRoomTotal37      string
-	LivingRoomCuFt38       string
-	LivingRoomPieces38     string
-	LivingRoomTotal38      string
-	LivingRoomCuFt39       string
-	LivingRoomPieces39     string
-	LivingRoomTotal39      string
-	LivingRoomCuFt40       string
-	LivingRoomPieces40     string
-	LivingRoomTotal40      string
-	LivingRoomCuFt41       string
-	LivingRoomPieces41     string
-	LivingRoomTotal41      string
-	LivingRoomPiecesTotal1 string
-	LivingRoomCuFtTotal1   string
-	LivingRoomCuFt42       string
-	LivingRoomPieces42     string
-	LivingRoomTotal42      string
-	LivingRoomPiecesTotal2 string
-	LivingRoomCuFtTotal2   string
-	LivingRoomTotalItems   string
-	LivingRoomTotalCube    string
-	LivingRoomWeight       string
-}
 
 // textField represents a text field within a form.
 type textField struct {
@@ -184,7 +48,7 @@ type WeightTicketParserGenerator struct {
 
 // NewWeightTicketParserGenerator creates a WeightTicketParserGenerator
 func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services.WeightTicketParserGenerator, error) {
-	templateReader, err := createAssetByteReader("paperwork/formtemplates/WeightEstimateLivingRoomPdfTemplate.pdf")
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/WeightEstimateTemplate.pdf")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -196,7 +60,7 @@ func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services
 }
 
 // FillWeightEstimatorPDFForm takes form data and fills an existing PDF form template with said data
-func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(Page1Values services.WeightEstimatorPage1, Page2Values services.WeightEstimatorPage2, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
+func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -230,7 +94,19 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 		Header: weightEstimatorHeader,
 		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
-				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2)),
+				TextField: mergeTextFields(
+					createTextFields(PageValues.Page1, 1),
+					createTextFields(PageValues.Page2, 2),
+					createTextFields(PageValues.Page3, 3),
+					createTextFields(PageValues.Page4, 4),
+					createTextFields(PageValues.Page5, 5),
+					createTextFields(PageValues.Page6, 6),
+					createTextFields(PageValues.Page7, 7),
+					createTextFields(PageValues.Page8, 8),
+					createTextFields(PageValues.Page9, 9),
+					createTextFields(PageValues.Page10, 10),
+					createTextFields(PageValues.Page11, 11),
+				),
 			},
 		},
 	}
@@ -248,7 +124,7 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 
 	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
 	pdfInfoResult, err := WeightTicketParserGenerator.generator.GetPdfFileInfo(WeightWorksheet.Name())
-	if err != nil || pdfInfoResult.PageCount != 2 {
+	if err != nil || pdfInfoResult.PageCount != 8 {
 		return nil, nil, errors.Wrap(err, "WeightTicketParserGenerator output a corrupted or incorrectly altered PDF")
 	}
 
@@ -282,16 +158,28 @@ func createTextFields(data interface{}, pages ...int) []textField {
 	return textFields
 }
 
-// MergeTextFields merges page 1 and page 2 data
-func mergeTextFields(fields1, fields2 []textField) []textField {
-	return append(fields1, fields2...)
+// MergeTextFields merges page 1 - 9 data
+func mergeTextFields(fields1, fields2, fields3, fields4, fields5, fields6, fields7, fields8, fields9, fields10, fields11 []textField) []textField {
+	var allFields []textField
+	allFields = append(allFields, fields1...)
+	allFields = append(allFields, fields2...)
+	allFields = append(allFields, fields3...)
+	allFields = append(allFields, fields4...)
+	allFields = append(allFields, fields5...)
+	allFields = append(allFields, fields6...)
+	allFields = append(allFields, fields7...)
+	allFields = append(allFields, fields8...)
+	allFields = append(allFields, fields9...)
+	allFields = append(allFields, fields10...)
+	allFields = append(allFields, fields11...)
+	return allFields
 }
 
-func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*services.WeightEstimatorPage1, *services.WeightEstimatorPage2, error) {
+func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*services.WeightEstimatorPages, error) {
 	excelFile, err := excelize.OpenReader(file)
 
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "Opening excel file")
+		return nil, errors.Wrap(err, "Opening excel file")
 	}
 
 	defer func() {
@@ -304,33 +192,47 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 	// Get all the rows in the Sheet1.
 	rows, err := excelFile.GetRows("CUBE SHEET-ITO-TMO-ONLY")
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "Parsing excel file")
+		return nil, errors.Wrap(err, "Parsing excel file")
 	}
 
 	// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
 	// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
 	// have 2 numbers.
 	const cellColumnCount = 4
-	const totalItemSectionString = "Total number of items in this section"
 	const totalCubeSectionString = "Total cube for this section"
-	const constructedWeightSectionString = "Constructed Weight for this section"
-	const itemString = "Item"
+	const packingMaterialString = "10% packing Material allow Military only"
+	const militaryString = "Military"
+	const civilianString = "Civilian"
+	const cartonsString = "CARTONS"
 
+	oneColumnStrings := []string{"PROFESSIONAL GEAR Constructed Weight", "PROFESSIONAL GEAR Number of Pieces"}
+	thirdColumnStrings := []string{"Total number of items in this section", "Constructed Weight for this section "}
+	twoColumnSectionStrings := []string{"", "Total number of items", "Total cube", "Constructed Weight ", "Pro Gear", "Minus Pro Gear", "10% packing Material allow Military only", "Weight Chargeable to Member", "Enter Members Weight Allowance ", "Amount Over/Under Weight allowance"}
+	skipSectionStrings := []string{"Item", "Bed-To Include Box Spring & Mattress", "Refrigerator, Cubic Cap", "Freezer Cubic Cap", "CARTONS", "PROFESSIONAL PAPERS, GEAR, EQUIPMENT"}
 	rowCount := 1
+	skipRows := []int{2, 31, 45, 64, 80, 93, 107, 123, 145, 158, 181} // TODO: CHANGE THIS TO USE HEADER NAMES INSTEAD OF ROW NUMBERS
 	var cellColumnData []string
-	var page1Values services.WeightEstimatorPage1
-	var page2Values services.WeightEstimatorPage2
+	var pageValues services.WeightEstimatorPages
 
-	page1Reflect := reflect.ValueOf(&page1Values).Elem()
-	page2Reflect := reflect.ValueOf(&page2Values).Elem()
+	page1Reflect := reflect.ValueOf(&pageValues.Page1).Elem()
+	page2Reflect := reflect.ValueOf(&pageValues.Page2).Elem()
+	page3Reflect := reflect.ValueOf(&pageValues.Page3).Elem()
+	page4Reflect := reflect.ValueOf(&pageValues.Page4).Elem()
+	page5Reflect := reflect.ValueOf(&pageValues.Page5).Elem()
+	page6Reflect := reflect.ValueOf(&pageValues.Page6).Elem()
+	page7Reflect := reflect.ValueOf(&pageValues.Page7).Elem()
+	page8Reflect := reflect.ValueOf(&pageValues.Page8).Elem()
+	page9Reflect := reflect.ValueOf(&pageValues.Page9).Elem()
+	page10Reflect := reflect.ValueOf(&pageValues.Page10).Elem()
+	page11Reflect := reflect.ValueOf(&pageValues.Page11).Elem()
 
-	var page1Counter = 0
-	var page2Counter = 0
-	var page1Write = true
-	var page2Write = false
+	var sectionCounter = 0
+	var pageIndex = 0
+
+	pagesStructs := []reflect.Value{page1Reflect, page2Reflect, page3Reflect, page4Reflect, page5Reflect, page6Reflect, page7Reflect, page8Reflect, page9Reflect, page10Reflect, page11Reflect}
 
 	for _, row := range rows {
-		currentCell := 1
+		currentCellCount := 1
 		writeData := false
 		blankCell := false
 
@@ -338,42 +240,48 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 			writeColumn1 := false
 			writeColumn2 := false
 			writeColumn3 := false
+			fmt.Print(colCell + " ")
 
-			// We skip the first two rows of the table
-			if rowCount <= 2 {
+			// We skip the first rows with only headers in the row
+			if slices.Contains(skipRows, rowCount) {
 				continue
 			} else if blankCell {
 				blankCell = false
-			} else if currentCell == cellColumnCount {
+			} else if currentCellCount == cellColumnCount {
 				cellColumnData = append(cellColumnData, colCell)
 				writeData = true
-			} else if currentCell < cellColumnCount {
+			} else if currentCellCount == cellColumnCount-1 {
 				cellColumnData = append(cellColumnData, colCell)
 
-				// The total cube section only has 3 columns of data and we need to make sure we write out its value in the 3rd column
-				if cellColumnData[0] == totalCubeSectionString && currentCell == cellColumnCount-1 {
+				if cellColumnData[0] == totalCubeSectionString || cellColumnData[0] == packingMaterialString {
 					writeData = true
+				} else {
+					currentCellCount++
 				}
-
-				currentCell++
+			} else {
+				cellColumnData = append(cellColumnData, colCell)
+				currentCellCount++
 			}
 
 			if writeData {
-				currentCell = 1
+				currentCellCount = 1
 				writeData = false
 
 				// If the first cell contains Item in the string or all 4 cells are empty, then its a section of just headers and no data
 				// so we do cleanup and skip to the next set of data
-				if cellColumnData[0] == itemString || (len(cellColumnData) == 4 && cellColumnData[0] == "" && cellColumnData[1] == "" &&
-					cellColumnData[2] == "" && cellColumnData[3] == "") {
+				if slices.Contains(skipSectionStrings, cellColumnData[0]) ||
+					(len(cellColumnData) == 4 && (cellColumnData[0] == "" && cellColumnData[1] == "" && cellColumnData[2] == "" && cellColumnData[3] == "")) ||
+					(slices.Contains(cellColumnData, militaryString) || slices.Contains(cellColumnData, civilianString)) {
 					cellColumnData = cellColumnData[:0]
 					blankCell = true
 					continue
-				} else if strings.Contains(cellColumnData[0], totalItemSectionString) || strings.Contains(cellColumnData[0], constructedWeightSectionString) {
-					writeColumn3 = true
-				} else if strings.Contains(cellColumnData[0], totalCubeSectionString) {
+				} else if slices.Contains(oneColumnStrings, cellColumnData[0]) {
+					writeColumn1 = true
+				} else if strings.Contains(cellColumnData[0], totalCubeSectionString) || strings.Contains(cellColumnData[0], packingMaterialString) {
 					writeColumn2 = true
-				} else if cellColumnData[0] == "" {
+				} else if slices.Contains(thirdColumnStrings, cellColumnData[0]) {
+					writeColumn3 = true
+				} else if slices.Contains(twoColumnSectionStrings, cellColumnData[0]) {
 					writeColumn2 = true
 					writeColumn3 = true
 				} else {
@@ -383,47 +291,44 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 				}
 
 				if writeColumn1 {
-					if page1Write {
-						page1Reflect.Field(page1Counter).SetString(cellColumnData[1])
-						page1Counter++
+					pagesStructs[pageIndex].Field(sectionCounter).SetString(cellColumnData[1])
+					sectionCounter++
 
-						if page1Counter == page1Reflect.NumField() {
-							page1Write = false
-							page2Write = true
+					if sectionCounter == pagesStructs[pageIndex].NumField() {
+						pageIndex++
+						sectionCounter = 0
+
+						if pageIndex == 10 {
+							fmt.Println("page 11")
 						}
-					} else if page2Write {
-						page2Reflect.Field(page2Counter).SetString(cellColumnData[1])
-						page2Counter++
 					}
 				}
 
 				if writeColumn2 {
-					if page1Write {
-						page1Reflect.Field(page1Counter).SetString(cellColumnData[2])
-						page1Counter++
+					pagesStructs[pageIndex].Field(sectionCounter).SetString(cellColumnData[2])
+					sectionCounter++
 
-						if page1Counter == page1Reflect.NumField() {
-							page1Write = false
-							page2Write = true
+					if sectionCounter == pagesStructs[pageIndex].NumField() {
+						pageIndex++
+						sectionCounter = 0
+
+						if pageIndex == 10 {
+							fmt.Println("page 11")
 						}
-					} else if page2Write {
-						page2Reflect.Field(page2Counter).SetString(cellColumnData[2])
-						page2Counter++
 					}
 				}
 
 				if writeColumn3 {
-					if page1Write {
-						page1Reflect.Field(page1Counter).SetString(cellColumnData[3])
-						page1Counter++
+					pagesStructs[pageIndex].Field(sectionCounter).SetString(cellColumnData[3])
+					sectionCounter++
 
-						if page1Counter == page1Reflect.NumField() {
-							page1Write = false
-							page2Write = true
+					if sectionCounter == pagesStructs[pageIndex].NumField() {
+						pageIndex++
+						sectionCounter = 0
+
+						if pageIndex == 10 {
+							fmt.Println("page 11")
 						}
-					} else if page2Write {
-						page2Reflect.Field(page2Counter).SetString(cellColumnData[3])
-						page2Counter++
 					}
 				}
 
@@ -431,13 +336,13 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 				blankCell = true
 			}
 		}
-
+		fmt.Println()
 		rowCount++
 		cellColumnData = nil
-		currentCell = 1
+		currentCellCount = 1
 	}
 
-	return &page1Values, &page2Values, nil
+	return &pageValues, nil
 }
 
 func createAssetByteReader(path string) (*bytes.Reader, error) {
