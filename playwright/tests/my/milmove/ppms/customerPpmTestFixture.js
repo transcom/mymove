@@ -489,11 +489,11 @@ export class CustomerPpmPage extends CustomerPage {
         await this.page.locator('label[for="agreeToTerms"]').click();
       }
     }
-    await saveButton.click();
+
+    // click and wait for page path to change
+    await Promise.all([this.page.waitForURL(/.*\/moves\/[^/]+\/review$/), saveButton.click()]);
 
     await expect(this.page.getByRole('heading', { name: 'Review your details', exact: true })).toBeVisible();
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/review/);
-
     await expect(this.page.locator('.usa-alert__heading')).toContainText('Details saved');
     await expect(this.page.locator('.usa-alert__heading + p')).toContainText(
       'Review your info and submit your move request now, or come back and finish later.',
@@ -643,14 +643,16 @@ export class CustomerPpmPage extends CustomerPage {
   async verifyPPMShipmentCard(shipmentCardFields, options = { isEditable: false }) {
     const { isEditable = false } = options;
     // get first div after the move setup heading
-    const ppm1 = this.page.locator(':text("Move setup") + div');
+    const ppm1 = this.page.locator(':text("Move setup") + div:has(:text("PPM 1"))');
     await expect(ppm1).toBeVisible();
 
     if (isEditable) {
       await expect(ppm1.getByRole('button', { name: 'Edit' })).toBeVisible();
       await expect(ppm1.getByRole('button', { name: 'Delete' })).toBeVisible();
     } else {
-      await expect(ppm1.locator('[data-testid="ShipmentContainer"]').locator('button')).not.toBeVisible();
+      for (const loc of await ppm1.locator('[data-testid="ShipmentContainer"]').locator('button').all()) {
+        await expect(loc).not.toBeVisible();
+      }
     }
   }
 
@@ -911,7 +913,7 @@ export class CustomerPpmPage extends CustomerPage {
       stepContainer = this.page.locator('[data-testid="stepContainer5"]');
     }
 
-    await expect(stepContainer.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
+    await expect(stepContainer.getByRole('button', { name: 'Download Payment Packet' })).toBeDisabled();
     await expect(stepContainer.getByText(/PPM documentation submitted: \d{2} \w{3} \d{4}/)).toBeVisible();
   }
 

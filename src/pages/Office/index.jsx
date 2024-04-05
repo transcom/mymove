@@ -88,6 +88,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 );
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
+const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -270,7 +271,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
-
+                    <Route
+                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateCustomerForm />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}

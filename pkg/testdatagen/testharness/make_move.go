@@ -551,7 +551,7 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipmentFields := models.MTOShipment{
-		Status:                models.MTOShipmentStatusApproved,
+		Status:                models.MTOShipmentStatusSubmitted,
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 	}
@@ -2360,7 +2360,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2464,7 +2464,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
