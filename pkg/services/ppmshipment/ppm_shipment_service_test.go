@@ -1,7 +1,6 @@
 package ppmshipment
 
 import (
-	"io"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -63,41 +62,6 @@ func setUpMockPPMShipmentFetcher(
 			ppmShipmentID,
 			eagerPreloadAssociations,
 			postloadAssociations,
-		).
-		Return(returnValue...).
-		Once()
-}
-
-// setUpMockUserUploadToPDFConverter sets up the input mock UserUploadToPDFConverter to return the given return values
-// once. It is meant as a helper to not have to remember the exact mocking syntax each time, and to cut a tiny bit of
-// boilerplate.
-func setUpMockUserUploadToPDFConverter(
-	mockUserUploadToPDFConverter *mocks.UserUploadToPDFConverter,
-	appCtx appcontext.AppContext,
-	userUploads models.UserUploads,
-	returnValue ...interface{},
-) {
-	mockUserUploadToPDFConverter.
-		On(
-			"ConvertUserUploadsToPDF",
-			appCtx,
-			userUploads,
-		).
-		Return(returnValue...).
-		Once()
-}
-
-func setUpMockPDFMerger(
-	mockPDFMerger *mocks.PDFMerger,
-	appCtx appcontext.AppContext,
-	pdfsToMerge []io.ReadCloser,
-	returnValue ...interface{},
-) {
-	mockPDFMerger.
-		On(
-			"MergePDFs",
-			appCtx,
-			pdfsToMerge,
 		).
 		Return(returnValue...).
 		Once()
