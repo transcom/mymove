@@ -39,6 +39,45 @@ tags:
   - name: tac
   - name: transportationOffice
 paths:
+  /customer:
+    post:
+      summary: Creates a customer with Okta option
+      description: >-
+        Creates a customer with option to also create an Okta profile account
+        based on the office user's input when completing the UI form and
+        submitting.
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -3463,7 +3502,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        example: backupContact@mail.com
       phone:
         type: string
         format: telephone
@@ -3540,6 +3579,65 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+  CreatedCustomer:
+    type: object
+    properties:
+      affiliation:
+        type: string
+        title: Branch of service customer is affilated with
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      residentialAddress:
+        $ref: '#/definitions/Address'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      edipi:
+        type: string
+        x-nullable: true
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      oktaID:
+        type: string
+      oktaEmail:
+        type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        $ref: '#/definitions/Address'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3584,6 +3682,58 @@ definitions:
       backupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+  CreateCustomerPayload:
+    type: object
+    properties:
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+      edipi:
+        type: string
+        example: John
+        x-nullable: true
+      firstName:
+        type: string
+        example: John
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      residentialAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      backupMailingAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      createOktaAccount:
+        type: boolean
   Entitlements:
     properties:
       id:
@@ -5721,6 +5871,27 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
   Address:
     description: A postal address
     type: object
@@ -5879,27 +6050,6 @@ definitions:
       - city
       - state
       - postalCode
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - SPACE_FORCE
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      SPACE_FORCE: Space Force
-      OTHER: OTHER
   DutyLocation:
     type: object
     properties:
