@@ -1,8 +1,7 @@
--- Alter tables outside of transaction blocks due to auto-commit behavior
 ALTER TABLE moves ADD COLUMN IF NOT EXISTS shipment_seq_num INT;
 ALTER TABLE mto_shipments ADD COLUMN IF NOT EXISTS shipment_locator TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS shipment_locator_unique_idx ON mto_shipments (shipment_locator);
 
--- Use a separate block for transactional operations
 DO $$
 BEGIN
     -- Update existing 'mto_shipments' rows with a 'shipment_locator'
@@ -36,7 +35,7 @@ BEGIN
 
 END $$;
 
--- Separate function and trigger definitions to avoid transaction block conflicts
+
 CREATE OR REPLACE FUNCTION generate_shipment_locator()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -62,3 +61,6 @@ CREATE TRIGGER trigger_generate_shipment_locator
 BEFORE INSERT ON mto_shipments
 FOR EACH ROW
 EXECUTE FUNCTION generate_shipment_locator();
+
+COMMENT ON COLUMN mto_shipments.shipment_locator IS 'Stores the new locator for the shipment just like locator in moves table.';
+COMMENT ON COLUMN moves.shipment_seq_num IS 'Keeps track of number of shipments created for a move and use it when creating a shipment_locator.';
