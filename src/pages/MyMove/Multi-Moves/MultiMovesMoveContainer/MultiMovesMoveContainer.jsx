@@ -15,6 +15,10 @@ import { customerRoutes } from 'constants/routes';
 import { getMoveCodeLabel } from 'utils/shipmentDisplay';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { setMoveId } from 'store/general/actions';
+import { ADVANCE_STATUSES } from 'constants/ppms';
+import { onPacketDownloadSuccessHandler } from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/internalApi';
+import { ppmShipmentStatuses } from 'constants/shipments';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -80,6 +84,42 @@ const MultiMovesMoveContainer = ({ moves }) => {
     navigate(`${customerRoutes.MOVE_HOME_PAGE}/${id}`);
   };
 
+  const handlePPMDropdownOptions = (shipment) => {
+    const { ppmShipment } = shipment;
+    const dropdownOptions = {};
+
+    if (
+      ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue &&
+      ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED
+    ) {
+      dropdownOptions['PPM Packet'] = 'PPM Packet';
+      dropdownOptions['AOA Paperwork (PDF)'] = 'AOA Paperwork (PDF)';
+    } else if (ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED) {
+      dropdownOptions['PPM Packet'] = 'PPM Packet';
+    } else {
+      dropdownOptions['AOA Paperwork (PDF)'] = 'AOA Paperwork (PDF)';
+    }
+
+    return Object.entries(dropdownOptions).map(([value], index) => ({
+      id: index + 1,
+      value,
+    }));
+  };
+
+  // when an item is selected in the dropdown, this function will handle that logic
+  const handlePPMDropdownClick = (selectedItem, id) => {
+    if (selectedItem.value === 'PPM Packet') {
+      downloadPPMPaymentPacket(id).then((response) => {
+        onPacketDownloadSuccessHandler(response);
+      });
+    }
+    if (selectedItem.value === 'AOA Paperwork (PDF)') {
+      downloadPPMAOAPacket(id).then((response) => {
+        onPacketDownloadSuccessHandler(response);
+      });
+    }
+  };
+
   const moveList = moves.map((m, index) => (
     <React.Fragment key={index}>
       <div className={styles.moveContainer}>
@@ -138,6 +178,19 @@ const MultiMovesMoveContainer = ({ moves }) => {
                         <div className={styles.innerWrapper}>
                           <div className={styles.shipmentTypeHeading}>
                             <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
+                            {s?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
+                            s?.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ? (
+                              <ButtonDropdownMenu
+                                data-testid="downloadBtn"
+                                title="Download"
+                                items={handlePPMDropdownOptions(s)}
+                                divClassName={styles.ppmDropdownBtn}
+                                onItemClick={(e) => {
+                                  handlePPMDropdownClick(e, s.ppmShipment.id);
+                                }}
+                                minimal
+                              />
+                            ) : null}
                             <h5>#{getMoveCodeLabel(s.id)}</h5>
                           </div>
                         </div>
