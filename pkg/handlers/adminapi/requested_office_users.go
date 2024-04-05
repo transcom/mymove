@@ -49,7 +49,7 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 	return payload
 }
 
-// IndexRequestedOfficeUsersHandler returns a list of office users via GET /office_users
+// IndexRequestedOfficeUsersHandler returns a list of requested office users via GET /requested_office_users
 type IndexRequestedOfficeUsersHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserListFetcher
@@ -57,13 +57,27 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewPagination
 }
 
-// Handle retrieves a list of office users
+var requestedOfficeUserFilterConverters = map[string]func(string) []services.QueryFilter{
+	"search": func(content string) []services.QueryFilter {
+		nameSearch := fmt.Sprintf("%s%%", content)
+		return []services.QueryFilter{
+			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
+			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
+			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+		}
+	},
+}
+
+// Handle retrieves a list of requested office users
 func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// adding in filters for when a search or filtering is done
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, requestedOfficeUserFilterConverters)
+
 			// We only want users that are in a REQUESTED status
-			queryFilters := []services.QueryFilter{query.NewQueryFilter("status", "=", "REQUESTED")}
+			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "REQUESTED"))
 
 			// adding in pagination for the UI
 			pagination := h.NewPagination(params.Page, params.PerPage)
@@ -93,5 +107,32 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 			}
 
 			return requested_office_users.NewIndexRequestedOfficeUsersOK().WithContentRange(fmt.Sprintf("requested office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+		})
+}
+
+// GetRequestedOfficeUserHandler returns a list of office users via GET /requested_office_users/{officeUserId}
+type GetRequestedOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.RequestedOfficeUserFetcher
+	services.NewQueryFilter
+}
+
+// Handle retrieves a single requested office user
+func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			requestedOfficeUserID := params.OfficeUserID
+
+			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", requestedOfficeUserID)}
+
+			requestedOfficeUser, err := h.RequestedOfficeUserFetcher.FetchRequestedOfficeUser(appCtx, queryFilters)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			payload := payloadForRequestedOfficeUserModel(requestedOfficeUser)
+
+			return requested_office_users.NewGetRequestedOfficeUserOK().WithPayload(payload), nil
 		})
 }

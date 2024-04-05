@@ -464,6 +464,40 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	return &payload
 }
 
+func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser, backupContact *models.BackupContact) *ghcmessages.CreatedCustomer {
+	if sm == nil || oktaUser == nil || backupContact == nil {
+		return nil
+	}
+
+	bc := &ghcmessages.BackupContact{
+		Name:  &backupContact.Name,
+		Email: &backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
+	payload := ghcmessages.CreatedCustomer{
+		ID:                 strfmt.UUID(sm.ID.String()),
+		UserID:             strfmt.UUID(sm.UserID.String()),
+		OktaID:             oktaUser.ID,
+		OktaEmail:          oktaUser.Profile.Email,
+		Affiliation:        swag.StringValue((*string)(sm.Affiliation)),
+		Edipi:              sm.Edipi,
+		FirstName:          swag.StringValue(sm.FirstName),
+		MiddleName:         sm.MiddleName,
+		LastName:           swag.StringValue(sm.LastName),
+		Suffix:             sm.Suffix,
+		ResidentialAddress: Address(sm.ResidentialAddress),
+		BackupAddress:      Address(sm.BackupMailingAddress),
+		PersonalEmail:      *sm.PersonalEmail,
+		Telephone:          sm.Telephone,
+		SecondaryTelephone: sm.SecondaryTelephone,
+		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
+		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
+		BackupContact:      bc,
+	}
+	return &payload
+}
+
 // Order payload
 func Order(order *models.Order) *ghcmessages.Order {
 	if order == nil {
@@ -1084,6 +1118,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		NtsRecordedWeight:           handlers.FmtPoundPtr(mtoShipment.NTSRecordedWeight),
