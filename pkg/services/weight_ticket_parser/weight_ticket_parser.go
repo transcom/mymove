@@ -59,7 +59,7 @@ func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services
 	}, nil
 }
 
-// FillWeightEstimatorPDFForm takes form data and fills an existing PDF form template with said data
+// FillWeightEstimatorPDFForm takes form data and fills an existing Weight Estimaator PDF template with data
 func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
 	const weightEstimatePages = 11
 
@@ -83,6 +83,8 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 		Forms  []form `json:"forms"`
 	}
 
+	// Header for our new Weight Estimator pdf. Note if the template is changed the header will need to be updated with new header data
+	// from the new template pdf. The new header data can be retrieved using PDFCPU's export function used on the template (can be done through CLI)
 	var weightEstimatorHeader = header{
 		Source:   "WeightEstimateTemplate.pdf",
 		Version:  "pdfcpu v0.7.0 dev",
@@ -91,7 +93,8 @@ func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstima
 		Producer: "LibreOffice 24.2",
 	}
 
-	formData := pdFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
+	// This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
+	formData := pdFData{
 		Header: weightEstimatorHeader,
 		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
@@ -176,6 +179,7 @@ func mergeTextFields(fields1, fields2, fields3, fields4, fields5, fields6, field
 	return allFields
 }
 
+// Parses a Weight Estimator Spreadsheet file and returns services.WeightEstimatorPages populated with the parsed data
 func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*services.WeightEstimatorPages, error) {
 	excelFile, err := excelize.OpenReader(file)
 
@@ -184,13 +188,13 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 	}
 
 	defer func() {
-		// Close the spreadsheet.
+		// Close the spreadsheet
 		if err := excelFile.Close(); err != nil {
 			appCtx.Logger().Debug("Failed to close file", zap.Error(err))
 		}
 	}()
 
-	// Get all the rows in the Sheet1.
+	// Get all the rows in the spreadsheet
 	rows, err := excelFile.GetRows("CUBE SHEET-ITO-TMO-ONLY")
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing excel file")
@@ -202,15 +206,59 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 	const cellColumnCount = 4
 	const totalCubeSectionString = "Total cube for this section"
 	const packingMaterialString = "10% packing Material allow Military only"
+	const weightAllowanceString = "Enter Members Weight Allowance "
+	const totalItemsSectionString = "Total number of items in this section"
+	const constructedWeightSectionString = "Constructed Weight for this section "
+	const proGearWeightString = "PROFESSIONAL GEAR Constructed Weight"
+	const proGearPiecesString = "PROFESSIONAL GEAR Number of Pieces"
+	const blankString = ""
+	const totalItemsString = "Total number of items "
+	const totalCubeString = "Total cube "
+	const constructedWeightString = "Constructed Weight "
+	const proGearString = "Pro Gear"
+	const minusProGearString = "Minus Pro Gear"
+	const weightChargeableString = "Weight Chargeable to Member"
+	const amountOverUnderString = "Amount Over/Under Weight allowance"
+	const itemString = "Item"
+	const bedString = "Bed-To Include Box Spring & Mattress"
+	const refrigeratorString = "Refrigerator, Cubic Cap"
+	const freezerString = "Freezer Cubic Cap"
+	const cartonsString = "CARTONS"
+	const proPapersString = "PROFESSIONAL PAPERS, GEAR, EQUIPMENT"
 
-	thirdColumnStrings := []string{"Total number of items in this section", "Constructed Weight for this section ", "PROFESSIONAL GEAR Constructed Weight", "PROFESSIONAL GEAR Number of Pieces"}
-	twoColumnSectionStrings := []string{"", "Total number of items ", "Total cube ", "Constructed Weight ", "Pro Gear", "Minus Pro Gear", "10% packing Material allow Military only", "Weight Chargeable to Member", "Enter Members Weight Allowance ", "Amount Over/Under Weight allowance"}
-	skipSectionStrings := []string{"Item", "Bed-To Include Box Spring & Mattress", "Refrigerator, Cubic Cap", "Freezer Cubic Cap", "CARTONS", "PROFESSIONAL PAPERS, GEAR, EQUIPMENT"}
+	thirdColumnStrings := []string{
+		totalItemsSectionString,
+		constructedWeightSectionString,
+		proGearWeightString,
+		proGearPiecesString,
+	}
+	twoColumnSectionStrings := []string{
+		blankString,
+		totalItemsString,
+		totalCubeString,
+		constructedWeightString,
+		proGearString,
+		minusProGearString,
+		weightChargeableString,
+		weightAllowanceString,
+		amountOverUnderString,
+	}
+	skipSectionStrings := []string{
+		itemString,
+		bedString,
+		refrigeratorString,
+		freezerString,
+		cartonsString,
+		proPapersString,
+	}
 	rowCount := 1
 	skipRows := []int{2, 31, 45, 64, 80, 93, 107, 123, 145, 158, 181, 195}
 	var cellColumnData []string
 	var pageValues services.WeightEstimatorPages
 
+	// Using reflection we can loop through each variable in the WeightEstimatorPage structs in the same order they are
+	// declared inside the structs. We do this so we can populate them in the same order that we will be parsing them
+	// out of the .xlsx file and not have to access them by referencing specific variable names
 	page1Reflect := reflect.ValueOf(&pageValues.Page1).Elem()
 	page2Reflect := reflect.ValueOf(&pageValues.Page2).Elem()
 	page3Reflect := reflect.ValueOf(&pageValues.Page3).Elem()
@@ -223,40 +271,58 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 	page10Reflect := reflect.ValueOf(&pageValues.Page10).Elem()
 	page11Reflect := reflect.ValueOf(&pageValues.Page11).Elem()
 
-	var sectionCounter = 0
-	var pageIndex = 0
+	var cellCounter = 0 // keeps track of how many cells we have filled for the current page
+	var pageIndex = 0   // the index of the page we are currently populating
+	var weightAllowanceWrite = false
 
+	// store all of our page structs so we can populate them all in order
 	pagesStructs := []reflect.Value{page1Reflect, page2Reflect, page3Reflect, page4Reflect, page5Reflect, page6Reflect, page7Reflect, page8Reflect, page9Reflect, page10Reflect, page11Reflect}
 
+	// Loop through each row of the .xlsx file and read each cell. It is worth noting that excelize will skip reading any rows that are
+	// completely blank and will end a reading columns in that row when it encounters the last column to have data in it. We take this
+	// into consideration when we are parsing the Weight Estimator .xlsx file.
 	for _, row := range rows {
 		currentCellCount := 1
 		writeData := false
 		blankCell := false
 
+		// If weightAllowanceWrite is true at this point that means that we found the field with 'Enter Members Weight Allowance '
+		// but the values for it were left to the default empty fields. Therefore excelize would have skipped parsing the values
+		// since they are at the end of the row. However since our WeightEstimatorPage struct has fields to store these values
+		// we need to tell our code to skip the 2 fields for Weight Allowance so we don't write the wrong value into the fields
+		// and all the fields that follow this one.
+		if weightAllowanceWrite {
+			cellCounter += 2
+		}
+
+		weightAllowanceWrite = false
+
 		for _, colCell := range row {
 			writeColumn1 := false
 			writeColumn2 := false
 			writeColumn3 := false
-			fmt.Print(colCell + " ")
 
-			// We skip the first rows with only headers in the row
-			if slices.Contains(skipRows, rowCount) {
-				continue
-			} else if blankCell {
+			// We skip the rows with only headers in them and blank cells
+			if slices.Contains(skipRows, rowCount) || blankCell {
 				blankCell = false
-			} else if currentCellCount == cellColumnCount {
-				cellColumnData = append(cellColumnData, colCell)
+				continue
+			}
+
+			cellColumnData = append(cellColumnData, colCell)
+
+			if strings.Contains(cellColumnData[0], weightAllowanceString) {
+				weightAllowanceWrite = true
+			}
+
+			if currentCellCount == cellColumnCount {
 				writeData = true
 			} else if currentCellCount == cellColumnCount-1 {
-				cellColumnData = append(cellColumnData, colCell)
-
 				if cellColumnData[0] == totalCubeSectionString || cellColumnData[0] == packingMaterialString {
 					writeData = true
 				} else {
 					currentCellCount++
 				}
 			} else {
-				cellColumnData = append(cellColumnData, colCell)
 				currentCellCount++
 			}
 
@@ -264,11 +330,14 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 				currentCellCount = 1
 				writeData = false
 
-				// If the first cell contains Item in the string or all 4 cells are empty, then its a section of just headers and no data
-				// so we do cleanup and skip to the next set of data
+				// For a majority of the data in the Weight Estimator .xlsx file we read in a description followed by 3 numbers. However,
+				// there are cases when we need to get data from other columns. Here we use descriptions to determine which column we need
+				// to pull data from to populate the fields in our final pdf
 				if slices.Contains(skipSectionStrings, cellColumnData[0]) ||
 					(len(cellColumnData) == 4 && (cellColumnData[0] == "" && cellColumnData[1] == "" &&
 						cellColumnData[2] == "" && cellColumnData[3] == "")) {
+					// If the first cell contains just headers listed in skipSectionStrings or all 4 cells read are empty
+					// we do cleanup and skip to the next section of data
 					cellColumnData = cellColumnData[:0]
 					blankCell = true
 					continue
@@ -285,41 +354,47 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 					writeColumn3 = true
 				}
 
+				// We get the next field for our current page in the pagesStruct and set its value. Once set we need to move to
+				// the next field for the page. Checking to make sure we haven't reached the end of the fields for our current page.
+				// When we reach the end of the current page's fields we changed to the next page in the pagesStruct and populate its data.
 				if writeColumn1 {
-					pagesStructs[pageIndex].Field(sectionCounter).SetString(cellColumnData[1])
-					sectionCounter++
+					pagesStructs[pageIndex].Field(cellCounter).SetString(cellColumnData[1])
+					cellCounter++
 
-					if sectionCounter == pagesStructs[pageIndex].NumField() {
+					if cellCounter == pagesStructs[pageIndex].NumField() {
 						pageIndex++
-						sectionCounter = 0
+						cellCounter = 0
 					}
 				}
 
 				if writeColumn2 {
-					pagesStructs[pageIndex].Field(sectionCounter).SetString(cellColumnData[2])
-					sectionCounter++
+					pagesStructs[pageIndex].Field(cellCounter).SetString(cellColumnData[2])
 
-					if sectionCounter == pagesStructs[pageIndex].NumField() {
+					cellCounter++
+
+					if cellCounter == pagesStructs[pageIndex].NumField() {
 						pageIndex++
-						sectionCounter = 0
+						cellCounter = 0
 					}
 				}
 
 				if writeColumn3 {
-					pagesStructs[pageIndex].Field(sectionCounter).SetString(cellColumnData[3])
-					sectionCounter++
+					pagesStructs[pageIndex].Field(cellCounter).SetString(cellColumnData[3])
 
-					if sectionCounter == pagesStructs[pageIndex].NumField() {
+					cellCounter++
+
+					if cellCounter == pagesStructs[pageIndex].NumField() {
 						pageIndex++
-						sectionCounter = 0
+						cellCounter = 0
 					}
 				}
 
-				cellColumnData = cellColumnData[:0]
-				blankCell = true
+				weightAllowanceWrite = false
+				cellColumnData = cellColumnData[:0] // remove all the data for the cells we parsed
+				blankCell = true                    // after reading 4 columns we will encounter a single blank cell, since we want to skip that cell we set this to true
 			}
 		}
-		fmt.Println()
+
 		rowCount++
 		cellColumnData = nil
 		currentCellCount = 1

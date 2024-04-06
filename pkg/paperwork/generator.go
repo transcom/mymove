@@ -583,7 +583,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 		return nil, err
 	}
 
-	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFile for proper memory usage
+	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
 	if err != nil {
 		return nil, err
 	}
