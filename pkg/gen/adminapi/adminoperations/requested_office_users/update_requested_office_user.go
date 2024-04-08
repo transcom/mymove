@@ -34,7 +34,7 @@ func NewUpdateRequestedOfficeUser(ctx *middleware.Context, handler UpdateRequest
 
 # Update a Requested Office User
 
-Updates a requested office user to include profile data and status
+Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.
 */
 type UpdateRequestedOfficeUser struct {
 	Context *middleware.Context
