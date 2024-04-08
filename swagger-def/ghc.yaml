@@ -3813,9 +3813,7 @@ definitions:
       eTag:
         type: string
       shipmentGBLOC:
-        allOf:
-          - $ref: '#/definitions/GBLOC'
-          - x-nullable: true
+        $ref: '#/definitions/GBLOC'
   MoveHistory:
     properties:
       id:

@@ -7273,14 +7273,7 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/GBLOC"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/GBLOC"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -19465,14 +19458,7 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/GBLOC"
-            },
-            {
-              "x-nullable": true
-            }
-          ]
+          "$ref": "#/definitions/GBLOC"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"

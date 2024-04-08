@@ -75,7 +75,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
-		ShipmentGBLOC:                &gbloc,
+		ShipmentGBLOC:                gbloc,
 	}
 
 	return payload
