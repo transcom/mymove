@@ -40,7 +40,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		State:          state,
 		PostalCode:     postalcode,
 		Country:        &country,
-		County:         county,	
+		County:         county,
 	}
 
 	expectedPPMShipment := models.PPMShipment{
@@ -110,7 +110,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		State:          "CA",
 		PostalCode:     "89503",
 		Country:        models.StringPointer("United States"),
-		County:			*models.StringPointer("WASHOE"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	oldAddress := models.Address{
@@ -119,7 +119,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		State:          "CA",
 		PostalCode:     "89502",
 		Country:        models.StringPointer("United States"),
-		County:			*models.StringPointer("WASHOE"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	sitOriginalAddress := models.Address{
@@ -128,7 +128,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		State:          "CA",
 		PostalCode:     "89501",
 		Country:        models.StringPointer("United States"),
-		County:			*models.StringPointer("WASHOE"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
 	newSitDistanceBetween := 0
@@ -256,7 +256,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		State:          "CA",
 		PostalCode:     "89503",
 		Country:        models.StringPointer("United States"),
-		County:			*models.StringPointer("WASHOE"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -265,7 +265,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		State:          "CA",
 		PostalCode:     "89502",
 		Country:        models.StringPointer("United States"),
-		County:			*models.StringPointer("WASHOE"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"

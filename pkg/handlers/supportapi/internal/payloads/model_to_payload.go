@@ -205,7 +205,7 @@ func Address(address *models.Address) *supportmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
-		County:			&address.County,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
