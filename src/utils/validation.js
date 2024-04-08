@@ -157,7 +157,7 @@ export const oktaInfoSchema = Yup.object().shape({
     .nullable(),
 });
 
-export const otherUniqueIdErrorMsg = 'Must be 10 digits in length';
+export const otherUniqueIdErrorMsg = 'Only accepts alphanumeric characters';
 export const middleInitialErrorMsg = 'Must be a single uppercase character';
 
 // Validation method for Office Account Request Form checkbox fields
@@ -203,11 +203,9 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .max(10, edipiMaxErrorMsg)
     .matches(/^[0-9]*$/, numericOnlyErrorMsg)
     .test('officeAccountRequestEdipi', 'Required if not using other unique identifier', validateEdipi),
-  officeAccountRequestOtherUniqueId: Yup.string().test(
-    'officeAccountRequestOtherUniqueId',
-    'Required if not using DODID#',
-    validateOtherUniqueId,
-  ),
+  officeAccountRequestOtherUniqueId: Yup.string()
+    .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
+    .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: emailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),

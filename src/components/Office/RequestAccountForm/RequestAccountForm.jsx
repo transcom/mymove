@@ -7,7 +7,7 @@ import requestAccountFormStyles from './RequestAccountForm.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
-import { OfficeAccountRequestFields } from 'components/form/OfficeAccountRequestFields';
+import { OfficeAccountRequestFields } from 'components/form/OfficeAccountRequestFields/OfficeAccountRequestFields';
 import '@trussworks/react-uswds/lib/index.css';
 import { Form } from 'components/form/Form';
 import { withContext } from 'shared/AppContext';

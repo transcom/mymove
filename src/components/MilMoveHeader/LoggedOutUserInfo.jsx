@@ -13,13 +13,7 @@ const LoggedOutUserInfo = ({ handleLogin, handleRequestAccount, app }) => {
         <div className={styles.userInfo}>
           <ul className="usa-nav__primary">
             <li className="usa-nav__primary-item">
-              <Button
-                unstyled
-                aria-label="Request Account"
-                onClick={handleRequestAccount}
-                data-testid="requestaccount"
-                type="button"
-              >
+              <Button unstyled aria-label="Request Account" onClick={handleRequestAccount} type="button">
                 Request Account
               </Button>
             </li>
