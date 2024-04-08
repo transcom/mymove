@@ -1,4 +1,4 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   contact:
     email: milmove-developers@caci.com
@@ -6,7 +6,7 @@ info:
     $ref: info/admin_description.md
   license:
     name: MIT
-    url: "https://opensource.org/licenses/MIT"
+    url: 'https://opensource.org/licenses/MIT'
   title: MilMove Admin API
   version: 1.0.0
 basePath: /admin/v1
@@ -74,9 +74,9 @@ definitions:
       created:
         type: string
       profile:
-          type: object
+        type: object
       credentials:
-          type: object
+        type: object
   Address:
     type: object
     properties:
@@ -217,6 +217,11 @@ definitions:
         x-nullable: true
         example: 'USA'
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - state
