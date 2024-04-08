@@ -64,10 +64,8 @@ export const RequestAccount = (props) => {
       });
     }
 
-    const body = {
+    let body = {
       email: values.officeAccountRequestEmail,
-      edipi: values.officeAccountRequestEdipi,
-      otherUniqueId: values.officeAccountRequestOtherUniqueId,
       firstName: values.officeAccountRequestFirstName,
       middleInitials: values.officeAccountRequestMiddleInitial,
       lastName: values.officeAccountRequestLastName,
@@ -75,6 +73,20 @@ export const RequestAccount = (props) => {
       transportationOfficeId: values.officeAccountTransportationOffice.id,
       roles: requestedRoles,
     };
+
+    if (values.officeAccountRequestEdipi !== '') {
+      body = {
+        ...body,
+        edipi: values.officeAccountRequestEdipi,
+      };
+    }
+
+    if (values.officeAccountRequestOtherUniqueId !== '') {
+      body = {
+        ...body,
+        otherUniqueId: values.officeAccountRequestOtherUniqueId,
+      };
+    }
 
     return createOfficeAccountRequest({ body })
       .then(() => {
@@ -124,5 +136,4 @@ const mapDispatchToProps = {
   setMessage: setFlashMessage,
 };
 
-// export default RequestAccount;
 export default connect(() => ({}), mapDispatchToProps)(RequestAccount);
