@@ -14,6 +14,7 @@ const props = {
     originDutyLocation: {
       name: 'JBSA Lackland',
     },
+    originDutyLocationGBLOC: 'AGFM',
     destinationDutyLocation: {
       name: 'JB Lewis-McChord',
     },
