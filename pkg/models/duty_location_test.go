@@ -5,44 +5,47 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 )
 
 func (suite *ModelSuite) TestFindDutyLocations() {
-	address := models.Address{
+	addressCreator := address.NewAddressCreator()
+	newAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     "12345",
 	}
-	suite.MustSave(&address)
+	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
+	suite.NoError(err)
 
 	location1 := models.DutyLocation{
 		Name:      "Fort Bragg",
-		AddressID: address.ID,
+		AddressID: createdAddress.ID,
 	}
 	suite.MustSave(&location1)
 
 	location2 := models.DutyLocation{
 		Name:      "Fort Belvoir",
-		AddressID: address.ID,
+		AddressID: createdAddress.ID,
 	}
 	suite.MustSave(&location2)
 
 	location3 := models.DutyLocation{
 		Name:      "Davis Monthan AFB",
-		AddressID: address.ID,
+		AddressID: createdAddress.ID,
 	}
 	suite.MustSave(&location3)
 
 	location4 := models.DutyLocation{
 		Name:      "JB Elmendorf-Richardson",
-		AddressID: address.ID,
+		AddressID: createdAddress.ID,
 	}
 	suite.MustSave(&location4)
 
 	location5 := models.DutyLocation{
 		Name:      "NAS Fallon",
-		AddressID: address.ID,
+		AddressID: createdAddress.ID,
 	}
 	suite.MustSave(&location5)
 
@@ -54,7 +57,7 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 
 	location6 := models.DutyLocation{
 		Name:      "NAS Fort Worth JRB",
-		AddressID: address.ID,
+		AddressID: createdAddress.ID,
 	}
 	suite.MustSave(&location6)
 	s6 := models.DutyLocationName{
@@ -63,17 +66,18 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	}
 	suite.MustSave(&s6)
 
-	address2 := models.Address{
+	newAddress2 := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     "23456",
 	}
-	suite.MustSave(&address2)
+	createdAddress2, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress2)
+	suite.NoError(err)
 
 	location7 := models.DutyLocation{
 		Name:      "Very Long City Name, OH 23456",
-		AddressID: address2.ID,
+		AddressID: createdAddress2.ID,
 	}
 	suite.MustSave(&location7)
 

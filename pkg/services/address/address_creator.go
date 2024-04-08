@@ -33,7 +33,7 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
-		transformedAddress.County = &county
+		transformedAddress.County = county
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {

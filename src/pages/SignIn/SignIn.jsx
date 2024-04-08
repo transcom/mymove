@@ -3,8 +3,9 @@ import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
 import { useLocation, useNavigate } from 'react-router-dom';
-
 import '../../styles/signinImports.scss';
+import classNames from 'classnames';
+
 import styles from './SignIn.module.scss';
 
 import '@trussworks/react-uswds/lib/index.css';
@@ -34,7 +35,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   }, [navigate]);
 
   return (
-    <div className="usa-prose grid-container padding-top-3">
+    <div className={classNames(styles.center, 'usa-prose grid-container padding-top-3')}>
       <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
