@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -12,34 +12,52 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
-import { ORDERS } from 'constants/queryKeys';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS, ORDERS_DOCUMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, counselingUpdateOrder } from 'services/ghcApi';
+import { getTacValid, counselingUpdateOrder, createUploadForDocument } from 'services/ghcApi';
 import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
 import { LOA_TYPE } from 'shared/constants';
+import FileUpload from 'components/FileUpload/FileUpload';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const ServicesCounselingOrders = () => {
+const ServicesCounselingOrders = ({ hasDocuments }) => {
+  const filePondEl = useRef();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const [showUpload, setShowUpload] = useState(false);
   const orderId = move?.ordersId;
+  const documentId = orders[orderId]?.uploaded_order_id;
 
   const handleClose = () => {
     navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
   };
 
-  const queryClient = useQueryClient();
+  const handleUploadFile = (file) => {
+    return createUploadForDocument(file, documentId);
+  };
+
+  const toggleUploadVisibility = () => {
+    setShowUpload((show) => !show);
+  };
+
+  // when the user clicks done, invalidate the query to trigger re render
+  // of parent to display uploaded orders and hide the button
+  const uploadComplete = () => {
+    queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
+    toggleUploadVisibility();
+  };
+
   const { mutate: mutateOrders } = useMutation(counselingUpdateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
@@ -127,7 +145,6 @@ const ServicesCounselingOrders = () => {
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
-      grade: values.payGrade,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
@@ -145,7 +162,6 @@ const ServicesCounselingOrders = () => {
     sac: order?.sac,
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
-    payGrade: order?.grade,
   };
 
   const tacWarningMsg =
@@ -179,6 +195,19 @@ const ServicesCounselingOrders = () => {
                       View allowances
                     </Link>
                   </div>
+                  {!hasDocuments && !showUpload && <Button onClick={toggleUploadVisibility}>Add Orders</Button>}
+                  <div>
+                    {showUpload && (
+                      <div>
+                        <FileUpload
+                          ref={filePondEl}
+                          createUpload={handleUploadFile}
+                          labelIdle="click to upload orders"
+                        />
+                        <Button onClick={uploadComplete}>Done</Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.body}>
                   <OrdersDetailForm
@@ -191,7 +220,6 @@ const ServicesCounselingOrders = () => {
                     ntsTacWarning={ntsTacWarning}
                     validateHHGTac={handleHHGTacValidation}
                     validateNTSTac={handleNTSTacValidation}
-                    payGradeOptions={payGradeDropdownOptions}
                   />
                 </div>
                 <div className={styles.bottom}>
