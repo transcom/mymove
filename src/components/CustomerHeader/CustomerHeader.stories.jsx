@@ -20,6 +20,9 @@ const props = {
     report_by_date: '2018-08-01',
   },
   moveCode: 'FKLCTR',
+  move: {
+    shipmentGBLOC: 'AGFM',
+  },
 };
 
 const propsRetirement = {
