@@ -38,6 +38,6 @@ describe('when given a PPM shipment update', () => {
     const result = getTemplate(historyRecord);
     render(result.getEventNameDisplay());
 
-    expect(screen.getByText('Submitted HHG Move for Approval')).toBeInTheDocument();
+    expect(screen.getByText('Submitted Move for Approval')).toBeInTheDocument();
   });
 });
