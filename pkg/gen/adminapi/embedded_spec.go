@@ -3327,6 +3327,13 @@ func init() {
       }
     },
     {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
       "description": "Information about users",
       "name": "Users",
       "externalDocs": {
@@ -6652,6 +6659,13 @@ func init() {
     {
       "description": "Information about uploads",
       "name": "Uploads",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about requested office users",
+      "name": "Requested Office Users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

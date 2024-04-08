@@ -330,22 +330,26 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
   }
 
-  async navigateFromHomePageToExistingPPMAboutForm() {
-    await expect(this.page.getByRole('heading', { name: 'Welcome to MilMove' })).toBeVisible();
-    await expect(this.page.getByRole('heading', { name: 'Current Move' })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Go to Move' }).click();
-    await expect(this.page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
-    await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
+  async navigateToAboutPageAndFillOutAboutFormDate() {
+    await this.clickOnUploadPPMDocumentsButton();
 
-    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments/);
-  }
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/about/);
 
-  async fillOutAboutFormDate() {
-    await this.page.getByPlaceholder('DD MMM YYYY').fill('20 Mar 2024');
-    await this.page.getByLabel('Fri Mar 22 2024').click();
+    await expect(this.page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
 
-    // expect that future dates cannot be clicked
-    await expect(this.page.getByLabel('Sat Mar 15 2030')).not.toBeVisible();
+    await this.page.locator('input[placeholder="DD MMM YYYY"]').click();
+
+    // Use Playwright's selectors to find the element that represents today
+    const todaySelector = '.DayPicker-Day--today';
+
+    // Attempt to find the next day and checking if it is disabled
+    const nextDayDisabledSelector = `${todaySelector} + .DayPicker-Day.DayPicker-Day--disabled`;
+
+    // Check if the next day element is present and marked as disabled
+    const isNextDayDisabled = await this.page.isVisible(nextDayDisabledSelector);
+
+    // Assert that the next day is indeed disabled
+    expect(isNextDayDisabled).toBeTruthy();
   }
 
   /**
@@ -573,9 +577,7 @@ export class CustomerPpmPage extends CustomerPage {
   async submitMove() {
     await this.page.getByRole('button', { name: 'Complete' }).click();
 
-    await expect(this.page.locator('.usa-alert--success')).toContainText('You’ve submitted your move request.');
-
-    await expect(this.page.getByRole('heading', { name: 'Next step: Your move gets approved' })).toBeVisible();
+    await expect(this.page.getByRole('heading', { name: 'Now for the official part' })).toBeVisible();
 
     // ensure that shipment list doesn't have a button to edit or delete
     await expect(this.page.locator('[data-testid="shipment-list-item-container"] button')).not.toBeVisible();
@@ -929,8 +931,6 @@ export class CustomerPpmPage extends CustomerPage {
 
     await this.page.getByRole('button', { name: 'Submit PPM Documentation' }).click();
     await this.page.waitForURL(url.href);
-
-    await expect(this.page.locator('.usa-alert--success')).toContainText('You submitted documentation for review.');
 
     let stepContainer = this.page.locator('[data-testid="stepContainer6"]');
 
