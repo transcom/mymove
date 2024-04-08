@@ -36,7 +36,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -80,7 +80,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -124,7 +124,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -169,7 +169,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -213,7 +213,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -251,7 +251,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -284,7 +284,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.98',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -317,7 +317,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -350,7 +350,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -383,7 +383,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -421,7 +421,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -459,7 +459,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -497,7 +497,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -536,7 +536,7 @@ describe('makeCalculations', () => {
         },
         {
           value: '$999.99',
-          label: 'Total amount requested',
+          label: 'Fuel rate adjustment',
           details: [{ text: '', styles: {} }],
         },
       ]);
@@ -574,7 +574,7 @@ describe('makeCalculations', () => {
         },
         {
           value: '$999.99',
-          label: 'Total amount requested',
+          label: 'Fuel rate adjustment',
           details: [{ text: '', styles: {} }],
         },
       ]);
@@ -608,7 +608,7 @@ describe('makeCalculations', () => {
         },
         {
           value: '$999.99',
-          label: 'Total amount requested',
+          label: 'Fuel rate adjustment',
           details: [{ text: '', styles: {} }],
         },
       ]);
@@ -642,7 +642,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -680,7 +680,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -713,7 +713,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -746,7 +746,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -779,7 +779,7 @@ describe('makeCalculations', () => {
       },
       {
         details: [{ text: '', styles: {} }],
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         value: '$999.99',
       },
     ]);
@@ -812,7 +812,7 @@ describe('makeCalculations', () => {
       },
       {
         details: [{ text: '', styles: {} }],
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         value: '$999.99',
       },
     ]);
@@ -845,7 +845,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -886,7 +886,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -917,7 +917,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
@@ -948,7 +948,7 @@ describe('makeCalculations', () => {
       },
       {
         value: '$999.99',
-        label: 'Total amount requested',
+        label: 'Fuel rate adjustment',
         details: [{ text: '', styles: {} }],
       },
     ]);
