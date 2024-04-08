@@ -1258,7 +1258,7 @@ paths:
       produces:
         - application/json
       summary: Get a Requested Office User
-      description: Retrieving a single office user in any status
+      description: Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.
       operationId: getRequestedOfficeUser
       tags:
         - Requested office users

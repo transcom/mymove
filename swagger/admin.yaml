@@ -43,6 +43,10 @@ tags:
     description: Information about notifications
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
+  - name: Requested office users
+    description: Information about Requested Office UI users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: Transportation offices
     description: Information about transportation offices
     externalDocs:
@@ -1270,7 +1274,10 @@ paths:
       produces:
         - application/json
       summary: Get a Requested Office User
-      description: Retrieving a single office user in any status
+      description: >-
+        Retrieving a single office user in any status. This endpoint is used in
+        the Admin UI that will allow the admin user to view the user's relevant
+        data.
       operationId: getRequestedOfficeUser
       tags:
         - Requested office users
