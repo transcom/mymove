@@ -70,22 +70,28 @@ const testDetails = (wrapper) => {
   expect(detailTypes.at(1).text()).toBe('Item size:');
   expect(detailDefinitions.at(1).text()).toBe('7"x2"x3.5"');
 
-  expect(detailTypes.at(3).text()).toBe('SIT entry date:');
+  expect(detailTypes.at(3).text()).toBe('Original pickup address:');
   expect(detailDefinitions.at(3).text().includes('-')).toBe(true);
-  expect(detailTypes.at(4).text()).toBe('First available delivery date 1:');
-  expect(detailDefinitions.at(4).text().includes('15 Sep 2020')).toBe(true);
-  expect(detailTypes.at(5).text()).toBe('Customer contact attempt 1:');
-  expect(detailDefinitions.at(5).text().includes('15 Sep 2020, 1200Z')).toBe(true);
+  expect(detailTypes.at(4).text()).toBe('Actual pickup address:');
+  expect(detailDefinitions.at(4).text().includes('-')).toBe(true);
+  expect(detailTypes.at(5).text()).toBe('Delivery miles into SIT:');
+  expect(detailDefinitions.at(5).text().includes('-')).toBe(true);
+  expect(detailTypes.at(6).text()).toBe('Original delivery address:');
+  expect(detailDefinitions.at(6).text().includes('-')).toBe(true);
+  expect(detailTypes.at(7).text()).toBe('SIT entry date:');
+  expect(detailDefinitions.at(7).text().includes('-')).toBe(true);
+  expect(detailTypes.at(8).text()).toBe('First available delivery date 1:');
+  expect(detailDefinitions.at(8).text().includes('15 Sep 2020')).toBe(true);
+  expect(detailTypes.at(9).text()).toBe('Customer contact attempt 1:');
+  expect(detailDefinitions.at(9).text().includes('15 Sep 2020, 1200Z')).toBe(true);
 
-  expect(detailTypes.at(6).text()).toBe('First available delivery date 2:');
-  expect(detailDefinitions.at(6).text().includes('21 Sep 2020')).toBe(true);
-  expect(detailTypes.at(7).text()).toBe('Customer contact attempt 2:');
-  expect(detailDefinitions.at(7).text().includes('21 Sep 2020, 2300Z')).toBe(true);
+  expect(detailTypes.at(10).text()).toBe('First available delivery date 2:');
+  expect(detailDefinitions.at(10).text().includes('21 Sep 2020')).toBe(true);
+  expect(detailTypes.at(11).text()).toBe('Customer contact attempt 2:');
+  expect(detailDefinitions.at(11).text().includes('21 Sep 2020, 2300Z')).toBe(true);
 
-  expect(detailTypes.at(9).text()).toBe('ZIP:');
-  expect(detailDefinitions.at(9).text().includes('12345')).toBe(true);
-  expect(detailTypes.at(8).text()).toBe('Reason:');
-  expect(detailDefinitions.at(8).text().includes('Took a detour')).toBe(true);
+  expect(detailTypes.at(12).text()).toBe('Reason:');
+  expect(detailDefinitions.at(12).text().includes('Took a detour')).toBe(true);
 };
 
 describe('RequestedServiceItemsTable', () => {
@@ -129,11 +135,11 @@ describe('RequestedServiceItemsTable', () => {
     expect(wrapper.find('.codeName').at(0).text()).toBe('Domestic crating ');
     expect(wrapper.find('.nameAndDate').at(0).text().includes('20 Nov 2020')).toBe(true);
 
-    expect(wrapper.find('.codeName').at(1).text()).toBe('Domestic destination 1st day SIT ');
-    expect(wrapper.find('.nameAndDate').at(1).text().includes('1 Sep 2020')).toBe(true);
+    expect(wrapper.find('.codeName').at(1).text()).toBe('Domestic origin 1st day SIT ');
+    expect(wrapper.find('.nameAndDate').at(1).text().includes('15 Oct 2020')).toBe(true);
 
-    expect(wrapper.find('.codeName').at(2).text()).toBe('Domestic origin 1st day SIT ');
-    expect(wrapper.find('.nameAndDate').at(2).text().includes('15 Oct 2020')).toBe(true);
+    expect(wrapper.find('.codeName').at(2).text()).toBe('Domestic destination 1st day SIT ');
+    expect(wrapper.find('.nameAndDate').at(2).text().includes('1 Sep 2020')).toBe(true);
   });
 
   it('shows the service item detail text', () => {
@@ -157,7 +163,7 @@ describe('RequestedServiceItemsTable', () => {
 
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <RequestedServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -183,7 +189,7 @@ describe('RequestedServiceItemsTable', () => {
     serviceItemWithContact.status = 'APPROVED';
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <RequestedServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}
@@ -205,7 +211,7 @@ describe('RequestedServiceItemsTable', () => {
     serviceItemWithContact.status = 'REJECTED';
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
         <RequestedServiceItemsTable
           {...defaultProps}
           serviceItems={serviceItems}

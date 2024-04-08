@@ -87,7 +87,8 @@ export class Summary extends Component {
 
   handleEditClick = (path) => {
     const { router } = this.props;
-    router.navigate(path);
+    const { state } = this;
+    router.navigate(path, { state });
   };
 
   handleDeleteClick = (shipmentId) => {
@@ -137,6 +138,7 @@ export class Summary extends Component {
     const { mtoShipments } = currentMove ?? {};
     const { orders } = currentMove ?? {};
     const currentOrders = orders;
+    this.state = { ...this.state, moveId };
 
     const sortedShipments = mtoShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
