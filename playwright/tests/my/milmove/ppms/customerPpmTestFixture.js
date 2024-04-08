@@ -757,7 +757,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddExpensePage() {
-    await this.page.getByRole('link', { name: 'Add Expense' }).click();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
