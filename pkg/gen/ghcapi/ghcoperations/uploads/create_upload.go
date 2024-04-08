@@ -34,7 +34,7 @@ func NewCreateUpload(ctx *middleware.Context, handler CreateUploadHandler) *Crea
 
 # Create a new upload
 
-Uploads represent a single digital file, such as a JPEG or PDF.
+Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.
 */
 type CreateUpload struct {
 	Context *middleware.Context

@@ -38,6 +38,7 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
+  - name: uploads
 paths:
   /open/requested-office-users:
     post:
@@ -3581,12 +3582,17 @@ paths:
   /uploads:
     post:
       summary: Create a new upload
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      description: >-
+        Uploads represent a single digital file, such as a JPEG or PDF.
+        Currently, office application uploads are only for Services Counselors
+        to upload files for orders, but this may be expanded in the future.
       operationId: createUpload
       tags:
         - uploads
       consumes:
         - multipart/form-data
+      produces:
+        - application/json
       parameters:
         - in: query
           name: documentId

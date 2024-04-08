@@ -23,6 +23,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
 import { LOA_TYPE } from 'shared/constants';
 import FileUpload from 'components/FileUpload/FileUpload';
+import Hint from 'components/Hint';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
@@ -198,12 +199,13 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
                   {!hasDocuments && !showUpload && <Button onClick={toggleUploadVisibility}>Add Orders</Button>}
                   <div>
                     {showUpload && (
-                      <div>
+                      <div className={styles.upload}>
                         <FileUpload
                           ref={filePondEl}
                           createUpload={handleUploadFile}
-                          labelIdle="click to upload orders"
+                          labelIdle="Drag files here or click to upload"
                         />
+                        <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
                         <Button onClick={uploadComplete}>Done</Button>
                       </div>
                     )}
