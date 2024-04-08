@@ -171,6 +171,22 @@ const validateRoleRequestedMethod = (value, testContext) => {
   );
 };
 
+const validateOtherUniqueId = (value, testContext) => {
+  if (testContext.parent.officeAccountRequestOtherUniqueId || testContext.parent.officeAccountRequestEdipi) {
+    return true;
+  }
+
+  return false;
+};
+
+const validateEdipi = (value, testContext) => {
+  if (testContext.parent.officeAccountRequestOtherUniqueId || testContext.parent.officeAccountRequestEdipi) {
+    return true;
+  }
+
+  return false;
+};
+
 // checking request office account form
 export const officeAccountRequestSchema = Yup.object().shape({
   officeAccountRequestFirstName: Yup.string()
@@ -186,8 +202,12 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .min(10, edipiMaxErrorMsg)
     .max(10, edipiMaxErrorMsg)
     .matches(/^[0-9]*$/, numericOnlyErrorMsg)
-    .required('Required'),
-  officeAccountRequestOtherUniqueId: Yup.string().required('Required'),
+    .test('officeAccountRequestEdipi', 'Required if not using other unique identifier', validateEdipi),
+  officeAccountRequestOtherUniqueId: Yup.string().test(
+    'officeAccountRequestOtherUniqueId',
+    'Required if not using DODID#',
+    validateOtherUniqueId,
+  ),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: emailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
