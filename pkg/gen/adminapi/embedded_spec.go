@@ -2715,6 +2715,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -2798,6 +2821,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
@@ -6023,6 +6050,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -6106,6 +6156,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
