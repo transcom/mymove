@@ -6403,10 +6403,17 @@ definitions:
         x-nullable: true
       sitDestinationOriginalAddress:
         $ref: '#/definitions/Address'
+      sitOriginHHGOriginalAddress:
+        $ref: '#/definitions/Address'
+      sitOriginHHGActualAddress:
+        $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
       sitAddressUpdates:
         $ref: '#/definitions/SITAddressUpdates'
+      sitDeliveryMiles:
+        type: integer
+        x-nullable: true
       feeType:
         enum:
           - COUNSELING
