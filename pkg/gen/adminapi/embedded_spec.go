@@ -1254,7 +1254,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
+        "description": "Retrieving a single office user in any status",
         "produces": [
           "application/json"
         ],
@@ -4588,7 +4588,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
+        "description": "Retrieving a single office user in any status",
         "produces": [
           "application/json"
         ],
