@@ -4,10 +4,12 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './index.module.scss';
 
+import { pageNames } from 'constants/signInPageNames';
+
 const LoggedOutUserInfo = ({ handleLogin, handleRequestAccount, app }) => {
   return (
     <>
-      {app === 'office' && (
+      {app === pageNames.OFFICE && (
         <div className={styles.userInfo}>
           <ul className="usa-nav__primary">
             <li className="usa-nav__primary-item">

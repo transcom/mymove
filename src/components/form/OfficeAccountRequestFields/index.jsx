@@ -25,13 +25,13 @@ export const OfficeAccountRequestFields = ({ render }) => {
             label="Middle Initial"
             name={middleInitialFieldName}
             id="officeAccountRequestMiddleInitial"
-            optional
+            labelHint="optional"
           />
           <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" />
           <TextField label="Email" name={emailField} id="officeAccountRequestEmail" />
           <TextField label="Telephone" name={telephoneFieldName} id="officeAccountRequestTelephone" />
           <TextField
-            label="DoD ID number | EDIPI"
+            label="DODID#"
             labelHint="10 digit number"
             name={edipiFieldName}
             id="officeAccountRequestEdipi"
@@ -41,11 +41,9 @@ export const OfficeAccountRequestFields = ({ render }) => {
           />
           <TextField
             label="Other unique identifier"
-            labelHint="If using PIV"
+            labelHint="If not using DODID#"
             name={otherUniqueIdName}
             id="officeAccountRequestOtherUniqueId"
-            maxLength="10"
-            inputMode="numeric"
             data-testid="officeAccountRequestOtherUniqueId"
           />
           <DutyLocationInput

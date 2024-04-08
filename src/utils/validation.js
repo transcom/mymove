@@ -176,7 +176,9 @@ export const officeAccountRequestSchema = Yup.object().shape({
   officeAccountRequestFirstName: Yup.string()
     .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
     .required('Required'),
-  officeAccountRequestMiddleInitial: Yup.string().matches(/^[A-Z]$/, middleInitialErrorMsg),
+  officeAccountRequestMiddleInitial: Yup.string()
+    .matches(/^[A-Z]$/, middleInitialErrorMsg)
+    .optional(),
   officeAccountRequestLastName: Yup.string()
     .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
     .required('Required'),
@@ -184,38 +186,34 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .min(10, edipiMaxErrorMsg)
     .max(10, edipiMaxErrorMsg)
     .matches(/^[0-9]*$/, numericOnlyErrorMsg)
-    .nullable(),
-  officeAccountRequestOtherUniqueId: Yup.string()
-    .min(10, otherUniqueIdErrorMsg)
-    .max(10, otherUniqueIdErrorMsg)
-    .matches(/^[0-9]*$/, numericOnlyErrorMsg)
-    .nullable(),
+    .required('Required'),
+  officeAccountRequestOtherUniqueId: Yup.string().required('Required'),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: emailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
   transportationOrderingOfficerCheckBox: Yup.bool().test(
     'roleRequestedRequired',
-    'Please select a role to request.',
+    'You must select at least one role.',
     validateRoleRequestedMethod,
   ),
   transportationInvoicingOfficerCheckBox: Yup.bool().test(
     'roleRequestedRequired',
-    'Please select a role to request.',
+    'You must select at least one role.',
     validateRoleRequestedMethod,
   ),
   servicesCounselorCheckBox: Yup.bool().test(
     'roleRequestedRequired',
-    'Please select a role to request.',
+    'You must select at least one role.',
     validateRoleRequestedMethod,
   ),
   transportationContractingOfficerCheckBox: Yup.bool().test(
     'roleRequestedRequired',
-    'Please select a role to request.',
+    'You must select at least one role.',
     validateRoleRequestedMethod,
   ),
   qualityAssuranceAndCustomerSupportCheckBox: Yup.bool().test(
     'roleRequestedRequired',
-    'Please select a role to request.',
+    'You must select at least one role.',
     validateRoleRequestedMethod,
   ),
 });

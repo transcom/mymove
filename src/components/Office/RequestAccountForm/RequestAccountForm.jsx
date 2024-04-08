@@ -33,8 +33,8 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
                 MilMove admin will review your account. If approved, you will be notified and allowed to log in.
               </p>
               <p>
-                <b>NOTE:</b> When filling out your EDIPI or unique identifier, you <b>MUST</b> provide one or the other.
-                If using CAC, fill out the EDIPI field. If using PIV or ECA certs, please fill out the unique
+                <b>NOTE:</b> When filling out your DODID# or unique identifier, you <b>MUST</b> provide one or the
+                other. If using CAC, fill out the EDIPI field. If using PIV or ECA certs, please fill out the unique
                 identifier.
               </p>
 
