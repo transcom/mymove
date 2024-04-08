@@ -18,7 +18,7 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { addressSchema } from 'utils/validation';
+import { requiredAddressSchema, addressSchema } from 'utils/validation';
 import { isEmpty, isValidWeight } from 'shared/utils';
 import { formatAddressForPrimeAPI, formatSwaggerDate, fromPrimeAPIAddressFormat } from 'utils/formatters';
 import PrimeUIShipmentUpdateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdateForm';
@@ -170,6 +170,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           hasProGear,
           proGearWeight,
           spouseProGearWeight,
+          hasSecondaryPickupAddress,
+          hasSecondaryDestinationAddress,
         },
         counselorRemarks,
       } = values;
@@ -177,10 +179,12 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         ppmShipment: {
           expectedDepartureDate: expectedDepartureDate ? formatSwaggerDate(expectedDepartureDate) : null,
           pickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(pickupAddress),
-          secondaryPickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(secondaryPickupAddress),
+          secondaryPickupAddress: isEmpty(secondaryPickupAddress)
+            ? emptyAddress
+            : formatAddressForPrimeAPI(secondaryPickupAddress),
           destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
           secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
-            ? null
+            ? emptyAddress
             : formatAddressForPrimeAPI(secondaryDestinationAddress),
           sitExpected,
           ...(sitExpected && {
@@ -195,6 +199,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
             spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
           }),
+          hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
+          hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
         },
         counselorRemarks: counselorRemarks || null,
       };
@@ -236,29 +242,30 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   if (isPPM) {
     initialValues = {
       ppmShipment: {
-        pickupAddress: isEmpty(shipment.ppmShipment.pickupAddress)
-          ? emptyAddress
-          : formatAddressForPrimeAPI(shipment.ppmShipment.pickupAddress),
-        secondaryPickupAddress: isEmpty(shipment.ppmShipment.pickupAddress)
-          ? emptyAddress
-          : formatAddressForPrimeAPI(shipment.ppmShipment.secondaryPickupAddress),
-        destinationAddress: isEmpty(shipment.ppmShipment.destinationAddress)
-          ? emptyAddress
-          : formatAddressForPrimeAPI(shipment.ppmShipment.destinationAddress),
-        secondaryDestinationAddress: isEmpty(shipment.ppmShipment.secondaryDestinationAddress)
-          ? emptyAddress
-          : formatAddressForPrimeAPI(shipment.ppmShipment.secondaryDestinationAddress),
+        pickupAddress: shipment.ppmShipment.pickupAddress
+          ? formatAddressForPrimeAPI(shipment.ppmShipment.pickupAddress)
+          : emptyAddress,
+        secondaryPickupAddress: shipment.ppmShipment.secondaryPickupAddress
+          ? formatAddressForPrimeAPI(shipment.ppmShipment.secondaryPickupAddress)
+          : emptyAddress,
+        destinationAddress: shipment.ppmShipment.destinationAddress
+          ? formatAddressForPrimeAPI(shipment.ppmShipment.destinationAddress)
+          : emptyAddress,
+        secondaryDestinationAddress: shipment.ppmShipment.secondaryDestinationAddress
+          ? formatAddressForPrimeAPI(shipment.ppmShipment.secondaryDestinationAddress)
+          : emptyAddress,
         sitExpected: shipment.ppmShipment.sitExpected,
         sitLocation: shipment.ppmShipment.sitLocation,
         sitEstimatedWeight: shipment.ppmShipment.sitEstimatedWeight?.toString(),
         sitEstimatedEntryDate: shipment.ppmShipment.sitEstimatedEntryDate,
         sitEstimatedDepartureDate: shipment.ppmShipment.sitEstimatedDepartureDate,
         estimatedWeight: shipment.ppmShipment.estimatedWeight?.toString(),
+        expectedDepartureDate: shipment.ppmShipment.expectedDepartureDate,
         hasProGear: shipment.ppmShipment.hasProGear,
         proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
-        hasSecondaryPickupAddress: shipment.ppmShipment.hasSecondaryPickupAddress,
-        hasSecondaryDesinationAddress: shipment.ppmShipment.hasSecondaryDesinationAddress,
+        hasSecondaryPickupAddress: shipment.ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
+        hasSecondaryDestinationAddress: shipment.ppmShipment.hasSecondaryDestinationAddress ? 'true' : 'false',
       },
       counselorRemarks: shipment.counselorRemarks || '',
     };
@@ -267,10 +274,10 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         expectedDepartureDate: Yup.date()
           .required('Required')
           .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-        pickupAddress: Yup.object().matches(OptionalAddressSchema).required('Required'),
-        secondaryPickupAddress: Yup.object().matches(OptionalAddressSchema),
-        destinationAddress: Yup.object().matches(OptionalAddressSchema).required('Required'),
-        secondaryDestinationAddress: Yup.object().matches(OptionalAddressSchema),
+        pickupAddress: requiredAddressSchema.required('Required'),
+        secondaryPickupAddress: OptionalAddressSchema,
+        destinationAddress: requiredAddressSchema.required('Required'),
+        secondaryDestinationAddress: OptionalAddressSchema,
         sitExpected: Yup.boolean().required('Required'),
         sitLocation: Yup.string().when('sitExpected', {
           is: true,

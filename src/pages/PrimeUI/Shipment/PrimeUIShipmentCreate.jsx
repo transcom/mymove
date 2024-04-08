@@ -102,7 +102,9 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         ppmShipment: {
           expectedDepartureDate: expectedDepartureDate ? formatSwaggerDate(expectedDepartureDate) : null,
           pickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(pickupAddress),
-          secondaryPickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(secondaryPickupAddress),
+          secondaryPickupAddress: isEmpty(secondaryPickupAddress)
+            ? null
+            : formatAddressForPrimeAPI(secondaryPickupAddress),
           destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
           secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
             ? null
@@ -219,16 +221,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           expectedDepartureDate: Yup.date()
             .required('Required')
             .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
-          pickupAddress: requiredAddressSchema,
-          secondaryPickupAddress: Yup.object().when('hasSecondaryPickupAddress', {
-            is: (hasSecondaryPickupAddress) => hasSecondaryPickupAddress === true,
-            then: () => OptionalAddressSchema,
-          }),
-          destinationAddress: requiredAddressSchema,
-          secondaryDestinationAddress: Yup.object().when('hasSecondaryDestinationAddress', {
-            is: (hasSecondaryDestinationAddress) => hasSecondaryDestinationAddress === true,
-            then: () => OptionalAddressSchema,
-          }),
+          pickupAddress: requiredAddressSchema.required('Required'),
+          secondaryPickupAddress: OptionalAddressSchema,
+          destinationAddress: requiredAddressSchema.required('Required'),
+          secondaryDestinationAddress: OptionalAddressSchema,
           sitExpected: Yup.boolean().required('Required'),
           sitLocation: Yup.string().when('sitExpected', {
             is: true,

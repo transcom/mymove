@@ -15,7 +15,7 @@ const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
 const PrimeUIShipmentUpdatePPMForm = () => {
   const { values } = useFormikContext();
-  const { sitExpected, hasProGear, hasSecondaryPickup, hasSecondaryDestination } = values.ppmShipment;
+  const { sitExpected, hasProGear, hasSecondaryPickupAddress, hasSecondaryDestinationAddress } = values.ppmShipment;
 
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -27,7 +27,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       />
       <h2 className={styles.sectionHeader}>Origin Info</h2>
       <AddressFields
-        name="ppmShipment.pickup.address"
+        name="ppmShipment.pickupAddress"
         legend="Pickup Address"
         render={(fields) => (
           <>
@@ -45,30 +45,30 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                   id="has-secondary-pickup"
                   data-testid="has-secondary-pickup"
                   label="Yes"
-                  name="ppmShipment.hasSecondaryPickup"
+                  name="ppmShipment.hasSecondaryPickupAddress"
                   value="true"
                   title="Yes, there is a second pickup location"
-                  checked={hasSecondaryPickup === 'true'}
+                  checked={hasSecondaryPickupAddress === 'true'}
                 />
                 <Field
                   as={Radio}
                   id="no-secondary-pickup"
                   data-testid="no-secondary-pickup"
                   label="No"
-                  name="ppmShipment.hasSecondaryPickup"
+                  name="ppmShipment.hasSecondaryPickupAddress"
                   value="false"
                   title="No, there is not a second pickup location"
-                  checked={hasSecondaryPickup !== 'true'}
+                  checked={hasSecondaryPickupAddress !== 'true'}
                 />
               </div>
             </FormGroup>
-            {hasSecondaryPickup === 'true' && <AddressFields name="ppmShipment.secondaryPickup.address" />}
+            {hasSecondaryPickupAddress === 'true' && <AddressFields name="ppmShipment.secondaryPickupAddress" />}
           </>
         )}
       />
       <h2 className={styles.sectionHeader}>Destination Info</h2>
       <AddressFields
-        name="ppmShipment.destination.address"
+        name="ppmShipment.destinationAddress"
         legend="Destination Address"
         render={(fields) => (
           <>
@@ -85,24 +85,26 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                   data-testid="has-secondary-destination"
                   id="has-secondary-destination"
                   label="Yes"
-                  name="ppmShipment.hasSecondaryDestination"
+                  name="ppmShipment.hasSecondaryDestinationAddress"
                   value="true"
                   title="Yes, there is a second destination location"
-                  checked={hasSecondaryDestination === 'true'}
+                  checked={hasSecondaryDestinationAddress === 'true'}
                 />
                 <Field
                   as={Radio}
                   data-testid="no-secondary-destination"
                   id="no-secondary-destination"
                   label="No"
-                  name="ppmShipment.hasSecondaryDestination"
+                  name="ppmShipment.hasSecondaryDestinationAddress"
                   value="false"
                   title="No, there is not a second destination location"
-                  checked={hasSecondaryDestination !== 'true'}
+                  checked={hasSecondaryDestinationAddress !== 'true'}
                 />
               </div>
             </FormGroup>
-            {hasSecondaryDestination === 'true' && <AddressFields name="ppmShipment.secondaryDestination.address" />}
+            {hasSecondaryDestinationAddress === 'true' && (
+              <AddressFields name="ppmShipment.secondaryDestinationAddress" />
+            )}
           </>
         )}
       />

@@ -242,7 +242,7 @@ export function updatePrimeMTOShipmentStatus({
   const body = {
     status: 'CANCELED',
   };
-  return makePrimeSimulatorRequest(
+  return makePrimeSimulatorRequestV3(
     operationPath,
     {
       mtoShipmentID,
