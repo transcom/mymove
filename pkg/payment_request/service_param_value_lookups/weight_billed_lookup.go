@@ -108,27 +108,31 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		where sipk.key = 'WeightBilled' and psi.payment_request_id = $1`
 
 		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID).First(&weightBilled)
+
 		if err != nil && err != sql.ErrNoRows {
 			return "", err
-		} else if len(weightBilled) > 0 {
+		}
+
+		if len(weightBilled) > 0 {
 			return weightBilled, nil
-		} else {
-			estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
-
-			originalWeight = keyData.MTOServiceItem.ActualWeight
-
-			if originalWeight == nil {
-				// TODO: Do we need a different error -- is this a "normal" scenario?
-				return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		} else if keyData.MTOServiceItem.MTOShipment.PPMShipment != nil {
+			if len((string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)) > 0 {
+				return (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap), nil
 			}
+		}
+		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 
-			if estimatedWeight != nil {
-				estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
-				if float64(*originalWeight) > estimatedWeightCap {
-					value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
-				} else {
-					value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
-				}
+		originalWeight = r.MTOShipment.PrimeActualWeight
+
+		if originalWeight == nil {
+			// TODO: Do we need a different error -- is this a "normal" scenario?
+			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		}
+
+		if estimatedWeight != nil {
+			estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
+			if float64(*originalWeight) > estimatedWeightCap {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
 			} else {
 				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 			}
