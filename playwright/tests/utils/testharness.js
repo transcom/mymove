@@ -437,6 +437,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build submitted move with partial ppm and weight ticket
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMWeightTicketOfficeWithHHG() {
+    return this.buildDefault('ApprovedMoveWithPPMWeightTicketOfficeWithHHG');
+  }
+
+  /**
    * Use testharness to build approved move with ppm moving expenses
    * @returns {Promise<Move>}
    */
