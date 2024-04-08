@@ -238,12 +238,13 @@ type Session struct {
 }
 
 type OktaSessionInfo struct {
-	Login     string
-	Email     string
-	FirstName string
-	LastName  string
-	Edipi     string
-	Sub       string
+	Login                 string
+	Email                 string
+	FirstName             string
+	LastName              string
+	Edipi                 string
+	Sub                   string
+	SignedInWithSmartCard bool
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
