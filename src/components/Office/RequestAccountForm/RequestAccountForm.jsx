@@ -7,7 +7,7 @@ import requestAccountFormStyles from './RequestAccountForm.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
-import { OfficeAccountRequestFields } from 'components/form/OfficeAccountRequestFields';
+import { OfficeAccountRequestFields } from 'components/form/OfficeAccountRequestFields/OfficeAccountRequestFields';
 import '@trussworks/react-uswds/lib/index.css';
 import { Form } from 'components/form/Form';
 import { withContext } from 'shared/AppContext';
@@ -33,8 +33,8 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
                 MilMove admin will review your account. If approved, you will be notified and allowed to log in.
               </p>
               <p>
-                <b>NOTE:</b> When filling out your EDIPI or unique identifier, you <b>MUST</b> provide one or the other.
-                If using CAC, fill out the EDIPI field. If using PIV or ECA certs, please fill out the unique
+                <b>NOTE:</b> When filling out your DODID# or unique identifier, you <b>MUST</b> provide one or the
+                other. If using CAC, fill out the EDIPI field. If using PIV or ECA certs, please fill out the unique
                 identifier.
               </p>
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Formik } from 'formik';
 
-import OfficeAccountRequestFields from './index';
+import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 
 describe('OfficeAccountRequestFields component', () => {
   it('renders the form inputs', async () => {
