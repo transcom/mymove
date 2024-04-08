@@ -51,7 +51,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 
 	var query *pop.Query
 
-	if appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) || appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if appCtx.Session().IsMultiRoleUser() || appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) || appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		query = appCtx.DB().EagerPreload(
 			"MTOShipments",
 			"Orders.ServiceMember",

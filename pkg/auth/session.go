@@ -216,6 +216,23 @@ func (s *Session) IsAdminApp() bool {
 	return s.ApplicationName.IsAdminApp()
 }
 
+// IsAdminApp returns true iff the request is for the admin.move.mil host
+func (s *Session) IsMultiRoleUser() bool {
+	return len(s.Roles) > 1
+}
+func (s *Session) IsTOO() bool {
+	return s.Roles[0].RoleType == roles.RoleTypeTOO
+}
+func (s *Session) IsTIO() bool {
+	return s.Roles[0].RoleType == roles.RoleTypeTIO
+}
+func (s *Session) IsQAECSR() bool {
+	return s.Roles[0].RoleType == roles.RoleTypeQaeCsr
+}
+func (s *Session) IsServiceCounselor() bool {
+	return s.Roles[0].RoleType == roles.RoleTypeServicesCounselor
+}
+
 // Session stores information about the currently logged in session
 type Session struct {
 	ApplicationName Application
