@@ -34,15 +34,12 @@ const testServiceItemCalculation = (testData) => {
   describe(`item code ${serviceItemCodeToTest}`, () => {
     it('renders correct data', () => {
       const wrapper = additionalData
-        ? mountedComponentAdditionalData.find('[data-testid="column"]')
-        : mountedComponent.find('[data-testid="column"]');
+        ? mountedComponentAdditionalData.find('[data-testid="row"]')
+        : mountedComponent.find('[data-testid="row"]');
 
       expectedOutput.forEach((obj, index) => {
-        expect(wrapper.at(index).find('[data-testid="value"]').text()).toContain(obj.value);
-        expect(wrapper.at(index).find('[data-testid="label"]').text()).toContain(obj.label);
-        // expect(wrapper.at(index).find('[data-testid="details"]').nth(0).text()).toContain(
-        //   obj.details ? obj.details.split('')[0] : '',
-        // );
+        expect(wrapper.at(index).find('[data-testid="label"]').text()).toEqual(obj.label);
+        expect(wrapper.at(index).find('[data-testid="value"]').text()).toEqual(obj.value);
       });
     });
   });
