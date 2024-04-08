@@ -76,12 +76,12 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			return weightBilled, nil
 		} else if keyData.MTOServiceItem.MTOShipment.PPMShipment != nil {
 			if len((string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)) > 0 {
-				weightBilled = (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)
+				return (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap), nil
 			}
 		}
-		estimatedWeight = keyData.MTOServiceItem.MTOShipment.PrimeEstimatedWeight
+		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 
-		originalWeight = keyData.MTOServiceItem.MTOShipment.PrimeActualWeight
+		originalWeight = r.MTOShipment.PrimeActualWeight
 
 		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
