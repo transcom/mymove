@@ -4878,9 +4878,12 @@ func init() {
     },
     "/uploads": {
       "post": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
         "consumes": [
           "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
         ],
         "tags": [
           "uploads"
@@ -10928,6 +10931,9 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
     }
   ]
 }`))
@@ -17098,9 +17104,12 @@ func init() {
     },
     "/uploads": {
       "post": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
         "consumes": [
           "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
         ],
         "tags": [
           "uploads"
@@ -23222,6 +23231,9 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
     }
   ]
 }`))
