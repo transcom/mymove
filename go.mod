@@ -29,7 +29,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-logr/zapr v1.3.0
-	github.com/go-openapi/errors v0.21.0
+	github.com/go-openapi/errors v0.22.0
 	github.com/go-openapi/loads v0.21.5
 	github.com/go-openapi/runtime v0.27.0
 	github.com/go-openapi/spec v0.20.14
@@ -188,13 +188,13 @@ require (
 	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.14.0 // indirect
+	github.com/jackc/pgconn v1.14.3 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgproto3/v2 v2.3.2 // indirect
+	github.com/jackc/pgproto3/v2 v2.3.3 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgtype v1.14.0 // indirect
-	github.com/jackc/pgx/v4 v4.18.1 // indirect
+	github.com/jackc/pgx/v4 v4.18.2 // indirect
 	github.com/jarcoal/httpmock v1.3.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
