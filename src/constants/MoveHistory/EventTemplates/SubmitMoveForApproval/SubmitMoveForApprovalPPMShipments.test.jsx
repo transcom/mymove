@@ -33,4 +33,11 @@ describe('when given a PPM shipment update', () => {
     expect(screen.getByText('Status')).toBeInTheDocument();
     expect(screen.getByText(': SUBMITTED')).toBeInTheDocument();
   });
+
+  it('displays event name', () => {
+    const result = getTemplate(historyRecord);
+    render(result.getEventNameDisplay());
+
+    expect(screen.getByText('Submitted PPM Move for Approval')).toBeInTheDocument();
+  });
 });
