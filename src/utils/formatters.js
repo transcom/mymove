@@ -364,8 +364,8 @@ export const formatWeightCWTFromLbs = (value) => {
 };
 
 // Translate currency from millicents to dollars
-export const formatDollarFromMillicents = (value) => {
-  return `$${(parseInt(value, 10) / 100000).toFixed(2)}`;
+export const formatDollarFromMillicents = (value, decimalPlaces = 2) => {
+  return `$${(parseInt(value, 10) / 100000).toFixed(decimalPlaces)}`;
 };
 
 // Takes an whole number of day value and pluralizes with unit label
@@ -523,6 +523,15 @@ export function formatTimeUnitDays(days) {
   return `${days} days`;
 }
 
-export function formatDistanceUnitMiles(distance) {
-  return `${distance} miles`;
+export function formatDistanceUnitMiles(distance, withUnit = true, withCommas = true) {
+  let result = '';
+  if (withCommas === true) {
+    result = `${distance.toLocaleString()}`;
+  } else {
+    result = `${distance}`;
+  }
+  if (withUnit === true) {
+    result += ' miles';
+  }
+  return result;
 }
