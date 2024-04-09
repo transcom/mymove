@@ -16,7 +16,6 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -60,7 +59,6 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -104,7 +102,6 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -149,7 +146,6 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -193,7 +189,6 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -231,7 +226,6 @@ describe('makeCalculations', () => {
         ],
       },
       {
-        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
@@ -870,7 +864,6 @@ describe('makeCalculations', () => {
         details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
       },
       {
-        value: '210',
         label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
       },
