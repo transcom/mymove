@@ -43,10 +43,16 @@ DECLARE
 	shipment_seq_num_prefix INT;
 BEGIN
     -- Fetch the locator from the moves table
-    SELECT locator INTO locator_prefix FROM moves WHERE id = NEW.move_id;
+    SELECT locator INTO locator_prefix
+	FROM moves
+	WHERE id = NEW.move_id
+	FOR UPDATE;
 
     -- Increment the shipment_seq_num for the move and fetch the updated value
-    UPDATE moves SET shipment_seq_num = COALESCE(shipment_seq_num, 0) + 1 WHERE id = NEW.move_id RETURNING shipment_seq_num INTO shipment_seq_num_prefix;
+    UPDATE moves
+	SET shipment_seq_num = COALESCE(shipment_seq_num, 0) + 1
+	WHERE id = NEW.move_id
+	RETURNING shipment_seq_num INTO shipment_seq_num_prefix;
 
     -- Set the shipment_locator(move locator + '-' + shipment seq num) in the new shipment row
     NEW.shipment_locator := locator_prefix || '-' || LPAD(shipment_seq_num_prefix::text, 2, '0');
