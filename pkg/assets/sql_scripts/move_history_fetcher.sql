@@ -41,7 +41,6 @@ WITH move AS (
 			AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
 				-- Not including update on mto_shipment for ppm_shipment when submitted
 				-- handled on seperate event
-			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_locator%')
 		GROUP BY audit_history.id
 	),
 	move_logs AS (
@@ -59,7 +58,8 @@ WITH move AS (
 		JOIN move ON audit_history.object_id = move.id
 		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT) on TRUE
 		WHERE audit_history.table_name = 'moves'
-			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_seq_num%')
+			-- Remove log for when shipment_seq_num updates
+			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_seq_num%' AND LENGTH(audit_history.changed_data::TEXT) < 25)
 		group by audit_history.id
 
 	),
