@@ -4,8 +4,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -57,13 +60,27 @@ type IndexRequestedOfficeUsersHandler struct {
 	services.NewPagination
 }
 
+var requestedOfficeUserFilterConverters = map[string]func(string) []services.QueryFilter{
+	"search": func(content string) []services.QueryFilter {
+		nameSearch := fmt.Sprintf("%s%%", content)
+		return []services.QueryFilter{
+			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
+			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
+			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+		}
+	},
+}
+
 // Handle retrieves a list of requested office users
 func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// adding in filters for when a search or filtering is done
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, requestedOfficeUserFilterConverters)
+
 			// We only want users that are in a REQUESTED status
-			queryFilters := []services.QueryFilter{query.NewQueryFilter("status", "=", "REQUESTED")}
+			queryFilters = append(queryFilters, query.NewQueryFilter("status", "=", "REQUESTED"))
 
 			// adding in pagination for the UI
 			pagination := h.NewPagination(params.Page, params.PerPage)
@@ -100,6 +117,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 type GetRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.RequestedOfficeUserFetcher
+	services.RoleAssociater
 	services.NewQueryFilter
 }
 
@@ -117,8 +135,76 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			roles, err := h.RoleAssociater.FetchRoles(appCtx, *requestedOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+				return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
+			}
+
+			requestedOfficeUser.User.Roles = roles
+
 			payload := payloadForRequestedOfficeUserModel(requestedOfficeUser)
 
 			return requested_office_users.NewGetRequestedOfficeUserOK().WithPayload(payload), nil
+		})
+}
+
+// GetRequestedOfficeUserHandler returns a list of office users via GET /requested_office_users/{officeUserId}
+type UpdateRequestedOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.RequestedOfficeUserUpdater
+	services.UserRoleAssociator
+	services.RoleAssociater
+}
+
+// Handle updates a single requested office user
+// this endpoint will be used when an admin is approving/rejecting the user without updates
+// as well as approving/rejecting the user with updates
+func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.UpdateRequestedOfficeUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			requestedOfficeUserID, err := uuid.FromString(params.OfficeUserID.String())
+			body := params.Body
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+			}
+
+			// roles are associated with users and not office_users, so we need to handle this logic separately
+			updatedRoles := rolesPayloadToModel(body.Roles)
+			if len(updatedRoles) == 0 {
+				err = apperror.NewBadDataError("No roles were matched from payload")
+				appCtx.Logger().Error(err.Error())
+				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
+			}
+
+			requestedOfficeUser, verrs, err := h.RequestedOfficeUserUpdater.UpdateRequestedOfficeUser(appCtx, requestedOfficeUserID, params.Body)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			if verrs != nil {
+				appCtx.Logger().Error(err.Error())
+				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), verrs
+			}
+
+			if requestedOfficeUser.UserID != nil && body.Roles != nil {
+				_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *requestedOfficeUser.UserID, updatedRoles)
+				if err != nil {
+					appCtx.Logger().Error("Error updating user roles", zap.Error(err))
+					return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
+				}
+			}
+
+			roles, err := h.RoleAssociater.FetchRoles(appCtx, *requestedOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+				return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
+			}
+
+			requestedOfficeUser.User.Roles = roles
+
+			payload := payloadForRequestedOfficeUserModel(*requestedOfficeUser)
+
+			return requested_office_users.NewUpdateRequestedOfficeUserOK().WithPayload(payload), nil
 		})
 }
