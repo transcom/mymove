@@ -463,7 +463,10 @@ describe('Review page', () => {
   it('routes to the home page when the return to homepage link is clicked', async () => {
     renderReviewPage();
 
-    await userEvent.click(screen.getByText('Return To Homepage'));
+    // await userEvent.click(screen.getByText('Return To Homepage'));
+    await userEvent.click(screen.getByTestId('reviewReturnToHomepageLink'));
+
+    // expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
 
     await waitFor(() => {
       expect(screen.getByText('Home Page')).toBeInTheDocument();
