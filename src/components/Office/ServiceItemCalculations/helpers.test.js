@@ -183,7 +183,7 @@ describe('makeCalculations', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Origin price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Baseline linehaul price':
           expect(result[i].value).toEqual('1.71');
@@ -208,7 +208,7 @@ describe('makeCalculations', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Destination price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Baseline linehaul price':
           expect(result[i].value).toEqual('1.71');
@@ -233,7 +233,7 @@ describe('makeCalculations', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Origin price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Baseline linehaul price':
           expect(result[i].value).toEqual('1.71');
@@ -258,7 +258,7 @@ describe('makeCalculations', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Destination price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Baseline linehaul price':
           expect(result[i].value).toEqual('1.71');
@@ -286,7 +286,7 @@ describe('makeCalculations', () => {
           expect(result[i].value).toEqual('2');
           break;
         case 'Additional day SIT price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -311,7 +311,7 @@ describe('returns correct data for DomesticDestinationAdditionalSIT', () => {
         expect(result[i].value).toEqual('2');
         break;
       case 'Additional day SIT price':
-        expect(result[i].details).toEqual('1.71');
+        expect(result[i].value).toEqual('1.71');
         break;
       case 'Price escalation factor':
         expect(result[i].value).toEqual('1.033');
@@ -336,7 +336,7 @@ it('returns correct data for DomesticOriginSITPickup', () => {
         expect(result[i].value).toEqual('29');
         break;
       case 'SIT pickup price':
-        expect(result[i].details).toEqual('1.71');
+        expect(result[i].value).toEqual('1.71');
         break;
       case 'Price escalation factor':
         expect(result[i].value).toEqual('1.033');
@@ -362,7 +362,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('51');
           break;
         case 'SIT pickup price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -387,7 +387,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('3');
           break;
         case 'SIT delivery price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -409,7 +409,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'SIT delivery price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -431,7 +431,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Pack price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -453,7 +453,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Pack price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'NTS packing factor':
           expect(result[i].value).toEqual('1.35');
@@ -478,7 +478,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Unpack price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -500,7 +500,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('4.00');
           break;
         case 'Crating price (per cu ft)':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -522,7 +522,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('4.00');
           break;
         case 'Uncrating price (per cu ft)':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -544,7 +544,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Origin price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -566,7 +566,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Destination price':
-          expect(result[i].details).toEqual('1.71');
+          expect(result[i].value).toEqual('1.71');
           break;
         case 'Price escalation factor':
           expect(result[i].value).toEqual('1.033');
@@ -598,7 +598,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('85 cwt');
           break;
         case 'Fuel surcharge price (per mi)':
-          expect(result[i].details).toEqual('0.1');
+          expect(result[i].value).toEqual('0.1');
           break;
         case 'Fuel rate adjustment':
           expect(result[i].value).toEqual('$999.99');
@@ -620,7 +620,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('29');
           break;
         case 'SIT mileage factor':
-          expect(result[i].details).toEqual('0.012');
+          expect(result[i].value).toEqual('0.012');
           break;
         case 'Fuel rate adjustment':
           expect(result[i].value).toEqual('$999.99');
@@ -642,7 +642,7 @@ describe('DomesticDestinationSITDelivery', () => {
           expect(result[i].value).toEqual('29');
           break;
         case 'SIT fuel surcharge price (per mi)':
-          expect(result[i].details).toEqual('0.0');
+          expect(result[i].value).toEqual('0.0');
           break;
         case 'Fuel rate adjustment':
           expect(result[i].value).toEqual('$999.99');
