@@ -21,7 +21,6 @@ import (
 type GetMoveHandler struct {
 	handlers.HandlerConfig
 	services.MoveFetcher
-	services.MoveRouter
 }
 
 // Handle handles the getMove by locator request
@@ -43,14 +42,6 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				default:
 					return moveop.NewGetMoveInternalServerError(), err
 				}
-			}
-
-			// this is a frontloading check to make sure that if a move has been left in "Approvals Requested" status
-			// after actions have been taken, it should change to "Move approved" after loading the move
-			_, err = h.MoveRouter.ApproveOrRequestApproval(appCtx, *move)
-			if err != nil {
-				appCtx.Logger().Error("Error evaluating move status of ApprovalOrRequestApproval", zap.Error(err))
-				return moveop.NewGetMoveInternalServerError(), err
 			}
 
 			payload := payloads.Move(move)
