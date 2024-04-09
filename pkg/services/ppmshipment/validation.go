@@ -59,6 +59,7 @@ func (fn ppmShipmentValidatorFunc) Validate(appCtx appcontext.AppContext, newer 
 
 func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment) (*models.PPMShipment, error) {
 	var err error
+
 	if oldPPMShipment == nil {
 		return &newPPMShipment, nil
 	}
