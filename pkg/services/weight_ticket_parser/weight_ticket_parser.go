@@ -181,6 +181,33 @@ func mergeTextFields(fields1, fields2, fields3, fields4, fields5, fields6, field
 
 // Parses a Weight Estimator Spreadsheet file and returns services.WeightEstimatorPages populated with the parsed data
 func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*services.WeightEstimatorPages, error) {
+	// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
+	// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
+	// have 2 numbers.
+	const CellColumnCount = 4
+	const TotalCubeSectionString = "Total cube for this section"
+	const PackingMaterialString = "10% packing Material allow Military only"
+	const WeightAllowanceString = "Enter Members Weight Allowance "
+	const TotalItemsSectionString = "Total number of items in this section"
+	const ConstructedWeightSectionString = "Constructed Weight for this section "
+	const ProGearWeightString = "PROFESSIONAL GEAR Constructed Weight"
+	const ProGearPiecesString = "PROFESSIONAL GEAR Number of Pieces"
+	const BlankString = ""
+	const TotalItemsString = "Total number of items "
+	const TotalCubeString = "Total cube "
+	const ConstructedWeightString = "Constructed Weight "
+	const ProGearString = "Pro Gear"
+	const MinusProGearString = "Minus Pro Gear"
+	const WeightChargeableString = "Weight Chargeable to Member"
+	const AmountOverUnderString = "Amount Over/Under Weight allowance"
+	const ItemString = "Item"
+	const BedString = "Bed-To Include Box Spring & Mattress"
+	const RefrigeratorString = "Refrigerator, Cubic Cap"
+	const FreezerString = "Freezer Cubic Cap"
+	const CartonsString = "CARTONS"
+	const ProPapersString = "PROFESSIONAL PAPERS, GEAR, EQUIPMENT"
+	const WeightEstimatorSpreadsheetName = "CUBE SHEET-ITO-TMO-ONLY"
+
 	excelFile, err := excelize.OpenReader(file)
 
 	if err != nil {
@@ -195,61 +222,35 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 	}()
 
 	// Get all the rows in the spreadsheet
-	rows, err := excelFile.GetRows("CUBE SHEET-ITO-TMO-ONLY")
+	rows, err := excelFile.GetRows(WeightEstimatorSpreadsheetName)
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing excel file")
 	}
 
-	// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
-	// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
-	// have 2 numbers.
-	const cellColumnCount = 4
-	const totalCubeSectionString = "Total cube for this section"
-	const packingMaterialString = "10% packing Material allow Military only"
-	const weightAllowanceString = "Enter Members Weight Allowance "
-	const totalItemsSectionString = "Total number of items in this section"
-	const constructedWeightSectionString = "Constructed Weight for this section "
-	const proGearWeightString = "PROFESSIONAL GEAR Constructed Weight"
-	const proGearPiecesString = "PROFESSIONAL GEAR Number of Pieces"
-	const blankString = ""
-	const totalItemsString = "Total number of items "
-	const totalCubeString = "Total cube "
-	const constructedWeightString = "Constructed Weight "
-	const proGearString = "Pro Gear"
-	const minusProGearString = "Minus Pro Gear"
-	const weightChargeableString = "Weight Chargeable to Member"
-	const amountOverUnderString = "Amount Over/Under Weight allowance"
-	const itemString = "Item"
-	const bedString = "Bed-To Include Box Spring & Mattress"
-	const refrigeratorString = "Refrigerator, Cubic Cap"
-	const freezerString = "Freezer Cubic Cap"
-	const cartonsString = "CARTONS"
-	const proPapersString = "PROFESSIONAL PAPERS, GEAR, EQUIPMENT"
-
 	thirdColumnStrings := []string{
-		totalItemsSectionString,
-		constructedWeightSectionString,
-		proGearWeightString,
-		proGearPiecesString,
+		TotalItemsSectionString,
+		ConstructedWeightSectionString,
+		ProGearWeightString,
+		ProGearPiecesString,
 	}
 	twoColumnSectionStrings := []string{
-		blankString,
-		totalItemsString,
-		totalCubeString,
-		constructedWeightString,
-		proGearString,
-		minusProGearString,
-		weightChargeableString,
-		weightAllowanceString,
-		amountOverUnderString,
+		BlankString,
+		TotalItemsString,
+		TotalCubeString,
+		ConstructedWeightString,
+		ProGearString,
+		MinusProGearString,
+		WeightChargeableString,
+		WeightAllowanceString,
+		AmountOverUnderString,
 	}
 	skipSectionStrings := []string{
-		itemString,
-		bedString,
-		refrigeratorString,
-		freezerString,
-		cartonsString,
-		proPapersString,
+		ItemString,
+		BedString,
+		RefrigeratorString,
+		FreezerString,
+		CartonsString,
+		ProPapersString,
 	}
 	rowCount := 1
 	skipRows := []int{2, 31, 45, 64, 80, 93, 107, 123, 145, 158, 181, 195}
@@ -310,14 +311,14 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 
 			cellColumnData = append(cellColumnData, colCell)
 
-			if strings.Contains(cellColumnData[0], weightAllowanceString) {
+			if strings.Contains(cellColumnData[0], WeightAllowanceString) {
 				weightAllowanceWrite = true
 			}
 
-			if currentCellCount == cellColumnCount {
+			if currentCellCount == CellColumnCount {
 				writeData = true
-			} else if currentCellCount == cellColumnCount-1 {
-				if cellColumnData[0] == totalCubeSectionString || cellColumnData[0] == packingMaterialString {
+			} else if currentCellCount == CellColumnCount-1 {
+				if cellColumnData[0] == TotalCubeSectionString || cellColumnData[0] == PackingMaterialString {
 					writeData = true
 				} else {
 					currentCellCount++
@@ -341,7 +342,7 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 					cellColumnData = cellColumnData[:0]
 					blankCell = true
 					continue
-				} else if strings.Contains(cellColumnData[0], totalCubeSectionString) || strings.Contains(cellColumnData[0], packingMaterialString) {
+				} else if strings.Contains(cellColumnData[0], TotalCubeSectionString) || strings.Contains(cellColumnData[0], PackingMaterialString) {
 					writeColumn2 = true
 				} else if slices.Contains(thirdColumnStrings, cellColumnData[0]) {
 					writeColumn3 = true
