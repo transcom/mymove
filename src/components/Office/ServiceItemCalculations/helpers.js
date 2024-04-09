@@ -392,8 +392,8 @@ const priceEscalationFactorWithoutContractYear = (params) => {
   return calculation(value, label);
 };
 
-const fuelSurchargePrice = (params, itemCode) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
+const mileageFactor = (params, itemCode) => {
+  // to get the mileage factor (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
   // which gets the value in Cents to the tenths decimal place
   let distanceZip;
   switch (itemCode) {
@@ -411,23 +411,11 @@ const fuelSurchargePrice = (params, itemCode) => {
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
         getParamValue(distanceZip, params),
     ),
-  ).toFixed(1);
+  ).toFixed(3);
   const label =
     itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
       ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
       : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
-
-  const eiaFuelPrice = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
-  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params))}`;
-
-  const fuelRateAdjustment = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
-  }: ${formatCents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params), 1, 1)}`;
-
-  const fscWeightBasedDistanceMultiplier = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
-  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
 
   const actualPickupDate = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]
