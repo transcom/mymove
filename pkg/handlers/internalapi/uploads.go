@@ -3,6 +3,7 @@ package internalapi
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -279,7 +280,8 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				aFile, pdfInfo, err := weightGenerator.FillWeightEstimatorPDFForm(*pageValues, file.Header.Filename)
+				pdfFileName := strings.TrimSuffix(file.Header.Filename, filepath.Ext(file.Header.Filename)) + ".pdf"
+				aFile, pdfInfo, err := weightGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
 				// Ensure weight receipt PDF is not corrupted
 				if err != nil || pdfInfo.PageCount != weightEstimatePages {
