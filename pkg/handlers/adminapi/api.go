@@ -83,12 +83,13 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
+
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
-		userPrivilegesCreator,
+		newRolesFetcher,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
