@@ -135,11 +135,9 @@ describe('SignIn tests', () => {
 
   it('renders red warning text', () => {
     const context = { siteName: 'TestMove', showLoginWarning: true };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
     expect(
       screen.getByText('Use of this system is by invitation only, following mandatory screening for'),
     ).toBeInTheDocument();
