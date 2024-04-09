@@ -67,8 +67,6 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 
 		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID, keyData.MTOServiceItem.ReService.Code).First(&weightBilled)
 
-		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID).First(&weightBilled)
-
 		if err != nil && err != sql.ErrNoRows {
 			return "", err
 		}
