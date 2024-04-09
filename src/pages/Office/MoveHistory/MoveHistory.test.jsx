@@ -1497,28 +1497,14 @@ describe('MoveHistory', () => {
   it.each(['/moves', '/counseling/moves'])(
     'render the different elements of the Move history tab at path %s',
     async (basePath) => {
-      const { baseElement } = render(
+      render(
         <MockProviders path={`${basePath}/:moveCode/history`} params={{ moveCode: mockMoveCode }}>
           <MoveHistory moveCode={mockMoveCode} />,
         </MockProviders>,
       );
 
-      screen.logTestingPlaygroundURL(baseElement);
-
       expect(screen.getByText('Move history (29)')).toBeInTheDocument();
       expect(screen.getByRole('table')).toBeInTheDocument();
-
-      // expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
-      // expect(screen.getByTestId('move-history-event-0')).toHaveTextContent('Approved move');
-      // expect(screen.getByTestId('move-history-details-0')).toBeInTheDocument();
-      // expect(screen.getByTestId('move-history-modified-by-0')).toBeInTheDocument();
-
-      // expect(screen.getByTestId('move-history-date-time-1')).toHaveTextContent('08 Mar 22 18:28');
-      // expect(screen.getByTestId('move-history-event-1')).toHaveTextContent('Approved shipment');
-      // expect(screen.getByTestId('move-history-details-1')).toBeInTheDocument();
-      // expect(screen.getByTestId('move-history-modified-by-1')).toBeInTheDocument();
-
-      // expect(screen.getByTestId('pagination')).toBeInTheDocument();
     },
   );
 });
