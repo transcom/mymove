@@ -12,11 +12,13 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 )
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 	router := NewShipmentRouter()
-	approver := NewShipmentDiversionApprover(router)
+	moveRouter := moverouter.NewMoveRouter()
+	approver := NewShipmentDiversionApprover(router, moveRouter)
 
 	suite.Run("If the shipment diversion is approved successfully, it should update the shipment status in the DB", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -107,7 +109,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 
 	suite.Run("It calls ApproveDiversion on the ShipmentRouter", func() {
 		shipmentRouter := &mocks.ShipmentRouter{}
-		approver := NewShipmentDiversionApprover(shipmentRouter)
+		moveRouter := moverouter.NewMoveRouter()
+		approver := NewShipmentDiversionApprover(shipmentRouter, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{

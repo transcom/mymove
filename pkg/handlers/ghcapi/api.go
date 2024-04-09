@@ -96,7 +96,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerConfig: handlerConfig,
 		MoveFetcher:   move.NewMoveFetcher(),
-		MoveRouter:    moveRouter,
 	}
 
 	ghcAPI.MoveGetMoveHistoryHandler = GetMoveHistoryHandler{
@@ -353,6 +352,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewShipmentDiversionApprover(
 			mtoshipment.NewShipmentRouter(),
+			moveRouter,
 		),
 		shipmentSITStatus,
 	}
