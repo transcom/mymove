@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"time"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -55,14 +57,21 @@ func (fn ppmShipmentValidatorFunc) Validate(appCtx appcontext.AppContext, newer 
 	return fn(appCtx, newer, older, ship)
 }
 
-func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment) *models.PPMShipment {
+func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment) (*models.PPMShipment, error) {
+	var err error
+
 	if oldPPMShipment == nil {
-		return &newPPMShipment
+		return &newPPMShipment, nil
 	}
 
 	ppmShipment := *oldPPMShipment
 
-	ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
+	today := time.Now()
+	if newPPMShipment.ActualMoveDate != nil && today.Before(*newPPMShipment.ActualMoveDate) {
+		err = apperror.NewUpdateError(ppmShipment.ID, "Actual move date cannot be set to the future.")
+	} else {
+		ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
+	}
 
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
 	ppmShipment.ActualPickupPostalCode = services.SetOptionalStringField(newPPMShipment.ActualPickupPostalCode, ppmShipment.ActualPickupPostalCode)
@@ -179,5 +188,5 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.WeightTickets = newPPMShipment.WeightTickets
 	}
 
-	return &ppmShipment
+	return &ppmShipment, err
 }

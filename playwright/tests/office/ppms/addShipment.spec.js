@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from './ppmTestFixture';
+import { test } from './ppmTestFixture';
 
 test.describe('Services counselor user', () => {
   test.beforeEach(async ({ ppmPage }) => {
