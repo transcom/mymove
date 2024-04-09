@@ -107,7 +107,7 @@ test.describe('Entire PPM closeout flow', () => {
         totalNetWeight: '6,000 lbs',
         proGearWeight: '1,500 lbs',
         expensesClaimed: '450.00',
-        finalIncentiveAmount: '$$128,268.35',
+        finalIncentiveAmount: '$128,268.35',
       });
       await customerPpmPage.page.getByRole('button', { name: 'Return to Homepage' }).click();
       await customerPpmPage.navigateToPPMReviewPage();
