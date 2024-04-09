@@ -96,6 +96,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerConfig: handlerConfig,
 		MoveFetcher:   move.NewMoveFetcher(),
+		MoveRouter:    moveRouter,
 	}
 
 	ghcAPI.MoveGetMoveHistoryHandler = GetMoveHistoryHandler{
