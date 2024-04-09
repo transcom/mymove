@@ -37,6 +37,9 @@ WITH move AS (
 			AND NOT (audit_history.event_name = 'updateMTOStatusServiceCounselingCompleted' AND audit_history.changed_data = '{"status": "APPROVED"}')
 				-- Not including status update to 'Approval' on mto_shipment layer above ppm_shipment when PPM is counseled.
 				-- That is not needed for move history UI.
+			AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
+				-- Not including update on mto_shipment for ppm_shipment when submitted
+				-- handled on seperate event
 		GROUP BY audit_history.id
 	),
 	move_logs AS (
