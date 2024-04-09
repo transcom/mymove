@@ -1254,7 +1254,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user in any status",
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
         "produces": [
           "application/json"
         ],
@@ -1294,7 +1294,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a requested office user to include profile data and status",
+        "description": "Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.",
         "produces": [
           "application/json"
         ],
@@ -4561,7 +4561,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user in any status",
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
         "produces": [
           "application/json"
         ],
@@ -4601,7 +4601,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a requested office user to include profile data and status",
+        "description": "Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.",
         "produces": [
           "application/json"
         ],
