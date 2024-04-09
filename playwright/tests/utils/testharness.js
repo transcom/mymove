@@ -333,6 +333,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move as USMC needing SC approval
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveAsUSMCNeedsSC() {
+    return this.buildDefault('HHGMoveAsUSMCNeedsSC');
+  }
+
+  /**
    * Use testharness to build hhg move with amended orders
    * @returns {Promise<Move>}
    */
@@ -426,6 +434,14 @@ export class TestHarness {
    */
   async buildApprovedMoveWithPPMWeightTicketOffice() {
     return this.buildDefault('ApprovedMoveWithPPMWeightTicketOffice');
+  }
+
+  /**
+   * Use testharness to build submitted move with partial ppm and weight ticket
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMWeightTicketOfficeWithHHG() {
+    return this.buildDefault('ApprovedMoveWithPPMWeightTicketOfficeWithHHG');
   }
 
   /**
