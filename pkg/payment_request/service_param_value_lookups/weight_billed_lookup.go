@@ -29,11 +29,14 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		models.ReServiceCodeIDSHUT:
 		estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
 
-		originalWeight = keyData.MTOServiceItem.ActualWeight
-
-		if originalWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		// Check both the service item weight and if it can't find that then check the shipment's weight
+		if keyData.MTOServiceItem.ActualWeight == nil {
+			originalWeight = r.MTOShipment.PrimeActualWeight
+			if originalWeight == nil {
+				return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s] or for MTOShipmentID [%s]", keyData.MTOServiceItem.ID, r.MTOShipment.ID)
+			}
+		} else {
+			originalWeight = keyData.MTOServiceItem.ActualWeight
 		}
 
 		if estimatedWeight != nil {
@@ -60,18 +63,21 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		where sipk.key = 'WeightBilled' and psi.payment_request_id = $1`
 
 		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID).First(&weightBilled)
+
 		if err != nil && err != sql.ErrNoRows {
 			return "", err
-		} else if len(weightBilled) > 0 {
+		}
+
+		if len(weightBilled) > 0 {
 			return weightBilled, nil
 		} else if keyData.MTOServiceItem.MTOShipment.PPMShipment != nil {
 			if len((string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)) > 0 {
-				weightBilled = (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)
+				return (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap), nil
 			}
 		}
-		estimatedWeight = keyData.MTOServiceItem.MTOShipment.PrimeEstimatedWeight
+		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 
-		originalWeight = keyData.MTOServiceItem.MTOShipment.PrimeActualWeight
+		originalWeight = r.MTOShipment.PrimeActualWeight
 
 		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
