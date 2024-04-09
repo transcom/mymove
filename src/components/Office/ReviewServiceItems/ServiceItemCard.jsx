@@ -80,7 +80,7 @@ const ServiceItemCard = ({
           {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
         </Button>
         {calculationsVisible && (
-          <div data-testid="ServiceItemCalculations" className={styles.calculationsContainer}>
+          <div className={styles.calculationsContainer}>
             <ServiceItemCalculations
               totalAmountRequested={amount * 100}
               serviceItemParams={paymentServiceItemParams}

@@ -488,7 +488,7 @@ export function formatTimeUnitDays(days) {
   return `${days} days`;
 }
 
-export function formatDistanceUnitMiles(distance, withUnit = true, withCommas = false) {
+export function formatDistanceUnitMiles(distance, withUnit = true, withCommas = true) {
   let result = '';
   if (withCommas === true) {
     result = `${distance.toLocaleString()}`;

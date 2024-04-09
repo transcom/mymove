@@ -91,11 +91,8 @@ const formatDetail = (detail, styles = {}) => {
   };
 };
 
-const formatMileage = (detail, styles = {}) => {
-  return {
-    text: formatDistanceUnitMiles(detail, false),
-    styles,
-  };
+const formatMileage = (detail) => {
+  return formatDistanceUnitMiles(detail, false);
 };
 
 // billable weight calculation
