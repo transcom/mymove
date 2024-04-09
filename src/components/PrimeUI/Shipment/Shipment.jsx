@@ -72,13 +72,15 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <Link to={`../shipments/${shipment.id}`} relative="path" className="usa-button usa-button-secondary">
               Update Shipment
             </Link>
-            <Link
-              to={`../shipments/${shipment.id}/updateDestinationAddress`}
-              relative="path"
-              className="usa-button usa-button-secondary"
-            >
-              Update Shipment Destination Address
-            </Link>
+            {shipment.shipmentType !== SHIPMENT_OPTIONS.PPM && (
+              <Link
+                to={`../shipments/${shipment.id}/updateDestinationAddress`}
+                relative="path"
+                className="usa-button usa-button-secondary"
+              >
+                Update Shipment Destination Address
+              </Link>
+            )}
             {shipment.shipmentType === SHIPMENT_OPTIONS.PPM &&
               shipment.ppmShipment &&
               shipment.ppmShipment.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER && (
