@@ -1,39 +1,43 @@
 package ppmshipment
 
 import (
+	// 	"fmt"
+	// 	"io"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/gofrs/uuid"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
+	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
-	mockPPMShipmentFetcher := &mocks.PPMShipmentFetcher{}
-	mockUserUploadToPDFConverter := &mocks.UserUploadToPDFConverter{}
-	mockPDFMerger := &mocks.PDFMerger{}
-	mockPPMShipmentUpdater := &mocks.PPMShipmentUpdater{}
-
+	//--------------------//--------------------//--------------------
 	fakeS3 := storageTest.NewFakeS3Storage(true)
+	userUploader, _ := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
+	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNil(err)
 
-	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
-
-	suite.FatalNoError(uploaderErr)
+	mockPPMShipmentFetcher := &mocks.PPMShipmentFetcher{}
+	mockAoaPacketCreator := &mocks.AOAPacketCreator{}
 
 	paymentPacketCreator := NewPaymentPacketCreator(
 		mockPPMShipmentFetcher,
-		mockUserUploadToPDFConverter,
-		mockPDFMerger,
-		mockPPMShipmentUpdater,
-		userUploader,
+		generator,
+		mockAoaPacketCreator,
 	)
 
 	setUpMockPPMShipmentFetcherForPayment := func(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, returnValue ...interface{}) {
@@ -46,588 +50,591 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 				EagerPreloadAssociationWeightTickets,
 				EagerPreloadAssociationProgearWeightTickets,
 				EagerPreloadAssociationMovingExpenses,
-				EagerPreloadAssociationPaymentPacket,
 			},
 			[]string{
 				PostLoadAssociationWeightTicketUploads,
 				PostLoadAssociationProgearWeightTicketUploads,
 				PostLoadAssociationMovingExpenseUploads,
-				PostLoadAssociationUploadedOrders,
 			},
 			returnValue...,
 		)
 	}
 
-	// prepMockInfo is a helper function to prep the data needed for mocks and also passes back a cleanup func that
-	// should be deferred to run after the test is done.
-	prepMockInfo := func(ppmShipment *models.PPMShipment) (
-		models.UserUploads,
-		[]*services.FileInfo,
-		[]io.ReadCloser,
-		func(),
-	) {
-		userUploads := models.UserUploads{}
-		fileInfoSet := []*services.FileInfo{}
+	file, err := suite.openLocalFile("../../paperwork/testdata/orders1.pdf", generator.FileSystem())
+	suite.FatalNil(err)
+	mockAoaPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(file, nil)
 
-		uploadedOrdersUserUpload := &ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0]
+	suite.Run("generate pdf - INTERNAL", func() {
 
-		if uploadedOrdersUserUpload.ID.IsNil() {
-			uploadedOrdersUserUpload.ID = uuid.Must(uuid.NewV4())
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		// initial test data will have one trip(as trip #1) containing:
+		// 1 empty weight with 1 doc
+		// 1 full weight with 1 doc
+		// 1 POV/Registration with 1 doc
+		// total = 3
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID,
+			ApplicationName: auth.MilApp,
+		})
+
+		suite.NotNil(ppmShipment)
+
+		// append another empty weight document to trip #1
+		// updated: total = 4  (3 + 1)
+		ppmShipment.WeightTickets[0].EmptyDocument.UserUploads = append(
+			ppmShipment.WeightTickets[0].EmptyDocument.UserUploads,
+			factory.BuildUserUpload(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.WeightTickets[0].EmptyDocument,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+
+		// append another full weight document to trip #1
+		// updated: total = 5  (4 + 1)
+		ppmShipment.WeightTickets[0].FullDocument.UserUploads = append(
+			ppmShipment.WeightTickets[0].FullDocument.UserUploads,
+			factory.BuildUserUpload(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.WeightTickets[0].FullDocument,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+
+		// append a new weight ticket (trip #2)
+		// it will have:
+		// 1 empty weight with 1 doc
+		// 1 full weight with 1 doc
+		// 1 pov/registration with 1 doc
+		// updated: total = 8  (5 + 3)
+		ppmShipment.WeightTickets = append(
+			ppmShipment.WeightTickets,
+			factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+
+		// append 1 pro-gear set for ME
+		// it will have:
+		// 1 pro weight with 1 doc
+		// updated: total = 9  (8 + 1)
+		ppmShipment.ProgearWeightTickets = append(
+			ppmShipment.ProgearWeightTickets,
+			factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 10  (9 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to CONTRACTED_EXPENSE
+		var movingExpenseReceiptTypeContractedExpense models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypeContractedExpense
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeContractedExpense
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 11  (10 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to OIL
+		var movingExpenseReceiptTypeOil models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypeOil
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeOil
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 12  (11 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to PACKING_MATERIALS
+		var movingExpenseReceiptTypePackingMaterials models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypePackingMaterials
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypePackingMaterials
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 13  (12 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to RENTAL_EQUIPMENT
+		var movingExpenseReceiptTypeRentalEquipment models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypeRentalEquipment
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeRentalEquipment
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 14  (13 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to STORAGE
+		var movingExpenseReceiptTypeStorage models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypeStorage
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeStorage
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 15  (14 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to TOLLS
+		var movingExpenseReceiptTypeTolls models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypeTolls
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeTolls
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 16  (15 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to WEIGHING_FEE
+		var movingExpenseReceiptTypeWeighingFee models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypeWeighingFee
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeWeighingFee
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 17  (16 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to OTHER
+		var movingExpenseReceiptTypeOther models.MovingExpenseReceiptType = models.MovingExpenseReceiptTypeOther
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeOther
+
+		// append 1 expense
+		// it will have:
+		// 1 expense with 1 doc
+		// updated: total = 18  (17 + 1)
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+		// note: factory data is created as Packing Material type expense. we will
+		// just manually set the type to OTHER
+		ppmShipment.MovingExpenses[len(ppmShipment.MovingExpenses)-1].MovingExpenseType = &movingExpenseReceiptTypeOther
+
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
+
+		pdf, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
+		suite.FatalNil(err)
+
+		pdfBookmarks := extractBookmarks(suite, *generator, pdf)
+		suite.True(len(pdfBookmarks.Bookmarks) == 19)
+
+		// this is a way to verify doc order via bookmark title
+		expectedLabels := [19]string{"Shipment Summary Worksheet and Orders", "Weight Moved: Trip #1: Empty Weight Document #1", "Weight Moved: Trip #1: Empty Weight Document #2",
+			"Weight Moved: Trip #1: Full Weight Document #1", "Weight Moved: Trip #1: Full Weight Document #2", "Weight Moved: Trip #2: Empty Weight Document #1",
+			"Weight Moved: Trip #2: Full Weight Document #1", "Pro-gear: Set #1:(Me) Weight Ticket Document #1", "Weight Moved: Trip #1: POV/Registration Document #1",
+			"Weight Moved: Trip #2: POV/Registration Document #1", "Expenses: Receipt #1: Weighing Fee Document #1", "Expenses: Receipt #2: Rental Equipment Document #1",
+			"Expenses: Receipt #3: Contracted Expense Document #1", "Expenses: Receipt #4: Oil Document #1", "Expenses: Receipt #5: Packing Materials Document #1", "Expenses: Receipt #6: Tolls Document #1",
+			"Expenses: Receipt #7: Storage Document #1", "Expenses: Receipt #8: Other Document #1", "Expenses: Receipt #9: Other Document #1"}
+
+		for i := 0; i < len(pdfBookmarks.Bookmarks); i++ {
+			suite.Equal(expectedLabels[i], pdfBookmarks.Bookmarks[i].Title)
 		}
+	})
 
-		ordersFileInfo := services.NewFileInfo(uploadedOrdersUserUpload, factory.FixtureOpen("test.png"))
-		ordersFileInfo.PDFStream = factory.FixtureOpen("filled-out-orders.pdf")
-
-		userUploads = append(userUploads, *uploadedOrdersUserUpload)
-		fileInfoSet = append(fileInfoSet, ordersFileInfo)
-
-		for _, weightTicket := range ppmShipment.WeightTickets {
-			weightTicket := weightTicket
-
-			for _, userUpload := range weightTicket.EmptyDocument.UserUploads {
-				userUpload := userUpload
-
-				emptyDocumentFileInfo := services.NewFileInfo(&userUpload, factory.FixtureOpen("empty-weight-ticket.png"))
-				emptyDocumentFileInfo.PDFStream = factory.FixtureOpen("empty-weight-ticket.pdf")
-
-				userUploads = append(userUploads, userUpload)
-				fileInfoSet = append(fileInfoSet, emptyDocumentFileInfo)
-			}
-
-			for _, userUpload := range weightTicket.FullDocument.UserUploads {
-				userUpload := userUpload
-
-				fullDocumentFileInfo := services.NewFileInfo(&userUpload, factory.FixtureOpen("full-weight-ticket.png"))
-				fullDocumentFileInfo.PDFStream = factory.FixtureOpen("full-weight-ticket.pdf")
-
-				userUploads = append(userUploads, userUpload)
-				fileInfoSet = append(fileInfoSet, fullDocumentFileInfo)
-			}
-
-			for _, userUpload := range weightTicket.ProofOfTrailerOwnershipDocument.UserUploads {
-				userUpload := userUpload
-
-				proofOfTrailerOwnershipDocumentFileInfo := services.NewFileInfo(&userUpload, factory.FixtureOpen("test.png"))
-				proofOfTrailerOwnershipDocumentFileInfo.PDFStream = factory.FixtureOpen("test.pdf")
-
-				userUploads = append(userUploads, userUpload)
-				fileInfoSet = append(fileInfoSet, proofOfTrailerOwnershipDocumentFileInfo)
-			}
-		}
-
-		for _, progearWeightTicket := range ppmShipment.ProgearWeightTickets {
-			progearWeightTicket := progearWeightTicket
-
-			for _, userUpload := range progearWeightTicket.Document.UserUploads {
-				userUpload := userUpload
-
-				documentFileInfo := services.NewFileInfo(&userUpload, factory.FixtureOpen("empty-weight-ticket.png"))
-				documentFileInfo.PDFStream = factory.FixtureOpen("empty-weight-ticket.pdf")
-
-				userUploads = append(userUploads, userUpload)
-				fileInfoSet = append(fileInfoSet, documentFileInfo)
-			}
-		}
-
-		for _, movingExpense := range ppmShipment.MovingExpenses {
-			movingExpense := movingExpense
-
-			for _, userUpload := range movingExpense.Document.UserUploads {
-				userUpload := userUpload
-
-				documentFileInfo := services.NewFileInfo(&userUpload, factory.FixtureOpen("test.png"))
-				documentFileInfo.PDFStream = factory.FixtureOpen("test.pdf")
-
-				userUploads = append(userUploads, userUpload)
-				fileInfoSet = append(fileInfoSet, documentFileInfo)
-			}
-		}
-
-		cleanUpFunc := func() {
-			for _, fileInfo := range fileInfoSet {
-				fileInfo.OriginalUploadStream.Close()
-				fileInfo.PDFStream.Close()
-			}
-		}
-
-		pdfStreams := []io.ReadCloser{}
-
-		for _, fileInfo := range fileInfoSet {
-			pdfStreams = append(pdfStreams, fileInfo.PDFStream)
-		}
-
-		return userUploads, fileInfoSet, pdfStreams, cleanUpFunc
-	}
-
-	suite.Run("returns an error if the PPMShipmentFetcher returns an error", func() {
+	suite.Run("returns a NotFoundError if the ppmShipment is not found", func() {
 		appCtx := suite.AppContextForTest()
 
 		ppmShipmentID := uuid.Must(uuid.NewV4())
 
-		fakeErr := apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+		fakeErr := apperror.NewNotFoundError(ppmShipmentID, "PPMShipment")
 
 		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipmentID, nil, fakeErr)
 
-		err := paymentPacketCreator.CreatePaymentPacket(appCtx, ppmShipmentID)
+		_, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)
-
-			suite.ErrorContains(err, "error creating payment packet: failed to load PPMShipment")
 		}
 	})
 
-	// TODO: add test case(s) for the SSW gen call
+	suite.Run("returns a ForbiddenError if the ppmShipment does not belong to user in INTERNAL context", func() {
+		serviceMemberID := uuid.Must(uuid.NewV4())
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: serviceMemberID,
+			ApplicationName: auth.MilApp,
+		})
 
-	suite.Run("returns an error if we get an error trying to convert uploaded files to PDFs", func() {
-		ppmShipment := factory.BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(
-			nil,
-			nil,
-			[]factory.Customization{
-				{
-					Model: models.PPMShipment{
-						ID: uuid.Must(uuid.NewV4()),
-					},
-				},
-			},
-		)
+		fakeErr := apperror.NewForbiddenError(fmt.Sprintf("PPMShipmentId: %s", ppmShipment.ID.String()))
 
-		userUploads, _, _, cleanUpFunc := prepMockInfo(&ppmShipment)
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, nil, fakeErr)
 
-		defer cleanUpFunc()
-
-		setUpMockPPMShipmentFetcherForPayment(suite.AppContextForTest(), ppmShipment.ID, &ppmShipment, nil)
-
-		uploadedOrdersUserUpload := ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0]
-
-		fakeErr := fmt.Errorf(
-			"failed to convert file %s (UserUploadID: %s) to PDF",
-			uploadedOrdersUserUpload.Upload.Filename,
-			uploadedOrdersUserUpload.ID,
-		)
-
-		setUpMockUserUploadToPDFConverter(
-			mockUserUploadToPDFConverter,
-			suite.AppContextForTest(),
-			userUploads,
-			nil,
-			fakeErr,
-		)
-
-		err := paymentPacketCreator.CreatePaymentPacket(suite.AppContextForTest(), ppmShipment.ID)
+		_, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)
-
-			suite.ErrorContains(err, "error creating payment packet: failed to convert uploads to PDF")
 		}
 	})
 
-	suite.Run("returns an error if we get an error trying to merge the PDFs", func() {
-		ppmShipment := factory.BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket(
-			nil,
-			nil,
-			[]factory.Customization{
-				{
-					Model: models.PPMShipment{
-						ID: uuid.Must(uuid.NewV4()),
-					},
-				},
-			},
-		)
+	suite.Run("generation even if PPM is not current user's - NON INTERNAL CONTEXT (Office/Admin)", func() {
+		var apps = []auth.Application{
+			auth.OfficeApp,
+			auth.AdminApp,
+		}
 
-		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
 
-		defer cleanUpFunc()
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		for _, app := range apps {
+			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+				ServiceMemberID: notOwnerServiceMemberID,
+				ApplicationName: app,
+			})
 
-		setUpMockPPMShipmentFetcherForPayment(suite.AppContextForTest(), ppmShipment.ID, &ppmShipment, nil)
+			setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
 
-		setUpMockUserUploadToPDFConverter(
-			mockUserUploadToPDFConverter,
-			suite.AppContextForTest(),
-			userUploads,
-			fileInfoSet,
-			nil,
-		)
+			// should still generate even if PPM belongs to different user in office/admin
+			pdf, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
+			suite.FatalNil(err)
 
-		fakeErr := fmt.Errorf("failed to merge PDFs")
-
-		setUpMockPDFMerger(mockPDFMerger, suite.AppContextForTest(), pdfStreams, nil, fakeErr)
-
-		err := paymentPacketCreator.CreatePaymentPacket(suite.AppContextForTest(), ppmShipment.ID)
-
-		if suite.Error(err) {
-			suite.ErrorIs(err, fakeErr)
-
-			suite.ErrorContains(err, "error creating payment packet: failed to merge PDFs")
+			mergedBytes, err := io.ReadAll(pdf)
+			suite.FatalNil(err)
+			suite.True(len(mergedBytes) > 0)
 		}
 	})
 
-	suite.Run("returns an error if we get an error trying to save the payment packet", func() {
-		// These tests rely on failures being raised because of bad service member IDs, but the important part is us
-		// getting the error back, so this could change to be anything that triggers an error when saving. Service
-		// member ID is mainly chosen because it's one of the first things we can error on and is easy to set up.
+	suite.Run("should still generate PDF if PPM has no uploaded docs (orders, expenses/receipts)", func() {
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
 
-		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(
-			nil,
-			nil,
-			[]factory.Customization{
-				{
-					Model: models.PPMShipment{
-						ID: uuid.Must(uuid.NewV4()),
-					},
-				},
-				{
-					Model: models.ServiceMember{
-						ID: uuid.Nil,
-					},
-				},
-				{
-					Model: models.UserUpload{
-						ID: uuid.Must(uuid.NewV4()),
-					},
-				},
-			},
-		)
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
 
-		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
+		// should still generate even if PPM belongs to different user in office/admin
+		pdf, err := paymentPacketCreator.GenerateDefault(appCtx, ppmShipment.ID)
+		suite.FatalNil(err)
 
-		defer cleanUpFunc()
-
-		setUpMockPPMShipmentFetcherForPayment(suite.AppContextForTest(), ppmShipment.ID, &ppmShipment, nil)
-
-		setUpMockUserUploadToPDFConverter(
-			mockUserUploadToPDFConverter,
-			suite.AppContextForTest(),
-			userUploads,
-			fileInfoSet,
-			nil,
-		)
-
-		mockMergedPDF := factory.FixtureOpen("payment-packet.pdf")
-
-		defer mockMergedPDF.Close()
-
-		setUpMockPDFMerger(mockPDFMerger, suite.AppContextForTest(), pdfStreams, mockMergedPDF, nil)
-
-		err := paymentPacketCreator.CreatePaymentPacket(suite.AppContextForTest(), ppmShipment.ID)
-
-		if suite.Error(err) {
-			suite.ErrorContains(err, "error creating payment packet: failed to save payment packet")
-
-			suite.ErrorContains(err, "failed to create payment packet document")
-
-			suite.ErrorContains(err, "ServiceMemberID can not be blank")
-		}
+		mergedBytes, err := io.ReadAll(pdf)
+		suite.FatalNil(err)
+		suite.True(len(mergedBytes) > 0)
 	})
 
-	suite.Run("returns nil if all goes well", func() {
-		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(suite.DB(), nil, nil)
+	suite.Run("generate with disabled bookmark and watermark", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
 
-		// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since the
-		// savePaymentPacket function will be using a transaction.
-		suite.NoError(suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
 
-			defer cleanUpFunc()
+		// disable bookmark and watermark
+		// TODO -- figure out how to determine if watermark was generated
+		pdf, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, false, false)
+		suite.FatalNil(err)
 
-			setUpMockPPMShipmentFetcherForPayment(txnAppCtx, ppmShipment.ID, &ppmShipment, nil)
+		mergedBytes, err := io.ReadAll(pdf)
+		suite.FatalNil(err)
+		suite.True(len(mergedBytes) > 0)
+	})
 
-			setUpMockUserUploadToPDFConverter(
-				mockUserUploadToPDFConverter,
-				txnAppCtx,
-				userUploads,
-				fileInfoSet,
-				nil,
-			)
+	suite.Run("generate with enable bookmark, disable watermark", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
 
-			mockMergedPDF := factory.FixtureOpen("payment-packet.pdf")
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
 
-			defer mockMergedPDF.Close()
+		// enable bookmark, disable watermark
+		pdf, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, true, false)
+		suite.FatalNil(err)
 
-			setUpMockPDFMerger(mockPDFMerger, txnAppCtx, pdfStreams, mockMergedPDF, nil)
+		bookmarks := extractBookmarks(suite, *generator, pdf)
+		suite.True(len(bookmarks.Bookmarks) > 0)
+	})
 
-			setUpMockPPMShipmentUpdater(
-				mockPPMShipmentUpdater,
-				txnAppCtx,
-				&ppmShipment,
-				// This function will get called instead of the regular update function, so it needs to have the same
-				// signature.
-				func(_ appcontext.AppContext, ppmShipment *models.PPMShipment, _ uuid.UUID) (*models.PPMShipment, error) {
-					// We'll just pass it back. In reality, the updatedAt field would have been updated, but it's not
-					// super relevant to what we're testing.
-					return ppmShipment, nil
-				},
-			)
+	suite.Run("generate with disable bookmark, enable watermark", func() {
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		suite.NotNil(ppmShipment)
+		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: notOwnerServiceMemberID,
+			ApplicationName: auth.OfficeApp,
+		})
 
-			err := paymentPacketCreator.CreatePaymentPacket(txnAppCtx, ppmShipment.ID)
+		setUpMockPPMShipmentFetcherForPayment(appCtx, ppmShipment.ID, &ppmShipment, nil)
 
-			if suite.NoError(err) {
-				suite.NotNil(ppmShipment.PaymentPacketID)
-			}
+		// disable bookmark, enable watermark
+		// TODO -- figure out how to determine if watermark was generated
+		pdf, err := paymentPacketCreator.Generate(appCtx, ppmShipment.ID, false, true)
+		suite.FatalNil(err)
 
-			return nil
-		}))
+		bookmarks := extractBookmarks(suite, *generator, pdf)
+		suite.True(bookmarks == nil)
 	})
 }
 
-func (suite *PPMShipmentSuite) TestSavePaymentPacket() {
-	mockPPMShipmentUpdater := &mocks.PPMShipmentUpdater{}
+func extractBookmarks(suite *PPMShipmentSuite, generator paperworkgenerator.Generator, pdf io.ReadCloser) *pdfBookmarks {
+	mergedBytes, err := io.ReadAll(pdf)
+	suite.FatalNil(err)
+	suite.True(len(mergedBytes) > 0)
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
+	memorybasedFs := afero.NewMemMapFs()
 
-	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
+	outFile, err := memorybasedFs.Create("test")
+	suite.FatalNil(err)
+	defer outFile.Close()
 
-	suite.FatalNoError(uploaderErr)
+	buf := new(bytes.Buffer)
+	buf.Write(mergedBytes)
 
-	suite.Run("returns an error if we fail to create the packet document", func() {
-		badServiceMemberIDTestCases := map[string]struct {
-			serviceMemberID uuid.UUID
-			expectedErrMsg  string
-		}{
-			"empty UUID": {
-				serviceMemberID: uuid.Nil,
-				expectedErrMsg:  "ServiceMemberID can not be blank",
-			},
-			"bad UUID": {
-				serviceMemberID: uuid.Must(uuid.NewV4()),
-				expectedErrMsg:  "insert or update on table \"documents\" violates foreign key constraint \"documents_service_members_id_fk\"",
-			},
-		}
+	_, err = io.Copy(outFile, buf)
+	suite.FatalNil(err)
 
-		for name, testCase := range badServiceMemberIDTestCases {
-			name, testCase := name, testCase
+	info, err := generator.GetPdfFileInfoForReadSeeker(outFile)
+	suite.FatalNil(err)
+	suite.True(info.PageCount > 0)
 
-			// These tests rely on failures being raised because of bad service member IDs, but the important part is us
-			// getting the error back, so this could change to be anything that triggers an error when creating the
-			// document. Service member ID is mainly chosen because it's easy to set up to trigger both validation and
-			// saving errors.
-			suite.Run(fmt.Sprintf("bad service member ID: %s", name), func() {
-				ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(
-					nil,
-					nil,
-					[]factory.Customization{
-						{
-							Model: models.PPMShipment{
-								ID: uuid.Must(uuid.NewV4()),
-							},
-						},
-						{
-							Model: models.ServiceMember{
-								ID: testCase.serviceMemberID,
-							},
-						},
-						{
-							Model: models.UserUpload{
-								ID: uuid.Must(uuid.NewV4()),
-							},
-						},
-					},
-				)
+	buf = new(bytes.Buffer)
+	err = api.ExportBookmarksJSON(outFile, buf, "", nil)
+	if err != nil {
+		// no bookmarks
+		return nil
+	}
 
-				mockMergedPDF := factory.FixtureOpen("payment-packet.pdf")
+	pb := pdfBookmarks{}
 
-				defer mockMergedPDF.Close()
+	err = json.Unmarshal(buf.Bytes(), &pb)
+	suite.FatalNil(err)
 
-				err := savePaymentPacket(suite.AppContextForTest(), &ppmShipment, mockMergedPDF, mockPPMShipmentUpdater, userUploader)
+	return &pb
+}
 
-				if suite.Error(err) {
-					suite.ErrorContains(err, "failed to create payment packet document")
-
-					suite.ErrorContains(err, testCase.expectedErrMsg)
-				}
-			})
-		}
-	})
-
-	suite.Run("returns an error if we fail to update the PPM shipment", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), nil, nil)
-
-		suite.FatalNil(ppmShipment.PaymentPacketID)
-
-		mockMergedPDF := factory.FixtureOpen("payment-packet.pdf")
-
-		defer mockMergedPDF.Close()
-
-		fakeError := apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
-
-		// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since the
-		// savePaymentPacket function will be using a transaction.
-		suite.NoError(appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			setUpMockPPMShipmentUpdater(
-				mockPPMShipmentUpdater,
-				txnAppCtx,
-				&ppmShipment,
-				nil,
-				fakeError,
-			)
-
-			err := savePaymentPacket(txnAppCtx, &ppmShipment, mockMergedPDF, mockPPMShipmentUpdater, userUploader)
-
-			if suite.Error(err) {
-				suite.ErrorIs(err, fakeError)
-
-				suite.ErrorContains(err, "failed to update PPMShipment with payment packet document")
-			}
-
-			return nil
-		}))
-	})
-
-	suite.Run("returns an error if we fail to prepare the file for upload", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), nil, nil)
-
-		suite.FatalNil(ppmShipment.PaymentPacketID)
-
-		mockMergedPDF := factory.FixtureOpen("payment-packet.pdf")
-
-		// If the file is closed, it should trigger an error when we try to prepare it for upload.
-		mockMergedPDF.Close()
-
-		// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since the
-		// savePaymentPacket function will be using a transaction.
-		suite.NoError(appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			setUpMockPPMShipmentUpdater(
-				mockPPMShipmentUpdater,
-				txnAppCtx,
-				&ppmShipment,
-				&ppmShipment,
-				nil,
-			)
-
-			err := savePaymentPacket(txnAppCtx, &ppmShipment, mockMergedPDF, mockPPMShipmentUpdater, userUploader)
-
-			if suite.Error(err) {
-				suite.ErrorContains(err, "failed to prepare payment packet for upload")
-				suite.ErrorContains(err, "Error copying incoming data into afero file")
-			}
-
-			return nil
-		}))
-	})
-
-	suite.Run("returns an error if we fail to upload the file", func() {
-		badUserIDTestCases := map[string]struct {
-			userID        uuid.UUID
-			expectedError string
-			txnErrCheck   func(error)
-		}{
-			"blank UUID": {
-				userID:        uuid.Nil,
-				expectedError: "UploaderID can not be blank.",
-				txnErrCheck: func(err error) {
-					suite.NoError(err)
-				},
-			},
-			"bad UUID": {
-				userID:        uuid.Must(uuid.NewV4()),
-				expectedError: "insert or update on table \"user_uploads\" violates foreign key constraint \"user_uploads_uploader_id_fkey\"",
-				txnErrCheck: func(err error) {
-					// Since we're triggering a DB error, there is a transaction error that gets raised.
-					suite.Error(err)
-				},
-			},
-		}
-
-		for name, testCase := range badUserIDTestCases {
-			name, testCase := name, testCase
-
-			suite.Run(fmt.Sprintf("UserID error: %s", name), func() {
-				ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(suite.DB(), nil, nil)
-
-				suite.FatalNil(ppmShipment.PaymentPacketID)
-
-				mockMergedPDF := factory.FixtureOpen("payment-packet.pdf")
-
-				defer mockMergedPDF.Close()
-
-				// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since
-				// the savePaymentPacket function will be using a transaction.
-				txnErr := suite.AppContextForTest().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-					setUpMockPPMShipmentUpdater(
-						mockPPMShipmentUpdater,
-						txnAppCtx,
-						&ppmShipment,
-						&ppmShipment,
-						nil,
-					)
-
-					// Setting a bad ID on this should trigger the upload to fail
-					ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = testCase.userID
-
-					err := savePaymentPacket(txnAppCtx, &ppmShipment, mockMergedPDF, mockPPMShipmentUpdater, userUploader)
-
-					if suite.Error(err) {
-						suite.ErrorContains(err, "failed to upload payment packet")
-
-						suite.ErrorContains(err, testCase.expectedError)
-					}
-
-					return nil
-				})
-
-				testCase.txnErrCheck(txnErr)
-			})
-		}
-	})
-
-	suite.Run("returns nil if all goes well", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := factory.BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(appCtx.DB(), nil, nil)
-
-		suite.FatalNil(ppmShipment.PaymentPacketID)
-
-		mockMergedPDF := factory.FixtureOpen("payment-packet.pdf")
-
-		defer mockMergedPDF.Close()
-
-		expectedBytes, readExpectedErr := io.ReadAll(mockMergedPDF)
-
-		suite.FatalNoError(readExpectedErr)
-
-		_, seekErr := mockMergedPDF.Seek(0, io.SeekStart)
-
-		suite.FatalNoError(seekErr)
-
-		// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since
-		// the savePaymentPacket function will be using a transaction.
-		suite.NoError(appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			setUpMockPPMShipmentUpdater(
-				mockPPMShipmentUpdater,
-				txnAppCtx,
-				&ppmShipment,
-				// This function will get called instead of the regular update function, so it needs to have the same
-				// signature.
-				func(_ appcontext.AppContext, ppmShipment *models.PPMShipment, _ uuid.UUID) (*models.PPMShipment, error) {
-					// We'll just pass it back. In reality, the updatedAt field would have been updated, but it's not
-					// super relevant to what we're testing.
-					return ppmShipment, nil
-				},
-			)
-
-			err := savePaymentPacket(txnAppCtx, &ppmShipment, mockMergedPDF, mockPPMShipmentUpdater, userUploader)
-
-			suite.NoError(err)
-
-			return nil
-		}))
-
-		// Now we'll double check everything to make sure it was saved correctly.
-		if suite.NotNil(ppmShipment.PaymentPacketID) {
-			download, downloadErr := userUploader.Download(appCtx, &ppmShipment.PaymentPacket.UserUploads[0])
-
-			suite.FatalNoError(downloadErr)
-
-			actualBytes, readActualErr := io.ReadAll(download)
-
-			suite.FatalNoError(readActualErr)
-
-			suite.Equal(expectedBytes, actualBytes)
-		}
-	})
+type pdfBookmarks struct {
+	Bookmarks []bookmarks
+}
+type bookmarks struct {
+	Title string `json:"title"`
+	Page  int    `json:"page"`
 }

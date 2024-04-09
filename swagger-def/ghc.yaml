@@ -27,6 +27,42 @@ tags:
   - name: tac
   - name: transportationOffice
 paths:
+  '/customer':
+    post:
+      summary: Creates a customer with Okta option
+      description: Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -775,6 +811,8 @@ paths:
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
@@ -1630,6 +1668,42 @@ paths:
           $ref: "#/responses/UnprocessableEntity"
         "500":
           $ref: "#/responses/ServerError"
+  /ppm-shipments/{ppmShipmentId}/payment-packet:
+    get:
+      summary: Returns PPM payment packet
+      description: Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.
+      operationId: showPaymentPacket
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppmShipment
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: PPM Payment Packet PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: ppm not found
+        '500':
+          description: internal server error
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -3326,7 +3400,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: backupContact@mail.com
       phone:
         type: string
         format: telephone
@@ -3403,6 +3477,65 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: 'definitions/Address.yaml'
+  CreatedCustomer:
+    type: object
+    properties:
+      affiliation:
+        type: string
+        title: Branch of service customer is affilated with
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      residentialAddress:
+        $ref: 'definitions/Address.yaml'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      edipi:
+        type: string
+        x-nullable: true
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      oktaID:
+        type: string
+      oktaEmail:
+        type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backupAddress:
+        $ref: 'definitions/Address.yaml'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3447,6 +3580,58 @@ definitions:
       backupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+  CreateCustomerPayload:
+    type: object
+    properties:
+      affiliation:
+        $ref: 'definitions/Affiliation.yaml'
+      edipi:
+        type: string
+        example: John
+        x-nullable: true
+      firstName:
+        type: string
+        example: John
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      residentialAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      backupMailingAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      createOktaAccount:
+        type: boolean
   Entitlements:
     properties:
       id:
@@ -4475,6 +4660,14 @@ definitions:
         x-omitempty: false
       hasSecondaryDeliveryAddress:
         type: boolean
+        x-nullable: true
+        x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
         x-nullable: true
         x-omitempty: false
       destinationType:

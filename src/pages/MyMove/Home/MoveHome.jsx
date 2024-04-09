@@ -3,7 +3,7 @@ import { node, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -17,7 +17,7 @@ import {
 } from './HomeHelpers';
 
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
+import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -76,12 +76,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // loading the moveId in params to select move details from serviceMemberMoves in state
   const { moveId } = useParams();
   const navigate = useNavigate();
-
+  let { state } = useLocation();
+  state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
-  const [showDownloadPPMAOAPaperworkErrorAlert, setShowDownloadPPMAOAPaperworkErrorAlert] = useState(false);
+  const [showDownloadPPMPaperworkErrorAlert, setShowDownloadPPMPaperworkErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -317,7 +318,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const handleNewPathClick = (path) => {
-    navigate(path);
+    navigate(path, { state });
   };
 
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
@@ -374,8 +375,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   };
 
-  const toggleDownloadAOAErrorModal = () => {
-    setShowDownloadPPMAOAPaperworkErrorAlert(!showDownloadPPMAOAPaperworkErrorAlert);
+  const togglePPMPacketErrorModal = () => {
+    setShowDownloadPPMPaperworkErrorAlert(!showDownloadPPMPaperworkErrorAlert);
   };
 
   // early return if loading user/service member
@@ -400,7 +401,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
-  const profileEditPath = customerRoutes.PROFILE_PATH;
+  const profileEditPath = generatePath(customerRoutes.PROFILE_PATH);
   const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
   const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
@@ -422,7 +423,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
+      <DownloadPacketErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -547,7 +548,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 >
                   {hasSubmittedMove() ? (
                     <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
-                      Move submitted {formatCustomerDate(move.submittedAt)}.<br />
+                      Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.<br />
                       <Button unstyled onClick={handlePrintLegalese} className={styles.printBtn}>
                         Print the legal agreement
                       </Button>
@@ -602,7 +603,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       id={shipment?.ppmShipment?.id}
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
-                                      onFailure={toggleDownloadAOAErrorModal}
+                                      onFailure={togglePPMPacketErrorModal}
                                     />
                                   </p>
                                 )}
@@ -655,7 +656,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     completedHeaderText="Manage your PPM"
                     step={hasAdvanceRequested() ? '6' : '5'}
                   >
-                    <PPMSummaryList shipments={ppmShipments} onUploadClick={handlePPMUploadClick} />
+                    <PPMSummaryList
+                      shipments={ppmShipments}
+                      onUploadClick={handlePPMUploadClick}
+                      onDownloadError={togglePPMPacketErrorModal}
+                    />
                   </Step>
                 )}
               </SectionWrapper>
