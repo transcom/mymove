@@ -58,11 +58,13 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		// Check if a value is in WeightBilled
 		query := `select psip.value from payment_service_item_params psip
 		join payment_service_items psi on psip.payment_service_item_id = psi.id
+		join mto_service_items msi on msi.id = psi.mto_service_item_id
+		join re_services rs on rs.id = msi.re_service_id
 		join payment_requests pr on psi.payment_request_id = pr.id
 		join service_item_param_keys sipk on sipk.id = psip.service_item_param_key_id
-		where sipk.key = 'WeightBilled' and psi.payment_request_id = $1`
+		where sipk.key = 'WeightBilled' and psi.payment_request_id = $1 and rs.code = $2`
 
-		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID).First(&weightBilled)
+		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID, keyData.MTOServiceItem.ReService.Code).First(&weightBilled)
 
 		if err != nil && err != sql.ErrNoRows {
 			return "", err
