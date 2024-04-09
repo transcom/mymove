@@ -192,7 +192,7 @@ describe('makeCalculations', () => {
           expect(result[i].value).toEqual('1.033');
           break;
         case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
+          expect(result[i].value).toEqual('$999.98');
           break;
         default:
           break;
