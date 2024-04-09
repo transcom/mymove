@@ -28,6 +28,9 @@ type UpdateAllowancePayload struct {
 	// grade
 	Grade *Grade `json:"grade,omitempty"`
 
+	// True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
+	GunSafe *bool `json:"gunSafe,omitempty"`
+
 	// only for Army
 	OrganizationalClothingAndIndividualEquipment *bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
 
