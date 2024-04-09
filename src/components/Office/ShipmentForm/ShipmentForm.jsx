@@ -14,6 +14,7 @@ import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import Hint from 'components/Hint/index';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
@@ -187,7 +188,11 @@ const ShipmentForm = (props) => {
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
   const showCloseoutOffice =
-    isServiceCounselor && isPPM && (serviceMember.agency === 'ARMY' || serviceMember.agency === 'AIR_FORCE');
+    isServiceCounselor &&
+    isPPM &&
+    (serviceMember.agency === SERVICE_MEMBER_AGENCIES.ARMY ||
+      serviceMember.agency === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
+      serviceMember.agency === SERVICE_MEMBER_AGENCIES.SPACE_FORCE);
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 

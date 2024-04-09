@@ -45,9 +45,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	addressCreator := address.NewAddressCreator()
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
 		moveRouter,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
@@ -58,7 +64,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	var destinationAddress primev3messages.Address
 	var secondaryDestinationAddress primev3messages.Address
 
-	planner := &routemocks.Planner{}
 	addressUpdater := address.NewAddressUpdater()
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())

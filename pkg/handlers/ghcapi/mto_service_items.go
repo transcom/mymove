@@ -279,6 +279,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryAssociation("Dimensions"),
 				query.NewQueryAssociation("SITDestinationOriginalAddress"),
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
+				query.NewQueryAssociation("SITOriginHHGOriginalAddress"),
+				query.NewQueryAssociation("SITOriginHHGActualAddress"),
 			})
 
 			var serviceItems models.MTOServiceItems
