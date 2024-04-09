@@ -107,7 +107,7 @@ const formatWeightDetailText = (params, key) => {
   return paramValue ? detailText : '';
 };
 
-const billableWeight = (params, itemCode) => {
+const billableWeight = (params) => {
   const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
 
@@ -160,12 +160,8 @@ const billableWeight = (params, itemCode) => {
   const fscWeightBasedDistanceMultiplier = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
-  switch (itemCode) {
-    case (SERVICE_ITEM_CODES.DDSFSC, SERVICE_ITEM_CODES.DOSFSC, SERVICE_ITEM_CODES.FSC):
-      details.push(formatDetail(fscWeightBasedDistanceMultiplier));
-      break;
-    default:
-      break;
+  if (fscWeightBasedDistanceMultiplier.length > 2) {
+    details.push(formatDetail(fscWeightBasedDistanceMultiplier));
   }
 
   return calculation(value, label, ...details);

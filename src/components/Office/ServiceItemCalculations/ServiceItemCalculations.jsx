@@ -84,12 +84,14 @@ const ServiceItemCalculations = ({
                     return (
                       <div data-testid="details" className={styles.row}>
                         <small>
-                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
-                            ? `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}:`
+                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents) ||
+                          detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCWeightBasedDistanceMultiplier)
+                            ? `${detail.text.substring(0, detail.text.indexOf(':'))}:`
                             : checkForEmptyString(detail.text)}
                         </small>
                         <small>
-                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents)
+                          {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents) ||
+                          detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCWeightBasedDistanceMultiplier)
                             ? detail.text.substring(detail.text.indexOf(':') + 1)
                             : ''}
                         </small>
