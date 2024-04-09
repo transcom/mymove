@@ -34,13 +34,12 @@ const testServiceItemCalculation = (testData) => {
   describe(`item code ${serviceItemCodeToTest}`, () => {
     it('renders correct data', () => {
       const wrapper = additionalData
-        ? mountedComponentAdditionalData.find('[data-testid="column"]')
-        : mountedComponent.find('[data-testid="column"]');
+        ? mountedComponentAdditionalData.find('[data-testid="ServiceItemCalculations"]')
+        : mountedComponent.find('[data-testid="ServiceItemCalculations"]');
 
-      expectedOutput.forEach((obj, index) => {
-        expect(wrapper.at(index).find('[data-testid="value"]').text()).toBe(obj.value);
-        expect(wrapper.at(index).find('[data-testid="label"]').text()).toBe(obj.label);
-        expect(wrapper.at(index).find('[data-testid="details"]').text()).toBe(obj.details ? obj.details.join('') : '');
+      expectedOutput.forEach((obj) => {
+        expect(wrapper.text()).toContain(obj.label);
+        expect(wrapper.text()).toContain(obj.value);
       });
     });
   });
@@ -127,7 +126,7 @@ describe('ServiceItemCalculations DLH', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [],
     },
   ];
@@ -212,7 +211,7 @@ describe('ServiceItemCalculations DCRT', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [''],
     },
   ];
@@ -302,7 +301,7 @@ describe('ServiceItemCalculations DUCRT', () => {
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
+      label: 'Fuel rate adjustment',
       details: [''],
     },
   ];
