@@ -63,18 +63,21 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		where sipk.key = 'WeightBilled' and psi.payment_request_id = $1`
 
 		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID).First(&weightBilled)
+
 		if err != nil && err != sql.ErrNoRows {
 			return "", err
-		} else if len(weightBilled) > 0 {
+		}
+
+		if len(weightBilled) > 0 {
 			return weightBilled, nil
 		} else if keyData.MTOServiceItem.MTOShipment.PPMShipment != nil {
 			if len((string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)) > 0 {
-				weightBilled = (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)
+				return (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap), nil
 			}
 		}
-		estimatedWeight = keyData.MTOServiceItem.MTOShipment.PrimeEstimatedWeight
+		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 
-		originalWeight = keyData.MTOServiceItem.MTOShipment.PrimeActualWeight
+		originalWeight = r.MTOShipment.PrimeActualWeight
 
 		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
