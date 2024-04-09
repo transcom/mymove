@@ -1231,7 +1231,7 @@ paths:
         as it is meant to be used with the Admin UI exclusively.
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested office users
+        - Requested Office Users
       parameters:
         - in: query
           name: filter
@@ -1276,7 +1276,7 @@ paths:
         data.
       operationId: getRequestedOfficeUser
       tags:
-        - Requested office users
+        - Requested Office Users
       parameters:
         - in: path
           name: officeUserId
