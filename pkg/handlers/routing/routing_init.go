@@ -539,7 +539,7 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 		site.Route("/prime/v3", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
-					routingConfig.PrimeV2SwaggerPath))
+					routingConfig.PrimeV3SwaggerPath))
 			if routingConfig.ServeSwaggerUI {
 				appCtx.Logger().Info("Prime Simulator API Swagger UI serving is enabled")
 				r.Method("GET", "/docs",
