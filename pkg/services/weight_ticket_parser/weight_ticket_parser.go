@@ -48,7 +48,9 @@ type WeightTicketParserGenerator struct {
 
 // NewWeightTicketParserGenerator creates a WeightTicketParserGenerator
 func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services.WeightTicketParserGenerator, error) {
-	templateReader, err := createAssetByteReader("paperwork/formtemplates/WeightEstimateTemplate.pdf")
+	const WeightTemplateFilename = "paperwork/formtemplates/WeightEstimateTemplate.pdf"
+	templateReader, err := createAssetByteReader(WeightTemplateFilename)
+
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
