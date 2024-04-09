@@ -523,6 +523,15 @@ export function formatTimeUnitDays(days) {
   return `${days} days`;
 }
 
-export function formatDistanceUnitMiles(distance) {
-  return `${distance} miles`;
+export function formatDistanceUnitMiles(distance, withUnit = true, withCommas = true) {
+  let result = '';
+  if (withCommas === true) {
+    result = `${distance.toLocaleString()}`;
+  } else {
+    result = `${distance}`;
+  }
+  if (withUnit === true) {
+    result += ' miles';
+  }
+  return result;
 }
