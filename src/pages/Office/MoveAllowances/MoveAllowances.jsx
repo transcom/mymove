@@ -128,7 +128,7 @@ const MoveAllowances = () => {
     organizationalClothingAndIndividualEquipment,
     storageInTransit,
   } = entitlement;
-
+  const gunSafe = entitlement.gunSafe || false;
   const initialValues = {
     grade,
     agency,
@@ -138,6 +138,7 @@ const MoveAllowances = () => {
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     organizationalClothingAndIndividualEquipment,
     storageInTransit: `${storageInTransit}`,
+    gunSafe,
   };
 
   return (
