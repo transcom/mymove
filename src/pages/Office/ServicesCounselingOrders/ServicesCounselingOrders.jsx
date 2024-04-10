@@ -38,6 +38,7 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
   const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const [showUpload, setShowUpload] = useState(false);
+  const [isDoneButtonDisabled, setIsDoneButtonDisabled] = useState(true);
   const orderId = move?.ordersId;
   const documentId = orders[orderId]?.uploaded_order_id;
 
@@ -47,6 +48,12 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
 
   const handleUploadFile = (file) => {
     return createUploadForDocument(file, documentId);
+  };
+
+  // enable done button when upload completes
+  // will need update when implementing deletion
+  const handleChange = () => {
+    setIsDoneButtonDisabled(false);
   };
 
   const toggleUploadVisibility = () => {
@@ -206,10 +213,13 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
                         <FileUpload
                           ref={filePondEl}
                           createUpload={handleUploadFile}
+                          onChange={handleChange}
                           labelIdle="Drag files here or click to upload"
                         />
                         <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
-                        <Button onClick={uploadComplete}>Done</Button>
+                        <Button disabled={isDoneButtonDisabled} onClick={uploadComplete}>
+                          Done
+                        </Button>
                       </div>
                     )}
                   </div>
