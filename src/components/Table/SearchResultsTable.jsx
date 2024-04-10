@@ -10,20 +10,14 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import {
-  BRANCH_OPTIONS,
-  MOVE_STATUS_LABELS,
-  PAYMENT_REQUEST_SEARCH_STATUS_LABELS,
-  ROLE_TYPE_OPTIONS,
-  SortShape,
-} from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, SortShape } from 'constants/queues';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
 
-const columns = (roleType) => [
+const columns = () => [
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -50,9 +44,6 @@ const columns = (roleType) => [
   createHeader(
     'Status',
     (row) => {
-      if (roleType === roleTypes.TIO) {
-        return PAYMENT_REQUEST_SEARCH_STATUS_LABELS[`${row.status}`];
-      }
       return MOVE_STATUS_LABELS[`${row.status}`];
     },
     {
@@ -61,7 +52,7 @@ const columns = (roleType) => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            options={MOVE_STATUS_LABELS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />
