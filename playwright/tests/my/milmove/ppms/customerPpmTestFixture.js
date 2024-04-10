@@ -561,6 +561,17 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * returns {Promise<void>}
    */
+  async navigateFromReviewPageToHomePageMM(move) {
+    // calculate the home url to wait for it after click
+    const url = new URL(this.page.url());
+    url.pathname = `/move/${move.id}`;
+    await this.page.getByRole('button', { name: 'Return home' }).click();
+    await this.page.waitForURL(url.href);
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
   async navigateToFromHomePageToPPMCloseoutReview() {
     await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);

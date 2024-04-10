@@ -65,16 +65,18 @@ test.describe('PPM Onboarding - Review', () => {
 
 test.describe('(MultiMove) PPM Onboarding - Review', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
+  let testMove;
 
   forEachViewport(async ({ isMobile }) => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete();
+      testMove = move;
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateFromHomePageToReviewPage();
+      await customerPpmPage.clickOnGoToMoveButton();
+      await customerPpmPage.navigateFromHomePageToReviewPage();
     });
 
-    test.skip(`navigates to the review page, deletes and edit shipment`, async ({ customerPpmPage }) => {
+    test(`navigates to the review page, deletes and edit shipment`, async ({ customerPpmPage }) => {
       const shipmentContainer = customerPpmPage.page.locator('[data-testid="ShipmentContainer"]').last();
       await customerPpmPage.deleteShipment(shipmentContainer, 1);
 
@@ -92,13 +94,13 @@ test.describe('(MultiMove) PPM Onboarding - Review', () => {
       await customerPpmPage.navigateToAgreementAndSign();
     });
 
-    test.skip('navigates to review page from home page and submits the move', async ({ customerPpmPage }) => {
+    test('navigates to review page from home page and submits the move', async ({ customerPpmPage }) => {
       await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: true });
       await customerPpmPage.navigateToAgreementAndSign();
       await customerPpmPage.submitMove();
       await customerPpmPage.navigateFromHomePageToReviewPage({ isMoveSubmitted: true });
       await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: false });
-      await customerPpmPage.navigateFromReviewPageToHomePage();
+      await customerPpmPage.navigateFromReviewPageToHomePageMM(testMove);
     });
   });
 });
