@@ -88,6 +88,3 @@ func FetchRolesForUser(db *pop.Connection, userID uuid.UUID) (Roles, error) {
 		All(&roles)
 	return roles, err
 }
-func (rs Roles) IsMultiRoleUser() bool {
-	return len(rs) > 1
-}

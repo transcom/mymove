@@ -520,7 +520,7 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 
 func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) (*models.EvaluationReport, error) {
 	if evaluationReport == nil {
-		err := apperror.NewPreconditionFailedError(uuid.UUID{}, errors.New("Cannot update empty report"))
+		err := apperror.NewPreconditionFailedError(uuid.UUID{}, errors.New("cannot update empty report"))
 		return nil, err
 	}
 
