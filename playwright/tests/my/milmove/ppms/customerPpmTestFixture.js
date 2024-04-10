@@ -871,6 +871,19 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
+   */
+  async navigateFromMoveHomeToAdvances() {
+    await this.page.getByTestId('editShipmentButton').click();
+    await this.page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/.*/);
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/estimated-weight$/);
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/estimated-incentive$/);
+    await this.page.getByRole('button', { name: 'Next' }).click();
+  }
+
+  /**
    * @param {Object} options
    * @param {boolean} [options.isEditExpense=false]
    * @param {string} [options.amount]
