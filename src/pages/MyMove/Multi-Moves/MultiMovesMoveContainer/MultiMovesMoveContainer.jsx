@@ -13,10 +13,13 @@ import styles from './MultiMovesMoveContainer.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 import { getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { setMoveId } from 'store/general/actions';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
+  // TODO once work in E-05362 is completed, we can turn this true or just remove it entirely and take out the conditional check in the render
+  const [displayDropdown] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -82,16 +85,20 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {m?.orders?.orders_type === 'BLUEBARK' ? <div className={styles.specialMoves}>BLUEBARK</div> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) ? (
+            <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
+          ) : null}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            <ButtonDropdownMenu
-              data-testid="downloadBtn"
-              title="Download"
-              items={dropdownMenuItems}
-              divClassName={styles.dropdownBtn}
-              onItemClick={handleDropdownItemClick}
-              outline
-            />
+            {displayDropdown ?? (
+              <ButtonDropdownMenu
+                data-testid="downloadBtn"
+                title="Download"
+                items={dropdownMenuItems}
+                divClassName={styles.dropdownBtn}
+                onItemClick={handleDropdownItemClick}
+                outline
+              />
+            )}
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
