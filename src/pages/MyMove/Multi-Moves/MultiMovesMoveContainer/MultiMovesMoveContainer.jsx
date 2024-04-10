@@ -17,6 +17,8 @@ import { setMoveId } from 'store/general/actions';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
+  // TODO once work in E-05362 is completed, we can turn this true or just remove it entirely and take out the conditional check in the render
+  const [displayDropdown] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -84,14 +86,16 @@ const MultiMovesMoveContainer = ({ moves }) => {
           <h3>#{m.moveCode}</h3>
           {m?.orders?.orders_type === 'BLUEBARK' ? <div className={styles.specialMoves}>BLUEBARK</div> : null}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            <ButtonDropdownMenu
-              data-testid="downloadBtn"
-              title="Download"
-              items={dropdownMenuItems}
-              divClassName={styles.dropdownBtn}
-              onItemClick={handleDropdownItemClick}
-              outline
-            />
+            {displayDropdown ?? (
+              <ButtonDropdownMenu
+                data-testid="downloadBtn"
+                title="Download"
+                items={dropdownMenuItems}
+                divClassName={styles.dropdownBtn}
+                onItemClick={handleDropdownItemClick}
+                outline
+              />
+            )}
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}

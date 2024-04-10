@@ -1,23 +1,21 @@
-schemes:
-  - https
 swagger: '2.0'
-host: admin.move.mil
 info:
+  contact:
+    email: milmove-developers@caci.com
   description: >
     The Admin API is a RESTful API that enables the Admin application for
     MilMove.
 
 
     All endpoints are located under `/admin/v1`.
-  version: 1.0.0
-  title: MilMove Admin API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
-  contact:
-    name: MilMove AppEng
-    email: support@movemil.pagerduty.com
+    url: https://opensource.org/licenses/MIT
+  title: MilMove Admin API
+  version: 1.0.0
 basePath: /admin/v1
+schemes:
+  - https
 consumes:
   - application/json
 produces:
@@ -41,10 +39,6 @@ tags:
       url: https://transcom.github.io/mymove-docs/docs/api
   - name: Notifications
     description: Information about notifications
-    externalDocs:
-      url: https://transcom.github.io/mymove-docs/docs/api
-  - name: Requested office users
-    description: Information about Requested Office UI users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
   - name: Transportation offices
@@ -1256,7 +1250,10 @@ paths:
       produces:
         - application/json
       summary: Get a Requested Office User
-      description: Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.
+      description: >-
+        Retrieving a single office user in any status. This endpoint is used in
+        the Admin UI that will allow the admin user to view the user's relevant
+        data.
       operationId: getRequestedOfficeUser
       tags:
         - Requested office users
@@ -1282,10 +1279,10 @@ paths:
     patch:
       produces:
         - application/json
-      consumes:
-        - application/json
       summary: Update a Requested Office User
-      description: Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.
+      description: >-
+        Updates a requested office user to include profile data and status. This
+        will be used in the Admin UI for approving/rejecting/updating a user.
       operationId: updateRequestedOfficeUser
       tags:
         - Requested office users
