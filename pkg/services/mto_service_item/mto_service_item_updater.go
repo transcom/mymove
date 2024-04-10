@@ -488,13 +488,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if validServiceItem.SITDestinationFinalAddress != nil {
 			if validServiceItem.SITDestinationFinalAddressID == nil || *validServiceItem.SITDestinationFinalAddressID == uuid.Nil {
-				verrs, createErr := p.builder.CreateOne(txnAppCtx, validServiceItem.SITDestinationFinalAddress)
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(
-						validServiceItem.ID, createErr, verrs, "Invalid input found while creating a final Destination SIT address for service item.")
-				} else if createErr != nil {
+				validServiceItem.SITDestinationFinalAddress, err = p.addressCreator.CreateAddress(txnAppCtx, validServiceItem.SITDestinationFinalAddress)
+				if err != nil {
 					// If the error is something else (this is unexpected), we create a QueryError
-					return apperror.NewQueryError("MTOServiceItem", createErr, "")
+					return apperror.NewQueryError("MTOServiceItem", err, "")
 				}
 			}
 			validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
