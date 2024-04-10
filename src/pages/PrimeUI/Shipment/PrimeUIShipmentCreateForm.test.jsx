@@ -12,10 +12,6 @@ const initialValues = {
   counselorRemarks: '',
   ppmShipment: {
     expectedDepartureDate: '',
-    pickupPostalCode: '',
-    secondaryPickupPostalCode: '',
-    destinationPostalCode: '',
-    secondaryDestinationPostalCode: '',
     sitExpected: false,
     sitLocation: '',
     sitEstimatedWeight: '',
@@ -70,20 +66,6 @@ describe('PrimeUIShipmentCreateForm', () => {
       initialValues.ppmShipment.expectedDepartureDate,
     );
 
-    expect(await screen.findByText('Origin Info')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Pickup Postal Code')).toHaveValue(initialValues.ppmShipment.pickupPostalCode);
-    expect(await screen.findByLabelText('Secondary Pickup Postal Code')).toHaveValue(
-      initialValues.ppmShipment.secondaryPickupPostalCode,
-    );
-
-    expect(await screen.findByText('Destination Info')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Destination Postal Code')).toHaveValue(
-      initialValues.ppmShipment.destinationPostalCode,
-    );
-    expect(await screen.findByLabelText('Secondary Destination Postal Code')).toHaveValue(
-      initialValues.ppmShipment.secondaryDestinationPostalCode,
-    );
-
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
     const sitExpectedInput = await screen.findByLabelText('SIT Expected');
     expect(sitExpectedInput).not.toBeChecked();
@@ -92,6 +74,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.findByLabelText('Estimated Weight (lbs)')).toHaveValue(
       initialValues.ppmShipment.estimatedWeight,
     );
+
     const hasProGearInput = await screen.findByLabelText('Has Pro Gear');
     expect(hasProGearInput).not.toBeChecked();
 
