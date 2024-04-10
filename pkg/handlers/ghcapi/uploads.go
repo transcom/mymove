@@ -1,14 +1,13 @@
 package ghcapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	uploadop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -23,7 +22,7 @@ type CreateUploadHandler struct {
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			rollbackErr := fmt.Errorf("error creating upload")
+			rollbackErr := apperror.NewBadDataError("error creating upload")
 
 			file, ok := params.File.(*runtime.File)
 			if !ok {
