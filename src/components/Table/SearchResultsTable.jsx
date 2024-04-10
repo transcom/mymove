@@ -24,7 +24,6 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
-import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 
