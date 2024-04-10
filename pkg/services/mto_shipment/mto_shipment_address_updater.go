@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -18,12 +17,16 @@ import (
 
 // mtoShipmentAddressUpdater handles the db connection
 type mtoShipmentAddressUpdater struct {
-	planner route.Planner
+	planner        route.Planner
+	addressCreator services.AddressCreator
+	addressUpdater services.AddressUpdater
 }
 
 // NewMTOShipmentAddressUpdater updates the address for an MTO Shipment
-func NewMTOShipmentAddressUpdater(planner route.Planner) services.MTOShipmentAddressUpdater {
-	return mtoShipmentAddressUpdater{planner: planner}
+func NewMTOShipmentAddressUpdater(planner route.Planner, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.MTOShipmentAddressUpdater {
+	return mtoShipmentAddressUpdater{planner: planner,
+		addressCreator: addressCreator,
+		addressUpdater: addressUpdater}
 }
 
 // isAddressOnShipment returns true if address is associated with the shipment, false if not
@@ -193,13 +196,15 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	}
 
 	// Make the update and create a InvalidInput Error if there were validation issues
-	verrs, err := appCtx.DB().ValidateAndSave(newAddress)
-
-	// If there were validation errors create an InvalidInputError type
-	if verrs != nil && verrs.HasAny() {
-		return nil, apperror.NewInvalidInputError(newAddress.ID, err, verrs, "")
-	} else if err != nil {
-		// If the error is something else (this is unexpected), we create a QueryError
+	var address *models.Address
+	if newAddress.ID == uuid.Nil {
+		// New address doesn't have an ID yet, it should be created
+		address, err = f.addressCreator.CreateAddress(appCtx, newAddress)
+	} else {
+		// It has an ID, it should be updated
+		address, err = f.addressUpdater.UpdateAddress(appCtx, newAddress, etag.GenerateEtag(oldAddress.UpdatedAt))
+	}
+	if err != nil {
 		return nil, apperror.NewQueryError("Address", err, "")
 	}
 
@@ -213,16 +218,5 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}
 
-	// Get the updated address and return
-	updatedAddress := models.Address{}
-	err = appCtx.DB().Find(&updatedAddress, newAddress.ID)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(newAddress.ID, "looking for Address")
-		default:
-			return nil, apperror.NewQueryError("Address", err, fmt.Sprintf("Unexpected error after saving: %v", err))
-		}
-	}
-	return &updatedAddress, nil
+	return address, nil
 }

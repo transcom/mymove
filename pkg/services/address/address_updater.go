@@ -31,6 +31,15 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, apperror.NewPreconditionFailedError(originalAddress.ID, nil)
 	}
 
+	// Fetch new county if postal code has been modified from its original
+	if originalAddress.PostalCode != address.PostalCode || address.County == "" {
+		county, err := models.FindCountyByZipCode(appCtx.DB(), address.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+		address.County = county
+	}
+
 	mergedAddress := mergeAddress(*address, *originalAddress)
 
 	err := validateAddress(appCtx, &mergedAddress, originalAddress, f.checks...)
@@ -67,6 +76,9 @@ func mergeAddress(address, originalAddress models.Address) models.Address {
 	}
 	if address.PostalCode != "" {
 		mergedAddress.PostalCode = address.PostalCode
+	}
+	if address.County != "" {
+		mergedAddress.County = address.County
 	}
 
 	mergedAddress.StreetAddress2 = services.SetOptionalStringField(address.StreetAddress2, mergedAddress.StreetAddress2)
