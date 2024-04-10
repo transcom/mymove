@@ -282,6 +282,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     phone: `+1 ${customer.phone}`,
     email: customer.email,
     currentAddress: customer.current_address,
+    backupAddress: customerData.backupAddress,
     backupContact: customer.backup_contact,
   };
 

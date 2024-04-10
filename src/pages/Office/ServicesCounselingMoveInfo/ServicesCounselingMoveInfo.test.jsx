@@ -56,6 +56,7 @@ mockPage('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetai
 mockPage('pages/Office/PPM/ReviewDocuments/ReviewDocuments');
 mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment');
 mockPage('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks');
+mockPage('pages/Office/MoveTaskOrder/MoveTaskOrder');
 mockPage('pages/Office/MoveHistory/MoveHistory');
 mockPage('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper');
 mockPage('pages/Office/CustomerInfo/CustomerInfo');
@@ -100,6 +101,7 @@ describe('Services Counseling Move Info Container', () => {
       renderSCMoveInfo();
 
       expect(screen.getByTestId('MoveDetails-Tab')).toBeInTheDocument();
+      expect(screen.getByTestId('MoveTaskOrder-Tab')).toBeInTheDocument();
       expect(screen.getByTestId('MoveHistory-Tab')).toBeInTheDocument();
     });
 
@@ -134,6 +136,7 @@ describe('Services Counseling Move Info Container', () => {
       ['Services Counseling Move Details', 'details'],
       ['Review Documents', 'shipments/SHIP123/document-review'],
       ['Services Counseling Add Shipment', 'new-shipment/hhg'],
+      ['Move Task Order', 'mto'],
       ['Customer Support Remarks', 'customer-support-remarks'],
       ['Move History', 'history'],
       ['Services Counseling Move Document Wrapper', 'allowances'],
