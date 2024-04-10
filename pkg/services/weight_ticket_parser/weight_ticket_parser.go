@@ -8,17 +8,17 @@ import (
 	"reflect"
 	"strings"
 
-	"golang.org/x/exp/slices"
-
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/xuri/excelize/v2"
+	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/xuri/excelize/v2"
-	"go.uber.org/zap"
 )
 
 // textField represents a text field within a form.
@@ -31,17 +31,17 @@ type textField struct {
 	Locked    bool   `json:"locked"`
 }
 
-// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
-type WeightTicketParserComputer struct {
+// WeightTicketComputer is the concrete struct implementing the services.weightticketparser interface
+type WeightTicketComputer struct {
 }
 
-// NewWeightTicketParserComputer creates a WeightTicketParserComputer
-func NewWeightTicketParserComputer() services.WeightTicketParserComputer {
-	return &WeightTicketParserComputer{}
+// NewWeightTicketComputer creates a WeightTicketParserComputer
+func NewWeightTicketComputer() services.WeightTicketComputer {
+	return &WeightTicketComputer{}
 }
 
 // WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
-type WeightTicketParserGenerator struct {
+type WeightTicketGenerator struct {
 	generator      paperwork.Generator
 	templateReader *bytes.Reader
 }
@@ -55,14 +55,14 @@ func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services
 		return nil, errors.WithStack(err)
 	}
 
-	return &WeightTicketParserGenerator{
+	return &WeightTicketGenerator{
 		generator:      *pdfGenerator,
 		templateReader: templateReader,
 	}, nil
 }
 
 // FillWeightEstimatorPDFForm takes form data and fills an existing Weight Estimaator PDF template with data
-func (WeightTicketParserGenerator *WeightTicketParserGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
+func (WeightTicketParserGenerator *WeightTicketGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
 	const weightEstimatePages = 11
 
 	// header represents the header section of the JSON.
@@ -182,7 +182,7 @@ func mergeTextFields(fields1, fields2, fields3, fields4, fields5, fields6, field
 }
 
 // Parses a Weight Estimator Spreadsheet file and returns services.WeightEstimatorPages populated with the parsed data
-func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*services.WeightEstimatorPages, error) {
+func (WeightTicketParserComputer *WeightTicketComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser) (*services.WeightEstimatorPages, error) {
 	// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
 	// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
 	// have 2 numbers.
@@ -218,8 +218,8 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 
 	defer func() {
 		// Close the spreadsheet
-		if err := excelFile.Close(); err != nil {
-			appCtx.Logger().Debug("Failed to close file", zap.Error(err))
+		if closeErr := excelFile.Close(); err != nil {
+			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
 	}()
 
@@ -288,6 +288,7 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 		currentCellCount := 1
 		writeData := false
 		blankCell := false
+		cellColumnData = nil
 
 		// If weightAllowanceWrite is true at this point that means that we found the field with 'Enter Members Weight Allowance '
 		// but the values for it were left to the default empty fields. Therefore excelize would have skipped parsing the values
@@ -399,8 +400,6 @@ func (WeightTicketParserComputer *WeightTicketParserComputer) ParseWeightEstimat
 		}
 
 		rowCount++
-		cellColumnData = nil
-		currentCellCount = 1
 	}
 
 	return &pageValues, nil

@@ -5,8 +5,8 @@ import (
 
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/afero"
+
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/paperwork"
 )
 
 // WeightEstimatorPage1 is an object representing fields from Page 1 of the pdf
@@ -882,8 +882,8 @@ type WeightEstimatorPages struct {
 }
 
 //go:generate mockery --name SSWPPMComputer
-type WeightTicketParserComputer interface {
-	ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser, g *paperwork.Generator) (*WeightEstimatorPages, error)
+type WeightTicketComputer interface {
+	ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser) (*WeightEstimatorPages, error)
 }
 
 //go:generate mockery --name SSWPPMGenerator

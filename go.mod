@@ -72,6 +72,7 @@ require (
 	github.com/tealeg/xlsx/v3 v3.3.0
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/vektra/mockery/v2 v2.33.2
+	github.com/xuri/excelize/v2 v2.8.1
 	go.flipt.io/flipt/rpc/flipt v1.25.0
 	go.flipt.io/flipt/sdk/go v0.5.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
@@ -119,7 +120,6 @@ require (
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/xuri/efp v0.0.0-20231025114914-d1ff6096ae53 // indirect
-	github.com/xuri/excelize/v2 v2.8.1 // indirect
 	github.com/xuri/nfp v0.0.0-20230919160717-d98342af3f05 // indirect
 )
 

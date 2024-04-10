@@ -267,14 +267,14 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				parserComputer := weightticketparser.NewWeightTicketParserComputer()
+				parserComputer := weightticketparser.NewWeightTicketComputer()
 				weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(generator)
 
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				pageValues, err := parserComputer.ParseWeightEstimatorExcelFile(appCtx, file, generator)
+				pageValues, err := parserComputer.ParseWeightEstimatorExcelFile(appCtx, file)
 
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
