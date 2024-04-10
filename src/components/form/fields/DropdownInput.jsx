@@ -10,21 +10,9 @@ import { DropdownArrayOf } from 'types/form';
 import './DropdownInput.module.scss';
 
 export const DropdownInput = (props) => {
-  const {
-    id,
-    name,
-    label,
-    options,
-    showDropdownPlaceholderText,
-    isDisabled,
-    disableErrorLabel,
-    placeHolderText,
-    ...inputProps
-  } = props;
+  const { id, name, label, options, showDropdownPlaceholderText, isDisabled, disableErrorLabel, ...inputProps } = props;
   const [field, meta] = useField(props);
   const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
-  const defaultPlaceHolderText = '- Select -';
-  const dropDownPlaceHolderText = placeHolderText || defaultPlaceHolderText;
 
   // Input elements need an ID prop to be associated with the label
   const inputId = useRef(id || `${name}_${uuidv4()}`);
@@ -40,7 +28,7 @@ export const DropdownInput = (props) => {
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Dropdown id={inputId.current} {...field} disabled={isDisabled} {...inputProps}>
-        {showDropdownPlaceholderText && <option value="">{dropDownPlaceHolderText}</option>}
+        {showDropdownPlaceholderText && <option value="">- Select -</option>}
         {options &&
           options.map(({ key, value }) => (
             <option key={key} value={key}>

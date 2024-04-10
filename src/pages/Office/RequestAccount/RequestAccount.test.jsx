@@ -61,7 +61,7 @@ describe('RequestAccount page', () => {
 
   it('should navigate to sign in page after submit', async () => {
     const props = {
-      setMessage: jest.fn(),
+      setFlashMessage: jest.fn(),
     };
     render(
       <MemoryRouter>

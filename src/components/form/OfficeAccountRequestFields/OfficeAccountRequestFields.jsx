@@ -3,6 +3,7 @@ import { func } from 'prop-types';
 import { Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
 
@@ -29,7 +30,14 @@ export const OfficeAccountRequestFields = ({ render }) => {
           />
           <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" />
           <TextField label="Email" name={emailField} id="officeAccountRequestEmail" />
-          <TextField label="Telephone" name={telephoneFieldName} id="officeAccountRequestTelephone" />
+          <MaskedTextField
+            label="Telephone"
+            id="officeAccountRequestTelephone"
+            name={telephoneFieldName}
+            type="tel"
+            minimum="12"
+            mask="000{-}000{-}0000"
+          />
           <TextField
             label="DODID#"
             labelHint="10 digit number"
@@ -49,7 +57,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
           <DutyLocationInput
             name={transportationOfficeDropDown}
             label="Transportation Office"
-            placeHolderText="Select Transportation Office"
             searchLocations={searchTransportationOfficesOpen}
           />
           <h4>Requested Role(s)</h4>
