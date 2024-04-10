@@ -90,6 +90,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler: customer_support_remarks.CreateCustomerSupportRemarkForMoveHandlerFunc(func(params customer_support_remarks.CreateCustomerSupportRemarkForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
 		}),
+		CustomerCreateCustomerWithOktaOptionHandler: customer.CreateCustomerWithOktaOptionHandlerFunc(func(params customer.CreateCustomerWithOktaOptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.CreateCustomerWithOktaOption has not yet been implemented")
+		}),
 		EvaluationReportsCreateEvaluationReportHandler: evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		}),
@@ -228,6 +231,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmShowAOAPacketHandler: ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
 		}),
+		PpmShowPaymentPacketHandler: ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
+		}),
 		EvaluationReportsSubmitEvaluationReportHandler: evaluation_reports.SubmitEvaluationReportHandlerFunc(func(params evaluation_reports.SubmitEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SubmitEvaluationReport has not yet been implemented")
 		}),
@@ -355,6 +361,8 @@ type MymoveAPI struct {
 	ShipmentCreateApprovedSITDurationUpdateHandler shipment.CreateApprovedSITDurationUpdateHandler
 	// CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler sets the operation handler for the create customer support remark for move operation
 	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
+	// CustomerCreateCustomerWithOktaOptionHandler sets the operation handler for the create customer with okta option operation
+	CustomerCreateCustomerWithOktaOptionHandler customer.CreateCustomerWithOktaOptionHandler
 	// EvaluationReportsCreateEvaluationReportHandler sets the operation handler for the create evaluation report operation
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
@@ -447,6 +455,8 @@ type MymoveAPI struct {
 	MoveSetFinancialReviewFlagHandler move.SetFinancialReviewFlagHandler
 	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
 	PpmShowAOAPacketHandler ppm.ShowAOAPacketHandler
+	// PpmShowPaymentPacketHandler sets the operation handler for the show payment packet operation
+	PpmShowPaymentPacketHandler ppm.ShowPaymentPacketHandler
 	// EvaluationReportsSubmitEvaluationReportHandler sets the operation handler for the submit evaluation report operation
 	EvaluationReportsSubmitEvaluationReportHandler evaluation_reports.SubmitEvaluationReportHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
@@ -598,6 +608,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler")
 	}
+	if o.CustomerCreateCustomerWithOktaOptionHandler == nil {
+		unregistered = append(unregistered, "customer.CreateCustomerWithOktaOptionHandler")
+	}
 	if o.EvaluationReportsCreateEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportHandler")
 	}
@@ -735,6 +748,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmShowAOAPacketHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowAOAPacketHandler")
+	}
+	if o.PpmShowPaymentPacketHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowPaymentPacketHandler")
 	}
 	if o.EvaluationReportsSubmitEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SubmitEvaluationReportHandler")
@@ -931,6 +947,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/customer"] = customer.NewCreateCustomerWithOktaOption(o.context, o.CustomerCreateCustomerWithOktaOptionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{locator}/evaluation-reports"] = evaluation_reports.NewCreateEvaluationReport(o.context, o.EvaluationReportsCreateEvaluationReportHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1112,6 +1132,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/aoa-packet"] = ppm.NewShowAOAPacket(o.context, o.PpmShowAOAPacketHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/payment-packet"] = ppm.NewShowPaymentPacket(o.context, o.PpmShowPaymentPacketHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

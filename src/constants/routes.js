@@ -74,12 +74,15 @@ export const servicesCounselingRoutes = {
   SHIPMENT_ADVANCE_PATH: 'shipments/:shipmentId/advance',
   BASE_MOVE_HISTORY_PATH: `${BASE_COUNSELING_MOVE_PATH}/history`,
   MOVE_HISTORY_PATH: 'history',
+  BASE_MTO_PATH: `${BASE_COUNSELING_MOVE_PATH}/mto`,
+  MTO_PATH: 'mto',
   BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer-support-remarks`,
   CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
   BASE_SHIPMENT_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/document-review`,
   SHIPMENT_REVIEW_PATH: 'shipments/:shipmentId/document-review',
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
+  CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
 };
 
 const BASE_MOVES_PATH = '/moves/:moveCode';
@@ -133,4 +136,8 @@ export const primeSimulatorRoutes = {
   SHIPMENT_UPDATE_REWEIGH_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/reweigh/:reweighId/update`,
   CREATE_SIT_EXTENSION_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/sit-extension-requests/new`,
   SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/updateDestinationAddress`,
+};
+
+export const adminRoutes = {
+  HOME_PATH: '/',
 };
