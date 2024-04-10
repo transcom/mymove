@@ -34,17 +34,29 @@ WITH move AS (
 			audit_history
 			JOIN move_shipments ON move_shipments.id = audit_history.object_id
 		WHERE audit_history.table_name = 'mto_shipments'
+			AND NOT (audit_history.event_name = 'updateMTOStatusServiceCounselingCompleted' AND audit_history.changed_data = '{"status": "APPROVED"}')
+				-- Not including status update to 'Approval' on mto_shipment layer above ppm_shipment when PPM is counseled.
+				-- That is not needed for move history UI.
+			AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
+				-- Not including update on mto_shipment for ppm_shipment when submitted
+				-- handled on seperate event
 		GROUP BY audit_history.id
 	),
 	move_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			jsonb_agg(jsonb_strip_nulls(
+				jsonb_build_object(
+					'closeout_office_name',
+					(SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.closeout_office_id))
+				))
+			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN move ON audit_history.object_id = move.id
-		WHERE audit_history.table_name = 'moves'
+		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT) on TRUE
+		WHERE audit_history.table_name = 'moves' group by audit_history.id
 	),
 	move_orders AS (
 		SELECT

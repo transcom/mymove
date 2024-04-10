@@ -1,6 +1,6 @@
 import Swagger from 'swagger-client';
 
-import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
+import { makeSwaggerRequest, requestInterceptor, responseInterceptor, makeSwaggerRequestRaw } from './swaggerRequest';
 
 let ghcClient = null;
 
@@ -19,6 +19,11 @@ export async function getGHCClient() {
 export async function makeGHCRequest(operationPath, params = {}, options = {}) {
   const client = await getGHCClient();
   return makeSwaggerRequest(client, operationPath, params, options);
+}
+
+export async function makeGHCRequestRaw(operationPath, params = {}) {
+  const client = await getGHCClient();
+  return makeSwaggerRequestRaw(client, operationPath, params);
 }
 
 export async function getPaymentRequest(key, paymentRequestID) {
@@ -72,6 +77,14 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
       normalize: false,
     },
   );
+}
+
+export async function getPPMCloseout(key, ppmShipmentId) {
+  return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
+}
+
+export async function getPPMActualWeight(key, ppmShipmentId) {
+  return makeGHCRequest('ppm.getPPMActualWeight', { ppmShipmentId }, { normalize: false });
 }
 
 export async function patchPPMDocumentsSetStatus({ ppmShipmentId, eTag }) {
@@ -334,6 +347,11 @@ export async function updateMaxBillableWeightAsTIO({ orderID, ifMatchETag, body 
 export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   const operationPath = 'order.acknowledgeExcessWeightRisk';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
+}
+
+export async function createCustomerWithOktaOption({ body }) {
+  const operationPath = 'customer.createCustomerWithOktaOption';
+  return makeGHCRequest(operationPath, { body });
 }
 
 export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
@@ -658,3 +676,11 @@ export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, bod
     { schemaKey, normalize },
   );
 };
+
+export async function downloadPPMAOAPacket(ppmShipmentId) {
+  return makeGHCRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
+}
+
+export async function downloadPPMPaymentPacket(ppmShipmentId) {
+  return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}

@@ -63,6 +63,7 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
+	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -324,7 +325,6 @@ func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) 
 		"NewDutyLocation.Address",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
-		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
 		First(&order)

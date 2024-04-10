@@ -28,7 +28,7 @@ const testProps = {
     country: 'USA',
   },
   destinationDutyLocation: {
-    streetAddress1: '',
+    streetAddress1: 'Street Address',
     city: 'Fort Irwin',
     state: 'CA',
     postalCode: '92310',
@@ -39,6 +39,33 @@ const testProps = {
     eTag: 'abc123',
     status: 'APPROVED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+  },
+};
+
+const ppmShipment = {
+  pickupAddress: {
+    city: 'Tampa',
+    state: 'FL',
+    postalCode: '33621',
+    streetAddress1: '123 Fake Street',
+    streetAddress2: '',
+    streetAddress3: '',
+    country: 'USA',
+  },
+  destinationAddress: {
+    city: 'Chicago',
+    state: 'IL',
+    postalCode: '01054',
+    streetAddress1: '5 Main Street',
+    streetAddress2: '',
+    streetAddress3: '',
+    country: 'USA',
+  },
+  shipmentInfo: {
+    id: '1234',
+    eTag: 'abc123',
+    status: 'APPROVED',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
   },
 };
 
@@ -79,7 +106,7 @@ const cancelledShipment = {
 describe('ShipmentAddresses', () => {
   it('calls props.handleDivertShipment on request diversion button click', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
         <ShipmentAddresses {...testProps} />
       </MockProviders>,
     );
@@ -97,7 +124,7 @@ describe('ShipmentAddresses', () => {
 
   it('hides the request diversion button for a cancelled shipment', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
         <ShipmentAddresses {...cancelledShipment} />
       </MockProviders>,
     );
@@ -110,6 +137,19 @@ describe('ShipmentAddresses', () => {
 
   it('hides the request diversion button when user does not have permissions', async () => {
     render(<ShipmentAddresses {...cancelledShipment} />);
+    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
+
+    await waitFor(() => {
+      expect(requestDiversionBtn).toBeNull();
+    });
+  });
+
+  it('hides the request diversion button when user does not have updateMTOPage permissions', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+        <ShipmentAddresses {...cancelledShipment} />
+      </MockProviders>,
+    );
     const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
 
     await waitFor(() => {
@@ -140,5 +180,12 @@ describe('ShipmentAddresses', () => {
     render(<ShipmentAddresses {...NTSRProps} />);
     expect(screen.getByText('Facility address')).toBeInTheDocument();
     expect(screen.getByText('Delivery address')).toBeInTheDocument();
+  });
+
+  it('shows correct headings for PPM', () => {
+    render(<ShipmentAddresses {...ppmShipment} />);
+
+    expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
+    expect(screen.getByText('Authorized addresses')).toBeInTheDocument();
   });
 });

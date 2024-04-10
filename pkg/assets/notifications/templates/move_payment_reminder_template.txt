@@ -1,35 +1,34 @@
-We hope your move to {{.DestinationDutyLocation}} went well.
+*** DO NOT REPLY directly to this email ***
 
-It’s been a couple of weeks, so we want to make sure you get paid for that move. {{.IncentiveTxt}}
+This is a reminder that your PPM with the assigned move code {{.Locator}} from {{.OriginDutyLocation}}
+to {{.DestinationDutyLocation}} is awaiting action in MilMove.
 
-To get your incentive, you need to request payment.
+Next steps:
 
-Log in to MilMove and request payment
+To get your payment, you need to login to MilMove, document expenses, and request payment.
 
-We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.
+To do that:
 
-To do that
-
-  * Log in to MilMove
-  * Click Request Payment
-  * Follow the instructions.
-
-What documents do you need?
+  * Log into MilMove<{{.MyMoveLink}}>
+  * Click on "Upload PPM Documents"
+  * Follow the instructions
 
 To request payment, you should have copies of:
-  * Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move
-  * Receipts for reimbursable expenses (see our moving tips PDF for more info)
+
+*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.
+*       Receipts for reimbursable expenses.
 
 MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-What if you’re missing documents?
+If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.
 
-If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.
+Payment request must be submitted within 45 days of your move date.
 
-If you’re missing certified weight tickets, your PPPO will have to help. {{if .TOName}}Call {{.TOName}}{{if .TOPhone}} at {{.TOPhone}}{{end}} to have them walk you through it. Reference your move locator code: {{.Locator}}.{{end}}
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military OneSource here: <{{.OneSourceLink}}>
 
-Log in to MilMove to complete your request and get paid.
+Thank you,
 
-Request payment within 45 days of your move date or you might not be able to get paid.
+USTRANSCOM MilMove Team
 
-{{if .TOName}}If you have any questions or concerns, you can talk to a human! Call your local PPPO at {{.TOName}}{{if .TOPhone}} at {{ .TOPhone}}{{end}}. Reference your move locator code: {{.Locator}}.{{end}}
+The information contained in this email may contain Privacy Act information and is therefore protected
+under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.

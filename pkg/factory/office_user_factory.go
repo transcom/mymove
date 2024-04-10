@@ -107,6 +107,56 @@ func BuildOfficeUserWithRoles(db *pop.Connection, customs []Customization, roleT
 	return BuildOfficeUser(db, customs, traits)
 }
 
+// BuildOfficeUserWithPrivileges returns an office user with an ID, unique email, and privileges
+// Also creates
+//   - User
+//   - Privilege
+//   - UsersPrivileges
+//
+// Notes:
+//   - privilegeTypes passed into the function will overwrite over any privileges in a User customization
+//   - a unique email for the user will be created
+//   - a UUID will be added to the OfficeUser record when it's stubbed
+func BuildOfficeUserWithPrivileges(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
+	customs = setupCustomizations(customs, traits)
+
+	// Find officeuser assertion and convert to models officeuser
+	var cOfficeUser models.OfficeUser
+	if result := findValidCustomization(customs, OfficeUser); result != nil {
+		cOfficeUser = result.Model.(models.OfficeUser)
+		if result.LinkOnly {
+			return cOfficeUser
+		}
+	}
+
+	// Find/create the user model
+	user := BuildUserAndUsersRolesAndUsersPrivileges(db, customs, nil)
+
+	// Find/create the TransportationOffice model
+	transportationOffice := BuildTransportationOffice(db, customs, nil)
+
+	// create officeuser
+	officeUser := models.OfficeUser{
+		UserID:                 &user.ID,
+		User:                   user,
+		FirstName:              "Leo",
+		LastName:               "Spaceman",
+		Email:                  "leo_spaceman_office@example.com",
+		Telephone:              "415-555-1212",
+		TransportationOffice:   transportationOffice,
+		TransportationOfficeID: transportationOffice.ID,
+	}
+	// Overwrite values with those from assertions
+	testdatagen.MergeModels(&officeUser, cOfficeUser)
+
+	// If db is false, it's a stub. No need to create in database
+	if db != nil {
+		mustCreate(db, &officeUser)
+	}
+
+	return officeUser
+}
+
 // ------------------------
 //        TRAITS
 // ------------------------
@@ -158,6 +208,30 @@ func GetTraitActiveOfficeUser() []Customization {
 		{
 			Model: models.User{
 				Active: true,
+			},
+		},
+	}
+}
+
+// GetTraitApprovedOfficeUser sets the OfficeUser in an APPROVED status
+func GetTraitApprovedOfficeUser() []Customization {
+	approvedStatus := "APPROVED"
+	return []Customization{
+		{
+			Model: models.OfficeUser{
+				Status: &approvedStatus,
+			},
+		},
+	}
+}
+
+// GetTraitRequestedOfficeUser sets the OfficeUser in an REQUESTED status
+func GetTraitRequestedOfficeUser() []Customization {
+	requestedStatus := "REQUESTED"
+	return []Customization{
+		{
+			Model: models.OfficeUser{
+				Status: &requestedStatus,
 			},
 		},
 	}

@@ -243,8 +243,8 @@ test.describe('TOO user', () => {
       await expect(page.getByText('Total days of SIT approved')).toBeVisible();
       await expect(page.getByText('Total days used')).toBeVisible();
       await expect(page.getByText('Total days remaining')).toBeVisible();
-      await expect(page.getByText('SIT start date')).toBeVisible();
-      await expect(page.getByText('	SIT authorized end date')).toBeVisible();
+      await expect(page.getByText('SIT start date').nth(0)).toBeVisible();
+      await expect(page.getByText('SIT authorized end date')).toBeVisible();
       await expect(page.getByText('Calculated total SIT days')).toBeVisible();
     });
     test('is showing the SIT Departure Date section', async ({ page }) => {

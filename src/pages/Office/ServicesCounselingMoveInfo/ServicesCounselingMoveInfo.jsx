@@ -25,6 +25,7 @@ const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
+const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
 const CustomerSupportRemarks = lazy(() => import('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/ReviewDocuments'));
@@ -33,8 +34,11 @@ const ServicesCounselingReviewShipmentWeights = lazy(() =>
 );
 
 const ServicesCounselingMoveInfo = () => {
-  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = useState(0);
-
+  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
+  const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
+  const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
+  const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
+  const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const onInfoSavedUpdate = (alertType) => {
@@ -127,12 +131,21 @@ const ServicesCounselingMoveInfo = () => {
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
           <br />
           If that doesn&apos;t fix it, contact the{' '}
-          <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>{' '}
-          (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil) and give them this code: <strong>{traceId}</strong>
+          <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">Technical Help Desk</a>{' '}
+          (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
         </SystemError>
       )}
 
-      {!hideNav && <ServicesCounselorTabNav unapprovedShipmentCount={unapprovedShipmentCount} moveCode={moveCode} />}
+      {!hideNav && (
+        <ServicesCounselorTabNav
+          unapprovedShipmentCount={unapprovedShipmentCount}
+          moveCode={moveCode}
+          unapprovedServiceItemCount={unapprovedServiceItemCount}
+          unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
+          excessWeightRiskCount={excessWeightRiskCount}
+          unapprovedSITExtensionCount={unapprovedSITExtensionCount}
+        />
+      )}
 
       <Suspense fallback={<LoadingPlaceholder />}>
         <Routes>
@@ -158,6 +171,19 @@ const ServicesCounselingMoveInfo = () => {
             path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
             end
             element={<CustomerSupportRemarks />}
+          />
+          <Route
+            path={servicesCounselingRoutes.MTO_PATH}
+            end
+            element={
+              <MoveTaskOrder
+                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+                setExcessWeightRiskCount={setExcessWeightRiskCount}
+                setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+              />
+            }
           />
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
           <Route
