@@ -13,13 +13,15 @@ import (
 type shipmentDeleter struct {
 	checks               []validator
 	moveTaskOrderUpdater services.MoveTaskOrderUpdater
+	moveRouter           services.MoveRouter
 }
 
 // NewShipmentDeleter creates a new struct with the service dependencies
-func NewShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentDeleter {
+func NewShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater, moveRouter services.MoveRouter) services.ShipmentDeleter {
 	return &shipmentDeleter{
 		checks:               []validator{checkDeleteAllowed()},
 		moveTaskOrderUpdater: moveTaskOrderUpdater,
+		moveRouter:           moveRouter,
 	}
 }
 
@@ -57,10 +59,16 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 		}
 		// Update PPMType once shipment gets created.
 		_, err = f.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, shipment.MoveTaskOrderID)
-
 		if err != nil {
 			return err
 		}
+
+		// if the shipment had any actions for the TOO we can remove these by checking if the move status should change
+		_, err = f.moveRouter.ApproveOrRequestApproval(appCtx, shipment.MoveTaskOrder)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 
