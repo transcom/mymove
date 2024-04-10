@@ -22,7 +22,7 @@ func (suite *WeightTicketParserServiceSuite) TestFillWeightEstimatorPDFForm() {
 	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
 	suite.FatalNil(err)
 
-	weightParserComputer := NewWeightTicketParserComputer()
+	weightParserComputer := NewWeightTicketComputer()
 	weightParserGenerator, err := NewWeightTicketParserGenerator(generator)
 	suite.FatalNoError(err)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -53,7 +53,9 @@ func (suite *WeightTicketParserServiceSuite) TestFillWeightEstimatorPDFForm() {
 		},
 	}, nil)
 
-	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+	_, err = models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+	suite.NoError(err)
+
 	excelFile, err := os.Open(TestPath + WeightEstimatorFileName)
 	suite.Require().NoError(err)
 
@@ -63,7 +65,7 @@ func (suite *WeightTicketParserServiceSuite) TestFillWeightEstimatorPDFForm() {
 	}()
 
 	// Parse our excel file to get data for the pdf
-	estimatorPages, err := weightParserComputer.ParseWeightEstimatorExcelFile(suite.AppContextForTest(), excelFile, generator)
+	estimatorPages, err := weightParserComputer.ParseWeightEstimatorExcelFile(suite.AppContextForTest(), excelFile)
 	suite.NoError(err)
 
 	// Fill our pdf template with data from parser

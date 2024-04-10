@@ -3,7 +3,6 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
-import { WeightTicketUploadInstructions } from 'content/uploads';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -169,7 +168,7 @@ describe('WeightTicketForm component', () => {
       expect(missingWeightInput[0]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
       expect(screen.getByText('Upload empty weight ticket')).toBeInstanceOf(HTMLLabelElement);
-      const uploadFileTypeHints = screen.getAllByText("Weight Estimator spreadsheet", {exact: false});
+      const uploadFileTypeHints = screen.getAllByText('Weight Estimator spreadsheet', { exact: false });
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Full weight' })).toBeInTheDocument();
