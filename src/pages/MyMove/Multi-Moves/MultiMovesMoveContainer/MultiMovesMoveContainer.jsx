@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
@@ -13,10 +14,14 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import { customerRoutes } from 'constants/routes';
 import { getMoveCodeLabel } from 'utils/shipmentDisplay';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { setMoveId } from 'store/general/actions';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
+  // TODO once work in E-05362 is completed, we can turn this true or just remove it entirely and take out the conditional check in the render
+  const [displayDropdown] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // this expands the moves when the arrow is clicked
   const handleExpandClick = (index) => {
@@ -70,6 +75,8 @@ const MultiMovesMoveContainer = ({ moves }) => {
 
   // sends user to the move page when clicking "Go to Move" btn
   const handleGoToMoveClick = (id) => {
+    // When Go To Move is clicked store the moveId choosen in state
+    dispatch(setMoveId(id));
     navigate(`${customerRoutes.MOVE_HOME_PAGE}/${id}`);
   };
 
@@ -82,14 +89,16 @@ const MultiMovesMoveContainer = ({ moves }) => {
             <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
           ) : null}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            <ButtonDropdownMenu
-              data-testid="downloadBtn"
-              title="Download"
-              items={dropdownMenuItems}
-              divClassName={styles.dropdownBtn}
-              onItemClick={handleDropdownItemClick}
-              outline
-            />
+            {displayDropdown ?? (
+              <ButtonDropdownMenu
+                data-testid="downloadBtn"
+                title="Download"
+                items={dropdownMenuItems}
+                divClassName={styles.dropdownBtn}
+                onItemClick={handleDropdownItemClick}
+                outline
+              />
+            )}
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
