@@ -4,16 +4,15 @@ import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 
-import { setFlashMessage } from 'store/flash/actions';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAccountForm';
 import { createOfficeAccountRequest } from 'services/ghcApi';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
 
-export const RequestAccount = (props) => {
+export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
-  const { setMessage } = props;
 
   const initialValues = {
     officeAccountRequestFirstName: '',
@@ -90,7 +89,7 @@ export const RequestAccount = (props) => {
 
     return createOfficeAccountRequest({ body })
       .then(() => {
-        setMessage(
+        setFlashMessage(
           'OFFICE_ACCOUNT_REQUEST_SUCCESS',
           'success',
           'Request Office Account form successfully submitted.',
@@ -129,11 +128,11 @@ export const RequestAccount = (props) => {
 };
 
 RequestAccount.propTypes = {
-  setMessage: func.isRequired,
+  setFlashMessage: func.isRequired,
 };
 
 const mapDispatchToProps = {
-  setMessage: setFlashMessage,
+  setFlashMessage: setFlashMessageAction,
 };
 
 export default connect(() => ({}), mapDispatchToProps)(RequestAccount);
