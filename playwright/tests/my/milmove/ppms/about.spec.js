@@ -37,7 +37,8 @@ test.describe('(MultiMove) About Your PPM', () => {
       const advanceText = selectAdvance ? 'with' : 'without';
       test(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
         // Fails at line below
-        test.skip(true, 'Test fails below');
+        // test.skip(true, 'Test fails below');
+        await customerPpmPage.clickOnGoToMoveButton();
         await customerPpmPage.navigateToAboutPage({ selectAdvance });
       });
     });

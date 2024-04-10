@@ -57,6 +57,14 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * click on upload ppm documents
+   * returns {Promise<void>}
+   */
+  async clickOnGoToMoveButton() {
+    await this.page.getByTestId('goToMoveBtn').click();
+  }
+
+  /**
    * returns {Promise<void>}
    */
   async customerStartsAddingAPPMShipment() {
