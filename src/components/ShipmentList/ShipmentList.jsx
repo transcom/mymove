@@ -73,7 +73,7 @@ export const ShipmentListItem = ({
                   <strong>{formatWeight(shipment.ppmShipment.estimatedWeight)}</strong>
                 </h6>
                 <h6>
-                  <strong>{formatWeight(requestedWeightPPM)}</strong>
+                  <strong>{requestedWeightPPM > 0 ? formatWeight(requestedWeightPPM) : '-'}</strong>
                 </h6>
               </div>
             </div>
