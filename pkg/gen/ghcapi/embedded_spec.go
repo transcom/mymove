@@ -7517,7 +7517,6 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "x-nullable": true,
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
@@ -20201,7 +20200,6 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "x-nullable": true,
           "$ref": "#/definitions/GBLOC"
         },
         "status": {

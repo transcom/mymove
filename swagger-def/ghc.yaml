@@ -4084,7 +4084,6 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
-        x-nullable: true
   MoveHistory:
     properties:
       id:
