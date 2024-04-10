@@ -203,6 +203,12 @@ export class Home extends Component {
     return !orders.provides_services_counseling;
   }
 
+  get isPrimeCounselingComplete() {
+    const { move } = this.props;
+
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
+  }
+
   renderAlert = () => {
     if (this.hasUnapprovedAmendedOrders) {
       return (
@@ -679,7 +685,46 @@ export class Home extends Component {
                             <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                             incentive ends up being less than your advance, you will be required to pay back the
                             difference.
+                            <br />
+                            <br />
                           </Description>
+                        )}
+                        {this.isPrimeCounselingComplete && (
+                          <>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadPacketErrorModal}
+                                      />
+                                    </p>
+                                  )}
+                                  {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <>
+                                      <br />
+                                      <br />
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
                         )}
                       </SectionWrapper>
                     </Step>
