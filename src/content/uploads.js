@@ -6,3 +6,8 @@ export const SpreadsheetUploadInstructions = 'XLS or XLSX only. Maximum file siz
 export const UploadDropZoneLabel = 'Drag files here or <span class="filepond--label-action">choose from folder</span>';
 
 export const UploadDropZoneLabelMobile = '<span class="filepond--label-action">Upload files</span>';
+
+export const WeightTicketUploadInstructions =
+  'Maximum file size 25 MB. Each page must be clear and legible. Note: Spreadsheets will be converted to PDF and require the use of the official ';
+
+export const WeightEstimatorUrl = 'https://www.ustranscom.mil/dp3/weightestimator.cfm';
