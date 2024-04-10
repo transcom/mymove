@@ -315,6 +315,17 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		return nil, apperror.NewQueryError("unknown", err, "")
 	}
 
+	var dbShipment models.MTOShipment
+
+	shipmentQueryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", shipment.ID),
+	}
+
+	// check if Move exists
+	err = f.builder.FetchOne(appCtx, &dbShipment, shipmentQueryFilters)
+	if err == nil {
+		shipment.ShipmentLocator = dbShipment.ShipmentLocator
+	}
 	return shipment, transactionError
 }
 
