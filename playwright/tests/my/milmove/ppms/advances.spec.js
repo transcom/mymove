@@ -104,6 +104,7 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
       'Skipping due to time out while looking label[for="hasRequestedAdvanceYes"].click',
     );
 
+    // Need ability to request an advance within MultiMove workflow
     test.skip(true, 'Test fails here');
     await page.locator('label[for="hasRequestedAdvanceYes"]').click();
 

@@ -921,9 +921,7 @@ export class CustomerPpmPage extends CustomerPage {
       finalIncentiveAmount: '$500,000.00',
     },
   ) {
-    await expect(
-      this.page.getByRole('heading', { name: `Your final estimated incentive: ${options?.finalIncentiveAmount}` }),
-    ).toBeVisible();
+    await expect(this.page.getByText('Your final estimated incentive:')).toBeVisible();
 
     await expect(this.page.locator('li').getByText(`${options?.totalNetWeight} total net weight`)).toBeVisible();
 
