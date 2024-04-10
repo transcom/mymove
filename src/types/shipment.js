@@ -120,6 +120,7 @@ export const ShipmentAddressUpdateShape = shape({
 export const ShipmentShape = shape({
   moveTaskOrderID: string,
   id: string,
+  shipmentLocator: string,
   createdAt: string,
   updatedAt: string,
   deletedAt: string,
