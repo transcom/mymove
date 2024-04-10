@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -501,7 +502,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		moveRouter := moverouter.NewMoveRouter()
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -552,7 +559,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 		addressCreator := address.NewAddressCreator()
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
