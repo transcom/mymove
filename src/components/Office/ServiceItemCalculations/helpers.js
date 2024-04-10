@@ -7,7 +7,6 @@ import {
   formatWeightCWTFromLbs,
   formatDollarFromMillicents,
   toDollarString,
-  formatDistanceUnitMiles,
 } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -92,7 +91,7 @@ const formatDetail = (detail, styles = {}) => {
 };
 
 const formatMileage = (detail) => {
-  return formatDistanceUnitMiles(detail, false);
+  return detail.toLocaleString();
 };
 
 // billable weight calculation
@@ -160,7 +159,7 @@ const billableWeight = (params) => {
   const fscWeightBasedDistanceMultiplier = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
-  if (fscWeightBasedDistanceMultiplier.length > 2) {
+  if (getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)) {
     details.push(formatDetail(fscWeightBasedDistanceMultiplier));
   }
 
@@ -192,7 +191,7 @@ const shuttleBillableWeight = (params) => {
 };
 
 const mileageZip = (params) => {
-  const value = `${formatMileage(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params))}`;
+  const value = `${formatMileage(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params), 10))}`;
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
