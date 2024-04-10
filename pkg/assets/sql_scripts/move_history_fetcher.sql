@@ -41,6 +41,7 @@ WITH move AS (
 			AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
 				-- Not including update on mto_shipment for ppm_shipment when submitted
 				-- handled on seperate event
+			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_locator%' AND LENGTH(audit_history.changed_data::TEXT) < 35)
 		GROUP BY audit_history.id
 	),
 	move_logs AS (
