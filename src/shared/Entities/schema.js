@@ -156,6 +156,7 @@ export const moveTaskOrders = new schema.Array(moveTaskOrder);
 
 // Customer
 export const customer = new schema.Entity('customer');
+export const createdCustomer = new schema.Entity('createdCustomer');
 
 // Payment Requests
 export const paymentRequest = new schema.Entity('paymentRequests', {
@@ -193,3 +194,5 @@ export const evaluationReports = new schema.Array(evaluationReport);
 export const searchMove = new schema.Entity('searchMoves');
 export const searchMoves = new schema.Array(searchMove);
 export const searchMovesResult = new schema.Entity('searchMovesResult');
+
+export const officeUser = new schema.Entity('officeUser');

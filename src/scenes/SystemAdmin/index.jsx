@@ -8,6 +8,8 @@ import { GetLoggedInUser } from 'utils/api';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
+import CUIHeader from 'components/CUIHeader/CUIHeader';
+
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -43,12 +45,6 @@ class AdminWrapper extends Component {
         oktaNeedsLoggedOut: true,
       });
     }
-    const script = document.createElement('script');
-
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-    script.async = true;
-
-    document.body.appendChild(script);
   }
 
   componentDidCatch(error, info) {
@@ -59,9 +55,16 @@ class AdminWrapper extends Component {
 
   render() {
     const { oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
+    const script = document.createElement('script');
+
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+
+    document.body.appendChild(script);
     return (
       <>
         <div id="app-root">
+          <CUIHeader />
           {oktaLoggedOut && <OktaLoggedOutBanner />}
           {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
           <Routes>

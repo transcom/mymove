@@ -88,6 +88,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 );
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
+const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -125,13 +126,6 @@ export class OfficeApp extends Component {
         oktaNeedsLoggedOut: true,
       });
     }
-
-    const script = document.createElement('script');
-
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-    script.async = true;
-
-    document.body.appendChild(script);
   }
 
   componentDidCatch(error, info) {
@@ -185,7 +179,11 @@ export class OfficeApp extends Component {
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
     });
+    const script = document.createElement('script');
 
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+    document.body.appendChild(script);
     return (
       <PermissionProvider permissions={userPermissions} currentUserId={officeUserId}>
         <div id="app-root">
@@ -273,7 +271,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
-
+                    <Route
+                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateCustomerForm />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}

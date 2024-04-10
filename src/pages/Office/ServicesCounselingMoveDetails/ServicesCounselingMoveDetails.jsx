@@ -310,7 +310,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     sacSDN: order.sac,
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
-    payGrade: order.grade,
   };
   const ordersLOA = {
     tac: order.tac,
