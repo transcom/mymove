@@ -37,9 +37,6 @@ const columns = (showBranchFilter = true) => [
           {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
             <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
           ) : null}
-          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
-            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
-          ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );
