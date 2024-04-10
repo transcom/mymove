@@ -34,7 +34,7 @@ require (
 	github.com/go-openapi/runtime v0.27.0
 	github.com/go-openapi/spec v0.20.14
 	github.com/go-openapi/strfmt v0.22.0
-	github.com/go-openapi/swag v0.22.9
+	github.com/go-openapi/swag v0.23.0
 	github.com/go-openapi/validate v0.23.0
 	github.com/go-playground/validator/v10 v10.15.4
 	github.com/go-swagger/go-swagger v0.30.5
