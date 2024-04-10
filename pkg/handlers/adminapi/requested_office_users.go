@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -202,6 +203,18 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			}
 
 			requestedOfficeUser.User.Roles = roles
+
+			// send the email to the user if their request was rejected
+			if params.Body.Status == "REJECTED" {
+				err = h.NotificationSender().SendNotification(appCtx,
+					notifications.NewOfficeAccountRejected(requestedOfficeUser.ID),
+				)
+				if err != nil {
+					err = apperror.NewBadDataError("problem sending email to rejected office user")
+					appCtx.Logger().Error(err.Error())
+					return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
+				}
+			}
 
 			payload := payloadForRequestedOfficeUserModel(*requestedOfficeUser)
 
