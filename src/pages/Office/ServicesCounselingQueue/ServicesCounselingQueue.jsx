@@ -33,6 +33,7 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const counselingColumns = () => [
@@ -42,7 +43,9 @@ const counselingColumns = () => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );
@@ -125,7 +128,9 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );
