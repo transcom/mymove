@@ -10646,6 +10646,77 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 
 }
 
+func CreateHHGNeedsServicesCounselingUSMC3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string) models.Move {
+	db := appCtx.DB()
+
+	marineCorps := models.AffiliationMARINES
+	submittedAt := time.Now()
+
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marineCorps,
+				LastName:    models.StringPointer("Marine"),
+				FirstName:   models.StringPointer("Ted"),
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
+	return move
+}
+
 func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	servicesCounselingCompletedAt := time.Now()
