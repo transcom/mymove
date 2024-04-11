@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
@@ -164,6 +165,26 @@ const columns = (roleType) => [
 ];
 
 const columnsWithCreateMove = (roleType) => [
+  roleType !== roleTypes.SERVICES_COUNSELOR
+    ? null
+    : createHeader(
+        'Create Move',
+        (row) => {
+          return (
+            <Button
+              onClick={() =>
+                useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
+              }
+              type="button"
+              className={styles.createNewMove}
+              data-testid="searchCreateMoveButton"
+            >
+              Create New Move
+            </Button>
+          );
+        },
+        { isFilterable: false },
+      ),
   createHeader(
     'Create Move',
     (row) => {
