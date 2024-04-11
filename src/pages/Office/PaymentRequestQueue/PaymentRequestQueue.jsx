@@ -20,6 +20,7 @@ import { BRANCH_OPTIONS, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import TabNav from 'components/TabNav';
 import { tioRoutes, generalRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
@@ -33,7 +34,9 @@ const columns = (showBranchFilter = true) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.customer.last_name}, ${row.customer.first_name}`}
         </div>
       );

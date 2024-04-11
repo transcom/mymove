@@ -3106,6 +3106,7 @@ paths:
         - in: query
           name: orderType
           type: string
+          description: order type
       responses:
         '200':
           description: >-
@@ -3444,6 +3445,40 @@ paths:
       summary: Returns the transportation offices matching the search query
       description: Returns the transportation offices matching the search query
       operationId: getTransportationOffices
+      tags:
+        - transportationOffice
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: true
+          minLength: 2
+          description: Search string for transportation offices
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /open/transportation-offices:
+    get:
+      produces:
+        - application/json
+      summary: Returns the transportation offices matching the search query
+      description: >-
+        This endpoint is publicly accessible as it is utilized to access
+        transportation office information without having an office
+        account.Returns the transportation offices matching the search query.
+      operationId: getTransportationOfficesOpen
       tags:
         - transportationOffice
       parameters:
@@ -3955,6 +3990,8 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
   MoveHistory:
     properties:
       id:
@@ -6040,6 +6077,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: JESSAMINE
     required:
       - streetAddress1
       - city
@@ -6071,12 +6113,14 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
       - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
@@ -6399,10 +6443,17 @@ definitions:
         x-nullable: true
       sitDestinationOriginalAddress:
         $ref: '#/definitions/Address'
+      sitOriginHHGOriginalAddress:
+        $ref: '#/definitions/Address'
+      sitOriginHHGActualAddress:
+        $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
       sitAddressUpdates:
         $ref: '#/definitions/SITAddressUpdates'
+      sitDeliveryMiles:
+        type: integer
+        x-nullable: true
       feeType:
         enum:
           - COUNSELING

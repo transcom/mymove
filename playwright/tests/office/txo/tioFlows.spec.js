@@ -633,6 +633,12 @@ test.describe('TIO user', () => {
 
       // await expect(page.locator('[data-testid="tag"]')).toContainText('Reviewed');
     });
+
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
   });
 
   test.describe('with NTSR moves without service items', () => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
+import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 
 import styles from './SearchResultsTable.module.scss';
@@ -21,8 +22,162 @@ import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { roleTypes } from 'constants/userRoles';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columns = () => [
+  createHeader('Move code', 'locator', {
+    id: 'locator',
+    isFilterable: false,
+  }),
+  createHeader('DOD ID', 'dodID', {
+    id: 'dodID',
+    isFilterable: false,
+  }),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return (
+        <div>
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.lastName}, ${row.firstName}`}
+        </div>
+      );
+    },
+    {
+      id: 'customerName',
+      isFilterable: false,
+    },
+  ),
+  createHeader(
+    'Status',
+    (row) => {
+      return MOVE_STATUS_LABELS[`${row.status}`];
+    },
+    {
+      id: 'status',
+      isFilterable: true,
+      Filter: (props) => {
+        return (
+          <MultiSelectCheckBoxFilter
+            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...props}
+          />
+        );
+      },
+    },
+  ),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.branch);
+    },
+    {
+      id: 'branch',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
+      ),
+    },
+  ),
+  createHeader(
+    'Number of Shipments',
+    (row) => {
+      return Number(row.shipmentsCount || 0);
+    },
+    { id: 'shipmentsCount', isFilterable: true },
+  ),
+  createHeader(
+    'Pickup Date',
+    (row) => {
+      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'pickupDate',
+      disableSortBy: true,
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
+    'Origin ZIP',
+    (row) => {
+      return row.originDutyLocationPostalCode;
+    },
+    {
+      id: 'originPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Origin GBLOC',
+    (row) => {
+      return row.originGBLOC;
+    },
+    {
+      id: 'originGBLOC',
+      disableSortBy: true,
+    },
+  ),
+  createHeader(
+    'Delivery Date',
+    (row) => {
+      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'deliveryDate',
+      disableSortBy: true,
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
+    'Destination ZIP',
+    (row) => {
+      return row.destinationDutyLocationPostalCode;
+    },
+    {
+      id: 'destinationPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Destination GBLOC',
+    (row) => {
+      return row.destinationGBLOC;
+    },
+    {
+      id: 'destinationGBLOC',
+      disableSortBy: true,
+    },
+  ),
+];
+
+const columnsWithCreateMove = (roleType) => [
+  createHeader(
+    'Create Move',
+    (row) => {
+      return (
+        <button
+          onClick={() =>
+            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
+          }
+          type="button"
+          className={styles.createNewMove}
+          data-testid="searchCreateMoveButton"
+        >
+          Create New Move
+        </button>
+      );
+    },
+    { isFilterable: false },
+  ),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -171,6 +326,7 @@ const SearchResultsTable = (props) => {
     moveCode,
     customerName,
     roleType,
+    isCounselorMoveCreateFFEnabled,
   } = props;
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
@@ -205,8 +361,13 @@ const SearchResultsTable = (props) => {
     }),
     [],
   );
+
   const tableData = useMemo(() => data, [data]);
-  const tableColumns = useMemo(() => columns(roleType), [roleType]);
+  const tableColumns = useMemo(
+    () => (isCounselorMoveCreateFFEnabled ? columnsWithCreateMove(roleType) : columns(roleType)),
+    [roleType, isCounselorMoveCreateFFEnabled],
+  );
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -337,6 +498,7 @@ SearchResultsTable.propTypes = {
   // customerName is the customer name search text
   customerName: PropTypes.string,
   roleType: PropTypes.string,
+  isCounselorMoveCreateFFEnabled: PropTypes.bool,
 };
 
 SearchResultsTable.defaultProps = {
@@ -351,6 +513,7 @@ SearchResultsTable.defaultProps = {
   moveCode: null,
   customerName: null,
   roleType: roleTypes.QAE_CSR,
+  isCounselorMoveCreateFFEnabled: false,
 };
 
 export default SearchResultsTable;

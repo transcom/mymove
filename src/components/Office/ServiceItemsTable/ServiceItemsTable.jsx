@@ -18,6 +18,31 @@ import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
 import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
 import ToolTip from 'shared/ToolTip/ToolTip';
+import { ShipmentShape } from 'types';
+
+// Sorts service items in an order preferred by the customer
+// Currently only SIT receives special sorting
+function sortServiceItems(items) {
+  // Filter and sort destination SIT. Code index is also the sort order
+  const destinationServiceItemCodes = ['DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC'];
+  const destinationServiceItems = items.filter((item) => destinationServiceItemCodes.includes(item.code));
+  const sortedDestinationServiceItems = destinationServiceItems.sort(
+    (a, b) => destinationServiceItemCodes.indexOf(a.code) - destinationServiceItemCodes.indexOf(b.code),
+  );
+  // Filter origin SIT. Code index is also the sort order
+  const originServiceItemCodes = ['DOFSIT', 'DOASIT', 'DOPSIT', 'DOSFSC'];
+  const originServiceItems = items.filter((item) => originServiceItemCodes.includes(item.code));
+  const sortedOriginServiceItems = originServiceItems.sort(
+    (a, b) => originServiceItemCodes.indexOf(a.code) - originServiceItemCodes.indexOf(b.code),
+  );
+
+  // Filter all service items that are not specifically sorted
+  const remainingServiceItems = items.filter(
+    (item) => !destinationServiceItemCodes.includes(item.code) && !originServiceItemCodes.includes(item.code),
+  );
+
+  return [...remainingServiceItems, ...sortedOriginServiceItems, ...sortedDestinationServiceItems];
+}
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -26,6 +51,7 @@ const ServiceItemsTable = ({
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
   handleShowEditSitEntryDateModal,
+  shipment,
 }) => {
   const getServiceItemDisplayDate = (item) => {
     const prefix = selectDatePrefixByStatus(statusForTableType);
@@ -129,7 +155,8 @@ const ServiceItemsTable = ({
     return resubmittedServiceItemValues;
   };
 
-  const tableRows = serviceItems.map((serviceItem) => {
+  const sortedServiceItems = sortServiceItems(serviceItems);
+  const tableRows = sortedServiceItems.map((serviceItem) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     let hasPaymentRequestBeenMade;
     // if there are service items in the payment requests, we want to look to see if the service item is in there
@@ -181,6 +208,8 @@ const ServiceItemsTable = ({
               details={details}
               serviceRequestDocs={serviceRequestDocuments}
               serviceItem={serviceItem}
+              shipment={shipment}
+              sitStatus={shipment.sitStatus}
             />
           </td>
           <td>
@@ -302,6 +331,11 @@ ServiceItemsTable.propTypes = {
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
+  shipment: ShipmentShape,
+};
+
+ServiceItemsTable.defaultProps = {
+  shipment: {},
 };
 
 export default ServiceItemsTable;
