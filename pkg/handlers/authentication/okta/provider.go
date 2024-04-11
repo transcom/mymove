@@ -280,6 +280,7 @@ func (op *Provider) GetOpenIDConfigURL() string {
 func (op *Provider) GetUserURL(oktaUserID string) string {
 	return op.orgURL + "/api/v1/users/" + oktaUserID
 }
+
 func (op *Provider) GetCreateUserURL(activate string) string {
 	return op.orgURL + "/api/v1/users/?activate=" + url.QueryEscape(activate)
 }
