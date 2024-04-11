@@ -215,7 +215,7 @@ const mileageZipSIT = (params, itemCode) => {
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DOSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageIntoSIT;
-      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      distanceZip = formatMileage(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin);
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
         SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
         params,
@@ -227,7 +227,7 @@ const mileageZipSIT = (params, itemCode) => {
 
     case SERVICE_ITEM_CODES.DDSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageOutOfSIT;
-      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
+      distanceZip = formatMileage(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest);
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
         SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress,
         params,
@@ -239,7 +239,7 @@ const mileageZipSIT = (params, itemCode) => {
 
     default:
       label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
-      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      distanceZip = formatMileage(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin);
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
         SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
         params,
