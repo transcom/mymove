@@ -47,6 +47,9 @@ describe('CustomerContactInfoForm Component', () => {
 
       expect(screen.getAllByLabelText('Phone')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Phone')[0]).toBeRequired();
+
+      expect(screen.getAllByLabelText(/Alternate Phone/)[0]).toBeInstanceOf(HTMLInputElement);
+
       expect(screen.getAllByLabelText('Email')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Email')[0]).toBeRequired();
 

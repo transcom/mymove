@@ -114,6 +114,8 @@ export const tooRoutes = {
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
+  BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
+  CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
 export const qaeCSRRoutes = {

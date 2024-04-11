@@ -279,7 +279,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
-    phone: `+1 ${customer.phone}`,
+    phone: customer.phone,
+    altPhone: customer.secondaryTelephone,
     email: customer.email,
     currentAddress: customer.current_address,
     backupAddress: customerData.backupAddress,
@@ -614,7 +615,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Customer info"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
+                <Restricted to={permissionTypes.updateCustomer}>
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
@@ -622,7 +623,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   >
                     Edit customer info
                   </Link>
-                )
+                </Restricted>
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
