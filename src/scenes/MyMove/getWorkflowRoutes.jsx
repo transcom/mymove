@@ -21,6 +21,7 @@ import BackupAddress from 'pages/MyMove/Profile/BackupAddress';
 import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review/Review';
 import Agreement from 'pages/MyMove/Agreement';
+import ValidationCode from 'pages/MyMove/Profile/ValidationCode';
 
 const PageNotInFlow = () => (
   <div className="usa-grid">
@@ -65,21 +66,15 @@ const isCurrentMoveSubmitted = ({ move }) => {
 };
 
 const pages = {
+  [customerRoutes.VALIDATION_CODE_PATH]: {
+    isInFlow: myFirstRodeo,
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
+    render: () => <ValidationCode />,
+  },
   [customerRoutes.CONUS_OCONUS_PATH]: {
     isInFlow: inGhcFlow,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
-    render: (key, pages, description, props) => {
-      return (
-        <WizardPage
-          handleSubmit={no_op}
-          pageList={pages}
-          pageKey={key}
-          canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
-        >
-          <ConusOrNot conusStatus={props.conusStatus} />
-        </WizardPage>
-      );
-    },
+    render: () => <ConusOrNot />,
   },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
