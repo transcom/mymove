@@ -311,13 +311,13 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     sacSDN: order.sac,
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
+    payGrade: order.grade,
   };
   const ordersLOA = {
     tac: order.tac,
     sac: order.sac,
     ntsTac: order.ntsTac,
     ntsSac: order.ntsSac,
-    payGrade: order.grade,
   };
 
   const handleButtonDropdownChange = (e) => {
