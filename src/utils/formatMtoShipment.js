@@ -402,6 +402,9 @@ export function getMtoShipmentLabel({ context }) {
   if (context[0].name) {
     mtoShipmentLabels.service_item_name = context[0].name;
   }
+  if (context[0].shipment_locator) {
+    mtoShipmentLabels.shipment_locator = context[0].shipment_locator;
+  }
   if (context[0].moving_expense_type) {
     mtoShipmentLabels.moving_expense_type = expenseTypeLabels[context[0].moving_expense_type];
   }

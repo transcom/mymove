@@ -76,8 +76,8 @@ export const retrieveTextToDisplay = (fieldName, value) => {
 };
 
 // testable for code coverage //
-export const createLineItemLabel = (shipmentType, shipmentIdDisplay, serviceItemName, movingExpenseType) =>
-  [shipmentType && `${shipmentTypes[shipmentType]} shipment #${shipmentIdDisplay}`, serviceItemName, movingExpenseType]
+export const createLineItemLabel = (shipmentType, shipmentLocator, serviceItemName, movingExpenseType) =>
+  [shipmentType && `${shipmentTypes[shipmentType]} shipment #${shipmentLocator}`, serviceItemName, movingExpenseType]
     .filter((e) => e)
     .join(', ');
 
@@ -121,16 +121,11 @@ export const filterInLineItemValues = (changedValues, oldValues) =>
 const LabeledDetails = ({ historyRecord }) => {
   const { changedValues, oldValues = {} } = historyRecord;
 
-  const { shipment_type, shipment_id_display, service_item_name, moving_expense_type, ...changedValuesToUse } =
+  const { shipment_type, shipment_locator, service_item_name, moving_expense_type, ...changedValuesToUse } =
     changedValues;
 
   // Check for shipment_type to use it as a header for the row
-  const shipmentDisplay = createLineItemLabel(
-    shipment_type,
-    shipment_id_display,
-    service_item_name,
-    moving_expense_type,
-  );
+  const shipmentDisplay = createLineItemLabel(shipment_type, shipment_locator, service_item_name, moving_expense_type);
 
   const lineItems = filterInLineItemValues(changedValuesToUse, oldValues).map(([label, value]) => {
     const { displayName, displayValue } = retrieveTextToDisplay(label, value);
