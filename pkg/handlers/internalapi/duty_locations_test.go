@@ -10,6 +10,7 @@ import (
 	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 )
 
 func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
@@ -23,24 +24,27 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	}
 	suite.MustSave(&user)
 
-	address := models.Address{
+	newAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "CA",
 		PostalCode:     "12345",
+		County:         "County",
 	}
-	suite.MustSave(&address)
+	addressCreator := address.NewAddressCreator()
+	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
+	suite.NoError(err)
 
 	location1 := models.DutyLocation{
 		Name:        "First Location",
-		AddressID:   address.ID,
+		AddressID:   createdAddress.ID,
 		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
 	}
 	suite.MustSave(&location1)
 
 	location2 := models.DutyLocation{
 		Name:        "Second Location",
-		AddressID:   address.ID,
+		AddressID:   createdAddress.ID,
 		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
 	}
 	suite.MustSave(&location2)

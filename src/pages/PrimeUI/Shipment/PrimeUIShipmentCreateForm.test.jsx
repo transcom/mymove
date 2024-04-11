@@ -21,6 +21,32 @@ const initialValues = {
     hasProGear: false,
     proGearWeight: '',
     spouseProGearWeight: '',
+    pickupAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    destinationAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    secondaryDeliveryAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    secondaryPickupAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    hasSecondaryPickupAddress: 'false',
+    hasSecondaryDestinationAddress: 'false',
   },
 
   // Other shipment types
@@ -64,6 +90,27 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.findByText('Dates')).toBeInTheDocument();
     expect(await screen.findByLabelText('Expected Departure Date')).toHaveValue(
       initialValues.ppmShipment.expectedDepartureDate,
+    );
+
+    expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      initialValues.ppmShipment.pickupAddress.streetAddress1,
+    );
+
+    expect(await screen.getAllByLabelText('City')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.city);
+    expect(await screen.getAllByLabelText('State')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.state);
+    expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.postalCode);
+
+    expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
+    );
+    expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.city,
+    );
+    expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.state,
+    );
+    expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.postalCode,
     );
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
