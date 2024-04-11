@@ -247,7 +247,7 @@ const mileageZipSIT = (params, itemCode) => {
       )}`;
   }
 
-  const value = getParamValue(distanceZip, params);
+  const value = formatMileage(getParamValue(distanceZip, params));
 
   return calculation(value, label, formatDetail(detail));
 };
