@@ -1191,7 +1191,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -1257,7 +1257,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -1297,7 +1297,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Update a Requested Office User",
         "operationId": "updateRequestedOfficeUser",
@@ -4529,7 +4529,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -4595,7 +4595,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -4635,7 +4635,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Update a Requested Office User",
         "operationId": "updateRequestedOfficeUser",

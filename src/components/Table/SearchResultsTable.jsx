@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
@@ -165,26 +164,24 @@ const columns = (roleType) => [
 ];
 
 const columnsWithCreateMove = (roleType) => [
-  roleType !== roleTypes.SERVICES_COUNSELOR
-    ? null
-    : createHeader(
-        'Create Move',
-        (row) => {
-          return (
-            <Button
-              onClick={() =>
-                useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
-              }
-              type="button"
-              className={styles.createNewMove}
-              data-testid="searchCreateMoveButton"
-            >
-              Create New Move
-            </Button>
-          );
-        },
-        { isFilterable: false },
-      ),
+  createHeader(
+    'Create Move',
+    (row) => {
+      return (
+        <button
+          onClick={() =>
+            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
+          }
+          type="button"
+          className={styles.createNewMove}
+          data-testid="searchCreateMoveButton"
+        >
+          Create New Move
+        </button>
+      );
+    },
+    { isFilterable: false },
+  ),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -249,7 +246,7 @@ const columnsWithCreateMove = (roleType) => [
     { id: 'shipmentsCount', isFilterable: true },
   ),
   createHeader(
-    'Pickup Date',
+    'Scheduled Pickup Date',
     (row) => {
       return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
     },
@@ -282,7 +279,7 @@ const columnsWithCreateMove = (roleType) => [
     },
   ),
   createHeader(
-    'Delivery Date',
+    'Scheduled Delivery Date',
     (row) => {
       return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
     },
