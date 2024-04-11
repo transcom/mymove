@@ -92,7 +92,10 @@ const formatDetail = (detail, styles = {}) => {
 };
 
 const formatMileage = (detail) => {
-  return formatDistanceUnitMiles(detail, false);
+  if (typeof detail !== 'number') {
+    return parseInt(detail, 10).toLocaleString();
+  }
+  return detail.toLocaleString();
 };
 
 // billable weight calculation
