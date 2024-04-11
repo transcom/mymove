@@ -42,8 +42,10 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 		}
 
 		move := shipment.MoveTaskOrder
-		if _, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
-			return err
+		if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+			if _, err = f.moveRouter.ApproveOrRequestApproval(appCtx, move); err != nil {
+				return err
+			}
 		}
 
 		return nil
@@ -58,6 +60,9 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while approving the diversion.")
 
 		return nil, invalidInputError
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return shipment, err
