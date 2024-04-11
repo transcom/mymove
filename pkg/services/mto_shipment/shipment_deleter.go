@@ -26,10 +26,11 @@ func NewShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater, move
 }
 
 // NewPrimeShipmentDeleter creates a new struct with the service dependencies
-func NewPrimeShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentDeleter {
+func NewPrimeShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater, moveRouter services.MoveRouter) services.ShipmentDeleter {
 	return &shipmentDeleter{
 		checks:               []validator{checkPrimeDeleteAllowed()},
 		moveTaskOrderUpdater: moveTaskOrderUpdater,
+		moveRouter:           moveRouter,
 	}
 }
 
@@ -64,7 +65,7 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 		}
 
 		// if the shipment had any actions for the TOO we can remove these by checking if the move status should change
-		_, err = f.moveRouter.ApproveOrRequestApproval(appCtx, shipment.MoveTaskOrder)
+		_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, shipment.MoveTaskOrder)
 		if err != nil {
 			return err
 		}
