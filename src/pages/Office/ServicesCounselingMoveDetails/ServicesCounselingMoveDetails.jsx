@@ -282,6 +282,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     phone: `+1 ${customer.phone}`,
     email: customer.email,
     currentAddress: customer.current_address,
+    backupAddress: customerData.backupAddress,
     backupContact: customer.backup_contact,
   };
 
@@ -316,6 +317,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     sac: order.sac,
     ntsTac: order.ntsTac,
     ntsSac: order.ntsSac,
+    payGrade: order.grade,
   };
 
   const handleButtonDropdownChange = (e) => {
