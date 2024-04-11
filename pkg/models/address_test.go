@@ -12,6 +12,7 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
+		County:         "County",
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -28,6 +29,7 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 		"city":            {"City can not be blank."},
 		"state":           {"State can not be blank."},
 		"postal_code":     {"PostalCode can not be blank."},
+		"county":          {"County can not be blank."},
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors)
 }
@@ -40,6 +42,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
+		County:         "county",
 	}
 
 	var expected *string
@@ -68,6 +71,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		State:          "state",
 		PostalCode:     "90210",
 		Country:        StringPointer("US"),
+		County:         "county",
 	}
 	countryCode, err = usCountry.CountryCode()
 	suite.NoError(err)
@@ -80,6 +84,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
+		County:         "county",
 		Country:        StringPointer("Ireland"),
 	}
 

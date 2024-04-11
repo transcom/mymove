@@ -24,6 +24,10 @@ type RequestedOfficeUserUpdate struct {
 	// edipi
 	Edipi string `json:"edipi,omitempty"`
 
+	// email
+	// Example: user@userdomain.com
+	Email string `json:"email,omitempty"`
+
 	// First Name
 	FirstName *string `json:"firstName,omitempty"`
 
