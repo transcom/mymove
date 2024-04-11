@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import CustomerInfo from './CustomerInfo';
+import CreateMoveCustomerInfo from './CreateMoveCustomerInfo';
 
 import { MockProviders } from 'testUtils';
 import { updateCustomerInfo } from 'services/ghcApi';
@@ -59,7 +59,7 @@ const errorReturnValue = {
 
 let mockUpdate;
 
-describe('CustomerInfo', () => {
+describe('CreateMoveCustomerInfo', () => {
   beforeEach(() => {
     mockUpdate = jest.fn();
   });
@@ -70,7 +70,13 @@ describe('CustomerInfo', () => {
 
       render(
         <MockProviders>
-          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading isError={false} />
+          <CreateMoveCustomerInfo
+            customer={mockCustomer}
+            onUpdate={mockUpdate}
+            ordersId="abc123"
+            isLoading
+            isError={false}
+          />
         </MockProviders>,
       );
 
@@ -83,7 +89,13 @@ describe('CustomerInfo', () => {
 
       render(
         <MockProviders>
-          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading={false} isError />
+          <CreateMoveCustomerInfo
+            customer={mockCustomer}
+            onUpdate={mockUpdate}
+            ordersId="abc123"
+            isLoading={false}
+            isError
+          />
         </MockProviders>,
       );
 
@@ -95,7 +107,7 @@ describe('CustomerInfo', () => {
   it('populates initial field values', async () => {
     render(
       <MockProviders>
-        <CustomerInfo
+        <CreateMoveCustomerInfo
           customer={mockCustomer}
           onUpdate={mockUpdate}
           ordersId="abc123"
@@ -131,7 +143,7 @@ describe('CustomerInfo', () => {
     updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));
     render(
       <MockProviders>
-        <CustomerInfo
+        <CreateMoveCustomerInfo
           customer={mockCustomer}
           onUpdate={mockUpdate}
           ordersId="abc123"
@@ -154,7 +166,7 @@ describe('CustomerInfo', () => {
 
     render(
       <MockProviders>
-        <CustomerInfo
+        <CreateMoveCustomerInfo
           customer={mockCustomer}
           ordersId="abc123"
           isLoading={false}
