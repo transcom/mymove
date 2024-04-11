@@ -356,6 +356,11 @@ describe('useTXOMoveInfoQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
     });
   });
 });
