@@ -43,14 +43,17 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
     sitStatus &&
     sitStatus.currentSIT?.sitAllowanceEndDate &&
     formatDateWithUTC(sitStatus.currentSIT.sitAllowanceEndDate, 'DD MMM YYYY');
+  const originalDeliveryAddress = details.sitDestinationOriginalAddress
+    ? details.sitDestinationOriginalAddress
+    : shipment.destinationAddress;
 
   return (
     <div>
       <dl>
         {code === 'DDFSIT'
           ? generateDetailText({
-              'Original delivery address': details.sitDestinationOriginalAddress
-                ? formatCityStateAndPostalCode(details.sitDestinationOriginalAddress)
+              'Original delivery address': originalDeliveryAddress
+                ? formatCityStateAndPostalCode(originalDeliveryAddress)
                 : '-',
               'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
@@ -58,8 +61,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
         {code === 'DDASIT'
           ? generateDetailText(
               {
-                'Original delivery address': details.sitDestinationOriginalAddress
-                  ? formatCityStateAndPostalCode(details.sitDestinationOriginalAddress)
+                'Original delivery address': originalDeliveryAddress
+                  ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
                 "Add'l SIT Start Date": details.sitEntryDate
                   ? moment.utc(details.sitEntryDate).add(1, 'days').format('DD MMM YYYY')
@@ -73,8 +76,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
         {code === 'DDSFSC'
           ? generateDetailText(
               {
-                'Original delivery address': details.sitDestinationOriginalAddress
-                  ? formatCityStateAndPostalCode(details.sitDestinationOriginalAddress)
+                'Original delivery address': originalDeliveryAddress
+                  ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
                 'Final delivery address': details.sitDestinationFinalAddress
                   ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
@@ -87,8 +90,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
         {code === 'DDDSIT'
           ? generateDetailText(
               {
-                'Original delivery address': details.sitDestinationOriginalAddress
-                  ? formatCityStateAndPostalCode(details.sitDestinationOriginalAddress)
+                'Original delivery address': originalDeliveryAddress
+                  ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
                 'Final delivery address': details.sitDestinationFinalAddress
                   ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
