@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax */
 import React from 'react';
 import { mount } from 'enzyme';
 import { QueryClient } from '@tanstack/react-query';
@@ -300,7 +299,6 @@ describe('PaymentRequestQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     // This pattern allows minimal test changes if the search options were ever to change.
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
     SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('has all payment request status options for payment request filtering', async () => {

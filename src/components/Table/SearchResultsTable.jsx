@@ -62,7 +62,7 @@ const columns = () => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            options={SERVICE_COUNSELING_MOVE_SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />
@@ -159,7 +159,7 @@ const columns = () => [
   ),
 ];
 
-const columnsWithCreateMove = (roleType) => [
+const columnsWithCreateMove = () => [
   createHeader(
     'Create Move',
     (row) => {
