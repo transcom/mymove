@@ -11427,6 +11427,9 @@ func init() {
     },
     {
       "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
@@ -24238,6 +24241,9 @@ func init() {
     },
     {
       "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
