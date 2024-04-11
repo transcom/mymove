@@ -357,7 +357,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "LOS ANGELES"
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",
@@ -3839,7 +3839,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "LOS ANGELES"
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",

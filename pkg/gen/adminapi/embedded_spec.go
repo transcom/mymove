@@ -1800,12 +1800,6 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
-        "county": {
-          "type": "string",
-          "title": "County",
-          "x-nullable": true,
-          "example": "LOS ANGELES"
-        },
         "postalCode": {
           "description": "zip code, international allowed",
           "type": "string",
@@ -5137,12 +5131,6 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
-        },
-        "county": {
-          "type": "string",
-          "title": "County",
-          "x-nullable": true,
-          "example": "LOS ANGELES"
         },
         "postalCode": {
           "description": "zip code, international allowed",
