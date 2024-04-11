@@ -93,7 +93,12 @@ export const ShipmentListItem = ({
             Delete
           </Button>
           |
-          <Button className={styles['edit-btn']} onClick={onShipmentClick} type="button">
+          <Button
+            className={styles['edit-btn']}
+            onClick={onShipmentClick}
+            type="button"
+            data-testid="editShipmentButton"
+          >
             Edit
           </Button>
         </div>
