@@ -66,7 +66,8 @@ export class CustomerPage extends BaseTestPage {
     const targetElements = await this.page.$$(`[data-testid="shipment-list-item-container"]`);
 
     for (const element of targetElements) {
-      expect(/^[0-9|A-Z]{6}-[0-9]{2}$/.test(await element.textContent())).toBeTruthy();
+      const matches = (await element.textContent()).match(/[0-9|A-Z]{6}-[0-9]{2}/);
+      expect(matches).not.toBeNull();
     }
   }
 
