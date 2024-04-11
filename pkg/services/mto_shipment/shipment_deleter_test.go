@@ -108,8 +108,9 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the shipment when it is found and check if shipment_seq_num changed", func() {
+		moveRouter := moveservices.NewMoveRouter()
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
