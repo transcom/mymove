@@ -156,3 +156,82 @@ export const oktaInfoSchema = Yup.object().shape({
     .matches(/^[0-9]*$/, numericOnlyErrorMsg)
     .nullable(),
 });
+
+export const otherUniqueIdErrorMsg = 'Only accepts alphanumeric characters';
+export const middleInitialErrorMsg = 'Must be a single uppercase character';
+
+// Validation method for Office Account Request Form checkbox fields
+const validateRoleRequestedMethod = (value, testContext) => {
+  return (
+    testContext.parent.transportationOrderingOfficerCheckBox ||
+    testContext.parent.transportationInvoicingOfficerCheckBox ||
+    testContext.parent.servicesCounselorCheckBox ||
+    testContext.parent.transportationContractingOfficerCheckBox ||
+    testContext.parent.qualityAssuranceAndCustomerSupportCheckBox
+  );
+};
+
+const validateOtherUniqueId = (value, testContext) => {
+  if (testContext.parent.officeAccountRequestOtherUniqueId || testContext.parent.officeAccountRequestEdipi) {
+    return true;
+  }
+
+  return false;
+};
+
+const validateEdipi = (value, testContext) => {
+  if (testContext.parent.officeAccountRequestOtherUniqueId || testContext.parent.officeAccountRequestEdipi) {
+    return true;
+  }
+
+  return false;
+};
+
+// checking request office account form
+export const officeAccountRequestSchema = Yup.object().shape({
+  officeAccountRequestFirstName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  officeAccountRequestMiddleInitial: Yup.string()
+    .matches(/^[A-Z]$/, middleInitialErrorMsg)
+    .optional(),
+  officeAccountRequestLastName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  officeAccountRequestEdipi: Yup.string()
+    .min(10, edipiMaxErrorMsg)
+    .max(10, edipiMaxErrorMsg)
+    .matches(/^[0-9]*$/, numericOnlyErrorMsg)
+    .test('officeAccountRequestEdipi', 'Required if not using other unique identifier', validateEdipi),
+  officeAccountRequestOtherUniqueId: Yup.string()
+    .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
+    .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
+  officeAccountRequestTelephone: phoneSchema.required('Required'),
+  officeAccountRequestEmail: emailSchema.required('Required'),
+  officeAccountTransportationOffice: Yup.object().required('Required'),
+  transportationOrderingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  transportationInvoicingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  servicesCounselorCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  transportationContractingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  qualityAssuranceAndCustomerSupportCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+});
