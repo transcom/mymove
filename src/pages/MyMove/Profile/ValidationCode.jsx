@@ -25,8 +25,7 @@ export const ValidationCode = ({ updateServiceMember, serviceMember }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    affiliation: serviceMember?.affiliation || '',
-    edipi: serviceMember?.edipi || '',
+    code: '',
   };
 
   const handleBack = () => {
@@ -84,7 +83,7 @@ export const ValidationCode = ({ updateServiceMember, serviceMember }) => {
             {({ isValid, handleSubmit }) => {
               return (
                 <Form className={formStyles.form}>
-                  <h1>Please input your validation code</h1>
+                  <h1>Please enter validation code to begin creating a move</h1>
                   <TextField
                     label="Validation code"
                     name="code"

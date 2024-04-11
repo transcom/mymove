@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { func, PropTypes } from 'prop-types';
 import { Formik } from 'formik';
 import { useNavigate } from 'react-router-dom';
-import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 import SelectableCard from 'components/Customer/SelectableCard';
 import { setConusStatus } from 'store/onboarding/actions';
@@ -14,9 +14,11 @@ import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import { customerRoutes } from 'constants/routes';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 const ConusOrNot = ({ setLocation, conusStatus }) => {
   const navigate = useNavigate();
+  const [locationValue, setlocationValue] = useState('');
 
   const oconusCardText = (
     <>
@@ -26,51 +28,44 @@ const ConusOrNot = ({ setLocation, conusStatus }) => {
     </>
   );
 
-  const onSubmit = (values) => {
-    // const payload = {
-    //   id: serviceMember.id,
-    //   code: values.code,
-    // };
+  const initialValues = {
+    conusStatus: locationValue,
+  };
 
-    console.log('values', values);
-
+  const onSubmit = () => {
     navigate(customerRoutes.DOD_INFO_PATH);
-
-    // return patchServiceMember(payload)
-    //   .then(updateServiceMember)
-    //   .then(handleNext)
-    //   .catch((e) => {
-    //     // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
-    //     const { response } = e;
-    //     const errorMessage = getResponseError(response, 'failed to update service member due to server error');
-    //     setServerError(errorMessage);
-    //   });
   };
 
   return (
     <GridContainer>
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <Formik validateOnMount onSubmit={onSubmit}>
+          <Formik validateOnMount initialValues={initialValues} onSubmit={onSubmit}>
             {({ isValid, handleSubmit }) => {
               return (
                 <Form className={formStyles.form}>
                   <h1>Where are you moving?</h1>
                   <SectionWrapper className={formStyles.formSection}>
                     <SelectableCard
-                      id={`input_${CONUS_STATUS.CONUS}`}
+                      id={CONUS_STATUS.CONUS}
                       label="CONUS"
                       value={CONUS_STATUS.CONUS}
-                      onChange={(e) => setLocation(e.target.value)}
+                      onChange={(e) => {
+                        setLocation(e.target.value);
+                        setlocationValue(e.target.value);
+                      }}
                       name="conusStatus"
                       checked={conusStatus === CONUS_STATUS.CONUS}
                       cardText="Starts and ends in the continental US"
                     />
                     <SelectableCard
-                      id={`input_${CONUS_STATUS.OCONUS}`}
+                      id={CONUS_STATUS.OCONUS}
                       label="OCONUS"
                       value={CONUS_STATUS.OCONUS}
-                      onChange={(e) => setLocation(e.target.value)}
+                      onChange={(e) => {
+                        setLocation(e.target.value);
+                        setlocationValue(e.target.value);
+                      }}
                       name="conusStatus"
                       checked={conusStatus === CONUS_STATUS.OCONUS}
                       disabled
@@ -101,6 +96,7 @@ ConusOrNot.defaultProps = {
 
 const mapStateToProps = (state) => ({
   conusStatus: selectConusStatus(state),
+  serviceMember: selectServiceMemberFromLoggedInUser(state),
 });
 
 const mapDispatchToProps = {

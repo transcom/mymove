@@ -16,19 +16,11 @@ const ValidationCodeForm = ({ initialValues, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Please input your validation code</h1>
-            <TextField
-              label="Validation code"
-              name="code"
-              id="code"
-              required
-              maxLength="20"
-              inputMode="numeric"
-              pattern="[0-9]{10}"
-            />
+            <TextField label="Validation code" name="code" id="code" required maxLength="20" />
 
             <div className={formStyles.formActions}>
               <WizardNavigation disableNext={!isValid} onNextClick={handleSubmit} />
