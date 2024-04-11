@@ -107,6 +107,68 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		}
 	})
 
+	suite.Run("Soft deletes the shipment when it is found and check if shipment_seq_num changed", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		validStatuses := []struct {
+			desc   string
+			status models.MoveStatus
+		}{
+			{"Draft", models.MoveStatusDRAFT},
+			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
+		}
+		for _, validStatus := range validStatuses {
+			move := shipment.MoveTaskOrder
+			move.Status = validStatus.status
+
+			var moveInDB models.Move
+			err := suite.DB().Find(&moveInDB, move.ID)
+			suite.NoError(err)
+
+			move.ShipmentSeqNum = moveInDB.ShipmentSeqNum
+
+			suite.MustSave(&move)
+
+			shipmentSeqNum := move.ShipmentSeqNum
+			session := suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.OfficeApp,
+				OfficeUserID:    uuid.Must(uuid.NewV4()),
+			})
+			moveID, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
+			suite.NoError(err)
+			// Verify that the shipment's Move ID is returned because the
+			// handler needs it to generate the TriggerEvent.
+			suite.Equal(shipment.MoveTaskOrderID, moveID)
+
+			// Verify the shipment still exists in the DB
+			var shipmentInDB models.MTOShipment
+			err = suite.DB().Find(&shipmentInDB, shipment.ID)
+			suite.NoError(err)
+
+			actualDeletedAt := shipmentInDB.DeletedAt
+			suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+
+			// Reset the deleted_at field to nil to allow the shipment to be
+			// deleted a second time when testing the other move status (a
+			// shipment can only be deleted once)
+			shipmentInDB.DeletedAt = nil
+			suite.MustSave(&shipment)
+
+			// Get updated Move in DB
+			err = suite.DB().Find(&moveInDB, move.ID)
+			suite.NoError(err)
+
+			suite.Equal(shipmentSeqNum, moveInDB.ShipmentSeqNum)
+		}
+	})
+
 	suite.Run("Returns not found error when the shipment is already deleted", func() {
 		moveRouter := moveservices.NewMoveRouter()
 		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)

@@ -26,6 +26,8 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
+  - name: uploads
+  - name: paymentRequests
 paths:
   /open/requested-office-users:
       post:
@@ -3439,6 +3441,44 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
 definitions:
   ClientError:
     type: object
@@ -3917,6 +3957,9 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      gunSafe:
+        example: true
+        type: boolean
       eTag:
         type: string
     type: object
@@ -4081,7 +4124,6 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
-        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -4644,6 +4686,10 @@ definitions:
         description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4713,6 +4759,10 @@ definitions:
         description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
