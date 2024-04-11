@@ -70,6 +70,21 @@ tags:
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
 definitions:
+  OktaAccountInfoResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      activated:
+        type: string
+      created:
+        type: string
+      profile:
+        type: object
+      credentials:
+        type: object
   Address:
     type: object
     properties:
@@ -853,6 +868,9 @@ definitions:
         type: string
         title: Last Name
         x-nullable: true
+      email:
+        type: string
+        example: user@userdomain.com
       telephone:
         type: string
         format: telephone
@@ -1211,7 +1229,7 @@ paths:
         as it is meant to be used with the Admin UI exclusively.
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested office users
+        - Requested Office Users
       parameters:
         - in: query
           name: filter
@@ -1256,7 +1274,7 @@ paths:
         data.
       operationId: getRequestedOfficeUser
       tags:
-        - Requested office users
+        - Requested Office Users
       parameters:
         - in: path
           name: officeUserId
