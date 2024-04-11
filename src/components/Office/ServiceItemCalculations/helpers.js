@@ -91,6 +91,9 @@ const formatDetail = (detail, styles = {}) => {
 };
 
 const formatMileage = (detail) => {
+  if (typeof detail !== 'number') {
+    return parseInt(detail, 10).toLocaleString();
+  }
   return detail.toLocaleString();
 };
 
