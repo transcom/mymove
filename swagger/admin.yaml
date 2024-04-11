@@ -1,23 +1,21 @@
-schemes:
-  - https
 swagger: '2.0'
-host: admin.move.mil
 info:
+  contact:
+    email: milmove-developers@caci.com
   description: >
     The Admin API is a RESTful API that enables the Admin application for
     MilMove.
 
 
     All endpoints are located under `/admin/v1`.
-  version: 1.0.0
-  title: MilMove Admin API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
-  contact:
-    name: MilMove AppEng
-    email: support@movemil.pagerduty.com
+    url: https://opensource.org/licenses/MIT
+  title: MilMove Admin API
+  version: 1.0.0
 basePath: /admin/v1
+schemes:
+  - https
 consumes:
   - application/json
 produces:
@@ -72,6 +70,21 @@ tags:
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
 definitions:
+  OktaAccountInfoResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      activated:
+        type: string
+      created:
+        type: string
+      profile:
+        type: object
+      credentials:
+        type: object
   Address:
     type: object
     properties:
@@ -205,7 +218,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: "'90210' or 'N15 3NL'"
       country:
         type: string
         title: Country
@@ -855,6 +868,9 @@ definitions:
         type: string
         title: Last Name
         x-nullable: true
+      email:
+        type: string
+        example: user@userdomain.com
       telephone:
         type: string
         format: telephone
@@ -1213,7 +1229,7 @@ paths:
         as it is meant to be used with the Admin UI exclusively.
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested office users
+        - Requested Office Users
       parameters:
         - in: query
           name: filter
@@ -1258,7 +1274,7 @@ paths:
         data.
       operationId: getRequestedOfficeUser
       tags:
-        - Requested office users
+        - Requested Office Users
       parameters:
         - in: path
           name: officeUserId
