@@ -211,7 +211,7 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByTestId('move-search')).toBeInTheDocument();
   });
   it('renders TableQueue when Payment Request Queue tab is selected', () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: 'PaymentRequests' });
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
