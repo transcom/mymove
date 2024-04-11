@@ -107,7 +107,6 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
 
 test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  // test.fail(multiMoveEnabled === 'true');
 
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
