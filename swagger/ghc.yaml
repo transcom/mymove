@@ -61,7 +61,7 @@ paths:
         handled at the application level.
       operationId: createRequestedOfficeUser
       tags:
-        - Office users
+        - officeUsers
       parameters:
         - in: body
           name: officeUser
@@ -6458,7 +6458,7 @@ definitions:
         type: string
         title: County
         x-nullable: true
-        example: JESSAMINE
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city

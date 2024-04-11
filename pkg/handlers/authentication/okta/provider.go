@@ -283,7 +283,6 @@ func (op *Provider) GetUserURL(oktaUserID string) string {
 func (op *Provider) GetCreateUserURL(activate string) string {
 	return op.orgURL + "/api/v1/users/?activate=" + url.QueryEscape(activate)
 }
-
 func (op *Provider) GetCreateAccountURL(activate string) string {
 	return op.orgURL + "/api/v1/users/?activate=" + url.QueryEscape(activate)
 }

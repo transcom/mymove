@@ -5,7 +5,7 @@ import { shallow } from 'enzyme';
 
 import SignIn from './SignIn';
 
-import { MockRouterProvider } from 'testUtils';
+import { MockRouterProvider, renderWithProviders } from 'testUtils';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -46,11 +46,9 @@ describe('SignIn tests', () => {
     });
 
     const context = { siteName: 'TestMove' };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
 
     expect(screen.getByText('An error occurred')).toBeInTheDocument();
     expect(
@@ -61,11 +59,9 @@ describe('SignIn tests', () => {
 
   it('shows the EULA when the signin button is clicked and hides the EULA when cancel is clicked', () => {
     const context = { siteName: 'TestMove' };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
 
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
     screen.getByTestId('signin').click();
@@ -82,11 +78,9 @@ describe('SignIn tests', () => {
     });
 
     const context = { siteName: 'TestMove' };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
 
     expect(screen.getByText('You have signed out of MilMove')).toBeInTheDocument();
   });
@@ -99,11 +93,9 @@ describe('SignIn tests', () => {
     });
 
     const context = { siteName: 'TestMove' };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
 
     expect(screen.queryByText('You have signed out of MilMove')).not.toBeInTheDocument();
   });
@@ -116,11 +108,9 @@ describe('SignIn tests', () => {
     });
 
     const context = { siteName: 'TestMove' };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
     expect(screen.getByText('You have been logged out due to inactivity.')).toBeInTheDocument();
   });
 
@@ -132,11 +122,9 @@ describe('SignIn tests', () => {
     });
 
     const context = { siteName: 'TestMove' };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
     expect(screen.queryByText('You have been logged out due to inactivity.')).not.toBeInTheDocument();
   });
   it('renders with the correct page title', () => {
@@ -147,11 +135,9 @@ describe('SignIn tests', () => {
 
   it('renders red warning text', () => {
     const context = { siteName: 'TestMove', showLoginWarning: true };
-    render(
-      <MockRouterProvider>
-        <SignIn context={context} />
-      </MockRouterProvider>,
-    );
+    renderWithProviders(<SignIn />, {
+      context,
+    });
     expect(
       screen.getByText('Use of this system is by invitation only, following mandatory screening for'),
     ).toBeInTheDocument();

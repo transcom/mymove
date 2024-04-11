@@ -51,7 +51,8 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		}
 		return value, nil
 	case models.ReServiceCodeDDSFSC,
-		models.ReServiceCodeDOSFSC:
+		models.ReServiceCodeDOSFSC,
+		models.ReServiceCodeFSC:
 
 		var weightBilled string
 
@@ -72,10 +73,6 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 
 		if len(weightBilled) > 0 {
 			return weightBilled, nil
-		} else if keyData.MTOServiceItem.MTOShipment.PPMShipment != nil {
-			if len((string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap)) > 0 {
-				return (string)(*keyData.MTOServiceItem.MTOShipment.BillableWeightCap), nil
-			}
 		}
 		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 
