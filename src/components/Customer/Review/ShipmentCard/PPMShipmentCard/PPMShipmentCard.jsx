@@ -25,7 +25,7 @@ const PPMShipmentCard = ({
   onDeleteClick,
   onIncompleteClick,
 }) => {
-  const { moveTaskOrderID, id, shipmentType } = shipment;
+  const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -54,7 +54,7 @@ const PPMShipmentCard = ({
   }
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
-  const moveCodeLabel = `${shipment.shipmentLocator}`;
+  const moveCodeLabel = `${shipmentLocator}`;
   const shipmentIsIncomplete = !isPPMShipmentComplete(shipment);
 
   return (

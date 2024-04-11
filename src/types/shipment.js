@@ -42,6 +42,7 @@ export const incentivesShape = shape({
 export const PPMShipmentShape = shape({
   id: string,
   shipmentId: string,
+  shipmentLocator: string,
   createdAt: string,
   status: PPMShipmentStatusOneOf,
   expectedDepartureDate: string,
