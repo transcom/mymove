@@ -34,6 +34,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 			}
 
 			move, err := h.FetchMove(appCtx, locator, nil)
+
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
 				switch err.(type) {

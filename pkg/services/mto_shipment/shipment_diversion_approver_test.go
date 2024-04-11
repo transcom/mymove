@@ -4,14 +4,12 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 )
 
@@ -108,10 +106,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 	})
 
 	suite.Run("It calls ApproveDiversion on the ShipmentRouter", func() {
-		shipmentRouter := &mocks.ShipmentRouter{}
-		moveRouter := moverouter.NewMoveRouter()
+		shipmentRouter := NewShipmentRouter()
 		approver := NewShipmentDiversionApprover(shipmentRouter, moveRouter)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
 			{
 				Model: models.MTOShipment{
 					Status:    models.MTOShipmentStatusSubmitted,
@@ -124,15 +126,16 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
-		createdShipment := models.MTOShipment{}
-		err := suite.DB().Find(&createdShipment, shipment.ID)
-		suite.FatalNoError(err)
 
-		shipmentRouter.On("ApproveDiversion", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
-
-		_, err = approver.ApproveShipmentDiversion(session, shipment.ID, eTag)
-
+		_, err := approver.ApproveShipmentDiversion(session, shipment.ID, eTag)
 		suite.NoError(err)
-		shipmentRouter.AssertNumberOfCalls(suite.T(), "ApproveDiversion", 1)
+
+		createdShipment := models.MTOShipment{}
+		err = suite.DB().Find(&createdShipment, shipment.ID)
+		suite.NoError(err)
+
+		suite.FatalNoError(err)
+		// if the created shipment has a status of approved, then ApproveDiversion was successful
+		suite.Equal(models.MTOShipmentStatusApproved, createdShipment.Status)
 	})
 }
