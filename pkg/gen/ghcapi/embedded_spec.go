@@ -5019,6 +5019,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5337,6 +5392,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -6225,6 +6285,10 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": true
         },
         "id": {
           "type": "string",
@@ -7327,6 +7391,12 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
@@ -7502,7 +7572,6 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "x-nullable": true,
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
@@ -10375,6 +10444,11 @@ func init() {
         "grade": {
           "$ref": "#/definitions/Grade"
         },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -11350,6 +11424,9 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
     }
   ]
 }`))
@@ -17679,6 +17756,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -17997,6 +18129,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -18889,6 +19026,10 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": true
         },
         "id": {
           "type": "string",
@@ -19991,6 +20132,12 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
@@ -20166,7 +20313,6 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "x-nullable": true,
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
@@ -23093,6 +23239,11 @@ func init() {
         "grade": {
           "$ref": "#/definitions/Grade"
         },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -24084,6 +24235,9 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
     }
   ]
 }`))
