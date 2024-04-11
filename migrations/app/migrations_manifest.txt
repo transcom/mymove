@@ -920,3 +920,4 @@
 20240402192009_add_shipment_locator_and_shipment_seq_num.up.sql
 20240403172437_backfill_counties_again.up.sql
 20240404152441_add_gun_safe_to_entitlements.up.sql
+20240410154749_add_safety_privilege.up.sql
