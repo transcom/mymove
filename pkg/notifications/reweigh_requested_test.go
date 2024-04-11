@@ -16,18 +16,9 @@ func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 
 	notification := NewReweighRequested(move.ID, shipment)
 
-	shipmentID := shipment.ID.String()
-	var shipmentNumber string
+	shipmentLocator := *shipment.ShipmentLocator
 
-	// Shipment # is the first 8 characters of shipmentId
-	if len(shipmentID) >= 8 {
-		firstEight := shipmentID[:8]
-		shipmentNumber = strings.ToUpper(firstEight)
-	} else {
-		shipmentNumber = ""
-	}
-
-	subject := fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentNumber)
+	subject := fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentLocator)
 
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		UserID:          officeUser.ID,
