@@ -41,6 +41,9 @@ requests, is later than the provided date and time.
 
 **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
 been set, that move will always appear in this list.
+
+**NOTE**: Version 1 of listMoves will eventually need to be deprecated. Version 2 is an extension of 1 containing
+amendment total/since count information.
 */
 type ListMoves struct {
 	Context *middleware.Context

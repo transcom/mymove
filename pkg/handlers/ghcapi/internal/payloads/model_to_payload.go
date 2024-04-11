@@ -43,6 +43,13 @@ func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
 		return nil
 	}
+	// Adds shipmentGBLOC to be used for TOO/TIO's origin GBLOC
+	var gbloc ghcmessages.GBLOC
+	if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+	} else if move.Orders.OriginDutyLocationGBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
 
 	payload := &ghcmessages.Move{
 		ID:                           strfmt.UUID(move.ID.String()),
@@ -68,6 +75,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
+		ShipmentGBLOC:                gbloc,
 	}
 
 	return payload
@@ -1450,6 +1458,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts:              MTOServiceItemCustomerContacts(s.CustomerContacts),
 		SitAddressUpdates:             SITAddressUpdates(s.SITAddressUpdates),
+		SitOriginHHGOriginalAddress:   Address(s.SITOriginHHGOriginalAddress),
+		SitOriginHHGActualAddress:     Address(s.SITOriginHHGActualAddress),
 		SitDestinationOriginalAddress: Address(s.SITDestinationOriginalAddress),
 		SitDestinationFinalAddress:    Address(s.SITDestinationFinalAddress),
 		EstimatedWeight:               handlers.FmtPoundPtr(s.EstimatedWeight),
@@ -1460,6 +1470,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ServiceRequestDocuments:       serviceRequestDocs,
 		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
+		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 	}
 }
 

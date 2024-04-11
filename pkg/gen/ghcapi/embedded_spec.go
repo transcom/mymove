@@ -3715,6 +3715,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "order type",
             "name": "orderType",
             "in": "query"
           }
@@ -4899,6 +4900,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",
@@ -6658,6 +6665,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -6673,6 +6684,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
@@ -7261,6 +7278,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -7898,6 +7918,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -7905,7 +7926,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -15556,6 +15578,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "order type",
             "name": "orderType",
             "in": "query"
           }
@@ -17067,6 +17090,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",
@@ -18830,6 +18859,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitDeliveryMiles": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -18845,6 +18878,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "sitOriginHHGActualAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "sitOriginHHGOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "sitRequestedDelivery": {
           "type": "string",
@@ -19433,6 +19472,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -20070,6 +20112,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -20077,7 +20120,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {

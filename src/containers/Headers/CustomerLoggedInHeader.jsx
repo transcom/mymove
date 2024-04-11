@@ -15,10 +15,10 @@ const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut, moveId }) =>
   const { pathname } = useLocation();
   const moveID = pathname.split('/')[2];
 
-  let isSpecialMove = false;
+  let specialOrderType = '';
   if (Object.keys(state.entities.orders).length > 0) {
     const currentOrderType = Object.values(state.entities.orders).filter((order) => order.moves[0] === moveID)[0];
-    isSpecialMove = ['BLUEBARK'].includes(currentOrderType?.orders_type);
+    specialOrderType = currentOrderType?.orders_type;
   }
 
   const handleLogout = () => {
@@ -36,7 +36,7 @@ const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut, moveId }) =>
   };
 
   return (
-    <MilMoveHeader isSpecialMove={isSpecialMove}>
+    <MilMoveHeader specialOrderType={specialOrderType}>
       <CustomerUserInfo showProfileLink={isProfileComplete} handleLogout={handleLogout} moveId={moveId} />
     </MilMoveHeader>
   );

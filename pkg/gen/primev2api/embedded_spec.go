@@ -80,7 +80,7 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n\n**NOTE**: Version 1 of listMoves will eventually need to be deprecated. Version 2 is an extension of 1 containing\namendment total/since count information.\n",
         "produces": [
           "application/json"
         ],
@@ -391,6 +391,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",
@@ -1994,6 +2000,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -2001,7 +2008,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {
@@ -3635,7 +3643,7 @@ func init() {
     },
     "/moves": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n\n**NOTE**: Version 1 of listMoves will eventually need to be deprecated. Version 2 is an extension of 1 containing\namendment total/since count information.\n",
         "produces": [
           "application/json"
         ],
@@ -3992,6 +4000,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",
@@ -5595,6 +5609,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -5602,7 +5617,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {

@@ -74,6 +74,12 @@ paths:
         the `availableToPrimeAt` timestamp has
 
         been set, that move will always appear in this list.
+
+
+        **NOTE**: Version 1 of listMoves will eventually need to be deprecated.
+        Version 2 is an extension of 1 containing
+
+        amendment total/since count information.
       operationId: listMoves
       tags:
         - moveTaskOrder
@@ -1551,6 +1557,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: JESSAMINE
     required:
       - streetAddress1
       - city
@@ -1670,12 +1681,14 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
       - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
   Order:
     type: object
