@@ -165,6 +165,24 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           <dd>{formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD')}</dd>
         </div>
       )}
+      {shipment.shipmentType === SHIPMENT_OPTIONS.HHG && (
+        <div className={descriptionListStyles.row}>
+          <dt>Actual Pro Gear Weight:</dt>
+          <dd>
+            {shipment.actualProGearWeight || shipment.actualProGearWeight === 0 ? shipment.actualProGearWeight : '—'}
+          </dd>
+        </div>
+      )}
+      {shipment.shipmentType === SHIPMENT_OPTIONS.HHG && (
+        <div className={descriptionListStyles.row}>
+          <dt>Actual Spouse Pro Gear Weight:</dt>
+          <dd>
+            {shipment.actualSpouseProGearWeight || shipment.actualSpouseProGearWeight === 0
+              ? shipment.actualSpouseProGearWeight
+              : '—'}
+          </dd>
+        </div>
+      )}
       <div className={descriptionListStyles.row}>
         <dt>Pickup Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.pickupAddress)}</dd>

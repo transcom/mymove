@@ -1,8 +1,48 @@
 version: "1.2"
 namespace: development
 flags:
+- key: counselor_move_create
+  name: Counselor Move Creation feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: multi_move
   name: Multi move feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: cac_validated_login
+  name: CAC validated feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: ppm
+  name: PPM feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: nts
+  name: NTS feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: ntsr
+  name: NTSR feature flag
   type: BOOLEAN_FLAG_TYPE
   enabled: true
   rollouts:
