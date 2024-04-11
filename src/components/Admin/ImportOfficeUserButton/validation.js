@@ -25,7 +25,7 @@ export const checkTelephone = ({ telephone }) => {
 export const checkValidRolesWithPrivileges = (row) => {
   if (
     (row.roles.indexOf('customer') >= 0 || row.roles.indexOf('contracting_officer') >= 0) &&
-    row.privileges.indexOf('supervisor') >= 0
+    (row.privileges.indexOf('supervisor') >= 0 || row.privileges.indexOf('safety') >= 0)
   ) {
     throw new Error('Privileges cannot be selected with Customer or Contracting Officer roles.');
   }
