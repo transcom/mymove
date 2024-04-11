@@ -27,6 +27,7 @@ tags:
   - name: tac
   - name: transportationOffice
   - name: uploads
+  - name: paymentRequests
 paths:
   /open/requested-office-users:
       post:
