@@ -10,7 +10,12 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, SortShape } from 'constants/queues';
+import {
+  BRANCH_OPTIONS,
+  MOVE_STATUS_LABELS,
+  SERVICE_COUNSELING_MOVE_SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
+  SortShape,
+} from 'constants/queues';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
@@ -52,7 +57,7 @@ const columns = () => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={MOVE_STATUS_LABELS}
+            options={SERVICE_COUNSELING_MOVE_SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />

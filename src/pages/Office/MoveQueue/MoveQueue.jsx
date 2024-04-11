@@ -119,11 +119,11 @@ const MoveQueue = () => {
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
-        payload.moveCode = values.searchText;
+        payload.moveCode = values.searchText.trim();
       } else if (values.searchType === 'dodID') {
-        payload.dodID = values.searchText;
+        payload.dodID = values.searchText.trim();
       } else if (values.searchType === 'customerName') {
-        payload.customerName = values.searchText;
+        payload.customerName = values.searchText.trim();
       }
     }
     setSearch(payload);

@@ -166,7 +166,7 @@ const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
 
 const SearchTerms = ['SITEXT', '8796353598', 'Spacemen'];
 
-const StatusFilterOptions = ['Payment requested', 'Reviewed', 'Rejected', 'Paid', 'Deprecated', 'Error'];
+const StatusFilterOptions = ['Draft', 'New Move', 'Needs Counseling', 'Service counseling completed', 'Move approved'];
 
 test.describe('TIO user', () => {
   /** @type {TioFlowPage} */
