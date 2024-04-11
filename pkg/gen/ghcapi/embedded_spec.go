@@ -7286,6 +7286,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -19488,6 +19491,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
