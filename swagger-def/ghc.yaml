@@ -3845,6 +3845,8 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
   MoveHistory:
     properties:
       id:
