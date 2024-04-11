@@ -3,8 +3,10 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { createUploadForPPMDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -17,6 +19,7 @@ import { updateMTOShipment } from 'store/entities/actions';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,6 +31,9 @@ const WeightTickets = () => {
   );
 
   useEffect(() => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
     if (!weightTicketId) {
       createWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -93,7 +99,11 @@ const WeightTickets = () => {
   };
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
