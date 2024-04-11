@@ -13,8 +13,13 @@ const formatChangedValues = (historyRecord) => {
     ...getMtoShipmentLabel(historyRecord),
     ...formatDataForPPM(historyRecord),
   };
+  const newOldValues = { ...historyRecord.oldValues };
+  if (historyRecord.context[0]?.moving_expense_type)
+    newOldValues.moving_expense_type = historyRecord.context[0].moving_expense_type;
+  if (historyRecord.context[0]?.upload_type === 'proGearWeightTicket') newOldValues.belongs_to_self = true;
+  else if (historyRecord.context[0]?.upload_type === 'spouseProGearWeightTicket') newOldValues.belongs_to_self = false;
 
-  return { ...historyRecord, changedValues: newChangedValues };
+  return { ...historyRecord, changedValues: newChangedValues, oldValues: newOldValues };
 };
 
 export default {
