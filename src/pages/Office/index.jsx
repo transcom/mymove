@@ -87,7 +87,6 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 );
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
-const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 
 export class OfficeApp extends Component {
   constructor(props) {
