@@ -185,24 +185,6 @@ const columnsWithCreateMove = (roleType) => [
         },
         { isFilterable: false },
       ),
-  createHeader(
-    'Create Move',
-    (row) => {
-      return (
-        <button
-          onClick={() =>
-            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
-          }
-          type="button"
-          className={styles.createNewMove}
-          data-testid="searchCreateMoveButton"
-        >
-          Create New Move
-        </button>
-      );
-    },
-    { isFilterable: false },
-  ),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
