@@ -27,6 +27,7 @@ tags:
   - name: tac
   - name: transportationOffice
   - name: uploads
+  - name: paymentRequests
 paths:
   /open/requested-office-users:
       post:
@@ -45,7 +46,7 @@ paths:
           One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
         operationId: createRequestedOfficeUser
         tags:
-          - Office users
+          - officeUsers
         parameters:
           - in: body
             name: officeUser

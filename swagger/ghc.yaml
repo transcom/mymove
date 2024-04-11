@@ -39,6 +39,7 @@ tags:
   - name: tac
   - name: transportationOffice
   - name: uploads
+  - name: paymentRequests
 paths:
   /open/requested-office-users:
     post:
@@ -60,7 +61,7 @@ paths:
         handled at the application level.
       operationId: createRequestedOfficeUser
       tags:
-        - Office users
+        - officeUsers
       parameters:
         - in: body
           name: officeUser
@@ -6457,7 +6458,7 @@ definitions:
         type: string
         title: County
         x-nullable: true
-        example: JESSAMINE
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city

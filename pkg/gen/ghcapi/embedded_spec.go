@@ -2231,7 +2231,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -5103,7 +5103,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -11427,6 +11427,9 @@ func init() {
     },
     {
       "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
@@ -14256,7 +14259,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -17840,7 +17843,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -24238,6 +24241,9 @@ func init() {
     },
     {
       "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
