@@ -29,6 +29,15 @@ describe('Move details tag rendering', () => {
   });
 });
 
+describe('MTO tag rendering', () => {
+  it('should render the move task order tab container without a tag', () => {
+    render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
+
+    const moveTaskOrderTab = screen.getByTestId('MoveTaskOrder-Tab');
+    expect(within(moveTaskOrderTab).queryByTestId('tag')).not.toBeInTheDocument();
+  });
+});
+
 describe('Move history tab', () => {
   it('should render the move history tab container without a tag', () => {
     render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
@@ -43,6 +52,9 @@ describe('Move history tab', () => {
 
       const moveDetailsTab = screen.getByTestId('MoveDetails-Tab');
       expect(moveDetailsTab.getAttribute('href')).toBe(`/counseling/moves/${basicNavProps.moveCode}/details`);
+
+      const moveTaskOrderTab = screen.getByTestId('MoveTaskOrder-Tab');
+      expect(moveTaskOrderTab.getAttribute('href')).toBe(`/counseling/moves/${basicNavProps.moveCode}/mto`);
 
       const moveHistoryTab = screen.getByTestId('MoveHistory-Tab');
       expect(moveHistoryTab.getAttribute('href')).toBe(`/counseling/moves/${basicNavProps.moveCode}/history`);

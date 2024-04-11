@@ -30,11 +30,11 @@ func NewGetRequestedOfficeUser(ctx *middleware.Context, handler GetRequestedOffi
 }
 
 /*
-	GetRequestedOfficeUser swagger:route GET /requested-office-users/{officeUserId} Requested office users getRequestedOfficeUser
+	GetRequestedOfficeUser swagger:route GET /requested-office-users/{officeUserId} Requested Office Users getRequestedOfficeUser
 
 # Get a Requested Office User
 
-Retrieving a single office user in any status
+Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.
 */
 type GetRequestedOfficeUser struct {
 	Context *middleware.Context

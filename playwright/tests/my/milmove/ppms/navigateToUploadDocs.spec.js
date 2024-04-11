@@ -39,6 +39,7 @@ test.describe('(MultiMove) PPM Request Payment - Begin providing documents flow'
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
       await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.navigateFromMMDashboardToMove(move);
     });
 
     test('has upload documents button enabled', async ({ page }) => {

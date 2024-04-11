@@ -30,7 +30,10 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
     mtoShipment?.ppmShipment?.proGearWeightTickets,
   );
 
-  const isArmyOrAirForce = affiliation === affiliations.ARMY || affiliation === affiliations.AIR_FORCE;
+  const canChoosePPMLocation =
+    affiliation === affiliations.ARMY ||
+    affiliation === affiliations.AIR_FORCE ||
+    affiliation === affiliations.SPACE_FORCE;
 
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
 
@@ -91,7 +94,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
               again as moving expenses. Federal tax withholding will be deducted from the profit (entitlement less
               eligible operating expenses.)
             </p>
-            {isArmyOrAirForce && (
+            {canChoosePPMLocation && (
               <p>
                 Your closeout office for your PPM(s) is{' '}
                 {selectedMove?.closeout_office?.name ? selectedMove.closeout_office.name : ''}. This is where your PPM
