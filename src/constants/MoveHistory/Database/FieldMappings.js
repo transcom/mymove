@@ -105,6 +105,7 @@ export default {
   has_requested_advance: 'Advance requested',
   empty_weight: 'Empty weight',
   full_weight: 'Full weight',
+  weight: 'Weight',
   owns_trailer: 'Trailer',
   trailer_meets_criteria: 'Trailer meets criteria',
   net_weight_remarks: 'Remarks',
@@ -130,8 +131,9 @@ export default {
   filename: 'Filename',
   paid_with_gtcc: 'Paid with gtcc',
   missing_receipt: 'Missing receipt',
+  vehicle_description: 'Vehicle description',
   closeout_office_name: 'Closeout office',
   distance: 'Shipping distance',
-  vehicle_description: 'Vehicle description',
-  ppm_status: 'PPM status', // custom front end status, not database value
+  ppm_status: 'PPM status', // custom front end status, not database value: resolved conflict
+  moving_expense_type: 'Expense type',
 };

@@ -324,6 +324,11 @@ export async function counselingUpdateOrder({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function counselingCreateOrder({ body }) {
+  const operationPath = 'order.createOrder';
+  return makeGHCRequest(operationPath, { createOrders: body }, { normalize: true });
+}
+
 export async function updateAllowance({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateAllowance';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
@@ -683,4 +688,17 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 
 export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}
+
+export async function createUploadForDocument(file, documentId) {
+  return makeGHCRequest(
+    'uploads.createUpload',
+    {
+      documentId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
 }

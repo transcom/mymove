@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
@@ -616,6 +617,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
+	gunSafe := entitlement.GunSafe
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -629,7 +631,8 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		ETag: etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe: gunSafe,
+		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -663,6 +666,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -818,14 +822,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
-		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -1148,6 +1152,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
+		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -1956,6 +1961,44 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			OriginGBLOC:                       originGBLOC,
 			DestinationGBLOC:                  destinationGBLOC,
 		}
+	}
+	return &searchMoves
+}
+
+func SearchMovesWithPaymentRequestAttributes(moves models.Moves, ProvidedStatusParameters []string) *ghcmessages.SearchMoves {
+	var searchMoves ghcmessages.SearchMoves
+	for _, move := range moves {
+		customer := move.Orders.ServiceMember
+
+		numShipments := 0
+
+		for _, shipment := range move.MTOShipments {
+			if shipment.Status != models.MTOShipmentStatusDraft {
+				numShipments++
+			}
+		}
+		for _, PaymentAttribute := range move.PaymentRequests {
+			// If status parameters are provided, and PRQ status does not match status parameters, then skip adding this payment request to the payload.
+			// This is due to a bug in the search query if a move contains multiple payment requests of different status.
+			StatusProvidedButPRQSNotMatch := len(ProvidedStatusParameters) > 0 && !slices.Contains(ProvidedStatusParameters, PaymentAttribute.Status.String())
+			if !(StatusProvidedButPRQSNotMatch) {
+				tempMove := ghcmessages.SearchMove{
+					FirstName:                         customer.FirstName,
+					LastName:                          customer.LastName,
+					DodID:                             customer.Edipi,
+					Branch:                            customer.Affiliation.String(),
+					Status:                            ghcmessages.MoveStatus(PaymentAttribute.Status),
+					ID:                                *handlers.FmtUUID(move.ID),
+					Locator:                           move.Locator,
+					ShipmentsCount:                    int64(numShipments),
+					OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
+					DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+				}
+				searchMoves = append(searchMoves, &tempMove)
+			}
+
+		}
+
 	}
 	return &searchMoves
 }

@@ -22,6 +22,7 @@ type Entitlement struct {
 	DBAuthorizedWeight                           *int             `db:"authorized_weight"`
 	WeightAllotted                               *WeightAllotment `db:"-"`
 	StorageInTransit                             *int             `db:"storage_in_transit"`
+	GunSafe                                      bool             `db:"gun_safe"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
 	ProGearWeight                                int              `db:"pro_gear_weight"`
