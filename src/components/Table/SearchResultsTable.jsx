@@ -97,7 +97,7 @@ const columns = (roleType) => [
     { id: 'shipmentsCount', isFilterable: true },
   ),
   createHeader(
-    'Pickup Date',
+    'Scheduled Pickup Date',
     (row) => {
       return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
     },
@@ -130,7 +130,7 @@ const columns = (roleType) => [
     },
   ),
   createHeader(
-    'Delivery Date',
+    'Scheduled Delivery Date',
     (row) => {
       return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
     },
@@ -249,7 +249,7 @@ const columnsWithCreateMove = (roleType) => [
     { id: 'shipmentsCount', isFilterable: true },
   ),
   createHeader(
-    'Pickup Date',
+    'Scheduled Pickup Date',
     (row) => {
       return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
     },
@@ -282,7 +282,7 @@ const columnsWithCreateMove = (roleType) => [
     },
   ),
   createHeader(
-    'Delivery Date',
+    'Scheduled Delivery Date',
     (row) => {
       return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
     },
