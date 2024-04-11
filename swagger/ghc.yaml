@@ -38,6 +38,7 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
+  - name: paymentRequests
 paths:
   /customer:
     post:
