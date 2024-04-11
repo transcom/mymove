@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { roleTypes } from 'constants/userRoles';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -73,7 +74,7 @@ const ServicesCounselingMoveInfo = () => {
   }, [infoSavedAlert, location]);
 
   const { moveCode } = useParams();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -125,7 +126,13 @@ const ServicesCounselingMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader
+        move={move}
+        order={order}
+        customer={customerData}
+        moveCode={moveCode}
+        userRole={roleTypes.SERVICES_COUNSELOR}
+      />
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
