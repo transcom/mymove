@@ -6,6 +6,7 @@ apiDefinitions:
   orders: swagger-def/orders.yaml
   prime: swagger-def/prime.yaml
   prime_v2: swagger-def/prime_v2.yaml
+  prime_v3: swagger-def/prime_v3.yaml
   support: swagger-def/support.yaml
 lint:
   extends:
