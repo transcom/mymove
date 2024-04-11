@@ -53,3 +53,33 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})
 }
+
+// ListMovesHandler lists moves with the option to filter since a particular date. Contains amendment information about total
+// and count since filter date.
+type ListMovesHandler struct {
+	handlers.HandlerConfig
+	services.MoveTaskOrderFetcher
+}
+
+// Handle fetches all moves with the option to filter since a particular date. Optimized version.
+func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			var searchParams services.MoveTaskOrderFetcherParams
+			if params.Since != nil {
+				since := handlers.FmtDateTimePtrToPop(params.Since)
+				searchParams.Since = &since
+			}
+
+			mtos, amendmentCountInfo, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrdersV2(appCtx, &searchParams)
+
+			if err != nil {
+				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
+				return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			payload := payloads.ListMoves(&mtos, amendmentCountInfo)
+			return movetaskorderops.NewListMovesOK().WithPayload(payload), nil
+		})
+}
