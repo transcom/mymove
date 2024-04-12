@@ -184,10 +184,6 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		mustCreate(db, &newMTOShipment)
 	}
 
-	shipmentLocator := string(newMTOShipment.ID[:6])
-	shipmentLocator += "-01"
-	newMTOShipment.ShipmentLocator = &shipmentLocator
-
 	return newMTOShipment
 }
 
