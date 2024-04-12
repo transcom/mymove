@@ -68,7 +68,8 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
               </Alert>
             </div>
           )}
-          <ConnectedFlashMessage />
+
+          {siteName === 'office.move.mil' && <ConnectedFlashMessage />}
 
           <h1 className="align-center">Welcome to {siteName}!</h1>
           {showLoginWarning && (
