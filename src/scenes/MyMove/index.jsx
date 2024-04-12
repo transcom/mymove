@@ -85,6 +85,7 @@ export class CustomerApp extends Component {
       info: undefined,
       multiMoveFeatureFlag: false,
       cacValidatedFeatureFlag: false,
+      validationCodeRequired: false,
     };
   }
 
@@ -102,6 +103,11 @@ export class CustomerApp extends Component {
     isBooleanFlagEnabled('cac_validated_login').then((enabled) => {
       this.setState({
         cacValidatedFeatureFlag: enabled,
+      });
+    });
+    isBooleanFlagEnabled('validation_code_required').then((enabled) => {
+      this.setState({
+        validationCodeRequired: enabled,
       });
     });
     document.title = generatePageTitle('Sign In');
