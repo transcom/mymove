@@ -79,9 +79,9 @@ describe('ShipmentQAEReportHeader', () => {
     );
     expect(screen.getByTestId('shipmentHeader')).toHaveTextContent('EVLRPT-01');
 
-    expect(screen.getByText(/123 Any Street/)).toBeInTheDocument();
-    expect(screen.getByText(/987 Any Avenue/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(pickupAddress.streetAddress1);
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(destinationAddress.streetAddress1);
+    expect(screen.getByRole('button', { name: 'Create report' })).toBeVisible();
   });
   it('renders NTS shipment', () => {
     render(
@@ -91,8 +91,8 @@ describe('ShipmentQAEReportHeader', () => {
     );
     expect(screen.getByTestId('shipmentHeader')).toHaveTextContent('EVLRPT-02');
 
-    expect(screen.getByText(/123 Any Street/)).toBeInTheDocument();
-    expect(screen.getByText(/Storage Facility/)).toBeInTheDocument();
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ntsShipment.pickupAddress.streetAddress1);
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ntsShipment.storageFacility.facilityName);
     expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
   });
   it('renders NTS-R shipment', () => {
@@ -107,9 +107,11 @@ describe('ShipmentQAEReportHeader', () => {
     );
     expect(screen.getByTestId('shipmentHeader')).toHaveTextContent('EVLRPT-03');
 
-    expect(screen.getByText(/Storage Facility/)).toBeInTheDocument();
-    expect(screen.getByText(/987 Any Avenue/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ntsReleaseShipment.storageFacility.facilityName);
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(
+      ntsReleaseShipment.destinationAddress.streetAddress1,
+    );
+    expect(screen.getByRole('button', { name: 'Create report' })).toBeVisible();
   });
   it('renders PPM shipment', () => {
     render(
@@ -119,8 +121,8 @@ describe('ShipmentQAEReportHeader', () => {
     );
     expect(screen.getByTestId('shipmentHeader')).toHaveTextContent('EVLRPT-04');
 
-    expect(screen.getByText(/90210/)).toBeInTheDocument();
-    expect(screen.getByText(/94535/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create report' })).toBeInTheDocument();
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ppmShipment.ppmShipment.pickupPostalCode);
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ppmShipment.ppmShipment.destinationPostalCode);
+    expect(screen.getByRole('button', { name: 'Create report' })).toBeVisible();
   });
 });
