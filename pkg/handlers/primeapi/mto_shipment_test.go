@@ -2544,7 +2544,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
 			moveRouter,
 		)
-		deleter := mtoshipment.NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		deleter := mtoshipment.NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
@@ -2557,11 +2557,12 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	suite.Run("Returns 204 when all validations pass", func() {
 		handler := setupTestData()
 		now := time.Now()
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move.AvailableToPrimeAt = &now
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					AvailableToPrimeAt: &now,
-				},
+				Model:    move,
+				LinkOnly: true,
 			},
 			{
 				Model: models.PPMShipment{
