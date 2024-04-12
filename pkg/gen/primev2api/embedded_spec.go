@@ -78,45 +78,6 @@ func init() {
         }
       }
     },
-    "/moves": {
-      "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n\n**NOTE**: Version 1 of listMoves will eventually need to be deprecated. Version 2 is an extension of 1 containing\namendment total/since count information.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "listMoves",
-        "operationId": "listMoves",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "date-time",
-            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
-            "name": "since",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
-            "schema": {
-              "$ref": "#/definitions/ListMoves"
-            }
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
@@ -540,24 +501,6 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
-        }
-      }
-    },
-    "Amendments": {
-      "description": "Metadata outlining number of amendments for given order.\n",
-      "type": "object",
-      "required": [
-        "total",
-        "availableSince"
-      ],
-      "properties": {
-        "availableSince": {
-          "description": "The total count of amendments available since specified time.",
-          "type": "integer"
-        },
-        "total": {
-          "description": "The total count of amendments.",
-          "type": "integer"
         }
       }
     },
@@ -991,67 +934,6 @@ func init() {
         "title": {
           "type": "string"
         }
-      }
-    },
-    "ListMove": {
-      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
-      "type": "object",
-      "properties": {
-        "amendments": {
-          "$ref": "#/definitions/Amendments"
-        },
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "ListMoves": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ListMove"
       }
     },
     "MTOAgent": {
@@ -3641,54 +3523,6 @@ func init() {
         }
       }
     },
-    "/moves": {
-      "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n\n**NOTE**: Version 1 of listMoves will eventually need to be deprecated. Version 2 is an extension of 1 containing\namendment total/since count information.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "listMoves",
-        "operationId": "listMoves",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "date-time",
-            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
-            "name": "since",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
-            "schema": {
-              "$ref": "#/definitions/ListMoves"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
@@ -4152,24 +3986,6 @@ func init() {
         }
       }
     },
-    "Amendments": {
-      "description": "Metadata outlining number of amendments for given order.\n",
-      "type": "object",
-      "required": [
-        "total",
-        "availableSince"
-      ],
-      "properties": {
-        "availableSince": {
-          "description": "The total count of amendments available since specified time.",
-          "type": "integer"
-        },
-        "total": {
-          "description": "The total count of amendments.",
-          "type": "integer"
-        }
-      }
-    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -4600,67 +4416,6 @@ func init() {
         "title": {
           "type": "string"
         }
-      }
-    },
-    "ListMove": {
-      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
-      "type": "object",
-      "properties": {
-        "amendments": {
-          "$ref": "#/definitions/Amendments"
-        },
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "ListMoves": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ListMove"
       }
     },
     "MTOAgent": {

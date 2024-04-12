@@ -51,9 +51,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
-		MoveTaskOrderListMovesHandler: move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
-		}),
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		}),
@@ -103,8 +100,6 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
-	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
-	MoveTaskOrderListMovesHandler move_task_order.ListMovesHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 
@@ -189,9 +184,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
-	}
-	if o.MoveTaskOrderListMovesHandler == nil {
-		unregistered = append(unregistered, "move_task_order.ListMovesHandler")
 	}
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
@@ -292,10 +284,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveID}"] = move_task_order.NewGetMoveTaskOrder(o.context, o.MoveTaskOrderGetMoveTaskOrderHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/moves"] = move_task_order.NewListMoves(o.context, o.MoveTaskOrderListMovesHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // MoveTaskOrder payload
@@ -860,60 +859,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primev2messages.MTOShipment {
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
 	} else {
 		payload.SetMtoServiceItems([]primev2messages.MTOServiceItem{})
-	}
-
-	return payload
-}
-
-// ListMove payload
-func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primev2messages.ListMove {
-	if move == nil {
-		return nil
-	}
-
-	payload := &primev2messages.ListMove{
-		ID:                 strfmt.UUID(move.ID.String()),
-		MoveCode:           move.Locator,
-		CreatedAt:          strfmt.DateTime(move.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		OrderID:            strfmt.UUID(move.OrdersID.String()),
-		ReferenceID:        *move.ReferenceID,
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
-		Amendments: &primev2messages.Amendments{
-			Total:          handlers.FmtInt64(0),
-			AvailableSince: handlers.FmtInt64(0),
-		},
-	}
-
-	if move.PPMType != nil {
-		payload.PpmType = *move.PPMType
-	}
-
-	if moveOrderAmendmentsCount != nil {
-		payload.Amendments.Total = handlers.FmtInt64(int64(moveOrderAmendmentsCount.Total))
-		payload.Amendments.AvailableSince = handlers.FmtInt64(int64(moveOrderAmendmentsCount.AvailableSinceTotal))
-	}
-
-	return payload
-}
-
-// ListMoves payload
-func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primev2messages.ListMove {
-	payload := make(primev2messages.ListMoves, len(*moves))
-
-	moveOrderAmendmentsFilterCountMap := make(map[uuid.UUID]services.MoveOrderAmendmentAvailableSinceCount, len(*moves))
-	for _, info := range moveOrderAmendmentAvailableSinceCounts {
-		moveOrderAmendmentsFilterCountMap[info.MoveID] = info
-	}
-
-	for i, m := range *moves {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		if value, ok := moveOrderAmendmentsFilterCountMap[m.ID]; ok {
-			payload[i] = ListMove(&copyOfM, &value)
-		} else {
-			payload[i] = ListMove(&copyOfM, nil)
-		}
 	}
 
 	return payload

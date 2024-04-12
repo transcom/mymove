@@ -91,10 +91,5 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 		shipmentUpdater,
 	}
 
-	primeAPIV2.MoveTaskOrderListMovesHandler = ListMovesHandler{
-		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
-	}
-
 	return primeAPIV2
 }

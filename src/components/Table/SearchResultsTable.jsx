@@ -3,6 +3,7 @@ import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
