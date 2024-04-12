@@ -461,7 +461,7 @@ const ppmShipmentQuery = {
   ],
 };
 
-const renderComponent = (props, permissions = [permissionTypes.updateShipment]) => {
+const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
   return render(
     <MockProviders permissions={permissions} {...mockRoutingOptions}>
       <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} {...props} />
@@ -940,7 +940,7 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
       });
     });
 
@@ -965,6 +965,16 @@ describe('MoveDetails page', () => {
         );
 
         expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+      });
+
+      it('does not show the edit customer info button if user does not have permission', () => {
+        render(
+          <MockProviders {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(screen.queryByText('Edit customer info')).not.toBeInTheDocument();
       });
     });
   });
