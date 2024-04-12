@@ -227,6 +227,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		order.NewOrderUpdater(moveRouter),
 	}
+	ghcAPI.OrderCreateOrderHandler = CreateOrderHandler{
+		handlerConfig,
+	}
 
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		handlerConfig,
@@ -276,6 +279,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		queryBuilder,
 		fetch.NewFetcher(queryBuilder),
 		moveRouter,
+		addressCreator,
 	)
 
 	primeDownloadMoveUploadPDFGenerator, err := paperwork_service.NewMoveUserUploadToPDFDownloader(pdfGenerator)
@@ -366,6 +370,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 
+	addressUpdater := address.NewAddressUpdater()
+
 	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
 		handlerConfig,
 		mtoshipment.NewShipmentReweighRequester(),
@@ -378,6 +384,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
+			addressUpdater,
+			addressCreator,
 		),
 	}
 	mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(
@@ -388,9 +396,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
+		addressUpdater,
+		addressCreator,
 	)
 
-	addressUpdater := address.NewAddressUpdater()
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
 
@@ -533,6 +542,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.TransportationOfficeGetTransportationOfficesHandler = GetTransportationOfficesHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+	}
+
+	ghcAPI.TransportationOfficeGetTransportationOfficesOpenHandler = GetTransportationOfficesOpenHandler{
 		handlerConfig,
 		transportationOfficeFetcher,
 	}

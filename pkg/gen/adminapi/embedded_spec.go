@@ -32,16 +32,14 @@ func init() {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
     "contact": {
-      "name": "MilMove AppEng",
-      "email": "support@movemil.pagerduty.com"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
+      "url": "https://opensource.org/licenses/MIT"
     },
     "version": "1.0.0"
   },
-  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin-users": {
@@ -1193,7 +1191,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -1259,7 +1257,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -1299,7 +1297,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Update a Requested Office User",
         "operationId": "updateRequestedOfficeUser",
@@ -2715,6 +2713,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -2798,6 +2819,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
@@ -3339,16 +3364,14 @@ func init() {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
     "contact": {
-      "name": "MilMove AppEng",
-      "email": "support@movemil.pagerduty.com"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
+      "url": "https://opensource.org/licenses/MIT"
     },
     "version": "1.0.0"
   },
-  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin-users": {
@@ -4500,7 +4523,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -4566,7 +4589,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -4606,7 +4629,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Update a Requested Office User",
         "operationId": "updateRequestedOfficeUser",
@@ -6023,6 +6046,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -6106,6 +6152,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",

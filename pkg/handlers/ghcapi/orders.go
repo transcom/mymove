@@ -2,16 +2,19 @@ package ghcapi
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	orderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -151,6 +154,158 @@ func (h CounselingUpdateOrderHandler) Handle(
 			orderPayload := payloads.Order(updatedOrder)
 
 			return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload), nil
+		})
+}
+
+// CounselingUpdateOrderHandler create an order via POST /orders
+type CreateOrderHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle ... creates an order as requested by a services counselor
+func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			payload := params.CreateOrders
+
+			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
+			if err != nil {
+				err = apperror.NewBadDataError("Error processing Service Member ID")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				err = apperror.NewBadDataError("Service member cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
+			originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
+			if err != nil {
+				err = apperror.NewBadDataError("Error processing origin duty location ID")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+			originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
+			if err != nil {
+				err = apperror.NewBadDataError("Origin duty location cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
+			newDutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			if err != nil {
+				err = apperror.NewBadDataError("Error processing new duty location ID")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), newDutyLocationID)
+			if err != nil {
+				err = apperror.NewBadDataError("New duty location cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
+			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
+				default:
+					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+				}
+			}
+
+			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
+			weightAllotment := models.GetWeightAllotment(grade)
+
+			weight := weightAllotment.TotalWeightSelf
+			if *payload.HasDependents {
+				weight = weightAllotment.TotalWeightSelfPlusDependents
+			}
+
+			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
+
+			entitlement := models.Entitlement{
+				DependentsAuthorized: payload.HasDependents,
+				DBAuthorizedWeight:   models.IntPointer(weight),
+				StorageInTransit:     models.IntPointer(sitDaysAllowance),
+				ProGearWeight:        weightAllotment.ProGearWeight,
+				ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
+			}
+
+			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
+				err = apperror.NewBadDataError("Error saving entitlement")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
+			var deptIndicator *string
+			if payload.DepartmentIndicator != nil {
+				converted := string(*payload.DepartmentIndicator)
+				deptIndicator = &converted
+			}
+
+			if payload.OrdersType == nil {
+				errMsg := "missing required field: OrdersType"
+				return handlers.ResponseForError(appCtx.Logger(), errors.New(errMsg)), apperror.NewBadDataError("missing required field: OrdersType")
+			}
+
+			contractor, err := models.FetchGHCPrimeContractor(appCtx.DB())
+			if err != nil {
+				err = apperror.NewBadDataError("Error fetching contractor")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
+			packingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
+			newOrder, verrs, err := serviceMember.CreateOrder(
+				appCtx,
+				time.Time(*payload.IssueDate),
+				time.Time(*payload.ReportByDate),
+				(internalmessages.OrdersType)(*payload.OrdersType),
+				*payload.HasDependents,
+				*payload.SpouseHasProGear,
+				newDutyLocation,
+				payload.OrdersNumber,
+				payload.Tac,
+				payload.Sac,
+				deptIndicator,
+				&originDutyLocation,
+				&grade,
+				&entitlement,
+				&originDutyLocationGBLOC.GBLOC,
+				packingAndShippingInstructions,
+			)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
+			}
+
+			var status models.MoveStatus
+
+			if appCtx.Session().IsOfficeApp() {
+				status = models.MoveStatusNeedsServiceCounseling
+			} else {
+				status = models.MoveStatusDRAFT
+			}
+
+			moveOptions := models.MoveOptions{
+				Show:   models.BoolPointer(true),
+				Status: &status,
+			}
+
+			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
+			if err != nil || verrs.HasAny() {
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
+			}
+			newOrder.Moves = append(newOrder.Moves, *newMove)
+
+			order := (models.Order)(newOrder)
+
+			orderPayload := payloads.Order(&order)
+
+			return orderop.NewCreateOrderOK().WithPayload(orderPayload), nil
 		})
 }
 
@@ -561,4 +716,12 @@ func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEv
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
 	}
+}
+
+func PayloadForOrdersModel(order models.Order) (*ghcmessages.OrderBody, error) {
+	payload := &ghcmessages.OrderBody{
+		ID: *handlers.FmtUUID(order.ID),
+	}
+
+	return payload, nil
 }
