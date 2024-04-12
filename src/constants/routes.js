@@ -98,16 +98,16 @@ export const moveRoutes = {
 
 export const tioRoutes = {
   BASE_PAYMENT_REQUESTS_PATH: `${BASE_MOVES_PATH}/payment-requests`,
-  PAYMENT_REQUEST_QUEUE: 'PaymentRequests',
-  BASE_PAYMENT_REQUEST_QUEUE: '/PaymentRequests',
+  PAYMENT_REQUEST_QUEUE: 'payment-requests',
+  BASE_PAYMENT_REQUEST_QUEUE: '/payment-requests',
   PAYMENT_REQUESTS_PATH: 'payment-requests',
   BILLABLE_WEIGHT_PATH: 'billable-weight',
 };
 
 export const tooRoutes = {
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
-  MOVE_QUEUE: `MoveQueue`,
-  BASE_MOVE_QUEUE: `/MoveQueue`,
+  MOVE_QUEUE: `move-queue`,
+  BASE_MOVE_QUEUE: `/move-queue`,
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
   BASE_MOVE_VIEW_PATH: `${BASE_MOVES_PATH}/details`,
   MOVE_VIEW_PATH: 'details',

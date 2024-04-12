@@ -15,8 +15,7 @@ import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import {
   BRANCH_OPTIONS,
   MOVE_STATUS_LABELS,
-  PAYMENT_REQUEST_SEARCH_STATUS_LABELS,
-  ROLE_TYPE_OPTIONS,
+  SERVICE_COUNSELING_MOVE_SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
   SortShape,
 } from 'constants/queues';
 import { DATE_FORMAT_STRING } from 'shared/constants';
@@ -27,7 +26,7 @@ import { roleTypes } from 'constants/userRoles';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 
-const columns = (roleType) => [
+const columns = () => [
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -67,7 +66,7 @@ const columns = (roleType) => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            options={SERVICE_COUNSELING_MOVE_SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />
@@ -219,7 +218,7 @@ const columnsWithCreateMove = (roleType) => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            options={SERVICE_COUNSELING_MOVE_SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />

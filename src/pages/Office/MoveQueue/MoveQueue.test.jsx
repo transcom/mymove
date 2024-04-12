@@ -174,7 +174,7 @@ describe('MoveQueue', () => {
     );
     expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
-    expect(screen.getByText('Move Queue', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.getByText('Task Order Queue', { selector: 'span' })).toBeInTheDocument();
     expect(screen.getByText('Search', { selector: 'span' })).toBeInTheDocument();
   });
   it('renders TableQueue when Search tab is selected', () => {

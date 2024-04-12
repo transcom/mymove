@@ -33,6 +33,7 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';

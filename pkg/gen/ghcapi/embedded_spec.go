@@ -1704,13 +1704,7 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED",
-                      "PENDING",
-                      "REVIEWED",
-                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-                      "PAID",
-                      "DEPRECATED",
-                      "EDI_ERROR"
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -7802,18 +7796,7 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED",
-        "PENDING",
-        "REVIEWED",
-        "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
-        "PAID",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-        "EDI_ERROR",
-        "DEPRECATED",
-        "ERROR",
-        "REJECTED",
-        "PAYMENT REQUESTED"
+        "CANCELED"
       ]
     },
     "MoveTaskOrder": {
@@ -13600,13 +13583,7 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED",
-                      "PENDING",
-                      "REVIEWED",
-                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-                      "PAID",
-                      "DEPRECATED",
-                      "EDI_ERROR"
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -20546,18 +20523,7 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED",
-        "PENDING",
-        "REVIEWED",
-        "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
-        "PAID",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-        "EDI_ERROR",
-        "DEPRECATED",
-        "ERROR",
-        "REJECTED",
-        "PAYMENT REQUESTED"
+        "CANCELED"
       ]
     },
     "MoveTaskOrder": {
