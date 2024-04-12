@@ -46,7 +46,7 @@ paths:
           One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
         operationId: createRequestedOfficeUser
         tags:
-          - Office users
+          - officeUsers
         parameters:
           - in: body
             name: officeUser
@@ -3749,7 +3749,7 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$|^$'
         x-nullable: true
       backupAddress:
         $ref: "definitions/Address.yaml"
@@ -3851,7 +3851,7 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$|^$'
         x-nullable: true
       backupAddress:
         allOf:

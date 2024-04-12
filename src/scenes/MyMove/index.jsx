@@ -36,6 +36,7 @@ import {
   selectHasCanceledMove,
 } from 'store/entities/selectors';
 import { generalRoutes, customerRoutes } from 'constants/routes';
+import { pageNames } from 'constants/signInPageNames';
 /** Pages */
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
@@ -110,12 +111,6 @@ export class CustomerApp extends Component {
       });
     });
     document.title = generatePageTitle('Sign In');
-    const script = document.createElement('script');
-
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-    script.async = true;
-
-    document.body.appendChild(script);
   }
 
   componentDidCatch(error, info) {
@@ -133,6 +128,11 @@ export class CustomerApp extends Component {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading, cacValidated } = props;
     const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag } = this.state;
+    const script = document.createElement('script');
+
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+    document.body.appendChild(script);
 
     return (
       <>
@@ -142,7 +142,7 @@ export class CustomerApp extends Component {
           <BypassBlock />
           <GovBanner />
 
-          {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader />}
+          {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader app={pageNames.MYMOVE} />}
 
           <main role="main" className="site__content my-move-container" id="main">
             <ConnectedLogoutOnInactivity />

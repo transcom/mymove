@@ -213,7 +213,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MtoShipmentDeleteShipmentHandler = DeleteShipmentHandler{
 		handlerConfig,
-		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater),
+		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater, moveRouter),
 	}
 
 	internalAPI.PpmCreateMovingExpenseHandler = CreateMovingExpenseHandler{handlerConfig, movingexpense.NewMovingExpenseCreator()}

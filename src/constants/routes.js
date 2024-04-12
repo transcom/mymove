@@ -1,6 +1,7 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
+  REQUEST_ACCOUNT: '/request-account',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
   QUEUE_SEARCH_PATH: 'Search',
@@ -114,6 +115,8 @@ export const tooRoutes = {
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
+  BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
+  CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
 export const qaeCSRRoutes = {

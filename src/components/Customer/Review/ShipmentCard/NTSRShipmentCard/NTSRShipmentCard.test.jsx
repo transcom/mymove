@@ -36,6 +36,7 @@ const completeProps = {
   showEditAndDeleteBtn: false,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
   status: shipmentStatuses.SUBMITTED,
 };
 
@@ -48,6 +49,7 @@ const incompleteProps = {
   showEditAndDeleteBtn: false,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
   status: shipmentStatuses.DRAFT,
 };
 
@@ -114,7 +116,7 @@ describe('NTSRShipmentCard component', () => {
     render(<NTSRShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('NTS-release');
-    expect(screen.getByText(/^#ABC123K$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
@@ -123,7 +125,7 @@ describe('NTSRShipmentCard component', () => {
     render(<NTSRShipmentCard {...incompleteProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('NTS-release');
-    expect(screen.getByText(/^#ABC123K$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
 
@@ -131,6 +133,6 @@ describe('NTSRShipmentCard component', () => {
     await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
 
     // verify onclick is getting json string as parameter
-    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS-release', 'ABC123K', 'NTS-release');
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS-release', 'ABC123K-01', 'NTS-release');
   });
 });
