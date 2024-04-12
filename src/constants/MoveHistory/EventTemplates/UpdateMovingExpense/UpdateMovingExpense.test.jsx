@@ -16,6 +16,7 @@ describe('When given an updated expense document it', () => {
     context: [
       {
         shipment_id_abbr: '71f6f',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
       },
     ],
@@ -34,7 +35,7 @@ describe('When given an updated expense document it', () => {
       const template = getTemplate(expenseRecord);
 
       render(template.getDetails(expenseRecord));
-      expect(screen.getByText(`PPM shipment #71F6F, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText(`PPM shipment #RQ38D4-01, ${label}`)).toBeInTheDocument();
       expect(screen.getByText(': APPROVED')).toBeInTheDocument();
       expect(screen.getByText(': $9,999.99')).toBeInTheDocument();
     });
@@ -51,7 +52,7 @@ describe('When given an updated expense document it', () => {
       const template = getTemplate(expenseRecord);
 
       render(template.getDetails(expenseRecord));
-      expect(screen.getByText(`PPM shipment #71F6F, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText(`PPM shipment #RQ38D4-01, ${label}`)).toBeInTheDocument();
       expect(screen.getByText(': REJECTED')).toBeInTheDocument();
       expect(screen.getByText(': cannot read document')).toBeInTheDocument();
     });
@@ -68,7 +69,7 @@ describe('When given an updated expense document it', () => {
       const template = getTemplate(expenseRecord);
 
       render(template.getDetails(expenseRecord));
-      expect(screen.getByText(`PPM shipment #71F6F, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText(`PPM shipment #RQ38D4-01, ${label}`)).toBeInTheDocument();
       expect(screen.getByText(': EXCLUDED')).toBeInTheDocument();
       expect(screen.getByText(': claim on taxes')).toBeInTheDocument();
     });
