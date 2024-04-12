@@ -172,7 +172,6 @@ export const ShipmentShape = shape({
   }),
   ppmShipment: PPMShipmentShape,
   deliveryAddressUpdate: ShipmentAddressUpdateShape,
-  shipmentLocator: string,
 });
 
 const DocumentShape = shape({
