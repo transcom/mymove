@@ -88,7 +88,7 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
       <div className={styles.shipmentInfoContainer}>
         <div data-testid="shipmentHeader" className={styles.shipmentInfo}>
           <h4>
-            {heading} Shipment ID {shipment.shipmentLocator}
+            {heading} Shipment ID: {shipment.shipmentLocator}
           </h4>
           <small>
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
