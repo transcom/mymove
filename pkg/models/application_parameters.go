@@ -4,11 +4,13 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
 // ApplicationParameters is a model representing validation codes stored in the database
 type ApplicationParameters struct {
+	ID             uuid.UUID `json:"id" db:"id"`
 	ValidationCode string    `json:"validation_code" db:"validation_code"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
@@ -25,7 +27,7 @@ func FetchValidationCode(db *pop.Connection, code string) (ApplicationParameters
 	// if it isn't found, we'll return an empty object
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return ApplicationParameters{}, ErrFetchNotFound
+			return ApplicationParameters{}, nil
 		}
 		return ApplicationParameters{}, err
 	}
