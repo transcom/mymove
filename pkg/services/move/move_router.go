@@ -303,7 +303,8 @@ func approvable(move models.Move) bool {
 		moveHasAcknowledgedOrdersAmendment(move.Orders) &&
 		moveHasAcknowledgedExcessWeightRisk(move) &&
 		allSITExtensionsAreReviewed(move) &&
-		allShipmentAddressUpdatesAreReviewed(move)
+		allShipmentAddressUpdatesAreReviewed(move) &&
+		allShipmentsAreApproved(move)
 }
 
 func statusSliceContains(statusSlice []models.MoveStatus, status models.MoveStatus) bool {
@@ -353,6 +354,16 @@ func allSITExtensionsAreReviewed(move models.Move) bool {
 			if sitDurationUpdate.Status == models.SITExtensionStatusPending {
 				return false
 			}
+		}
+	}
+
+	return true
+}
+
+func allShipmentsAreApproved(move models.Move) bool {
+	for _, shipment := range move.MTOShipments {
+		if shipment.Status == models.MTOShipmentStatusSubmitted {
+			return false
 		}
 	}
 
