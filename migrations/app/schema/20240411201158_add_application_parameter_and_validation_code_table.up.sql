@@ -1,6 +1,7 @@
 -- this table will be used to hold validation codes a customer will enter prior to beginning their move
 
 CREATE TABLE IF NOT EXISTS application_parameters (
+	id uuid PRIMARY KEY NOT NULL,
 	validation_code TEXT NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
