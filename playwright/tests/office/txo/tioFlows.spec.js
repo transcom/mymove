@@ -237,7 +237,7 @@ test.describe('TIO user', () => {
       // Confirm TIO can view the calculations
       await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
-      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total amount requested');
+      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Fuel rate adjustment');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Service schedule: 2');
 
       // Confirm TIO can hide the calculations. This ensures there's
@@ -258,7 +258,7 @@ test.describe('TIO user', () => {
       // Confirm TIO can view the calculations
       await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
-      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total amount requested');
+      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Fuel rate adjustment');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Dimensions: 12x3x10 in');
 
       // Confirm TIO can hide the calculations. This ensures there's no scrolling weirdness before the next action
