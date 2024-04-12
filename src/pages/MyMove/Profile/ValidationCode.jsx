@@ -29,13 +29,13 @@ export const ValidationCode = () => {
       validationCode: values.code,
     };
 
-    return validateCode(body)
+    await validateCode(body)
       .then((response) => {
         const { validationCode } = response.body;
         if (validationCode === body.validationCode) {
           navigate(customerRoutes.CONUS_OCONUS_PATH);
         } else {
-          setValidationError('Please try again.');
+          setValidationError('Please try again');
         }
       })
       .catch((e) => {
