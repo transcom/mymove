@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
@@ -164,7 +165,7 @@ const columnsWithCreateMove = () => [
     'Create Move',
     (row) => {
       return (
-        <button
+        <Button
           onClick={() =>
             useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
           }
@@ -173,7 +174,7 @@ const columnsWithCreateMove = () => [
           data-testid="searchCreateMoveButton"
         >
           Create New Move
-        </button>
+        </Button>
       );
     },
     { isFilterable: false },
