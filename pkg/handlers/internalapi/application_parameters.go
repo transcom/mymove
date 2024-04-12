@@ -17,12 +17,13 @@ func payloadForApplicationParametersModel(v models.ApplicationParameters) intern
 	return payload
 }
 
-// GetOktaProfileHandler gets Okta Profile via GET /okta-profile
+// ApplicationParametersValidateHandler validates a code provided by the service member
 type ApplicationParametersValidateHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handle performs a POST request from Okta API, returns values in profile object from response
+// Handler receives a POST request containing a validation code
+// if the code is present, it returns it back, if not, it returns an empty object
 func (h ApplicationParametersValidateHandler) Handle(params application_parameters.ValidateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
