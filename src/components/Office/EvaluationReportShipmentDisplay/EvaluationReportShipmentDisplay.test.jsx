@@ -22,7 +22,7 @@ describe('Evaluation report - HHG Shipment', () => {
         isSubmitted
       />,
     );
-    expect(screen.getByText('HHG')).toBeInTheDocument();
+    expect(screen.getByTestId('shipment-display')).toHaveTextContent('HHG');
     expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent('EVLRPT-01');
   });
 });
@@ -38,7 +38,7 @@ describe('Evaluation report - NTS Shipment', () => {
         isSubmitted
       />,
     );
-    expect(screen.getByText('NTS')).toBeInTheDocument();
+    expect(screen.getByTestId('shipment-display')).toHaveTextContent('NTS');
     expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent('EVLRPT-02');
   });
 });
@@ -54,7 +54,7 @@ describe('Evaluation report - NTSR Shipment', () => {
         isSubmitted
       />,
     );
-    expect(screen.getByText('NTS-release')).toBeInTheDocument();
+    expect(screen.getByTestId('shipment-display')).toHaveTextContent('NTS-release');
   });
 });
 
@@ -69,7 +69,7 @@ describe('Evaluation report - PPM Shipment', () => {
         isSubmitted
       />,
     );
-    expect(screen.getByText('PPM')).toBeInTheDocument();
+    expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
     expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent('EVLRPT-03');
   });
 });
