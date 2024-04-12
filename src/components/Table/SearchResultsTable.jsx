@@ -55,9 +55,6 @@ const columns = () => [
   createHeader(
     'Status',
     (row) => {
-      if (roleType === roleTypes.TIO) {
-        return PAYMENT_REQUEST_SEARCH_STATUS_LABELS[`${row.status}`];
-      }
       return MOVE_STATUS_LABELS[`${row.status}`];
     },
     {
