@@ -40,10 +40,12 @@ const isCurrentMoveSubmitted = ({ move }) => {
 const pages = {
   [customerRoutes.VALIDATION_CODE_PATH]: {
     isInFlow: myFirstRodeo,
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: () => <ValidationCode />,
   },
   [customerRoutes.CONUS_OCONUS_PATH]: {
     isInFlow: inGhcFlow,
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: () => <ConusOrNot />,
   },
   [customerRoutes.DOD_INFO_PATH]: {
