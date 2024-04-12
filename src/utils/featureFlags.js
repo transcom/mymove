@@ -133,26 +133,7 @@ export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
   };
 };
 
-// isMultiMoveEnabled returns the Flipt feature flag value of multi move
-export function isMultiMoveEnabled() {
-  const flagKey = 'multi_move';
-  return getBooleanFeatureFlagForUser(flagKey, {})
-    .then((result) => {
-      if (result && typeof result.match !== 'undefined') {
-        // Found feature flag, "match" is its boolean value
-        return result.match;
-      }
-      throw new Error('multi move feature flag is undefined');
-    })
-    .catch((error) => {
-      // On error, log it and then just return false setting it to be disabled.
-      // No need to return it for extra handling.
-      milmoveLogger.error(error);
-      return false;
-    });
-}
-
-// isMultiMoveEnabled returns the Flipt feature flag value of multi move
+// isBooleanFlagEnabled returns the Flipt feature flag value
 export function isBooleanFlagEnabled(flagKey) {
   return getBooleanFeatureFlagForUser(flagKey, {})
     .then((result) => {

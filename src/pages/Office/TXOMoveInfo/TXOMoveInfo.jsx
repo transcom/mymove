@@ -40,7 +40,7 @@ const TXOMoveInfo = () => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const hideNav =
     matchPath(
@@ -77,14 +77,14 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
           <br />
           If that doesn&apos;t fix it, contact the{' '}
-          <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>{' '}
-          (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil) and give them this code: <strong>{traceId}</strong>
+          <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">Technical Help Desk</a>{' '}
+          (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
         </SystemError>
       )}
       {!hideNav && (

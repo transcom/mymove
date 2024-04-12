@@ -5,14 +5,22 @@ import styles from './index.module.scss';
 
 import { OrderShape, CustomerShape } from 'types/order';
 import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders.js';
+import {
+  CHECK_SPECIAL_ORDERS_TYPES,
+  ORDERS_BRANCH_OPTIONS,
+  ORDERS_PAY_GRADE_OPTIONS,
+  SPECIAL_ORDERS_TYPES,
+} from 'constants/orders.js';
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+import MOVE_STATUSES from 'constants/moves';
+import { roleTypes } from 'constants/userRoles';
 
-const CustomerHeader = ({ customer, order, moveCode }) => {
+const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
   // eslint-disable-next-line camelcase
-  const { order_type } = order;
+  const { order_type: orderType } = order;
 
-  const isRetireeOrSeparatee = ['RETIREMENT', 'SEPARATION'].includes(order_type);
-  const isSpecialMove = ['BLUEBARK'].includes(order_type);
+  const isRetireeOrSeparatee = ['RETIREMENT', 'SEPARATION'].includes(orderType);
+  const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orderType);
 
   /**
    * Depending on the order type, this row dt label can be either:
@@ -20,7 +28,15 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
    * Date of retirement (RETIREMENT)
    * Date of separation (SEPARATION)
    */
-  const reportDateLabel = formatLabelReportByDate(order_type);
+  const reportDateLabel = formatLabelReportByDate(orderType);
+  // This logic to show different originGLBOC is based on queue table's backend logic
+  const originGBLOC =
+    move?.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+    userRole === roleTypes.SERVICES_COUNSELOR ||
+    !move?.shipmentGBLOC
+      ? order.originDutyLocationGBLOC
+      : move.shipmentGBLOC;
+  const originGBLOCDisplay = order.agency === SERVICE_MEMBER_AGENCIES.MARINES ? `${originGBLOC} / USMC` : originGBLOC;
 
   return (
     <div className={styles.custHeader}>
@@ -45,7 +61,7 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
       </div>
       {isSpecialMove ? (
         <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-          <p>BLUEBARK</p>
+          <p>{SPECIAL_ORDERS_TYPES[`${orderType}`]}</p>
         </div>
       ) : null}
       <div data-testid="infoBlock" className={styles.infoBlock}>
@@ -64,6 +80,10 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
         <div>
           <p data-testid="reportDateLabel">{reportDateLabel}</p>
           <h4>{formatCustomerDate(order.report_by_date)}</h4>
+        </div>
+        <div>
+          <p data-testid="originGBLOC">Origin GBLOC</p>
+          <h4>{originGBLOCDisplay}</h4>
         </div>
       </div>
     </div>
