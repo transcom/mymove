@@ -12,7 +12,6 @@ import styles from './MultiMovesMoveContainer.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
-import { getMoveCodeLabel } from 'utils/shipmentDisplay';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { setMoveId } from 'store/general/actions';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -185,7 +184,7 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
                                 minimal
                               />
                             ) : null}
-                            <h5>#{getMoveCodeLabel(s.id)}</h5>
+                            <h5>#{s.shipmentLocator}</h5>
                           </div>
                         </div>
                       </ShipmentContainer>
