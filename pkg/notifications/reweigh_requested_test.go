@@ -6,12 +6,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+	shipmentBuild := factory.BuildMTOShipment(suite.DB(), nil, nil)
+	var shipment models.MTOShipment
+	err := suite.DB().Find(&shipment, shipmentBuild.ID)
+	suite.NoError(err)
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	notification := NewReweighRequested(move.ID, shipment)
