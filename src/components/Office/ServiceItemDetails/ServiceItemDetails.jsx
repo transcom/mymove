@@ -50,7 +50,6 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
   return (
     <div>
       <dl>
-        {console.log(details)}
         {code === 'DDFSIT'
           ? generateDetailText({
               'Original delivery address': originalDeliveryAddress
