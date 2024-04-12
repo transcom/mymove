@@ -50,6 +50,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
   return (
     <div>
       <dl>
+        {console.log(details)}
         {code === 'DDFSIT'
           ? generateDetailText({
               'Original delivery address': originalDeliveryAddress
@@ -79,9 +80,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Original delivery address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
-                'Final delivery address': details.sitDestinationFinalAddress
-                  ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
-                  : '-',
+                'Final delivery address':
+                  details.sitDestinationFinalAddress && details.status !== 'SUBMITTED'
+                    ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
+                    : '-',
                 'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
@@ -93,9 +95,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Original delivery address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
-                'Final delivery address': details.sitDestinationFinalAddress
-                  ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
-                  : '-',
+                'Final delivery address':
+                  details.sitDestinationFinalAddress && details.status !== 'SUBMITTED'
+                    ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
+                    : '-',
                 'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
                 'Customer contacted homesafe': details.sitCustomerContacted
                   ? formatDateWithUTC(details.sitCustomerContacted, 'DD MMM YYYY')
