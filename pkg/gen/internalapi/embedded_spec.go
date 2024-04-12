@@ -4084,6 +4084,11 @@ func init() {
         "orders": {
           "type": "object"
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "status": {
           "type": "string",
           "readOnly": true
@@ -4586,6 +4591,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "service_member_id": {
           "type": "string",
@@ -11797,6 +11807,11 @@ func init() {
         "orders": {
           "type": "object"
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "status": {
           "type": "string",
           "readOnly": true
@@ -12301,6 +12316,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "service_member_id": {
           "type": "string",
