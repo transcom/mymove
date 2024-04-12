@@ -13,6 +13,7 @@ describe('When given an updated expense document it', () => {
   const expenseRecord = {
     action: a.UPDATE,
     changedValues: {},
+    oldValues: {},
     context: [
       {
         shipment_id_abbr: '71f6f',
@@ -25,7 +26,7 @@ describe('When given an updated expense document it', () => {
 
   describe('properly renders approvals and amount changes to ', () => {
     it.each(expenseTypes)('%s documents', (label, docType) => {
-      expenseRecord.context[0].moving_expense_type = docType;
+      expenseRecord.oldValues.moving_expense_type = docType;
       expenseRecord.changedValues = {
         status: ppms.APPROVED,
         amount: '999999',
@@ -42,7 +43,7 @@ describe('When given an updated expense document it', () => {
 
   describe('properly renders rejections and remarks for ', () => {
     it.each(expenseTypes)('%s documents', (label, docType) => {
-      expenseRecord.context[0].moving_expense_type = docType;
+      expenseRecord.oldValues.moving_expense_type = docType;
       expenseRecord.changedValues = {
         status: ppms.REJECTED,
         reason: 'cannot read document',
@@ -59,7 +60,7 @@ describe('When given an updated expense document it', () => {
 
   describe('properly renders excluded expenses and remarks for ', () => {
     it.each(expenseTypes)('%s documents', (label, docType) => {
-      expenseRecord.context[0].moving_expense_type = docType;
+      expenseRecord.oldValues.moving_expense_type = docType;
       expenseRecord.changedValues = {
         status: ppms.EXCLUDED,
         reason: 'claim on taxes',
@@ -71,6 +72,27 @@ describe('When given an updated expense document it', () => {
       expect(screen.getByText(`PPM shipment #71F6F, ${label}`)).toBeInTheDocument();
       expect(screen.getByText(': EXCLUDED')).toBeInTheDocument();
       expect(screen.getByText(': claim on taxes')).toBeInTheDocument();
+    });
+  });
+
+  describe('properly renders updated expenses', () => {
+    it.each(expenseTypes)('%s documents', (label, docType) => {
+      expenseRecord.oldValues.moving_expense_type = docType;
+      expenseRecord.changedValues = {
+        missing_receipt: true,
+        moving_expense_type: docType,
+        paid_with_gtcc: false,
+      };
+      const template = getTemplate(expenseRecord);
+
+      render(template.getDetails(expenseRecord));
+      expect(screen.getByText(`PPM shipment #71F6F, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText('Paid with gtcc')).toBeInTheDocument();
+      expect(screen.getByText(': No')).toBeInTheDocument();
+      expect(screen.getByText('Missing receipt')).toBeInTheDocument();
+      expect(screen.getByText(': Yes')).toBeInTheDocument();
+      expect(screen.getByText('Expense type')).toBeInTheDocument();
+      expect(screen.getByText(`: ${label}`)).toBeInTheDocument();
     });
   });
 

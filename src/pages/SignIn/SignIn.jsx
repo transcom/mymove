@@ -80,7 +80,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
                   href="https://dps.move.mil/cust/standard/user/home.xhtml"
                   style={{ color: 'red', textDecoration: 'underline' }}
                 >
-                  elgibility in Milmove.
+                  eligibility in MilMove.
                 </a>{' '}
               </h2>
               <h2 style={{ color: 'red' }}>
