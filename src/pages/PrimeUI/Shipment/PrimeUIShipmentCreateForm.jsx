@@ -88,7 +88,7 @@ const PrimeUIShipmentCreateForm = () => {
                       id="has-secondary-pickup"
                       data-testid="has-secondary-pickup"
                       label="Yes"
-                      name="ppmShipment.hasSecondaryPickuAddress"
+                      name="ppmShipment.hasSecondaryPickupAddress"
                       value="true"
                       title="Yes, there is a second pickup location"
                       checked={hasSecondaryPickupAddress === 'true'}
