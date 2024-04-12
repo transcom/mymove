@@ -92,6 +92,8 @@ var UsersRoles CustomType = "UsersRoles"
 var WebhookNotification CustomType = "WebhookNotification"
 var WeightTicket CustomType = "WeightTicket"
 var UsPostRegionCity CustomType = "UsPostRegionCity"
+var UsersPrivileges CustomType = "UsersPrivileges"
+var Privilege CustomType = "Privilege"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
@@ -148,6 +150,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.WebhookNotification":                      WebhookNotification,
 	"models.WeightTicket":                             WeightTicket,
 	"roles.Role":                                      Role,
+	"models.UsersPrivileges":                          UsersPrivileges,
+	"models.Privilege":                                Privilege,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs

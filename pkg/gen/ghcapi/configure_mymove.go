@@ -102,6 +102,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer_support_remarks.CreateCustomerSupportRemarkForMove has not yet been implemented")
 		})
 	}
+	if api.CustomerCreateCustomerWithOktaOptionHandler == nil {
+		api.CustomerCreateCustomerWithOktaOptionHandler = customer.CreateCustomerWithOktaOptionHandlerFunc(func(params customer.CreateCustomerWithOktaOptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.CreateCustomerWithOktaOption has not yet been implemented")
+		})
+	}
 	if api.EvaluationReportsCreateEvaluationReportHandler == nil {
 		api.EvaluationReportsCreateEvaluationReportHandler = evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
@@ -110,6 +115,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
 		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		})
+	}
+	if api.OrderCreateOrderHandler == nil {
+		api.OrderCreateOrderHandler = order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
 		})
 	}
 	if api.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
@@ -272,6 +282,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOffices has not yet been implemented")
 		})
 	}
+	if api.TransportationOfficeGetTransportationOfficesOpenHandler == nil {
+		api.TransportationOfficeGetTransportationOfficesOpenHandler = transportation_office.GetTransportationOfficesOpenHandlerFunc(func(params transportation_office.GetTransportationOfficesOpenParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesOpen has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemListMTOServiceItemsHandler == nil {
 		api.MtoServiceItemListMTOServiceItemsHandler = mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
@@ -330,6 +345,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PpmShowAOAPacketHandler == nil {
 		api.PpmShowAOAPacketHandler = ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
+		})
+	}
+	if api.PpmShowPaymentPacketHandler == nil {
+		api.PpmShowPaymentPacketHandler = ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
 		})
 	}
 	if api.EvaluationReportsSubmitEvaluationReportHandler == nil {
