@@ -10,6 +10,9 @@ test.describe('Onboarding', () => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
 
+    // Input validation code
+    await customerPage.submitValidationCode();
+
     // CONUS/OCONUS section
     await customerPage.waitForPage.onboardingConus();
     await page.getByText('Starts and ends in the continental US').click();
@@ -69,6 +72,9 @@ test.describe('(MultiMove) Onboarding', () => {
   test('A customer can go through onboarding', async ({ page, customerPage }) => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
+
+    // Input validation code
+    await customerPage.submitValidationCode();
 
     // CONUS/OCONUS section
     await customerPage.waitForPage.onboardingConus();
