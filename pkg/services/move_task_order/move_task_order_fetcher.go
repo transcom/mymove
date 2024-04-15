@@ -189,7 +189,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		mto.MTOShipments[i].Reweigh = reweigh
 
 		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
-			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment")
+			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment", "PPMShipment.PickupAddress", "PPMShipment.DestinationAddress", "PPMShipment.SecondaryPickupAddress", "PPMShipment.SecondaryDestinationAddress")
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("PPMShipment", loadErr, "")
 			}
