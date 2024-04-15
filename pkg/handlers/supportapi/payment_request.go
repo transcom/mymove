@@ -214,7 +214,16 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 			var payload supportmessages.PaymentRequestEDI
 			payload.ID = *handlers.FmtUUID(paymentRequestID)
 
-			edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(appCtx, paymentRequest, false)
+			isProd := false
+			v := viper.New()
+			v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+			v.AutomaticEnv()
+			flag := v.GetString(cli.EnvironmentFlag)
+			if flag == "production" || flag == "prod" || flag == "prd" {
+				isProd = true
+			}
+
+			edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(appCtx, paymentRequest, isProd)
 			if err == nil {
 				payload.Edi, err = edi858c.EDIString(appCtx.Logger())
 			}
