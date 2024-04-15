@@ -28,7 +28,9 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
 
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
-      <div style={{ textAlign: 'right' }}> Shipment ID: {shipmentInfo.shipmentLocator} </div>
+      <div style={{ textAlign: 'right' }}>
+        <h4>Shipment ID: {shipmentInfo.shipmentLocator}</h4>
+      </div>
       <div className={styles.shipmentHeadingType}>
         <h2>{shipmentInfo.shipmentType}</h2>
         {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
