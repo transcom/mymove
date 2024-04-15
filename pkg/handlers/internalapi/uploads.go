@@ -248,13 +248,24 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			var verrs *validate.Errors
 			var url string
 			var createErr error
+			isWeightEstimatorFile := false
 
 			uploadedFile := file
 
 			// check if this is an excel file and parse if it is
 			extension := filepath.Ext(file.Header.Filename)
 
-			if params.WeightReceipt && extension == ".xlsx" {
+			if extension == ".xlsx" {
+				var err error
+
+				isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
+
+				if err != nil {
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
+			}
+
+			if params.WeightReceipt && isWeightEstimatorFile {
 				userUploader, uploaderErr := uploader.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 
 				if uploaderErr != nil {

@@ -35,19 +35,19 @@ type textField struct {
 type WeightTicketComputer struct {
 }
 
-// NewWeightTicketComputer creates a WeightTicketParserComputer
+// NewWeightTicketComputer creates a WeightTicketComputer
 func NewWeightTicketComputer() services.WeightTicketComputer {
 	return &WeightTicketComputer{}
 }
 
-// WeightTicketParserComputer is the concrete struct implementing the services.weightticketparser interface
+// WeightTicketGenerator is the concrete struct implementing the services.weightticketparser interface
 type WeightTicketGenerator struct {
 	generator      paperwork.Generator
 	templateReader *bytes.Reader
 }
 
 // NewWeightTicketParserGenerator creates a WeightTicketParserGenerator
-func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services.WeightTicketParserGenerator, error) {
+func NewWeightTicketParserGenerator(pdfGenerator *paperwork.Generator) (services.WeightTicketGenerator, error) {
 	const WeightTemplateFilename = "paperwork/formtemplates/WeightEstimateTemplate.pdf"
 	templateReader, err := createAssetByteReader(WeightTemplateFilename)
 
@@ -182,7 +182,7 @@ func mergeTextFields(fields1, fields2, fields3, fields4, fields5, fields6, field
 }
 
 // Parses a Weight Estimator Spreadsheet file and returns services.WeightEstimatorPages populated with the parsed data
-func (WeightTicketParserComputer *WeightTicketComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser) (*services.WeightEstimatorPages, error) {
+func (WeightTicketComputer *WeightTicketComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser) (*services.WeightEstimatorPages, error) {
 	// We parse the weight estimate file 4 columns at a time. Then populate the data from those 4 columns with some exceptions.
 	// Most will have an item name then 3 numbers. Some lines will only have one number that needs to be grabbed and some will
 	// have 2 numbers.
@@ -412,4 +412,30 @@ func createAssetByteReader(path string) (*bytes.Reader, error) {
 	}
 
 	return bytes.NewReader(asset), nil
+}
+
+func IsWeightEstimatorFile(appCtx appcontext.AppContext, file io.ReadCloser) (bool, error) {
+	const WeightEstimatorSpreadsheetName = "CUBE SHEET-ITO-TMO-ONLY"
+
+	excelFile, err := excelize.OpenReader(file)
+
+	if err != nil {
+		return false, errors.Wrap(err, "Opening excel file")
+	}
+
+	defer func() {
+		// Close the spreadsheet
+		if closeErr := excelFile.Close(); err != nil {
+			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
+		}
+	}()
+
+	// Check for a spreadhsheet with the same name the Weight Estimator template uses, if we find it we assume its a Weight Estimator spreadsheet
+	_, err = excelFile.GetRows(WeightEstimatorSpreadsheetName)
+
+	if err != nil {
+		return false, errors.Wrap(err, "Parsing excel file")
+	} else {
+		return true, nil
+	}
 }
