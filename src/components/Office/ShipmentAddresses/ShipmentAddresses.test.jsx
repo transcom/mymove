@@ -101,6 +101,7 @@ const cancelledShipment = {
     eTag: 'abc123',
     status: 'CANCELED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
   },
 };
 
