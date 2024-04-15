@@ -48,7 +48,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             data-testid="officeAccountRequestEdipi"
           />
           <TextField
-            label="Other unique identifier"
+            label="Other Unique ID"
             labelHint="If not using DODID#"
             name={otherUniqueIdName}
             id="officeAccountRequestOtherUniqueId"
