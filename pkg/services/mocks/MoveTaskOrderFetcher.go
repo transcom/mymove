@@ -160,8 +160,8 @@ func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppCon
 	return r0, r1
 }
 
-// ListPrimeMoveTaskOrdersV2 provides a mock function with given fields: appCtx, searchParams
-func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrdersV2(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
+// ListPrimeMoveTaskOrdersAmendments provides a mock function with given fields: appCtx, searchParams
+func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
 	ret := _m.Called(appCtx, searchParams)
 
 	var r0 models.Moves
