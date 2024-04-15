@@ -104,8 +104,24 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
   }
 }
 
+test.describe('About Form Date flow', () => {
+  /** @type {CustomerPpmOnboardingPage} */
+  let customerPpmOnboardingPage;
+
+  forEachViewport(async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
+      customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
+      await customerPpmOnboardingPage.signInForPPMWithMove(move);
+    });
+
+    test('Fill out About Form Date', async () => {
+      await customerPpmOnboardingPage.navigateToAboutPageAndFillOutAboutFormDate();
+    });
+  });
+});
+
 test.describe('Entire PPM onboarding flow', () => {
-  test.skip(true, 'This test fail due to navigateFromDateAndLocationPageToEstimatedWeightsPage()');
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 
@@ -162,7 +178,6 @@ test.describe('(MultiMove) Entire PPM onboarding flow', () => {
     });
 
     test('flows through happy path for existing shipment', async () => {
-      test.skip(true, 'Test fails at navigateFromDateAndLocationPageToEstimatedWeightsPage()');
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmOnboardingPage.submitsDateAndLocation();
       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();

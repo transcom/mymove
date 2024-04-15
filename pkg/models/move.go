@@ -95,7 +95,8 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show *bool
+	Show   *bool
+	Status *MoveStatus
 }
 
 type Moves []Move
@@ -222,6 +223,10 @@ func createNewMove(db *pop.Connection,
 	if moveOptions.Show != nil {
 		show = moveOptions.Show
 	}
+	status := MoveStatusDRAFT
+	if moveOptions.Status != nil {
+		status = *moveOptions.Status
+	}
 
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
@@ -239,7 +244,7 @@ func createNewMove(db *pop.Connection,
 			Orders:       orders,
 			OrdersID:     orders.ID,
 			Locator:      GenerateLocator(),
-			Status:       MoveStatusDRAFT,
+			Status:       status,
 			Show:         show,
 			ContractorID: &contractor.ID,
 			ReferenceID:  &referenceID,

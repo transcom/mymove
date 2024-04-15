@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/address"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
@@ -40,6 +41,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Make an available MTO
 		availableMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		planner := &mocks.Planner{}
+		addressCreator := address.NewAddressCreator()
+		addressUpdater := address.NewAddressUpdater()
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -48,7 +51,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{
 			suite.HandlerConfig(),
-			mtoshipment.NewMTOShipmentAddressUpdater(planner),
+			mtoshipment.NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater),
 		}
 		return handler, availableMove
 	}
@@ -57,7 +60,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		StreetAddress1: "7 Q St",
 		City:           "Framington",
 		State:          "MA",
-		PostalCode:     "94055",
+		PostalCode:     "35004",
 	}
 
 	suite.Run("Success updating address", func() {
@@ -116,7 +119,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
 			City:           "Alameda",
 			State:          "CA",
-			PostalCode:     "94055",
+			PostalCode:     "35004",
 		}
 
 		// Update with new address
@@ -265,7 +268,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			StreetAddress1: "7 Q St",
 			City:           "Framington",
 			State:          "MA",
-			PostalCode:     "94055",
+			PostalCode:     "35004",
 		}
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
