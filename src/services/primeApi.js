@@ -173,6 +173,25 @@ export function updatePrimeMTOShipmentV2({
   );
 }
 
+export function updatePrimeMTOShipmentV3({
+  mtoShipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipment';
+  return makePrimeSimulatorRequestV3(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function createServiceItem({ body }) {
   return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
 }
