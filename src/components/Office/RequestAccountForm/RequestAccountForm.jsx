@@ -48,7 +48,7 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
                 onClick={() => handleSubmit()}
                 data-testid="requestOfficeAccountSubmitButton"
               >
-                Request Account
+                Submit
               </Button>
               <Button type="button" onClick={() => onCancel()} data-testid="requestOfficeAccountCancelButton">
                 Cancel
