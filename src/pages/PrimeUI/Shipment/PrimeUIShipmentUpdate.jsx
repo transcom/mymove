@@ -13,7 +13,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
 import scrollToTop from 'shared/scrollToTop';
-import { updatePrimeMTOShipmentV2, updatePrimeMTOShipmentStatus } from 'services/primeApi';
+import { updatePrimeMTOShipmentV3, updatePrimeMTOShipmentStatus } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -82,7 +82,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     },
   });
 
-  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipmentV2, {
+  const { mutateAsync: mutateMTOShipment } = useMutation(updatePrimeMTOShipmentV3, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
