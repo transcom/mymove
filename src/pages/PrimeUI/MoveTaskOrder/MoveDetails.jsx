@@ -235,6 +235,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                         <Shipment
                           shipment={mtoShipment}
                           moveId={moveTaskOrder.id}
+                          entitlements={moveTaskOrder.order.entitlement}
                           onDelete={handleDeleteShipment}
                           mtoServiceItems={mtoServiceItems}
                         />
