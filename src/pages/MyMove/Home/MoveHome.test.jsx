@@ -34,6 +34,11 @@ jest.mock('services/internalApi', () => ({
   downloadPPMAOAPacket: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const props = {
   serviceMember: {
     id: v4(),
