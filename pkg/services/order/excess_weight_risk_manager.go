@@ -251,21 +251,21 @@ func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppC
 	// may need to take into account floating point precision here but should be dealing with whole numbers
 	if int(float32(weight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
 		excessWeightQualifiedAt := time.Now()
-		theMove.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
+		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 	} else if theMove.ExcessWeightQualifiedAt != nil {
 		// the move had previously qualified for excess weight but does not any longer so reset the value
-		theMove.ExcessWeightQualifiedAt = nil
+		move.ExcessWeightQualifiedAt = nil
 	}
 
-	if !excessWeightRiskShouldBeAcknowledged(theMove) {
-		return &theMove, nil
+	if !excessWeightRiskShouldBeAcknowledged(move) {
+		return &move, nil
 	}
 
 	now := time.Now()
-	theMove.ExcessWeightAcknowledgedAt = &now
-	verrs, err := appCtx.DB().ValidateAndUpdate(&theMove)
+	move.ExcessWeightAcknowledgedAt = &now
+	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
 	if e := f.handleError(move.ID, verrs, err); e != nil {
-		return &theMove, e
+		return &move, e
 	}
 
 	return &theMove, nil
