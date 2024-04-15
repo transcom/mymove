@@ -126,6 +126,7 @@ const MoveAllowances = () => {
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
+    gunSafe,
     storageInTransit,
   } = entitlement;
 
@@ -137,6 +138,7 @@ const MoveAllowances = () => {
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     organizationalClothingAndIndividualEquipment,
+    gunSafe,
     storageInTransit: `${storageInTransit}`,
   };
 
