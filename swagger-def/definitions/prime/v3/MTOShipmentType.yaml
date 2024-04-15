@@ -1,0 +1,24 @@
+title: Shipment Type
+description: |
+  The type of shipment.
+    * `HHG` = Household goods move
+    * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
+    * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
+    * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
+type: string
+example: HHG
+enum:
+  - BOAT_HAUL_AWAY
+  - BOAT_TOW_AWAY
+  - HHG
+  - HHG_INTO_NTS_DOMESTIC
+  - HHG_OUTOF_NTS_DOMESTIC
+  - INTERNATIONAL_HHG
+  - INTERNATIONAL_UB
+  - MOTORHOME
+  - PPM
+x-display-value:
+  HHG: Household goods move (HHG)
+  HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
+  HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
+  PPM: Personally Procured Move also known as Do It Yourself (DITY)
