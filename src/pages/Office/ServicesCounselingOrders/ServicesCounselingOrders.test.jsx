@@ -206,6 +206,16 @@ describe('Orders page', () => {
     });
   });
 
+  it('renders an upload orders button when no orders are present', async () => {
+    render(
+      <MockProviders>
+        <ServicesCounselingOrders />
+      </MockProviders>,
+    );
+
+    expect(await screen.findByText('Add Orders')).toBeInTheDocument();
+  });
+
   describe('TAC validation', () => {
     it('validates on load', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);

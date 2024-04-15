@@ -25,6 +25,7 @@ describe('When given a created pro-gear set history record', () => {
       status: null,
       weight: null,
     },
+    oldValues: {},
     context: [
       {
         filename: 'filename.png',
@@ -58,7 +59,7 @@ describe('When given a created pro-gear set history record', () => {
 
   describe('properly renders shipment labels for ', () => {
     it.each(expenseTypes)('%s receipts', (label, docType) => {
-      historyRecord.context[0].moving_expense_type = docType;
+      historyRecord.oldValues.moving_expense_type = docType;
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));

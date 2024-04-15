@@ -430,6 +430,12 @@ test.describe('TOO user', () => {
       // Make sure we go to move details page
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/details`);
     });
+
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
   });
 
   test.describe('with retiree moves', () => {
