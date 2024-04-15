@@ -50,7 +50,7 @@ type MoveTaskOrderFetcher interface {
 	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 	ListNewPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, int, error)
 	GetMove(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error)
-	ListPrimeMoveTaskOrdersV2(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, MoveOrderAmendmentAvailableSinceCounts, error)
+	ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, MoveOrderAmendmentAvailableSinceCounts, error)
 }
 
 // MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder

@@ -311,7 +311,7 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	return moveTaskOrders, nil
 }
 
-func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrdersV2(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
+func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
 
 	moveTaskOrders, err := f.ListPrimeMoveTaskOrders(appCtx, searchParams)
 

@@ -650,7 +650,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	suite.Contains(sinceMoveIDs, primeMove4.ID)
 }
 
-func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersV2Fetcher() {
+func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFetcher() {
 	suite.Run("Test with and without filter of moves containing amendments", func() {
 		now := time.Now()
 		// Set up a hidden move so we can check if it's in the output:
@@ -741,7 +741,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersV2Fetcher() {
 		searchParams := services.MoveTaskOrderFetcherParams{Page: &page, PerPage: &perPage, MoveCode: nil, ID: nil}
 
 		// Run the fetcher without `since` to get all Prime moves:
-		primeMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersV2(suite.AppContextForTest(), &searchParams)
+		primeMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersAmendments(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
 		suite.Len(primeMoves, 5)
 
@@ -783,7 +783,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersV2Fetcher() {
 		suite.Require().NoError(suite.DB().RawQuery("UPDATE user_uploads SET updated_at=$1 WHERE document_id IN ($2, $3, $4, $5, $6);",
 			now.Add(-100*time.Second), docIDs[0], docIDs[1], docIDs[2], docIDs[3], docIDs[4]).Exec())
 
-		sinceMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersV2(suite.AppContextForTest(), &searchParams)
+		sinceMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersAmendments(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
 		suite.Len(sinceMoves, 4)
 		suite.Len(amendmentCountInfo, 3)
@@ -818,7 +818,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersV2Fetcher() {
 		searchParams := services.MoveTaskOrderFetcherParams{Page: &page, PerPage: &perPage, MoveCode: nil, ID: nil}
 
 		// Run the fetcher without `since` to get all Prime moves:
-		primeMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersV2(suite.AppContextForTest(), &searchParams)
+		primeMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersAmendments(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
 		suite.Len(primeMoves, 2)
 		suite.Len(amendmentCountInfo, 0)
