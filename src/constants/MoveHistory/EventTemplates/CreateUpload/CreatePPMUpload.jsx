@@ -26,8 +26,13 @@ export default {
   action: a.INSERT,
   eventName: o.createPPMUpload,
   tableName: t.user_uploads,
-  getEventNameDisplay: () => {
-    return <div>Uploaded document</div>;
+  getEventNameDisplay: ({ context }) => {
+    const eventLabel =
+      context[0]?.upload_type === 'fullWeightTicket' || context[0]?.upload_type === 'emptyWeightTicket'
+        ? 'Uploaded trip document'
+        : 'Uploaded document';
+
+    return <div>{eventLabel}</div>;
   },
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
