@@ -918,3 +918,4 @@
 20240327210353_add_cac_verified_to_service_members_table.up.sql
 20240402155228_updateLongBeachGbloc.up.sql
 20240404152441_add_gun_safe_to_entitlements.up.sql
+20240412201837_edit_gun_safe_entitlement_not_null.up.sql

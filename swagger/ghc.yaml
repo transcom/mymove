@@ -3749,6 +3749,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -3781,9 +3784,6 @@ definitions:
         type: integer
         x-formatting: weight
       organizationalClothingAndIndividualEquipment:
-        example: true
-        type: boolean
-      gunSafe:
         example: true
         type: boolean
       eTag:
