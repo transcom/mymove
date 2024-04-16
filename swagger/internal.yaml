@@ -167,6 +167,10 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -1792,6 +1796,11 @@ definitions:
         x-omitempty: false
       eTag:
         type: string
+      shipmentLocator:
+        type: string
+        x-nullable: true
+        readOnly: true
+        example: 1K43AR-01
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -2156,6 +2165,10 @@ definitions:
       closeoutOffice:
         $ref: '#/definitions/TransportationOffice'
       eTag:
+        type: string
+        readOnly: true
+      primeCounselingCompletedAt:
+        format: date-time
         type: string
         readOnly: true
   FeatureFlagBoolean:

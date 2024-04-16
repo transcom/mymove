@@ -37,7 +37,7 @@ const WeightTickets = () => {
   };
 
   const errorModalMessage =
-    'Something went wrong uploading your weight ticket. Please try again. If the problem persists, contact the ';
+    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
 
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
