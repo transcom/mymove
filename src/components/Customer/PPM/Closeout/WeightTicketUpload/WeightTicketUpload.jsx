@@ -98,8 +98,6 @@ const WeightTicketUpload = ({
       : WeightTicketUploadInstructions;
   };
 
-  // const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
-
   return (
     <div className={styles.WeightTicketUpload}>
       {missingWeightTicket && weightTicketRentalAgreement && rentalAgreement}
@@ -113,7 +111,6 @@ const WeightTicketUpload = ({
         <div className="labelWrapper">
           <Label htmlFor={fieldName}> {weightTicketUploadLabel(fieldName, missingWeightTicket)} </Label>
         </div>
-        {/* {showError && <ErrorMessage>{errors[`${fieldName}`]}</ErrorMessage>} */}
         <Hint className={styles.uploadTypeHint}>
           {weightTicketUploadHint()}
           <a href={WeightEstimatorUrl}>Weight Estimator spreadsheet</a>
