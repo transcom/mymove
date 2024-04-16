@@ -2215,6 +2215,100 @@ func init() {
         }
       }
     },
+    "/open/transportation-offices": {
+      "get": {
+        "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOfficesOpen",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "description": "Creates an instance of orders tied to a service member, which allow for creation of a move and an entitlement. Orders are required before the creation of a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Creates an orders model for a logged-in user",
+        "operationId": "createOrder",
+        "parameters": [
+          {
+            "name": "createOrders",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateOrders"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -3715,6 +3809,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "order type",
             "name": "orderType",
             "in": "query"
           }
@@ -4875,6 +4970,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -4899,6 +5049,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",
@@ -5547,6 +5703,85 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": false
+        }
+      }
+    },
+    "CreateOrders": {
+      "type": "object",
+      "required": [
+        "serviceMemberId",
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "hasDependents",
+        "spouseHasProGear",
+        "newDutyLocationId"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date"
+        },
+        "newDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "serviceMemberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "spouseHasProGear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -7272,6 +7507,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -7900,6 +8138,15 @@ func init() {
         }
       }
     },
+    "OrderBody": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "OrdersType": {
       "type": "string",
       "title": "Orders type",
@@ -7908,6 +8155,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -7915,7 +8163,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -10886,6 +11135,12 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
@@ -13699,6 +13954,118 @@ func init() {
         }
       }
     },
+    "/open/transportation-offices": {
+      "get": {
+        "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOfficesOpen",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "description": "Creates an instance of orders tied to a service member, which allow for creation of a move and an entitlement. Orders are required before the creation of a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Creates an orders model for a logged-in user",
+        "operationId": "createOrder",
+        "parameters": [
+          {
+            "name": "createOrders",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateOrders"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -15566,6 +15933,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "order type",
             "name": "orderType",
             "in": "query"
           }
@@ -17053,6 +17421,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -17077,6 +17500,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
         },
         "eTag": {
           "type": "string",
@@ -17729,6 +18158,85 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": false
+        }
+      }
+    },
+    "CreateOrders": {
+      "type": "object",
+      "required": [
+        "serviceMemberId",
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "hasDependents",
+        "spouseHasProGear",
+        "newDutyLocationId"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date"
+        },
+        "newDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "serviceMemberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "spouseHasProGear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -19454,6 +19962,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -20082,6 +20593,15 @@ func init() {
         }
       }
     },
+    "OrderBody": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "OrdersType": {
       "type": "string",
       "title": "Orders type",
@@ -20090,6 +20610,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -20097,7 +20618,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -23138,6 +23660,12 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))

@@ -3124,6 +3124,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -4078,6 +4084,11 @@ func init() {
         "orders": {
           "type": "object"
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "status": {
           "type": "string",
           "readOnly": true
@@ -4580,6 +4591,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "service_member_id": {
           "type": "string",
@@ -5306,6 +5322,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -5313,7 +5330,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -10827,6 +10845,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "JESSAMINE"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -11783,6 +11807,11 @@ func init() {
         "orders": {
           "type": "object"
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "status": {
           "type": "string",
           "readOnly": true
@@ -12287,6 +12316,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "service_member_id": {
           "type": "string",
@@ -13013,6 +13047,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -13020,7 +13055,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
