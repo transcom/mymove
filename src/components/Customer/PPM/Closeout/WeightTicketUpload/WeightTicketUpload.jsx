@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { ErrorMessage, FormGroup, Label, Link, Alert } from '@trussworks/react-uswds';
 import { string, bool, func, shape } from 'prop-types';
@@ -97,6 +97,14 @@ const WeightTicketUpload = ({
       ? SpreadsheetUploadInstructions
       : WeightTicketUploadInstructions;
   };
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
+
+  const errorModalMessage = 'Failed to convert the spreadsheet file to PDF. Please try again later. ';
 
   const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
 

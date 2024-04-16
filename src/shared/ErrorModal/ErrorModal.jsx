@@ -6,12 +6,14 @@ import styles from './ErrorModal.module.scss';
 import Modal, { ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 import SystemError from 'components/SystemError';
 
-export const ErrorModal = ({ closeModal, errorMessage }) => (
+export const ErrorModal = ({ closeModal, errorMessage, displayHelpDeskLink = true }) => (
   <Modal className={styles.Modal}>
     <ModalClose handleClick={closeModal} />
     <SystemError>
-      {errorMessage} If that doesn&apos;t fix it, contact the &nbsp;
-      <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>.
+      {errorMessage}
+      {displayHelpDeskLink &&
+        "If that doesn't fix it, contact the " +
+        <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-M\ilMove-HD@mail.mil">Technical Help Desk</a>}
     </SystemError>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal} className={styles.Button}>

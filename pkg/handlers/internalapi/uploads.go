@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"fmt"
+	"io"
 	"path/filepath"
 	"strings"
 
@@ -263,6 +264,8 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
+
+				file.Data.Seek(0, io.SeekStart)
 			}
 
 			if params.WeightReceipt && isWeightEstimatorFile {

@@ -434,7 +434,7 @@ func IsWeightEstimatorFile(appCtx appcontext.AppContext, file io.ReadCloser) (bo
 	_, err = excelFile.GetRows(WeightEstimatorSpreadsheetName)
 
 	if err != nil {
-		return false, errors.Wrap(err, "Parsing excel file")
+		return false, nil
 	} else {
 		return true, nil
 	}
