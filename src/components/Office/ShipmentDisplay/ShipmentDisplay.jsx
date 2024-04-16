@@ -60,6 +60,8 @@ const ShipmentDisplay = ({
     setIsErrorModalVisible((prev) => !prev);
   };
 
+  const errorModalMessage = 'Something went wrong downloading PPM paperwork. Please try again later.';
+
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
@@ -112,7 +114,7 @@ const ShipmentDisplay = ({
           neverShow={neverShow}
           onErrorModalToggle={toggleErrorModal}
         />
-        <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} />
+        <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton

@@ -6,12 +6,12 @@ import styles from './ErrorModal.module.scss';
 import Modal, { ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 import SystemError from 'components/SystemError';
 
-export const ErrorModal = ({ closeModal }) => (
+export const ErrorModal = ({ closeModal, errorMessage }) => (
   <Modal className={styles.Modal}>
     <ModalClose handleClick={closeModal} />
     <SystemError>
-      Something went wrong downloading PPM paperwork. Please try again later. If that doesn&apos;t fix it, contact the
-      &nbsp;<a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>.
+      {errorMessage} If that doesn&apos;t fix it, contact the &nbsp;
+      <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>.
     </SystemError>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal} className={styles.Button}>

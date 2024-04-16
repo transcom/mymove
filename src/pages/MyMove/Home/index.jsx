@@ -76,6 +76,8 @@ Description.defaultProps = {
   dataTestId: '',
 };
 
+const errorModalMessage = 'Something went wrong downloading PPM paperwork. Please try again later.';
+
 export class Home extends Component {
   constructor(props) {
     super(props);
@@ -84,7 +86,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
-      showDownloadPPMPaperworkErrorAlert: false,
+      showErrorAlert: false,
     };
   }
 
@@ -366,7 +368,7 @@ export class Home extends Component {
 
   toggleErrorModal = () => {
     this.setState((prevState) => ({
-      showDownloadPPMPaperworkErrorAlert: !prevState.showDownloadPPMPaperworkErrorAlert,
+      showErrorAlert: !prevState.showErrorAlert,
     }));
   };
 
@@ -395,13 +397,8 @@ export class Home extends Component {
       orders,
     } = this.props;
 
-    const {
-      showDeleteModal,
-      targetShipmentId,
-      showDeleteSuccessAlert,
-      showDeleteErrorAlert,
-      showDownloadPPMPaperworkErrorAlert,
-    } = this.state;
+    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert, showErrorAlert } =
+      this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -448,7 +445,7 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
-        <ErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={this.toggleErrorModal} />
+        <ErrorModal isOpen={showErrorAlert} closeModal={this.toggleErrorModal} errorMessage={errorModalMessage} />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             {isSpecialMove ? (

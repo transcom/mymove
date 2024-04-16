@@ -82,7 +82,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
-  const [showDownloadPPMPaperworkErrorAlert, setShowDownloadPPMPaperworkErrorAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -376,7 +376,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const togglePPMPacketErrorModal = () => {
-    setShowDownloadPPMPaperworkErrorAlert(!showDownloadPPMPaperworkErrorAlert);
+    setShowErrorAlert(!showErrorAlert);
   };
 
   // early return if loading user/service member
@@ -422,7 +422,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <ErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
+      <ErrorModal isOpen={showErrorAlert} closeModal={togglePPMPacketErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
