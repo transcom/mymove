@@ -201,6 +201,10 @@ const MoveDetails = ({ setFlashMessage }) => {
                     <dd>{moveTaskOrder.id}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
+                    <dt>Gun Safe:</dt>
+                    <dd>{moveTaskOrder.order.entitlement.gunSafe ? 'yes' : 'no'}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
                     <Button onClick={handleDownloadOrders}>Download Move Orders</Button>
                     <select
                       onChange={handleDocumentTypeChange}
@@ -235,7 +239,6 @@ const MoveDetails = ({ setFlashMessage }) => {
                         <Shipment
                           shipment={mtoShipment}
                           moveId={moveTaskOrder.id}
-                          entitlements={moveTaskOrder.order.entitlement}
                           onDelete={handleDeleteShipment}
                           mtoServiceItems={mtoServiceItems}
                         />
