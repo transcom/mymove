@@ -15,7 +15,7 @@ import { ppmShipmentStatuses, shipmentDestinationTypes } from 'constants/shipmen
 import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const Shipment = ({ shipment, moveId, entitlements, onDelete, mtoServiceItems }) => {
+const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const editShipmentAddressUrl = moveId
     ? generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH, {
@@ -211,10 +211,6 @@ const Shipment = ({ shipment, moveId, entitlements, onDelete, mtoServiceItems })
       <div className={descriptionListStyles.row}>
         <dt>Diversion:</dt>
         <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
-      </div>
-      <div className={descriptionListStyles.row}>
-        <dt>Gun Safe:</dt>
-        <dd>{entitlements.gunSafe ? 'yes' : 'no'}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Counselor Remarks:</dt>
