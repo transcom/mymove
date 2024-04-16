@@ -181,6 +181,41 @@ export const formatEvaluationReportShipmentAddress = (address) => {
   return `${streetAddress1}, ${city}, ${state} ${postalCode}`;
 };
 
+export const formatCustomerContactFullAddress = (address) => {
+  let formattedAddress = '';
+  if (address.streetAddress1) {
+    formattedAddress += `${address.streetAddress1}`;
+  }
+
+  if (address.streetAddress2) {
+    formattedAddress += `, ${address.streetAddress2}`;
+  }
+
+  if (address.streetAddress3) {
+    formattedAddress += `, ${address.streetAddress3}`;
+  }
+
+  if (address.city) {
+    formattedAddress += `, ${address.city}`;
+  }
+
+  if (address.state) {
+    formattedAddress += `, ${address.state}`;
+  }
+
+  if (address.postalCode) {
+    formattedAddress += ` ${address.postalCode}`;
+  }
+
+  if (formattedAddress[0] === ',') {
+    formattedAddress = formattedAddress.substring(1);
+  }
+
+  formattedAddress = formattedAddress.trim();
+
+  return formattedAddress;
+};
+
 export const formatMoveHistoryFullAddress = (address) => {
   let formattedAddress = '';
   if (address.street_address_1) {
@@ -488,15 +523,6 @@ export function formatTimeUnitDays(days) {
   return `${days} days`;
 }
 
-export function formatDistanceUnitMiles(distance, withUnit = true, withCommas = true) {
-  let result = '';
-  if (withCommas === true) {
-    result = `${distance.toLocaleString()}`;
-  } else {
-    result = `${distance}`;
-  }
-  if (withUnit === true) {
-    result += ' miles';
-  }
-  return result;
+export function formatDistanceUnitMiles(distance) {
+  return `${distance} miles`;
 }

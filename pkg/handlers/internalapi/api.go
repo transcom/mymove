@@ -114,6 +114,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig, closeoutOfficeUpdater}
 	internalAPI.MovesGetAllMovesHandler = GetAllMovesHandler{handlerConfig}
 
+	internalAPI.ApplicationParametersValidateHandler = ApplicationParametersValidateHandler{handlerConfig}
+
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{handlerConfig}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		handlerConfig,
@@ -211,7 +213,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MtoShipmentDeleteShipmentHandler = DeleteShipmentHandler{
 		handlerConfig,
-		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater),
+		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater, moveRouter),
 	}
 
 	internalAPI.PpmCreateMovingExpenseHandler = CreateMovingExpenseHandler{handlerConfig, movingexpense.NewMovingExpenseCreator()}

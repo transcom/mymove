@@ -7,7 +7,11 @@ import { makeCalculations } from './helpers';
 import styles from './ServiceItemCalculations.module.scss';
 
 import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
-import { allowedServiceItemCalculations, SERVICE_ITEM_CALCULATION_LABELS } from 'constants/serviceItems';
+import {
+  allowedServiceItemCalculations,
+  SERVICE_ITEM_CALCULATION_LABELS,
+  SERVICE_ITEM_CODES,
+} from 'constants/serviceItems';
 
 const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
 const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
@@ -48,6 +52,15 @@ const ServiceItemCalculations = ({
     shipmentType,
   );
 
+  function checkItemCode(code) {
+    switch (code) {
+      case (SERVICE_ITEM_CODES.FSC, SERVICE_ITEM_CODES.DOSFSC, SERVICE_ITEM_CODES.DDSFSC):
+        return true;
+      default:
+        return false;
+    }
+  }
+
   function checkForEmptyString(input) {
     return input.length > 0 ? input : '';
   }
@@ -85,13 +98,13 @@ const ServiceItemCalculations = ({
                       <div data-testid="details" className={styles.row}>
                         <small>
                           {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents) ||
-                          detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCWeightBasedDistanceMultiplier)
+                          checkItemCode(calc.itemCode)
                             ? `${detail.text.substring(0, detail.text.indexOf(':'))}:`
                             : checkForEmptyString(detail.text)}
                         </small>
                         <small>
                           {detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents) ||
-                          detail.text.includes(SERVICE_ITEM_CALCULATION_LABELS.FSCWeightBasedDistanceMultiplier)
+                          checkItemCode(calc.itemCode)
                             ? detail.text.substring(detail.text.indexOf(':') + 1)
                             : ''}
                         </small>

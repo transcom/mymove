@@ -57,6 +57,14 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * click on upload ppm documents
+   * returns {Promise<void>}
+   */
+  async clickOnGoToMoveButton() {
+    await this.page.getByTestId('goToMoveBtn').click();
+  }
+
+  /**
    * returns {Promise<void>}
    */
   async customerStartsAddingAPPMShipment() {
@@ -553,6 +561,17 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * returns {Promise<void>}
    */
+  async navigateFromReviewPageToHomePageMM(move) {
+    // calculate the home url to wait for it after click
+    const url = new URL(this.page.url());
+    url.pathname = `/move/${move.id}`;
+    await this.page.getByRole('button', { name: 'Return home' }).click();
+    await this.page.waitForURL(url.href);
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
   async navigateToFromHomePageToPPMCloseoutReview() {
     await this.page.getByRole('button', { name: 'Upload PPM Documents' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
@@ -852,6 +871,19 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * returns {Promise<void>}
+   */
+  async navigateFromMoveHomeToAdvances() {
+    await this.page.getByTestId('editShipmentButton').click();
+    await this.page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/.*/);
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/estimated-weight$/);
+    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await this.page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/estimated-incentive$/);
+    await this.page.getByRole('button', { name: 'Next' }).click();
+  }
+
+  /**
    * @param {Object} options
    * @param {boolean} [options.isEditExpense=false]
    * @param {string} [options.amount]
@@ -913,9 +945,7 @@ export class CustomerPpmPage extends CustomerPage {
       finalIncentiveAmount: '$500,000.00',
     },
   ) {
-    await expect(
-      this.page.getByRole('heading', { name: `Your final estimated incentive: ${options?.finalIncentiveAmount}` }),
-    ).toBeVisible();
+    await expect(this.page.getByText('Your final estimated incentive:')).toBeVisible();
 
     await expect(this.page.locator('li').getByText(`${options?.totalNetWeight} total net weight`)).toBeVisible();
 

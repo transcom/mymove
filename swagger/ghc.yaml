@@ -38,6 +38,8 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
+  - name: uploads
+  - name: paymentRequests
 paths:
   /open/requested-office-users:
     post:
@@ -59,7 +61,7 @@ paths:
         handled at the application level.
       operationId: createRequestedOfficeUser
       tags:
-        - Office users
+        - officeUsers
       parameters:
         - in: body
           name: officeUser
@@ -3578,6 +3580,47 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /uploads:
+    post:
+      summary: Create a new upload
+      description: >-
+        Uploads represent a single digital file, such as a JPEG or PDF.
+        Currently, office application uploads are only for Services Counselors
+        to upload files for orders, but this may be expanded in the future.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
 definitions:
   ClientError:
     type: object
@@ -3848,7 +3891,7 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
@@ -3950,7 +3993,7 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
         x-nullable: true
       backupAddress:
         allOf:
@@ -4233,7 +4276,6 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
-        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -5223,35 +5265,26 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -5494,33 +5527,26 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       sitLocation:
@@ -5554,8 +5580,8 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
+      - pickupAddress
+      - destinationAddress
       - sitExpected
       - estimatedWeight
       - hasProGear
@@ -6416,7 +6442,7 @@ definitions:
         type: string
         title: County
         x-nullable: true
-        example: JESSAMINE
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city

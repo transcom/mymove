@@ -1,0 +1,4 @@
+description: A list of shipments without their associated service items.
+items:
+  $ref: 'MTOShipmentWithoutServiceItems.yaml'
+type: array

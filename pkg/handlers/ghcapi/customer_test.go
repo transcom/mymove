@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		StreetAddress1: handlers.FmtString("123 New Street"),
 		City:           handlers.FmtString("Newcity"),
 		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("12345"),
+		PostalCode:     handlers.FmtString("02110"),
 	}
 	body.CurrentAddress.Address = currentAddress
 
