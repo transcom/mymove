@@ -43,7 +43,7 @@ import {
   updateServiceItemSITEntryDate,
   updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -1156,19 +1156,19 @@ export const MoveTaskOrder = (props) => {
                 {requestedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={requestedMoveServiceItems}
-                    statusForTableType="Move Task Order Requested"
+                    statusForTableType={MTO_SERVICE_ITEM_STATUS.SUBMITTED}
                   />
                 )}
                 {approvedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={approvedMoveServiceItems}
-                    statusForTableType="Move Task Order Approved"
+                    statusForTableType={MTO_SERVICE_ITEM_STATUS.APPROVED}
                   />
                 )}
                 {rejectedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={rejectedMoveServiceItems}
-                    statusForTableType="Move Task Order Rejected"
+                    statusForTableType={MTO_SERVICE_ITEM_STATUS.REJECTED}
                   />
                 )}
               </ShipmentContainer>

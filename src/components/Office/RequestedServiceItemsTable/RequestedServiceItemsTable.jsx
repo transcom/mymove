@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+import { SERVICE_ITEM_STATUS, MTO_SERVICE_ITEM_STATUS } from '../../../shared/constants';
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
 import styles from './RequestedServiceItemsTable.module.scss';
@@ -28,6 +28,12 @@ const RequestedServiceItemsTable = ({
         return 'Approved';
       case SERVICE_ITEM_STATUS.REJECTED:
         return 'Rejected';
+      case MTO_SERVICE_ITEM_STATUS.APPROVED:
+        return 'Move Task Order Approved';
+      case MTO_SERVICE_ITEM_STATUS.REJECTED:
+        return 'Move Task Order Approved';
+      case MTO_SERVICE_ITEM_STATUS.SUBMITTED:
+        return 'Move Task Order Requested';
       default:
         return status;
     }
