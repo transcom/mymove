@@ -60,7 +60,7 @@ const ShipmentDisplay = ({
     setIsErrorModalVisible((prev) => !prev);
   };
 
-  const errorModalMessage = 'Something went wrong downloading PPM paperwork. Please try again later. ';
+  const errorModalMessage = 'Something went wrong downloading PPM paperwork. Please try again later. If that does not fix it, contact the ';
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">

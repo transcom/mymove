@@ -76,7 +76,7 @@ Description.defaultProps = {
   dataTestId: '',
 };
 
-const errorModalMessage = 'Something went wrong downloading PPM paperwork. Please try again later. ';
+const errorModalMessage = 'Something went wrong downloading PPM paperwork. Please try again later. If that does not fix it, contact the ';
 
 export class Home extends Component {
   constructor(props) {

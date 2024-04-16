@@ -11,9 +11,9 @@ export const ErrorModal = ({ closeModal, errorMessage, displayHelpDeskLink = tru
     <ModalClose handleClick={closeModal} />
     <SystemError>
       {errorMessage}
-      {displayHelpDeskLink &&
-        "If that doesn't fix it, contact the " +
-        <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-M\ilMove-HD@mail.mil">Technical Help Desk</a>}
+      {displayHelpDeskLink && (
+        <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-M\ilMove-HD@mail.mil">Technical Help Desk</a>
+      )}
     </SystemError>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal} className={styles.Button}>
