@@ -63,9 +63,6 @@ const approvedMoveTaskOrder = {
         },
       },
     ],
-    entitlement: {
-      gunSafe: true,
-    },
   },
 };
 
@@ -74,11 +71,7 @@ describe('CreateShipmentServiceItemForm component', () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     render(
       <MockProviders>
-        <CreateShipmentServiceItemForm
-          shipment={shipment}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          createServiceItemMutation={jest.fn()}
-        />
+        <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
       </MockProviders>,
     );
 
@@ -95,11 +88,7 @@ describe('CreateShipmentServiceItemForm component', () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     render(
       <MockProviders>
-        <CreateShipmentServiceItemForm
-          shipment={shipment}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          createServiceItemMutation={jest.fn()}
-        />
+        <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
       </MockProviders>,
     );
 

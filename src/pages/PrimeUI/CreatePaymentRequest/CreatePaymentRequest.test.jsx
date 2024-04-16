@@ -50,11 +50,6 @@ const moveTaskOrder = {
     { id: '5', reServiceCode: 'DLH', mtoShipmentID: '2', reServiceName: 'Domestic linehaul' },
     { id: '6', reServiceCode: 'FSC', mtoShipmentID: '3', reServiceName: 'Fuel surcharge' },
   ],
-  order: {
-    entitlement: {
-      gunSafe: true,
-    },
-  },
 };
 
 const moveReturnValue = {

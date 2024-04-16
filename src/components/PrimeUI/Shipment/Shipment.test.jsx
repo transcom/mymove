@@ -19,9 +19,6 @@ const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
 const approvedMoveTaskOrder = {
   moveTaskOrder: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-    entitlement: {
-      gunSafe: true,
-    },
     moveCode: 'LR4T8V',
     mtoShipments: [
       {
@@ -84,11 +81,7 @@ const approvedMoveTaskOrder = {
 
 const mockedComponent = (
   <MockProviders>
-    <Shipment
-      shipment={approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0]}
-      entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-      moveId={moveId}
-    />
+    <Shipment shipment={approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0]} moveId={moveId} />
   </MockProviders>
 );
 
@@ -247,11 +240,7 @@ describe('Shipment has missing reweigh', () => {
   it('renders the component with missing reweigh error', () => {
     render(
       <MockProviders>
-        <Shipment
-          shipment={shipmentMissingReweighWeight}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          moveId={moveId}
-        />
+        <Shipment shipment={shipmentMissingReweighWeight} moveId={moveId} />
       </MockProviders>,
     );
 
@@ -265,11 +254,7 @@ describe('Shipment has missing reweigh', () => {
   it('renders the component with no reweigh requested', () => {
     render(
       <MockProviders>
-        <Shipment
-          shipment={shipmentNoReweighRequested}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          moveId={moveId}
-        />
+        <Shipment shipment={shipmentNoReweighRequested} moveId={moveId} />
       </MockProviders>,
     );
 
@@ -373,11 +358,7 @@ describe('PPM shipments are handled', () => {
   it('PPM fields header is present', () => {
     render(
       <MockProviders>
-        <Shipment
-          shipment={ppmShipment}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          moveId={moveId}
-        />
+        <Shipment shipment={ppmShipment} moveId={moveId} />
       </MockProviders>,
     );
 
@@ -422,11 +403,7 @@ describe('PPM shipments are handled', () => {
   ])('PPM shipment field %s with value %s is present', async (ppmShipmentField, ppmShipmentFieldValue) => {
     render(
       <MockProviders>
-        <Shipment
-          shipment={ppmShipment}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          moveId={moveId}
-        />
+        <Shipment shipment={ppmShipment} moveId={moveId} />
       </MockProviders>,
     );
 
@@ -454,12 +431,7 @@ describe('PPM shipments are handled', () => {
 
     render(
       <MockProviders>
-        <Shipment
-          shipment={ppmShipment}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          moveId={moveId}
-          onDelete={onDelete}
-        />
+        <Shipment shipment={ppmShipment} moveId={moveId} onDelete={onDelete} />
       </MockProviders>,
     );
 
@@ -481,11 +453,7 @@ describe('PPM shipments are handled', () => {
   it('PPM status does not allow deletion', () => {
     render(
       <MockProviders>
-        <Shipment
-          shipment={ppmShipmentWaitingOnCustomer}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          moveId={moveId}
-        />
+        <Shipment shipment={ppmShipmentWaitingOnCustomer} moveId={moveId} />
       </MockProviders>,
     );
 
@@ -496,11 +464,7 @@ describe('PPM shipments are handled', () => {
   it('PPM shipment is missing ppmShipment object', () => {
     render(
       <MockProviders>
-        <Shipment
-          shipment={ppmShipmentMissingObject}
-          entitlements={approvedMoveTaskOrder.moveTaskOrder.entitlement}
-          moveId={moveId}
-        />
+        <Shipment shipment={ppmShipmentMissingObject} moveId={moveId} />
       </MockProviders>,
     );
 

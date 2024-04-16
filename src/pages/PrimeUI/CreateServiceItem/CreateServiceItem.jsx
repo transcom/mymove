@@ -80,11 +80,7 @@ const CreateServiceItem = ({ setFlashMessage }) => {
               </Alert>
             </div>
           )}
-          <CreateShipmentServiceItemForm
-            shipment={shipment}
-            entitlements={moveTaskOrder.order.entitlement}
-            createServiceItemMutation={createServiceItemMutation}
-          />
+          <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={createServiceItemMutation} />
         </div>
       </div>
     </div>

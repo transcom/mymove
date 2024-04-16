@@ -80,7 +80,7 @@ const CreateSITExtensionRequest = ({ setFlashMessage }) => {
               </Alert>
             </div>
           )}
-          <Shipment shipment={shipment} entitlements={moveTaskOrder.order.entitlement} />
+          <Shipment shipment={shipment} />
           <CreateSITExtensionRequestForm shipment={shipment} submission={createSITExtensionRequestMutation} />
         </div>
       </div>
