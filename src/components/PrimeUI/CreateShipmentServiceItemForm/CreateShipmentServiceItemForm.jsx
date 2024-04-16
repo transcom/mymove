@@ -12,7 +12,7 @@ import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 
-const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {
+const CreateShipmentServiceItemForm = ({ shipment, entitlements, createServiceItemMutation }) => {
   const { MTOServiceItemOriginSIT, MTOServiceItemDestSIT, MTOServiceItemShuttle, MTOServiceItemDomesticCrating } =
     createServiceItemModelTypes;
   const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
@@ -23,7 +23,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
 
   return (
     <div className={styles.CreateShipmentServiceItemForm}>
-      <Shipment shipment={shipment} />
+      <Shipment shipment={shipment} entitlements={entitlements} />
       <Label htmlFor="serviceItemType">Service item type</Label>
       <Dropdown id="serviceItemType" name="serviceItemType" onChange={handleServiceItemTypeChange}>
         <>

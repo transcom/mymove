@@ -27,6 +27,7 @@ const CreatePaymentRequestForm = ({
   createPaymentRequestSchema,
   mtoShipments,
   groupedServiceItems,
+  entitlements,
 }) => (
   <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema} on>
     {({ isValid, errors, values, setValues, setFieldError, setFieldTouched }) => (
@@ -63,7 +64,7 @@ const CreatePaymentRequestForm = ({
               {mtoShipments?.map((mtoShipment) => {
                 return (
                   <div key={mtoShipment.id}>
-                    <Shipment shipment={mtoShipment} />
+                    <Shipment shipment={mtoShipment} entitlements={entitlements} />
                     <h2>Shipment Service Items</h2>
                     <Checkbox
                       id={`selectAll-${mtoShipment.id}`}
