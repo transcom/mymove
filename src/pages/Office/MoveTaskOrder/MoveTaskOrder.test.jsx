@@ -612,6 +612,7 @@ describe('MoveTaskOrder', () => {
     it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
+      expect(wrapper.find('h4').at(0).text()).toEqual('#');
       expect(wrapper.find('[data-testid="button"]').exists()).toBe(true);
     });
 
