@@ -33,7 +33,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		moveRouter,
 	)
 	suite.Run("Returns an error when shipment is not found", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		id := uuid.Must(uuid.NewV4())
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -47,7 +47,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		move := shipment.MoveTaskOrder
 		move.Status = models.MoveStatusServiceCounselingCompleted
@@ -65,7 +66,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the shipment when it is found", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		validStatuses := []struct {
@@ -105,8 +107,72 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		}
 	})
 
+	suite.Run("Soft deletes the shipment when it is found and check if shipment_seq_num changed", func() {
+		moveRouter := moveservices.NewMoveRouter()
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		validStatuses := []struct {
+			desc   string
+			status models.MoveStatus
+		}{
+			{"Draft", models.MoveStatusDRAFT},
+			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
+		}
+		for _, validStatus := range validStatuses {
+			move := shipment.MoveTaskOrder
+			move.Status = validStatus.status
+
+			var moveInDB models.Move
+			err := suite.DB().Find(&moveInDB, move.ID)
+			suite.NoError(err)
+
+			move.ShipmentSeqNum = moveInDB.ShipmentSeqNum
+
+			suite.MustSave(&move)
+
+			shipmentSeqNum := move.ShipmentSeqNum
+			session := suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.OfficeApp,
+				OfficeUserID:    uuid.Must(uuid.NewV4()),
+			})
+			moveID, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
+			suite.NoError(err)
+			// Verify that the shipment's Move ID is returned because the
+			// handler needs it to generate the TriggerEvent.
+			suite.Equal(shipment.MoveTaskOrderID, moveID)
+
+			// Verify the shipment still exists in the DB
+			var shipmentInDB models.MTOShipment
+			err = suite.DB().Find(&shipmentInDB, shipment.ID)
+			suite.NoError(err)
+
+			actualDeletedAt := shipmentInDB.DeletedAt
+			suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+
+			// Reset the deleted_at field to nil to allow the shipment to be
+			// deleted a second time when testing the other move status (a
+			// shipment can only be deleted once)
+			shipmentInDB.DeletedAt = nil
+			suite.MustSave(&shipment)
+
+			// Get updated Move in DB
+			err = suite.DB().Find(&moveInDB, move.ID)
+			suite.NoError(err)
+
+			suite.Equal(shipmentSeqNum, moveInDB.ShipmentSeqNum)
+		}
+	})
+
 	suite.Run("Returns not found error when the shipment is already deleted", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -122,7 +188,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the associated PPM shipment", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -169,7 +236,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 		moveRouter,
 	)
 	suite.Run("Doesn't return an error when allowed to delete a shipment", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		now := time.Now()
 		shipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
@@ -193,7 +260,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when a shipment is not available to prime", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -212,7 +279,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when a shipment is not a PPM", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		now := time.Now()
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -236,7 +303,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when PPM status is WAITING_ON_CUSTOMER", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		now := time.Now()
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{

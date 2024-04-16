@@ -244,6 +244,7 @@ const ShipmentDetailsMain = ({
           eTag: shipment.eTag,
           status: shipment.status,
           shipmentType: shipment.shipmentType,
+          shipmentLocator: shipment.shipmentLocator,
         }}
         handleDivertShipment={handleDivertShipment}
       />

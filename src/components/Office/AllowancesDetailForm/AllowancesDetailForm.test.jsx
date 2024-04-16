@@ -9,6 +9,7 @@ const initialValues = {
   proGearWeightSpouse: '500',
   requiredMedicalEquipmentWeight: '1000',
   organizationalClothingAndIndividualEquipment: true,
+  gunSafe: true,
 };
 
 jest.mock('formik', () => ({
@@ -62,6 +63,7 @@ const entitlements = {
   proGearWeightSpouse: 500,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
+  gunSafe: true,
   storageInTransit: 90,
   totalWeight: 11000,
   totalDependents: 2,

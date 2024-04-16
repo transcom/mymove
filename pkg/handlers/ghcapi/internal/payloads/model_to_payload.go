@@ -666,6 +666,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -829,6 +830,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -857,6 +860,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.W2Address != nil {
 		payloadPPMShipment.W2Address = Address(ppmShipment.W2Address)
+	}
+
+	if ppmShipment.SecondaryPickupAddress != nil {
+		payloadPPMShipment.SecondaryPickupAddress = Address(ppmShipment.SecondaryPickupAddress)
+	}
+
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
 	}
 
 	return payloadPPMShipment
@@ -1151,6 +1162,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
+		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
 
 	if mtoShipment.Distance != nil {

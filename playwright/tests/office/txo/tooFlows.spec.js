@@ -191,7 +191,7 @@ test.describe('TOO user', () => {
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
       await expect(page.getByTestId('ShipmentContainer')).toBeVisible();
       await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] h3')).toContainText(
-        'Approved service items (14 items)',
+        'Approved Service Items (14 items)',
       );
 
       // MTO compliance information is visible
@@ -283,7 +283,7 @@ test.describe('TOO user', () => {
       let rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
 
       // This test requires at least two requested service items
-      await expect(page.getByText('Requested service items', { exact: false })).toBeVisible();
+      await expect(page.getByText('Requested Service Items', { exact: false })).toBeVisible();
       await expect(getServiceItemsInTable(requestedServiceItemsTable).nth(1)).toBeVisible();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
@@ -293,7 +293,9 @@ test.describe('TOO user', () => {
       await requestedServiceItemsTable.getByRole('button', { name: 'Accept' }).first().click();
       await tooFlowPage.waitForLoading();
 
-      await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] h3')).toContainText(
+        'Approved Service Items (15 items)',
+      );
       await expect(getServiceItemsInTable(approvedServiceItemsTable)).toHaveCount(approvedServiceItemCount + 1);
       approvedServiceItemCount = await getServiceItemsInTable(approvedServiceItemsTable).count();
 
@@ -301,7 +303,7 @@ test.describe('TOO user', () => {
       requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
 
       // Reject a requested service item
-      await expect(page.getByText('Requested service items', { exact: false })).toBeVisible();
+      await expect(page.getByText('Requested Service Items', { exact: false })).toBeVisible();
       expect((await getServiceItemsInTable(requestedServiceItemsTable).count()) > 0);
       await requestedServiceItemsTable.getByRole('button', { name: 'Reject' }).first().click();
 
@@ -314,7 +316,7 @@ test.describe('TOO user', () => {
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
-      await expect(page.getByText('Rejected service items', { exact: false })).toBeVisible();
+      await expect(page.getByText('Rejected Service Items', { exact: false })).toBeVisible();
       await expect(getServiceItemsInTable(rejectedServiceItemsTable)).toHaveCount(rejectedServiceItemCount + 1);
       rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
 
@@ -324,7 +326,9 @@ test.describe('TOO user', () => {
       // Accept a previously rejected service item
       await rejectedServiceItemsTable.getByRole('button').first().click();
 
-      await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] h3')).toContainText(
+        'Approved Service Items (15 items)',
+      );
       await expect(getServiceItemsInTable(approvedServiceItemsTable)).toHaveCount(approvedServiceItemCount + 1);
       approvedServiceItemCount = await getServiceItemsInTable(approvedServiceItemsTable).count();
 
@@ -342,11 +346,13 @@ test.describe('TOO user', () => {
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
-      await expect(page.getByText('Rejected service items', { exact: false })).toBeVisible();
+      await expect(page.getByText('Rejected Service Items', { exact: false })).toBeVisible();
       await expect(getServiceItemsInTable(rejectedServiceItemsTable)).toHaveCount(rejectedServiceItemCount + 1);
       rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
 
-      await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
+      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] h3')).toContainText(
+        'Approved Service Items (15 items)',
+      );
       await expect(getServiceItemsInTable(approvedServiceItemsTable)).toHaveCount(approvedServiceItemCount - 1);
       approvedServiceItemCount = await getServiceItemsInTable(approvedServiceItemsTable).count();
     });
@@ -454,6 +460,31 @@ test.describe('TOO user', () => {
           .locator('[data-testid="alert"]')
           .getByText('The request to cancel that shipment has been sent to the movers.'),
       ).toBeVisible();
+
+      // Alert should disappear if focus changes
+      await page.locator('[data-testid="rejectTextButton"]').first().click();
+      await page.locator('[data-testid="closeRejectServiceItem"]').click();
+      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
+    });
+
+    test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      await tooFlowPage.approveAllShipments();
+
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
+
+      // Move Task Order page
+      await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
+
+      await page.locator('button').getByText('Request diversion').click();
+
+      await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
+
+      // Check the alert message with shipment locator
+      const alertText = await page.locator('[data-testid="alert"]').textContent();
+      const shipmentNumberPattern = /Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})/;
+      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
+      expect(hasValidShipmentNumber).toBeTruthy();
 
       // Alert should disappear if focus changes
       await page.locator('[data-testid="rejectTextButton"]').first().click();
@@ -700,7 +731,7 @@ test.describe('TOO user', () => {
 
     await expect(page.getByText('Update request details')).not.toBeVisible();
     await expect(page.getByText('Review required')).not.toBeVisible();
-    await expect(page.getByTestId('destinationAddress')).toHaveText(
+    await expect(page.getByTestId('destinationAddress')).toContainText(
       '123 Any Street, P.O. Box 12345, Beverly Hills, CA 90210',
     );
 

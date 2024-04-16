@@ -1,7 +1,8 @@
 import * as Yup from 'yup';
 
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
-import { InvalidZIPTypeError, ZIP5_CODE_REGEX } from 'utils/validation';
+import { requiredAddressSchema } from 'utils/validation';
+import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 
 function closeoutOfficeSchema(showCloseoutOffice, isAdvancePage) {
@@ -26,15 +27,22 @@ const ppmShipmentSchema = ({
   const proGearSpouseWeightLimit = weightAllotment.proGearWeightSpouse || 0;
 
   const formSchema = Yup.object().shape({
-    pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-    secondPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
+    pickup: Yup.object().shape({
+      address: requiredAddressSchema,
+    }),
+    destination: Yup.object().shape({
+      address: requiredAddressSchema,
+    }),
+    secondaryPickup: Yup.object().shape({
+      address: OptionalAddressSchema,
+    }),
+    secondaryDestination: Yup.object().shape({
+      address: OptionalAddressSchema,
+    }),
+
     expectedDepartureDate: Yup.date()
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
-
-    destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-    secondDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError),
-
     sitExpected: Yup.boolean().required('Required'),
     sitEstimatedWeight: Yup.number().when('sitExpected', {
       is: true,
