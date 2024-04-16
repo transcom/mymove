@@ -17,7 +17,6 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const Shipment = ({ shipment, moveId, entitlements, onDelete, mtoServiceItems }) => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-
   const editShipmentAddressUrl = moveId
     ? generatePath(primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH, {
         moveCodeOrID: moveId,

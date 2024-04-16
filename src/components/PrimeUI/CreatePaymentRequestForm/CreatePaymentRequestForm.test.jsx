@@ -39,6 +39,10 @@ describe('CreatePaymentRequestForm', () => {
     2: [{ id: '5', reServiceCode: 'FSC' }],
   };
 
+  const entitlements = {
+    gunSafe: true,
+  };
+
   it('renders the form', async () => {
     render(
       <CreatePaymentRequestForm
@@ -46,6 +50,7 @@ describe('CreatePaymentRequestForm', () => {
         createPaymentRequestSchema={createPaymentRequestSchema}
         mtoShipments={twoShipments}
         groupedServiceItems={basicAndShipmentsServiceItems}
+        entitlements={entitlements}
         onSubmit={jest.fn()}
         handleSelectAll={jest.fn()}
         handleValidateDate={jest.fn()}
@@ -66,6 +71,7 @@ describe('CreatePaymentRequestForm', () => {
         createPaymentRequestSchema={createPaymentRequestSchema}
         mtoShipments={twoShipments}
         groupedServiceItems={basicAndShipmentsServiceItems}
+        entitlements={entitlements}
         onSubmit={jest.fn()}
         handleSelectAll={jest.fn()}
         handleValidateDate={jest.fn()}
@@ -86,6 +92,7 @@ describe('CreatePaymentRequestForm', () => {
         createPaymentRequestSchema={createPaymentRequestSchema}
         mtoShipments={twoShipments}
         groupedServiceItems={basicAndShipmentsServiceItems}
+        entitlements={entitlements}
         onSubmit={jest.fn()}
         handleSelectAll={jest.fn()}
         handleValidateDate={jest.fn()}
@@ -114,6 +121,7 @@ describe('CreatePaymentRequestForm', () => {
         createPaymentRequestSchema={createPaymentRequestSchema}
         mtoShipments={twoShipments}
         groupedServiceItems={basicAndShipmentsServiceItems}
+        entitlements={entitlements}
         onSubmit={jest.fn()}
         handleSelectAll={handleSelectAll}
         handleValidateDate={jest.fn()}
@@ -144,6 +152,7 @@ describe('CreatePaymentRequestForm', () => {
         createPaymentRequestSchema={createPaymentRequestSchema}
         mtoShipments={twoShipments}
         groupedServiceItems={basicAndShipmentsServiceItems}
+        entitlements={entitlements}
         onSubmit={jest.fn()}
         handleSelectAll={handleSelectAll}
         handleValidateDate={jest.fn()}
@@ -173,6 +182,7 @@ describe('CreatePaymentRequestForm', () => {
         createPaymentRequestSchema={createPaymentRequestSchema}
         mtoShipments={twoShipments}
         groupedServiceItems={basicAndShipmentsServiceItems}
+        entitlements={entitlements}
         onSubmit={jest.fn()}
         handleSelectAll={jest.fn()}
         handleValidateDate={jest.fn()}

@@ -76,6 +76,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
       {},
       ),
     */
+    gunSafe: moveTaskOrder.order.entitlement.gunSafe,
   };
 
   const dateValidationSchema = Yup.date()
@@ -233,6 +234,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
             createPaymentRequestSchema={createPaymentRequestSchema}
             mtoShipments={mtoShipments}
             groupedServiceItems={groupedServiceItems}
+            entitlements={moveTaskOrder.order.entitlement}
           />
         </div>
       </div>

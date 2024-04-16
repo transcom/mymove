@@ -51,6 +51,11 @@ const moveTaskOrder = {
       id: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
     },
   ],
+  order: {
+    entitlement: {
+      gunSafe: true,
+    },
+  },
 };
 
 const moveReturnValue = {
