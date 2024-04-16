@@ -1114,6 +1114,7 @@ export const MoveTaskOrder = (props) => {
                     shipmentStatus: mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
                     moveTaskOrderID: mtoShipment.moveTaskOrderID,
+                    shipmentLocator: mtoShipment.shipmentLocator,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                 />
