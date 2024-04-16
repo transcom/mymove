@@ -919,3 +919,4 @@
 20240402155228_updateLongBeachGbloc.up.sql
 20240403172437_backfill_counties_again.up.sql
 20240404152441_add_gun_safe_to_entitlements.up.sql
+20240412201837_edit_gun_safe_entitlement_not_null.up.sql
