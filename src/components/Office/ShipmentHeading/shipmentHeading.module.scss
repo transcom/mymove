@@ -8,11 +8,6 @@
     @include u-padding-top(2);
     @include u-margin-bottom(1);
     align-items: center;
-    justify-content: space-between;
-
-    h4 {
-      @include u-margin-top(1);
-    }
 
     :global(.usa-tag) {
       @include u-font-size('body', 3xs);
@@ -25,6 +20,17 @@
       @include u-margin-left(1);
       background-color: $error-light;
     }
+
+    h2 {
+      @include u-margin-y(0);
+      @include u-margin-bottom(0);
+    }
+  }
+
+  h4 {
+    @include u-text('gray-70', 'normal');
+    @include u-margin-top(0);
+    @include u-margin-bottom(1);
   }
 
   small {

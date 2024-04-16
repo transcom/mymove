@@ -30,12 +30,14 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <div className={styles.shipmentHeadingType}>
         <h2>{shipmentInfo.shipmentType}</h2>
-        <h4>Shipment ID: {shipmentInfo.shipmentLocator}</h4>
         {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
         {shipmentInfo.isDiversion && <Tag>diversion</Tag>}
         {!shipmentInfo.isDiversion && shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
           <Tag>diversion requested</Tag>
         )}
+      </div>
+      <div>
+        <h4>#{shipmentInfo.shipmentLocator}</h4>
       </div>
       <div className={styles.row}>
         <small>
