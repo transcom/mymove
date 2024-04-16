@@ -1065,7 +1065,7 @@ export const MoveTaskOrder = (props) => {
             <WeightDisplay
               heading="Max billable weight"
               weightValue={maxBillableWeight}
-              onEdit={handleShowWeightModal}
+              onEdit={displayMaxBillableWeight(nonPPMShipments) ? handleShowWeightModal : null}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
