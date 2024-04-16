@@ -21,8 +21,13 @@ export default {
   action: a.UPDATE,
   eventName: o.deleteWeightTicket,
   tableName: t.user_uploads,
-  getEventNameDisplay: () => {
-    return <div>Deleted upload</div>;
+  getEventNameDisplay: ({ context }) => {
+    const eventLabel =
+      context[0]?.upload_type === 'fullWeightTicket' || context[0]?.upload_type === 'emptyWeightTicket'
+        ? 'Deleted trip document'
+        : 'Deleted document';
+
+    return <div>{eventLabel}</div>;
   },
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;

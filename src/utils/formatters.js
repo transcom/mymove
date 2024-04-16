@@ -518,3 +518,11 @@ export function formatEvaluationReportLocation(location) {
       return undefined;
   }
 }
+
+export function formatTimeUnitDays(days) {
+  return `${days} days`;
+}
+
+export function formatDistanceUnitMiles(distance) {
+  return `${distance} miles`;
+}

@@ -466,28 +466,28 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 </Alert>
               </Grid>
             )}
-            <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
+            <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
+              {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
+                <div>
+                  {(counselorCanEdit || counselorCanEditNonPPM) && (
+                    <Button
+                      disabled={
+                        !mtoShipments.length ||
+                        allShipmentsDeleted ||
+                        disableSubmit ||
+                        disableSubmitDueToMissingOrderInfo ||
+                        hasInvalidProGearAllowances
+                      }
+                      type="button"
+                      onClick={handleShowCancellationModal}
+                    >
+                      Submit move details
+                    </Button>
+                  )}
+                </div>
+              )}
             </Grid>
-            {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
-              <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-                {(counselorCanEdit || counselorCanEditNonPPM) && (
-                  <Button
-                    disabled={
-                      !mtoShipments.length ||
-                      allShipmentsDeleted ||
-                      disableSubmit ||
-                      disableSubmitDueToMissingOrderInfo ||
-                      hasInvalidProGearAllowances
-                    }
-                    type="button"
-                    onClick={handleShowCancellationModal}
-                  >
-                    Submit move details
-                  </Button>
-                )}
-              </Grid>
-            )}
           </Grid>
 
           {hasInvalidProGearAllowances ? (

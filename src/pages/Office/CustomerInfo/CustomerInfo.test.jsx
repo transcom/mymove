@@ -42,7 +42,7 @@ const mockCustomer = {
   last_name: 'Doe',
   middle_name: 'Quincey',
   suffix: 'Jr.',
-  phone: '123-444-3434',
+  phone: '223-444-3434',
   secondaryTelephone: '234-567-8901',
 };
 

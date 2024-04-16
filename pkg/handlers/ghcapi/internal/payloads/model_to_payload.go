@@ -43,6 +43,13 @@ func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
 		return nil
 	}
+	// Adds shipmentGBLOC to be used for TOO/TIO's origin GBLOC
+	var gbloc ghcmessages.GBLOC
+	if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+	} else if move.Orders.OriginDutyLocationGBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
 
 	payload := &ghcmessages.Move{
 		ID:                           strfmt.UUID(move.ID.String()),
@@ -68,6 +75,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
+		ShipmentGBLOC:                gbloc,
 	}
 
 	return payload
@@ -459,6 +467,40 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
+	}
+	return &payload
+}
+
+func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser, backupContact *models.BackupContact) *ghcmessages.CreatedCustomer {
+	if sm == nil || oktaUser == nil || backupContact == nil {
+		return nil
+	}
+
+	bc := &ghcmessages.BackupContact{
+		Name:  &backupContact.Name,
+		Email: &backupContact.Email,
+		Phone: backupContact.Phone,
+	}
+
+	payload := ghcmessages.CreatedCustomer{
+		ID:                 strfmt.UUID(sm.ID.String()),
+		UserID:             strfmt.UUID(sm.UserID.String()),
+		OktaID:             oktaUser.ID,
+		OktaEmail:          oktaUser.Profile.Email,
+		Affiliation:        swag.StringValue((*string)(sm.Affiliation)),
+		Edipi:              sm.Edipi,
+		FirstName:          swag.StringValue(sm.FirstName),
+		MiddleName:         sm.MiddleName,
+		LastName:           swag.StringValue(sm.LastName),
+		Suffix:             sm.Suffix,
+		ResidentialAddress: Address(sm.ResidentialAddress),
+		BackupAddress:      Address(sm.BackupMailingAddress),
+		PersonalEmail:      *sm.PersonalEmail,
+		Telephone:          sm.Telephone,
+		SecondaryTelephone: sm.SecondaryTelephone,
+		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
+		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
+		BackupContact:      bc,
 	}
 	return &payload
 }
@@ -1083,6 +1125,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		NtsRecordedWeight:           handlers.FmtPoundPtr(mtoShipment.NTSRecordedWeight),
@@ -1414,6 +1458,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts:              MTOServiceItemCustomerContacts(s.CustomerContacts),
 		SitAddressUpdates:             SITAddressUpdates(s.SITAddressUpdates),
+		SitOriginHHGOriginalAddress:   Address(s.SITOriginHHGOriginalAddress),
+		SitOriginHHGActualAddress:     Address(s.SITOriginHHGActualAddress),
 		SitDestinationOriginalAddress: Address(s.SITDestinationOriginalAddress),
 		SitDestinationFinalAddress:    Address(s.SITDestinationFinalAddress),
 		EstimatedWeight:               handlers.FmtPoundPtr(s.EstimatedWeight),
@@ -1424,6 +1470,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ServiceRequestDocuments:       serviceRequestDocs,
 		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
+		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 	}
 }
 
