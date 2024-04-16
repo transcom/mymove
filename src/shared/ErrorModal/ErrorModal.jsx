@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from './DownloadPacketErrorModal.module.scss';
+import styles from './ErrorModal.module.scss';
 import Modal, { ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 import SystemError from 'components/SystemError';
 
-export const DownloadPacketErrorModal = ({ closeModal }) => (
+export const ErrorModal = ({ closeModal }) => (
   <Modal className={styles.Modal}>
     <ModalClose handleClick={closeModal} />
     <SystemError>
@@ -21,10 +21,10 @@ export const DownloadPacketErrorModal = ({ closeModal }) => (
   </Modal>
 );
 
-DownloadPacketErrorModal.propTypes = {
+ErrorModal.propTypes = {
   closeModal: PropTypes.func.isRequired,
 };
 
-DownloadPacketErrorModal.displayName = 'DownloadPacketErrorModal';
+ErrorModal.displayName = 'ErrorModal';
 
-export default connectModal(DownloadPacketErrorModal);
+export default connectModal(ErrorModal);

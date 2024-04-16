@@ -17,7 +17,7 @@ import {
 } from './HomeHelpers';
 
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -422,7 +422,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <DownloadPacketErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
+      <ErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>

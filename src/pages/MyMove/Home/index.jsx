@@ -56,7 +56,7 @@ import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete }
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
@@ -364,7 +364,7 @@ export class Home extends Component {
     navigate(path);
   };
 
-  toggleDownloadPacketErrorModal = () => {
+  toggleErrorModal = () => {
     this.setState((prevState) => ({
       showDownloadPPMPaperworkErrorAlert: !prevState.showDownloadPPMPaperworkErrorAlert,
     }));
@@ -448,10 +448,7 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
-        <DownloadPacketErrorModal
-          isOpen={showDownloadPPMPaperworkErrorAlert}
-          closeModal={this.toggleDownloadPacketErrorModal}
-        />
+        <ErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={this.toggleErrorModal} />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             {isSpecialMove ? (
@@ -637,7 +634,7 @@ export class Home extends Component {
                                         id={shipment?.ppmShipment?.id}
                                         label="Download AOA Paperwork (PDF)"
                                         asyncRetrieval={downloadPPMAOAPacket}
-                                        onFailure={this.toggleDownloadPacketErrorModal}
+                                        onFailure={this.toggleErrorModal}
                                       />
                                     </p>
                                   )}
@@ -693,7 +690,7 @@ export class Home extends Component {
                       <PPMSummaryList
                         shipments={ppmShipments}
                         onUploadClick={this.handlePPMUploadClick}
-                        onDownloadError={this.toggleDownloadPacketErrorModal}
+                        onDownloadError={this.toggleErrorModal}
                       />
                     </Step>
                   )}
