@@ -7333,6 +7333,12 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
@@ -19787,6 +19793,12 @@ func init() {
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
