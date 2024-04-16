@@ -15,6 +15,10 @@ export const selectDatePrefixByStatus = (status) => {
       return 'Date approved';
     case SERVICE_ITEM_STATUS.REJECTED:
       return 'Date rejected';
+    case 'Move Task Order Approved':
+      return 'Date approved';
+    case 'Move Task Order Rejected':
+      return 'Date rejected';
     case SERVICE_ITEM_STATUS.SUBMITTED:
     default:
       return 'Date requested';
@@ -26,6 +30,10 @@ export const selectDateFieldByStatus = (status) => {
     case SERVICE_ITEM_STATUS.APPROVED:
       return 'approvedAt';
     case SERVICE_ITEM_STATUS.REJECTED:
+      return 'rejectedAt';
+    case 'Move Task Order Approved':
+      return 'approvedAt';
+    case 'Move Task Order Rejected':
       return 'rejectedAt';
     case SERVICE_ITEM_STATUS.SUBMITTED:
     default:
