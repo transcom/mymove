@@ -12,7 +12,6 @@ import {
   SpreadsheetUploadInstructions,
   UploadDropZoneLabel,
   UploadDropZoneLabelMobile,
-  WeightEstimatorUrl,
 } from 'content/uploads';
 
 export const acceptableFileTypes = [
@@ -111,9 +110,7 @@ const WeightTicketUpload = ({
         <div className="labelWrapper">
           <Label htmlFor={fieldName}> {weightTicketUploadLabel(fieldName, missingWeightTicket)} </Label>
         </div>
-        <Hint className={styles.uploadTypeHint}>
-          {weightTicketUploadHint()}
-        </Hint>
+        <Hint className={styles.uploadTypeHint}> {weightTicketUploadHint()} </Hint>
         <FileUpload
           name={fieldName}
           className={fieldName}
