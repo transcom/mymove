@@ -249,7 +249,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			var verrs *validate.Errors
 			var url string
 			var createErr error
-			isWeightEstimatorFile := true
+			isWeightEstimatorFile := false
 
 			uploadedFile := file
 
