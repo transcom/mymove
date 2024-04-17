@@ -43,12 +43,16 @@ import {
   updateServiceItemSITEntryDate,
   updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
+import {
+  calculateEstimatedWeight,
+  calculateWeightRequested,
+  includedStatusesForCalculatingWeights,
+} from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -842,10 +846,17 @@ export const MoveTaskOrder = (props) => {
   ]);
 
   /* ------------------ Utils ------------------------- */
+  // determine if max billable weight should be displayed yet
+  const displayMaxBillableWeight = (shipments) => {
+    return shipments?.some(
+      (shipment) => includedStatusesForCalculatingWeights(shipment.status) && shipment.primeEstimatedWeight,
+    );
+  };
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = calculateWeightRequested(nonPPMShipments);
   const ppmWeightTotal = calculateWeightRequested(onlyPPMShipments);
-  const maxBillableWeight = estimatedWeightTotal > 0 ? estimatedWeightTotal * 1.1 : null;
+  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? order?.entitlement?.authorizedWeight : '-';
+
   /**
    * @function getSitAddressInitialValues
    * @todo ETag and Id need to be removed from response from backend or address fields needs to be in their own object
@@ -857,11 +868,13 @@ export const MoveTaskOrder = (props) => {
   -------------------------  UI -------------------------
   *
   */
+  // this should always be 110% of estimated weight regardless of allowance
+  // or max billable weight
   const estimateWeight110 = (
     <div className={moveTaskOrderStyles.childHeader}>
       <div>110% of estimated weight</div>
       <div className={moveTaskOrderStyles.value}>
-        {Number.isFinite(maxBillableWeight) ? formatWeight(maxBillableWeight) : '—'}
+        {Number.isFinite(estimatedWeightTotal) ? formatWeight(Math.round(estimatedWeightTotal * 1.1)) : '—'}
       </div>
     </div>
   );
@@ -1052,14 +1065,16 @@ export const MoveTaskOrder = (props) => {
             <WeightDisplay
               heading="Max billable weight"
               weightValue={maxBillableWeight}
-              onEdit={handleShowWeightModal}
+              onEdit={displayMaxBillableWeight(nonPPMShipments) ? handleShowWeightModal : null}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
-          <div className={moveTaskOrderStyles.secondRow} id="move-weights">
-            <WeightDisplay heading="PPM estimated weight (total)" weightValue={estimatedPPMWeightTotal} />
-            <WeightDisplay heading="Actual PPM weight (total)" weightValue={ppmWeightTotal} />
-          </div>
+          {onlyPPMShipments.length > 0 && (
+            <div className={moveTaskOrderStyles.secondRow} id="move-weights">
+              <WeightDisplay heading="PPM estimated weight (total)" weightValue={estimatedPPMWeightTotal} />
+              <WeightDisplay heading="Actual PPM weight (total)" weightValue={ppmWeightTotal} />
+            </div>
+          )}
           {mtoShipments.map((mtoShipment) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
@@ -1114,6 +1129,7 @@ export const MoveTaskOrder = (props) => {
                     shipmentStatus: mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
                     moveTaskOrderID: mtoShipment.moveTaskOrderID,
+                    shipmentLocator: mtoShipment.shipmentLocator,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                 />
@@ -1164,19 +1180,19 @@ export const MoveTaskOrder = (props) => {
                 {requestedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={requestedMoveServiceItems}
-                    statusForTableType="Move Task Order Requested"
+                    statusForTableType={MTO_SERVICE_ITEM_STATUS.SUBMITTED}
                   />
                 )}
                 {approvedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={approvedMoveServiceItems}
-                    statusForTableType="Move Task Order Approved"
+                    statusForTableType={MTO_SERVICE_ITEM_STATUS.APPROVED}
                   />
                 )}
                 {rejectedMoveServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={rejectedMoveServiceItems}
-                    statusForTableType="Move Task Order Rejected"
+                    statusForTableType={MTO_SERVICE_ITEM_STATUS.REJECTED}
                   />
                 )}
               </ShipmentContainer>

@@ -113,6 +113,12 @@ export const SERVICE_ITEM_STATUS = {
   REJECTED: 'REJECTED',
 };
 
+export const MTO_SERVICE_ITEM_STATUS = {
+  SUBMITTED: 'Move Task Order Requested',
+  APPROVED: 'Move Task Order Approved',
+  REJECTED: 'Move Task Order Rejected',
+};
+
 export const PAYMENT_REQUEST_STATUS = {
   PENDING: 'PENDING',
   REVIEWED: 'REVIEWED',

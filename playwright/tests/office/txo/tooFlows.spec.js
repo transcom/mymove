@@ -16,7 +16,7 @@ const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
 
 const SearchTerms = ['SITEXT', '8796353598', 'Spacemen'];
 
-const StatusFilterOptions = ['New Move', 'Approvals requested', 'Move approved'];
+const StatusFilterOptions = ['Draft', 'New Move', 'Needs Counseling', 'Service counseling completed', 'Move approved'];
 
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
