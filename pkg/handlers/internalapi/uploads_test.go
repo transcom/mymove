@@ -22,7 +22,9 @@ import (
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/upload"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -124,7 +126,17 @@ func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, ser
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	handler := CreatePPMUploadHandler{handlerConfig}
+	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	suite.FatalNoError(err)
+
+	pdfGenerator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNoError(err)
+
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
+	suite.FatalNoError(err)
+
+	handler := CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
 	response := handler.Handle(params)
 
 	return response
