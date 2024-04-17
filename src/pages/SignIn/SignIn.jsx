@@ -15,6 +15,7 @@ import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
 import { isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
@@ -68,6 +69,8 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
             </div>
           )}
 
+          {siteName === 'office.move.mil' && <ConnectedFlashMessage />}
+
           <h1 className="align-center">Welcome to {siteName}!</h1>
           {showLoginWarning && (
             <div>
@@ -77,7 +80,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
                   href="https://dps.move.mil/cust/standard/user/home.xhtml"
                   style={{ color: 'red', textDecoration: 'underline' }}
                 >
-                  elgibility in Milmove.
+                  eligibility in MilMove.
                 </a>{' '}
               </h2>
               <h2 style={{ color: 'red' }}>

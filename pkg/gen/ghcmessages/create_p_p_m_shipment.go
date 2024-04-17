@@ -19,11 +19,11 @@ import (
 // swagger:model CreatePPMShipment
 type CreatePPMShipment struct {
 
-	// ZIP
-	// Example: 90210
+	// destination address
 	// Required: true
-	// Pattern: ^(\d{5})$
-	DestinationPostalCode *string `json:"destinationPostalCode"`
+	DestinationAddress struct {
+		Address
+	} `json:"destinationAddress"`
 
 	// estimated weight
 	// Example: 4200
@@ -41,26 +41,30 @@ type CreatePPMShipment struct {
 	// Required: true
 	HasProGear *bool `json:"hasProGear"`
 
-	// ZIP
-	//
-	// zip code
-	// Example: 90210
+	// has secondary destination address
+	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
+
+	// has secondary pickup address
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+
+	// pickup address
 	// Required: true
-	// Pattern: ^(\d{5})$
-	PickupPostalCode *string `json:"pickupPostalCode"`
+	PickupAddress struct {
+		Address
+	} `json:"pickupAddress"`
 
 	// pro gear weight
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
 
-	// ZIP
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	SecondaryDestinationPostalCode *string `json:"secondaryDestinationPostalCode,omitempty"`
+	// secondary destination address
+	SecondaryDestinationAddress struct {
+		Address
+	} `json:"secondaryDestinationAddress,omitempty"`
 
-	// ZIP
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	SecondaryPickupPostalCode *string `json:"secondaryPickupPostalCode,omitempty"`
+	// secondary pickup address
+	SecondaryPickupAddress struct {
+		Address
+	} `json:"secondaryPickupAddress,omitempty"`
 
 	// sit estimated departure date
 	// Format: date
@@ -89,7 +93,7 @@ type CreatePPMShipment struct {
 func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDestinationPostalCode(formats); err != nil {
+	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -105,15 +109,15 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validatePickupPostalCode(formats); err != nil {
+	if err := m.validatePickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDestinationPostalCode(formats); err != nil {
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryPickupPostalCode(formats); err != nil {
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -139,15 +143,7 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreatePPMShipment) validateDestinationPostalCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("destinationPostalCode", "body", m.DestinationPostalCode); err != nil {
-		return err
-	}
-
-	if err := validate.Pattern("destinationPostalCode", "body", *m.DestinationPostalCode, `^(\d{5})$`); err != nil {
-		return err
-	}
+func (m *CreatePPMShipment) validateDestinationAddress(formats strfmt.Registry) error {
 
 	return nil
 }
@@ -183,38 +179,22 @@ func (m *CreatePPMShipment) validateHasProGear(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreatePPMShipment) validatePickupPostalCode(formats strfmt.Registry) error {
+func (m *CreatePPMShipment) validatePickupAddress(formats strfmt.Registry) error {
 
-	if err := validate.Required("pickupPostalCode", "body", m.PickupPostalCode); err != nil {
-		return err
-	}
+	return nil
+}
 
-	if err := validate.Pattern("pickupPostalCode", "body", *m.PickupPostalCode, `^(\d{5})$`); err != nil {
-		return err
+func (m *CreatePPMShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+		return nil
 	}
 
 	return nil
 }
 
-func (m *CreatePPMShipment) validateSecondaryDestinationPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDestinationPostalCode) { // not required
+func (m *CreatePPMShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
 		return nil
-	}
-
-	if err := validate.Pattern("secondaryDestinationPostalCode", "body", *m.SecondaryDestinationPostalCode, `^(\d{5})$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreatePPMShipment) validateSecondaryPickupPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryPickupPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("secondaryPickupPostalCode", "body", *m.SecondaryPickupPostalCode, `^(\d{5})$`); err != nil {
-		return err
 	}
 
 	return nil
@@ -276,6 +256,22 @@ func (m *CreatePPMShipment) validateSitLocation(formats strfmt.Registry) error {
 func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -283,6 +279,26 @@ func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
 	return nil
 }
 

@@ -32,6 +32,7 @@ import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
+import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { RouterShape, UserRolesShape } from 'types/index';
@@ -43,6 +44,7 @@ import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLo
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const RequestAccount = lazy(() => import('pages/Office/RequestAccount/RequestAccount'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
 // TXO
 const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
@@ -125,13 +127,6 @@ export class OfficeApp extends Component {
         oktaNeedsLoggedOut: true,
       });
     }
-
-    const script = document.createElement('script');
-
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-    script.async = true;
-
-    document.body.appendChild(script);
   }
 
   componentDidCatch(error, info) {
@@ -185,7 +180,11 @@ export class OfficeApp extends Component {
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
     });
+    const script = document.createElement('script');
 
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+    document.body.appendChild(script);
     return (
       <PermissionProvider permissions={userPermissions} currentUserId={officeUserId}>
         <div id="app-root">
@@ -194,7 +193,7 @@ export class OfficeApp extends Component {
             <CUIHeader />
             {userIsLoggedIn && activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
+            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {hasRecentError && location.pathname === '/' && (
@@ -217,6 +216,7 @@ export class OfficeApp extends Component {
                   // No Auth Routes
                   <Routes>
                     <Route path="/sign-in" element={<SignIn />} />
+                    <Route path="/request-account" element={<RequestAccount />} />
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
                     {/* 404 */}

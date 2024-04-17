@@ -1704,13 +1704,7 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED",
-                      "PENDING",
-                      "REVIEWED",
-                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-                      "PAID",
-                      "DEPRECATED",
-                      "EDI_ERROR"
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -2231,7 +2225,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -5019,6 +5013,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5048,7 +5097,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -5788,19 +5837,19 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
+        "pickupAddress",
+        "destinationAddress",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -5815,33 +5864,40 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -6017,7 +6073,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -7517,7 +7573,6 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "x-nullable": true,
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
@@ -7748,18 +7803,7 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED",
-        "PENDING",
-        "REVIEWED",
-        "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
-        "PAID",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-        "EDI_ERROR",
-        "DEPRECATED",
-        "ERROR",
-        "REJECTED",
-        "PAYMENT REQUESTED"
+        "CANCELED"
       ]
     },
     "MoveTaskOrder": {
@@ -10495,7 +10539,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -10671,13 +10715,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -10700,34 +10743,40 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
           "x-nullable": true,
-          "example": "90210"
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -11370,6 +11419,12 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
@@ -13540,13 +13595,7 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED",
-                      "PENDING",
-                      "REVIEWED",
-                      "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-                      "PAID",
-                      "DEPRECATED",
-                      "EDI_ERROR"
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -14199,7 +14248,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -17699,6 +17748,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -17728,7 +17832,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -18472,19 +18576,19 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
+        "pickupAddress",
+        "destinationAddress",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -18499,33 +18603,40 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -18701,7 +18812,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -20201,7 +20312,6 @@ func init() {
           "x-nullable": true
         },
         "shipmentGBLOC": {
-          "x-nullable": true,
           "$ref": "#/definitions/GBLOC"
         },
         "status": {
@@ -20432,18 +20542,7 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED",
-        "PENDING",
-        "REVIEWED",
-        "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
-        "PAID",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-        "EDI_ERROR",
-        "DEPRECATED",
-        "ERROR",
-        "REJECTED",
-        "PAYMENT REQUESTED"
+        "CANCELED"
       ]
     },
     "MoveTaskOrder": {
@@ -23237,7 +23336,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -23413,13 +23512,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -23442,34 +23540,40 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
           "x-nullable": true,
-          "example": "90210"
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -24124,6 +24228,12 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
