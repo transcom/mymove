@@ -865,29 +865,32 @@ describe('makeCalculations', () => {
     const resultFSC = makeCalculations('FSC', 99999, testParams.FuelSurchage);
     expect(resultFSC).toEqual([
       {
-        value: '85 cwt',
+        details: [
+          { text: 'Estimated: 8,000 lbs', styles: {} },
+          { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
+        ],
         label: 'Billable weight (cwt)',
-        details: [{ text: 'Estimated: 8,000 lbs', styles: {} }],
+        value: '85 cwt',
       },
       {
-        value: '210',
-        label: 'Mileage',
         details: [{ text: 'ZIP 32210 to ZIP 91910', styles: {} }],
+        label: 'Mileage',
+        value: '210',
       },
       {
-        value: '0.09',
-        label: 'Fuel surcharge price (per mi)',
         details: [
           { text: 'EIA diesel: $2.73', styles: {} },
           { text: 'FRA: $2.00', styles: {} },
           { text: 'Weight-based distance multiplier: 0.000417', styles: {} },
           { text: 'Pickup date: 11 Mar 2020', styles: {} },
         ],
+        label: 'Fuel surcharge price (per mi)',
+        value: '0.09',
       },
       {
-        value: '$999.99',
-        label: 'Total amount requested',
         details: [{ text: '', styles: {} }],
+        label: 'Total amount requested',
+        value: '$999.99',
       },
     ]);
   });
