@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		StreetAddress1: handlers.FmtString("123 New Street"),
 		City:           handlers.FmtString("Newcity"),
 		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("02110"),
+		PostalCode:     handlers.FmtString("12345"),
 	}
 	body.CurrentAddress.Address = currentAddress
 
@@ -207,6 +207,23 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 	suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
 	suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
 }
+
+// func (suite *HandlerSuite) TestSearchCustomersHandler() {
+// 	var requestUser models.User
+// 	setupTestData := func() *http.Request {
+// 		requestUser = factory.BuildUser(nil, nil, nil)
+// 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+// 		req = suite.AuthenticateUserRequest(req, requestUser)
+// 		return req
+// 	}
+
+// 	suite.Run("Successful customer search by DOD ID", func() {
+// 		req := setupTestData()
+// 		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
+// 		customers := models.ServiceMembers{customer}
+
+// 	})
+// }
 
 // Generate and activate Okta endpoints that will be using during the auth handlers.
 func mockAndActivateOktaEndpoints(provider *okta.Provider) {

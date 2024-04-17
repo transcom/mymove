@@ -23,6 +23,7 @@ import {
   useServicesCounselingQueuePPMQueries,
   useUserQueries,
   useMoveSearchQueries,
+  useCustomerSearchQueries,
 } from 'hooks/queries';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
@@ -38,6 +39,48 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
+
+const tabs = [
+  <NavLink
+    end
+    className={({ isActive }) => (isActive ? 'usa-current' : '')}
+    to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
+  >
+    <span data-testid="counseling-tab-link" className="tab-title">
+      Counseling Queue
+    </span>
+  </NavLink>,
+  <NavLink
+    end
+    className={({ isActive }) => (isActive ? 'usa-current' : '')}
+    to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
+  >
+    <span data-testid="closeout-tab-link" className="tab-title">
+      PPM Closeout Queue
+    </span>
+  </NavLink>,
+  <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={generalRoutes.BASE_QUEUE_SEARCH_PATH}>
+    <span data-testid="search-tab-link" className="tab-title">
+      Move Search
+    </span>
+  </NavLink>,
+];
+
+// when FEATURE_FLAG_COUNSELOR_MOVE_CREATE is removed,
+// this can simply be the tabs for this component
+const ffTabs = [
+  ...tabs,
+  <NavLink
+    end
+    className={({ isActive }) => (isActive ? 'usa-current' : '')}
+    to={servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH}
+  >
+    <span data-testid="search-tab-link" className="tab-title">
+      Customer Search
+    </span>
+  </NavLink>,
+];
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -238,14 +281,14 @@ const ServicesCounselingQueue = () => {
     fetchData();
   }, [setErrorState]);
 
-  const handleClick = (values, e) => {
-    if (e?.target?.innerHTML === 'Create New Move') {
-      navigate(
-        generatePath(servicesCounselingRoutes.BASE_CREATE_MOVE_EDIT_CUSTOMER_PATH, { moveCode: values.locator }),
-      );
-    } else {
-      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
-    }
+  const handleClick = (values) => {
+    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+  };
+
+  const handleCustomerSearchClick = (values) => {
+    navigate(
+      generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH, { customerId: values.customerID }),
+    );
   };
 
   const handleAddCustomerClick = () => {
@@ -290,41 +333,10 @@ const ServicesCounselingQueue = () => {
     );
   }
 
+  const navTabs = () => (isCounselorMoveCreateFFEnabled ? ffTabs : tabs);
+
   const renderNavBar = () => {
-    return (
-      <TabNav
-        className={styles.tableTabs}
-        items={[
-          <NavLink
-            end
-            className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
-          >
-            <span data-testid="counseling-tab-link" className="tab-title">
-              Counseling Queue
-            </span>
-          </NavLink>,
-          <NavLink
-            end
-            className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
-          >
-            <span data-testid="closeout-tab-link" className="tab-title">
-              PPM Closeout Queue
-            </span>
-          </NavLink>,
-          <NavLink
-            end
-            className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
-          >
-            <span data-testid="search-tab-link" className="tab-title">
-              Search
-            </span>
-          </NavLink>,
-        ]}
-      />
-    );
+    return <TabNav className={styles.tableTabs} items={navTabs()} />;
   };
 
   if (queueType === 'Search') {
@@ -334,11 +346,6 @@ const ServicesCounselingQueue = () => {
         <ConnectedFlashMessage />
         <div className={styles.searchFormContainer}>
           <h1>Search for a move</h1>
-          {searchHappened && counselorMoveCreateFeatureFlag && (
-            <Button type="submit" onClick={handleAddCustomerClick} className={styles.addCustomerBtn}>
-              Add Customer
-            </Button>
-          )}
         </div>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
         {searchHappened && (
@@ -355,7 +362,7 @@ const ServicesCounselingQueue = () => {
             dodID={search.dodID}
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
-            isCounselorMoveCreateFFEnabled={isCounselorMoveCreateFFEnabled}
+            searchType="move"
           />
         )}
       </div>
@@ -400,6 +407,40 @@ const ServicesCounselingQueue = () => {
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
         />
+      </div>
+    );
+  }
+  if (queueType === 'customer-search') {
+    return (
+      <div data-testid="customer-search" className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
+        <ConnectedFlashMessage />
+        <div className={styles.searchFormContainer}>
+          <h1>Search for a customer</h1>
+          {searchHappened && counselorMoveCreateFeatureFlag && (
+            <Button type="submit" onClick={handleAddCustomerClick} className={styles.addCustomerBtn}>
+              Add Customer
+            </Button>
+          )}
+        </div>
+        <CustomerSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        {searchHappened && (
+          <SearchResultsTable
+            showFilters
+            showPagination
+            defaultCanSort
+            disableMultiSort
+            disableSortBy={false}
+            title="Results"
+            defaultHiddenColumns={['customerID']}
+            handleClick={handleCustomerSearchClick}
+            useQueries={useCustomerSearchQueries}
+            dodID={search.dodID}
+            customerName={search.customerName}
+            roleType={roleTypes.SERVICES_COUNSELOR}
+            searchType="customer"
+          />
+        )}
       </div>
     );
   }

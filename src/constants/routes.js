@@ -50,6 +50,7 @@ export const customerRoutes = {
 };
 
 const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';
+const BASE_COUNSELING_CUSTOMER_PATH = '/counseling/customers/:customerId';
 
 export const servicesCounselingRoutes = {
   BASE_QUEUE_VIEW_PATH: '/counseling/queue',
@@ -59,6 +60,10 @@ export const servicesCounselingRoutes = {
   BASE_QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: 'PPM-closeout',
   BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
+  QUEUE_SEARCH_PATH: 'Search',
+  BASE_QUEUE_SEARCH_PATH: '/Search',
+  CUSTOMER_SEARCH_PATH: 'customer-search',
+  BASE_CUSTOMER_SEARCH_PATH: '/customer-search',
   BASE_COUNSELING_MOVE_PATH,
   BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
@@ -89,6 +94,11 @@ export const servicesCounselingRoutes = {
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
   CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
+  BASE_CUSTOMERS_CUSTOMER_INFO_PATH: `${BASE_COUNSELING_CUSTOMER_PATH}/customer-info`,
+  CUSTOMERS_CUSTOMER_INFO_PATH: 'customer-info',
+  BASE_CUSTOMERS_ORDERS_ADD_PATH: `${BASE_COUNSELING_CUSTOMER_PATH}/new-orders`,
+  CUSTOMERS_ORDERS_ADD_PATH: 'new-orders',
+  CREATE_MOVE_CUSTOMER_INFO_PATH: '/create-move/customer-info',
 };
 
 const BASE_MOVES_PATH = '/moves/:moveCode';

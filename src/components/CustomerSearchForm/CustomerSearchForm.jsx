@@ -1,0 +1,74 @@
+import React from 'react';
+import { Field, Formik } from 'formik';
+import classnames from 'classnames';
+import { Button, Radio } from '@trussworks/react-uswds';
+import PropTypes from 'prop-types';
+
+import styles from './CustomerSearchForm.module.scss';
+
+import { Form } from 'components/form/Form';
+import TextField from 'components/form/fields/TextField/TextField';
+import formStyles from 'styles/form.module.scss';
+
+const CustomerSearchForm = ({ onSubmit }) => {
+  return (
+    <Formik initialValues={{ searchType: 'dodID', searchText: '' }} onSubmit={onSubmit}>
+      {(formik) => {
+        return (
+          <Form
+            className={classnames(formStyles.form, styles.CustomerSearchForm)}
+            onSubmit={formik.handleSubmit}
+            role="search"
+          >
+            <legend className="usa-label">What do you want to search for?</legend>
+            <div role="group" className={formStyles.radioGroup}>
+              <Field
+                as={Radio}
+                id="radio-picked-dodid"
+                type="radio"
+                name="searchType"
+                value="dodID"
+                title="DOD ID"
+                label="DOD ID"
+              />
+              <Field
+                as={Radio}
+                id="radio-picked-customername"
+                type="radio"
+                name="searchType"
+                value="customerName"
+                title="Customer Name"
+                label="Customer Name"
+              />
+            </div>
+            <div className={styles.searchBar}>
+              <TextField
+                id="searchText"
+                className="usa-search__input"
+                label={<legend className="usa-label">Search</legend>}
+                name="searchText"
+                type="search"
+                button={
+                  <Button
+                    data-testid="searchTextSubmit"
+                    className={styles.searchButton}
+                    type="submit"
+                    disabled={!formik.isValid}
+                  >
+                    Search
+                  </Button>
+                }
+              />
+            </div>
+          </Form>
+        );
+      }}
+    </Formik>
+  );
+};
+
+CustomerSearchForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
+
+export default CustomerSearchForm;

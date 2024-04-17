@@ -20,3 +20,15 @@ type CustomerFetcher interface {
 type CustomerUpdater interface {
 	UpdateCustomer(appCtx appcontext.AppContext, eTag string, customer models.ServiceMember) (*models.ServiceMember, error)
 }
+
+//go:generate mockery --name CustomerSearcher
+type CustomerSearcher interface {
+	SearchCustomers(appCtx appcontext.AppContext, params *SearchCustomersParams) (models.ServiceMembers, int, error)
+}
+
+type SearchCustomersParams struct {
+	DodID        *string
+	CustomerName *string
+	Page         int64
+	PerPage      int64
+}
