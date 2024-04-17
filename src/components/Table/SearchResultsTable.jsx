@@ -184,16 +184,6 @@ const customerSearchColumns = () => [
     },
   ),
   createHeader(
-    'Branch',
-    (row) => {
-      return serviceMemberAgencyLabel(row.branch);
-    },
-    {
-      id: 'branch',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
     'Customer name',
     (row) => {
       return (
@@ -207,6 +197,16 @@ const customerSearchColumns = () => [
     },
     {
       id: 'customerName',
+      isFilterable: false,
+    },
+  ),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.branch);
+    },
+    {
+      id: 'branch',
       isFilterable: false,
     },
   ),

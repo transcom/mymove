@@ -41,47 +41,6 @@ import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const tabs = [
-  <NavLink
-    end
-    className={({ isActive }) => (isActive ? 'usa-current' : '')}
-    to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
-  >
-    <span data-testid="counseling-tab-link" className="tab-title">
-      Counseling Queue
-    </span>
-  </NavLink>,
-  <NavLink
-    end
-    className={({ isActive }) => (isActive ? 'usa-current' : '')}
-    to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
-  >
-    <span data-testid="closeout-tab-link" className="tab-title">
-      PPM Closeout Queue
-    </span>
-  </NavLink>,
-  <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={generalRoutes.BASE_QUEUE_SEARCH_PATH}>
-    <span data-testid="search-tab-link" className="tab-title">
-      Move Search
-    </span>
-  </NavLink>,
-];
-
-// when FEATURE_FLAG_COUNSELOR_MOVE_CREATE is removed,
-// this can simply be the tabs for this component
-const ffTabs = [
-  ...tabs,
-  <NavLink
-    end
-    className={({ isActive }) => (isActive ? 'usa-current' : '')}
-    to={servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH}
-  >
-    <span data-testid="search-tab-link" className="tab-title">
-      Customer Search
-    </span>
-  </NavLink>,
-];
-
 const counselingColumns = () => [
   createHeader('ID', 'id'),
   createHeader(
@@ -318,6 +277,53 @@ const ServicesCounselingQueue = () => {
     setSearch(payload);
     setSearchHappened(true);
   }, []);
+
+  const tabs = [
+    <NavLink
+      end
+      className={({ isActive }) => (isActive ? 'usa-current' : '')}
+      to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
+    >
+      <span data-testid="counseling-tab-link" className="tab-title">
+        Counseling Queue
+      </span>
+    </NavLink>,
+    <NavLink
+      end
+      className={({ isActive }) => (isActive ? 'usa-current' : '')}
+      to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
+    >
+      <span data-testid="closeout-tab-link" className="tab-title">
+        PPM Closeout Queue
+      </span>
+    </NavLink>,
+    <NavLink
+      end
+      className={({ isActive }) => (isActive ? 'usa-current' : '')}
+      to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
+      onClick={() => setSearchHappened(false)}
+    >
+      <span data-testid="search-tab-link" className="tab-title">
+        Move Search
+      </span>
+    </NavLink>,
+  ];
+
+  // when FEATURE_FLAG_COUNSELOR_MOVE_CREATE is removed,
+  // this can simply be the tabs for this component
+  const ffTabs = [
+    ...tabs,
+    <NavLink
+      end
+      className={({ isActive }) => (isActive ? 'usa-current' : '')}
+      to={servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH}
+      onClick={() => setSearchHappened(false)}
+    >
+      <span data-testid="search-tab-link" className="tab-title">
+        Customer Search
+      </span>
+    </NavLink>,
+  ];
 
   // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
   // the column filter for the closeout location column because it will have no effect.
