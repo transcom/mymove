@@ -7,7 +7,4 @@ export const UploadDropZoneLabel = 'Drag files here or <span class="filepond--la
 
 export const UploadDropZoneLabelMobile = '<span class="filepond--label-action">Upload files</span>';
 
-export const WeightTicketUploadInstructions =
-  'Maximum file size 25 MB. Each page must be clear and legible. Note: Spreadsheets will be converted to PDF and require the use of the official ';
-
-export const WeightEstimatorUrl = 'https://www.ustranscom.mil/dp3/weightestimator.cfm';
+export const WeightTicketUploadInstructions = 'Maximum file size 25 MB. Each page must be clear and legible.';

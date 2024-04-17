@@ -113,7 +113,6 @@ const WeightTicketUpload = ({
         </div>
         <Hint className={styles.uploadTypeHint}>
           {weightTicketUploadHint()}
-          <a href={WeightEstimatorUrl}>Weight Estimator spreadsheet</a>
         </Hint>
         <FileUpload
           name={fieldName}
