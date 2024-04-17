@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/roles"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
+	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 )
@@ -51,10 +52,21 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
+	userRolesCreator := usersroles.NewUsersRolesCreator()
+	newRolesFetcher := roles.NewRolesFetcher()
+
 	adminAPI.RequestedOfficeUsersGetRequestedOfficeUserHandler = GetRequestedOfficeUserHandler{
 		handlerConfig,
 		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
+		newRolesFetcher,
 		query.NewQueryFilter,
+	}
+
+	adminAPI.RequestedOfficeUsersUpdateRequestedOfficeUserHandler = UpdateRequestedOfficeUserHandler{
+		handlerConfig,
+		requestedofficeusers.NewRequestedOfficeUserUpdater(queryBuilder),
+		userRolesCreator,
+		newRolesFetcher,
 	}
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
@@ -70,15 +82,14 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
-	userRolesCreator := usersroles.NewUsersRolesCreator()
-	newRolesFetcher := roles.NewRolesFetcher()
-
+	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
 		newRolesFetcher,
+		userPrivilegesCreator,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -86,6 +97,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		officeUpdater,
 		query.NewQueryFilter,
 		userRolesCreator,
+		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
 	}
 
@@ -184,7 +196,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter),
 			moveRouter,
 		),
 	}

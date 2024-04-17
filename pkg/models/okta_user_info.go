@@ -13,3 +13,18 @@ type OktaUser struct {
 	EmailVerified     bool   `json:"email_verified"`
 	Edipi             string `json:"cac_edipi"`
 }
+
+type CreatedOktaUser struct {
+	ID        string `json:"id"`
+	Status    string `json:"status"`
+	Created   string `json:"created"`
+	Activated string `json:"activated"`
+	Profile   struct {
+		FirstName   string `json:"firstName"`
+		LastName    string `json:"lastName"`
+		MobilePhone string `json:"mobilePhone"`
+		SecondEmail string `json:"secondEmail"`
+		Login       string `json:"login"`
+		Email       string `json:"email"`
+	} `json:"profile"`
+}

@@ -105,6 +105,7 @@ export default {
   has_requested_advance: 'Advance requested',
   empty_weight: 'Empty weight',
   full_weight: 'Full weight',
+  weight: 'Weight',
   owns_trailer: 'Trailer',
   trailer_meets_criteria: 'Trailer meets criteria',
   net_weight_remarks: 'Remarks',
@@ -119,7 +120,6 @@ export default {
   sit_estimated_cost: 'SIT estimated cost',
   estimated_incentive: 'PPM estimated incentive',
   ppm_type: 'PPM type',
-  distance: 'Distance in miles',
   actual_move_date: 'Departure date',
   actual_pickup_postal_code: 'Starting ZIP',
   actual_destination_postal_code: 'Ending ZIP',
@@ -131,4 +131,9 @@ export default {
   filename: 'Filename',
   paid_with_gtcc: 'Paid with gtcc',
   missing_receipt: 'Missing receipt',
+  closeout_office_name: 'Closeout office',
+  distance: 'Shipping distance',
+  vehicle_description: 'Vehicle description',
+  ppm_status: 'PPM status', // custom front end status, not database value
+  moving_expense_type: 'Expense type',
 };

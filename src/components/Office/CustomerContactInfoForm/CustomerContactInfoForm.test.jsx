@@ -13,11 +13,11 @@ describe('CustomerContactInfoForm Component', () => {
     customerTelephone: '',
     customerEmail: '',
     customerAddress: {
-      streetAddress1: '',
-      streetAddress2: '',
-      city: '',
-      state: '',
-      postalCode: '',
+      streetAddress1: '123 Happy St',
+      streetAddress2: 'Unit 4',
+      city: 'Missoula',
+      state: 'MT',
+      postalCode: '59802',
     },
     name: '',
     telephone: '',
@@ -47,15 +47,18 @@ describe('CustomerContactInfoForm Component', () => {
 
       expect(screen.getAllByLabelText('Phone')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Phone')[0]).toBeRequired();
+
+      expect(screen.getAllByLabelText(/Alternate Phone/)[0]).toBeInstanceOf(HTMLInputElement);
+
       expect(screen.getAllByLabelText('Email')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Email')[0]).toBeRequired();
 
       expect(screen.getByText('Current Address')).toBeInstanceOf(HTMLHeadingElement);
-      expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
-      expect(screen.getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByDisplayValue('123 Happy St')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByDisplayValue('Unit 4')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByDisplayValue('Missoula')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByDisplayValue('MT')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByDisplayValue('59802')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByLabelText('Name')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Phone')[1]).toBeInstanceOf(HTMLInputElement);

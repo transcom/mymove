@@ -72,6 +72,10 @@ properties:
   diversion:
     type: boolean
     example: true
+  distance:
+    type: integer
+    x-nullable: true
+    example: 500
   pickupAddress:
     x-nullable: true
     $ref: 'Address.yaml'
@@ -94,6 +98,14 @@ properties:
     type: boolean
     x-omitempty: false
     x-nullable: true
+  actualProGearWeight:
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  actualSpouseProGearWeight:
+    type: integer
+    x-nullable: true
+    x-omitempty: false
   customerRemarks:
     type: string
     example: handle with care
@@ -165,3 +177,8 @@ properties:
     $ref: 'PPMShipment.yaml'
   deliveryAddressUpdate:
     $ref: 'ShipmentAddressUpdate.yaml'
+  shipmentLocator:
+    type: string
+    x-nullable: true
+    readOnly: true
+    example: '1K43AR-01'

@@ -27,6 +27,12 @@ type MTOShipment struct {
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate,omitempty"`
 
+	// actual pro gear weight
+	ActualProGearWeight *int64 `json:"actualProGearWeight"`
+
+	// actual spouse pro gear weight
+	ActualSpouseProGearWeight *int64 `json:"actualSpouseProGearWeight"`
+
 	// approved date
 	// Format: date-time
 	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
@@ -74,6 +80,10 @@ type MTOShipment struct {
 
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
+
+	// distance
+	// Example: 500
+	Distance *int64 `json:"distance,omitempty"`
 
 	// diversion
 	// Example: true
@@ -160,6 +170,11 @@ type MTOShipment struct {
 
 	// service order number
 	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
+
+	// shipment locator
+	// Example: 1K43AR-01
+	// Read Only: true
+	ShipmentLocator *string `json:"shipmentLocator,omitempty"`
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
@@ -842,6 +857,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateShipmentLocator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1093,6 +1112,15 @@ func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context,
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateShipmentLocator(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "shipmentLocator", "body", m.ShipmentLocator); err != nil {
+		return err
 	}
 
 	return nil

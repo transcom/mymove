@@ -17,3 +17,21 @@
   @include u-margin-bottom(2);
   border-bottom: (2px solid rgb(236, 234, 234));
 }
+
+.specialMoves {
+  min-width: 100px;
+  display: block;
+  color: red;
+}
+
+.searchFormContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.addCustomerBtn {
+  height: 43px;
+  width: 7vw;
+  background-color: $link;
+}

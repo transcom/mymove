@@ -2011,15 +2011,19 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "GHC",
-        "NTS"
+        "NTS",
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -4806,15 +4810,19 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "GHC",
-        "NTS"
+        "NTS",
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {

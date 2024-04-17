@@ -8,7 +8,7 @@ import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
 
-import { detectFlags } from 'utils/featureFlags';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -57,17 +57,18 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
     fetchData();
   }, [setErrorState, serviceMember, updateAllMoves]);
 
-  const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
-
   // handles logic when user clicks "Create a Move" button
   // if they have previous moves, they'll need to validate their profile
   // if they do not have previous moves, then they don't need to validate
   const handleCreateMoveBtnClick = () => {
-    if (serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length !== 0) {
+    if (
+      (serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length !== 0) ||
+      (serviceMemberMoves && serviceMemberMoves.currentMove && serviceMemberMoves.currentMove.length !== 0)
+    ) {
       const profileEditPath = customerRoutes.PROFILE_PATH;
       navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
     } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
+      navigate(customerRoutes.ORDERS_ADD_PATH);
     }
   };
 
@@ -82,8 +83,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
     );
   }
 
-  // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
-  return flags.multiMove ? (
+  return (
     <div>
       <div className={styles.homeContainer}>
         <header data-testid="customerHeader" className={styles.customerHeader}>
@@ -94,7 +94,14 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-          {serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length === 0 ? (
+          <div className={styles.flashMessage}>
+            <ConnectedFlashMessage />
+          </div>
+          {serviceMemberMoves &&
+          serviceMemberMoves.previousMoves &&
+          serviceMemberMoves.previousMoves.length === 0 &&
+          serviceMemberMoves.currentMove &&
+          serviceMemberMoves.currentMove.length === 0 ? (
             <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
               <p data-testid="welcomeHeader">
                 Select &quot;Create a Move&quot; to get started. <br />
@@ -108,7 +115,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
               <p data-testid="welcomeHeaderPrevMoves">
                 Select &quot;Create a Move&quot; to get started. <br />
                 <br />
-                Once you have validated your profile, pleasee click the &quot;Validate&quot; button and proceed to
+                Once you have validated your profile, please click the &quot;Validate&quot; button and proceed to
                 starting your move. <br />
                 If you encounter any issues please contact your local Transportation Office or the Help Desk for further
                 assistance.
@@ -162,7 +169,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 MultiMovesLandingPage.defaultProps = {

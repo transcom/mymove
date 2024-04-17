@@ -2,13 +2,38 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/variables';
 
+.ItemDetails {
+  span {
+    display: grid;
+    grid-template-columns: 200px 200px;
+    @include u-margin-y(1);
+    padding-left: 8px;
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  dt {
+    font-weight: bold;
+  }
+
+  .ReceiptTotal {
+    margin-top: 1.5rem;
+  }
+}
+
 .ReviewDocumentsSidePanel {
   main {
     padding: 0;
   }
 
   header {
-    @include u-padding(2);
+    @include u-padding(1);
   }
 
   hr {
@@ -37,13 +62,16 @@
       margin: 12px 8px;
     }
   }
+
   ul {
     margin: 0;
     padding: 0;
+
     li {
       list-style: none;
     }
   }
+
   .row {
     display: flex;
     flex-direction: row;

@@ -34,7 +34,7 @@ type Page1Values struct {
 	AuthorizedDestination           string
 	NewDutyAssignment               string
 	WeightAllotment                 string
-	WeightAllotmentProgear          string
+	WeightAllotmentProGear          string
 	WeightAllotmentProgearSpouse    string
 	TotalWeightAllotment            string
 	POVAuthorized                   string
@@ -63,10 +63,39 @@ type Page1Values struct {
 
 // Page2Values is an object representing a Shipment Summary Worksheet
 type Page2Values struct {
-	CUIBanner       string
-	PreparationDate string
-	TAC             string
-	SAC             string
+	CUIBanner                   string
+	PreparationDate             string
+	TAC                         string
+	SAC                         string
+	ContractedExpenseMemberPaid string
+	ContractedExpenseGTCCPaid   string
+	RentalEquipmentMemberPaid   string
+	RentalEquipmentGTCCPaid     string
+	PackingMaterialsMemberPaid  string
+	PackingMaterialsGTCCPaid    string
+	WeighingFeesMemberPaid      string
+	WeighingFeesGTCCPaid        string
+	GasMemberPaid               string
+	GasGTCCPaid                 string
+	TollsMemberPaid             string
+	TollsGTCCPaid               string
+	OilMemberPaid               string
+	OilGTCCPaid                 string
+	OtherMemberPaid             string
+	OtherGTCCPaid               string
+	TotalMemberPaid             string
+	TotalGTCCPaid               string
+	TotalMemberPaidRepeated     string
+	TotalGTCCPaidRepeated       string
+	TotalPaidNonSIT             string
+	TotalMemberPaidSIT          string
+	TotalGTCCPaidSIT            string
+	TotalPaidSIT                string
+	ShipmentPickupDates         string
+	TrustedAgentName            string
+	TrustedAgentDate            string
+	TrustedAgentEmail           string
+	TrustedAgentPhone           string
 	FormattedMovingExpenses
 	ServiceMemberSignature string
 	SignatureDate          string
@@ -81,47 +110,50 @@ type FormattedOtherExpenses struct {
 
 // FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
 type FormattedMovingExpenses struct {
-	ContractedExpenseMemberPaid Dollar
-	ContractedExpenseGTCCPaid   Dollar
-	RentalEquipmentMemberPaid   Dollar
-	RentalEquipmentGTCCPaid     Dollar
-	PackingMaterialsMemberPaid  Dollar
-	PackingMaterialsGTCCPaid    Dollar
-	WeighingFeesMemberPaid      Dollar
-	WeighingFeesGTCCPaid        Dollar
-	GasMemberPaid               Dollar
-	GasGTCCPaid                 Dollar
-	TollsMemberPaid             Dollar
-	TollsGTCCPaid               Dollar
-	OilMemberPaid               Dollar
-	OilGTCCPaid                 Dollar
-	OtherMemberPaid             Dollar
-	OtherGTCCPaid               Dollar
-	TotalMemberPaid             Dollar
-	TotalGTCCPaid               Dollar
-	TotalMemberPaidRepeated     Dollar
-	TotalGTCCPaidRepeated       Dollar
-	TotalPaidNonSIT             Dollar
-	TotalMemberPaidSIT          Dollar
-	TotalGTCCPaidSIT            Dollar
-	TotalPaidSIT                Dollar
+	ContractedExpenseMemberPaid string
+	ContractedExpenseGTCCPaid   string
+	RentalEquipmentMemberPaid   string
+	RentalEquipmentGTCCPaid     string
+	PackingMaterialsMemberPaid  string
+	PackingMaterialsGTCCPaid    string
+	WeighingFeesMemberPaid      string
+	WeighingFeesGTCCPaid        string
+	GasMemberPaid               string
+	GasGTCCPaid                 string
+	TollsMemberPaid             string
+	TollsGTCCPaid               string
+	OilMemberPaid               string
+	OilGTCCPaid                 string
+	OtherMemberPaid             string
+	OtherGTCCPaid               string
+	TotalMemberPaid             string
+	TotalGTCCPaid               string
+	TotalMemberPaidRepeated     string
+	TotalGTCCPaidRepeated       string
+	TotalPaidNonSIT             string
+	TotalMemberPaidSIT          string
+	TotalGTCCPaidSIT            string
+	TotalPaidSIT                string
 }
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
 type ShipmentSummaryFormData struct {
-	ServiceMember           models.ServiceMember
-	Order                   models.Order
-	Move                    models.Move
-	CurrentDutyLocation     models.DutyLocation
-	NewDutyLocation         models.DutyLocation
-	WeightAllotment         SSWMaxWeightEntitlement
-	PPMShipments            models.PPMShipments
-	W2Address               *models.Address
-	PreparationDate         time.Time
-	Obligations             Obligations
-	MovingExpenses          models.MovingExpenses
-	PPMRemainingEntitlement unit.Pound
-	SignedCertification     models.SignedCertification
+	ServiceMember            models.ServiceMember
+	Order                    models.Order
+	Move                     models.Move
+	CurrentDutyLocation      models.DutyLocation
+	NewDutyLocation          models.DutyLocation
+	WeightAllotment          SSWMaxWeightEntitlement
+	PPMShipment              models.PPMShipment
+	PPMShipments             models.PPMShipments
+	W2Address                *models.Address
+	PreparationDate          time.Time
+	Obligations              Obligations
+	MovingExpenses           models.MovingExpenses
+	MTOAgents                models.MTOAgents
+	PPMRemainingEntitlement  unit.Pound
+	SignedCertification      models.SignedCertification
+	MaxSITStorageEntitlement int
 }
 
 // Obligations is an object representing the winning and non-winning Max Obligation and Actual Obligation sections of the shipment summary worksheet

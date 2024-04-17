@@ -337,7 +337,7 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 	}
 	// adding pagination and all moves returned with built query
 	// if there are no moves then it will return.. no moves
-	err = query.Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
+	err = query.EagerPreload("Orders.OrdersType").Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
 	if err != nil {
 		return []models.Move{}, 0, err
 	}

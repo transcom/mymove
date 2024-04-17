@@ -21,6 +21,54 @@ func TestMove(_ *testing.T) {
 	Move(&models.Move{})
 }
 
+func (suite *PayloadsSuite) TestFetchPPMShipment() {
+
+	ppmShipmentID, _ := uuid.NewV4()
+	streetAddress1 := "MacDill AFB"
+	streetAddress2, streetAddress3 := "", ""
+	city := "Tampa"
+	state := "FL"
+	postalcode := "33621"
+	country := "US"
+
+	expectedAddress := models.Address{
+		StreetAddress1: streetAddress1,
+		StreetAddress2: &streetAddress2,
+		StreetAddress3: &streetAddress3,
+		City:           city,
+		State:          state,
+		PostalCode:     postalcode,
+		Country:        &country,
+	}
+
+	expectedPPMShipment := models.PPMShipment{
+		ID:                 ppmShipmentID,
+		PickupAddress:      &expectedAddress,
+		DestinationAddress: &expectedAddress,
+	}
+
+	suite.Run("Success -", func() {
+		returnedPPMShipment := PPMShipment(nil, &expectedPPMShipment)
+
+		suite.IsType(returnedPPMShipment, &ghcmessages.PPMShipment{})
+		suite.Equal(&streetAddress1, returnedPPMShipment.PickupAddress.StreetAddress1)
+		suite.Equal(expectedPPMShipment.PickupAddress.StreetAddress2, returnedPPMShipment.PickupAddress.StreetAddress2)
+		suite.Equal(expectedPPMShipment.PickupAddress.StreetAddress3, returnedPPMShipment.PickupAddress.StreetAddress3)
+		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
+		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
+		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
+		suite.Equal(&country, returnedPPMShipment.PickupAddress.Country)
+
+		suite.Equal(&streetAddress1, returnedPPMShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(expectedPPMShipment.DestinationAddress.StreetAddress2, returnedPPMShipment.DestinationAddress.StreetAddress2)
+		suite.Equal(expectedPPMShipment.DestinationAddress.StreetAddress3, returnedPPMShipment.DestinationAddress.StreetAddress3)
+		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
+		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
+		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
+		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
+	})
+}
+
 func (suite *PayloadsSuite) TestUpload() {
 	uploadID, _ := uuid.NewV4()
 	testURL := "https://testurl.com"
@@ -172,5 +220,70 @@ func (suite *PayloadsSuite) TestProofOfServiceDoc() {
 		returnedProofOfServiceDoc, _ := ProofOfServiceDoc(proofOfServiceDoc, suite.storer)
 
 		suite.IsType(returnedProofOfServiceDoc, &ghcmessages.ProofOfServiceDoc{})
+	})
+}
+
+func (suite *PayloadsSuite) TestCreateCustomer() {
+	id, _ := uuid.NewV4()
+	id2, _ := uuid.NewV4()
+	oktaID := "thisIsNotARealID"
+
+	oktaUser := models.CreatedOktaUser{
+		ID: oktaID,
+		Profile: struct {
+			FirstName   string `json:"firstName"`
+			LastName    string `json:"lastName"`
+			MobilePhone string `json:"mobilePhone"`
+			SecondEmail string `json:"secondEmail"`
+			Login       string `json:"login"`
+			Email       string `json:"email"`
+		}{
+			Email: "john.doe@example.com",
+		},
+	}
+
+	residentialAddress := models.Address{
+		StreetAddress1: "123 New St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89503",
+		Country:        models.StringPointer("United States"),
+	}
+
+	backupAddress := models.Address{
+		StreetAddress1: "123 Old St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89502",
+		Country:        models.StringPointer("United States"),
+	}
+
+	phone := "444-555-6677"
+	backupContact := models.BackupContact{
+		Name:  "Billy Bob",
+		Email: "billBob@mail.mil",
+		Phone: &phone,
+	}
+
+	firstName := "First"
+	lastName := "Last"
+	affiliation := models.AffiliationARMY
+	email := "dontEmailMe@gmail.com"
+	sm := models.ServiceMember{
+		ID:                   id,
+		UserID:               id2,
+		FirstName:            &firstName,
+		LastName:             &lastName,
+		Affiliation:          &affiliation,
+		PersonalEmail:        &email,
+		Telephone:            &phone,
+		ResidentialAddress:   &residentialAddress,
+		BackupMailingAddress: &backupAddress,
+	}
+
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+		returnedShipmentAddressUpdate := CreatedCustomer(&sm, &oktaUser, &backupContact)
+
+		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.CreatedCustomer{})
 	})
 }

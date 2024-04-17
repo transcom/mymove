@@ -4,22 +4,22 @@
 @import '../../../../shared/styles/_variables';
 
 .movesContainer {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    gap: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 20px;
 }
 
 .moveContainer {
-    border-top: 8px;
-    @include u-border-top('base-darker');
-    @include u-margin-bottom(1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  border-top: 8px;
+  @include u-border-top('base-darker');
+  @include u-margin-bottom(1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
-.heading {
+  .heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -42,52 +42,52 @@
     }
 
     .icon {
-       margin-left: 1rem;
+      margin-left: 1rem;
     }
 
-  // handling mobile device layout
-  // the buttons are too large to display so we will make them a column
-  @media (max-width: $tablet) {
-    flex-direction: column;
+    // handling mobile device layout
+    // the buttons are too large to display so we will make them a column
+    @media (max-width: $tablet) {
+      flex-direction: column;
 
-    h3 {
-      margin-bottom: 0.5rem;
-    }
+      h3 {
+        margin-bottom: 0.5rem;
+      }
 
-    .moveContainerButtons {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 5px;
-      width: 100%;
-    }
+      .moveContainerButtons {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 5px;
+        width: 100%;
+      }
 
-    .icon {
-      margin-top: 0.5rem;
+      .icon {
+        margin-top: 0.5rem;
+      }
     }
   }
-}
 
   .moveInfoList {
     @include u-margin-top(0);
 
     .moveInfoListExpanded {
-        @include u-margin-top(-2);
-      }
+      @include u-margin-top(-2);
+    }
   }
 }
 
 .shipmentH3 {
-    @include u-margin-x(2);
+  @include u-margin-x(2);
 }
 
 .shipment {
-    @include u-margin-x(2);
+  @include u-margin-x(2);
 }
 
 .previewShipment {
-    @include u-margin-x(0);
-    @include u-margin-bottom(1);
+  @include u-margin-x(0);
+  @include u-margin-bottom(1);
 
   .innerWrapper {
     @include u-margin-left(2);
@@ -96,14 +96,36 @@
     @media (max-width: 700px) {
       @include u-margin-left(0);
     }
+
   }
 }
 
 .shipmentTypeHeading {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  h4 {
+    font-weight: bold;
+  }
+  @media (max-width: 768px) {
+    flex-direction: column;
     align-items: center;
-    h4 {
-        font-weight: bold;
-    }
+  }
+}
+
+.specialMoves {
+  margin: auto;
+  color: red;
+  font-size: 1.67rem;
+  font-weight: bold;
+}
+
+.ppmDropdownBtn {
+  margin-left: auto;
+  padding-left: 10px;
+
+  @media (max-width: 768px) {
+    margin: auto;
+    padding-left: 0;
+  }
 }

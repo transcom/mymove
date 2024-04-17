@@ -14,7 +14,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -88,6 +87,7 @@ func MakeMoveWithOrders(db *pop.Connection) models.Move {
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -109,6 +109,7 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 				PersonalEmail: models.StringPointer(userInfo.email),
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -120,64 +121,6 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	}, nil)
 
 	return move
-}
-
-func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
-	userInfo := newUserInfo("customer")
-	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
-			},
-		},
-	}, nil)
-
-	cal := dates.NewUSCalendar()
-	nextValidMoveDate := dates.NextValidMoveDate(time.Now(), cal)
-
-	nextValidMoveDateMinusTen := dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
-	pastTime := nextValidMoveDateMinusTen
-
-	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        user.ID,
-			PersonalEmail: models.StringPointer(userInfo.email),
-			FirstName:     models.StringPointer(userInfo.firstName),
-			LastName:      models.StringPointer(userInfo.lastName),
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &pastTime,
-		},
-	})
-
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    ppm1.Move,
-			LinkOnly: true,
-		},
-	}, nil)
-	moveRouter := moverouter.NewMoveRouter()
-	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = moveRouter.Approve(appCtx, &ppm1.Move)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
-	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-	}
-
-	// re-fetch the move so that we ensure we have exactly what is in
-	// the db
-	move, err := models.FetchMove(appCtx.DB(), &auth.Session{}, ppm1.Move.ID)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
-	}
-	return *move
 }
 
 func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
@@ -192,6 +135,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -266,6 +210,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -606,7 +551,7 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipmentFields := models.MTOShipment{
-		Status:                models.MTOShipmentStatusApproved,
+		Status:                models.MTOShipmentStatusSubmitted,
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 	}
@@ -892,6 +837,7 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Edipi:         models.StringPointer(dodID),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -961,6 +907,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1147,6 +1094,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1664,6 +1612,7 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -2411,7 +2360,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2515,7 +2464,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2588,6 +2537,21 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	locator := models.GenerateLocator()
 	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveNeedsServicesCounselingUSMC creates an fully ready move as USMC needing SC approval
+func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	locator := models.GenerateLocator()
+	move := scenario.CreateHHGNeedsServicesCounselingUSMC3(appCtx, userUploader, locator)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2715,8 +2679,8 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
-			PickupPostalAddressID:       &pickupAddress.ID,
-			DestinationPostalAddressID:  &destinationAddress.ID,
+			PickupAddressID:             &pickupAddress.ID,
+			DestinationAddressID:        &destinationAddress.ID,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -2725,6 +2689,193 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(14000),
+				FullWeight:  models.PoundPointer(18000),
+			},
+		},
+	}, nil)
+
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
+
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+	}
+	return *newmove
+}
+
+// This one is the actual function that's used for testdatagen harness(I think)
+func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	sitLocationType := models.SITLocationTypeOrigin
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	sitDaysAllowance := 90
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "42444",
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "30813",
+			},
+		},
+	}, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusApproved,
+			SITDaysAllowance:     &sitDaysAllowance,
+			PickupAddressID:      &pickupAddress.ID,
+			DestinationAddressID: &destinationAddress.ID,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+			FinalIncentive:              models.CentPointer(50000000),
+			SITExpected:                 models.BoolPointer(true),
+			SITEstimatedEntryDate:       models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedDepartureDate:   models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedWeight:          models.PoundPointer(unit.Pound(1234)),
+			SITEstimatedCost:            models.CentPointer(unit.Cents(12345600)),
+			SITLocation:                 &sitLocationType,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment.Shipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment.Shipment, &twoMonthsAgo, nil)...)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	for i := range sitItems {
+		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    sitItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+			originalAddress := sitAddressUpdate.OldAddress
+			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
+			err := appCtx.DB().Update(&sitItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+	scenario.MakeSITExtensionsForShipment(appCtx, shipment.Shipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2882,7 +3033,6 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 
 func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
-
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
@@ -3246,6 +3396,95 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3672,6 +3911,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3804,6 +4044,7 @@ func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3936,6 +4177,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4066,6 +4308,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4181,6 +4424,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4318,6 +4562,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4431,6 +4676,7 @@ func MakeHHGMoveInSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4544,6 +4790,7 @@ func MakeHHGMoveInSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4657,6 +4904,7 @@ func MakeHHGMoveInSITDeparted(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4771,6 +5019,7 @@ func MakeHHGMoveInSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4882,6 +5131,7 @@ func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5002,6 +5252,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5085,6 +5336,7 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5167,6 +5419,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5260,6 +5513,7 @@ func MakeMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Affiliation:   &userAffiliation,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -5898,6 +6152,7 @@ func MakeCoastGuardMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Affiliation:   &userAffiliation,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -6542,6 +6797,7 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{

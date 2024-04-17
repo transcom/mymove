@@ -48,7 +48,15 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
-	updatedPPMShipment := mergePPMShipment(*ppmShipment, oldPPMShipment)
+	isPrimeCounseled, err := IsPrimeCounseledPPM(appCtx, mtoShipmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedPPMShipment, err := mergePPMShipment(*ppmShipment, oldPPMShipment)
+	if err != nil {
+		return nil, err
+	}
 
 	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 	if err != nil {
@@ -81,6 +89,21 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 					}
 				}
 			}
+			if appCtx.Session().IsMilApp() {
+				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
+					received := models.PPMAdvanceStatusReceived
+					notReceived := models.PPMAdvanceStatusNotReceived
+
+					if updatedPPMShipment.HasReceivedAdvance != nil && *updatedPPMShipment.HasRequestedAdvance {
+						if *updatedPPMShipment.HasReceivedAdvance {
+							updatedPPMShipment.AdvanceStatus = &received
+						}
+						if !*updatedPPMShipment.HasReceivedAdvance {
+							updatedPPMShipment.AdvanceStatus = &notReceived
+						}
+					}
+				}
+			}
 		}
 
 		finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
@@ -102,6 +125,66 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			}
 			updatedPPMShipment.W2AddressID = &updatedAddress.ID
 			updatedPPMShipment.W2Address = updatedAddress
+		}
+
+		if updatedPPMShipment.PickupAddress != nil {
+			var updatedAddress *models.Address
+			var createOrUpdateErr error
+			if updatedPPMShipment.PickupAddress.ID.IsNil() {
+				updatedAddress, createOrUpdateErr = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.PickupAddress)
+			} else {
+				updatedAddress, createOrUpdateErr = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.PickupAddress, etag.GenerateEtag(oldPPMShipment.PickupAddress.UpdatedAt))
+			}
+			if createOrUpdateErr != nil {
+				return createOrUpdateErr
+			}
+			updatedPPMShipment.PickupAddressID = &updatedAddress.ID
+			updatedPPMShipment.PickupAddress = updatedAddress
+		}
+
+		if updatedPPMShipment.SecondaryPickupAddress != nil {
+			var updatedAddress *models.Address
+			var createOrUpdateErr error
+			if updatedPPMShipment.SecondaryPickupAddress.ID.IsNil() {
+				updatedAddress, createOrUpdateErr = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.SecondaryPickupAddress)
+			} else {
+				updatedAddress, createOrUpdateErr = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.SecondaryPickupAddress, etag.GenerateEtag(oldPPMShipment.SecondaryPickupAddress.UpdatedAt))
+			}
+			if createOrUpdateErr != nil {
+				return createOrUpdateErr
+			}
+			updatedPPMShipment.SecondaryPickupAddressID = &updatedAddress.ID
+			updatedPPMShipment.SecondaryPickupAddress = updatedAddress
+		}
+
+		if updatedPPMShipment.DestinationAddress != nil {
+			var updatedAddress *models.Address
+			var createOrUpdateErr error
+			if updatedPPMShipment.DestinationAddress.ID.IsNil() {
+				updatedAddress, createOrUpdateErr = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.DestinationAddress)
+			} else {
+				updatedAddress, createOrUpdateErr = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.DestinationAddress, etag.GenerateEtag(oldPPMShipment.DestinationAddress.UpdatedAt))
+			}
+			if createOrUpdateErr != nil {
+				return createOrUpdateErr
+			}
+			updatedPPMShipment.DestinationAddressID = &updatedAddress.ID
+			updatedPPMShipment.DestinationAddress = updatedAddress
+		}
+
+		if updatedPPMShipment.SecondaryDestinationAddress != nil {
+			var updatedAddress *models.Address
+			var createOrUpdateErr error
+			if updatedPPMShipment.SecondaryDestinationAddress.ID.IsNil() {
+				updatedAddress, createOrUpdateErr = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.SecondaryDestinationAddress)
+			} else {
+				updatedAddress, createOrUpdateErr = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.SecondaryDestinationAddress, etag.GenerateEtag(oldPPMShipment.SecondaryDestinationAddress.UpdatedAt))
+			}
+			if createOrUpdateErr != nil {
+				return createOrUpdateErr
+			}
+			updatedPPMShipment.SecondaryDestinationAddressID = &updatedAddress.ID
+			updatedPPMShipment.SecondaryDestinationAddress = updatedAddress
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)

@@ -5,6 +5,7 @@ import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
+import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
 import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
@@ -41,6 +42,7 @@ const ShipmentDisplay = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
+  const [isDownloadPacketErrorModalVisible, setIsDownloadPacketErrorModalVisible] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -53,6 +55,10 @@ const ShipmentDisplay = ({
     'chevron-up': isExpanded,
     'chevron-down': !isExpanded,
   });
+
+  const toggleDownloadPacketErrorModal = () => {
+    setIsDownloadPacketErrorModalVisible((prev) => !prev);
+  };
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -104,6 +110,11 @@ const ShipmentDisplay = ({
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
+          onErrorModalToggle={toggleDownloadPacketErrorModal}
+        />
+        <DownloadPacketErrorModal
+          isOpen={isDownloadPacketErrorModalVisible}
+          closeModal={toggleDownloadPacketErrorModal}
         />
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (

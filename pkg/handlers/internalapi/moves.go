@@ -22,91 +22,13 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
-
-	documentPayload, err := payloads.PayloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
-	var hasProGear *string
-	if personallyProcuredMove.HasProGear != nil {
-		hpg := string(*personallyProcuredMove.HasProGear)
-		hasProGear = &hpg
-	}
-	var hasProGearOverThousand *string
-	if personallyProcuredMove.HasProGearOverThousand != nil {
-		hpgot := string(*personallyProcuredMove.HasProGearOverThousand)
-		hasProGearOverThousand = &hpgot
-	}
-	if err != nil {
-		return nil, err
-	}
-	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
-		ID:                            handlers.FmtUUID(personallyProcuredMove.ID),
-		MoveID:                        *handlers.FmtUUID(personallyProcuredMove.MoveID),
-		CreatedAt:                     handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
-		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
-		WeightEstimate:                handlers.FmtPoundPtr(personallyProcuredMove.WeightEstimate),
-		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
-		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
-		SubmitDate:                    handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
-		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
-		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
-		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
-		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
-		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
-		HasSit:                        personallyProcuredMove.HasSit,
-		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
-		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
-		Status:                        internalmessages.PPMStatus(personallyProcuredMove.Status),
-		HasRequestedAdvance:           &personallyProcuredMove.HasRequestedAdvance,
-		Advance:                       payloadForReimbursementModel(personallyProcuredMove.Advance),
-		AdvanceWorksheet:              documentPayload,
-		Mileage:                       personallyProcuredMove.Mileage,
-		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
-		HasProGear:                    hasProGear,
-		HasProGearOverThousand:        hasProGearOverThousand,
-	}
-	if personallyProcuredMove.IncentiveEstimateMin != nil {
-		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
-		ppmPayload.IncentiveEstimateMin = &min
-	}
-	if personallyProcuredMove.IncentiveEstimateMax != nil {
-		max := (*personallyProcuredMove.IncentiveEstimateMax).Int64()
-		ppmPayload.IncentiveEstimateMax = &max
-	}
-	if personallyProcuredMove.PlannedSITMax != nil {
-		max := (*personallyProcuredMove.PlannedSITMax).Int64()
-		ppmPayload.PlannedSitMax = &max
-	}
-	if personallyProcuredMove.SITMax != nil {
-		max := (*personallyProcuredMove.SITMax).Int64()
-		ppmPayload.SitMax = &max
-	}
-	if personallyProcuredMove.HasProGear != nil {
-		hasProGear := string(*personallyProcuredMove.HasProGear)
-		ppmPayload.HasProGear = &hasProGear
-	}
-	if personallyProcuredMove.HasProGearOverThousand != nil {
-		hasProGearOverThousand := string(*personallyProcuredMove.HasProGearOverThousand)
-		ppmPayload.HasProGearOverThousand = &hasProGearOverThousand
-	}
-	return &ppmPayload, nil
-}
-
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
-	var ppmPayloads internalmessages.IndexPersonallyProcuredMovePayload
-	for _, ppm := range move.PersonallyProcuredMoves {
-		payload, err := payloadForPPMModel(storer, ppm)
-		if err != nil {
-			return nil, err
-		}
-		ppmPayloads = append(ppmPayloads, payload)
-	}
-
-	var hhgPayloads internalmessages.MTOShipments
-	for _, hhg := range move.MTOShipments {
-		copyOfHhg := hhg // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload := payloads.MTOShipment(storer, &copyOfHhg)
-		hhgPayloads = append(hhgPayloads, payload)
+	var mtoPayloads internalmessages.MTOShipments
+	for _, shipments := range move.MTOShipments {
+		shipmentCopy := shipments // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload := payloads.MTOShipment(storer, &shipmentCopy)
+		mtoPayloads = append(mtoPayloads, payload)
 	}
 
 	var SubmittedAt time.Time
@@ -117,21 +39,23 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	eTag := etag.GenerateEtag(move.UpdatedAt)
 
 	movePayload := &internalmessages.MovePayload{
-		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
-		SubmittedAt:             handlers.FmtDateTime(SubmittedAt),
-		Locator:                 models.StringPointer(move.Locator),
-		ID:                      handlers.FmtUUID(move.ID),
-		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),
-		PersonallyProcuredMoves: ppmPayloads,
-		MtoShipments:            hhgPayloads,
-		OrdersID:                handlers.FmtUUID(order.ID),
-		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
-		Status:                  internalmessages.MoveStatus(move.Status),
-		ETag:                    &eTag,
+		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
+		SubmittedAt:     handlers.FmtDateTime(SubmittedAt),
+		Locator:         models.StringPointer(move.Locator),
+		ID:              handlers.FmtUUID(move.ID),
+		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
+		MtoShipments:    mtoPayloads,
+		OrdersID:        handlers.FmtUUID(order.ID),
+		ServiceMemberID: *handlers.FmtUUID(order.ServiceMemberID),
+		Status:          internalmessages.MoveStatus(move.Status),
+		ETag:            &eTag,
 	}
 
 	if move.CloseoutOffice != nil {
 		movePayload.CloseoutOffice = payloads.TransportationOffice(*move.CloseoutOffice)
+	}
+	if move.PrimeCounselingCompletedAt != nil {
+		movePayload.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 	}
 	return movePayload, nil
 }
@@ -148,18 +72,37 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		shipments := move.MTOShipments
-		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+		var filteredShipments models.MTOShipments
+		for _, shipment := range shipments {
+			// Check if the DeletedAt field is nil
+			if shipment.DeletedAt == nil {
+				// If not nil, add the shipment to the filtered array
+				filteredShipments = append(filteredShipments, shipment)
+			}
+		}
+		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &filteredShipments)
 		orders, _ := payloadForOrdersModel(storer, move.Orders)
 		moveID := *handlers.FmtUUID(move.ID)
 
+		var closeOutOffice internalmessages.TransportationOffice
+		if move.CloseoutOffice != nil {
+			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
+		}
+
 		currentMove := &internalmessages.InternalMove{
-			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
-			ETag:         eTag,
-			ID:           moveID,
-			Status:       string(move.Status),
-			MtoShipments: *payloadShipments,
-			MoveCode:     move.Locator,
-			Orders:       orders,
+			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
+			ETag:           eTag,
+			ID:             moveID,
+			Status:         string(move.Status),
+			MtoShipments:   *payloadShipments,
+			MoveCode:       move.Locator,
+			Orders:         orders,
+			CloseoutOffice: &closeOutOffice,
+			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
+		}
+
+		if move.PrimeCounselingCompletedAt != nil {
+			currentMove.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
@@ -300,12 +243,15 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewMoveSubmitted(moveID),
-			)
-			if err != nil {
-				logger.Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
+			/* Don't send Move Creation email if orders type is BLUEBARK */
+			if move.Orders.OrdersType != "BLUEBARK" {
+				err = h.NotificationSender().SendNotification(appCtx,
+					notifications.NewMoveSubmitted(moveID),
+				)
+				if err != nil {
+					logger.Error("problem sending email to user", zap.Error(err))
+					return handlers.ResponseForError(logger, err), err
+				}
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

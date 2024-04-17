@@ -3,6 +3,7 @@ package ppmshipment
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -777,15 +778,17 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeSITEstimatedCost, *updatedPPM.SITEstimatedCost)
 	})
 
-	suite.Run("Can successfully update a PPMShipment - final incentive", func() {
+	suite.Run("Can successfully update a PPMShipment - final incentive and actual move date", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil)
 
+		today := time.Now()
+
 		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
+					ActualMoveDate:              &today,
 					ActualPickupPostalCode:      models.StringPointer("79912"),
 					ActualDestinationPostalCode: models.StringPointer("90909"),
 					EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
@@ -803,6 +806,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		// Fields that should now be updated
 		suite.Equal(newPPM.FinalIncentive, updatedPPM.FinalIncentive)
+		suite.Equal(newPPM.ActualMoveDate, updatedPPM.ActualMoveDate)
 	})
 
 	suite.Run("Can't update if Shipment can't be found", func() {
@@ -974,5 +978,86 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
 		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - add Pickup and Destination address", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(fakeEstimatedIncentive, nil, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), nil, nil)
+
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "08004"
+
+		newPPM := models.PPMShipment{
+			PickupAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+			SecondaryPickupAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+			SecondaryDestinationAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		suite.NotNil(updatedPPM.PickupAddressID)
+		suite.NotNil(updatedPPM.PickupAddress)
+		suite.Equal(streetAddress1, updatedPPM.PickupAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.PickupAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.PickupAddress.City)
+		suite.Equal(state, updatedPPM.PickupAddress.State)
+		suite.Equal(postalCode, updatedPPM.PickupAddress.PostalCode)
+
+		suite.NotNil(updatedPPM.DestinationAddressID)
+		suite.NotNil(updatedPPM.DestinationAddress)
+		suite.Equal(streetAddress1, updatedPPM.DestinationAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.DestinationAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.DestinationAddress.City)
+		suite.Equal(state, updatedPPM.DestinationAddress.State)
+		suite.Equal(postalCode, updatedPPM.DestinationAddress.PostalCode)
+
+		suite.NotNil(updatedPPM.SecondaryPickupAddressID)
+		suite.NotNil(updatedPPM.SecondaryPickupAddress)
+		suite.Equal(streetAddress1, updatedPPM.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.SecondaryPickupAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.SecondaryPickupAddress.City)
+		suite.Equal(state, updatedPPM.SecondaryPickupAddress.State)
+		suite.Equal(postalCode, updatedPPM.SecondaryPickupAddress.PostalCode)
+
+		suite.NotNil(updatedPPM.SecondaryDestinationAddressID)
+		suite.NotNil(updatedPPM.SecondaryDestinationAddress)
+		suite.Equal(streetAddress1, updatedPPM.SecondaryDestinationAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.SecondaryDestinationAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.SecondaryDestinationAddress.City)
+		suite.Equal(state, updatedPPM.SecondaryDestinationAddress.State)
+		suite.Equal(postalCode, updatedPPM.SecondaryDestinationAddress.PostalCode)
 	})
 }

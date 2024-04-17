@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Fieldset } from '@trussworks/react-uswds';
+import { Label, Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { CheckboxField } from 'components/form/fields';
 
 export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
   const CustomerAltContactInfoFieldsUUID = useRef(uuidv4());
@@ -28,7 +29,7 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
             </div>
           </div>
           <div className="grid-row grid-gap">
-            <div className="mobile-lg:grid-col-7">
+            <div className="mobile-lg:grid-col-6">
               <MaskedTextField
                 label="Phone"
                 id={`customerTelephone_${CustomerAltContactInfoFieldsUUID.current}`}
@@ -39,14 +40,46 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
                 required
               />
             </div>
+            <div className="mobile-lg:grid-col-6">
+              <MaskedTextField
+                label="Alternate Phone"
+                id={`secondaryPhone_${CustomerAltContactInfoFieldsUUID.current}`}
+                name="secondaryPhone"
+                type="tel"
+                minimum="12"
+                mask="000{-}000{-}0000"
+                labelHint="Optional"
+              />
+            </div>
           </div>
 
-          <TextField
-            label="Email"
-            id={`customerEmail_${CustomerAltContactInfoFieldsUUID.current}`}
-            name="customerEmail"
-            required
-          />
+          <div className="grid-row grid-gap">
+            <div className="mobile-lg:grid-col-6">
+              <TextField
+                label="Email"
+                id={`customerEmail_${CustomerAltContactInfoFieldsUUID.current}`}
+                name="customerEmail"
+                required
+              />
+            </div>
+            <div className="grid-row grid-gap">
+              <Label>Preferred contact method</Label>
+              <div className="grid-col-3">
+                <CheckboxField
+                  id={`phoneIsPreferred_${CustomerAltContactInfoFieldsUUID.current}`}
+                  label="Phone"
+                  name="phoneIsPreferred"
+                />
+              </div>
+              <div className="grid-col-3">
+                <CheckboxField
+                  id={`emailIsPreferred_ ${CustomerAltContactInfoFieldsUUID.current}`}
+                  label="Email"
+                  name="emailIsPreferred"
+                />
+              </div>
+            </div>
+          </div>
         </>,
       )}
     </Fieldset>
