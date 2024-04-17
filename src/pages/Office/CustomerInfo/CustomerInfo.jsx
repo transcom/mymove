@@ -33,13 +33,13 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       });
       queryClient.invalidateQueries([CUSTOMER, variables.customerId]);
       queryClient.invalidateQueries([ORDERS, ordersId]);
-      onUpdate('success');
       handleClose();
+      onUpdate('success');
     },
     onError: () => {
       // TODO: Handle error some how - see https://dp3.atlassian.net/browse/MB-5597
-      onUpdate('error');
       handleClose();
+      onUpdate('error');
     },
   });
 
@@ -80,20 +80,20 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       backupAddress,
       phoneIsPreferred,
       emailIsPreferred,
-      secondaryTelephone: secondaryPhone,
+      secondaryTelephone: secondaryPhone || null,
     };
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
   const initialValues = {
     firstName: customer.first_name,
     lastName: customer.last_name,
-    middleName: customer.middle_name,
-    suffix: customer.suffix,
+    middleName: customer.middle_name || '',
+    suffix: customer.suffix || '',
     customerTelephone: customer.phone,
     customerEmail: customer.email,
     name: customer.backup_contact.name,
     telephone: customer.backup_contact.phone,
-    secondaryPhone: customer.secondaryTelephone,
+    secondaryPhone: customer.secondaryTelephone || '',
     email: customer.backup_contact.email,
     customerAddress: customer.current_address,
     backupAddress: customer.backupAddress,
@@ -116,6 +116,11 @@ CustomerInfo.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   isError: PropTypes.bool.isRequired,
   ordersId: PropTypes.string.isRequired,
-  onUpdate: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func,
 };
+
+CustomerInfo.defaultProps = {
+  onUpdate: () => {},
+};
+
 export default CustomerInfo;

@@ -279,7 +279,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
-    phone: `+1 ${customer.phone}`,
+    phone: customer.phone,
+    altPhone: customer.secondaryTelephone,
     email: customer.email,
     currentAddress: customer.current_address,
     backupAddress: customerData.backupAddress,
@@ -465,12 +466,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 </Alert>
               </Grid>
             )}
-            <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
+            <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
-            </Grid>
-            <Grid col={6} className={scMoveDetailsStyles.testdiv}>
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
-                <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
+                <div>
                   {(counselorCanEdit || counselorCanEditNonPPM) && (
                     <Button
                       disabled={
@@ -486,7 +485,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                       Submit move details
                     </Button>
                   )}
-                </Grid>
+                </div>
               )}
             </Grid>
           </Grid>
@@ -615,7 +614,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Customer info"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
+                <Restricted to={permissionTypes.updateCustomer}>
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-customer-info"
@@ -623,7 +622,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   >
                     Edit customer info
                   </Link>
-                )
+                </Restricted>
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
