@@ -435,7 +435,7 @@ func IsWeightEstimatorFile(appCtx appcontext.AppContext, file io.ReadCloser) (bo
 
 	if err != nil {
 		return false, nil
-	} else {
-		return true, nil
 	}
+
+	return true, nil
 }

@@ -267,7 +267,11 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				file.Data.Seek(0, io.SeekStart)
+				_, err = file.Data.Seek(0, io.SeekStart)
+
+				if err != nil {
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
 			}
 
 			if params.WeightReceipt && isWeightEstimatorFile {
