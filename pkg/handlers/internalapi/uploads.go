@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"fmt"
+	"io"
 	"path/filepath"
 	"strings"
 
@@ -253,19 +254,19 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			uploadedFile := file
 
 			// check if this is an excel file and parse if it is
-			// extension := filepath.Ext(file.Header.Filename)
+			extension := filepath.Ext(file.Header.Filename)
 
-			// if extension == ".xlsx" {
-			// 	var err error
+			if extension == ".xlsx" {
+				var err error
 
-			// 	isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
+				isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
 
-			// 	if err != nil {
-			// 		return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-			// 	}
+				if err != nil {
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
 
-			// 	file.Data.Seek(0, io.SeekStart)
-			// }
+				file.Data.Seek(0, io.SeekStart)
+			}
 
 			if params.WeightReceipt && isWeightEstimatorFile {
 				userUploader, uploaderErr := uploader.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
