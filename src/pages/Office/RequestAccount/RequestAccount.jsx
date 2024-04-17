@@ -98,9 +98,17 @@ export const RequestAccount = ({ setFlashMessage }) => {
         );
         navigate(generalRoutes.SIGN_IN_PATH);
       })
-      .catch((err) => {
-        const { response } = err;
-        const errorMessage = `Failed to submit office account request.\nReason: ${response.body.detail}`;
+      .catch((e) => {
+        const { response } = e;
+        let responseMsg = '';
+
+        if (response.invalid_fields) {
+          Object.keys(response.invalid_fields).forEach((key) => {
+            responseMsg += `\n${response.invalid_fields[key]}`;
+          });
+        }
+
+        const errorMessage = `Failed to submit office account request.\n${responseMsg}`;
         setServerError(errorMessage);
       });
   };
