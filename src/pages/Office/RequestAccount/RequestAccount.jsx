@@ -100,11 +100,13 @@ export const RequestAccount = ({ setFlashMessage }) => {
       })
       .catch((e) => {
         const { response } = e;
+        const responseBody = response.body;
         let responseMsg = '';
 
-        if (response.invalid_fields) {
-          Object.keys(response.invalid_fields).forEach((key) => {
-            responseMsg += `\n${response.invalid_fields[key]}`;
+        if (responseBody.invalid_fields) {
+          const invalidFields = responseBody.invalid_fields;
+          Object.keys(invalidFields).forEach((key) => {
+            responseMsg += `\n${invalidFields[key]}`;
           });
         }
 
