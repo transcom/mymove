@@ -244,14 +244,12 @@ export class CustomerPpmPage extends CustomerPage {
       await expect(filepond).toBeVisible();
 
       await this.uploadFileViaFilepond(filepond, 'constructedWeight.xlsx');
-      
+
       // weight estimator file should be converted to .pdf so we verify it was
-      const re = /constructedWeight.+\.pdf$/
+      const re = /constructedWeight.+\.pdf$/;
 
       // wait for the file to be visible in the uploads
-      await expect(
-        filepond.locator('../..').locator('p').getByText(re, { exact: false }),
-      ).toBeVisible();
+      await expect(filepond.locator('../..').locator('p').getByText(re, { exact: false })).toBeVisible();
     } else {
       // find the label, then find the filepond wrapper. Not sure why
       // getByLabel doesn't work
