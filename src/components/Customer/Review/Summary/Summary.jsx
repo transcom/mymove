@@ -239,7 +239,7 @@ export class Summary extends Component {
           requestedDeliveryDate={shipment.requestedDeliveryDate}
           requestedPickupDate={shipment.requestedPickupDate}
           shipmentId={shipment.id}
-          shipmentLocator={shipment.shipmentLocator}
+          shipmentLocator={shipment.ShipmentLocator}
           shipmentNumber={hhgShipmentNumber}
           shipmentType={shipment.shipmentType}
           showEditAndDeleteBtn={showEditAndDeleteBtn}

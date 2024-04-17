@@ -212,7 +212,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
                                 minimal
                               />
                             ) : null}
-                            <h5>#{s.shipmentLocator}</h5>
+                            <h5>#{s.ShipmentLocator}</h5>
                           </div>
                         </div>
                       </ShipmentContainer>
