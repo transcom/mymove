@@ -456,7 +456,8 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	switch userType {
 	case MilMoveUserType:
 		newServiceMember := models.ServiceMember{
-			UserID: user.ID,
+			UserID:       user.ID,
+			CacValidated: true,
 		}
 		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
@@ -470,6 +471,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
+			County:         "SAINT CLAIR",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -542,6 +544,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
+			County:         "SAINT CLAIR",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -613,6 +616,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
+			County:         "SAINT CLAIR",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -684,6 +688,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
+			County:         "SAINT CLAIR",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -755,6 +760,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
+			County:         "SAINT CLAIR",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -827,6 +833,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			City:           "San Francisco",
 			State:          "CA",
 			PostalCode:     "94115",
+			County:         "SAINT CLAIR",
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)

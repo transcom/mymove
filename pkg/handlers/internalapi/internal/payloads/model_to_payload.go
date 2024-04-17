@@ -31,6 +31,7 @@ func Address(address *models.Address) *internalmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 	}
 }
 
@@ -135,11 +136,14 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
 	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
 		payload.SecondaryPickupAddress = nil

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -14,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -365,7 +367,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		moveRouter := moverouter.NewMoveRouter()
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
-		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator)
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -534,7 +542,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		}, nil)
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		dimension := models.MTOServiceItemDimension{
 			Type:      models.DimensionTypeItem,
@@ -601,7 +615,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		}, nil)
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 

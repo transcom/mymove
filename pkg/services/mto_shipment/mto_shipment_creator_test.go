@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -30,8 +31,9 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(customs []factory.Custom
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
+	addressCreator := address.NewAddressCreator()
 
-	subtestData.shipmentCreator = NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+	subtestData.shipmentCreator = NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 
 	return subtestData
 }
@@ -45,8 +47,9 @@ func (suite *MTOShipmentServiceSuite) createSubtestDataV2(customs []factory.Cust
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
+	addressCreator := address.NewAddressCreator()
 
-	subtestData.shipmentCreator = NewMTOShipmentCreatorV2(builder, fetcher, moveRouter)
+	subtestData.shipmentCreator = NewMTOShipmentCreatorV2(builder, fetcher, moveRouter, addressCreator)
 
 	return subtestData
 }
@@ -140,6 +143,46 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
 		suite.NotEmpty(createdShipment.PickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
+	})
+
+	suite.Run("If the shipment is created successfully it should return ShipmentLocator", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
+		mtoShipment2 := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+		mtoShipmentClear2 := clearShipmentIDFields(&mtoShipment2)
+		mtoShipmentClear2.MTOServiceItems = models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+		createdShipment2, err2 := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear2)
+
+		suite.NoError(err)
+		suite.NoError(err2)
+		suite.NotNil(createdShipment)
+		suite.NotEmpty(createdShipment.ShipmentLocator)
+
+		// ShipmentLocator = move Locator + "-" + Shipment Seq Num
+		// checks for proper structure of shipmentLocator
+		suite.Equal(subtestData.move.Locator, (*createdShipment.ShipmentLocator)[0:6])
+		suite.Equal("-", (*createdShipment.ShipmentLocator)[6:7])
+		suite.Equal("01", (*createdShipment.ShipmentLocator)[7:9])
+
+		// check if seq number is increased by 1
+		suite.Equal("02", (*createdShipment2.ShipmentLocator)[7:9])
 	})
 
 	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
