@@ -26,6 +26,7 @@
 
   .buttonRow {
     @include u-display('flex');
+    @include u-margin-bottom(6);
 
     :global {
       .usa-button--unstyled {
