@@ -1,38 +1,33 @@
-/test/getMovesSince/{movesSince}/{numMoves}:
+/test/getMovesSince:
   get:
     tags:
     - moves
     summary: summary
     description: summary2
-    operationId: testMethod
+    operationId: movesSince
     produces:
     - application/json
     parameters:
-    - name: movesSince
-      in: path
-      description: some parameter
+    - in: body
+      name: body
       required: true
-      type: string
-    - name: numMoves
-      in: path
-      description: some parameter
-      required: true
-      type: string
+      schema:
+        properties:
+          moveSinceDate:
+            type: string
+            description: moves retrieved since this date
+            format: date-time
+          numMoves:
+            type: string
+            description: number of moves to return
     responses:
       '200':
-        description: Sucessfully Returned moves.
-        schema:
-          $ref: '../../definitions/pptas/GetMovesSince.yaml'
+          description: Moves returned sucessfully
+          schema:
+              $ref: '../../definitions/pptas/GetMovesSinceResponse.yaml'
       '400':
         $ref: '../../responses/InvalidRequest.yaml'
       '401':
         $ref: '../../responses/InvalidRequest.yaml'
       '500':
         $ref: '../../responses/ServerError.yaml'
-
-
-
-
-
-
-

@@ -17,31 +17,33 @@ tags:
   - name: moves
     description: describes all endpoints relating to moves
 paths:
-  /test/getMovesSince/{movesSince}/{numMoves}:
+  /test/getMovesSince:
     get:
       tags:
         - moves
       summary: summary
       description: summary2
-      operationId: testMethod
+      operationId: movesSince
       produces:
         - application/json
       parameters:
-        - name: movesSince
-          in: path
-          description: some parameter
+        - in: body
+          name: body
           required: true
-          type: string
-        - name: numMoves
-          in: path
-          description: some parameter
-          required: true
-          type: string
+          schema:
+            properties:
+              moveSinceDate:
+                type: string
+                description: moves retrieved since this date
+                format: date-time
+              numMoves:
+                type: string
+                description: number of moves to return
       responses:
         '200':
-          description: Sucessfully Returned moves.
+          description: Moves returned sucessfully
           schema:
-            $ref: '#/definitions/GetMovesSince'
+            $ref: '#/definitions/GetMovesSinceResponse'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -49,20 +51,99 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  GetMovesSince:
+  MoveStatus:
+    type: string
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+  GBLOC:
+    type: string
+    enum:
+      - AGFM
+      - APAT
+      - BGAC
+      - BGNC
+      - BKAS
+      - CFMQ
+      - CLPK
+      - CNNQ
+      - DMAT
+      - GSAT
+      - HAFC
+      - HBAT
+      - JEAT
+      - JENQ
+      - KKFA
+      - LHNQ
+      - LKNQ
+      - MAPK
+      - MAPS
+      - MBFL
+      - MLNQ
+      - XXXX
+  SearchMove:
     type: object
     properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
+      id:
         type: string
         format: uuid
-    required:
-      - title
-      - detail
-      - instance
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        example: '1234567890'
+        x-nullable: true
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+      branch:
+        type: string
+      shipmentsCount:
+        type: integer
+      originDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      destinationDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
+      orderType:
+        type: string
+  SearchMoves:
+    type: array
+    items:
+      $ref: '#/definitions/SearchMove'
+  GetMovesSinceResponse:
+    type: object
+    properties:
+      movesFound:
+        $ref: '#/definitions/SearchMoves'
   ClientError:
     type: object
     properties:

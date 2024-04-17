@@ -1,0 +1,4 @@
+Moves:
+    type: array
+    items:
+      $ref: '../definitions/Move.yaml'
