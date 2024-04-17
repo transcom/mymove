@@ -70,19 +70,33 @@ func (o *officeUserCreator) CreateOfficeUser(
 		verrs, err = o.builder.CreateOne(txnAppCtx, officeUser)
 		if verrs != nil || err != nil {
 			if err != nil {
+				if verrs == nil {
+					verrs = validate.NewErrors()
+				}
+
 				switch err.Error() {
 				// If these cases are hit, it is not a true internal server error. Instead, verrs should be appended
 				case models.UniqueConstraintViolationOfficeUserEmailErrorString:
 					verrs.Add("email", fmt.Sprintf("The email %s is already in use.", officeUser.Email))
-					return nil
+					return err
 
 				case models.UniqueConstraintViolationOfficeUserEdipiErrorString:
-					verrs.Add("edipi", fmt.Sprintf("The DODID# %s is already in use.", *officeUser.EDIPI))
-					return nil
+					// Nil check
+					if officeUser.EDIPI != nil {
+						verrs.Add("edipi", fmt.Sprintf("The DODID# %s is already in use.", *officeUser.EDIPI))
+					} else {
+						verrs.Add("edipi", "The DODID# is required, not provided, and appears to already exist in our database.")
+					}
+					return err
 
 				case models.UniqueConstraintViolationOfficeUserOtherUniqueIDErrorString:
-					verrs.Add("other_unique_id", fmt.Sprintf("The other unique ID %s is already in use.", *officeUser.OtherUniqueID))
-					return nil
+					// Nil check
+					if officeUser.OtherUniqueID != nil {
+						verrs.Add("other_unique_id", fmt.Sprintf("The other unique ID %s is already in use.", *officeUser.OtherUniqueID))
+					} else {
+						verrs.Add("other_unique_id", "The other unique ID is required, not provided, and appears to already exist in our database.")
+					}
+					return err
 				}
 			}
 
