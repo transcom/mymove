@@ -161,11 +161,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		postalcodeservice.NewPostalCodeValidator(clock.New()),
 	}
 
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter),
 		moveRouter,
 	)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator), shipmentRouter, moveTaskOrderUpdater)
@@ -193,6 +193,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
+			addressUpdater,
+			addressCreator,
 		),
 		ppmShipmentUpdater,
 	)

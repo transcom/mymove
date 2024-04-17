@@ -90,6 +90,7 @@ export default function ReviewDocumentsSidePanel({
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input.split(' ').map(titleCase).join(' ');
   const formatMovingType = (input) => allCase(input?.trim().toLowerCase().replace('_', ' ') ?? '');
+  let total = 0;
 
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
@@ -173,6 +174,9 @@ export default function ReviewDocumentsSidePanel({
                 : null}
               {expenseTickets.length > 0
                 ? expenseSetProjection(expenseTickets).map((exp) => {
+                    if (exp.movingExpenseType !== expenseTypes.STORAGE && exp.status === PPMDocumentsStatus.APPROVED) {
+                      total += exp.amount;
+                    }
                     return (
                       <li className={styles.rowContainer} key={exp.receiptIndex}>
                         <div className={styles.row}>
@@ -221,6 +225,21 @@ export default function ReviewDocumentsSidePanel({
                     );
                   })
                 : null}
+              {expenseTickets.length > 0 ? (
+                <>
+                  <hr />
+                  <li className={styles.rowContainer}>
+                    <div className={classnames(styles.ItemDetails)}>
+                      <dl>
+                        <span className={classnames(styles.ReceiptTotal)}>
+                          <dt>Authorized Receipt Total:</dt>
+                          <dd>${formatCents(total)}</dd>
+                        </span>
+                      </dl>
+                    </div>
+                  </li>
+                </>
+              ) : null}
             </ul>
           </DocumentViewerSidebar.Content>
         </Form>

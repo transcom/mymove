@@ -14,6 +14,7 @@ describe('When given a deleted expense receipt upload', () => {
     changedValues: {
       deleted_at: '2024-02-15T08:41:06.592578+00:00',
     },
+    oldValues: {},
     context: [
       {
         filename: 'expense.png',
@@ -30,12 +31,12 @@ describe('When given a deleted expense receipt upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Deleted upload')).toBeInTheDocument();
+    expect(screen.getByText('Deleted document')).toBeInTheDocument();
   });
 
   describe('properly renders shipment labels for ', () => {
     it.each(expenseTypes)('%s receipts', (label, docType) => {
-      historyRecord.context[0].moving_expense_type = docType;
+      historyRecord.oldValues.moving_expense_type = docType;
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
