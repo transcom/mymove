@@ -881,12 +881,12 @@ type WeightEstimatorPages struct {
 	Page11 WeightEstimatorPage11
 }
 
-//go:generate mockery --name SSWPPMComputer
+//go:generate mockery --name WeightTicketComputer
 type WeightTicketComputer interface {
 	ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser) (*WeightEstimatorPages, error)
 }
 
-//go:generate mockery --name SSWPPMGenerator
+//go:generate mockery --name WeightTicketGenerator
 type WeightTicketGenerator interface {
 	FillWeightEstimatorPDFForm(PageValues WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error)
 }
