@@ -12,9 +12,14 @@ import styles from './MultiMovesMoveContainer.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
-import { getMoveCodeLabel } from 'utils/shipmentDisplay';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { setMoveId } from 'store/general/actions';
+import { ADVANCE_STATUSES } from 'constants/ppms';
+import { onPacketDownloadSuccessHandler } from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/internalApi';
+import { ppmShipmentStatuses } from 'constants/shipments';
+import { setFlashMessage } from 'store/flash/actions';
+import scrollToTop from 'shared/scrollToTop';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -80,6 +85,62 @@ const MultiMovesMoveContainer = ({ moves }) => {
     navigate(`${customerRoutes.MOVE_HOME_PAGE}/${id}`);
   };
 
+  // this will determine what the PPM dropdown menu will show based on ppmShipment values present in the object
+  const handlePPMDropdownOptions = (shipment) => {
+    const { ppmShipment } = shipment;
+    const dropdownOptions = {};
+
+    if (
+      ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue &&
+      ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED
+    ) {
+      dropdownOptions['AOA Packet'] = 'AOA Paperwork (PDF)';
+      dropdownOptions['PPM Packet'] = 'PPM Packet';
+    } else if (ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED) {
+      dropdownOptions['PPM Packet'] = 'PPM Packet';
+    } else {
+      dropdownOptions['AOA Packet'] = 'AOA Paperwork (PDF)';
+    }
+
+    return Object.entries(dropdownOptions).map(([value], index) => ({
+      id: index + 1,
+      value,
+    }));
+  };
+
+  // when an item is selected in the dropdown, this function handles API calls
+  const handlePPMDropdownClick = (selectedItem, id) => {
+    if (selectedItem.value === 'PPM Packet') {
+      downloadPPMPaymentPacket(id)
+        .then((response) => {
+          onPacketDownloadSuccessHandler(response);
+          setFlashMessage('PPM_PACKET_DOWNLOAD_SUCCESS', 'success', 'PPM Packet successfully downloaded');
+        })
+        .catch(() => {
+          setFlashMessage(
+            'PPM_PACKET_DOWNLOAD_FAILURE',
+            'error',
+            'An error occurred when attempting download of PPM Packet',
+          );
+        });
+    }
+    if (selectedItem.value === 'AOA Packet') {
+      downloadPPMAOAPacket(id)
+        .then((response) => {
+          onPacketDownloadSuccessHandler(response);
+          setFlashMessage('AOA_PACKET_DOWNLOAD_SUCCESS', 'success', 'AOA Packet successfully downloaded');
+        })
+        .catch(() => {
+          setFlashMessage(
+            'AOA_PACKET_DOWNLOAD_FAILURE',
+            'error',
+            'An error occurred when attempting download of AOA Packet',
+          );
+        });
+    }
+    scrollToTop();
+  };
+
   const moveList = moves.map((m, index) => (
     <React.Fragment key={index}>
       <div className={styles.moveContainer}>
@@ -138,7 +199,20 @@ const MultiMovesMoveContainer = ({ moves }) => {
                         <div className={styles.innerWrapper}>
                           <div className={styles.shipmentTypeHeading}>
                             <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
-                            <h5>#{getMoveCodeLabel(s.id)}</h5>
+                            {s?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
+                            s?.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ? (
+                              <ButtonDropdownMenu
+                                data-testid="ppmDownloadBtn"
+                                title="Download"
+                                items={handlePPMDropdownOptions(s)}
+                                divClassName={styles.ppmDropdownBtn}
+                                onItemClick={(e) => {
+                                  handlePPMDropdownClick(e, s.ppmShipment.id);
+                                }}
+                                minimal
+                              />
+                            ) : null}
+                            <h5>#{s.shipmentLocator}</h5>
                           </div>
                         </div>
                       </ShipmentContainer>
