@@ -201,6 +201,7 @@ const columnsWithCreateMove = (roleType) => [
           {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
             <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
           ) : null}
+          {`${row.lastName}, ${row.firstName}`}
         </div>
       );
     },
