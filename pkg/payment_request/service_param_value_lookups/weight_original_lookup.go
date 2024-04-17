@@ -21,10 +21,14 @@ func (r WeightOriginalLookup) lookup(_ appcontext.AppContext, keyData *ServiceIt
 		models.ReServiceCodeDDSHUT,
 		models.ReServiceCodeIOSHUT,
 		models.ReServiceCodeIDSHUT:
-		originalWeight = keyData.MTOServiceItem.ActualWeight
-		if originalWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		// Attempt to grab the service item's actual weight. If it can't be found, default to shipment
+		if keyData.MTOServiceItem.ActualWeight == nil {
+			originalWeight = r.MTOShipment.PrimeActualWeight
+			if originalWeight == nil {
+				return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s] or for MTOShipmentID [%s]", keyData.MTOServiceItem.ID, r.MTOShipment.ID)
+			}
+		} else {
+			originalWeight = keyData.MTOServiceItem.ActualWeight
 		}
 	default:
 		// Make sure there's an actual weight since that's nullable
