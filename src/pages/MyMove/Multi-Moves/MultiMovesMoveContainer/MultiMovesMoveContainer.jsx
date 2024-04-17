@@ -18,7 +18,7 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import { onPacketDownloadSuccessHandler } from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/internalApi';
 import { ppmShipmentStatuses } from 'constants/shipments';
-import { setFlashMessage } from 'store/flash/actions';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
 
 const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
