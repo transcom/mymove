@@ -31,7 +31,7 @@ type Entitlements struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// gun safe
-	// Example: true
+	// Example: false
 	GunSafe bool `json:"gunSafe,omitempty"`
 
 	// id

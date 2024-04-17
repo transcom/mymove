@@ -871,6 +871,10 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4331,6 +4335,10 @@ func init() {
         "eTag": {
           "type": "string",
           "readOnly": true
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
         },
         "id": {
           "type": "string",
