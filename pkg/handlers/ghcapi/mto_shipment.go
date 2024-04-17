@@ -695,14 +695,14 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(appCtx appcontext.A
 	}
 }
 
-// RequestShipmentCancellationHandler Requests a shipment diversion
+// RequestShipmentCancellationHandler Requests a shipment cancellation
 type RequestShipmentCancellationHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentCancellationRequester
 	services.ShipmentSITStatus
 }
 
-// Handle Requests a shipment diversion
+// Handle Requests a shipment cancellation
 func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShipmentCancellationParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

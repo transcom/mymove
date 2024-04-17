@@ -252,7 +252,7 @@ test.describe('TOO user', () => {
 
       await expect(page.getByTestId('modal')).toBeVisible();
       modal = page.getByTestId('modal');
-      await modal.locator('[data-testid="radio"] [for="tacType-NTS"]').click();
+      await modal.locator('[data-testid="radio"] [for="tacType-HHG"]').click();
       await modal.locator('[data-testid="radio"] [for="sacType-NTS"]').click();
 
       await modal.locator('button[type="submit"]').click();
@@ -261,7 +261,7 @@ test.describe('TOO user', () => {
       lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
       sidebar = lastShipment.locator('[class*="ShipmentDetailsSidebar"]');
       await expect(sidebar.locator('section').last()).toContainText('F123');
-      await expect(sidebar.locator('section').last()).toContainText('3L988AS098F');
+      await expect(sidebar.locator('section').last()).toContainText('4K988AS098F');
 
       await expect(lastShipment.locator('[data-testid="ApprovedServiceItemsTable"] h3').last()).toContainText(
         'Approved Service Items (5 items)',
