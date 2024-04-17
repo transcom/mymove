@@ -216,6 +216,38 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return order, nil
 }
 
+// Fetch order containing only base amendment information
+func FetchOrderAmendmentsInfo(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
+	var order Order
+	err := db.Q().EagerPreload("ServiceMember.User",
+		"UploadedAmendedOrders").
+		Find(&order, id)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
+	}
+
+	if session != nil && session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
+		return Order{}, ErrFetchForbidden
+	}
+
+	if order.UploadedAmendedOrders != nil {
+		var amendedUserUploads UserUploads
+		err = db.Q().
+			Where("document_id = ?", order.UploadedAmendedOrdersID).
+			All(&amendedUserUploads)
+		if err != nil {
+			return Order{}, err
+		}
+		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
+	}
+
+	return order, nil
+}
+
 // FetchOrder returns orders without REGARDLESS OF USER.
 // DO NOT USE IF YOU NEED USER AUTH
 func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
