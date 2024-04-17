@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
@@ -35,6 +34,9 @@ type CreateUploadHandler struct {
 
 type CreatePPMUploadHandler struct {
 	handlers.HandlerConfig
+	services.WeightTicketGenerator
+	services.WeightTicketComputer
+	*uploader.UserUploader
 }
 
 // Handle creates a new UserUpload from a request payload
@@ -269,33 +271,14 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			}
 
 			if params.WeightReceipt && isWeightEstimatorFile {
-				userUploader, uploaderErr := uploader.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
-
-				if uploaderErr != nil {
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-
-				generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
-
-				if err != nil {
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-
-				parserComputer := weightticketparser.NewWeightTicketComputer()
-				weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(generator)
-
-				if err != nil {
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-
-				pageValues, err := parserComputer.ParseWeightEstimatorExcelFile(appCtx, file)
+				pageValues, err := h.WeightTicketComputer.ParseWeightEstimatorExcelFile(appCtx, file)
 
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
 				pdfFileName := strings.TrimSuffix(file.Header.Filename, filepath.Ext(file.Header.Filename)) + ".pdf"
-				aFile, pdfInfo, err := weightGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
+				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
 				// Ensure weight receipt PDF is not corrupted
 				if err != nil || pdfInfo.PageCount != weightEstimatePages {
@@ -303,7 +286,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				}
 
 				// we already generated an afero file so we can skip that process the wrapper method does
-				newUserUpload, verrs, createErr = userUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
+				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
 				if verrs.HasAny() || createErr != nil {
 					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 					switch createErr.(type) {
@@ -320,7 +303,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 				}
 
-				url, err = userUploader.PresignedURL(appCtx, newUserUpload)
+				url, err = h.UserUploader.PresignedURL(appCtx, newUserUpload)
 
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
