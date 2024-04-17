@@ -90,6 +90,13 @@ const formatDetail = (detail, styles = {}) => {
   };
 };
 
+const formatMileage = (detail) => {
+  if (typeof detail !== 'number') {
+    return parseInt(detail, 10).toLocaleString();
+  }
+  return detail.toLocaleString();
+};
+
 // billable weight calculation
 const formatWeightFromParams = (params, key) => {
   return formatWeight(parseInt(getParamValue(key, params), 10));
@@ -152,6 +159,13 @@ const billableWeight = (params) => {
     details.push(formatDetail(weightEstimatedDetail));
   }
 
+  const fscWeightBasedDistanceMultiplier = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
+  if (getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)) {
+    details.push(formatDetail(fscWeightBasedDistanceMultiplier));
+  }
+
   return calculation(value, label, ...details);
 };
 
@@ -171,7 +185,7 @@ const shuttleBillableWeight = (params) => {
 };
 
 const mileageZip = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params);
+  const value = `${formatMileage(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params), 10))}`;
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
@@ -226,7 +240,7 @@ const mileageZipSIT = (params, itemCode) => {
       )}`;
   }
 
-  const value = getParamValue(distanceZip, params);
+  const value = formatMileage(getParamValue(distanceZip, params));
 
   return calculation(value, label, formatDetail(detail));
 };

@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"strconv"
@@ -28,7 +29,54 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		models.ReServiceCodeIDSHUT:
 		estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
 
-		originalWeight = keyData.MTOServiceItem.ActualWeight
+		// Check both the service item weight and if it can't find that then check the shipment's weight
+		if keyData.MTOServiceItem.ActualWeight == nil {
+			originalWeight = r.MTOShipment.PrimeActualWeight
+			if originalWeight == nil {
+				return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s] or for MTOShipmentID [%s]", keyData.MTOServiceItem.ID, r.MTOShipment.ID)
+			}
+		} else {
+			originalWeight = keyData.MTOServiceItem.ActualWeight
+		}
+
+		if estimatedWeight != nil {
+			estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
+			if float64(*originalWeight) > estimatedWeightCap {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
+			} else {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
+			}
+		} else {
+			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
+		}
+		return value, nil
+	case models.ReServiceCodeDDSFSC,
+		models.ReServiceCodeDOSFSC,
+		models.ReServiceCodeFSC:
+
+		var weightBilled string
+
+		// Check if a value is in WeightBilled
+		query := `select psip.value from payment_service_item_params psip
+		join payment_service_items psi on psip.payment_service_item_id = psi.id
+		join mto_service_items msi on msi.id = psi.mto_service_item_id
+		join re_services rs on rs.id = msi.re_service_id
+		join payment_requests pr on psi.payment_request_id = pr.id
+		join service_item_param_keys sipk on sipk.id = psip.service_item_param_key_id
+		where sipk.key = 'WeightBilled' and psi.payment_request_id = $1 and rs.code = $2`
+
+		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID, keyData.MTOServiceItem.ReService.Code).First(&weightBilled)
+
+		if err != nil && err != sql.ErrNoRows {
+			return "", err
+		}
+
+		if len(weightBilled) > 0 {
+			return weightBilled, nil
+		}
+		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
+
+		originalWeight = r.MTOShipment.PrimeActualWeight
 
 		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
