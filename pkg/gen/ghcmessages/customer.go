@@ -69,7 +69,7 @@ type Customer struct {
 	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
 
 	// secondary telephone
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
 	SecondaryTelephone *string `json:"secondaryTelephone,omitempty"`
 
 	// suffix
@@ -222,7 +222,7 @@ func (m *Customer) validateSecondaryTelephone(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$|^$`); err != nil {
 		return err
 	}
 
