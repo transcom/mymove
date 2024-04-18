@@ -104,7 +104,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
         let responseMsg = '';
 
         if (responseBody.detail) {
-          responseMsg += responseBody.detail;
+          responseMsg += `${responseBody.detail}:`;
         }
 
         if (responseBody.invalid_fields) {
