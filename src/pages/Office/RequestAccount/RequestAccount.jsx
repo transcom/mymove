@@ -98,8 +98,27 @@ export const RequestAccount = ({ setFlashMessage }) => {
         );
         navigate(generalRoutes.SIGN_IN_PATH);
       })
-      .catch(() => {
-        const errorMessage = 'Failed to submit office account request due to server error';
+      .catch((e) => {
+        const { response } = e;
+        let errorMessage = `Failed to submit office account request.`;
+
+        if (response.body) {
+          const responseBody = response.body;
+          let responseMsg = '';
+
+          if (responseBody.detail) {
+            responseMsg += `${responseBody.detail}:`;
+          }
+
+          if (responseBody.invalid_fields) {
+            const invalidFields = responseBody.invalid_fields;
+            Object.keys(invalidFields).forEach((key) => {
+              responseMsg += `\n${invalidFields[key]}`;
+            });
+          }
+          errorMessage += `\n${responseMsg}`;
+        }
+
         setServerError(errorMessage);
       });
   };
