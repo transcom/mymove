@@ -39,6 +39,7 @@ const testProps = {
     eTag: 'abc123',
     status: 'APPROVED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
   },
 };
 
@@ -100,6 +101,7 @@ const cancelledShipment = {
     eTag: 'abc123',
     status: 'CANCELED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
   },
 };
 
@@ -118,6 +120,7 @@ describe('ShipmentAddresses', () => {
       expect(testProps.handleDivertShipment).toHaveBeenCalledWith(
         testProps.shipmentInfo.id,
         testProps.shipmentInfo.eTag,
+        testProps.shipmentInfo.shipmentLocator,
       );
     });
   });
