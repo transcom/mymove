@@ -30,41 +30,41 @@ tags:
   - name: paymentRequests
 paths:
   /open/requested-office-users:
-      post:
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        summary: Create an Office User
-        description: >
-          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
 
-          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
-          An identification method must be present. The following 2 fields have an "OR" requirement.
-          - edipi
-          - other_unique_id
-          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
-        operationId: createRequestedOfficeUser
-        tags:
-          - officeUsers
-        parameters:
-          - in: body
-            name: officeUser
-            description: Office User information
-            schema:
-              $ref: '#/definitions/OfficeUserCreate'
-        responses:
-          '201':
-            description: successfully requested the creation of provided office user
-            schema:
-              $ref: '#/definitions/OfficeUser'
-          '422':
-            description: validation error
-            schema:
-              $ref: '#/definitions/ValidationError'
-          '500':
-            description: internal server error
-  "/customer":
+        Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+        An identification method must be present. The following 2 fields have an "OR" requirement.
+        - edipi
+        - other_unique_id
+        One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - Office users
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
+  '/customer':
     post:
       summary: Creates a customer with Okta option
       description: Creates a customer with option to create an Okta profile account
@@ -80,27 +80,27 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/CreateCustomerPayload"
+            $ref: '#/definitions/CreateCustomerPayload'
       responses:
-        "200":
+        '200':
           description: successfully created the customer
           schema:
-            $ref: "#/definitions/CreatedCustomer"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/customer/{customerID}":
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
         in: path
@@ -1711,7 +1711,7 @@ paths:
           $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/actual-weight:
     parameters:
-      - $ref: "parameters/ppmShipmentId.yaml"
+      - $ref: 'parameters/ppmShipmentId.yaml'
     get:
       summary: Get the actual weight for a PPM shipment
       description: |
@@ -1722,20 +1722,20 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Returns actual weight for the specified PPM shipment.
           schema:
-            $ref: "definitions/PPMActualWeight.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/PPMActualWeight.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
@@ -1753,7 +1753,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        "200":
+        '200':
           headers:
             Content-Disposition:
               type: string
@@ -1762,17 +1762,17 @@ paths:
           schema:
             format: binary
             type: file
-        "400":
+        '400':
           description: invalid request
-        "401":
+        '401':
           description: request requires user authentication
-        "403":
+        '403':
           description: user is not authorized
-        "404":
+        '404':
           description: ppm not found
-        "500":
+        '500':
           description: internal server error
-  "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents":
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
         in: path
@@ -3746,7 +3746,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$|^$'
         x-nullable: true
       backupAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
   CreatedCustomer:
     type: object
     properties:
@@ -3777,9 +3777,9 @@ definitions:
         example: David
         x-nullable: true
       residentialAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
       backupContact:
-        $ref: "#/definitions/BackupContact"
+        $ref: '#/definitions/BackupContact'
       id:
         type: string
         format: uuid
@@ -3805,7 +3805,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
       backupAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3849,12 +3849,12 @@ definitions:
         x-nullable: true
       backupAddress:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
   CreateCustomerPayload:
     type: object
     properties:
       affiliation:
-        $ref: "definitions/Affiliation.yaml"
+        $ref: 'definitions/Affiliation.yaml'
       edipi:
         type: string
         example: John
@@ -3894,12 +3894,12 @@ definitions:
         type: boolean
       residentialAddress:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       backupContact:
-        $ref: "#/definitions/BackupContact"
+        $ref: '#/definitions/BackupContact'
       backupMailingAddress:
         allOf:
-          - $ref: "definitions/Address.yaml"
+          - $ref: 'definitions/Address.yaml'
       createOktaAccount:
         type: boolean
   Entitlements:
@@ -5719,7 +5719,7 @@ definitions:
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
-        $ref: "#/definitions/GBLOC"
+        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:
