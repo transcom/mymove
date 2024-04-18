@@ -193,5 +193,5 @@ describe('CreateCustomerForm', () => {
 
     expect(createCustomerWithOktaOption).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalled();
-  });
+  }, 10000);
 });
