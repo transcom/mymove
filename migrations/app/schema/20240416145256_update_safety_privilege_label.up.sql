@@ -1,0 +1,1 @@
+update privileges set privilege_name = 'Safety Moves' where id = '43f77473-2ecd-4b06-920a-e1e003f63c18';
