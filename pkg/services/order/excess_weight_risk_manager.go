@@ -2,7 +2,6 @@ package order
 
 import (
 	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -200,63 +199,6 @@ func (f *excessWeightRiskManager) updateAuthorizedWeight(appCtx appcontext.AppCo
 }
 
 func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
-	db := appCtx.DB()
-	var theMove models.Move
-	err := db.EagerPreload("MTOShipments", "MTOShipments.PPMShipment", "Orders", "Orders.Grade", "Orders.Entitlement.DependentsAuthorized").Find(&theMove, move.ID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(move.ID, "looking for Move")
-		default:
-			return nil, apperror.NewQueryError("Move", err, "")
-		}
-	}
-
-	if theMove.Orders.Grade == nil {
-		return nil, errors.New("could not determine excess weight entitlement without grade")
-	}
-
-	if theMove.Orders.Entitlement.DependentsAuthorized == nil {
-		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
-	}
-
-	totalWeightAllowance := models.GetWeightAllotment(*theMove.Orders.Grade)
-
-	weight := totalWeightAllowance.TotalWeightSelf
-	if *theMove.Orders.Entitlement.DependentsAuthorized {
-		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
-	}
-
-	estimatedWeightTotal := 0
-
-	for _, shipment := range theMove.MTOShipments {
-
-		// turn this into a function later...
-		// use the appropriate riskOfExcess threshold modifier when it comes to NTSR shipments once that info is released.
-
-		// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
-		// and cancellations factoring into the estimated weight total.
-		if shipment.Status == models.MTOShipmentStatusApproved {
-			if shipment.PrimeEstimatedWeight != nil {
-				estimatedWeightTotal += shipment.PrimeEstimatedWeight.Int()
-			}
-			if shipment.PPMShipment != nil {
-				estimatedWeightTotal += shipment.PPMShipment.EstimatedWeight.Int()
-			}
-		}
-	}
-
-	const RiskOfExcessThreshold = .9
-	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(weight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
-		excessWeightQualifiedAt := time.Now()
-		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
-	} else if theMove.ExcessWeightQualifiedAt != nil {
-		// the move had previously qualified for excess weight but does not any longer so reset the value
-		move.ExcessWeightQualifiedAt = nil
-	}
-
 	if !excessWeightRiskShouldBeAcknowledged(move) {
 		return &move, nil
 	}
@@ -268,7 +210,7 @@ func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppC
 		return &move, e
 	}
 
-	return &theMove, nil
+	return &move, nil
 }
 
 func (f *excessWeightRiskManager) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
