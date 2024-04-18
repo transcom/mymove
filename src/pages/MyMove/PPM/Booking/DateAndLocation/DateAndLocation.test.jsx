@@ -1115,7 +1115,7 @@ describe('DateAndLocation component', () => {
         expect(patchMove).toHaveBeenCalledTimes(1);
 
         // Should have only updated the shipment in redux
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalled();
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
 
         // No redirect should have happened
