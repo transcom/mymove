@@ -61,7 +61,7 @@ paths:
         handled at the application level.
       operationId: createRequestedOfficeUser
       tags:
-        - Office users
+        - officeUsers
       parameters:
         - in: body
           name: officeUser
