@@ -103,6 +103,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
         const responseBody = response.body;
         let responseMsg = '';
 
+        if (responseBody.detail) {
+          responseMsg += responseBody.detail;
+        }
+
         if (responseBody.invalid_fields) {
           const invalidFields = responseBody.invalid_fields;
           Object.keys(invalidFields).forEach((key) => {
