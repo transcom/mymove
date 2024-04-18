@@ -189,9 +189,13 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
     });
-    await user.click(saveBtn);
 
-    expect(createCustomerWithOktaOption).toHaveBeenCalled();
+    const waiter = waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+    });
+
+    await user.click(saveBtn);
+    await waiter;
     expect(mockNavigate).toHaveBeenCalled();
   });
 });
