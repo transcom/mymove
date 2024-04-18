@@ -6355,7 +6355,7 @@ func init() {
         },
         "gunSafe": {
           "type": "boolean",
-          "example": true
+          "example": false
         },
         "id": {
           "type": "string",
@@ -19228,7 +19228,7 @@ func init() {
         },
         "gunSafe": {
           "type": "boolean",
-          "example": true
+          "example": false
         },
         "id": {
           "type": "string",
