@@ -376,7 +376,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 			// Check to make sure invoice flag is P if ran in prod
 			if isProd {
-				suite.Equal("P", edi[103:104])
+				suite.Equal("P", edi[102:103])
+			}
+			if !isProd {
+				suite.Equal("T", edi[102:103])
 			}
 		}
 
