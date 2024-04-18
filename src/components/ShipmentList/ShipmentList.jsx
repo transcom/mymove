@@ -69,7 +69,7 @@ export const ShipmentListItem = ({
               </div>
               <div className={styles.textAlignLeft}>
                 <h6>
-                  <strong>{formatWeight(shipment.ppmShipment.estimatedWeight)}</strong>
+                  <strong>{requestedWeightPPM > 0 ? formatWeight(requestedWeightPPM) : '-'}</strong>
                 </h6>
                 <h6>
                   <strong>{formatWeight(requestedWeightPPM)}</strong>
@@ -92,12 +92,7 @@ export const ShipmentListItem = ({
             Delete
           </Button>
           |
-          <Button
-            className={styles['edit-btn']}
-            onClick={onShipmentClick}
-            type="button"
-            data-testid="editShipmentButton"
-          >
+          <Button className={styles['edit-btn']} onClick={onShipmentClick} type="button">
             Edit
           </Button>
         </div>
