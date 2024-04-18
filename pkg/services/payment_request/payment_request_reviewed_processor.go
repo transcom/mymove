@@ -102,8 +102,8 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		v := viper.New()
 		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		v.AutomaticEnv()
-		flag := v.GetString(cli.EnvironmentFlag)
-		if flag == "production" || flag == "prod" || flag == "prd" {
+		envFlag := v.GetString(cli.EnvironmentFlag)
+		if envFlag == "production" || envFlag == "prod" || envFlag == "prd" {
 			isProd = true
 		}
 		// generate EDI file
