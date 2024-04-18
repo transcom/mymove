@@ -3,10 +3,8 @@ import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
 
 import { generalRoutes, customerRoutes } from 'constants/routes';
-import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
-import { no_op } from 'shared/utils';
-import { NULL_UUID, CONUS_STATUS } from 'shared/constants';
+import { NULL_UUID } from 'shared/constants';
 import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 import Home from 'pages/MyMove/Home';
@@ -21,6 +19,7 @@ import BackupAddress from 'pages/MyMove/Profile/BackupAddress';
 import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review/Review';
 import Agreement from 'pages/MyMove/Agreement';
+import ValidationCode from 'pages/MyMove/Profile/ValidationCode';
 
 const PageNotInFlow = () => (
   <div className="usa-grid">
@@ -29,34 +28,8 @@ const PageNotInFlow = () => (
   </div>
 );
 
-// USE THESE FOR STUBBING OUT FUTURE WORK
-// const Placeholder = props => {
-//   return (
-//     <WizardPage
-//       handleSubmit={() => undefined}
-//       pageList={props.pageList}
-//       pageKey={props.pageKey}
-//     >
-//       <div className="Todo-phase2">
-//         <h1>Placeholder for {props.title}</h1>
-//         <h2>{props.description}</h2>
-//       </div>
-//     </WizardPage>
-//   );
-// };
-
-// const stub = (key, pages, description) => (
-//   <Placeholder
-//     pageList={pages}
-//     pageKey={key}
-//     title={key}
-//     description={description}
-//   />
-// );
-
 const always = () => true;
 const never = () => false;
-// Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
@@ -65,21 +38,15 @@ const isCurrentMoveSubmitted = ({ move }) => {
 };
 
 const pages = {
+  [customerRoutes.VALIDATION_CODE_PATH]: {
+    isInFlow: myFirstRodeo,
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
+    render: () => <ValidationCode />,
+  },
   [customerRoutes.CONUS_OCONUS_PATH]: {
     isInFlow: inGhcFlow,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
-    render: (key, pages, description, props) => {
-      return (
-        <WizardPage
-          handleSubmit={no_op}
-          pageList={pages}
-          pageKey={key}
-          canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
-        >
-          <ConusOrNot conusStatus={props.conusStatus} />
-        </WizardPage>
-      );
-    },
+    render: () => <ConusOrNot />,
   },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
