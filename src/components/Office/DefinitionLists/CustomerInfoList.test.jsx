@@ -6,7 +6,8 @@ import CustomerInfoList from './CustomerInfoList';
 const info = {
   name: 'Smith, Kerry',
   dodId: '9999999999',
-  phone: '+1 999-999-9999',
+  phone: '999-999-9999',
+  altPhone: '888-888-8888',
   email: 'ksmith@email.com',
   currentAddress: {
     streetAddress1: '812 S 129th St',
@@ -15,7 +16,8 @@ const info = {
     postalCode: '78234',
   },
   backupAddress: {
-    streetAddress1: '813 S 129th St',
+    streetAddress1: '812½ S 129th St',
+    streetAddress2: 'Apt B',
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
@@ -33,7 +35,11 @@ describe('CustomerInfoList', () => {
     Object.keys(info)
       .filter((k) => k !== 'currentAddress' && k !== 'backupAddress' && k !== 'backupContact')
       .forEach((key) => {
-        expect(screen.getByText(info[key])).toBeInTheDocument();
+        if (key === 'phone' || key === 'altPhone') {
+          screen.getByText(`+1 ${info[key]}`);
+        } else {
+          expect(screen.getByText(info[key])).toBeInTheDocument();
+        }
       });
   });
 
@@ -44,7 +50,7 @@ describe('CustomerInfoList', () => {
 
   it('renders formatted backup address', () => {
     render(<CustomerInfoList customerInfo={info} />);
-    expect(screen.getByText('813 S 129th St, San Antonio, TX 78234')).toBeInTheDocument();
+    expect(screen.getByText('812½ S 129th St, Apt B, San Antonio, TX 78234')).toBeInTheDocument();
   });
 
   it('renders formatted backup contact name', () => {

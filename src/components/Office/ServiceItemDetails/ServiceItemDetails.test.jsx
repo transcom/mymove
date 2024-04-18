@@ -64,6 +64,58 @@ const details = {
   },
 };
 
+const submittedServiceItemDetails = {
+  description: 'some description',
+  pickupPostalCode: '90210',
+  SITPostalCode: '12345',
+  sitEntryDate: '2024-03-11T00:00:00.000Z',
+  reason: 'some reason',
+  itemDimensions: { length: 1000, width: 2500, height: 3000 },
+  crateDimensions: { length: 2000, width: 3500, height: 4000 },
+  customerContacts: [
+    { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15', dateOfContact: '2020-09-15' },
+    { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21', dateOfContact: '2020-09-21' },
+  ],
+  estimatedWeight: 2500,
+  sitCustomerContacted: '2024-03-14T00:00:00.000Z',
+  sitRequestedDelivery: '2024-03-15T00:00:00.000Z',
+  sitDepartureDate: '2024-03-16T00:00:00.000Z',
+  sitDeliveryMiles: 50,
+  sitOriginHHGOriginalAddress: {
+    city: 'Origin Original Tampa',
+    eTag: 'MjAyNC0wMy0xMlQxOTo1OTowOC41NjkxMzla',
+    id: '7fd6cb90-54cd-44d8-8735-102e28734d84',
+    postalCode: '33621',
+    state: 'FL',
+    streetAddress1: 'MacDill',
+  },
+  sitOriginHHGActualAddress: {
+    city: 'Origin Actual MacDill',
+    eTag: 'HjAyNC0wMy0xMlQxOTo1OTowOC41NjkxMzla',
+    id: '8fd6cb90-54cd-44d8-8735-102e28734d84',
+    postalCode: '33621',
+    state: 'FL',
+    streetAddress1: 'MacDill',
+  },
+  sitDestinationOriginalAddress: {
+    city: 'Destination Original Tampa',
+    eTag: 'MjAyNC0wMy0xMlQxOTo1OTowOC41NjkxMzla',
+    id: '7fd6cb90-54cd-44d8-8735-102e28734d84',
+    postalCode: '33621',
+    state: 'FL',
+    streetAddress1: 'MacDill',
+  },
+  sitDestinationFinalAddress: {
+    city: 'Destination Final MacDill',
+    eTag: 'HjAyNC0wMy0xMlQxOTo1OTowOC41NjkxMzla',
+    id: '8fd6cb90-54cd-44d8-8735-102e28734d84',
+    postalCode: '33621',
+    state: 'FL',
+    streetAddress1: 'MacDill',
+  },
+  status: 'SUBMITTED',
+};
+
 const serviceRequestDocs = [
   {
     uploads: [
@@ -134,6 +186,19 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
     expect(screen.getByText('SIT departure date:')).toBeInTheDocument();
     expect(screen.getByText('16 Mar 2024')).toBeInTheDocument();
   });
+  it('renders DDDSIT details with - for the final delivery address is service item is in submitted state', () => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="DDDSIT"
+        details={submittedServiceItemDetails}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
+
+    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
+  });
   it('renders DDFSIT details', () => {
     render(<ServiceItemDetails id="1" code="DDFSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
     expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
@@ -149,6 +214,19 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
     expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
     expect(screen.getByText('50')).toBeInTheDocument();
+  });
+  it('renders DDSFSC details with - for the final delivery address is service item is in submitted state', () => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="DDSFSC"
+        details={submittedServiceItemDetails}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
+
+    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
   });
 });
 

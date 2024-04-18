@@ -326,6 +326,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		"MTOServiceItems.CustomerContacts",
 		"StorageFacility.Address",
 		"Reweigh",
+		"ShipmentLocator",
 	}
 
 	oldShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
@@ -656,12 +657,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			return apperror.NewInvalidInputError(newShipment.ID, nil, nil, errMessage)
 		}
 
+		weightsCalculator := NewShipmentBillableWeightCalculator()
+		calculatedBillableWeight := weightsCalculator.CalculateShipmentBillableWeight(dbShipment).CalculatedBillableWeight
+
 		// If the max allowable weight for a shipment has been adjusted set a flag to recalculate payment requests for
 		// this shipment
 		runShipmentRecalculate := false
 		if newShipment.BillableWeightCap != nil {
 			// new billable cap has a value and it is not the same as the previous value
-			if dbShipment.BillableWeightCap == nil || *newShipment.BillableWeightCap != *dbShipment.BillableWeightCap {
+			if *newShipment.BillableWeightCap != *calculatedBillableWeight {
 				runShipmentRecalculate = true
 			}
 		} else if dbShipment.BillableWeightCap != nil {
