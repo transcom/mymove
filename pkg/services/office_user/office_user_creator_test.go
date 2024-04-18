@@ -257,16 +257,26 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	suite.Run("Test detailed uniqueness constraints being returned properly", func() {
 		testCases := []struct {
-			errorString string
+			errorString              string
+			shouldEdipiBeNil         bool
+			shouldOtherUniqueIDBeNil bool
 		}{
-			{models.UniqueConstraintViolationOfficeUserEmailErrorString},
-			{models.UniqueConstraintViolationOfficeUserEdipiErrorString},
-			{models.UniqueConstraintViolationOfficeUserOtherUniqueIDErrorString},
+			{models.UniqueConstraintViolationOfficeUserEmailErrorString, false, false},
+			{models.UniqueConstraintViolationOfficeUserEdipiErrorString, false, false},
+			{models.UniqueConstraintViolationOfficeUserEdipiErrorString, true, false},
+			{models.UniqueConstraintViolationOfficeUserOtherUniqueIDErrorString, false, false},
+			{models.UniqueConstraintViolationOfficeUserOtherUniqueIDErrorString, false, true},
 		}
 
 		for _, tc := range testCases {
 			_, userInfo := setupTestData()
 			transportationOffice := userInfo.TransportationOffice
+			if tc.shouldEdipiBeNil {
+				userInfo.EDIPI = nil
+			}
+			if tc.shouldOtherUniqueIDBeNil {
+				userInfo.OtherUniqueID = nil
+			}
 			appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 
 			fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
