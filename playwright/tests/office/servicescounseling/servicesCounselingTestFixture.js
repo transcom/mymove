@@ -20,7 +20,7 @@ export class ServiceCounselorPage extends OfficePage {
    * @param {string} moveLocator
    */
   async verifyMoveByLocatorCode(moveLocator) {
-    await expect(this.page.getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
+    await expect(this.page.getByTestId('nameBlock').getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
   }
 
   /**
@@ -101,6 +101,7 @@ export class ServiceCounselorPage extends OfficePage {
     // Click the first returned row
     await this.page.getByTestId('locator-0').click();
     await this.waitForPage.moveDetails();
+
     await this.verifyMoveByLocatorCode(moveLocator);
   }
 

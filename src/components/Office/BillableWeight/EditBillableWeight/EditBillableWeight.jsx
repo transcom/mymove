@@ -18,7 +18,7 @@ function BillableWeightHintText({
   totalBillableWeight,
   isNTSRShipment,
 }) {
-  const estimatedWeightTimes110 = estimatedWeight * 1.1;
+  const estimatedWeightTimes110 = Math.round(estimatedWeight * 1.1);
 
   const showToFit = billableWeight > maxBillableWeight && billableWeight > estimatedWeightTimes110;
   // the to fit value is the max billable weight minus the total billable weight, excludes the shipment currently in view
