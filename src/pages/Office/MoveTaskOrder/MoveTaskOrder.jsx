@@ -28,6 +28,7 @@ import RequestReweighModal from 'components/Office/RequestReweighModal/RequestRe
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
+import ServiceItemContainer from 'components/Office/ServiceItemContainer/ServiceItemContainer';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   acknowledgeExcessWeightRisk,
@@ -158,6 +159,17 @@ export const MoveTaskOrder = (props) => {
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
+
+  const serviceItemsForMove = shipmentServiceItems[`${undefined}`];
+  const requestedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
+  );
+  const approvedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
+  );
+  const rejectedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
+  );
 
   /*
   *
@@ -1039,16 +1051,6 @@ export const MoveTaskOrder = (props) => {
             const rejectedServiceItems = serviceItemsForShipment?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
-            const serviceItemsForMove = shipmentServiceItems[`${undefined}`];
-            const requestedMoveServiceItems = serviceItemsForMove?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
-            );
-            const approvedMoveServiceItems = serviceItemsForMove?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
-            );
-            const rejectedMoveServiceItems = serviceItemsForMove?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
-            );
             const dutyLocationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
@@ -1114,27 +1116,35 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
                   />
                 )}
-                {requestedMoveServiceItems?.length > 0 && (
-                  <RequestedServiceItemsTable
-                    serviceItems={requestedMoveServiceItems}
-                    statusForTableType={MTO_SERVICE_ITEM_STATUS.SUBMITTED}
-                  />
-                )}
-                {approvedMoveServiceItems?.length > 0 && (
-                  <RequestedServiceItemsTable
-                    serviceItems={approvedMoveServiceItems}
-                    statusForTableType={MTO_SERVICE_ITEM_STATUS.APPROVED}
-                  />
-                )}
-                {rejectedMoveServiceItems?.length > 0 && (
-                  <RequestedServiceItemsTable
-                    serviceItems={rejectedMoveServiceItems}
-                    statusForTableType={MTO_SERVICE_ITEM_STATUS.REJECTED}
-                  />
-                )}
               </ShipmentContainer>
             );
           })}
+          <ServiceItemContainer className={styles.shipmentCard}>
+            {requestedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={requestedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.SUBMITTED}
+              />
+            )}
+            {approvedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={approvedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.APPROVED}
+              />
+            )}
+            {rejectedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={rejectedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.REJECTED}
+              />
+            )}
+          </ServiceItemContainer>
           <div className={styles.pageFooter}>
             <div className={styles.pageFooterDetails}>
               <h6>{order?.packingAndShippingInstructions}</h6>
