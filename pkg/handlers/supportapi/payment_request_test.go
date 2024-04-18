@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
@@ -357,11 +360,26 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 		suite.Equal(ediPayload.ID, strfmt.UUID(paymentRequest.ID.String()))
 
-		// Check to make sure EDI is there and starts with expected segment.
+		isProd := false
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+		flag := v.GetString(cli.EnvironmentFlag)
+		if flag == "production" || flag == "prod" || flag == "prd" {
+			isProd = true
+		}
+
 		edi := ediPayload.Edi
 		if suite.NotEmpty(edi) {
+			// Check to make sure EDI is there and starts with expected segment.
 			suite.Regexp("^ISA*", edi)
+
+			// Check to make sure invoice flag is P if ran in prod
+			if isProd {
+				suite.Equal("P", edi[103:104])
+			}
 		}
+
 	})
 
 	suite.Run("failure due to incorrectly formatted payment request ID", func() {
