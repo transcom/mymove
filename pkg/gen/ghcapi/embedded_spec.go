@@ -2225,7 +2225,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "officeUsers"
+          "Office users"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -6289,7 +6289,7 @@ func init() {
         },
         "gunSafe": {
           "type": "boolean",
-          "example": true
+          "example": false
         },
         "id": {
           "type": "string",
@@ -14248,7 +14248,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "officeUsers"
+          "Office users"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -19028,7 +19028,7 @@ func init() {
         },
         "gunSafe": {
           "type": "boolean",
-          "example": true
+          "example": false
         },
         "id": {
           "type": "string",
