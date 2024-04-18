@@ -1,1 +1,0 @@
-INSERT INTO privileges VALUES ('43f77473-2ecd-4b06-920a-e1e003f63c18', 'safety', now(), now(), 'Safety');
