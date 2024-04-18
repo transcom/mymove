@@ -109,6 +109,9 @@ describe('RequestAccount page', () => {
 
     const mockResponse = {
       status: 500,
+      response: {
+        body: {},
+      },
     };
 
     searchTransportationOfficesOpen.mockImplementation(mockSearchTransportationOfficesOpen);

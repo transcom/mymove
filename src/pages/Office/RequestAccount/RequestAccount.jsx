@@ -100,21 +100,25 @@ export const RequestAccount = ({ setFlashMessage }) => {
       })
       .catch((e) => {
         const { response } = e;
-        const responseBody = response.body;
-        let responseMsg = '';
+        let errorMessage = `Failed to submit office account request.`;
 
-        if (responseBody.detail) {
-          responseMsg += `${responseBody.detail}:`;
+        if (response.body) {
+          const responseBody = response.body;
+          let responseMsg = '';
+
+          if (responseBody.detail) {
+            responseMsg += `${responseBody.detail}:`;
+          }
+
+          if (responseBody.invalid_fields) {
+            const invalidFields = responseBody.invalid_fields;
+            Object.keys(invalidFields).forEach((key) => {
+              responseMsg += `\n${invalidFields[key]}`;
+            });
+          }
+          errorMessage += `\n${responseMsg}`;
         }
 
-        if (responseBody.invalid_fields) {
-          const invalidFields = responseBody.invalid_fields;
-          Object.keys(invalidFields).forEach((key) => {
-            responseMsg += `\n${invalidFields[key]}`;
-          });
-        }
-
-        const errorMessage = `Failed to submit office account request.\n${responseMsg}`;
         setServerError(errorMessage);
       });
   };
