@@ -62,6 +62,7 @@ public/swagger-ui/*
 !public/swagger-ui/prime.html
 !public/swagger-ui/prime_v2.html
 !public/swagger-ui/ghc.html
+!public/swagger-ui/support.html
 
 # Playwright integration tests
 playwright/.cache
