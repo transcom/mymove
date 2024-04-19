@@ -158,19 +158,10 @@ const billableWeight = (params) => {
 const shuttleBillableWeight = (params) => {
   const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
-  const weightReweighValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
-  const weightOriginalValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightOriginal, params), 10);
-  let lowestActualWeight;
-  // In order to grab the lower of the two integers, we need to make sure that both are in fact numbers first
-  // If NaN comes back from parseInt, we know to use the other value
-  if (!Number.isNaN(weightReweighValue) && !Number.isNaN(weightOriginalValue)) {
-    lowestActualWeight = Math.min(weightReweighValue, weightOriginalValue);
-  } else if (!Number.isNaN(weightReweighValue)) {
-    lowestActualWeight = weightReweighValue;
-  } else if (!Number.isNaN(weightOriginalValue)) {
-    lowestActualWeight = weightOriginalValue;
-  }
-  const weightBilledDetail = `${SERVICE_ITEM_CALCULATION_LABELS.ShuttleWeight}: ${formatWeight(lowestActualWeight)}`;
+
+  const weightBilledDetail = `${SERVICE_ITEM_CALCULATION_LABELS.ShuttleWeight}: ${formatWeight(
+    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params), 10),
+  )}`;
 
   const weightEstimated = getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params);
   const weightEstimatedDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
