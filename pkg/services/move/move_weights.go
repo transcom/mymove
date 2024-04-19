@@ -91,32 +91,38 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		}
 	}
 
+	var gradeNotExists = move.Orders.Grade == nil
+	var DependentsAuthorizedNotExists = move.Orders.Entitlement.DependentsAuthorized == nil
+	if gradeNotExists {
+		return nil, nil, errors.New("could not determine excess weight entitlement without grade")
+	}
+	if DependentsAuthorizedNotExists {
+		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
+	}
+
 	var estimatedWeightTotal = 0
 	var shipments = move.MTOShipments
-	var skipExcessWeightCheck = move.Orders.Grade == nil || move.Orders.Entitlement.DependentsAuthorized == nil
-	if !skipExcessWeightCheck {
-		if updatedShipment.Status == models.MTOShipmentStatusApproved {
-			if updatedShipment.PrimeEstimatedWeight != nil {
-				estimatedWeightTotal += updatedShipment.PrimeEstimatedWeight.Int()
-			}
-			if updatedShipment.PPMShipment != nil && updatedShipment.PPMShipment.EstimatedWeight != nil {
-				estimatedWeightTotal += updatedShipment.PPMShipment.EstimatedWeight.Int()
-			}
+	if updatedShipment.Status == models.MTOShipmentStatusApproved {
+		if updatedShipment.PrimeEstimatedWeight != nil {
+			estimatedWeightTotal += updatedShipment.PrimeEstimatedWeight.Int()
 		}
-		for i := range shipments {
-			if shipments[i].ID == updatedShipment.ID {
-				continue
-			}
+		if updatedShipment.PPMShipment != nil && updatedShipment.PPMShipment.EstimatedWeight != nil {
+			estimatedWeightTotal += updatedShipment.PPMShipment.EstimatedWeight.Int()
+		}
+	}
+	for i := range shipments {
+		if shipments[i].ID == updatedShipment.ID {
+			continue
+		}
 
-			if shipments[i].Status == models.MTOShipmentStatusApproved {
-				if shipments[i].PrimeEstimatedWeight != nil {
-					var weightToAdd unit.Pound = *shipments[i].PrimeEstimatedWeight
-					estimatedWeightTotal += weightToAdd.Int()
-				}
-				if shipments[i].PPMShipment != nil {
-					var weightToAdd unit.Pound = *shipments[i].PPMShipment.EstimatedWeight
-					estimatedWeightTotal += weightToAdd.Int()
-				}
+		if shipments[i].Status == models.MTOShipmentStatusApproved {
+			if shipments[i].PrimeEstimatedWeight != nil {
+				var weightToAdd unit.Pound = *shipments[i].PrimeEstimatedWeight
+				estimatedWeightTotal += weightToAdd.Int()
+			}
+			if shipments[i].PPMShipment != nil {
+				var weightToAdd unit.Pound = *shipments[i].PPMShipment.EstimatedWeight
+				estimatedWeightTotal += weightToAdd.Int()
 			}
 		}
 	}
@@ -141,12 +147,12 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		shouldSaveMoveRecord = false
 	}
 	if shouldSaveMoveRecord {
-
 		verrs, err := validateAndSave(appCtx, &move)
 		if (verrs != nil && verrs.HasAny()) || err != nil {
 			return nil, verrs, err
 		}
 	}
+
 	return &move, nil, nil
 }
 
