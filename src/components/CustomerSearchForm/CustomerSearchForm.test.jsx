@@ -4,6 +4,15 @@ import userEvent from '@testing-library/user-event';
 
 import CustomerSearchForm from './CustomerSearchForm';
 
+import { searchCustomers } from 'services/ghcApi';
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  searchCustomers: jest.fn(),
+}));
+
+beforeEach(jest.resetAllMocks);
+
 describe('CustomerSearchForm', () => {
   it('renders', () => {
     const { getByText } = render(<CustomerSearchForm onSubmit={() => {}} />);
@@ -12,7 +21,7 @@ describe('CustomerSearchForm', () => {
 
   describe('check validation', () => {
     it('can submit DOD ID', async () => {
-      const onSubmit = jest.fn();
+      const onSubmit = searchCustomers;
       const { getByLabelText, getByRole } = render(<CustomerSearchForm onSubmit={onSubmit} />);
       const submitButton = getByRole('button');
 
@@ -25,7 +34,7 @@ describe('CustomerSearchForm', () => {
       expect(submitButton).toBeEnabled();
       await userEvent.click(submitButton);
       await waitFor(() => {
-        expect(onSubmit).toHaveBeenCalledWith(
+        expect(searchCustomers).toHaveBeenCalledWith(
           {
             searchText: '4152341523',
             searchType: 'dodID',
@@ -36,7 +45,7 @@ describe('CustomerSearchForm', () => {
     });
 
     it('can submit name', async () => {
-      const onSubmit = jest.fn();
+      const onSubmit = searchCustomers;
       const { getByLabelText, getByRole } = render(<CustomerSearchForm onSubmit={onSubmit} />);
       const submitButton = getByRole('button');
 
@@ -48,7 +57,7 @@ describe('CustomerSearchForm', () => {
       expect(submitButton).toBeEnabled();
       await userEvent.click(submitButton);
       await waitFor(() => {
-        expect(onSubmit).toHaveBeenCalledWith(
+        expect(searchCustomers).toHaveBeenCalledWith(
           {
             searchText: 'Leo Spaceman',
             searchType: 'customerName',

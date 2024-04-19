@@ -12,11 +12,11 @@ import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
 
 const baseSchema = Yup.object().shape({
-  searchType: Yup.string().required('searchtype error'),
+  searchType: Yup.string().required('Select either DOD ID or Customer Name'),
 });
 const dodIDSchema = baseSchema.concat(
   Yup.object().shape({
-    searchText: Yup.string().trim().length(10, 'DOD ID must be exactly 10 characters'),
+    searchText: Yup.string().trim().length(10, 'DOD ID must be exactly 10 digits'),
   }),
 );
 const customerNameSchema = baseSchema.concat(
@@ -44,8 +44,6 @@ const CustomerSearchForm = ({ onSubmit }) => {
       initialValues={{ searchType: 'dodID', searchText: '' }}
       onSubmit={onSubmit}
       validateOnChange
-      // adding a return will break the validation
-      // RA Validator Status: RA Accepted
       // eslint-disable-next-line consistent-return
       validate={(values) => {
         const schema = getValidationSchema(values);
