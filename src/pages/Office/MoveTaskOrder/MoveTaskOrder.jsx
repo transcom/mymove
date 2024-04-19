@@ -380,8 +380,8 @@ export const MoveTaskOrder = (props) => {
     },
   });
   useEffect(() => {
-    setIsAtExcessWeightRisk(hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight));
-  }, [estimatedWeightTotal, order?.entitlement?.authorizedWeight, order.entitlement.totalWeight]);
+    setIsAtExcessWeightRisk(hasRiskOfExcess(estimatedWeightTotal, order.entitlement.authorizedWeight));
+  }, [estimatedWeightTotal, order?.entitlement?.authorizedWeight]);
 
   const handleExcessWeightRiskCountCheck = useCallback(() => {
     setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
