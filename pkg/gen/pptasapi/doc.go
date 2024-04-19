@@ -4,9 +4,9 @@
 //
 //	This API does things. For more information, see our detailed documentation.
 //	Schemes:
-//	  https
-//	Host: localhost
-//	BasePath: /
+//	  http
+//	Host: officelocal
+//	BasePath: /pptas/v1
 //	Version: 0.0.1
 //	License: MIT https://opensource.org/licenses/MIT
 //	Contact: <milmove-developers@caci.com>

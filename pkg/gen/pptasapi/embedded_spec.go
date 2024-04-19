@@ -19,7 +19,7 @@ var (
 func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
-    "https"
+    "http"
   ],
   "swagger": "2.0",
   "info": {
@@ -34,11 +34,15 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "localhost",
+  "host": "officelocal",
+  "basePath": "/pptas/v1",
   "paths": {
     "/test/getMovesSince": {
-      "get": {
+      "post": {
         "description": "summary2",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -53,17 +57,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "moveSinceDate": {
-                  "description": "moves retrieved since this date",
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "numMoves": {
-                  "description": "number of moves to return",
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/movesSince"
             }
           }
         ],
@@ -226,6 +220,20 @@ func init() {
       "items": {
         "$ref": "#/definitions/SearchMove"
       }
+    },
+    "movesSince": {
+      "type": "object",
+      "properties": {
+        "moveSinceDate": {
+          "description": "moves retrieved since this date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "numMoves": {
+          "description": "number of moves to return",
+          "type": "integer"
+        }
+      }
     }
   },
   "responses": {
@@ -255,7 +263,7 @@ func init() {
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
-    "https"
+    "http"
   ],
   "swagger": "2.0",
   "info": {
@@ -270,11 +278,15 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "localhost",
+  "host": "officelocal",
+  "basePath": "/pptas/v1",
   "paths": {
     "/test/getMovesSince": {
-      "get": {
+      "post": {
         "description": "summary2",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -289,17 +301,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "properties": {
-                "moveSinceDate": {
-                  "description": "moves retrieved since this date",
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "numMoves": {
-                  "description": "number of moves to return",
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/movesSince"
             }
           }
         ],
@@ -470,6 +472,20 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/SearchMove"
+      }
+    },
+    "movesSince": {
+      "type": "object",
+      "properties": {
+        "moveSinceDate": {
+          "description": "moves retrieved since this date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "numMoves": {
+          "description": "number of moves to return",
+          "type": "integer"
+        }
       }
     }
   },

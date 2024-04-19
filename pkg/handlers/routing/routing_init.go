@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"github.com/transcom/mymove/pkg/handlers/pptasapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
@@ -98,6 +99,11 @@ type Config struct {
 	ServeGHC bool
 	// The path to the ghc api swagger definition
 	GHCSwaggerPath string
+
+	// Should the ghc api be served?
+	ServePPTAS bool
+	// The path to the ghc api swagger definition
+	PPTASSwaggerPath string
 
 	// Should devlocal auth be enabled? Definitely never enabled in
 	// production
@@ -579,6 +585,38 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 	}
 }
 
+func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	if routingConfig.ServePPTAS {
+		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
+		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
+		site.Route("/pptas/v1", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.PPTASSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("PPTAS API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+
+			// Mux for GHC API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(middleware.NoCache())
+				api := pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig)
+				permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+				rAuth.Use(permissionsMiddleware)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
+	}
+}
+
 func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	site.Route("/auth/", func(r chi.Router) {
 		r.Use(middleware.NoCache())
@@ -668,6 +706,7 @@ func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 			mountInternalAPI(appCtx, routingConfig, sessionRoute)
 			mountPrimeSimulatorAPI(appCtx, routingConfig, sessionRoute)
 			mountGHCAPI(appCtx, routingConfig, sessionRoute)
+			mountPPTASAPI(appCtx, routingConfig, sessionRoute)
 		},
 	)
 

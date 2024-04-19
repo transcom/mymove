@@ -1,0 +1,9 @@
+type: object
+properties:
+  moveSinceDate:
+    type: string
+    description: moves retrieved since this date
+    format: date-time
+  numMoves:
+    type: integer
+    description: number of moves to return

@@ -408,6 +408,10 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	if routingConfig.ServeGHC {
 		routingConfig.GHCSwaggerPath = v.GetString(cli.GHCSwaggerFlag)
 	}
+	routingConfig.ServePPTAS = v.GetBool(cli.ServePPTASFlag)
+	if routingConfig.ServePPTAS {
+		routingConfig.PPTASSwaggerPath = v.GetString(cli.PPTASFlag)
+	}
 	routingConfig.ServeDevlocalAuth = v.GetBool(cli.DevlocalAuthFlag)
 
 	routingConfig.GitBranch = gitBranch

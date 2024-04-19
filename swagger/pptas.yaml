@@ -8,9 +8,10 @@ info:
     url: https://opensource.org/licenses/MIT
   contact:
     email: milmove-developers@caci.com
-host: localhost
+host: officelocal
+basePath: /pptas/v1
 schemes:
-  - https
+  - http
 tags:
   - name: test
     description: tag to describe test endpoints
@@ -18,7 +19,7 @@ tags:
     description: describes all endpoints relating to moves
 paths:
   /test/getMovesSince:
-    get:
+    post:
       tags:
         - moves
       summary: summary
@@ -26,19 +27,14 @@ paths:
       operationId: movesSince
       produces:
         - application/json
+      consumes:
+        - application/json
       parameters:
-        - in: body
-          name: body
+        - name: body
+          in: body
           required: true
           schema:
-            properties:
-              moveSinceDate:
-                type: string
-                description: moves retrieved since this date
-                format: date-time
-              numMoves:
-                type: string
-                description: number of moves to return
+            $ref: '#/definitions/movesSince'
       responses:
         '200':
           description: Moves returned sucessfully
@@ -51,6 +47,16 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
+  movesSince:
+    type: object
+    properties:
+      moveSinceDate:
+        type: string
+        description: moves retrieved since this date
+        format: date-time
+      numMoves:
+        type: integer
+        description: number of moves to return
   MoveStatus:
     type: string
     enum:

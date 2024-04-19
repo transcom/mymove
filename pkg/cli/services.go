@@ -22,6 +22,9 @@ const (
 	ServeSupportFlag string = "serve-api-support"
 	// ServePrimeSimulatorFlag is the prime simulator api flag
 	ServePrimeSimulatorFlag string = "serve-prime-simulator"
+
+	// ServePPTASFlag is the ghc api service flag
+	ServePPTASFlag string = "serve-api-pptas"
 	// ServeClientCollectorFlag enables the endpoints to collect client
 	// telemetry and logs
 	ServeClientCollectorFlag string = "serve-client-collector"
@@ -36,6 +39,7 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServePrimeFlag, false, "Enable the Prime API Service.")
 	flag.Bool(ServeSupportFlag, false, "Enable the Support Service.")
 	flag.Bool(ServePrimeSimulatorFlag, false, "Enable the Prime Simulator Service.")
+	flag.Bool(ServePPTASFlag, false, "Enable the PPTAS Service.")
 	flag.Bool(ServeClientCollectorFlag, false, "Enable the Client Collector.")
 }
 

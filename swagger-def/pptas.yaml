@@ -8,8 +8,10 @@ info:
     url: 'https://opensource.org/licenses/MIT'
   contact:
     email: milmove-developers@caci.com
-host: 'localhost'
-schemes: ['https']
+host: 'officelocal'
+basePath: /pptas/v1
+schemes:
+  - http
 tags:
   $ref: 'tags/pptas_tags.yaml'
 paths:

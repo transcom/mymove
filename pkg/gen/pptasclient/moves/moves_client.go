@@ -47,11 +47,11 @@ func (a *Client) MovesSince(params *MovesSinceParams, opts ...ClientOption) (*Mo
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "movesSince",
-		Method:             "GET",
+		Method:             "POST",
 		PathPattern:        "/test/getMovesSince",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"https"},
+		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &MovesSinceReader{formats: a.formats},
 		Context:            params.Context,

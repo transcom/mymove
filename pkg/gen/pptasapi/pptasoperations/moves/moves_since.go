@@ -6,14 +6,9 @@ package moves
 // Editing this file might prove futile when you re-run the generate command
 
 import (
-	"context"
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // MovesSinceHandlerFunc turns a function with the right signature into a moves since handler
@@ -35,7 +30,7 @@ func NewMovesSince(ctx *middleware.Context, handler MovesSinceHandler) *MovesSin
 }
 
 /*
-	MovesSince swagger:route GET /test/getMovesSince moves movesSince
+	MovesSince swagger:route POST /test/getMovesSince moves movesSince
 
 summary
 
@@ -60,66 +55,4 @@ func (o *MovesSince) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// MovesSinceBody moves since body
-//
-// swagger:model MovesSinceBody
-type MovesSinceBody struct {
-
-	// moves retrieved since this date
-	// Format: date-time
-	MoveSinceDate strfmt.DateTime `json:"moveSinceDate,omitempty"`
-
-	// number of moves to return
-	NumMoves string `json:"numMoves,omitempty"`
-}
-
-// Validate validates this moves since body
-func (o *MovesSinceBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateMoveSinceDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *MovesSinceBody) validateMoveSinceDate(formats strfmt.Registry) error {
-	if swag.IsZero(o.MoveSinceDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"moveSinceDate", "body", "date-time", o.MoveSinceDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this moves since body based on context it is used
-func (o *MovesSinceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *MovesSinceBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *MovesSinceBody) UnmarshalBinary(b []byte) error {
-	var res MovesSinceBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }

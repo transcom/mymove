@@ -1,4 +1,4 @@
-package pptasapi
+package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func movesSince(appCtx appcontext.AppContext, moves models.Moves) *pptasmessages.GetMovesSinceResponse {
+func MovesSince(appCtx appcontext.AppContext, moves models.Moves) *pptasmessages.GetMovesSinceResponse {
 	searchMoves := make(pptasmessages.SearchMoves, len(moves))
 
 	for i, move := range moves {

@@ -115,6 +115,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		ServeAdmin:          true,
 		ServePrimeSimulator: true,
 		ServeGHC:            true,
+		ServePPTAS:          true,
 		ServeDevlocalAuth:   true,
 		ServeOrders:         true,
 

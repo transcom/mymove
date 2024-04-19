@@ -6,15 +6,11 @@ package moves
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 )
@@ -52,7 +48,7 @@ func (o *MovesSinceReader) ReadResponse(response runtime.ClientResponse, consume
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[GET /test/getMovesSince] movesSince", response, response.Code())
+		return nil, runtime.NewAPIError("[POST /test/getMovesSince] movesSince", response, response.Code())
 	}
 }
 
@@ -101,11 +97,11 @@ func (o *MovesSinceOK) Code() int {
 }
 
 func (o *MovesSinceOK) Error() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceOK  %+v", 200, o.Payload)
 }
 
 func (o *MovesSinceOK) String() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceOK  %+v", 200, o.Payload)
 }
 
 func (o *MovesSinceOK) GetPayload() *pptasmessages.GetMovesSinceResponse {
@@ -169,11 +165,11 @@ func (o *MovesSinceBadRequest) Code() int {
 }
 
 func (o *MovesSinceBadRequest) Error() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *MovesSinceBadRequest) String() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *MovesSinceBadRequest) GetPayload() *pptasmessages.ClientError {
@@ -237,11 +233,11 @@ func (o *MovesSinceUnauthorized) Code() int {
 }
 
 func (o *MovesSinceUnauthorized) Error() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *MovesSinceUnauthorized) String() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *MovesSinceUnauthorized) GetPayload() *pptasmessages.ClientError {
@@ -305,11 +301,11 @@ func (o *MovesSinceInternalServerError) Code() int {
 }
 
 func (o *MovesSinceInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *MovesSinceInternalServerError) String() string {
-	return fmt.Sprintf("[GET /test/getMovesSince][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *MovesSinceInternalServerError) GetPayload() *pptasmessages.ClientError {
@@ -325,68 +321,5 @@ func (o *MovesSinceInternalServerError) readResponse(response runtime.ClientResp
 		return err
 	}
 
-	return nil
-}
-
-/*
-MovesSinceBody moves since body
-swagger:model MovesSinceBody
-*/
-type MovesSinceBody struct {
-
-	// moves retrieved since this date
-	// Format: date-time
-	MoveSinceDate strfmt.DateTime `json:"moveSinceDate,omitempty"`
-
-	// number of moves to return
-	NumMoves string `json:"numMoves,omitempty"`
-}
-
-// Validate validates this moves since body
-func (o *MovesSinceBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateMoveSinceDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *MovesSinceBody) validateMoveSinceDate(formats strfmt.Registry) error {
-	if swag.IsZero(o.MoveSinceDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"moveSinceDate", "body", "date-time", o.MoveSinceDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this moves since body based on context it is used
-func (o *MovesSinceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *MovesSinceBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *MovesSinceBody) UnmarshalBinary(b []byte) error {
-	var res MovesSinceBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

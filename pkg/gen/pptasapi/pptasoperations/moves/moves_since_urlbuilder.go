@@ -38,6 +38,9 @@ func (o *MovesSinceURL) Build() (*url.URL, error) {
 	var _path = "/test/getMovesSince"
 
 	_basePath := o._basePath
+	if _basePath == "" {
+		_basePath = "/pptas/v1"
+	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	return &_result, nil

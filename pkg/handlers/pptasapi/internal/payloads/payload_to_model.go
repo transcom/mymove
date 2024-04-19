@@ -1,4 +1,4 @@
-package pptasapi
+package payloads
 
 import (
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"

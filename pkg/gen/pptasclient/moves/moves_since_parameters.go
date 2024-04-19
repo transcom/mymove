@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 )
 
 // NewMovesSinceParams creates a new MovesSinceParams object,
@@ -62,7 +64,7 @@ MovesSinceParams contains all the parameters to send to the API endpoint
 type MovesSinceParams struct {
 
 	// Body.
-	Body MovesSinceBody
+	Body *pptasmessages.MovesSince
 
 	timeout    time.Duration
 	Context    context.Context
@@ -118,13 +120,13 @@ func (o *MovesSinceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the moves since params
-func (o *MovesSinceParams) WithBody(body MovesSinceBody) *MovesSinceParams {
+func (o *MovesSinceParams) WithBody(body *pptasmessages.MovesSince) *MovesSinceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the moves since params
-func (o *MovesSinceParams) SetBody(body MovesSinceBody) {
+func (o *MovesSinceParams) SetBody(body *pptasmessages.MovesSince) {
 	o.Body = body
 }
 
@@ -135,8 +137,10 @@ func (o *MovesSinceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -13,6 +13,8 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
+
+	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 )
 
 // NewMovesSinceParams creates a new MovesSinceParams object
@@ -36,7 +38,7 @@ type MovesSinceParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body MovesSinceBody
+	Body *pptasmessages.MovesSince
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -50,7 +52,7 @@ func (o *MovesSinceParams) BindRequest(r *http.Request, route *middleware.Matche
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body MovesSinceBody
+		var body pptasmessages.MovesSince
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))
@@ -69,7 +71,7 @@ func (o *MovesSinceParams) BindRequest(r *http.Request, route *middleware.Matche
 			}
 
 			if len(res) == 0 {
-				o.Body = body
+				o.Body = &body
 			}
 		}
 	} else {
