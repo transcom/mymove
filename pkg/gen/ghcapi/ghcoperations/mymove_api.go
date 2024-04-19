@@ -38,6 +38,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -58,7 +59,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
 
-		JSONConsumer: runtime.JSONConsumer(),
+		JSONConsumer:          runtime.JSONConsumer(),
+		MultipartformConsumer: runtime.DiscardConsumer,
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
@@ -101,6 +103,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrderCreateOrderHandler: order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
+		}),
+		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		}),
 		CustomerSupportRemarksDeleteCustomerSupportRemarkHandler: customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
@@ -341,6 +346,9 @@ type MymoveAPI struct {
 	// JSONConsumer registers a consumer for the following mime types:
 	//   - application/json
 	JSONConsumer runtime.Consumer
+	// MultipartformConsumer registers a consumer for the following mime types:
+	//   - multipart/form-data
+	MultipartformConsumer runtime.Consumer
 
 	// BinProducer registers a producer for the following mime types:
 	//   - application/pdf
@@ -375,6 +383,8 @@ type MymoveAPI struct {
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// OrderCreateOrderHandler sets the operation handler for the create order operation
 	OrderCreateOrderHandler order.CreateOrderHandler
+	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
+	UploadsCreateUploadHandler uploads.CreateUploadHandler
 	// CustomerSupportRemarksDeleteCustomerSupportRemarkHandler sets the operation handler for the delete customer support remark operation
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
@@ -583,6 +593,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.JSONConsumer == nil {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
+	if o.MultipartformConsumer == nil {
+		unregistered = append(unregistered, "MultipartformConsumer")
+	}
 
 	if o.BinProducer == nil {
 		unregistered = append(unregistered, "BinProducer")
@@ -629,6 +642,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderCreateOrderHandler == nil {
 		unregistered = append(unregistered, "order.CreateOrderHandler")
+	}
+	if o.UploadsCreateUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.CreateUploadHandler")
 	}
 	if o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.DeleteCustomerSupportRemarkHandler")
@@ -865,6 +881,8 @@ func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 		switch mt {
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
+		case "multipart/form-data":
+			result["multipart/form-data"] = o.MultipartformConsumer
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -976,6 +994,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders"] = order.NewCreateOrder(o.context, o.OrderCreateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

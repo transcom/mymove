@@ -10,6 +10,7 @@ export const generalRoutes = {
 export const customerRoutes = {
   MOVE_HOME_PAGE: '/move',
   MOVE_HOME_PATH: '/move/:moveId',
+  VALIDATION_CODE_PATH: '/service-member/validation-code',
   CONUS_OCONUS_PATH: '/service-member/conus-oconus',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
@@ -113,6 +114,8 @@ export const tooRoutes = {
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
+  BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
+  CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
 export const qaeCSRRoutes = {
