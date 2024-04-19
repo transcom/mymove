@@ -1,5 +1,7 @@
 import * as Yup from 'yup';
 
+import { unSupportedStates } from '../constants/states';
+
 import { ValidateZipRateData } from 'shared/api';
 
 const INVALID_DATE = 'Invalid date';
@@ -49,13 +51,29 @@ export const validatePostalCode = async (value, postalCodeType, errMsg = Unsuppo
   return responseBody.valid ? undefined : errMsg;
 };
 
+export const UnsupportedStateErrorMsg = 'Moves to this state are not supported at this time.';
+export const IsSupportedState = async (value) => {
+  const selectedState = value;
+
+  const found = unSupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
+
+  if (found) {
+    return false;
+  }
+
+  return true;
+};
+
 /** Yup validation schemas */
 
 export const requiredAddressSchema = Yup.object().shape({
   streetAddress1: Yup.string().trim().required('Required'),
   streetAddress2: Yup.string(),
   city: Yup.string().trim().required('Required'),
-  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
+  state: Yup.string()
+    .test('', UnsupportedStateErrorMsg, IsSupportedState)
+    .length(2, 'Must use state abbreviation')
+    .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
@@ -72,7 +90,7 @@ export const addressSchema = Yup.object().shape({
   streetAddress2: Yup.string(),
   city: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
-  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
+  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code 3'),
 });
 
 export const phoneSchema = Yup.string().matches(
