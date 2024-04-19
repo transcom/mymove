@@ -112,7 +112,7 @@ describe('MoveTaskOrder', () => {
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
-      expect(weightSummaries[2]).toHaveTextContent('110 lbs');
+      expect(weightSummaries[2]).toHaveTextContent('8,000 lbs');
     });
 
     it('displays the estimated total weight with all weights not set', async () => {
@@ -612,6 +612,7 @@ describe('MoveTaskOrder', () => {
     it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
+      expect(wrapper.find('h4').at(0).text()).toEqual('#');
       expect(wrapper.find('[data-testid="button"]').exists()).toBe(true);
     });
 

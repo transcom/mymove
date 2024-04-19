@@ -140,7 +140,7 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 			}
 
 			createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, transportationIDFilter)
-			if verrs != nil {
+			if verrs != nil && len(verrs.Errors) > 0 {
 				payload := payloadForValidationError(
 					"Office user creation",
 					"Validation error",

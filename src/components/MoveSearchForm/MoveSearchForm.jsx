@@ -81,6 +81,11 @@ const MoveSearchForm = ({ onSubmit }) => {
                 value="moveCode"
                 title="Move Code"
                 label="Move Code"
+                onChange={(e) => {
+                  formik.setFieldValue('searchType', e.target.value);
+                  formik.setFieldValue('searchText', '', false); // Clear TextField
+                  formik.setFieldTouched('searchText', false, false);
+                }}
               />
               <Field
                 as={Radio}
@@ -91,6 +96,11 @@ const MoveSearchForm = ({ onSubmit }) => {
                 value="dodID"
                 title="DOD ID"
                 label="DOD ID"
+                onChange={(e) => {
+                  formik.setFieldValue('searchType', e.target.value);
+                  formik.setFieldValue('searchText', '', false); // Clear TextField
+                  formik.setFieldTouched('searchText', false, false);
+                }}
               />
               <Field
                 as={Radio}
@@ -101,6 +111,11 @@ const MoveSearchForm = ({ onSubmit }) => {
                 value="customerName"
                 title="Customer Name"
                 label="Customer Name"
+                onChange={(e) => {
+                  formik.setFieldValue('searchType', e.target.value);
+                  formik.setFieldValue('searchText', '', false); // Clear TextField
+                  formik.setFieldTouched('searchText', false, false);
+                }}
               />
             </div>
             <div className={styles.searchBar}>

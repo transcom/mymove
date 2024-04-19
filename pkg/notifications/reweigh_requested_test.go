@@ -6,28 +6,23 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *NotificationSuite) TestReweighRequestedOnSuccess() {
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+	shipmentBuild := factory.BuildMTOShipment(suite.DB(), nil, nil)
+	var shipment models.MTOShipment
+	err := suite.DB().Find(&shipment, shipmentBuild.ID)
+	suite.NoError(err)
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	notification := NewReweighRequested(move.ID, shipment)
 
-	shipmentID := shipment.ID.String()
-	var shipmentNumber string
+	shipmentLocator := *shipment.ShipmentLocator
 
-	// Shipment # is the first 8 characters of shipmentId
-	if len(shipmentID) >= 8 {
-		firstEight := shipmentID[:8]
-		shipmentNumber = strings.ToUpper(firstEight)
-	} else {
-		shipmentNumber = ""
-	}
-
-	subject := fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentNumber)
+	subject := fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentLocator)
 
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		UserID:          officeUser.ID,
