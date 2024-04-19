@@ -239,6 +239,7 @@ export class Summary extends Component {
           requestedDeliveryDate={shipment.requestedDeliveryDate}
           requestedPickupDate={shipment.requestedPickupDate}
           shipmentId={shipment.id}
+          shipmentLocator={shipment.shipmentLocator}
           shipmentNumber={hhgShipmentNumber}
           shipmentType={shipment.shipmentType}
           showEditAndDeleteBtn={showEditAndDeleteBtn}
@@ -298,7 +299,7 @@ export class Summary extends Component {
       );
     }
 
-    const currentDutyLocation = serviceMember?.current_location;
+    const currentDutyLocation = orders?.origin_duty_location?.transportation_office;
     const officePhone = currentDutyLocation?.transportation_office?.phone_lines?.[0];
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });

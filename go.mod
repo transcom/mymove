@@ -92,7 +92,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.18.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.21.0
-	golang.org/x/net v0.21.0
+	golang.org/x/net v0.23.0
 	golang.org/x/oauth2 v0.17.0
 	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.13.0
