@@ -124,7 +124,7 @@ const MoveDetails = ({
     },
   });
   useEffect(() => {
-    setIsAtExcessWeightRisk(hasRiskOfExcess(estimatedWeightTotal, order.entitlement.authorizedWeight));
+    setIsAtExcessWeightRisk(hasRiskOfExcess(estimatedWeightTotal, order?.entitlement?.authorizedWeight));
   }, [estimatedWeightTotal, order?.entitlement?.authorizedWeight]);
 
   const handleExcessWeightRiskCountCheck = useCallback(() => {
