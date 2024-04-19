@@ -109,6 +109,14 @@ describe('RequestAccount page', () => {
 
     const mockResponse = {
       status: 500,
+      response: {
+        body: {
+          detail: 'test',
+          invalid_fields: {
+            email: 'Test',
+          },
+        },
+      },
     };
 
     searchTransportationOfficesOpen.mockImplementation(mockSearchTransportationOfficesOpen);

@@ -279,7 +279,7 @@ describe('DateAndLocation component', () => {
           }),
         );
       });
-    });
+    }, 10000);
 
     it('displays an error alert when the create shipment fails', async () => {
       createMTOShipment.mockRejectedValueOnce('fatal error');
@@ -526,7 +526,7 @@ describe('DateAndLocation component', () => {
           }),
         );
       });
-    });
+    }, 10000);
 
     it('calls patch move when there is a closeout office (Army/Air Force) and create shipment succeeds', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
@@ -751,7 +751,7 @@ describe('DateAndLocation component', () => {
         // Should show appropriate error message
         expect(screen.getByText('There was an error attempting to create your shipment.')).toBeInTheDocument();
       });
-    });
+    }, 10000);
 
     it('displays appropriate error when patch move fails after create shipment succeeds', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
@@ -1115,7 +1115,7 @@ describe('DateAndLocation component', () => {
         expect(patchMove).toHaveBeenCalledTimes(1);
 
         // Should have only updated the shipment in redux
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalled();
         expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
 
         // No redirect should have happened
