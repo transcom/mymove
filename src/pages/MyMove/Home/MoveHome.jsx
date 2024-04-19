@@ -384,6 +384,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     setShowErrorAlert(!showErrorAlert);
   };
 
+  const errorModalMessage =
+    "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
+
   // early return if loading user/service member
   if (!serviceMember) {
     return (
@@ -427,7 +430,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <ErrorModal isOpen={showErrorAlert} closeModal={togglePPMPacketErrorModal} />
+      <ErrorModal isOpen={showErrorAlert} closeModal={togglePPMPacketErrorModal} errorMessage={errorModalMessage} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
