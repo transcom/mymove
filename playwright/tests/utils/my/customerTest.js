@@ -87,7 +87,14 @@ export class CustomerPage extends BaseTestPage {
 
     await this.page.getByTestId('goToMoveBtn').click();
 
-    await expect(this.page.getByText(`${move.locator}`)).toBeVisible();
+    await expect(this.page.getByTestId('customer-header').getByText(`${move.locator}`)).toBeVisible();
+
+    const targetElements = await this.page.$$(`[data-testid="shipment-list-item-container"]`);
+
+    for (const element of targetElements) {
+      const matches = (await element.textContent()).match(/[0-9|A-Z]{6}-[0-9]{2}/);
+      expect(matches).not.toBeNull();
+    }
   }
 
   /**

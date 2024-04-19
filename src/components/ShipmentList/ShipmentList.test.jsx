@@ -37,10 +37,10 @@ describe('ShipmentList component', () => {
     render(<ShipmentList {...defaultProps} />);
 
     expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(4);
-    expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm #id-1/i);
-    expect(screen.getAllByTestId('shipment-list-item-container')[1]).toHaveTextContent(/^hhg #id-2/i);
-    expect(screen.getAllByTestId('shipment-list-item-container')[2]).toHaveTextContent(/^nts #id-3/i);
-    expect(screen.getAllByTestId('shipment-list-item-container')[3]).toHaveTextContent(/^nts-release #id-4/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[1]).toHaveTextContent(/^hhg/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[2]).toHaveTextContent(/^nts/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[3]).toHaveTextContent(/^nts-release/i);
   });
 
   it.each([
