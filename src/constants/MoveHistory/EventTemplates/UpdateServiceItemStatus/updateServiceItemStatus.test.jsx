@@ -30,7 +30,7 @@ describe('when given an approved service item history record', () => {
     render(template.getEventNameDisplay(historyRecord));
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Approved service item')).toBeInTheDocument();
-    expect(screen.getByText('HHG shipment #A1B2C, Domestic origin price')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01, Domestic origin price')).toBeInTheDocument();
   });
 });
 
