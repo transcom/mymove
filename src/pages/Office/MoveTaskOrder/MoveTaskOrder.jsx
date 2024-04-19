@@ -152,6 +152,14 @@ export const MoveTaskOrder = (props) => {
         rejectionReason: item.rejectionReason,
         sitDepartureDate: item.sitDepartureDate,
         sitEntryDate: item.sitEntryDate,
+        sitOriginHHGOriginalAddress: item.sitOriginHHGOriginalAddress,
+        sitOriginHHGActualAddress: item.sitOriginHHGActualAddress,
+        sitDestinationFinalAddress: item.sitDestinationFinalAddress,
+        sitDestinationOriginalAddress: item.sitDestinationOriginalAddress,
+        sitCustomerContacted: item.sitCustomerContacted,
+        sitRequestedDelivery: item.sitRequestedDelivery,
+        sitDeliveryMiles: item.sitDeliveryMiles,
+        status: item.status,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -513,19 +521,26 @@ export const MoveTaskOrder = (props) => {
   };
 
   /* istanbul ignore next */
-  const handleDivertShipment = (mtoShipmentID, eTag) => {
+  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator) => {
     mutateMTOShipmentStatus(
       {
         shipmentID: mtoShipmentID,
         operationPath: 'shipment.requestShipmentDiversion',
         ifMatchETag: eTag,
-        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${shipmentLocator}`,
+        shipmentLocator,
       },
       {
         onSuccess: (data, variables) => {
           setIsCancelModalVisible(false);
           // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-          setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+          setMessage(
+            `MSG_CANCEL_SUCCESS_${variables.shipmentLocator}`,
+            'success',
+            variables.onSuccessFlashMsg,
+            '',
+            true,
+          );
         },
       },
     );
@@ -922,11 +937,13 @@ export const MoveTaskOrder = (props) => {
               <span>
                 This move is at risk for excess weight.{' '}
                 <Restricted to={permissionTypes.updateBillableWeight}>
-                  <span className={styles.rightAlignButtonWrapper}>
-                    <Button type="button" onClick={handleShowWeightModal} unstyled>
-                      Review billable weight
-                    </Button>
-                  </span>
+                  <Restricted to={permissionTypes.updateMTOPage}>
+                    <span className={styles.rightAlignButtonWrapper}>
+                      <Button type="button" onClick={handleShowWeightModal} unstyled>
+                        Review billable weight
+                      </Button>
+                    </span>
+                  </Restricted>
                 </Restricted>
               </span>
             </Alert>
@@ -991,12 +1008,14 @@ export const MoveTaskOrder = (props) => {
               <h6>Contract #{move?.contractor?.contractNumber}</h6>
               <h6>NAICS: {order?.naics}</h6>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-                <div className={moveTaskOrderStyles.financialReviewContainer}>
-                  <FinancialReviewButton
-                    onClick={handleShowFinancialReviewModal}
-                    reviewRequested={move.financialReviewFlag}
-                  />
-                </div>
+                <Restricted to={permissionTypes.updateMTOPage}>
+                  <div className={moveTaskOrderStyles.financialReviewContainer}>
+                    <FinancialReviewButton
+                      onClick={handleShowFinancialReviewModal}
+                      reviewRequested={move.financialReviewFlag}
+                    />
+                  </div>
+                </Restricted>
               </Restricted>
             </div>
           </div>
@@ -1089,6 +1108,8 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1098,6 +1119,8 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
@@ -1106,6 +1129,8 @@ export const MoveTaskOrder = (props) => {
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
               </ShipmentContainer>

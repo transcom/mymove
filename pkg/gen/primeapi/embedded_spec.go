@@ -1463,6 +1463,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -2689,6 +2695,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -3073,6 +3091,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -3080,7 +3099,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {
@@ -6563,6 +6583,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -7789,6 +7815,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -8173,6 +8211,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -8180,7 +8219,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {
