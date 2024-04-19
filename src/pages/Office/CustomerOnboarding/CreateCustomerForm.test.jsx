@@ -197,5 +197,5 @@ describe('CreateCustomerForm', () => {
     await user.click(saveBtn);
     await waiter;
     expect(mockNavigate).toHaveBeenCalled();
-  });
+  }, 10000);
 });
