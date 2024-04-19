@@ -42,7 +42,7 @@
     "path-to-regexp": "^6.2.1",
     "prop-types": "^15.8.1",
     "query-string": "7",
-    "ra-language-english": "^4.16.15",
+    "ra-language-english": "^4.12.1",
     "react": "^17.0.1",
     "react-admin": "^4.12.3",
     "react-admin-import-csv": "^4.0.0",

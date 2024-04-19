@@ -61,6 +61,7 @@ public/swagger-ui/*
 !public/swagger-ui/admin.html
 !public/swagger-ui/prime.html
 !public/swagger-ui/prime_v2.html
+!public/swagger-ui/prime_v3.html
 !public/swagger-ui/ghc.html
 !public/swagger-ui/support.html
 

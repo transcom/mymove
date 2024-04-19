@@ -89,6 +89,7 @@ const ShipmentDisplay = ({
             <h3>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
             </h3>
+            <h5>#{displayInfo.shipmentLocator}</h5>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
@@ -101,7 +102,6 @@ const ShipmentDisplay = ({
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
           </div>
-
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         <ShipmentInfoListSelector
@@ -186,6 +186,7 @@ ShipmentDisplay.propTypes = {
       tacType: PropTypes.string,
       sacType: PropTypes.string,
       ntsRecordedWeight: PropTypes.number,
+      shipmentLocator: PropTypes.string,
     }),
     PropTypes.shape({
       heading: PropTypes.string.isRequired,

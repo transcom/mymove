@@ -67,16 +67,19 @@
     }
   }
 
-  // inverse the direction of the flexbox
   .flexGridSmall {
     flex-direction: column;
 
     .col {
       @include u-margin-x(0);
       @include u-padding-y(1);
-      display: flex;
-      flex-direction: row-reverse;
-      justify-content: space-between;
+      display: grid;
+
+      .row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
 
       .value {
         @include u-margin-left(4);
