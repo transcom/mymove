@@ -13,7 +13,7 @@ const requestedServiceItemInfo = {
     {
       id: 'abc123',
       submittedAt: '2020-11-20',
-      serviceItem: 'Fuel Surcharge',
+      serviceItem: 'Move management',
       code: 'FSC',
       details: {},
     },
