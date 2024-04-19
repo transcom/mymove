@@ -15,7 +15,6 @@ import { OrdersLOAShape } from 'types/order';
 import { shipmentStatuses } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { formatAddress, retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
-import { formatShortIDWithPound } from 'utils/formatters';
 import { fieldValidationShape } from 'utils/displayFlags';
 
 const EvaluationReportShipmentDisplay = ({
@@ -62,7 +61,7 @@ const EvaluationReportShipmentDisplay = ({
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
           </div>
-          <h6 className={styles.headingShipmentID}>Shipment ID: {formatShortIDWithPound(shipmentId)}</h6>
+          <h6 className={styles.headingShipmentID}>Shipment ID: {displayInfo.shipmentLocator}</h6>
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         {isExpanded && displayInfo.shipmentType === SHIPMENT_OPTIONS.NTS && (
