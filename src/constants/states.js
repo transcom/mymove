@@ -1,5 +1,5 @@
 // List of states
-const statesList = [
+export const statesList = [
   { value: 'AL', key: 'AL' },
   { value: 'AK', key: 'AK' },
   { value: 'AR', key: 'AR' },
@@ -53,4 +53,7 @@ const statesList = [
   { value: 'WY', key: 'WY' },
 ];
 
-export default statesList;
+export const unSupportedStates = [
+  { value: 'AK', key: 'AK' },
+  { value: 'HI', key: 'HI' },
+];
