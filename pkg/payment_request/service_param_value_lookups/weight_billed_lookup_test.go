@@ -137,11 +137,11 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		shipmentType    models.MTOShipmentType
 	}{
 		// PPM Service items
-		{models.ReServiceCodeDLH, unit.Pound(450), "440", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDOP, unit.Pound(450), "440", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDDP, unit.Pound(450), "440", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDPK, unit.Pound(450), "440", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDUPK, unit.Pound(450), "440", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDLH, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDOP, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDDP, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDUPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
 		{models.ReServiceCodeFSC, unit.Pound(450), "440", models.MTOShipmentTypePPM},
 	}
 
