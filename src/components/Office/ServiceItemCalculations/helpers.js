@@ -7,7 +7,6 @@ import {
   formatWeightCWTFromLbs,
   formatDollarFromMillicents,
   toDollarString,
-  formatDistanceUnitMiles,
 } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -92,7 +91,10 @@ const formatDetail = (detail, styles = {}) => {
 };
 
 const formatMileage = (detail) => {
-  return formatDistanceUnitMiles(detail, false);
+  if (typeof detail !== 'number') {
+    return parseInt(detail, 10).toLocaleString();
+  }
+  return detail.toLocaleString();
 };
 
 // billable weight calculation
@@ -160,7 +162,7 @@ const billableWeight = (params) => {
   const fscWeightBasedDistanceMultiplier = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
-  if (fscWeightBasedDistanceMultiplier.length > 2) {
+  if (getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)) {
     details.push(formatDetail(fscWeightBasedDistanceMultiplier));
   }
 
@@ -192,7 +194,7 @@ const shuttleBillableWeight = (params) => {
 };
 
 const mileageZip = (params) => {
-  const value = `${formatMileage(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params))}`;
+  const value = `${formatMileage(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params), 10))}`;
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
@@ -213,7 +215,7 @@ const mileageZipSIT = (params, itemCode) => {
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DOSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageIntoSIT;
-      distanceZip = formatMileage(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin);
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
         SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
         params,
@@ -225,7 +227,7 @@ const mileageZipSIT = (params, itemCode) => {
 
     case SERVICE_ITEM_CODES.DDSFSC:
       label = SERVICE_ITEM_CALCULATION_LABELS.MileageOutOfSIT;
-      distanceZip = formatMileage(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest);
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
         SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress,
         params,
@@ -237,7 +239,7 @@ const mileageZipSIT = (params, itemCode) => {
 
     default:
       label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
-      distanceZip = formatMileage(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin);
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
       detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
         SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
         params,
@@ -392,8 +394,8 @@ const priceEscalationFactorWithoutContractYear = (params) => {
   return calculation(value, label);
 };
 
-const fuelSurchargePrice = (params, itemCode) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
+const mileageFactor = (params, itemCode) => {
+  // to get the mileage factor (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
   // which gets the value in Cents to the tenths decimal place
   let distanceZip;
   switch (itemCode) {
@@ -411,23 +413,11 @@ const fuelSurchargePrice = (params, itemCode) => {
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
         getParamValue(distanceZip, params),
     ),
-  ).toFixed(1);
+  ).toFixed(3);
   const label =
     itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
       ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
       : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
-
-  const eiaFuelPrice = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
-  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params))}`;
-
-  const fuelRateAdjustment = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
-  }: ${formatCents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params), 1, 1)}`;
-
-  const fscWeightBasedDistanceMultiplier = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
-  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
 
   const actualPickupDate = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]
