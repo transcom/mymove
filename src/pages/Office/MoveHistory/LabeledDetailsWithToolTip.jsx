@@ -46,7 +46,7 @@ const LabeledDetailsWithToolTip = ({ historyRecord, toolTipText, toolTipColor, t
   // Check for shipment_type to use it as a header for the row
   if ('shipment_type' in changedValuesToUse) {
     shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
-    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
+    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_locator}`;
     delete changedValuesToUse.shipment_type;
   }
 

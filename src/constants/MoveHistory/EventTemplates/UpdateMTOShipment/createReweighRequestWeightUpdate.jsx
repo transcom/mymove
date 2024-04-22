@@ -12,7 +12,7 @@ export default {
   getEventNameDisplay: () => `Updated shipment`,
   getDetails: ({ context }) => {
     const shipmentType = context[0].shipment_type;
-    const shipmentIdDisplay = context[0].shipment_id_abbr.toUpperCase();
+    const shipmentIdDisplay = context[0].shipment_locator;
     return (
       <>
         {shipmentTypes[shipmentType]} shipment #{shipmentIdDisplay}, reweigh requested

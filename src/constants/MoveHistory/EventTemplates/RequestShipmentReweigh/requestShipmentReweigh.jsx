@@ -12,7 +12,7 @@ export default {
   getEventNameDisplay: () => 'Updated shipment',
   getDetails: ({ context }) => (
     <>
-      {s[context[0].shipment_type]} shipment #{context[0].shipment_id_abbr.toUpperCase()}, reweigh requested
+      {s[context[0].shipment_type]} shipment #{context[0].shipment_locator}, reweigh requested
     </>
   ),
 };

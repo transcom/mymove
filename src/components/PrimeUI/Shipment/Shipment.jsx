@@ -265,22 +265,18 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           <div className={descriptionListStyles.row}>
             <dt>Pickup Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.pickupAddress)}</dd>
-            <dd>{shipment.pickupAddress?.id && moveId}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Secondary Pickup Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryPickupAddress)}</dd>
-            <dd>{shipment.ppmShipment.secondaryPickupAddress?.id && moveId}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.destinationAddress)}</dd>
-            <dd>{shipment.ppmShipment.destinationAddress?.id && moveId}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Secondary Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryDestinationAddress)}</dd>
-            <dd>{shipment.ppmShipment.secondaryDestinationAddress?.id && moveId}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM SIT Expected:</dt>
