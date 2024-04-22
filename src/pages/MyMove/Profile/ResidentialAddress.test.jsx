@@ -91,6 +91,40 @@ describe('ResidentialAddress page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONTACT_INFO_PATH);
   });
 
+  it('Selecting an unsupported state should display an unsupported state message', async () => {
+    const testProps = generateTestProps(blankAddress);
+
+    const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
+
+    ValidateZipRateData.mockImplementation(() => ({
+      valid: true,
+    }));
+    patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
+
+    const { getByLabelText, getByText } = render(<ResidentialAddress {...testProps} />);
+
+    await userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    await userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
+    await userEvent.selectOptions(screen.getByLabelText('State'), 'AK');
+    await userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
+
+    let msg = getByText('Moves to this state are not supported at this time.');
+    expect(msg).toBeVisible();
+
+    await userEvent.selectOptions(getByLabelText('State'), 'AL');
+    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
+    expect(msg).not.toBeVisible();
+
+    await userEvent.selectOptions(getByLabelText('State'), 'HI');
+    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
+    msg = getByText('Moves to this state are not supported at this time.');
+    expect(msg).toBeVisible();
+  });
+
   it('next button submits the form and goes to the Backup address step', async () => {
     const testProps = generateTestProps(blankAddress);
 
