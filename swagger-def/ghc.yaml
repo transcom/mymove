@@ -210,6 +210,21 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  [
+                    customerName,
+                    dodID,
+                    branch,
+                    personalEmail,
+                    telephone,
+                  ]
+              order:
+                type: string
+                x-nullable: true
+                enum: [asc, desc]
           description: field that results should be sorted by
       responses:
         '200':

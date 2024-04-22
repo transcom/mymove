@@ -81,12 +81,14 @@ func (h SearchCustomersHandler) Handle(params customercodeop.SearchCustomersPara
 				CustomerName: params.Body.CustomerName,
 				Page:         params.Body.Page,
 				PerPage:      params.Body.PerPage,
+				Sort:         params.Body.Sort,
+				Order:        params.Body.Order,
 			}
 
 			customers, totalCount, err := h.CustomerSearcher.SearchCustomers(appCtx, &searchCustomersParams)
 
 			if err != nil {
-				appCtx.Logger().Error("Error searching for move", zap.Error(err))
+				appCtx.Logger().Error("Error searching for customer", zap.Error(err))
 				return customercodeop.NewSearchCustomersInternalServerError(), err
 			}
 

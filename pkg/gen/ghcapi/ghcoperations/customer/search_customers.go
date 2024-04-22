@@ -7,6 +7,7 @@ package customer
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -80,11 +81,19 @@ type SearchCustomersBody struct {
 	// Min Length: 10
 	DodID *string `json:"dodID,omitempty"`
 
+	// order
+	// Enum: [asc desc]
+	Order *string `json:"order,omitempty"`
+
 	// requested page of results
 	Page int64 `json:"page,omitempty"`
 
 	// per page
 	PerPage int64 `json:"perPage,omitempty"`
+
+	// sort
+	// Enum: [customerName dodID branch personalEmail telephone]
+	Sort *string `json:"sort,omitempty"`
 }
 
 // Validate validates this search customers body
@@ -100,6 +109,14 @@ func (o *SearchCustomersBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateDodID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOrder(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSort(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -143,6 +160,99 @@ func (o *SearchCustomersBody) validateDodID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.MaxLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var searchCustomersBodyTypeOrderPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["asc","desc"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchCustomersBodyTypeOrderPropEnum = append(searchCustomersBodyTypeOrderPropEnum, v)
+	}
+}
+
+const (
+
+	// SearchCustomersBodyOrderAsc captures enum value "asc"
+	SearchCustomersBodyOrderAsc string = "asc"
+
+	// SearchCustomersBodyOrderDesc captures enum value "desc"
+	SearchCustomersBodyOrderDesc string = "desc"
+)
+
+// prop value enum
+func (o *SearchCustomersBody) validateOrderEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchCustomersBodyTypeOrderPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchCustomersBody) validateOrder(formats strfmt.Registry) error {
+	if swag.IsZero(o.Order) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateOrderEnum("body"+"."+"order", "body", *o.Order); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var searchCustomersBodyTypeSortPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["customerName","dodID","branch","personalEmail","telephone"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchCustomersBodyTypeSortPropEnum = append(searchCustomersBodyTypeSortPropEnum, v)
+	}
+}
+
+const (
+
+	// SearchCustomersBodySortCustomerName captures enum value "customerName"
+	SearchCustomersBodySortCustomerName string = "customerName"
+
+	// SearchCustomersBodySortDodID captures enum value "dodID"
+	SearchCustomersBodySortDodID string = "dodID"
+
+	// SearchCustomersBodySortBranch captures enum value "branch"
+	SearchCustomersBodySortBranch string = "branch"
+
+	// SearchCustomersBodySortPersonalEmail captures enum value "personalEmail"
+	SearchCustomersBodySortPersonalEmail string = "personalEmail"
+
+	// SearchCustomersBodySortTelephone captures enum value "telephone"
+	SearchCustomersBodySortTelephone string = "telephone"
+)
+
+// prop value enum
+func (o *SearchCustomersBody) validateSortEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchCustomersBodyTypeSortPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchCustomersBody) validateSort(formats strfmt.Registry) error {
+	if swag.IsZero(o.Sort) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSortEnum("body"+"."+"sort", "body", *o.Sort); err != nil {
 		return err
 	}
 

@@ -34,7 +34,7 @@ describe('CustomerSearchForm', () => {
       expect(submitButton).toBeEnabled();
       await userEvent.click(submitButton);
       await waitFor(() => {
-        expect(searchCustomers).toHaveBeenCalledWith(
+        expect(onSubmit).toHaveBeenCalledWith(
           {
             searchText: '4152341523',
             searchType: 'dodID',
@@ -57,7 +57,7 @@ describe('CustomerSearchForm', () => {
       expect(submitButton).toBeEnabled();
       await userEvent.click(submitButton);
       await waitFor(() => {
-        expect(searchCustomers).toHaveBeenCalledWith(
+        expect(onSubmit).toHaveBeenCalledWith(
           {
             searchText: 'Leo Spaceman',
             searchType: 'customerName',

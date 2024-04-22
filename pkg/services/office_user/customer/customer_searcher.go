@@ -1,6 +1,8 @@
 package customer
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -48,8 +50,9 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	dodIDQuery := dodIDSearch(params.DodID)
+	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
 
-	options := [2]QueryOption{customerNameQuery, dodIDQuery}
+	options := [3]QueryOption{customerNameQuery, dodIDQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -80,4 +83,34 @@ func customerNameSearch(customerName *string) QueryOption {
 			query.Where("f_unaccent(lower(?)) % searchable_full_name(first_name, last_name)", *customerName)
 		}
 	}
+}
+
+var parameters = map[string]string{
+	"customerName":  "service_members.last_name",
+	"dodID":         "service_members.edipi",
+	"branch":        "service_members.affiliation",
+	"personalEmail": "service_members.personal_email",
+	"telephone":     "service_members.telephone",
+}
+
+func sortOrder(sort *string, order *string, customerNameSearch *string) QueryOption {
+	return func(query *pop.Query) {
+		if sort != nil && order != nil {
+			sortTerm := parameters[*sort]
+			if *sort == "customerName" {
+				orderName(query, order)
+			} else {
+				query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+			}
+		} else if customerNameSearch != nil {
+			query.Order("similarity(searchable_full_name(first_name, last_name), f_unaccent(lower(?))) DESC", *customerNameSearch)
+		} else {
+			query.Order("moves.created_at DESC")
+		}
+	}
+}
+
+func orderName(query *pop.Query, order *string) *pop.Query {
+	query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+	return query
 }

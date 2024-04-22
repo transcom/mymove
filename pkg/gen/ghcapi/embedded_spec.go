@@ -353,12 +353,31 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
                 "page": {
                   "description": "requested page of results",
                   "type": "integer"
                 },
                 "perPage": {
                   "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
                 }
               }
             }
@@ -11976,12 +11995,31 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
                 "page": {
                   "description": "requested page of results",
                   "type": "integer"
                 },
                 "perPage": {
                   "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
                 }
               }
             }

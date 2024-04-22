@@ -31,4 +31,6 @@ type SearchCustomersParams struct {
 	CustomerName *string
 	Page         int64
 	PerPage      int64
+	Sort         *string
+	Order        *string
 }
