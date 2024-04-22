@@ -50,7 +50,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	dodIDQuery := dodIDSearch(params.DodID)
-	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
+	orderQuery := sortOrder(params.Sort, params.Order)
 
 	options := [3]QueryOption{customerNameQuery, dodIDQuery, orderQuery}
 
@@ -93,24 +93,13 @@ var parameters = map[string]string{
 	"telephone":     "service_members.telephone",
 }
 
-func sortOrder(sort *string, order *string, customerNameSearch *string) QueryOption {
+func sortOrder(sort *string, order *string) QueryOption {
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
 			sortTerm := parameters[*sort]
-			if *sort == "customerName" {
-				orderName(query, order)
-			} else {
-				query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
-			}
-		} else if customerNameSearch != nil {
-			query.Order("similarity(searchable_full_name(first_name, last_name), f_unaccent(lower(?))) DESC", *customerNameSearch)
+			query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 		} else {
-			query.Order("moves.created_at DESC")
+			query.Order("service_members.last_name ASC")
 		}
 	}
-}
-
-func orderName(query *pop.Query, order *string) *pop.Query {
-	query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
-	return query
 }
