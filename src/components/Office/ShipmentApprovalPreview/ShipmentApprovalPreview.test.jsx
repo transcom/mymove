@@ -44,6 +44,7 @@ const shipments = [
     rejectionReason: 'shipment not good enough',
     requestedPickupDate: '2018-03-15',
     scheduledPickupDate: '2018-03-16',
+    shipmentLocator: 'EVLRPT-01',
     secondaryDeliveryAddress: {
       city: 'Beverly Hills',
       country: 'US',
@@ -288,6 +289,7 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find('h3').at(0).text()).toEqual('Household goods');
     expect(wrapper.find('h3').at(1).text()).toEqual('Household goods');
     expect(wrapper.find('h3').at(2).text()).toEqual('Non-temp storage release');
+    expect(wrapper.find('h5').at(0).text()).toEqual('#EVLRPT-01');
   });
   it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(
