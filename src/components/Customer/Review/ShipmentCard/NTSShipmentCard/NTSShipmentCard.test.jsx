@@ -13,6 +13,7 @@ const defaultProps = {
   onEditClick: jest.fn(),
   onDeleteClick: jest.fn(),
   shipmentId: '#ABC123K',
+  shipmentLocator: '#ABC123K-01',
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -39,6 +40,7 @@ const incompleteProps = {
   onDeleteClick: jest.fn(),
   onIncompleteClick: mockedOnIncompleteClickFunction,
   shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -50,6 +52,7 @@ const completeProps = {
   onEditClick: jest.fn(),
   onDeleteClick: jest.fn(),
   shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -124,7 +127,7 @@ describe('NTSShipmentCard component', () => {
     render(<NTSShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('NTS');
-    expect(screen.getByText(/^#ABC123K$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
@@ -133,7 +136,7 @@ describe('NTSShipmentCard component', () => {
     render(<NTSShipmentCard {...incompleteProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('NTS');
-    expect(screen.getByText(/^#ABC123K$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
 
@@ -141,6 +144,6 @@ describe('NTSShipmentCard component', () => {
     await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
 
     // verify onclick is getting json string as parameter
-    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS', 'ABC123K', 'NTS');
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS', 'ABC123K-01', 'NTS');
   });
 });

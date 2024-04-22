@@ -21,6 +21,8 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/route"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
@@ -157,9 +159,19 @@ func main() {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
+	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		log.Fatalf("could not instantiate uploader due to %v", err)
+	}
+	generator, err := paperwork.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	noErr(err)
-	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator()
+	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	noErr(err)
 	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 	noErr(err)

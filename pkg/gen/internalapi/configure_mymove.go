@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -297,14 +298,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		})
 	}
-	if api.PpmShowPPMEstimateHandler == nil {
-		api.PpmShowPPMEstimateHandler = ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
-		})
-	}
-	if api.PpmShowPPMSitEstimateHandler == nil {
-		api.PpmShowPPMSitEstimateHandler = ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
+	if api.PpmShowPaymentPacketHandler == nil {
+		api.PpmShowPaymentPacketHandler = ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
 		})
 	}
 	if api.QueuesShowQueueHandler == nil {
@@ -385,6 +381,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OrdersUploadAmendedOrdersHandler == nil {
 		api.OrdersUploadAmendedOrdersHandler = orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
+		})
+	}
+	if api.ApplicationParametersValidateHandler == nil {
+		api.ApplicationParametersValidateHandler = application_parameters.ValidateHandlerFunc(func(params application_parameters.ValidateParams) middleware.Responder {
+			return middleware.NotImplemented("operation application_parameters.Validate has not yet been implemented")
 		})
 	}
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {

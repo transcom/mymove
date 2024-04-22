@@ -525,7 +525,7 @@ describe('MoveTaskOrder', () => {
     useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
     useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
+      <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
         <MoveTaskOrder
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -821,7 +821,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the financial review flag button when user has permission', async () => {
       render(
-        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag, permissionTypes.updateMTOPage]}>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );
@@ -832,6 +832,16 @@ describe('MoveTaskOrder', () => {
     it('does not show the financial review flag button if user does not have permission', () => {
       render(
         <MockProviders>
+          <MoveTaskOrder {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+    });
+
+    it('does not show the financial review flag button if user does not have updateMTOPage permission', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );

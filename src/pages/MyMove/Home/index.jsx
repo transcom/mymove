@@ -56,7 +56,8 @@ import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete }
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
+import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -83,7 +84,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
-      showDownloadPPMAOAPaperworkErrorAlert: false,
+      showDownloadPPMPaperworkErrorAlert: false,
     };
   }
 
@@ -200,6 +201,12 @@ export class Home extends Component {
     const { orders } = this.props;
 
     return !orders.provides_services_counseling;
+  }
+
+  get isPrimeCounselingComplete() {
+    const { move } = this.props;
+
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   }
 
   renderAlert = () => {
@@ -363,9 +370,9 @@ export class Home extends Component {
     navigate(path);
   };
 
-  toggleDownloadAOAErrorModal = () => {
+  toggleDownloadPacketErrorModal = () => {
     this.setState((prevState) => ({
-      showDownloadPPMAOAPaperworkErrorAlert: !prevState.showDownloadPPMAOAPaperworkErrorAlert,
+      showDownloadPPMPaperworkErrorAlert: !prevState.showDownloadPPMPaperworkErrorAlert,
     }));
   };
 
@@ -399,7 +406,7 @@ export class Home extends Component {
       targetShipmentId,
       showDeleteSuccessAlert,
       showDeleteErrorAlert,
-      showDownloadPPMAOAPaperworkErrorAlert,
+      showDownloadPPMPaperworkErrorAlert,
     } = this.state;
 
     // early return if loading user/service member
@@ -434,7 +441,7 @@ export class Home extends Component {
     const currentLocation = current_location;
     const shipmentNumbersByType = {};
 
-    const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
+    const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orders?.orders_type);
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -447,15 +454,15 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
-        <DownloadAOAErrorModal
-          isOpen={showDownloadPPMAOAPaperworkErrorAlert}
-          closeModal={this.toggleDownloadAOAErrorModal}
+        <DownloadPacketErrorModal
+          isOpen={showDownloadPPMPaperworkErrorAlert}
+          closeModal={this.toggleDownloadPacketErrorModal}
         />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             {isSpecialMove ? (
               <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-                <p>BLUEBARK</p>
+                <p>{SPECIAL_ORDERS_TYPES[`${orders?.orders_type}`]}</p>
               </div>
             ) : null}
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -636,7 +643,7 @@ export class Home extends Component {
                                         id={shipment?.ppmShipment?.id}
                                         label="Download AOA Paperwork (PDF)"
                                         asyncRetrieval={downloadPPMAOAPacket}
-                                        onFailure={this.toggleDownloadAOAErrorModal}
+                                        onFailure={this.toggleDownloadPacketErrorModal}
                                       />
                                     </p>
                                   )}
@@ -678,7 +685,46 @@ export class Home extends Component {
                             <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                             incentive ends up being less than your advance, you will be required to pay back the
                             difference.
+                            <br />
+                            <br />
                           </Description>
+                        )}
+                        {this.isPrimeCounselingComplete && (
+                          <>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadPacketErrorModal}
+                                      />
+                                    </p>
+                                  )}
+                                  {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <>
+                                      <br />
+                                      <br />
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
                         )}
                       </SectionWrapper>
                     </Step>
@@ -689,7 +735,11 @@ export class Home extends Component {
                       completedHeaderText="Manage your PPM"
                       step={this.hasAdvanceRequested ? '6' : '5'}
                     >
-                      <PPMSummaryList shipments={ppmShipments} onUploadClick={this.handlePPMUploadClick} />
+                      <PPMSummaryList
+                        shipments={ppmShipments}
+                        onUploadClick={this.handlePPMUploadClick}
+                        onDownloadError={this.toggleDownloadPacketErrorModal}
+                      />
                     </Step>
                   )}
                 </SectionWrapper>
