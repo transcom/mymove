@@ -10,7 +10,7 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel, canChoosePPMLocation, getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, canChoosePPMLocation } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
 import { isPPMShipmentComplete } from 'utils/shipments';
@@ -25,7 +25,7 @@ const PPMShipmentCard = ({
   onDeleteClick,
   onIncompleteClick,
 }) => {
-  const { moveTaskOrderID, id, shipmentType } = shipment;
+  const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -54,7 +54,7 @@ const PPMShipmentCard = ({
   }
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
-  const moveCodeLabel = getMoveCodeLabel(shipment.id);
+  const moveCodeLabel = `${shipmentLocator}`;
   const shipmentIsIncomplete = !isPPMShipmentComplete(shipment);
 
   return (

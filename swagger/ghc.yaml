@@ -6212,7 +6212,7 @@ definitions:
         type: string
         title: County
         x-nullable: true
-        example: JESSAMINE
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
