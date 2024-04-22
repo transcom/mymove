@@ -515,6 +515,7 @@ const ShipmentForm = (props) => {
                 address: {
                   streetAddress1: '',
                   streetAddress2: '',
+                  streetAddress3: '',
                   city: '',
                   state: '',
                   postalCode: '',
