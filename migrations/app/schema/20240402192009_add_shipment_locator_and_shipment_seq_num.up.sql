@@ -1,3 +1,5 @@
+SET statement_timeout = 0;
+
 ALTER TABLE moves ADD COLUMN IF NOT EXISTS shipment_seq_num INT;
 ALTER TABLE mto_shipments ADD COLUMN IF NOT EXISTS shipment_locator TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS shipment_locator_unique_idx ON mto_shipments (shipment_locator);

@@ -33,6 +33,10 @@ export async function makeInternalRequestRaw(operationPath, params = {}) {
   return makeSwaggerRequestRaw(client, operationPath, params);
 }
 
+export async function validateCode(body) {
+  return makeInternalRequestRaw('application_parameters.validate', { body });
+}
+
 export async function getLoggedInUser(normalize = true) {
   return makeInternalRequest('users.showLoggedInUser', {}, { normalize });
 }

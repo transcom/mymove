@@ -28,6 +28,7 @@ import RequestReweighModal from 'components/Office/RequestReweighModal/RequestRe
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
+import ServiceItemContainer from 'components/Office/ServiceItemContainer/ServiceItemContainer';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   acknowledgeExcessWeightRisk,
@@ -43,12 +44,16 @@ import {
   updateServiceItemSITEntryDate,
   updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
+import {
+  calculateEstimatedWeight,
+  calculateWeightRequested,
+  includedStatusesForCalculatingWeights,
+} from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -159,6 +164,7 @@ export const MoveTaskOrder = (props) => {
         sitCustomerContacted: item.sitCustomerContacted,
         sitRequestedDelivery: item.sitRequestedDelivery,
         sitDeliveryMiles: item.sitDeliveryMiles,
+        status: item.status,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -169,6 +175,17 @@ export const MoveTaskOrder = (props) => {
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
+
+  const serviceItemsForMove = shipmentServiceItems[`${undefined}`];
+  const requestedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
+  );
+  const approvedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
+  );
+  const rejectedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
+  );
 
   /*
   *
@@ -520,19 +537,26 @@ export const MoveTaskOrder = (props) => {
   };
 
   /* istanbul ignore next */
-  const handleDivertShipment = (mtoShipmentID, eTag) => {
+  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator) => {
     mutateMTOShipmentStatus(
       {
         shipmentID: mtoShipmentID,
         operationPath: 'shipment.requestShipmentDiversion',
         ifMatchETag: eTag,
-        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${shipmentLocator}`,
+        shipmentLocator,
       },
       {
         onSuccess: (data, variables) => {
           setIsCancelModalVisible(false);
           // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-          setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+          setMessage(
+            `MSG_CANCEL_SUCCESS_${variables.shipmentLocator}`,
+            'success',
+            variables.onSuccessFlashMsg,
+            '',
+            true,
+          );
         },
       },
     );
@@ -834,10 +858,17 @@ export const MoveTaskOrder = (props) => {
   ]);
 
   /* ------------------ Utils ------------------------- */
+  // determine if max billable weight should be displayed yet
+  const displayMaxBillableWeight = (shipments) => {
+    return shipments?.some(
+      (shipment) => includedStatusesForCalculatingWeights(shipment.status) && shipment.primeEstimatedWeight,
+    );
+  };
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = calculateWeightRequested(nonPPMShipments);
   const ppmWeightTotal = calculateWeightRequested(onlyPPMShipments);
-  const maxBillableWeight = estimatedWeightTotal > 0 ? estimatedWeightTotal * 1.1 : null;
+  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? order?.entitlement?.authorizedWeight : '-';
+
   /**
    * @function getSitAddressInitialValues
    * @todo ETag and Id need to be removed from response from backend or address fields needs to be in their own object
@@ -849,11 +880,13 @@ export const MoveTaskOrder = (props) => {
   -------------------------  UI -------------------------
   *
   */
+  // this should always be 110% of estimated weight regardless of allowance
+  // or max billable weight
   const estimateWeight110 = (
     <div className={moveTaskOrderStyles.childHeader}>
       <div>110% of estimated weight</div>
       <div className={moveTaskOrderStyles.value}>
-        {Number.isFinite(maxBillableWeight) ? formatWeight(maxBillableWeight) : '—'}
+        {Number.isFinite(estimatedWeightTotal) ? formatWeight(Math.round(estimatedWeightTotal * 1.1)) : '—'}
       </div>
     </div>
   );
@@ -1044,14 +1077,16 @@ export const MoveTaskOrder = (props) => {
             <WeightDisplay
               heading="Max billable weight"
               weightValue={maxBillableWeight}
-              onEdit={handleShowWeightModal}
+              onEdit={displayMaxBillableWeight(nonPPMShipments) ? handleShowWeightModal : null}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
-          <div className={moveTaskOrderStyles.secondRow} id="move-weights">
-            <WeightDisplay heading="PPM estimated weight (total)" weightValue={estimatedPPMWeightTotal} />
-            <WeightDisplay heading="Actual PPM weight (total)" weightValue={ppmWeightTotal} />
-          </div>
+          {onlyPPMShipments.length > 0 && (
+            <div className={moveTaskOrderStyles.secondRow} id="move-weights">
+              <WeightDisplay heading="PPM estimated weight (total)" weightValue={estimatedPPMWeightTotal} />
+              <WeightDisplay heading="Actual PPM weight (total)" weightValue={ppmWeightTotal} />
+            </div>
+          )}
           {mtoShipments.map((mtoShipment) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
@@ -1070,16 +1105,6 @@ export const MoveTaskOrder = (props) => {
               (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
             );
             const rejectedServiceItems = serviceItemsForShipment?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
-            );
-            const serviceItemsForMove = shipmentServiceItems[`${undefined}`];
-            const requestedMoveServiceItems = serviceItemsForMove?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
-            );
-            const approvedMoveServiceItems = serviceItemsForMove?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
-            );
-            const rejectedMoveServiceItems = serviceItemsForMove?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
             const dutyLocationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
@@ -1106,6 +1131,7 @@ export const MoveTaskOrder = (props) => {
                     shipmentStatus: mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
                     moveTaskOrderID: mtoShipment.moveTaskOrderID,
+                    shipmentLocator: mtoShipment.shipmentLocator,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                 />
@@ -1153,27 +1179,35 @@ export const MoveTaskOrder = (props) => {
                     sitStatus={mtoShipment.sitStatus}
                   />
                 )}
-                {requestedMoveServiceItems?.length > 0 && (
-                  <RequestedServiceItemsTable
-                    serviceItems={requestedMoveServiceItems}
-                    statusForTableType="Move Task Order Requested"
-                  />
-                )}
-                {approvedMoveServiceItems?.length > 0 && (
-                  <RequestedServiceItemsTable
-                    serviceItems={approvedMoveServiceItems}
-                    statusForTableType="Move Task Order Approved"
-                  />
-                )}
-                {rejectedMoveServiceItems?.length > 0 && (
-                  <RequestedServiceItemsTable
-                    serviceItems={rejectedMoveServiceItems}
-                    statusForTableType="Move Task Order Rejected"
-                  />
-                )}
               </ShipmentContainer>
             );
           })}
+          <ServiceItemContainer className={styles.shipmentCard}>
+            {requestedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={requestedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.SUBMITTED}
+              />
+            )}
+            {approvedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={approvedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.APPROVED}
+              />
+            )}
+            {rejectedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={rejectedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.REJECTED}
+              />
+            )}
+          </ServiceItemContainer>
           <div className={styles.pageFooter}>
             <div className={styles.pageFooterDetails}>
               <h6>{order?.packingAndShippingInstructions}</h6>

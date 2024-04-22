@@ -48,7 +48,7 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
-                required
+                labelHint="Optional"
               />
             </div>
           </div>

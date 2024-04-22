@@ -189,7 +189,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		mto.MTOShipments[i].Reweigh = reweigh
 
 		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
-			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment")
+			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment", "PPMShipment.PickupAddress", "PPMShipment.DestinationAddress", "PPMShipment.SecondaryPickupAddress", "PPMShipment.SecondaryDestinationAddress")
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("PPMShipment", loadErr, "")
 			}
@@ -278,8 +278,8 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	var err error
 
 	sql := `SELECT moves.*
-            FROM moves INNER JOIN orders ON moves.orders_id = orders.id
-            WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
+	        FROM moves INNER JOIN orders ON moves.orders_id = orders.id
+	        WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
 
 	if searchParams != nil && searchParams.Since != nil {
 		sql = sql + ` AND (moves.updated_at >= $1 OR orders.updated_at >= $1 OR
@@ -309,6 +309,44 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	}
 
 	return moveTaskOrders, nil
+}
+
+func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
+
+	moveTaskOrders, err := f.ListPrimeMoveTaskOrders(appCtx, searchParams)
+
+	if err != nil {
+		return models.Moves{}, services.MoveOrderAmendmentAvailableSinceCounts{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Loop through MTOs and get total amendment count and available since count.
+	////////////////////////////////////////////////////////////////////////////////
+	moveOrderAmendmentAvailableSinceCounts := make(services.MoveOrderAmendmentAvailableSinceCounts, 0)
+	for _, mto := range moveTaskOrders {
+		oa, err := models.FetchOrderAmendmentsInfo(appCtx.DB(), appCtx.Session(), mto.OrdersID)
+		if err != nil {
+			return models.Moves{}, services.MoveOrderAmendmentAvailableSinceCounts{}, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while fetching FetchOrderAmendmentsInfo.")
+		}
+		if oa.UploadedAmendedOrders != nil {
+			amendmentCountInfo := services.MoveOrderAmendmentAvailableSinceCount{
+				MoveID:              mto.ID,
+				Total:               len(oa.UploadedAmendedOrders.UserUploads),
+				AvailableSinceTotal: len(oa.UploadedAmendedOrders.UserUploads),
+			}
+			if searchParams != nil && searchParams.Since != nil {
+				availableSinceCnt := 0
+				for _, u := range oa.UploadedAmendedOrders.UserUploads {
+					if u.UpdatedAt.Equal(*searchParams.Since) || u.UpdatedAt.After(*searchParams.Since) {
+						availableSinceCnt++
+					}
+				}
+				amendmentCountInfo.AvailableSinceTotal = availableSinceCnt
+			}
+			moveOrderAmendmentAvailableSinceCounts = append(moveOrderAmendmentAvailableSinceCounts, amendmentCountInfo)
+		}
+	}
+	return moveTaskOrders, moveOrderAmendmentAvailableSinceCounts, nil
 }
 
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
