@@ -30,6 +30,7 @@ describe('When given a created pro-gear set history record', () => {
       {
         filename: 'filename.png',
         shipment_id_abbr: '125d1',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
       },
     ],
@@ -63,7 +64,7 @@ describe('When given a created pro-gear set history record', () => {
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
-      expect(screen.getByText(`PPM shipment #125D1, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText(`PPM shipment #RQ38D4-01, ${label}`)).toBeInTheDocument();
     });
   });
 });

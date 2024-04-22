@@ -11,6 +11,7 @@ describe('when Prime user cancels a shipment', () => {
     context: [
       {
         shipment_id_abbr: 'acf7b',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'HHG',
       },
     ],
@@ -26,7 +27,7 @@ describe('when Prime user cancels a shipment', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #ACF7B')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   describe('When given a specific set of details for a cancelled shipment', () => {

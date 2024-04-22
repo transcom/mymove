@@ -23,6 +23,7 @@ describe('When a PPM is created by the Prime and the move history is viewed', ()
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'a1b2c',
       },
     ],
@@ -61,7 +62,7 @@ describe('When a PPM is created by the Prime and the move history is viewed', ()
     it('displays the correct label for shipment', () => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));
-      expect(screen.getByText('PPM shipment #A1B2C')).toBeInTheDocument();
+      expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
     });
   });
 });
