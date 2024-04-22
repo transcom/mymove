@@ -7,7 +7,7 @@ describe('When a prime deletes a shipment', () => {
   const historyRecord = {
     action: 'UPDATE',
     eventName: 'deleteMTOShipment',
-    context: [{ shipment_id_abbr: '3b475', shipment_type: 'PPM' }],
+    context: [{ shipment_id_abbr: '3b475', shipment_type: 'PPM', shipment_locator: 'ABC123-01' }],
     tableName: 'ppm_shipments',
   };
 
@@ -20,6 +20,6 @@ describe('When a prime deletes a shipment', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #3B475 deleted')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #ABC123-01 deleted')).toBeInTheDocument();
   });
 });
