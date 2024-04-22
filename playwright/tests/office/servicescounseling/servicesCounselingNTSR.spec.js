@@ -16,7 +16,7 @@ test.describe('Services counselor user', () => {
 
     // Find the card for the NTS shipment, then click the edit button
     const container = await scPage.getShipmentContainerByType('NTS');
-    await container.getByRole('button', { name: 'Edit shipment' }).click();
+    await container.getByRole('button', { name: 'Edit Shipment' }).click();
     await scPage.waitForPage.editNTSReleaseShipment();
 
     // Click the "Delete Shipment" button to bring up the confirmation modal
