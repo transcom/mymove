@@ -47,14 +47,6 @@ export const PAYMENT_REQUEST_STATUS_OPTIONS = [
   { value: 'DEPRECATED', label: 'Deprecated' },
   { value: 'EDI_ERROR', label: 'Error' },
 ];
-export const PAYMENT_REQUEST_SEARCH_STATUS_LABELS = {
-  PENDING: 'Payment requested',
-  REVIEWED: 'Reviewed',
-  REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED: 'Rejected',
-  PAID: 'Paid',
-  EDI_ERROR: 'Error',
-  DEPRECATED: 'Deprecated',
-};
 export const ROLE_TYPE_OPTIONS = {
   [roleTypes.SERVICES_COUNSELOR]: SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
   [roleTypes.QAE_CSR]: MOVE_STATUS_OPTIONS,
