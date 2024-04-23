@@ -171,7 +171,7 @@ const customerSearchColumns = () => [
         </Button>
       );
     },
-    { isFilterable: false },
+    { isFilterable: false, disableSortBy: true },
   ),
   createHeader(
     'id',
