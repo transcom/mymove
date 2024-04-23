@@ -303,6 +303,31 @@ test.describe('TOO user', () => {
       await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
     });
 
+    test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      await tooFlowPage.approveAllShipments();
+
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
+
+      // Move Task Order page
+      await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
+
+      await page.locator('button').getByText('Request diversion').click();
+
+      await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
+
+      // Check the alert message with shipment locator
+      const alertText = await page.locator('[data-testid="alert"]').textContent();
+      const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
+      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
+      expect(hasValidShipmentNumber).toBeTruthy();
+
+      // Alert should disappear if focus changes
+      await page.locator('[data-testid="rejectTextButton"]').first().click();
+      await page.locator('[data-testid="closeRejectServiceItem"]').click();
+      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
+    });
+
     /**
      * This test is being temporarily skipped until flakiness issues
      * can be resolved. It was skipped in cypress and is not part of
@@ -405,6 +430,12 @@ test.describe('TOO user', () => {
       // Make sure we go to move details page
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/details`);
     });
+
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
   });
 
   test.describe('with retiree moves', () => {
@@ -438,6 +469,56 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="submitForm"]').click();
 
       await tooFlowPage.waitForPage.moveDetails();
+    });
+  });
+
+  let moveLoc;
+  test.describe('with payment requests', () => {
+    test.beforeEach(async ({ officePage, page }) => {
+      const move = await officePage.testHarness.buildHHGMoveInSITEndsToday();
+      moveLoc = move.locator;
+      await officePage.signInAsNewMultiRoleUser();
+
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select prime_simulator' }).click();
+      await page.locator('#moveCode').click();
+      await page.locator('#moveCode').fill(moveLoc);
+      await page.locator('#moveCode').press('Enter');
+      await page.getByTestId('moveCode-0').click();
+      await page.getByRole('link', { name: 'Create Payment Request' }).click();
+      await page.waitForSelector('h3:has-text("Domestic origin SIT fuel surcharge")');
+      const serviceItemID = await page.$eval(
+        `//h3[text()='Domestic origin SIT fuel surcharge']/following-sibling::div[contains(@class, 'descriptionList_row__TsTvp')]//dt[text()='ID:']/following-sibling::dd[1]`,
+        (ddElement) => ddElement.textContent.trim(),
+      );
+      await page.locator(`label[for="${serviceItemID}"]`).nth(0).check();
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).fill('10000');
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
+      await page.getByTestId('form').getByTestId('button').click();
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select transportation_ordering_officer' }).click();
+    });
+    test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
+      await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .fill(moveLoc);
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .press('Enter');
+      await page.getByTestId('locator-0').click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByRole('button', { name: 'Review weights' }).click();
+      await page.getByRole('button', { name: 'Review shipment weights' }).click();
+      await page.getByRole('button', { name: 'Back' }).click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByTestId('reviewBtn').click();
+      await page.getByTestId('toggleCalculations').click();
+      await expect(page.getByText('Weight-based distance multiplier: 0.0006255')).toBeVisible();
     });
   });
 

@@ -731,6 +731,11 @@ definitions:
         x-nullable: true
         example: 'USA'
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -1578,6 +1583,7 @@ definitions:
       - SEPARATION
       - GHC
       - NTS
+      - WOUNDED_WARRIOR
       - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
@@ -1586,6 +1592,7 @@ definitions:
       SEPARATION: Separation
       GHC: GHC
       NTS: NTS
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
   OrdersTypeDetail:
     type: string

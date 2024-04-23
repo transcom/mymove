@@ -24,7 +24,7 @@ describe('CustomerAltContactInfoFields component', () => {
 
     expect(screen.getAllByText('Phone')).toBeInstanceOf(Array);
     expect(screen.getAllByText('Email')).toBeInstanceOf(Array);
-    expect(screen.getByText('Alternate Phone')).toBeInstanceOf(HTMLLabelElement);
+    expect(screen.getByLabelText(/Alternate Phone/)).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByText('Preferred contact method')).toBeInstanceOf(HTMLLabelElement);
   });
 
@@ -51,7 +51,7 @@ describe('CustomerAltContactInfoFields component', () => {
       expect(screen.getByLabelText(/Suffix/)).toHaveValue(initialValues.suffix);
       expect(screen.getByDisplayValue(initialValues.customerTelephone)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByDisplayValue(initialValues.customerEmail)).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Alternate Phone')).toHaveValue(initialValues.secondaryPhone);
+      expect(screen.getByLabelText(/Alternate Phone/)).toHaveValue(initialValues.secondaryPhone);
     });
   });
 });

@@ -29,12 +29,12 @@ require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-logr/zapr v1.3.0
-	github.com/go-openapi/errors v0.21.0
+	github.com/go-openapi/errors v0.22.0
 	github.com/go-openapi/loads v0.21.5
 	github.com/go-openapi/runtime v0.27.0
 	github.com/go-openapi/spec v0.20.14
 	github.com/go-openapi/strfmt v0.22.0
-	github.com/go-openapi/swag v0.22.9
+	github.com/go-openapi/swag v0.23.0
 	github.com/go-openapi/validate v0.23.0
 	github.com/go-playground/validator/v10 v10.15.4
 	github.com/go-swagger/go-swagger v0.30.5
@@ -91,7 +91,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.18.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.21.0
-	golang.org/x/net v0.21.0
+	golang.org/x/net v0.23.0
 	golang.org/x/oauth2 v0.17.0
 	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.13.0
