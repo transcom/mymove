@@ -499,9 +499,6 @@ export function formatQAReportID(uuid) {
   return `#QA-${getUUIDFirstFive(uuid)}`;
 }
 
-export function formatShortIDWithPound(uuid) {
-  return `#${getUUIDFirstFive(uuid)}`;
-}
 export function removeCommas(inputString) {
   // Use a regular expression to replace commas with an empty string
   return inputString.replace(/,/g, '');
