@@ -1702,7 +1702,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		}
 
 		var gbloc ghcmessages.GBLOC
-		if move.Status == models.MoveStatusNeedsServiceCounseling {
+		if move.Status == models.MoveStatusNeedsServiceCounseling && move.Orders.OriginDutyLocationGBLOC != nil {
 			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
@@ -1711,12 +1711,15 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			if move.ShipmentGBLOC[0].GBLOC != nil {
 				gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 			}
-		} else {
+		} else if move.Orders.OriginDutyLocationGBLOC != nil {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
 			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		} else {
+			gbloc = *ghcmessages.NewGBLOC("")
 		}
+
 		var closeoutLocation string
 		if move.CloseoutOffice != nil {
 			closeoutLocation = move.CloseoutOffice.Name
@@ -1909,7 +1912,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		}
 
 		var originGBLOC ghcmessages.GBLOC
-		if move.Status == models.MoveStatusNeedsServiceCounseling {
+		if move.Status == models.MoveStatusNeedsServiceCounseling && move.Orders.OriginDutyLocationGBLOC != nil {
 			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 {
 			// There is a Pop bug that prevents us from using a has_one association for
@@ -1918,11 +1921,13 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			if move.ShipmentGBLOC[0].GBLOC != nil {
 				originGBLOC = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 			}
-		} else {
+		} else if move.Orders.OriginDutyLocationGBLOC != nil {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
 			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		} else {
+			originGBLOC = *ghcmessages.NewGBLOC("")
 		}
 
 		var destinationGBLOC ghcmessages.GBLOC
