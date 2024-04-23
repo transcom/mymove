@@ -5054,7 +5054,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -6018,7 +6018,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -7332,6 +7332,12 @@ func init() {
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -10260,7 +10266,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -17505,7 +17511,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -18473,7 +18479,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -19787,6 +19793,12 @@ func init() {
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -22773,7 +22785,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {

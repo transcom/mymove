@@ -181,6 +181,41 @@ export const formatEvaluationReportShipmentAddress = (address) => {
   return `${streetAddress1}, ${city}, ${state} ${postalCode}`;
 };
 
+export const formatCustomerContactFullAddress = (address) => {
+  let formattedAddress = '';
+  if (address.streetAddress1) {
+    formattedAddress += `${address.streetAddress1}`;
+  }
+
+  if (address.streetAddress2) {
+    formattedAddress += `, ${address.streetAddress2}`;
+  }
+
+  if (address.streetAddress3) {
+    formattedAddress += `, ${address.streetAddress3}`;
+  }
+
+  if (address.city) {
+    formattedAddress += `, ${address.city}`;
+  }
+
+  if (address.state) {
+    formattedAddress += `, ${address.state}`;
+  }
+
+  if (address.postalCode) {
+    formattedAddress += ` ${address.postalCode}`;
+  }
+
+  if (formattedAddress[0] === ',') {
+    formattedAddress = formattedAddress.substring(1);
+  }
+
+  formattedAddress = formattedAddress.trim();
+
+  return formattedAddress;
+};
+
 export const formatMoveHistoryFullAddress = (address) => {
   let formattedAddress = '';
   if (address.street_address_1) {
@@ -329,8 +364,8 @@ export const formatWeightCWTFromLbs = (value) => {
 };
 
 // Translate currency from millicents to dollars
-export const formatDollarFromMillicents = (value) => {
-  return `$${(parseInt(value, 10) / 100000).toFixed(2)}`;
+export const formatDollarFromMillicents = (value, decimalPlaces = 2) => {
+  return `$${(parseInt(value, 10) / 100000).toFixed(decimalPlaces)}`;
 };
 
 // Takes an whole number of day value and pluralizes with unit label
