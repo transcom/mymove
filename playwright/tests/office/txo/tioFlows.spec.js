@@ -118,7 +118,7 @@ class TioFlowPage extends OfficePage {
     await expect(siCalc).toContainText('14 cwt');
     await expect(siCalc).toContainText('354');
     await expect(siCalc).toContainText('ZIP 80301 to ZIP 80501');
-    await expect(siCalc).toContainText('0.15');
+    await expect(siCalc).toContainText('0.1');
     await expect(siCalc).toContainText('EIA diesel: $2.81');
     await expect(siCalc).toContainText('Weight-based distance multiplier: 0.0004170');
     await expect(siCalc).toContainText('$107.00');
@@ -411,7 +411,7 @@ test.describe('TIO user', () => {
       // Confirm TIO can view the calculations
       await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
-      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total amount requested');
+      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Fuel rate adjustment');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Service schedule: 2');
 
       // Confirm TIO can hide the calculations. This ensures there's
@@ -432,7 +432,7 @@ test.describe('TIO user', () => {
       // Confirm TIO can view the calculations
       await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
-      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total amount requested');
+      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Fuel rate adjustment');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Dimensions: 12x3x10 in');
 
       // Confirm TIO can hide the calculations. This ensures there's no scrolling weirdness before the next action

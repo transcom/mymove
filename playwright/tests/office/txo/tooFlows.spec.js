@@ -630,6 +630,56 @@ test.describe('TOO user', () => {
     });
   });
 
+  let moveLoc;
+  test.describe('with payment requests', () => {
+    test.beforeEach(async ({ officePage, page }) => {
+      const move = await officePage.testHarness.buildHHGMoveInSITEndsToday();
+      moveLoc = move.locator;
+      await officePage.signInAsNewMultiRoleUser();
+
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select prime_simulator' }).click();
+      await page.locator('#moveCode').click();
+      await page.locator('#moveCode').fill(moveLoc);
+      await page.locator('#moveCode').press('Enter');
+      await page.getByTestId('moveCode-0').click();
+      await page.getByRole('link', { name: 'Create Payment Request' }).click();
+      await page.waitForSelector('h3:has-text("Domestic origin SIT fuel surcharge")');
+      const serviceItemID = await page.$eval(
+        `//h3[text()='Domestic origin SIT fuel surcharge']/following-sibling::div[contains(@class, 'descriptionList_row__TsTvp')]//dt[text()='ID:']/following-sibling::dd[1]`,
+        (ddElement) => ddElement.textContent.trim(),
+      );
+      await page.locator(`label[for="${serviceItemID}"]`).nth(0).check();
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).fill('10000');
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
+      await page.getByTestId('form').getByTestId('button').click();
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select transportation_ordering_officer' }).click();
+    });
+    test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
+      await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .fill(moveLoc);
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .press('Enter');
+      await page.getByTestId('locator-0').click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByRole('button', { name: 'Review weights' }).click();
+      await page.getByRole('button', { name: 'Review shipment weights' }).click();
+      await page.getByRole('button', { name: 'Back' }).click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByTestId('reviewBtn').click();
+      await page.getByTestId('toggleCalculations').click();
+      await expect(page.getByText('Weight-based distance multiplier: 0.0006255')).toBeVisible();
+    });
+  });
+
   test('approves a delivery address change request for an HHG shipment', async ({ officePage, page }) => {
     const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
