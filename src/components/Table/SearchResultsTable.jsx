@@ -155,8 +155,7 @@ const columns = () => [
   ),
 ];
 
-// eslint-disable-next-line no-unused-vars
-const columnsWithCreateMove = (roleType) => [
+const columnsWithCreateMove = () => [
   createHeader(
     'Create Move',
     (row) => {
