@@ -29,13 +29,13 @@ type ServiceMemberPayload struct {
 	// backup mailing address
 	BackupMailingAddress *Address `json:"backup_mailing_address,omitempty"`
 
+	// cac validated
+	CacValidated bool `json:"cac_validated,omitempty"`
+
 	// created at
 	// Required: true
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
-
-	// current location
-	CurrentLocation *DutyLocationPayload `json:"current_location,omitempty"`
 
 	// DoD ID number
 	// Example: 5789345789
@@ -50,6 +50,9 @@ type ServiceMemberPayload struct {
 	// First name
 	// Example: John
 	FirstName *string `json:"first_name,omitempty"`
+
+	// Grade
+	Grade *OrderPayGrade `json:"grade,omitempty"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -79,9 +82,6 @@ type ServiceMemberPayload struct {
 
 	// Telephone
 	PhoneIsPreferred *bool `json:"phone_is_preferred,omitempty"`
-
-	// Rank
-	Rank *ServiceMemberRank `json:"rank,omitempty"`
 
 	// Residential Address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
@@ -135,11 +135,11 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateCurrentLocation(formats); err != nil {
+	if err := m.validateEdipi(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateEdipi(formats); err != nil {
+	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -156,10 +156,6 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePersonalEmail(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -261,25 +257,6 @@ func (m *ServiceMemberPayload) validateCreatedAt(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *ServiceMemberPayload) validateCurrentLocation(formats strfmt.Registry) error {
-	if swag.IsZero(m.CurrentLocation) { // not required
-		return nil
-	}
-
-	if m.CurrentLocation != nil {
-		if err := m.CurrentLocation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_location")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("current_location")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *ServiceMemberPayload) validateEdipi(formats strfmt.Registry) error {
 	if swag.IsZero(m.Edipi) { // not required
 		return nil
@@ -295,6 +272,25 @@ func (m *ServiceMemberPayload) validateEdipi(formats strfmt.Registry) error {
 
 	if err := validate.Pattern("edipi", "body", *m.Edipi, `^\d{10}$`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) validateGrade(formats strfmt.Registry) error {
+	if swag.IsZero(m.Grade) { // not required
+		return nil
+	}
+
+	if m.Grade != nil {
+		if err := m.Grade.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -355,25 +351,6 @@ func (m *ServiceMemberPayload) validatePersonalEmail(formats strfmt.Registry) er
 
 	if err := validate.Pattern("personal_email", "body", *m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *ServiceMemberPayload) validateRank(formats strfmt.Registry) error {
-	if swag.IsZero(m.Rank) { // not required
-		return nil
-	}
-
-	if m.Rank != nil {
-		if err := m.Rank.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rank")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -483,15 +460,11 @@ func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateCurrentLocation(ctx, formats); err != nil {
+	if err := m.contextValidateGrade(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateOrders(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateRank(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -565,19 +538,19 @@ func (m *ServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.C
 	return nil
 }
 
-func (m *ServiceMemberPayload) contextValidateCurrentLocation(ctx context.Context, formats strfmt.Registry) error {
+func (m *ServiceMemberPayload) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.CurrentLocation != nil {
+	if m.Grade != nil {
 
-		if swag.IsZero(m.CurrentLocation) { // not required
+		if swag.IsZero(m.Grade) { // not required
 			return nil
 		}
 
-		if err := m.CurrentLocation.ContextValidate(ctx, formats); err != nil {
+		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_location")
+				return ve.ValidateName("grade")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("current_location")
+				return ce.ValidateName("grade")
 			}
 			return err
 		}
@@ -606,27 +579,6 @@ func (m *ServiceMemberPayload) contextValidateOrders(ctx context.Context, format
 			}
 		}
 
-	}
-
-	return nil
-}
-
-func (m *ServiceMemberPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Rank != nil {
-
-		if swag.IsZero(m.Rank) { // not required
-			return nil
-		}
-
-		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rank")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
-			}
-			return err
-		}
 	}
 
 	return nil

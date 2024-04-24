@@ -5,13 +5,15 @@ import { generatePath } from 'react-router-dom';
 
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel, isArmyOrAirForce } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, canChoosePPMLocation } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
+import { isPPMShipmentComplete } from 'utils/shipments';
 
 const PPMShipmentCard = ({
   move,
@@ -21,8 +23,9 @@ const PPMShipmentCard = ({
   showEditAndDeleteBtn,
   onEditClick,
   onDeleteClick,
+  onIncompleteClick,
 }) => {
-  const { moveTaskOrderID, id, shipmentType } = shipment;
+  const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -44,21 +47,31 @@ const PPMShipmentCard = ({
   })}?shipmentNumber=${shipmentNumber}`;
 
   let closeoutOffice;
-  if (move?.closeout_office == null) {
+  if (move?.closeoutOffice == null) {
     closeoutOffice = '';
   } else {
-    closeoutOffice = move.closeout_office.name;
+    closeoutOffice = move.closeoutOffice.name;
   }
+
+  const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
+  const moveCodeLabel = `${shipmentLocator}`;
+  const shipmentIsIncomplete = !isPPMShipmentComplete(shipment);
 
   return (
     <div className={styles.ShipmentCard}>
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
+        {shipmentIsIncomplete && (
+          <IncompleteShipmentToolTip
+            onClick={onIncompleteClick}
+            shipmentLabel={shipmentLabel}
+            moveCodeLabel={moveCodeLabel}
+            shipmentTypeLabel={shipmentType}
+          />
+        )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3 data-testid="ShipmentCardNumber">
-              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
-            </h3>
-            <p>#{id.substring(0, 8).toUpperCase()}</p>
+            <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
+            <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
@@ -98,7 +111,7 @@ const PPMShipmentCard = ({
               <dd>{secondaryDestinationPostalCode}</dd>
             </div>
           )}
-          {isArmyOrAirForce(affiliation) && closeoutOffice !== '' ? (
+          {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (
             <div className={styles.row}>
               <dt>Closeout office</dt>
               <dd>{closeoutOffice}</dd>
@@ -142,6 +155,7 @@ PPMShipmentCard.propTypes = {
   onDeleteClick: func,
   move: MoveShape,
   affiliation: oneOf(Object.values(affiliations)),
+  onIncompleteClick: func,
 };
 
 PPMShipmentCard.defaultProps = {
@@ -150,6 +164,7 @@ PPMShipmentCard.defaultProps = {
   onDeleteClick: undefined,
   move: undefined,
   affiliation: undefined,
+  onIncompleteClick: undefined,
 };
 
 export default PPMShipmentCard;

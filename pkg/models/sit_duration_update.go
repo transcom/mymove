@@ -58,6 +58,7 @@ type SITDurationUpdate struct {
 	ApprovedDays      *int                           `db:"approved_days"`
 	DecisionDate      *time.Time                     `db:"decision_date"`
 	OfficeRemarks     *string                        `db:"office_remarks"`
+	CustomerExpense   *bool                          `db:"customer_expense"`
 	CreatedAt         time.Time                      `db:"created_at"`
 	UpdatedAt         time.Time                      `db:"updated_at"`
 }

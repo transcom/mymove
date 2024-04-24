@@ -41,6 +41,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSC(appCtx)
 	},
+	"HHGMoveAsUSMCNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveNeedsServicesCounselingUSMC(appCtx)
+	},
 	"HHGMoveWithAmendedOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithAmendedOrders(appCtx)
 	},
@@ -52,6 +55,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"HHGMoveInSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSIT(appCtx)
+	},
+	"HHGMoveInSITNoDestinationSITOutDate": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITNoDestinationSITOutDate(appCtx)
+	},
+	"HHGMoveInSITNoExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITNoExcessWeight(appCtx)
 	},
 	"HHGMoveInSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSITWithPendingExtension(appCtx)
@@ -85,6 +94,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"MoveWithNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithNTSShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithPPMShipmentsReadyForCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithPPMShipmentsForTOO(appCtx, true)
+	},
+	"HHGMoveWithPPMShipmentsReadyForCounseling": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithPPMShipmentsForTOO(appCtx, false)
 	},
 	"HHGMoveWithExternalNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx)
@@ -125,11 +140,11 @@ var actionDispatcher = map[string]actionFunc{
 	"NeedsOrdersUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeNeedsOrdersUser(appCtx.DB())
 	},
-	"PPMInProgressMove": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakePPMInProgressMove(appCtx)
-	},
 	"MoveWithPPMShipmentReadyForFinalCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx)
+	},
+	"MoveWithPPMShipmentReadyForFinalCloseoutWithSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx)
 	},
 	"PPMMoveWithCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMMoveWithCloseout(appCtx)
@@ -161,6 +176,9 @@ var actionDispatcher = map[string]actionFunc{
 	"ApprovedMoveWithPPMWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMWeightTicketOffice(appCtx)
 	},
+	"ApprovedMoveWithPPMWeightTicketOfficeWithHHG": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx)
+	},
 	"ApprovedMoveWithPPMMovingExpense": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMMovingExpense(appCtx)
 	},
@@ -190,6 +208,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx)
+	},
+	"MakeMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveReadyForEDI(appCtx)
+	},
+	"MakeCoastGuardMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeCoastGuardMoveReadyForEDI(appCtx)
 	},
 }
 

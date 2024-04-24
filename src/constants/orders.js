@@ -5,11 +5,22 @@ export const ORDERS_TYPE = {
   SEPARATION: 'SEPARATION',
 };
 
+export const SPECIAL_ORDERS_TYPES = {
+  WOUNDED_WARRIOR: 'Wounded Warrior',
+  BLUEBARK: 'BLUEBARK',
+};
+
+export const CHECK_SPECIAL_ORDERS_TYPES = (ordersType) => {
+  return ['BLUEBARK', 'WOUNDED_WARRIOR'].includes(ordersType);
+};
+
 export const ORDERS_TYPE_OPTIONS = {
   PERMANENT_CHANGE_OF_STATION: 'Permanent Change Of Station (PCS)',
   LOCAL_MOVE: 'Local Move',
   RETIREMENT: 'Retirement',
   SEPARATION: 'Separation',
+  WOUNDED_WARRIOR: 'Wounded Warrior',
+  BLUEBARK: 'BLUEBARK',
 };
 
 export const ORDERS_TYPE_DETAILS = {
@@ -32,7 +43,7 @@ export const ORDERS_TYPE_DETAILS_OPTIONS = {
   DELAYED_APPROVAL: 'Delayed Approval 20 Weeks or More',
 };
 
-export const ORDERS_RANK_OPTIONS = {
+export const ORDERS_PAY_GRADE_OPTIONS = {
   E_1: 'E-1',
   E_2: 'E-2',
   E_3: 'E-3',
@@ -70,5 +81,15 @@ export const ORDERS_BRANCH_OPTIONS = {
   MARINES: 'Marine Corps',
   AIR_FORCE: 'Air Force',
   COAST_GUARD: 'Coast Guard',
+  SPACE_FORCE: 'Space Force',
   OTHER: 'Other',
+};
+
+export const ORDERS_DEPARTMENT_INDICATOR = {
+  NAVY_AND_MARINES: 'Navy and Marine Corps',
+  ARMY: 'Army',
+  ARMY_CORPS_OF_ENGINEERS: 'Army Corps of Engineers',
+  AIR_AND_SPACE_FORCE: 'Air Force and Space Force',
+  COAST_GUARD: 'Coast Guard',
+  OFFICE_OF_SECRETARY_OF_DEFENSE: 'Office of the Secretary of Defense',
 };

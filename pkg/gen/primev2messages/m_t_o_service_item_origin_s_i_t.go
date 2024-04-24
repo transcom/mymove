@@ -46,6 +46,13 @@ type MTOServiceItemOriginSIT struct {
 	// Required: true
 	Reason *string `json:"reason"`
 
+	// request approvals requested status
+	RequestApprovalsRequestedStatus bool `json:"requestApprovalsRequestedStatus,omitempty"`
+
+	// Date when the customer contacted the prime for a delivery out of SIT.
+	// Format: date
+	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
 	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -66,6 +73,10 @@ type MTOServiceItemOriginSIT struct {
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	SitPostalCode *string `json:"sitPostalCode"`
+
+	// Date when the customer has requested delivery out of SIT.
+	// Format: date
+	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -171,6 +182,13 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// request approvals requested status
+		RequestApprovalsRequestedStatus bool `json:"requestApprovalsRequestedStatus,omitempty"`
+
+		// Date when the customer contacted the prime for a delivery out of SIT.
+		// Format: date
+		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -191,6 +209,10 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		SitPostalCode *string `json:"sitPostalCode"`
+
+		// Date when the customer has requested delivery out of SIT.
+		// Format: date
+		SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -253,11 +275,14 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
+	result.RequestApprovalsRequestedStatus = data.RequestApprovalsRequestedStatus
+	result.SitCustomerContacted = data.SitCustomerContacted
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitEntryDate = data.SitEntryDate
 	result.SitHHGActualOrigin = data.SitHHGActualOrigin
 	result.SitHHGOriginalOrigin = data.SitHHGOriginalOrigin
 	result.SitPostalCode = data.SitPostalCode
+	result.SitRequestedDelivery = data.SitRequestedDelivery
 
 	*m = result
 
@@ -280,6 +305,13 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// request approvals requested status
+		RequestApprovalsRequestedStatus bool `json:"requestApprovalsRequestedStatus,omitempty"`
+
+		// Date when the customer contacted the prime for a delivery out of SIT.
+		// Format: date
+		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -300,11 +332,19 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		SitPostalCode *string `json:"sitPostalCode"`
+
+		// Date when the customer has requested delivery out of SIT.
+		// Format: date
+		SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 	}{
 
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
+
+		RequestApprovalsRequestedStatus: m.RequestApprovalsRequestedStatus,
+
+		SitCustomerContacted: m.SitCustomerContacted,
 
 		SitDepartureDate: m.SitDepartureDate,
 
@@ -315,6 +355,8 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		SitHHGOriginalOrigin: m.SitHHGOriginalOrigin,
 
 		SitPostalCode: m.SitPostalCode,
+
+		SitRequestedDelivery: m.SitRequestedDelivery,
 	})
 	if err != nil {
 		return nil, err
@@ -396,6 +438,10 @@ func (m *MTOServiceItemOriginSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitCustomerContacted(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitDepartureDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -413,6 +459,10 @@ func (m *MTOServiceItemOriginSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitRequestedDelivery(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -540,6 +590,19 @@ func (m *MTOServiceItemOriginSIT) validateReason(formats strfmt.Registry) error 
 	return nil
 }
 
+func (m *MTOServiceItemOriginSIT) validateSitCustomerContacted(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitCustomerContacted) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitCustomerContacted", "body", "date", m.SitCustomerContacted.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemOriginSIT) validateSitDepartureDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SitDepartureDate) { // not required
@@ -613,6 +676,19 @@ func (m *MTOServiceItemOriginSIT) validateSitPostalCode(formats strfmt.Registry)
 	}
 
 	if err := validate.Pattern("sitPostalCode", "body", *m.SitPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) validateSitRequestedDelivery(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitRequestedDelivery) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitRequestedDelivery", "body", "date", m.SitRequestedDelivery.String(), formats); err != nil {
 		return err
 	}
 

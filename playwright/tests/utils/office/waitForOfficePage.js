@@ -107,7 +107,24 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewWeightTicket() {
-    await base.expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
+    await base.expect(this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 })).toBeVisible();
+  }
+
+  /**
+   * @param {string} expense name of the expense
+   * @param {number}receiptNumber the receipt index number
+   * @param {number} expenseIndex the index of the expense
+   * @example reveiewExpenseTicket('packing materials', 1, 1);
+   * @returns {Promise<void>}
+   */
+  async reviewExpenseTicket(expense, receiptNumber, expenseIndex) {
+    const receiptCheck = `Receipt ${receiptNumber}`;
+    const receiptElement = this.page.getByRole('heading', { name: receiptCheck, level: 3, exact: false });
+
+    const expenseCheck = `Review ${expense} #${expenseIndex}`;
+    const expenseElement = this.page.getByRole('heading', { name: expenseCheck, level: 3, exact: false });
+    await base.expect(receiptElement).toBeVisible({ timeout: 500 });
+    await base.expect(expenseElement).toBeVisible({ timeout: 500 });
   }
 }
 

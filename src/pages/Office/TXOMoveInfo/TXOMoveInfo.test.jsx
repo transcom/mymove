@@ -23,6 +23,7 @@ mockPage('pages/Office/EvaluationReport/EvaluationReport');
 mockPage('pages/Office/EvaluationViolations/EvaluationViolations');
 mockPage('pages/Office/MoveHistory/MoveHistory');
 mockPage('pages/Office/MovePaymentRequests/MovePaymentRequests');
+mockPage('pages/Office/CustomerInfo/CustomerInfo');
 mockPage('pages/Office/Forbidden/Forbidden');
 
 const testMoveCode = '1A5PM3';
@@ -184,10 +185,10 @@ describe('TXO Move Info Container', () => {
 
       expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
         'href',
-        'https://move.mil/customer-service#technical-help-desk',
+        'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil',
       );
       expect(screen.getByTestId('system-error').textContent).toEqual(
-        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: some-trace-id",
       );
     });
 
@@ -211,6 +212,7 @@ describe('TXO Move Info Container', () => {
       ['Customer Support Remarks', 'customer-support-remarks'],
       ['Evaluation Reports', 'evaluation-reports'],
       ['Move History', 'history'],
+      ['Customer Info', 'customer'],
       ['Forbidden', 'evaluation-reports/123'], // Permission restricted
       ['Forbidden', 'evaluation-reports/report123/violations'], // Permission restricted
     ])('should render the %s component when at the route: /moves/:moveCode/%s', async (componentName, nestedPath) => {

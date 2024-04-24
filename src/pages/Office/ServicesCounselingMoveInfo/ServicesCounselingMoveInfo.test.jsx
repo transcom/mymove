@@ -56,6 +56,7 @@ mockPage('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetai
 mockPage('pages/Office/PPM/ReviewDocuments/ReviewDocuments');
 mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment');
 mockPage('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks');
+mockPage('pages/Office/MoveTaskOrder/MoveTaskOrder');
 mockPage('pages/Office/MoveHistory/MoveHistory');
 mockPage('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper');
 mockPage('pages/Office/CustomerInfo/CustomerInfo');
@@ -100,6 +101,7 @@ describe('Services Counseling Move Info Container', () => {
       renderSCMoveInfo();
 
       expect(screen.getByTestId('MoveDetails-Tab')).toBeInTheDocument();
+      expect(screen.getByTestId('MoveTaskOrder-Tab')).toBeInTheDocument();
       expect(screen.getByTestId('MoveHistory-Tab')).toBeInTheDocument();
     });
 
@@ -114,10 +116,10 @@ describe('Services Counseling Move Info Container', () => {
 
       expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
         'href',
-        'https://move.mil/customer-service#technical-help-desk',
+        'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil',
       );
       expect(screen.getByTestId('system-error').textContent).toEqual(
-        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: some-trace-id",
       );
     });
 
@@ -134,6 +136,7 @@ describe('Services Counseling Move Info Container', () => {
       ['Services Counseling Move Details', 'details'],
       ['Review Documents', 'shipments/SHIP123/document-review'],
       ['Services Counseling Add Shipment', 'new-shipment/hhg'],
+      ['Move Task Order', 'mto'],
       ['Customer Support Remarks', 'customer-support-remarks'],
       ['Move History', 'history'],
       ['Services Counseling Move Document Wrapper', 'allowances'],

@@ -15,36 +15,36 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var rankDisplayValue = map[models.ServiceMemberRank]string{
-	models.ServiceMemberRankE1:                      "E-1",
-	models.ServiceMemberRankE2:                      "E-2",
-	models.ServiceMemberRankE3:                      "E-3",
-	models.ServiceMemberRankE4:                      "E-4",
-	models.ServiceMemberRankE5:                      "E-5",
-	models.ServiceMemberRankE6:                      "E-6",
-	models.ServiceMemberRankE7:                      "E-7",
-	models.ServiceMemberRankE8:                      "E-8",
-	models.ServiceMemberRankE9:                      "E-9",
-	models.ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
-	models.ServiceMemberRankO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
-	models.ServiceMemberRankO2:                      "O-2",
-	models.ServiceMemberRankO3:                      "O-3",
-	models.ServiceMemberRankO4:                      "O-4",
-	models.ServiceMemberRankO5:                      "O-5",
-	models.ServiceMemberRankO6:                      "O-6",
-	models.ServiceMemberRankO7:                      "O-7",
-	models.ServiceMemberRankO8:                      "O-8",
-	models.ServiceMemberRankO9:                      "O-9",
-	models.ServiceMemberRankO10:                     "O-10",
-	models.ServiceMemberRankW1:                      "W-1",
-	models.ServiceMemberRankW2:                      "W-2",
-	models.ServiceMemberRankW3:                      "W-3",
-	models.ServiceMemberRankW4:                      "W-4",
-	models.ServiceMemberRankW5:                      "W-5",
-	models.ServiceMemberRankAVIATIONCADET:           "Aviation Cadet",
-	models.ServiceMemberRankCIVILIANEMPLOYEE:        "Civilian Employee",
-	models.ServiceMemberRankACADEMYCADET:            "Service Academy Cadet",
-	models.ServiceMemberRankMIDSHIPMAN:              "Midshipman",
+var rankDisplayValue = map[internalmessages.OrderPayGrade]string{
+	models.ServiceMemberGradeE1:                      "E-1",
+	models.ServiceMemberGradeE2:                      "E-2",
+	models.ServiceMemberGradeE3:                      "E-3",
+	models.ServiceMemberGradeE4:                      "E-4",
+	models.ServiceMemberGradeE5:                      "E-5",
+	models.ServiceMemberGradeE6:                      "E-6",
+	models.ServiceMemberGradeE7:                      "E-7",
+	models.ServiceMemberGradeE8:                      "E-8",
+	models.ServiceMemberGradeE9:                      "E-9",
+	models.ServiceMemberGradeE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
+	models.ServiceMemberGradeO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
+	models.ServiceMemberGradeO2:                      "O-2",
+	models.ServiceMemberGradeO3:                      "O-3",
+	models.ServiceMemberGradeO4:                      "O-4",
+	models.ServiceMemberGradeO5:                      "O-5",
+	models.ServiceMemberGradeO6:                      "O-6",
+	models.ServiceMemberGradeO7:                      "O-7",
+	models.ServiceMemberGradeO8:                      "O-8",
+	models.ServiceMemberGradeO9:                      "O-9",
+	models.ServiceMemberGradeO10:                     "O-10",
+	models.ServiceMemberGradeW1:                      "W-1",
+	models.ServiceMemberGradeW2:                      "W-2",
+	models.ServiceMemberGradeW3:                      "W-3",
+	models.ServiceMemberGradeW4:                      "W-4",
+	models.ServiceMemberGradeW5:                      "W-5",
+	models.ServiceMemberGradeAVIATIONCADET:           "Aviation Cadet",
+	models.ServiceMemberGradeCIVILIANEMPLOYEE:        "Civilian Employee",
+	models.ServiceMemberGradeACADEMYCADET:            "Service Academy Cadet",
+	models.ServiceMemberGradeMIDSHIPMAN:              "Midshipman",
 }
 
 var affiliationDisplayValue = map[internalmessages.Affiliation]string{
@@ -64,8 +64,8 @@ var serviceMemberAffiliationDisplayValue = map[models.ServiceMemberAffiliation]s
 }
 
 var deptIndDisplayValue = map[internalmessages.DeptIndicator]string{
-	internalmessages.DeptIndicatorAIRFORCE:       "Air Force",
-	internalmessages.DeptIndicatorNAVYANDMARINES: "Navy and Marine Corps",
+	internalmessages.DeptIndicatorAIRANDSPACEFORCE: "Air Force and Space Force",
+	internalmessages.DeptIndicatorNAVYANDMARINES:   "Navy and Marine Corps",
 }
 
 // These are hardcoded for now
@@ -237,9 +237,9 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 			displayValue = strconv.FormatInt(v, 10)
 		case time.Time:
 			displayValue = v.Format("02-Jan-2006")
-		case models.ServiceMemberRank:
+		case internalmessages.OrderPayGrade:
 			displayValue = rankDisplayValue[v]
-		case *models.ServiceMemberRank:
+		case *internalmessages.OrderPayGrade:
 			if v != nil {
 				displayValue = rankDisplayValue[*v]
 			}

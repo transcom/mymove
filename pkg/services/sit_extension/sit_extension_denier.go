@@ -6,27 +6,38 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type sitExtensionDenier struct {
-	moveRouter services.MoveRouter
+	moveRouter         services.MoveRouter
+	serviceItemUpdater services.MTOServiceItemUpdater // update members_expense for the corresponding item in the mto_service_items table when a sit_extension is converted to customer expense
 }
 
 // NewSITExtensionDenier creates a new struct with the service dependencies
 func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtensionDenier {
-	return &sitExtensionDenier{moveRouter}
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator())}
 }
 
 // DenySITExtension denies the SIT Extension
-func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
+func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToCustomerExpense *bool, eTag string) (*models.MTOShipment, error) {
 	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
@@ -50,7 +61,7 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 	// err = appCtx.DB().Q().Find(&updatedShipment, shipmentID)
 	// return &updatedShipment, err
 
-	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks)
+	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks, convertToCustomerExpense)
 }
 
 func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITDurationUpdate, error) {
@@ -69,11 +80,11 @@ func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitE
 	return &sitExtension, nil
 }
 
-func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, officeRemarks *string) (*models.MTOShipment, error) {
+func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToCustomerExpense *bool) (*models.MTOShipment, error) {
 	var returnedShipment models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks); err != nil {
+		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks, convertToCustomerExpense); err != nil {
 			return err
 		}
 
@@ -81,12 +92,20 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 			return err
 		}
 
-		if e := txnAppCtx.DB().Q().EagerPreload("SITDurationUpdates").Find(&returnedShipment, shipment.ID); e != nil {
+		if e := txnAppCtx.DB().Q().EagerPreload("SITDurationUpdates", "MTOServiceItems", "MTOServiceItems.ReService.Code").Find(&returnedShipment, shipment.ID); e != nil {
 			switch e {
 			case sql.ErrNoRows:
 				return apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
 			default:
 				return apperror.NewQueryError("MTOShipment", e, "")
+			}
+		}
+
+		// Since we aren't implementing an undo function, only update members_expense in the mto_service_items table if it's true.
+		if *convertToCustomerExpense {
+			_, convertErr := f.serviceItemUpdater.ConvertItemToCustomerExpense(appCtx, &returnedShipment, officeRemarks, true)
+			if convertErr != nil {
+				return convertErr
 			}
 		}
 
@@ -100,10 +119,11 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 	return &returnedShipment, nil
 }
 
-func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, officeRemarks *string) error {
+func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToCustomerExpense *bool) error {
 	if officeRemarks != nil {
 		sitExtension.OfficeRemarks = officeRemarks
 	}
+	sitExtension.CustomerExpense = convertToCustomerExpense
 	sitExtension.Status = models.SITExtensionStatusDenied
 	now := time.Now()
 	sitExtension.DecisionDate = &now

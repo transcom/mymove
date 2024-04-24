@@ -6,42 +6,31 @@ import { ShipmentPaymentSITBalanceShape } from '../../../types/serviceItems';
 
 import styles from './DaysInSITAllowance.module.scss';
 
-import { formatDate, formatDaysInTransit, formatDaysRemaining } from 'utils/formatters';
+import { formatDate } from 'utils/formatters';
 
 const DaysInSITAllowance = ({ className, shipmentPaymentSITBalance }) => {
   const {
     previouslyBilledDays,
-    previouslyBilledEndDate,
-    pendingSITDaysInvoiced,
     pendingBilledEndDate,
+    pendingBilledStartDate,
     totalSITDaysAuthorized,
     totalSITDaysRemaining,
-    totalSITEndDate,
   } = shipmentPaymentSITBalance;
   return (
     <div className={classNames(className, styles.DaysInSITAllowance)} data-testid="DaysInSITAllowance">
       <dl className={styles.daysInSITList}>
-        <dt>Prev. billed & accepted</dt>
-        <dd data-testid="previouslyBilled">
-          {formatDaysInTransit(previouslyBilledDays)}
-          {!!previouslyBilledDays && (
-            <>
-              {', through '}
-              {formatDate(previouslyBilledEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
-            </>
-          )}
-        </dd>
-        <dt>Invoiced & pending</dt>
-        <dd data-testid="pendingInvoiced">
-          {formatDaysInTransit(pendingSITDaysInvoiced)}, through{' '}
+        <dt>Prev. billed & accepted days</dt>
+        <dd data-testid="previouslyBilled">{previouslyBilledDays || '0'}</dd>
+        <dt>Payment start - end date</dt>
+        <dd data-testid="pendingBilledStartEndDate">
+          {formatDate(pendingBilledStartDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
+          {` - `}
           {formatDate(pendingBilledEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
         </dd>
-        <dt>Total authorized</dt>
-        <dd>{formatDaysInTransit(totalSITDaysAuthorized)}</dd>
-        <dt>Authorized remaining</dt>
-        <dd data-testid="totalRemaining">
-          {formatDaysRemaining(totalSITDaysRemaining)} {formatDate(totalSITEndDate, 'YYYY-MM-DD', 'DD MMM YYYY')}
-        </dd>
+        <dt>Total days of SIT approved</dt>
+        <dd>{totalSITDaysAuthorized}</dd>
+        <dt>Total approved days remaining</dt>
+        <dd data-testid="totalRemaining">{totalSITDaysRemaining > 0 ? totalSITDaysRemaining : '0'}</dd>
       </dl>
     </div>
   );

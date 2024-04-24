@@ -68,14 +68,14 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		TAC = &defaultTACNumber
 	}
 
-	defaultDepartmentIndicator := "AIR_FORCE"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
 	departmentIndicator := assertions.Order.DepartmentIndicator
 	if departmentIndicator == nil {
 		departmentIndicator = &defaultDepartmentIndicator
 	}
 	hasDependents := assertions.Order.HasDependents || false
 	spouseHasProGear := assertions.Order.SpouseHasProGear || false
-	grade := "E_1"
+	grade := models.ServiceMemberGradeE1
 
 	entitlement := assertions.Entitlement
 	if isZeroUUID(entitlement.ID) {

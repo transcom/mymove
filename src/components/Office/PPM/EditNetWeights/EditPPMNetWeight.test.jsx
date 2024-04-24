@@ -1,10 +1,8 @@
 import React from 'react';
-import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 
 import EditPPMNetWeight from './EditPPMNetWeight';
 
-import { patchWeightTicket } from 'services/ghcApi';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { ReactQueryWrapper } from 'testUtils';
 
@@ -92,7 +90,6 @@ describe('EditNetPPMWeight', () => {
     expect(screen.getByText('Net weight')).toBeInTheDocument();
     expect(screen.getByText('| original weight')).toBeInTheDocument();
     expect(screen.getAllByText('1,000 lbs')).toHaveLength(2);
-    expect(screen.getAllByRole('button', { name: 'Edit' }));
   });
   it('renders correct labels and no calculations if there is no excess weight', async () => {
     await render(
@@ -131,94 +128,5 @@ describe('EditNetPPMWeight', () => {
       </ReactQueryWrapper>,
     );
     expect(await screen.findByTestId('warning')).toBeInTheDocument();
-  });
-  describe('when editing PPM Net weight', () => {
-    it('renders editing form when the edit button is clicked', async () => {
-      await render(
-        <ReactQueryWrapper>
-          <EditPPMNetWeight {...defaultProps} />
-        </ReactQueryWrapper>,
-      );
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
-      // Net weight form
-      expect(screen.getByText('Net weight')).toBeInTheDocument();
-      expect(screen.getByText('| original weight')).toBeInTheDocument();
-      expect(screen.getAllByText('1,000 lbs')).toHaveLength(1);
-      // Buttons
-      expect(screen.getByRole('button', { name: 'Save changes' }));
-      expect(screen.getByRole('button', { name: 'Cancel' }));
-      // Input
-      expect(await screen.findByTestId('weightInput')).toBeInTheDocument();
-    });
-    it('renders additional hints for excess weight', async () => {
-      await render(
-        <ReactQueryWrapper>
-          <EditPPMNetWeight {...excessWeight} />
-        </ReactQueryWrapper>,
-      );
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
-      // Calculations for excess weight
-      expect(screen.getByText('Move weight (total)')).toBeInTheDocument();
-      expect(screen.getByText('9,500 lbs')).toBeInTheDocument();
-      expect(screen.getByText('Weight allowance')).toBeInTheDocument();
-      expect(screen.getByText(/9,000 lbs/)).toBeInTheDocument();
-      expect(screen.getByText('Excess weight (total)')).toBeInTheDocument();
-      expect(screen.getByText('500 lbs')).toBeInTheDocument();
-    });
-    it('disables the save button if save remarks or weight field is empty', async () => {
-      await render(
-        <ReactQueryWrapper>
-          <EditPPMNetWeight {...excessWeight} />
-        </ReactQueryWrapper>,
-      );
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
-      expect(await screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
-    });
-    it('shows validation errors in the form', async () => {
-      await render(
-        <ReactQueryWrapper>
-          <EditPPMNetWeight {...excessWeight} />
-        </ReactQueryWrapper>,
-      );
-      // Weight Input is required
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
-      const textInput = await screen.findByTestId('weightInput');
-      await act(() => userEvent.clear(textInput));
-      expect(screen.getByText('Required'));
-
-      // Weight input cannot be greater than full weight
-      await act(() => userEvent.type(textInput, '10000'));
-      expect(screen.getByText('Net weight must be less than or equal to the full weight'));
-      await act(() => userEvent.type(textInput, '1000'));
-      // Remarks Input is required
-      const remarksField = await screen.findByTestId('formRemarks');
-      await act(() => userEvent.clear(remarksField));
-      await fireEvent.blur(remarksField);
-      expect(await screen.findByTestId('errorIndicator')).toBeInTheDocument();
-      expect(screen.getByText('Required'));
-    });
-    it('saves changes when editing the form', async () => {
-      const netWeightRemarks = 'Reduced by as much as I can';
-      const adjustedNetWeight = 0;
-      render(
-        <ReactQueryWrapper>
-          <EditPPMNetWeight {...reduceWeight} />
-        </ReactQueryWrapper>,
-      );
-
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Edit' })));
-      const textInput = await screen.findByTestId('weightInput');
-      await act(() => userEvent.clear(textInput));
-      await act(() => userEvent.type(textInput, adjustedNetWeight.toString(10)));
-      const remarksField = await screen.findByTestId('formRemarks');
-      await act(() => userEvent.type(remarksField, netWeightRemarks));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save changes' })));
-
-      await waitFor(() => {
-        expect(patchWeightTicket.mock.calls.length).toBe(1);
-      });
-      expect(patchWeightTicket.mock.calls[0][0].payload.adjustedNetWeight).toBe(adjustedNetWeight);
-      expect(patchWeightTicket.mock.calls[0][0].payload.netWeightRemarks).toBe(netWeightRemarks);
-    });
   });
 });

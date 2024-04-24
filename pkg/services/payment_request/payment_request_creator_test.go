@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -625,7 +626,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found", badID))
 	})
 
-	suite.Run("Given an already paid or requested payment service item, the create should fail", func() {
+	suite.Run("Given an already paid or requested payment service item, the create should not fail", func() {
 		move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -707,10 +708,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
-		suite.Error(err)
-		suite.IsType(apperror.ConflictError{}, err)
 
-		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Conflict Error: Payment Request for Service Item is already paid or requested", paymentRequest1.ID), err.Error())
+		suite.NoError(err)
 	})
 
 	suite.Run("Given no move task order id, the create should fail", func() {
@@ -885,37 +884,36 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				return fmt.Sprintf("ID: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
 			},
 		},
-		// ServiceMember with no Rank
+		// Order with no Grade
 		{
-			TestDescription: "Given move with service member that has no Rank, the create should fail",
+			TestDescription: "Given move with order that has no Rank, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
+				mtoInvalid.Orders.Grade = nil
 				sm := mtoInvalid.Orders.ServiceMember
-				sm.Rank = nil
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("ID: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+				return fmt.Sprintf("ID: %s is in a conflicting state unable to pick contract because move is not available to prime", mtoID)
 			},
 		},
-		// ServiceMember with blank Rank
+		// Order with empty Grade
 		{
-			TestDescription: "Given move with service member that has blank Rank, the create should fail",
+			TestDescription: "Given move with order that has blank Rank, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
+				mtoInvalid.Orders.Grade = internalmessages.NewOrderPayGrade("")
 				sm := mtoInvalid.Orders.ServiceMember
-				blank := models.ServiceMemberRank("")
-				sm.Rank = &blank
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
 			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("ID: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+				return fmt.Sprintf("ID: %s is in a conflicting state unable to pick contract because move is not available to prime", mtoID)
 			},
 		},
 		// ServiceMember with no Affiliation
@@ -1348,7 +1346,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	testZip3Distance := 1234
 
 	// ((testOriginalWeight / 100.0) * testZip3Distance * testDLHRate * testEscalationCompounded) / 1000
-	testDLHTotalPrice := unit.Cents(281402)
+	testDLHTotalPrice := unit.Cents(279407)
 
 	//
 	// Test data setup
@@ -1359,7 +1357,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		{
 			Model: models.Address{
 				StreetAddress1: "235 Prospect Valley Road SE",
-				City:           "Augusta",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     testStorageFacilityZip,
 			},

@@ -12,7 +12,7 @@ import (
 func (suite *FactorySuite) TestBuildOrder() {
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
-	defaultDepartmentIndicator := "AIR_FORCE"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
 	defaultGrade := "E_1"
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
@@ -39,7 +39,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(defaultOrdersNumber, *order.OrdersNumber)
 		suite.Equal(defaultTACNumber, *order.TAC)
 		suite.Equal(defaultDepartmentIndicator, *order.DepartmentIndicator)
-		suite.Equal(defaultGrade, *order.Grade)
+		suite.Equal(defaultGrade, string(*order.Grade))
 		suite.Equal(defaultHasDependents, order.HasDependents)
 		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
 		suite.Equal(defaultOrdersType, order.OrdersType)
@@ -52,18 +52,14 @@ func (suite *FactorySuite) TestBuildOrder() {
 		// extended service members have backup contacts
 		suite.False(order.ServiceMemberID.IsNil())
 		suite.False(order.ServiceMember.ID.IsNil())
-		suite.False(order.ServiceMember.DutyLocationID.IsNil())
+		suite.False(order.OriginDutyLocationID.IsNil())
 		suite.NotEmpty(order.ServiceMember.BackupContacts)
 		serviceMemberCountInDB, err := suite.DB().Count(models.ServiceMember{})
 		suite.NoError(err)
 		suite.Equal(1, serviceMemberCountInDB)
 
-		// uses the same duty location name for service member and
-		// orders OriginDutyLocation
-		suite.Equal(order.ServiceMember.DutyLocation.Name, order.OriginDutyLocation.Name)
-
 		// uses the default orders NewDutyLocation
-		suite.Equal(order.NewDutyLocation.Name, "Fort Gordon")
+		suite.Equal(order.NewDutyLocation.Name, "Fort Eisenhower, GA 30813")
 
 		dutyLocationCountInDB, err := suite.DB().Count(models.DutyLocation{})
 		suite.NoError(err)
@@ -139,9 +135,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		order := BuildOrder(suite.DB(), customs, nil)
 
 		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
-		suite.Equal(originDutyLocation.Name, order.ServiceMember.DutyLocation.Name)
 		suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
-		suite.Equal(originDutyLocationTOName, order.ServiceMember.DutyLocation.TransportationOffice.Name)
 		suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
 		suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
 		suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
@@ -187,7 +181,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(defaultOrdersNumber, *order.OrdersNumber)
 		suite.Equal(defaultTACNumber, *order.TAC)
 		suite.Equal(defaultDepartmentIndicator, *order.DepartmentIndicator)
-		suite.Equal(defaultGrade, *order.Grade)
+		suite.Equal(defaultGrade, string(*order.Grade))
 		suite.Equal(defaultHasDependents, order.HasDependents)
 		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
 		suite.Equal(defaultOrdersType, order.OrdersType)
@@ -212,7 +206,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Nil(order.TAC)
 		suite.Nil(order.DepartmentIndicator)
 		suite.Nil(order.OrdersTypeDetail)
-		suite.Equal(defaultGrade, *order.Grade)
+		suite.Equal(defaultGrade, string(*order.Grade))
 		suite.Equal(defaultHasDependents, order.HasDependents)
 		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
 		suite.Equal(defaultOrdersType, order.OrdersType)
@@ -233,7 +227,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Nil(order.TAC)
 		suite.Nil(order.DepartmentIndicator)
 		suite.Nil(order.OrdersTypeDetail)
-		suite.Equal(defaultGrade, *order.Grade)
+		suite.Equal(defaultGrade, string(*order.Grade))
 		suite.Equal(defaultHasDependents, order.HasDependents)
 		suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
 		suite.Equal(defaultOrdersType, order.OrdersType)

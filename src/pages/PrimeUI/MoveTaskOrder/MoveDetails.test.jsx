@@ -6,7 +6,7 @@ import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
-import { completeCounseling, deleteShipment } from 'services/primeApi';
+import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 
 const mockRequestedMoveCode = 'LN4T89';
@@ -18,6 +18,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/primeApi', () => ({
   completeCounseling: jest.fn(),
   deleteShipment: jest.fn(),
+  downloadMoveOrder: jest.fn(),
 }));
 
 const moveTaskOrder = {
@@ -82,6 +83,57 @@ const moveTaskOrder = {
     {
       id: '4a1b0048-ffe7-11eb-9a03-0242ac130003',
       paymentRequestNumber: '5924-0164-1',
+    },
+  ],
+  mtoServiceItems: [
+    {
+      reServiceCode: 'DDDSIT',
+      reason: null,
+      sitCustomerContacted: '2023-04-15',
+      sitDestinationFinalAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy43MDg2Nzla',
+        id: '20d6218a-3fbc-4dbc-8258-d4b3ee009657',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      sitEntryDate: '2020-04-15',
+      sitRequestedDelivery: '2023-04-15',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45Mjk0NzNa',
+      id: '7c9b7e7c-02d9-42c2-a4f9-fa1b0586e8b4',
+      modelType: 'MTOServiceItemDestSIT',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '7283bfb8-30bf-42f9-b206-cdfd34ccbe45',
+      reServiceName: 'Domestic destination SIT delivery',
+      status: 'APPROVED',
+    },
+    {
+      reServiceCode: 'DDFSIT',
+      reason: null,
+      sitDepartureDate: '2020-04-15',
+      sitDestinationFinalAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy43MDg2Nzla',
+        id: '20d6218a-3fbc-4dbc-8258-d4b3ee009657',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      sitEntryDate: '2020-04-15',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45NjAwMTha',
+      id: 'b43ba1bd-9f11-4ec6-ab83-29dbd389cfe2',
+      modelType: 'MTOServiceItemDestSIT',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '7283bfb8-30bf-42f9-b206-cdfd34ccbe45',
+      reServiceName: 'Domestic destination 1st day SIT',
+      status: 'APPROVED',
     },
   ],
 };
@@ -211,6 +263,59 @@ describe('PrimeUI MoveDetails page', () => {
         expect(screen.getByText(/Error title/)).toBeInTheDocument();
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });
+    });
+
+    it('error when download move orders', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      downloadMoveOrder.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+      await userEvent.click(downloadMoveOrderButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Error title/)).toBeInTheDocument();
+        expect(screen.getByText('Error detail')).toBeInTheDocument();
+      });
+    });
+
+    it('success when downloading move orders', async () => {
+      global.URL.createObjectURL = jest.fn();
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      downloadMoveOrder.mockReturnValue(mockResponse);
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+
+      jest.spyOn(document.body, 'appendChild');
+      jest.spyOn(document, 'createElement');
+
+      await userEvent.click(downloadMoveOrderButton);
+
+      // verify hyperlink was created
+      expect(document.createElement).toBeCalledWith('a');
+
+      // verify hypelink element was created with correct
+      // default file name from content-disposition
+      expect(document.body.appendChild).toBeCalledWith(
+        expect.objectContaining({
+          download: 'test.pdf',
+        }),
+      );
     });
   });
 });

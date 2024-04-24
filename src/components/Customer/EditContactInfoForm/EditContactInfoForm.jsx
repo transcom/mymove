@@ -45,7 +45,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
-              <h2>Current pickup address</h2>
+              <h2>Current address</h2>
 
               <AddressFields name={residentialAddressName} />
             </SectionWrapper>

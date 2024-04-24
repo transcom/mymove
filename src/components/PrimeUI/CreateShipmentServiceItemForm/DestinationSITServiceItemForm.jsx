@@ -6,13 +6,12 @@ import PropTypes from 'prop-types';
 
 import { Form } from 'components/form/Form';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import { addressSchema } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
 import { formatAddressForPrimeAPI } from 'utils/formatters';
 import { DatePickerInput } from 'components/form/fields';
 import { ShipmentShape } from 'types/shipment';
 import TextField from 'components/form/fields/TextField/TextField';
+import Hint from 'components/Hint';
 
 const destinationSITValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
@@ -24,7 +23,6 @@ const destinationSITValidationSchema = Yup.object().shape({
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
   sitDepartureDate: Yup.date().typeError('Enter a complete date in DD MMM YYYY format (day, month, year).'),
-  sitDestinationFinalAddress: addressSchema,
 });
 
 const DestinationSITServiceItemForm = ({ shipment, submission }) => {
@@ -82,9 +80,13 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
         <input type="hidden" name="reServiceCode" />
-        <TextField label="Reason" name="reason" />
-        <DatePickerInput label="First available delivery date" name="firstAvailableDeliveryDate1" />
-        <DatePickerInput label="First date of attempted contact" name="dateOfContact1" />
+        <TextField label="Reason" name="reason" id="reason" />
+        <DatePickerInput
+          label="First available delivery date"
+          name="firstAvailableDeliveryDate1"
+          id="firstAvailableDeliveryDate1"
+        />
+        <DatePickerInput label="First date of attempted contact" name="dateOfContact1" id="dateOfContact1" />
         <MaskedTextField
           id="timeMilitary1"
           name="timeMilitary1"
@@ -92,18 +94,31 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
           mask="0000{Z}"
           placeholder="1400Z"
         />
-        <DatePickerInput label="Second available delivery date" name="firstAvailableDeliveryDate2" />
-        <DatePickerInput label="Second date of attempted contact" name="dateOfContact2" />
+        <DatePickerInput
+          label="Second available delivery date"
+          name="firstAvailableDeliveryDate2"
+          id="firstAvailableDeliveryDate2"
+        />
+        <DatePickerInput label="Second date of attempted contact" name="dateOfContact2" id="dateOfContact2" />
         <MaskedTextField
-          id="timeMilitary1"
+          id="timeMilitary2"
           name="timeMilitary2"
           label="Second time of attempted contact"
           mask="0000{Z}"
           placeholder="1400Z"
         />
-        <DatePickerInput label="SIT entry date" name="sitEntryDate" />
-        <DatePickerInput label="SIT departure date" name="sitDepartureDate" />
-        <AddressFields legend="SIT destination final address" name="sitDestinationFinalAddress" />
+        <DatePickerInput label="SIT entry date" name="sitEntryDate" id="sitEntryDate" />
+        <DatePickerInput label="SIT departure date" name="sitDepartureDate" id="sitDepartureDate" />
+        <Hint data-testid="destinationSitInfo">
+          The following service items will be created: <br />
+          DDFSIT (Destination 1st day SIT) <br />
+          DDASIT (Destination additional days SIT) <br />
+          DDDSIT (Destination SIT delivery) <br />
+          DDSFSC (Destination SIT fuel surcharge) <br />
+          <br />
+          <strong>NOTE:</strong> The above service items will use the current destination address of the shipment as
+          their final destination address. Ensure the shipment address is accurate before creating these service items.
+        </Hint>
         <Button type="submit">Create service item</Button>
       </Form>
     </Formik>

@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/support"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 type moveTaskOrderCreator struct {
@@ -192,7 +191,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	return order, nil
 }
 
-// createUser creates a user but this is a fake login.gov user
+// createUser creates a user but this is a fake Okta user
 // this is support code only, do not use in a production case
 func createUser(appCtx appcontext.AppContext, userEmail *string) (*models.User, error) {
 	if userEmail == nil {
@@ -201,9 +200,9 @@ func createUser(appCtx appcontext.AppContext, userEmail *string) (*models.User, 
 	}
 	id := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  &id,
-		LoginGovEmail: *userEmail,
-		Active:        true,
+		OktaID:    id.String(),
+		OktaEmail: *userEmail,
+		Active:    true,
 	}
 	verrs, err := appCtx.DB().ValidateAndCreate(&user)
 	if verrs.Count() > 0 {
@@ -276,7 +275,6 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 		ID:            uuid.FromStringOrNil(customer.ID.String()),
 		Affiliation:   (*models.ServiceMemberAffiliation)(customer.Agency),
 		Edipi:         customer.DodID,
-		Rank:          (*models.ServiceMemberRank)(customer.Rank),
 		FirstName:     customer.FirstName,
 		LastName:      customer.LastName,
 		PersonalEmail: customer.Email,
@@ -302,7 +300,8 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.Rank != nil {
-		model.Grade = models.StringPointer((string)(*orderPayload.Rank))
+		grade := internalmessages.OrderPayGrade(*orderPayload.Rank) // Convert support API "Rank" into our internal tracking of "Grade"
+		model.Grade = &grade
 	}
 
 	if orderPayload.Status != nil {
@@ -385,15 +384,14 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload == nil {
 		return nil
 	}
-	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
+
 	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:        &mtoPayload.ReferenceID,
-		Locator:            mtoPayload.MoveCode,
-		PPMEstimatedWeight: &ppmEstimatedWeight,
-		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       &contractorID,
-		Status:             (models.MoveStatus)(mtoPayload.Status),
+		ReferenceID:  &mtoPayload.ReferenceID,
+		Locator:      mtoPayload.MoveCode,
+		PPMType:      &mtoPayload.PpmType,
+		ContractorID: &contractorID,
+		Status:       (models.MoveStatus)(mtoPayload.Status),
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {

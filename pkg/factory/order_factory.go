@@ -197,8 +197,8 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
-	defaultDepartmentIndicator := "AIR_FORCE"
-	defaultGrade := "E_1"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+	defaultGrade := models.ServiceMemberGradeE1
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
 	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -303,4 +303,19 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 //   - db can be set to nil to create a stubbed model that is not stored in DB.
 func BuildOrderWithoutDefaults(db *pop.Connection, customs []Customization, traits []Trait) models.Order {
 	return buildOrderWithBuildType(db, customs, traits, orderBuildWithoutDefaults)
+}
+
+// ------------------------
+//      TRAITS
+// ------------------------
+
+// GetTraitHasDependents returns a customization to enable dependents on an order
+func GetTraitHasDependents() []Customization {
+	return []Customization{
+		{
+			Model: models.Order{
+				HasDependents: true,
+			},
+		},
+	}
 }

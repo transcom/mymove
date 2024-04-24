@@ -2,14 +2,17 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
 import { formatCustomerDate } from 'utils/formatters';
+import { shipmentStatuses } from 'constants/shipments';
 
 const defaultProps = {
   moveId: 'testMove123',
   onEditClick: jest.fn(),
   onDeleteClick: jest.fn(),
+  onIncompleteClick: jest.fn(),
   showEditAndDeleteBtn: false,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: '#ABC123K',
@@ -23,6 +26,31 @@ const defaultProps = {
   },
   remarks:
     'This is 500 characters of customer remarks right here. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+};
+
+const completeProps = {
+  moveId: 'testMove123',
+  onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
+  onIncompleteClick: jest.fn(),
+  showEditAndDeleteBtn: false,
+  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+  shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
+  status: shipmentStatuses.SUBMITTED,
+};
+
+const mockedOnIncompleteClickFunction = jest.fn();
+const incompleteProps = {
+  moveId: 'testMove123',
+  onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
+  onIncompleteClick: mockedOnIncompleteClickFunction,
+  showEditAndDeleteBtn: false,
+  shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+  shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
+  status: shipmentStatuses.DRAFT,
 };
 
 const secondaryDeliveryAddress = {
@@ -82,5 +110,29 @@ describe('NTSRShipmentCard component', () => {
     expect(secondDestination).toBeInTheDocument();
     const secondDesintationInformation = await screen.getByText(/Some Street Name/);
     expect(secondDesintationInformation).toBeInTheDocument();
+  });
+
+  it('does not render incomplete label and tooltip icon for completed shipment with SUBMITTED status', async () => {
+    render(<NTSRShipmentCard {...completeProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('NTS-release');
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.queryByText('Incomplete')).toBeNull();
+  });
+
+  it('renders incomplete label and tooltip icon for incomplete HHG shipment with DRAFT status', async () => {
+    render(<NTSRShipmentCard {...incompleteProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('NTS-release');
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
+
+    expect(screen.getByTitle('Help about incomplete shipment')).toBeInTheDocument();
+    await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
+
+    // verify onclick is getting json string as parameter
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS-release', 'ABC123K-01', 'NTS-release');
   });
 });

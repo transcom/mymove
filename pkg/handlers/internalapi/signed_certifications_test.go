@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -65,10 +64,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() {
 	t := suite.T()
 
-	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
+	userUUID2 := "3511d4d6-019d-4031-9c27-8a553e055543"
 	user2 := models.User{
-		LoginGovUUID:  &userUUID2,
-		LoginGovEmail: "email2@example.com",
+		OktaID:    userUUID2,
+		OktaEmail: "email2@example.com",
 	}
 	suite.MustSave(&user2)
 	move := factory.BuildMove(suite.DB(), nil, nil)
@@ -140,22 +139,31 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
+	ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+	mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model: ppm,
+		},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: ppm,
+		},
+	}, nil)
+	move.MTOShipments = append(move.MTOShipments, mtoShipment)
 
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -176,28 +184,37 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
+	ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+	mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model: ppm,
+		},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: ppm,
+		},
+	}, nil)
+	move.MTOShipments = append(move.MTOShipments, mtoShipment)
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
-	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
+	userUUID2 := "3511d4d6-019d-4031-9c27-8a553e055543"
 	unauthorizedUser := models.User{
-		LoginGovUUID:  &userUUID2,
-		LoginGovEmail: "email2@example.com",
+		OktaID:    userUUID2,
+		OktaEmail: "email2@example.com",
 	}
 	params := certop.IndexSignedCertificationParams{
 		MoveID: *handlers.FmtUUID(move.ID),
@@ -216,22 +233,31 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+	ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+	mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model: ppm,
+		},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: ppm,
+		},
+	}, nil)
+	move.MTOShipments = append(move.MTOShipments, mtoShipment)
+	sm := move.Orders.ServiceMember
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)

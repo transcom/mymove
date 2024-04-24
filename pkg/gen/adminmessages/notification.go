@@ -38,7 +38,7 @@ type Notification struct {
 
 	// notification type
 	// Required: true
-	// Enum: [MOVE_REVIEWED_EMAIL MOVE_PAYMENT_REMINDER_EMAIL]
+	// Enum: [MOVE_PAYMENT_REMINDER_EMAIL]
 	NotificationType *string `json:"notificationType"`
 
 	// service member Id
@@ -124,7 +124,7 @@ var notificationTypeNotificationTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["MOVE_REVIEWED_EMAIL","MOVE_PAYMENT_REMINDER_EMAIL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MOVE_PAYMENT_REMINDER_EMAIL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -133,9 +133,6 @@ func init() {
 }
 
 const (
-
-	// NotificationNotificationTypeMOVEREVIEWEDEMAIL captures enum value "MOVE_REVIEWED_EMAIL"
-	NotificationNotificationTypeMOVEREVIEWEDEMAIL string = "MOVE_REVIEWED_EMAIL"
 
 	// NotificationNotificationTypeMOVEPAYMENTREMINDEREMAIL captures enum value "MOVE_PAYMENT_REMINDER_EMAIL"
 	NotificationNotificationTypeMOVEPAYMENTREMINDEREMAIL string = "MOVE_PAYMENT_REMINDER_EMAIL"

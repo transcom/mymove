@@ -37,8 +37,8 @@ describe('when given a Update basic service item history record', () => {
 
   describe('When given a specific set of details', () => {
     it.each([
-      ['Actual weight', ': 300'],
-      ['Estimated weight', ': 500'],
+      ['Actual weight', ': 300 lbs'],
+      ['Estimated weight', ': 500 lbs'],
     ])('displays the proper details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));

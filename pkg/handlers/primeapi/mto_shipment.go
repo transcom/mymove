@@ -104,14 +104,14 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		})
 }
 
-// CreateNonSITAddressUpdateRequestHandler is the handler to create address update request for non-SIT
-type CreateNonSITAddressUpdateRequestHandler struct {
+// UpdateShipmentDestinationAddressHandler is the handler to create address update request for non-SIT
+type UpdateShipmentDestinationAddressHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentAddressUpdateRequester
 }
 
 // Handle creates the address update request for non-SIT
-func (h CreateNonSITAddressUpdateRequestHandler) Handle(params mtoshipmentops.CreateNonSITAddressUpdateRequestParams) middleware.Responder {
+func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.UpdateShipmentDestinationAddressParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			payload := params.Body
@@ -124,36 +124,36 @@ func (h CreateNonSITAddressUpdateRequestHandler) Handle(params mtoshipmentops.Cr
 			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks, eTag)
 
 			if err != nil {
-				appCtx.Logger().Error("primeapi.CreateNonSITAddressUpdateRequestHandler error", zap.Error(err))
+				appCtx.Logger().Error("primeapi.UpdateShipmentDestinationAddressHandler error", zap.Error(err))
 
 				switch e := err.(type) {
 
 				// NotFoundError -> Not Found response
 				case apperror.NotFoundError:
-					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+					return mtoshipmentops.NewUpdateShipmentDestinationAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 
 				// ConflictError -> Request conflict reponse
 				case apperror.ConflictError:
-					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+					return mtoshipmentops.NewUpdateShipmentDestinationAddressConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 
 				// PreconditionError -> precondition failed reponse
 				case apperror.PreconditionFailedError:
-					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+					return mtoshipmentops.NewUpdateShipmentDestinationAddressPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 
 				// InvalidInputError -> Unprocessable Entity reponse
 				case apperror.InvalidInputError:
-					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
+					return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
 
 				// Unknown -> Internal Server Error
 				default:
-					return mtoshipmentops.NewCreateNonSITAddressUpdateRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+					return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 
 				}
 
 			}
 
 			returnPayload := payloads.ShipmentAddressUpdate(response)
-			return mtoshipmentops.NewCreateNonSITAddressUpdateRequestCreated().WithPayload(returnPayload), nil
+			return mtoshipmentops.NewUpdateShipmentDestinationAddressCreated().WithPayload(returnPayload), nil
 
 		})
 }
@@ -180,6 +180,14 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
+			if dbShipment.Status == models.MTOShipmentStatusApproved &&
+				(params.Body.DestinationAddress.City != nil ||
+					params.Body.DestinationAddress.State != nil ||
+					params.Body.DestinationAddress.PostalCode != nil) {
+				return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"This shipment is approved, please use the updateShipmentDestinationAddress endpoint to update the destination address", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
+			}
+
 			var agents []models.MTOAgent
 			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
 			if err != nil {
@@ -192,7 +200,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			mtoShipment.ShipmentType = dbShipment.ShipmentType
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
+			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime")
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {

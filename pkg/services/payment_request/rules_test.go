@@ -1,7 +1,6 @@
 package paymentrequest
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -159,11 +158,9 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 
 	})
 
-	// tests to prevent creation of new payment requests for same service items that have already been paid or requested.
-	suite.Run("checkStatusOfExistingPaymentRequest", func() {
+	suite.Run("checkValidSitAddlDates", func() {
 
-		// For Regular service items (non-DDASIT/DOASIT)
-		suite.Run("success for regular service item", func() {
+		suite.Run("success", func() {
 
 			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -192,233 +189,41 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 				},
 			}, nil)
 
-			paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-				{
-					Model:    move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.PaymentRequest{
-						PaymentServiceItems: []models.PaymentServiceItem{
-							{
-								MTOServiceItemID: serviceItem.ID,
-								MTOServiceItem:   serviceItem,
-								PaymentServiceItemParams: models.PaymentServiceItemParams{
-									{
-										IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-										Value:       "3254",
-									},
-									{
-										IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-										Value:       "2022-03-16",
-									},
-								},
-								Status: models.PaymentServiceItemStatusApproved,
-							},
-						},
-						Status: models.PaymentRequestStatusReviewed,
-					},
-				},
-			}, nil)
-
-			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest, nil)
-			suite.NoError(err)
-		})
-
-		suite.Run("failure for regular service item", func() {
-			move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-
-			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-				{
-					Model:    move,
-					LinkOnly: true,
-				},
-			}, nil)
-			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-				{
-					Model:    shipment,
-					LinkOnly: true,
-				},
-				{
-					Model: models.ReService{
-						Code: models.ReServiceCodeDLH,
-					},
-				},
-				{
-					Model: models.MTOServiceItem{
-						Status: models.MTOServiceItemStatusApproved,
-					},
-				},
-			}, nil)
-			paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-				{
-					Model:    move,
-					LinkOnly: true,
-				},
-				{
-					Model:    shipment,
-					LinkOnly: true,
-				},
-				{
-					Model: models.PaymentRequest{
-						Status: models.PaymentRequestStatusPaid,
-					},
-				},
-			}, nil)
-
-			factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
-				{
-					Model: models.PaymentServiceItem{
-						Status: models.PaymentServiceItemStatusPaid,
-					},
-				},
-				{
-					Model:    paymentRequest1,
-					LinkOnly: true,
-				},
-				{
-					Model:    serviceItem,
-					LinkOnly: true,
-				},
-			}, nil)
-
-			var paymentRequests models.PaymentRequests
-			paymentRequests = append(paymentRequests, paymentRequest1)
-			shipment.MoveTaskOrder.PaymentRequests = paymentRequests
-
-			paymentRequest2 := models.PaymentRequest{
+			paymentRequest := models.PaymentRequest{
 				MoveTaskOrderID: move.ID,
-				PaymentServiceItems: []models.PaymentServiceItem{
+				IsFinal:         false,
+				PaymentServiceItems: models.PaymentServiceItems{
 					{
 						MTOServiceItemID: serviceItem.ID,
 						MTOServiceItem:   serviceItem,
 						PaymentServiceItemParams: models.PaymentServiceItemParams{
 							{
-								IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-								Value:       "3254",
+								IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+								Value:       "2024-02-22",
 							},
 							{
-								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-								Value:       "2022-03-16",
+								IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+								Value:       "2024-02-23",
 							},
 						},
-						Status: models.PaymentServiceItemStatusRequested,
 					},
 				},
 			}
-			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest2, nil)
 
-			suite.Error(err)
-			suite.Contains(err.Error(), "Conflict Error: Payment Request for Service Item is already paid or requested")
+			err := checkValidSitAddlDates().Validate(suite.AppContextForTest(), paymentRequest, nil)
+			suite.NoError(err)
 		})
 
-		statusTestCases := map[string]struct {
-			paymentRequestStatus     models.PaymentRequestStatus
-			paymentServiceItemStatus models.PaymentServiceItemStatus
-		}{
-			"Payment request is rejected": {
-				models.PaymentRequestStatusReviewedAllRejected,
-				models.PaymentServiceItemStatusDenied,
-			},
-			"Payment request is deprecated": {
-				models.PaymentRequestStatusDeprecated,
-				models.PaymentServiceItemStatusRequested,
-			},
-		}
-
-		for name, tc := range statusTestCases {
-			name := name
-			tc := tc
-
-			suite.Run(fmt.Sprintf("if previous %s, new payment request with same service items can be created", name), func() {
-				move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-
-				shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-					{
-						Model:    move,
-						LinkOnly: true,
-					},
-				}, nil)
-				serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-					{
-						Model:    shipment,
-						LinkOnly: true,
-					},
-					{
-						Model: models.ReService{
-							Code: models.ReServiceCodeDLH,
-						},
-					},
-					{
-						Model: models.MTOServiceItem{
-							Status: models.MTOServiceItemStatusApproved,
-						},
-					},
-				}, nil)
-				paymentRequestPrevious := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-					{
-						Model:    move,
-						LinkOnly: true,
-					},
-					{
-						Model:    shipment,
-						LinkOnly: true,
-					},
-					{
-						Model: models.PaymentRequest{
-							Status: tc.paymentRequestStatus,
-						},
-					},
-				}, nil)
-
-				factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
-					{
-						Model: models.PaymentServiceItem{
-							Status: tc.paymentServiceItemStatus,
-						},
-					},
-					{
-						Model:    paymentRequestPrevious,
-						LinkOnly: true,
-					},
-					{
-						Model:    serviceItem,
-						LinkOnly: true,
-					},
-				}, nil)
-
-				var paymentRequests models.PaymentRequests
-				paymentRequests = append(paymentRequests, paymentRequestPrevious)
-				shipment.MoveTaskOrder.PaymentRequests = paymentRequests
-
-				paymentRequestNew := models.PaymentRequest{
-					MoveTaskOrderID: move.ID,
-					PaymentServiceItems: []models.PaymentServiceItem{
-						{
-							MTOServiceItemID: serviceItem.ID,
-							MTOServiceItem:   serviceItem,
-							PaymentServiceItemParams: models.PaymentServiceItemParams{
-								{
-									IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-									Value:       "3254",
-								},
-								{
-									IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-									Value:       "2022-03-16",
-								},
-							},
-							Status: models.PaymentServiceItemStatusRequested,
-						},
-					},
-				}
-				err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequestNew, nil)
-
-				suite.NoError(err)
-			})
-		}
-
-		// DDASIT/DOASIT
-		suite.Run("success for DDASIT/DOASIT even if already paid or requested", func() {
+		suite.Run("failure", func() {
+			testCases := []struct {
+				sitStartDate string
+				sitEndDate   string
+				errorString  string
+			}{
+				{"01-01-2024", "2024-02-21", "Invalid Create Input Error: SITPaymentRequestStart must be a valid date value of YYYY-MM-DD"},
+				{"2024-02-21", "01-01-2024", "Invalid Create Input Error: SITPaymentRequestEnd must be a valid date value of YYYY-MM-DD"},
+				{"2024-02-22", "2024-02-21", "Invalid Create Input Error: SITPaymentRequestStart must be a date that comes before SITPaymentRequestEnd"},
+			}
 
 			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -434,7 +239,7 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 				},
 				{
 					Model: models.ReService{
-						Code: models.ReServiceCodeDDASIT,
+						Code: models.ReServiceCodeDLH,
 					},
 				},
 				{
@@ -446,117 +251,36 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 					Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 				},
 			}, nil)
+			for _, testCase := range testCases {
 
-			paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-				{
-					Model:    move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.PaymentRequest{
-						PaymentServiceItems: []models.PaymentServiceItem{
-							{
-								MTOServiceItemID: serviceItem.ID,
-								MTOServiceItem:   serviceItem,
-								PaymentServiceItemParams: models.PaymentServiceItemParams{
-									{
-										IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-										Value:       "3254",
-									},
-									{
-										IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-										Value:       "2022-03-16",
-									},
-									{
-										IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
-										Value:       "2022-07-16",
-									},
-									{
-										IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
-										Value:       "2022-07-26",
-									},
+				paymentRequest := models.PaymentRequest{
+					MoveTaskOrderID: move.ID,
+					IsFinal:         false,
+					PaymentServiceItems: models.PaymentServiceItems{
+						{
+							MTOServiceItemID: serviceItem.ID,
+							MTOServiceItem:   serviceItem,
+							PaymentServiceItemParams: models.PaymentServiceItemParams{
+								{
+									IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+									Value:       testCase.sitStartDate,
 								},
-								Status: models.PaymentServiceItemStatusPaid,
+								{
+									IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+									Value:       testCase.sitEndDate,
+								},
 							},
 						},
-						Status: models.PaymentRequestStatusPaid,
 					},
-				},
-			}, nil)
+				}
 
-			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest, nil)
-			suite.NoError(err)
-		})
-
-		//movel level items
-		suite.Run("failure to create a payment request for move level service item if status is paid or requested", func() {
-			move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-			reServiceCode := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-
-			serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
-				{
-					Model:    move,
-					LinkOnly: true,
-				},
-				{
-					Model:    reServiceCode,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOServiceItem{
-						Status: models.MTOServiceItemStatusApproved,
-					},
-				},
-			}, nil)
-
-			paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-				{
-					Model:    move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.PaymentRequest{
-						Status: models.PaymentRequestStatusPaid,
-					},
-				},
-			}, nil)
-
-			factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
-				{
-					Model: models.PaymentServiceItem{
-						Status: models.PaymentServiceItemStatusPaid,
-					},
-				},
-				{
-					Model:    paymentRequest1,
-					LinkOnly: true,
-				},
-				{
-					Model:    serviceItem,
-					LinkOnly: true,
-				},
-			}, nil)
-
-			var paymentRequests models.PaymentRequests
-			paymentRequests = append(paymentRequests, paymentRequest1)
-			move.PaymentRequests = paymentRequests
-			suite.Equal(len(paymentRequests), 1)
-
-			paymentRequest2 := models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
-				PaymentServiceItems: []models.PaymentServiceItem{
-					{
-						MTOServiceItemID: serviceItem.ID,
-						MTOServiceItem:   serviceItem,
-						Status:           models.PaymentServiceItemStatusRequested,
-					},
-				},
+				err := checkValidSitAddlDates().Validate(suite.AppContextForTest(), paymentRequest, nil)
+				suite.Error(err)
+				suite.Contains(err.Error(), testCase.errorString)
 			}
-			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest2, nil)
 
-			suite.Error(err)
-			suite.Contains(err.Error(), "Conflict Error: Payment Request for Service Item is already paid or requested")
 		})
+
 	})
 
 }

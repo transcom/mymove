@@ -16,6 +16,7 @@ const mockFiles = [
     contentType: 'application/pdf',
     url: samplePDF,
     createdAt: '2021-06-17T15:09:26.979879Z',
+    isWeightTicket: false,
   },
   {
     id: 2,
@@ -23,6 +24,7 @@ const mockFiles = [
     contentType: 'image/jpeg',
     url: sampleJPG,
     createdAt: '2021-06-16T15:09:26.979879Z',
+    isWeightTicket: false,
   },
   {
     id: 3,
@@ -30,6 +32,7 @@ const mockFiles = [
     contentType: 'image/png',
     url: samplePNG,
     createdAt: '2021-06-15T15:09:26.979879Z',
+    isWeightTicket: true,
   },
   {
     id: 4,
@@ -37,6 +40,7 @@ const mockFiles = [
     contentType: 'image/gif',
     url: sampleGIF,
     createdAt: '2021-06-14T15:09:26.979879Z',
+    // No isWeightTicket intentonal
   },
 ];
 
@@ -82,7 +86,7 @@ describe('DocViewerMenu', () => {
     });
 
     it('renders the file creation date', () => {
-      expect(component.find('li button').at(0).text()).toBe('Test File.pdf  Uploaded on 17-Jun-2021');
+      expect(component.find('li button').at(0).text()).toBe('Test File.pdf Uploaded on 17-Jun-2021');
     });
 
     it('selects a file when clicked', () => {
@@ -90,6 +94,23 @@ describe('DocViewerMenu', () => {
       expect(mockProps.handleSelectFile).toHaveBeenCalledWith(1);
       component.find('li button').at(0).simulate('click');
       expect(mockProps.handleSelectFile).toHaveBeenCalledWith(0);
+    });
+  });
+
+  describe('weight ticket tag', () => {
+    const component = mount(<DocViewerMenu files={mockFiles} {...mockProps} />);
+
+    it('displays the weight ticket tag if isWeightTicket is true', () => {
+      mockFiles.forEach((file, index) => {
+        const tag = component.find('li').at(index).find('[data-testid="tag"]');
+        if (file.isWeightTicket) {
+          expect(tag.exists()).toBe(true);
+          // Additionally make sure it has the usa-tag class
+          expect(component.find('[data-testid="tag"]').hasClass('usa-tag')).toBe(true);
+        } else {
+          expect(tag.exists()).toBe(false);
+        }
+      });
     });
   });
 });

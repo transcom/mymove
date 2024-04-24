@@ -29,6 +29,7 @@ export const hhgInfo = {
   requestedPickupDate: '26 Mar 2020',
   pickupAddress,
   destinationAddress,
+  shipmentLocator: 'EVLRPT-01',
 };
 
 export const ntsInfo = {
@@ -37,6 +38,7 @@ export const ntsInfo = {
   shipmentId: 'testShipmentId394',
   pickupAddress,
   destinationAddress,
+  shipmentLocator: 'EVLRPT-02',
 };
 
 export const ntsMissingInfo = {
@@ -137,6 +139,7 @@ export const cancelledInfo = {
 
 export const ppmInfo = {
   heading: 'PPM',
+  shipmentLocator: 'EVLRPT-03',
   ppmShipment: {
     actualMoveDate: null,
     advanceAmountRequested: 598700,
@@ -159,6 +162,7 @@ export const ppmInfo = {
     shipmentId: 'b5c2d9a1-d1e6-485d-9678-8b62deb0d801',
     spouseProGearWeight: 498,
     status: 'SUBMITTED',
+    advanceStatus: 'APPROVED',
     submittedAt: '2022-04-29T21:48:21.573Z',
     updatedAt: '2022-04-29T21:48:21.581Z',
   },

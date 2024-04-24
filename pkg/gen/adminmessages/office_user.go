@@ -7,6 +7,7 @@ package adminmessages
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -29,6 +30,10 @@ type OfficeUser struct {
 	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
+
+	// edipi
+	// Required: true
+	Edipi *string `json:"edipi"`
 
 	// email
 	// Required: true
@@ -53,9 +58,25 @@ type OfficeUser struct {
 	// Required: true
 	MiddleInitials *string `json:"middleInitials"`
 
+	// other unique Id
+	// Required: true
+	OtherUniqueID *string `json:"otherUniqueId"`
+
+	// privileges
+	Privileges []*Privilege `json:"privileges"`
+
+	// rejection reason
+	// Required: true
+	RejectionReason *string `json:"rejectionReason"`
+
 	// roles
 	// Required: true
 	Roles []*Role `json:"roles"`
+
+	// status
+	// Required: true
+	// Enum: [APPROVED REQUESTED REJECTED]
+	Status *string `json:"status"`
 
 	// telephone
 	// Required: true
@@ -90,6 +111,10 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateEdipi(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEmail(formats); err != nil {
 		res = append(res, err)
 	}
@@ -110,7 +135,23 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateOtherUniqueID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrivileges(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRejectionReason(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRoles(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -152,6 +193,15 @@ func (m *OfficeUser) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) validateEdipi(formats strfmt.Registry) error {
+
+	if err := validate.Required("edipi", "body", m.Edipi); err != nil {
 		return err
 	}
 
@@ -211,6 +261,50 @@ func (m *OfficeUser) validateMiddleInitials(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *OfficeUser) validateOtherUniqueID(formats strfmt.Registry) error {
+
+	if err := validate.Required("otherUniqueId", "body", m.OtherUniqueID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) validatePrivileges(formats strfmt.Registry) error {
+	if swag.IsZero(m.Privileges) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Privileges); i++ {
+		if swag.IsZero(m.Privileges[i]) { // not required
+			continue
+		}
+
+		if m.Privileges[i] != nil {
+			if err := m.Privileges[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) validateRejectionReason(formats strfmt.Registry) error {
+
+	if err := validate.Required("rejectionReason", "body", m.RejectionReason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *OfficeUser) validateRoles(formats strfmt.Registry) error {
 
 	if err := validate.Required("roles", "body", m.Roles); err != nil {
@@ -233,6 +327,52 @@ func (m *OfficeUser) validateRoles(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var officeUserTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["APPROVED","REQUESTED","REJECTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		officeUserTypeStatusPropEnum = append(officeUserTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// OfficeUserStatusAPPROVED captures enum value "APPROVED"
+	OfficeUserStatusAPPROVED string = "APPROVED"
+
+	// OfficeUserStatusREQUESTED captures enum value "REQUESTED"
+	OfficeUserStatusREQUESTED string = "REQUESTED"
+
+	// OfficeUserStatusREJECTED captures enum value "REJECTED"
+	OfficeUserStatusREJECTED string = "REJECTED"
+)
+
+// prop value enum
+func (m *OfficeUser) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, officeUserTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *OfficeUser) validateStatus(formats strfmt.Registry) error {
+
+	if err := validate.Required("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
+		return err
 	}
 
 	return nil
@@ -297,6 +437,10 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePrivileges(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRoles(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -315,6 +459,31 @@ func (m *OfficeUser) contextValidateCreatedAt(ctx context.Context, formats strfm
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) contextValidatePrivileges(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Privileges); i++ {
+
+		if m.Privileges[i] != nil {
+
+			if swag.IsZero(m.Privileges[i]) { // not required
+				return nil
+			}
+
+			if err := m.Privileges[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

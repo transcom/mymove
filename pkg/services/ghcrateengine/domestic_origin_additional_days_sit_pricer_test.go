@@ -20,7 +20,7 @@ const (
 	doasitTestEscalationCompounded = 1.042
 	doasitTestWeight               = unit.Pound(4200)
 	doasitTestNumberOfDaysInSIT    = 29
-	doasitTestPriceCents           = unit.Cents(948068) // doasitTestBasePriceCents * (doasitTestWeight / 100) * doasitTestEscalationCompounded948068 * doasitTestNumberOfDaysInSIT
+	doasitTestPriceCents           = unit.Cents(947604)
 )
 
 var doasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)

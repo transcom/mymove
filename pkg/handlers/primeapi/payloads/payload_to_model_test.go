@@ -56,17 +56,36 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
+	originReason := "storage at origin"
+	originServiceCode := models.ReServiceCodeDOFSIT.String()
+	originSITEntryDate := strfmt.Date(time.Now())
+	originSITDepartureDate := strfmt.Date(time.Now())
+	originState := "TN"
+	originCity := "Beverly Hills"
+	originPostalCode := "90210"
+	originStreet1 := "123 Rodeo Dr."
+	originCounty1 := "LOS ANGELES"
+	sitHHGActualOriginAddress := primemessages.Address{
+		State:          &originState,
+		City:           &originCity,
+		PostalCode:     &originPostalCode,
+		StreetAddress1: &originStreet1,
+		County:         &originCounty1,
+	}
+
 	destReason := "service member will pick up from storage at destination"
 	destServiceCode := models.ReServiceCodeDDFSIT.String()
 	destDate := strfmt.Date(time.Now())
 	destTime := "1400Z"
 	destCity := "Beverly Hills"
 	destPostalCode := "90210"
+	destCounty := "LOS ANGELES"
 	destStreet := "123 Rodeo Dr."
 	sitFinalDestAddress := primemessages.Address{
 		City:           &destCity,
 		PostalCode:     &destPostalCode,
 		StreetAddress1: &destStreet,
+		County:         &destCounty,
 	}
 
 	destServiceItem := &primemessages.MTOServiceItemDestSIT{
@@ -139,6 +158,31 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRT))
 		suite.Nil(returnedModel, "returned a model when erroring")
 
+	})
+
+	suite.Run("Success - Returns SIT origin service item model", func() {
+		originSITServiceItem := &primemessages.MTOServiceItemOriginSIT{
+			ReServiceCode:      &originServiceCode,
+			SitEntryDate:       &originSITEntryDate,
+			SitDepartureDate:   &originSITDepartureDate,
+			SitHHGActualOrigin: &sitHHGActualOriginAddress,
+			Reason:             &originReason,
+		}
+
+		originSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		originSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(originSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDOFSIT, returnedModel.ReService.Code)
+		suite.Equal(originStreet1, returnedModel.SITOriginHHGActualAddress.StreetAddress1)
+		suite.Equal(originCity, returnedModel.SITOriginHHGActualAddress.City)
+		suite.Equal(originState, returnedModel.SITOriginHHGActualAddress.State)
+		suite.Equal(originPostalCode, returnedModel.SITOriginHHGActualAddress.PostalCode)
+		suite.Equal(originSITEntryDate, *handlers.FmtDatePtr(returnedModel.SITEntryDate))
+		suite.Equal(originSITDepartureDate, *handlers.FmtDatePtr(returnedModel.SITDepartureDate))
 	})
 
 	suite.Run("Success - Returns SIT destination service item model", func() {
@@ -243,12 +287,14 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 	city := "Beverly Hills"
 	state := "CA"
 	postalCode := "90210"
+	county := "LOS ANGELES"
 	street := "123 Rodeo Dr."
 	newAddress := primemessages.Address{
 		City:           &city,
 		State:          &state,
 		PostalCode:     &postalCode,
 		StreetAddress1: &street,
+		County:         &county,
 	}
 
 	suite.Run("Success - Returns a SITAddressUpdate model as expected", func() {
@@ -268,4 +314,245 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 		suite.Equal(model.NewAddress.StreetAddress1, *sitAddressUpdate.NewAddress.StreetAddress1)
 		suite.Equal(*model.ContractorRemarks, *sitAddressUpdate.ContractorRemarks)
 	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgentModel() {
+	suite.Run("success", func() {
+		mtoAgentMsg := &primemessages.MTOAgent{
+			ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+		}
+
+		mtoAgentModel := MTOAgentModel(mtoAgentMsg)
+
+		suite.NotNil(mtoAgentModel)
+	})
+
+	suite.Run("unsuccessful", func() {
+		mtoAgentModel := MTOAgentModel(nil)
+		suite.Nil(mtoAgentModel)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgentsModel() {
+	suite.Run("success", func() {
+		mtoAgentsMsg := &primemessages.MTOAgents{
+			{
+				ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			},
+			{
+				ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			},
+		}
+
+		mtoAgentsModel := MTOAgentsModel(mtoAgentsMsg)
+
+		suite.NotNil(mtoAgentsModel)
+		suite.Len(*mtoAgentsModel, len(*mtoAgentsMsg))
+
+		for i, agentModel := range *mtoAgentsModel {
+			agentMsg := (*mtoAgentsMsg)[i]
+			suite.Equal(agentMsg.ID.String(), agentModel.ID.String())
+		}
+	})
+
+	suite.Run("unsuccessful", func() {
+		mtoAgentsModel := MTOAgentsModel(nil)
+		suite.Nil(mtoAgentsModel)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
+	suite.Run("successful", func() {
+		mtoShipment := &primemessages.CreateMTOShipment{}
+
+		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
+
+		suite.Nil(verrs)
+		suite.NotNil(serviceItemsList)
+		suite.Len(serviceItemsList, len(mtoShipment.MtoServiceItems()))
+	})
+
+	suite.Run("successful multiple items", func() {
+		mtoShipment := &primemessages.CreateMTOShipment{}
+
+		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
+
+		suite.Nil(verrs)
+		suite.NotNil(serviceItemsList)
+		suite.Len(serviceItemsList, len(mtoShipment.MtoServiceItems()))
+	})
+
+	suite.Run("unsuccessful", func() {
+		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(nil)
+		suite.Nil(verrs)
+		suite.Nil(serviceItemsList)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
+	suite.Run("nil", func() {
+		model := MTOShipmentModelFromUpdate(nil, strfmt.UUID(uuid.Must(uuid.NewV4()).String()))
+		suite.Nil(model)
+	})
+
+	suite.Run("notnil", func() {
+		mtoShipment := &primemessages.UpdateMTOShipment{}
+		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+
+		suite.NotNil(model)
+	})
+
+	suite.Run("weight", func() {
+		actualWeight := int64(1000)
+		ntsRecordedWeight := int64(2000)
+		estimatedWeight := int64(1500)
+		mtoShipment := &primemessages.UpdateMTOShipment{
+			PrimeActualWeight:    &actualWeight,
+			NtsRecordedWeight:    &ntsRecordedWeight,
+			PrimeEstimatedWeight: &estimatedWeight,
+		}
+		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+
+		suite.NotNil(model.PrimeActualWeight)
+		suite.NotNil(model.NTSRecordedWeight)
+		suite.NotNil(model.PrimeEstimatedWeight)
+	})
+
+	suite.Run("ppm", func() {
+		mtoShipment := &primemessages.UpdateMTOShipment{
+			PpmShipment: &primemessages.UpdatePPMShipment{},
+		}
+		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+
+		suite.NotNil(model.PPMShipment)
+	})
+}
+
+func (suite *PayloadsSuite) TestServiceRequestDocumentUploadModel() {
+	upload := models.Upload{
+		Bytes:       0,
+		ContentType: "",
+		Filename:    "",
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	result := ServiceRequestDocumentUploadModel(upload)
+
+	suite.Equal(upload.Bytes, *result.Bytes)
+	suite.Equal(upload.ContentType, *result.ContentType)
+	suite.Equal(upload.Filename, *result.Filename)
+	suite.Equal((strfmt.DateTime)(upload.CreatedAt), result.CreatedAt)
+	suite.Equal((strfmt.DateTime)(upload.UpdatedAt), result.UpdatedAt)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
+	suite.Run("DDDSIT", func() {
+		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
+		reServiceCode := string(models.ReServiceCodeDDDSIT)
+		updateMTOServiceItemSIT := primemessages.UpdateMTOServiceItemSIT{
+			ReServiceCode: reServiceCode,
+		}
+
+		model, _ := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceItemSIT)
+
+		suite.NotNil(model)
+	})
+
+	suite.Run("weight", func() {
+		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
+		estimatedWeight := int64(5000)
+		actualWeight := int64(4500)
+		updateMTOServiceItemShuttle := primemessages.UpdateMTOServiceItemShuttle{
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		}
+
+		model, _ := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceItemShuttle)
+
+		suite.NotNil(model)
+	})
+}
+
+func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
+	suite.Run("Reason provided", func() {
+		reason := "reason"
+		mtoServiceItemOriginSIT := primemessages.MTOServiceItemOriginSIT{
+			Reason: &reason,
+		}
+
+		verrs := validateReasonOriginSIT(mtoServiceItemOriginSIT)
+		suite.False(verrs.HasAny())
+	})
+
+	suite.Run("No reason provided", func() {
+		mtoServiceItemOriginSIT := primemessages.MTOServiceItemOriginSIT{}
+
+		verrs := validateReasonOriginSIT(mtoServiceItemOriginSIT)
+		suite.True(verrs.HasAny())
+	})
+}
+
+func (suite *PayloadsSuite) TestShipmentAddressUpdateModel() {
+	shipmentID := uuid.Must(uuid.NewV4())
+	contractorRemarks := ""
+	newAddress := primemessages.Address{
+		City:           handlers.FmtString(""),
+		State:          handlers.FmtString(""),
+		PostalCode:     handlers.FmtString(""),
+		StreetAddress1: handlers.FmtString(""),
+	}
+
+	nonSITAddressUpdate := primemessages.UpdateShipmentDestinationAddress{
+		ContractorRemarks: &contractorRemarks,
+		NewAddress:        &newAddress,
+	}
+
+	model := ShipmentAddressUpdateModel(&nonSITAddressUpdate, shipmentID)
+
+	suite.Equal(shipmentID, model.ShipmentID)
+	suite.Equal(contractorRemarks, model.ContractorRemarks)
+	suite.NotNil(model.NewAddress)
+	suite.Equal(*newAddress.City, model.NewAddress.City)
+	suite.Equal(*newAddress.State, model.NewAddress.State)
+	suite.Equal(*newAddress.PostalCode, model.NewAddress.PostalCode)
+	suite.Equal(*newAddress.StreetAddress1, model.NewAddress.StreetAddress1)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	pickupPostalCode := ""
+	destinationPostalCode := ""
+	sitExpected := true
+	estimatedWeight := int64(5000)
+	hasProGear := true
+	proGearWeight := int64(500)
+	spouseProGearWeight := int64(50)
+
+	ppmShipment := primemessages.CreatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupPostalCode:      &pickupPostalCode,
+		DestinationPostalCode: &destinationPostalCode,
+		SitExpected:           &sitExpected,
+		EstimatedWeight:       &estimatedWeight,
+		HasProGear:            &hasProGear,
+		ProGearWeight:         &proGearWeight,
+		SpouseProGearWeight:   &spouseProGearWeight,
+	}
+
+	model := PPMShipmentModelFromCreate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
+	suite.True(*model.SITExpected)
+	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
+	suite.True(*model.HasProGear)
+	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
+	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.Equal(pickupPostalCode, model.PickupPostalCode)
+	suite.Equal(destinationPostalCode, model.DestinationPostalCode)
 }

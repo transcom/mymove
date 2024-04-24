@@ -11,17 +11,24 @@ import (
 )
 
 type shipmentDeleter struct {
-	checks []validator
+	checks               []validator
+	moveTaskOrderUpdater services.MoveTaskOrderUpdater
 }
 
 // NewShipmentDeleter creates a new struct with the service dependencies
-func NewShipmentDeleter() services.ShipmentDeleter {
-	return &shipmentDeleter{[]validator{checkDeleteAllowed()}}
+func NewShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentDeleter {
+	return &shipmentDeleter{
+		checks:               []validator{checkDeleteAllowed()},
+		moveTaskOrderUpdater: moveTaskOrderUpdater,
+	}
 }
 
 // NewPrimeShipmentDeleter creates a new struct with the service dependencies
-func NewPrimeShipmentDeleter() services.ShipmentDeleter {
-	return &shipmentDeleter{[]validator{checkPrimeDeleteAllowed()}}
+func NewPrimeShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentDeleter {
+	return &shipmentDeleter{
+		checks:               []validator{checkPrimeDeleteAllowed()},
+		moveTaskOrderUpdater: moveTaskOrderUpdater,
+	}
 }
 
 // DeleteShipment soft deletes the shipment
@@ -47,6 +54,12 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 			default:
 				return apperror.NewInternalServerError("failed attempt to soft delete model")
 			}
+		}
+		// Update PPMType once shipment gets created.
+		_, err = f.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, shipment.MoveTaskOrderID)
+
+		if err != nil {
+			return err
 		}
 		return nil
 	})

@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import SearchResultsTable from './SearchResultsTable';
 
+import { roleTypes } from 'constants/userRoles';
+
 const mockTableData = [
   {
     branch: 'ARMY',
@@ -15,6 +17,10 @@ const mockTableData = [
     originDutyLocationPostalCode: '40475',
     shipmentsCount: 1,
     status: 'APPROVALS REQUESTED',
+    requestedPickupDate: '2024-04-05',
+    requestedDeliveryDate: '2024-04-10',
+    originGBLOC: 'KKFA',
+    destinationGBLOC: 'CNNQ',
   },
 ];
 
@@ -59,6 +65,28 @@ describe('SearchResultsTable', () => {
     expect(results).toBeInTheDocument();
     const locator = screen.queryByText('P33YJB');
     expect(locator).toBeInTheDocument();
+    const pickupDate = screen.queryByText('05 Apr 2024');
+    expect(pickupDate).toBeInTheDocument();
+    const deliveryDate = screen.queryByText('10 Apr 2024');
+    expect(deliveryDate).toBeInTheDocument();
+    const originGBLOC = screen.queryByText('KKFA');
+    expect(originGBLOC).toBeInTheDocument();
+    const destinationGBLOC = screen.queryByText('CNNQ');
+    expect(destinationGBLOC).toBeInTheDocument();
+  });
+  it('renders create move button when logged in as SC and FF is enabled', () => {
+    render(
+      <SearchResultsTable
+        handleClick={() => {}}
+        title="Results"
+        useQueries={mockQueries}
+        roleType={roleTypes.SERVICES_COUNSELOR}
+        isCounselorMoveCreateFFEnabled
+      />,
+    );
+
+    const createMoveButton = screen.queryByTestId('searchCreateMoveButton');
+    expect(createMoveButton).toBeInTheDocument();
   });
   it('loading', () => {
     render(

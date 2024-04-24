@@ -132,27 +132,25 @@ func (suite *SignedCertificationSuite) TestMergeSignedCertification() {
 		today := time.Now()
 
 		originalSignedCertification := models.SignedCertification{
-			ID:                       uuid.Must(uuid.NewV4()),
-			SubmittingUserID:         uuid.Must(uuid.NewV4()),
-			MoveID:                   uuid.Must(uuid.NewV4()),
-			PersonallyProcuredMoveID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			PpmID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			CertificationType:        &shipmentCertType,
-			CertificationText:        "Original Certification Text",
-			Signature:                "Original Signature",
-			Date:                     today,
+			ID:                uuid.Must(uuid.NewV4()),
+			SubmittingUserID:  uuid.Must(uuid.NewV4()),
+			MoveID:            uuid.Must(uuid.NewV4()),
+			PpmID:             models.UUIDPointer(uuid.Must(uuid.NewV4())),
+			CertificationType: &shipmentCertType,
+			CertificationText: "Original Certification Text",
+			Signature:         "Original Signature",
+			Date:              today,
 		}
 
 		newSignedCertification := models.SignedCertification{
-			ID:                       uuid.Must(uuid.NewV4()),
-			SubmittingUserID:         uuid.Must(uuid.NewV4()),
-			MoveID:                   uuid.Must(uuid.NewV4()),
-			PersonallyProcuredMoveID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			PpmID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			CertificationType:        &shipmentCertType,
-			CertificationText:        "New Certification Text",
-			Signature:                "New Signature",
-			Date:                     today.AddDate(0, 0, 1),
+			ID:                uuid.Must(uuid.NewV4()),
+			SubmittingUserID:  uuid.Must(uuid.NewV4()),
+			MoveID:            uuid.Must(uuid.NewV4()),
+			PpmID:             models.UUIDPointer(uuid.Must(uuid.NewV4())),
+			CertificationType: &shipmentCertType,
+			CertificationText: "New Certification Text",
+			Signature:         "New Signature",
+			Date:              today.AddDate(0, 0, 1),
 		}
 
 		mergedSignedCertification := mergeSignedCertification(newSignedCertification, &originalSignedCertification)
@@ -161,7 +159,6 @@ func (suite *SignedCertificationSuite) TestMergeSignedCertification() {
 		suite.Equal(originalSignedCertification.ID, mergedSignedCertification.ID)
 		suite.Equal(originalSignedCertification.SubmittingUserID, mergedSignedCertification.SubmittingUserID)
 		suite.Equal(originalSignedCertification.MoveID, mergedSignedCertification.MoveID)
-		suite.Equal(originalSignedCertification.PersonallyProcuredMoveID, mergedSignedCertification.PersonallyProcuredMoveID)
 		suite.Equal(originalSignedCertification.PpmID, mergedSignedCertification.PpmID)
 		suite.Equal(originalSignedCertification.CertificationType, mergedSignedCertification.CertificationType)
 
@@ -179,15 +176,14 @@ func (suite *SignedCertificationSuite) TestMergeSignedCertification() {
 		today := time.Now()
 
 		originalSignedCertification := models.SignedCertification{
-			ID:                       uuid.Must(uuid.NewV4()),
-			SubmittingUserID:         uuid.Must(uuid.NewV4()),
-			MoveID:                   uuid.Must(uuid.NewV4()),
-			PersonallyProcuredMoveID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			PpmID:                    models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			CertificationType:        &shipmentCertType,
-			CertificationText:        "Original Certification Text",
-			Signature:                "Original Signature",
-			Date:                     today,
+			ID:                uuid.Must(uuid.NewV4()),
+			SubmittingUserID:  uuid.Must(uuid.NewV4()),
+			MoveID:            uuid.Must(uuid.NewV4()),
+			PpmID:             models.UUIDPointer(uuid.Must(uuid.NewV4())),
+			CertificationType: &shipmentCertType,
+			CertificationText: "Original Certification Text",
+			Signature:         "Original Signature",
+			Date:              today,
 		}
 
 		newSignedCertification := models.SignedCertification{
@@ -202,7 +198,6 @@ func (suite *SignedCertificationSuite) TestMergeSignedCertification() {
 		suite.Equal(originalSignedCertification.ID, mergedSignedCertification.ID)
 		suite.Equal(originalSignedCertification.SubmittingUserID, mergedSignedCertification.SubmittingUserID)
 		suite.Equal(originalSignedCertification.MoveID, mergedSignedCertification.MoveID)
-		suite.Equal(originalSignedCertification.PersonallyProcuredMoveID, mergedSignedCertification.PersonallyProcuredMoveID)
 		suite.Equal(originalSignedCertification.PpmID, mergedSignedCertification.PpmID)
 		suite.Equal(originalSignedCertification.CertificationType, mergedSignedCertification.CertificationType)
 		suite.Equal(originalSignedCertification.CertificationText, mergedSignedCertification.CertificationText)

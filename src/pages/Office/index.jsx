@@ -40,6 +40,7 @@ import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
+import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -74,13 +75,20 @@ const PrimeSimulatorUploadServiceRequestDocuments = lazy(() =>
   import('pages/PrimeUI/UploadServiceRequestDocuments/UploadServiceRequestDocuments'),
 );
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
-const PrimeSimulatorUpdateServiceItems = lazy(() =>
-  import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateServiceItems'),
+const PrimeSimulatorUpdateSitServiceItem = lazy(() =>
+  import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateSitServiceItem'),
 );
 const PrimeUIShipmentUpdateAddress = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateAddress'));
 const PrimeUIShipmentUpdateReweigh = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh'));
+const PrimeSimulatorCreateSITExtensionRequest = lazy(() =>
+  import('pages/PrimeUI/CreateSITExtensionRequest/CreateSITExtensionRequest'),
+);
+const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
+  import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateDestinationAddress'),
+);
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
+const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -90,6 +98,8 @@ export class OfficeApp extends Component {
       hasError: false,
       error: undefined,
       info: undefined,
+      oktaLoggedOut: undefined,
+      oktaNeedsLoggedOut: undefined,
     };
   }
 
@@ -99,6 +109,23 @@ export class OfficeApp extends Component {
     loadInternalSchema();
     loadPublicSchema();
     loadUser();
+    // We need to check if the user was redirected back from Okta after logging out
+    // This can occur when they click "sign out" or if they try to access MM
+    // while still logged into Okta which will force a redirect to logout
+    const currentUrl = new URL(window.location.href);
+    const oktaLoggedOutParam = currentUrl.searchParams.get('okta_logged_out');
+
+    // If the params "okta_logged_out=true" are in the url, we will change some state
+    // so a banner will display
+    if (oktaLoggedOutParam === 'true') {
+      this.setState({
+        oktaLoggedOut: true,
+      });
+    } else if (oktaLoggedOutParam === 'false') {
+      this.setState({
+        oktaNeedsLoggedOut: true,
+      });
+    }
   }
 
   componentDidCatch(error, info) {
@@ -113,7 +140,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -152,7 +179,11 @@ export class OfficeApp extends Component {
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
     });
+    const script = document.createElement('script');
 
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+    document.body.appendChild(script);
     return (
       <PermissionProvider permissions={userPermissions} currentUserId={officeUserId}>
         <div id="app-root">
@@ -169,13 +200,15 @@ export class OfficeApp extends Component {
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
                   If that doesn&apos;t fix it, contact the{' '}
-                  <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
+                  <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
                     Technical Help Desk
                   </a>{' '}
-                  and give them this code: <strong>{traceId}</strong>
+                  (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
                 </SystemError>
               )}
-              {hasError && <SomethingWentWrong error={error} info={info} />}
+              {oktaLoggedOut && <OktaLoggedOutBanner />}
+              {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
+              {hasError && <SomethingWentWrong error={error} info={info} hasError={hasError} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>
                 {!userIsLoggedIn && (
@@ -238,7 +271,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
-
+                    <Route
+                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateCustomerForm />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
@@ -257,6 +297,15 @@ export class OfficeApp extends Component {
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
                           <EditShipmentDetails />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      key="tooCounselingMoveInfoRoute"
+                      path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <ServicesCounselingMoveInfo />
                         </PrivateRoute>
                       }
                     />
@@ -336,11 +385,11 @@ export class OfficeApp extends Component {
                       }
                     />
                     <Route
-                      key="primeSimulatorUpdateServiceItems"
-                      path={primeSimulatorRoutes.UPDATE_SERVICE_ITEMS_PATH}
+                      key="primeSimulatorUpdateSitServiceItems"
+                      path={primeSimulatorRoutes.UPDATE_SIT_SERVICE_ITEM_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorUpdateServiceItems />
+                          <PrimeSimulatorUpdateSitServiceItem />
                         </PrivateRoute>
                       }
                     />
@@ -350,6 +399,24 @@ export class OfficeApp extends Component {
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
                           <PrimeUIShipmentUpdateReweigh />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      key="primeSimulatorCreateSITExtensionRequestsPath"
+                      path={primeSimulatorRoutes.CREATE_SIT_EXTENSION_REQUEST_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeSimulatorCreateSITExtensionRequest />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      key="primeSimulatorUpdateDestinationAddressPath"
+                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIShipmentUpdateDestinationAddress />
                         </PrivateRoute>
                       }
                     />

@@ -20,7 +20,7 @@ const (
 	ddasitTestEscalationCompounded = 1.042
 	ddasitTestWeight               = unit.Pound(4200)
 	ddasitTestNumberOfDaysInSIT    = 29
-	ddasitTestPriceCents           = unit.Cents(948068) // ddasitTestBasePriceCents * (ddasitTestWeight / 100) * ddasitTestEscalationCompounded * ddasitTestNumberOfDaysInSIT
+	ddasitTestPriceCents           = unit.Cents(947604)
 )
 
 var ddasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)

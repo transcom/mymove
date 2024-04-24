@@ -3,7 +3,7 @@ import { BooleanField, DateField, Show, SimpleShowLayout, TextField, useRecordCo
 
 const UserShowTitle = () => {
   const record = useRecordContext();
-  return <span>{`${record?.loginGovEmail}`}</span>;
+  return <span>{`${record?.oktaEmail}`}</span>;
 };
 
 const UserShow = () => {
@@ -12,7 +12,7 @@ const UserShow = () => {
     <Show title={<UserShowTitle />} data-testid="user-show-detail">
       <SimpleShowLayout>
         <TextField source="id" label="User ID" />
-        <TextField source="loginGovEmail" label="User email" />
+        <TextField source="oktaEmail" label="User email" />
         <BooleanField source="active" />
         <TextField source="currentAdminSessionId" label="User current admin session ID" />
         <TextField source="currentOfficeSessionId" label="User current office session ID" />

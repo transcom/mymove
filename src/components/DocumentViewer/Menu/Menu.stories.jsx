@@ -12,24 +12,35 @@ const testFiles = [
     fileType: 'pdf',
     filePath: '',
     createdAt: '2021-06-17T15:09:26.979879Z',
+    isWeightTicket: true,
   },
   {
     filename: 'Test File 2.pdf',
     fileType: 'pdf',
     filePath: '',
     createdAt: '2021-06-16T15:09:26.979879Z',
+    isWeightTicket: false,
   },
   {
     filename: 'Test File 3.pdf',
     fileType: 'pdf',
     filePath: '',
     createdAt: '2021-06-14T15:09:26.979879Z',
+    isWeightTicket: true,
   },
   {
     filename: 'Test File 3 - A really long title that overflows with ellipsis.pdf',
     fileType: 'pdf',
     filePath: '',
     createdAt: '2021-06-12T15:09:26.979879Z',
+    isWeightTicket: true,
+  },
+  {
+    filename: 'Test File 4 - A really long title that overflows with ellipsis.pdf',
+    fileType: 'pdf',
+    filePath: '',
+    createdAt: '2021-06-12T15:09:26.979879Z',
+    // No isWeightTicket intentional
   },
 ];
 

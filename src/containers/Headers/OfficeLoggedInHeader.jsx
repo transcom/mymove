@@ -17,7 +17,10 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
     logOut();
     LogoutUser().then((r) => {
       const redirectURL = r.body;
-      if (redirectURL) {
+      // checking to see if "Local Sign In" button was used to sign in
+      const urlParams = new URLSearchParams(redirectURL.split('?')[1]);
+      const idTokenHint = urlParams.get('id_token_hint');
+      if (redirectURL && idTokenHint !== 'devlocal') {
         window.location.href = redirectURL;
       } else {
         navigate('/sign-in', { state: { hasLoggedOut: true } });

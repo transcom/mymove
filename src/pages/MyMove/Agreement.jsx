@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
@@ -16,9 +16,10 @@ import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { formatSwaggerDate } from 'utils/formatters';
 
-export const Agreement = ({ moveId, updateMove, setFlashMessage }) => {
+export const Agreement = ({ updateMove, setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const { moveId } = useParams();
 
   const initialValues = {
     signature: '',
@@ -43,7 +44,7 @@ export const Agreement = ({ moveId, updateMove, setFlashMessage }) => {
       .then((response) => {
         updateMove(response);
         setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
-        navigate('/');
+        navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
       })
       .catch((error) => {
         // TODO - log error internally?
@@ -70,14 +71,17 @@ export const Agreement = ({ moveId, updateMove, setFlashMessage }) => {
 };
 
 Agreement.propTypes = {
-  moveId: PropTypes.string.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   updateMove: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  moveId: selectCurrentMove(state)?.id,
-});
+const mapStateToProps = (state) => {
+  const move = selectCurrentMove(state);
+
+  return {
+    move,
+  };
+};
 
 const mapDispatchToProps = {
   updateMove: updateMoveAction,

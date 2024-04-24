@@ -44,10 +44,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
-	if moveTaskOrder.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
-	}
-
 	if moveTaskOrder.PPMType != nil {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}
@@ -72,10 +68,6 @@ func ListMove(move *models.Move) *primemessages.ListMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
-	}
-
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
 	}
 
 	if move.PPMType != nil {
@@ -130,7 +122,12 @@ func Order(order *models.Order) *primemessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+	}
+
+	var grade string
+	if order.Grade != nil {
+		grade = string(*order.Grade)
 	}
 
 	payload := primemessages.Order{
@@ -143,7 +140,7 @@ func Order(order *models.Order) *primemessages.Order {
 		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
 		OrderNumber:             order.OrdersNumber,
 		LinesOfAccounting:       order.TAC,
-		Rank:                    order.Grade,
+		Rank:                    &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
 		ETag:                    etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:            strfmt.Date(order.ReportByDate),
 		OrdersType:              primemessages.OrdersType(order.OrdersType),
@@ -224,6 +221,7 @@ func Address(address *models.Address) *primemessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -574,13 +572,16 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
 		payload = &primemessages.MTOServiceItemOriginSIT{
-			ReServiceCode:        handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:               mtoServiceItem.Reason,
-			SitDepartureDate:     handlers.FmtDate(sitDepartureDate),
-			SitEntryDate:         handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
-			SitPostalCode:        mtoServiceItem.SITPostalCode,
-			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
-			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			SitDepartureDate:                handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:                    handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:                   mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin:              Address(mtoServiceItem.SITOriginHHGActualAddress),
+			SitHHGOriginalOrigin:            Address(mtoServiceItem.SITOriginHHGOriginalAddress),
+			RequestApprovalsRequestedStatus: *mtoServiceItem.RequestedApprovalsRequestedStatus,
+			SitCustomerContacted:            handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
+			SitRequestedDelivery:            handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time

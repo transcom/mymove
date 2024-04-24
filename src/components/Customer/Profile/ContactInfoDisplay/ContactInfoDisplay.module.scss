@@ -33,3 +33,18 @@
     }
   }
 }
+
+a {
+  color: $link;
+  text-decoration: none;
+
+  &:visited {
+    color: $link;
+  }
+
+  &:hover,
+  &:focus {
+    color: $link;
+    @include u-text('no-underline');
+  }
+}

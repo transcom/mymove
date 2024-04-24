@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,22 +15,22 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
 const hereRequestTimeout = time.Duration(15) * time.Second
 
 const (
-	moveIDFlag string = "move"
-	debugFlag  string = "debug"
+	PPMShipmentIDFlag string = "ppmshipment"
+	debugFlag         string = "debug"
 )
 
 func noErr(err error) {
@@ -60,7 +59,7 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 func initFlags(flag *pflag.FlagSet) {
 
 	// Scenario config
-	flag.String(moveIDFlag, "", "The move ID to generate a shipment summary worksheet for")
+	flag.String(PPMShipmentIDFlag, "6d1d9d00-2e5e-4830-a3c1-5c21c951e9c1", "The PPMShipmentID to generate a shipment summary worksheet for")
 	flag.Bool(debugFlag, false, "show field debug output")
 
 	// DB Config
@@ -119,7 +118,7 @@ func main() {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	moveID := v.GetString(moveIDFlag)
+	moveID := v.GetString(PPMShipmentIDFlag)
 	if moveID == "" {
 		log.Fatalf("Usage: %s --move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>", os.Args[0])
 	}
@@ -137,9 +136,8 @@ func main() {
 		formFiller.Debug()
 	}
 
-	move, err := models.FetchMoveByMoveID(dbConnection, parsedID)
 	if err != nil {
-		log.Fatalf("error fetching move: %s", moveIDFlag)
+		log.Fatalf("error fetching ppmshipment: %s", PPMShipmentIDFlag)
 	}
 
 	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
@@ -148,62 +146,36 @@ func main() {
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 
-	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
+	// TODO: Future cleanup will need to remap to a different planner, but this command should remain for testing purposes
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(move))
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
 
-	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
+	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, planner)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, *ssfd, planner)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		log.Fatalf("could not instantiate uploader due to %v", err)
+	}
+	generator, err := paperwork.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	noErr(err)
-
-	// page 1
-	page1Layout := paperwork.ShipmentSummaryPage1Layout
-	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
+	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	noErr(err)
-
-	page1Reader := bytes.NewReader(page1Template)
-	err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
+	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 	noErr(err)
-
-	// page 2
-	page2Layout := paperwork.ShipmentSummaryPage2Layout
-	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
-	noErr(err)
-
-	page2Reader := bytes.NewReader(page2Template)
-	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
-	noErr(err)
-
-	// page 3
-	page3Layout := paperwork.ShipmentSummaryPage3Layout
-	page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
-	noErr(err)
-
-	page3Reader := bytes.NewReader(page3Template)
-	err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
-	noErr(err)
-
-	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))
-
-	output, err := os.Create(filename)
-	noErr(err)
-
-	defer func() {
-		if closeErr := output.Close(); closeErr != nil {
-			logger.Error("Could not close output file", zap.Error(closeErr))
-		}
-	}()
-
-	err = formFiller.Output(output)
-	noErr(err)
-
-	fmt.Println(filename)
+	fmt.Println(ssw.Name())     // Should always return
+	fmt.Println(info.PageCount) // Page count should always be 2
+	// This is a testing command, above lines log information on whether PDF was generated successfully.
 }

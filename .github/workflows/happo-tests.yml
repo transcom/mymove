@@ -10,7 +10,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -23,18 +23,22 @@ jobs:
   happo:
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
+    concurrency:
+      group: happo-${{ github.event.action || 'unknown' }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.1.2
 
       - name: Set up node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
+          cache: 'yarn'
           node-version-file: '.tool-versions'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Start Happo run
         run: yarn happo-ci-github-actions

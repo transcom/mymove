@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewCreateUploadParams creates a new CreateUploadParams object,
@@ -66,6 +67,12 @@ type CreateUploadParams struct {
 	   The file to upload.
 	*/
 	File runtime.NamedReadCloser
+
+	/* IsWeightTicket.
+
+	   Indicates whether the file is a weight ticket.
+	*/
+	IsWeightTicket *bool
 
 	/* PaymentRequestID.
 
@@ -137,6 +144,17 @@ func (o *CreateUploadParams) SetFile(file runtime.NamedReadCloser) {
 	o.File = file
 }
 
+// WithIsWeightTicket adds the isWeightTicket to the create upload params
+func (o *CreateUploadParams) WithIsWeightTicket(isWeightTicket *bool) *CreateUploadParams {
+	o.SetIsWeightTicket(isWeightTicket)
+	return o
+}
+
+// SetIsWeightTicket adds the isWeightTicket to the create upload params
+func (o *CreateUploadParams) SetIsWeightTicket(isWeightTicket *bool) {
+	o.IsWeightTicket = isWeightTicket
+}
+
 // WithPaymentRequestID adds the paymentRequestID to the create upload params
 func (o *CreateUploadParams) WithPaymentRequestID(paymentRequestID string) *CreateUploadParams {
 	o.SetPaymentRequestID(paymentRequestID)
@@ -158,6 +176,21 @@ func (o *CreateUploadParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	// form file param file
 	if err := r.SetFileParam("file", o.File); err != nil {
 		return err
+	}
+
+	if o.IsWeightTicket != nil {
+
+		// form param isWeightTicket
+		var frIsWeightTicket bool
+		if o.IsWeightTicket != nil {
+			frIsWeightTicket = *o.IsWeightTicket
+		}
+		fIsWeightTicket := swag.FormatBool(frIsWeightTicket)
+		if fIsWeightTicket != "" {
+			if err := r.SetFormParam("isWeightTicket", fIsWeightTicket); err != nil {
+				return err
+			}
+		}
 	}
 
 	// path param paymentRequestID

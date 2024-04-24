@@ -77,7 +77,7 @@ test.describe('Services counselor user', () => {
     await expect(page.getByText('Government constructed cost: $379')).toBeVisible();
     await expect(page.getByText('1,000 lbs of destination SIT at 76127 for 31 days.')).toBeVisible();
     // Verify estimated incentive
-    await expect(page.getByRole('heading', { name: 'Estimated incentive: $67,692' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Estimated incentive: $67,689' })).toBeVisible();
 
     // Fill out page two
     await ppmPage.fillOutIncentiveAndAdvance({ advance: '10000' });
@@ -103,7 +103,7 @@ test.describe('Services counselor user', () => {
     await expect(shipmentContainer.locator('[data-testid="estimatedWeight"]')).toContainText('4,000 lbs');
     await expect(shipmentContainer.locator('[data-testid="proGearWeight"]')).toContainText('Yes, 1,000 lbs');
     await expect(shipmentContainer.locator('[data-testid="spouseProGear"]')).toContainText('Yes, 500 lbs');
-    await expect(shipmentContainer.locator('[data-testid="estimatedIncentive"]')).toContainText('$67,692');
+    await expect(shipmentContainer.locator('[data-testid="estimatedIncentive"]')).toContainText('$67,689');
     await expect(shipmentContainer.locator('[data-testid="hasRequestedAdvance"]')).toContainText('Yes, $10,000');
     await expect(shipmentContainer.locator('[data-testid="counselorRemarks"]')).toContainText(
       'Added correct incentive',

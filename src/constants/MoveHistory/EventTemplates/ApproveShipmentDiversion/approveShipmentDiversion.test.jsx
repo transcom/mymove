@@ -28,4 +28,10 @@ describe('when given an Approved shipment diversion history record', () => {
     render(template.getDetails(historyRecord));
     expect(screen.getByText('HHG shipment #2FA5C')).toBeInTheDocument();
   });
+  it('displays the proper name in the event name display column', () => {
+    const template = getTemplate(historyRecord);
+
+    render(template.getEventNameDisplay(historyRecord));
+    expect(screen.getByText('Approved shipment')).toBeInTheDocument();
+  });
 });

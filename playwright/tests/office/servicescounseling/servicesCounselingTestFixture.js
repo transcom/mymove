@@ -35,6 +35,36 @@ export class ServiceCounselorPage extends OfficePage {
   }
 
   /**
+   * Service Counselor searches for a move that needs counseling without clicking on it
+   * @param {string} moveLocator
+   */
+  async searchForMove(moveLocator) {
+    await this.waitForPage.counselingQueue();
+
+    // Type in move code/locator to search for.
+    // (There's no accessible or testId way to find this textbox, so we need to use .locator)
+    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').blur();
+  }
+
+  /**
+   * Service Counselor searches for a closeout move without clicking on it
+   * @param {string} moveLocator
+   */
+  async searchForCloseoutMove(moveLocator) {
+    await this.waitForPage.counselingQueue();
+
+    // Navigate to "PPM Closeout" section first
+    await this.page.getByRole('link', { name: 'PPM Closeout' }).click();
+    await this.waitForPage.closeoutQueue();
+
+    // Type in move code/locator to search for.
+    // (There's no accessible or testId way to find this textbox, so we need to use .locator)
+    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').blur();
+  }
+
+  /**
    * Service Counselor navigate to closeout move
    * @param {string} moveLocator
    */

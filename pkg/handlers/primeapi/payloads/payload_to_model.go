@@ -176,7 +176,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 }
 
 // Non SIT Address update Model
-func ShipmentAddressUpdateModel(nonSITAddressUpdate *primemessages.CreateNonSITAddressUpdateRequest, MtoShipmentID uuid.UUID) *models.ShipmentAddressUpdate {
+func ShipmentAddressUpdateModel(nonSITAddressUpdate *primemessages.UpdateShipmentDestinationAddress, MtoShipmentID uuid.UUID) *models.ShipmentAddressUpdate {
 	if nonSITAddressUpdate == nil {
 		return nil
 	}
@@ -378,13 +378,17 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 	shipmentID := uuid.FromStringOrNil(mtoServiceItem.MtoShipmentID().String())
 
+	// Default requested approvals value when an MTOServiceItem is created
+	requestedApprovalsRequestedStatus := false
+
 	// basic service item
 	model := &models.MTOServiceItem{
-		ID:              uuid.FromStringOrNil(mtoServiceItem.ID().String()),
-		MoveTaskOrderID: uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
-		MTOShipmentID:   &shipmentID,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
+		ID:                                uuid.FromStringOrNil(mtoServiceItem.ID().String()),
+		MoveTaskOrderID:                   uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
+		MTOShipmentID:                     &shipmentID,
+		CreatedAt:                         time.Now(),
+		UpdatedAt:                         time.Now(),
+		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
 	}
 
 	// here we initialize more fields below for other service item types. Eg. MTOServiceItemDOFSIT
@@ -419,6 +423,10 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		if sitEntryDate != nil {
 			model.SITEntryDate = sitEntryDate
+		}
+
+		if originsit.SitDepartureDate != nil {
+			model.SITDepartureDate = handlers.FmtDatePtrToPopPtr(originsit.SitDepartureDate)
 		}
 
 		model.SITPostalCode = originsit.SitPostalCode
@@ -558,11 +566,42 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	switch mtoServiceItem.ModelType() {
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
-		model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
 		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
+		model.SITRequestedDelivery = (*time.Time)(sit.SitRequestedDelivery)
+		model.Status = models.MTOServiceItemStatusSubmitted
+		model.Reason = sit.UpdateReason
+
+		var zeroDate strfmt.Date
+		if sit.SitDepartureDate != zeroDate {
+			model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
+		}
+
+		if sit.SitEntryDate != nil {
+			model.SITEntryDate = (*time.Time)(sit.SitEntryDate)
+		}
+
+		if sit.SitPostalCode != nil {
+			newPostalCode := sit.SitPostalCode
+			model.SITPostalCode = newPostalCode
+		}
+
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+		}
+
+		if sit.SitCustomerContacted != nil {
+			model.SITCustomerContacted = handlers.FmtDatePtrToPopPtr(sit.SitCustomerContacted)
+		}
+
+		if sit.SitRequestedDelivery != nil {
+			model.SITRequestedDelivery = handlers.FmtDatePtrToPopPtr(sit.SitRequestedDelivery)
+		}
+
+		// If the request params have a have the RequestApprovalsRequestedStatus set the model RequestApprovalsRequestedStatus value to the incoming value
+		if sit.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *sit.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
 		}
 
 		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||

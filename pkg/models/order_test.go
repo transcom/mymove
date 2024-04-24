@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -383,31 +384,29 @@ func (suite *ModelSuite) TestSaveOrder() {
 
 	postalCode := "30813"
 	newPostalCode := "12345"
-	address := Address{
+	addressCreator := address.NewAddressCreator()
+
+	newAddress := &Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
 	}
-	suite.MustSave(&address)
+	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
+	suite.NoError(err)
 
 	dutyLocationName := "New Duty Location"
 	location := DutyLocation{
 		Name:      dutyLocationName,
-		AddressID: address.ID,
-		Address:   address,
+		AddressID: newAddress.ID,
+		Address:   *newAddress,
 	}
 	suite.MustSave(&location)
-
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, StringPointer("55555"), nil, nil, nil, true, &advance)
-	suite.NoError(err)
-	suite.False(verrs.HasAny())
 
 	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
-	verrs, err = SaveOrder(suite.DB(), &order)
+	verrs, err := SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
@@ -416,9 +415,6 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
 	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 
-	ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), orderUpdated.ID)
-	suite.NoError(err)
-	suite.Equal(newPostalCode, *ppm.DestinationPostalCode, "Wrong ppm postal code")
 }
 
 func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
@@ -442,19 +438,21 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 
 	postalCode := "30813"
 	newPostalCode := "12345"
-	address := Address{
+	addressCreator := address.NewAddressCreator()
+	newAddress := &Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
 	}
-	suite.MustSave(&address)
+	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
+	suite.NoError(err)
 
 	dutyLocationName := "New Duty Location"
 	location := DutyLocation{
 		Name:      dutyLocationName,
-		AddressID: address.ID,
-		Address:   address,
+		AddressID: newAddress.ID,
+		Address:   *newAddress,
 	}
 	suite.MustSave(&location)
 

@@ -28,7 +28,6 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	var serviceItemDDASITFour models.MTOServiceItem
 	var serviceItemDDASITFive models.MTOServiceItem
 	var serviceItemDDASITSix models.MTOServiceItem
-	var serviceItemDDASITNine models.MTOServiceItem
 	var serviceItemDDASITTen models.MTOServiceItem
 
 	var serviceItemDDFSITFive models.MTOServiceItem
@@ -1156,26 +1155,6 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		serviceItemDDASITNine = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusApproved,
-				},
-			},
-			{
-				Model:    moveTaskOrderOne,
-				LinkOnly: true,
-			},
-			{
-				Model:    mtoShipmentNine,
-				LinkOnly: true,
-			},
-			{
-				Model:    reServiceDDASIT,
-				LinkOnly: true,
-			},
-		}, nil)
-
 		serviceItemDDASITTen = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -2047,30 +2026,6 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.NoError(err)
-	})
-
-	suite.Run("an MTO Shipment already has an Origin MTO Service Item with a SIT Departure Date", func() {
-		setupTestData()
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDOASITNine, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
-		suite.FatalNoError(err)
-
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.Contains(err.Error(), "already has an Origin MTO Service Item")
-		suite.Contains(err.Error(), "with a SIT Departure Date")
-	})
-
-	suite.Run("an MTO Shipment already has a Destination MTO Service Item with a SIT Departure Date", func() {
-		setupTestData()
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, serviceItemDDASITNine, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
-		suite.FatalNoError(err)
-
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.Contains(err.Error(), "already has a Destination MTO Service Item")
-		suite.Contains(err.Error(), "with a SIT Departure Date")
 	})
 
 	suite.Run("an MTO Shipment only has a First Day SIT MTO Service Item", func() {

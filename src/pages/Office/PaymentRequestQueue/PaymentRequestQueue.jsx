@@ -18,13 +18,21 @@ import { BRANCH_OPTIONS, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return (
+        <div>
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
     },
     {
       id: 'lastName',

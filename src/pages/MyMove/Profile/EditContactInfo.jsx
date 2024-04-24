@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import EditContactInfoForm, {
@@ -28,6 +28,7 @@ export const EditContactInfo = ({
   updateServiceMember,
 }) => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -58,7 +59,7 @@ export const EditContactInfo = ({
   };
 
   const handleCancel = () => {
-    navigate(customerRoutes.PROFILE_PATH);
+    navigate(customerRoutes.PROFILE_PATH, { state });
   };
 
   const handleSubmit = async (values) => {
@@ -117,11 +118,9 @@ export const EditContactInfo = ({
       .then(updateServiceMember)
       .then(() => {
         setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', "You've updated your information.");
-        navigate(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH, { state });
       })
       .catch((e) => {
-        //     // TODO - error handling - below is rudimentary error handling to approximate existing UX
-        //     // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'Failed to update service member due to server error');
 

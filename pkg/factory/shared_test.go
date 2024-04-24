@@ -30,7 +30,7 @@ func getTraitActiveArmy() []Customization {
 	return []Customization{
 		{
 			Model: models.User{
-				LoginGovEmail:         "trait@army.mil",
+				OktaEmail:             "trait@army.mil",
 				CurrentAdminSessionID: "my-session-id",
 			},
 			Type: &User,
@@ -81,7 +81,7 @@ func (suite *FactorySuite) TestMergeCustomization() {
 		_, custom = findCustomWithIdx(result, User)
 		suite.NotNil(custom)
 		user := custom.Model.(models.User)
-		suite.Equal("trait@army.mil", user.LoginGovEmail)
+		suite.Equal("trait@army.mil", user.OktaEmail)
 
 		// Check that result included our ServiceMember customization
 		_, custom = findCustomWithIdx(result, ServiceMember)
@@ -94,14 +94,14 @@ func (suite *FactorySuite) TestMergeCustomization() {
 		// Under test:       mergeCustomization, which merges traits and customizations
 		// Set up:           Create a customization with a user email and a trait with a user email
 		// Expected outcome: Customization should override the trait email
-		uuidval := uuid.Must(uuid.NewV4())
+		uuidvalString := uuid.Must(uuid.NewV4()).String()
 		// RUN FUNCTION UNDER TEST
 		result := mergeCustomization(
 			[]Customization{
 				{
 					Model: models.User{
-						LoginGovUUID:  &uuidval,
-						LoginGovEmail: "custom@army.mil",
+						OktaID:    uuidvalString,
+						OktaEmail: "custom@army.mil",
 					},
 					Type: &User, // ← User customization
 				},
@@ -114,7 +114,7 @@ func (suite *FactorySuite) TestMergeCustomization() {
 		// VALIDATE RESULTS
 		userModel := result[0].Model.(models.User)
 		// Customization email should be used
-		suite.Equal("custom@army.mil", userModel.LoginGovEmail)
+		suite.Equal("custom@army.mil", userModel.OktaEmail)
 		// But other fields could come from trait
 		suite.Equal("my-session-id", userModel.CurrentAdminSessionID)
 	})
@@ -184,22 +184,22 @@ func (suite *FactorySuite) TestMergeInterfaces() {
 		// Expected outcome: Underlying model should contain fields from both models.
 		//                   user1 fields should overwrite user2 fields
 		user1 := models.User{
-			LoginGovEmail: "user1@example.com",
-			Active:        true,
+			OktaEmail: "user1@example.com",
+			Active:    true,
 		}
-		uuidNew := uuid.Must(uuid.NewV4())
+		uuidNew := uuid.Must(uuid.NewV4()).String()
 		user2 := models.User{
-			LoginGovEmail: "user2@example.com",
-			LoginGovUUID:  &uuidNew,
+			OktaEmail: "user2@example.com",
+			OktaID:    uuidNew,
 		}
 
 		result := mergeInterfaces(user2, user1)
 		user := result.(models.User)
 		// user1 email should overwrite user2 email
-		suite.Equal(user1.LoginGovEmail, user.LoginGovEmail)
+		suite.Equal(user1.OktaEmail, user.OktaEmail)
 		// All other fields set in interfaces should persist
 		suite.Equal(user1.Active, user.Active)
-		suite.Equal(user2.LoginGovUUID, user.LoginGovUUID)
+		suite.Equal(user2.OktaID, user.OktaID)
 	})
 
 	suite.Run("Check that mergeInterfaces doesn't change input models", func() {
@@ -208,27 +208,27 @@ func (suite *FactorySuite) TestMergeInterfaces() {
 		// Expected outcome: Caller models should not be affected
 		user1email := "user1@example.com"
 		user2email := "user2@example.com"
-		uuidNew := uuid.Must(uuid.NewV4())
+		uuidNew := uuid.Must(uuid.NewV4()).String()
 
 		user1 := models.User{
-			LoginGovEmail: user1email,
-			Active:        true,
+			OktaEmail: user1email,
+			Active:    true,
 		}
 		user2 := models.User{
-			LoginGovEmail: user2email,
-			LoginGovUUID:  &uuidNew,
+			OktaEmail: user2email,
+			OktaID:    uuidNew,
 		}
 
 		mergeInterfaces(user2, user1)
 
 		// user1 should be untouched
-		suite.Equal(user1email, user1.LoginGovEmail)
+		suite.Equal(user1email, user1.OktaEmail)
 		suite.True(user1.Active)
 
 		// user2 should be untouched
-		suite.Equal(user2email, user2.LoginGovEmail)
+		suite.Equal(user2email, user2.OktaEmail)
 		suite.False(user2.Active)
-		suite.Equal(uuidNew, *user2.LoginGovUUID)
+		suite.Equal(uuidNew, user2.OktaID)
 	})
 }
 
@@ -332,7 +332,6 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 		testid := uuid.Must(uuid.NewV4())
 		edipi := RandomEdipi()
 		timestamp := time.Now()
-		rank := models.ServiceMemberRankE4
 		name := "Riley Baker"
 		phone := "555-777-9929"
 
@@ -344,7 +343,6 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				UserID:                 testid,
 				Edipi:                  &edipi,
 				Affiliation:            &navy,
-				Rank:                   &rank,
 				FirstName:              &name,
 				MiddleName:             &name,
 				LastName:               &name,
@@ -356,7 +354,6 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				EmailIsPreferred:       models.BoolPointer(false),
 				ResidentialAddressID:   &testid,
 				BackupMailingAddressID: &testid,
-				DutyLocationID:         &testid,
 			},
 			Type: &ServiceMember,
 		}
@@ -376,7 +373,7 @@ func (suite *FactorySuite) TestDefaultTypes() {
 		customs := []Customization{
 			{
 				Model: models.User{
-					LoginGovEmail: "string",
+					OktaEmail: "string",
 				},
 			},
 			{
@@ -443,7 +440,7 @@ func (suite *FactorySuite) TestSetupCustomizations() {
 		_, custom = findCustomWithIdx(result, User)
 		suite.NotNil(custom)
 		user := custom.Model.(models.User)
-		suite.Equal("trait@army.mil", user.LoginGovEmail)
+		suite.Equal("trait@army.mil", user.OktaEmail)
 
 		// Find ServiceMember, check details
 		_, custom = findCustomWithIdx(result, ServiceMember)
@@ -455,13 +452,13 @@ func (suite *FactorySuite) TestSetupCustomizations() {
 		// Set up:           Create a customization with a user email and a trait with a user email
 		// Expected outcome: Customization should override the trait email
 		//                   If an object exists and no customization, it should become a customization
-		uuidval := uuid.Must(uuid.NewV4())
+		uuidval := uuid.Must(uuid.NewV4()).String()
 		result := setupCustomizations(
 			[]Customization{
 				{
 					Model: models.User{
-						LoginGovUUID:  &uuidval,
-						LoginGovEmail: "custom@army.mil",
+						OktaID:    uuidval,
+						OktaEmail: "custom@army.mil",
 					},
 				},
 			},
@@ -471,7 +468,7 @@ func (suite *FactorySuite) TestSetupCustomizations() {
 		)
 		userModel := result[0].Model.(models.User)
 		// Customization email should be used
-		suite.Equal("custom@army.mil", userModel.LoginGovEmail)
+		suite.Equal("custom@army.mil", userModel.OktaEmail)
 		// But other fields could come from trait
 		suite.Equal("my-session-id", userModel.CurrentAdminSessionID)
 
@@ -512,7 +509,7 @@ func (suite *FactorySuite) TestValidateCustomizations() {
 		})
 		suite.Len(customs, 3)
 		err := isUnique(customs)
-		suite.ErrorContains(err, "Found more than one instance")
+		suite.ErrorContains(err, "found more than one instance")
 
 	})
 
@@ -531,7 +528,7 @@ func (suite *FactorySuite) TestElevateCustomization() {
 		customizationList :=
 			[]Customization{
 				{
-					Model: models.User{LoginGovEmail: customEmail},
+					Model: models.User{OktaEmail: customEmail},
 					Type:  &User,
 				},
 				{

@@ -67,6 +67,7 @@ const PastServiceItemsShape = PropTypes.shape({
 export const SitStatusShape = PropTypes.shape({
   totalSITDaysUsed: PropTypes.number.isRequired,
   totalDaysRemaining: PropTypes.number.isRequired,
+  calculatedTotalDaysInSIT: PropTypes.number.isRequired,
   currentSIT: PropTypes.shape({
     location: LOCATION_TYPES_ONE_OF,
     daysInSIT: PropTypes.number,

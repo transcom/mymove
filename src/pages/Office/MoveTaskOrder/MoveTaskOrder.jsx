@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { generatePath, Link, useParams } from 'react-router-dom';
-import * as Yup from 'yup';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,15 +12,12 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
-import ConnectedServiceItemUpdateModal from 'components/Office/ServiceItemUpdateModal/ServiceItemUpdateModal';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
-import { findSITAddressUpdate } from 'utils/serviceItems';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
@@ -44,9 +40,8 @@ import {
   updateMTOShipment,
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
-  createSitAddressUpdate,
-  approveSitAddressUpdate,
-  rejectSitAddressUpdate,
+  updateServiceItemSITEntryDate,
+  updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -63,9 +58,8 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { tooRoutes } from 'constants/routes';
-import EditSitAddressChangeForm from 'components/Office/ServiceItemUpdateModal/EditSitAddressChangeForm';
-import ReviewSitAddressChange from 'components/Office/ServiceItemUpdateModal/ReviewSitAddressChange';
-import { requiredAddressSchema } from 'utils/validation';
+import { formatDateForSwagger } from 'shared/dates';
+import EditSitEntryDateModal from 'components/Office/EditSitEntryDateModal/EditSitEntryDateModal';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -100,20 +94,13 @@ export const MoveTaskOrder = (props) => {
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   // SIT Address Updates
-  const [isReviewRequestSITAddressModalVisible, setIsReviewRequestSITAddressModalVisible] = useState(false);
-  const [isEditSitAddressModalVisible, setIsEditSitAddressModalVisible] = useState(false);
+  const [isEditSitEntryDateModalVisible, setIsEditSitEntryDateModalVisible] = useState(false);
   /* ------------------ Alerts ------------------------- */
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [isSuccessAlertVisible, setIsSuccessAlertVisible] = useState(false);
   const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [isSITAddressUpdateAlertVisible, setIsSITAddressUpdateAlertVisible] = useState(false);
-  const [serviceItemAddressUpdateAlert, setServiceItemAddressUpdateAlert] = useState({
-    makeVisible: false,
-    alertMessage: '',
-    alertType: '',
-  });
   /* ------------------ Selected / Active Item ------------------------- */
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
@@ -122,10 +109,10 @@ export const MoveTaskOrder = (props) => {
   /* ------------------ Unapproved requests / counts ------------------------- */
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
-  const [unapprovedSITAddressUpdatesForServiceItems, setUnapprovedSITAddressUpdatesForServiceItems] = useState({});
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
   /* ------------------ Miscellaneous ------------------------- */
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [, setSubmittedChangeTime] = useState(Date.now());
 
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
@@ -135,7 +122,6 @@ export const MoveTaskOrder = (props) => {
   const {
     setUnapprovedShipmentCount,
     setUnapprovedServiceItemCount,
-    setUnapprovedSITAddressUpdateCount,
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
@@ -164,6 +150,16 @@ export const MoveTaskOrder = (props) => {
         customerContacts: item.customerContacts,
         estimatedWeight: item.estimatedWeight,
         rejectionReason: item.rejectionReason,
+        sitDepartureDate: item.sitDepartureDate,
+        sitEntryDate: item.sitEntryDate,
+        sitOriginHHGOriginalAddress: item.sitOriginHHGOriginalAddress,
+        sitOriginHHGActualAddress: item.sitOriginHHGActualAddress,
+        sitDestinationFinalAddress: item.sitDestinationFinalAddress,
+        sitDestinationOriginalAddress: item.sitDestinationOriginalAddress,
+        sitCustomerContacted: item.sitCustomerContacted,
+        sitRequestedDelivery: item.sitRequestedDelivery,
+        sitDeliveryMiles: item.sitDeliveryMiles,
+        status: item.status,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -178,10 +174,12 @@ export const MoveTaskOrder = (props) => {
   /*
   *
   -------------------------  Mutation Funtions  -------------------------
-  *
+  * using istanbul ignore next to omit from test coverage since these functions
+  * cannot be exported
   */
 
   const queryClient = useQueryClient();
+  /* istanbul ignore next */
   const { mutate: mutateMTOServiceItemStatus } = useMutation({
     mutationFn: patchMTOServiceItemStatus,
     onSuccess: (data, variables) => {
@@ -198,6 +196,22 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
+  const { mutate: mutateSITServiceItemCustomerExpense } = useMutation({
+    mutationFn: updateSITServiceItemCustomerExpense,
+    onSuccess: (data, variables) => {
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
+
+  /* istanbul ignore next */
   const { mutate: mutateMTOShipment } = useMutation({
     mutationFn: updateMTOShipment,
     onSuccess: (_, variables) => {
@@ -206,6 +220,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateMTOShipmentStatus } = useMutation({
     mutationFn: updateMTOShipmentStatus,
     onSuccess: (data, variables) => {
@@ -223,6 +238,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateMTOShipmentRequestReweigh } = useMutation({
     mutationFn: updateMTOShipmentRequestReweigh,
     onSuccess: (data) => {
@@ -239,6 +255,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateOrderBillableWeight } = useMutation({
     mutationFn: updateBillableWeight,
     onSuccess: (data, variables) => {
@@ -257,6 +274,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateAcknowledgeExcessWeightRisk } = useMutation({
     mutationFn: acknowledgeExcessWeightRisk,
     onSuccess: () => {
@@ -278,6 +296,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateSITExtensionApproval } = useMutation({
     mutationFn: approveSITExtension,
     onSuccess: (data, variables) => {
@@ -285,6 +304,7 @@ export const MoveTaskOrder = (props) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
+      setSubmittedChangeTime(Date.now());
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -292,6 +312,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateSITExtensionDenial } = useMutation({
     mutationFn: denySITExtension,
     onSuccess: (data, variables) => {
@@ -306,6 +327,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateSubmitSITExtension } = useMutation({
     mutationFn: submitSITExtension,
     onSuccess: (data, variables) => {
@@ -320,6 +342,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateFinancialReview } = useMutation({
     mutationFn: updateFinancialFlag,
     onSuccess: (data) => {
@@ -328,41 +351,21 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
-  const { mutate: mutateSitAddressUpdate } = useMutation({
-    mutationFn: createSitAddressUpdate,
+  /* istanbul ignore next */
+  const { mutate: mutateServiceItemSitEntryDate } = useMutation({
+    mutationFn: updateServiceItemSITEntryDate,
     onSuccess: (data) => {
+      // here we are updating the service item
       const updatedServiceItems = [...mtoServiceItems];
       updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
       queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
       queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
-    },
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      milmoveLogger.error(errorMsg);
-    },
-  });
 
-  const { mutate: mutateApproveSitAddressUpdate } = useMutation({
-    mutationFn: approveSitAddressUpdate,
-    onSuccess: (data) => {
-      const updatedServiceItems = [...mtoServiceItems];
-      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
-      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
-      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
-    },
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      milmoveLogger.error(errorMsg);
-    },
-  });
-
-  const { mutate: mutateRejectSitAddressUpdate } = useMutation({
-    mutationFn: rejectSitAddressUpdate,
-    onSuccess: (data) => {
-      const updatedServiceItems = [...mtoServiceItems];
-      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
-      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
-      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
+      // here we are updating the shipment (focusing on the currentSit object)
+      const updatedMTOShipment = data;
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.mtoShipmentID)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -373,62 +376,50 @@ export const MoveTaskOrder = (props) => {
     *
     -------------------------  Toggle Modals  -------------------------
                   Functions to show and hide modals
+    * using istanbul ignore next to omit from test coverage since these functions
+    * cannot be exported
     *
     */
 
+  /* istanbul ignore next */
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
   };
 
+  /* istanbul ignore next */
   const handleShowFinancialReviewModal = () => {
     setIsFinancialModalVisible(true);
   };
 
+  /* istanbul ignore next */
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
     setIsModalVisible(true);
   };
 
-  const handleShowEditSitAddressModal = (mtoServiceItemID, mtoShipmentID) => {
+  /* istanbul ignore next */
+  const handleShowEditSitEntryDateModal = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
-    setIsEditSitAddressModalVisible(true);
+    setIsEditSitEntryDateModalVisible(true);
   };
 
-  const handleCancelEditAddressModal = () => {
-    setIsEditSitAddressModalVisible(false);
+  /* istanbul ignore next */
+  const handleCancelEditSitEntryDateModal = () => {
+    setIsEditSitEntryDateModalVisible(false);
   };
 
+  /* istanbul ignore next */
   const handleShowCancellationModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsCancelModalVisible(true);
   };
 
+  /* istanbul ignore next */
   const handleRequestReweighModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsReweighModalVisible(true);
-  };
-
-  /**
-   * @description This shows the request modal on a service item for SIT
-   * address updates. This is used by the RequestedServiceItemsTable to open
-   * the ConnectedServiceItemUpdateModal as a Review SIT Address modal.
-   * @param {string} mtoServiceItemID The service item's ID
-   * @param {string} mtoShipmentID The shipments's ID
-   * */
-  const handleReviewRequestSITAddressUpdateModal = (mtoServiceItemID, mtoShipmentID) => {
-    const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
-    setSelectedServiceItem(serviceItem);
-    setIsReviewRequestSITAddressModalVisible(true);
-  };
-  /**
-   * @description This is the handler function for cancelling or closing the
-   * Request SIT Address Modal. This is used by the ConnectedServiceItemUpdateModal
-   * component to close the Request SIT Address modal.
-   * */
-  const handleCancelReviewRequestAddressModal = () => {
-    setIsReviewRequestSITAddressModalVisible(false);
   };
 
   const handleShowWeightModal = () => {
@@ -443,15 +434,16 @@ export const MoveTaskOrder = (props) => {
     handleAcknowledgeExcessWeightRisk();
     setIsWeightAlertVisible(false);
   };
-  const handleSITAddressUpdateAlert = () => {
-    setIsSITAddressUpdateAlertVisible(false);
-  };
   /*
   *
   -------------------------  Submit Handlers  -------------------------
               Contain mutation functions to handle form submissions
+              Using istanbul ignore next to omit from test coverage
+              since they cannot be exported
   *
   */
+
+  /* istanbul ignore next */
   const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
     // if it's set to yes let's send a true to the backend. If not we'll send false.
     const flagForReviewBool = flagForReview === 'yes';
@@ -478,6 +470,7 @@ export const MoveTaskOrder = (props) => {
       },
     );
   };
+  /* istanbul ignore next */
   const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
     if (formValues.acceptExtension === 'yes') {
       mutateSITExtensionApproval({
@@ -495,11 +488,16 @@ export const MoveTaskOrder = (props) => {
         shipmentID: shipment.id,
         sitExtensionID,
         ifMatchETag: shipment.eTag,
-        body: { officeRemarks: formValues.officeRemarks },
+        body: {
+          officeRemarks: formValues.officeRemarks,
+          convertToCustomerExpense: formValues.convertToCustomerExpense,
+        },
       });
     }
+    setSubmittedChangeTime(Date.now());
   };
 
+  /* istanbul ignore next */
   const handleSubmitSITExtension = (formValues, shipment) => {
     mutateSubmitSITExtension(
       {
@@ -509,32 +507,46 @@ export const MoveTaskOrder = (props) => {
           requestReason: formValues.requestReason,
           officeRemarks: formValues.officeRemarks,
           approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
+          sitEntryDate: formatDateForSwagger(formValues.sitEntryDate),
+          moveID: shipment.moveTaskOrderID,
         },
       },
       {
-        onSuccess: () => setIsSuccessAlertVisible(true),
+        onSuccess: () => {
+          setIsSuccessAlertVisible(true);
+          setSubmittedChangeTime(Date.now());
+        },
       },
     );
   };
 
-  const handleDivertShipment = (mtoShipmentID, eTag) => {
+  /* istanbul ignore next */
+  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator) => {
     mutateMTOShipmentStatus(
       {
         shipmentID: mtoShipmentID,
         operationPath: 'shipment.requestShipmentDiversion',
         ifMatchETag: eTag,
-        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+        onSuccessFlashMsg: `Diversion successfully requested for Shipment #${shipmentLocator}`,
+        shipmentLocator,
       },
       {
         onSuccess: (data, variables) => {
           setIsCancelModalVisible(false);
           // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-          setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+          setMessage(
+            `MSG_CANCEL_SUCCESS_${variables.shipmentLocator}`,
+            'success',
+            variables.onSuccessFlashMsg,
+            '',
+            true,
+          );
         },
       },
     );
   };
 
+  /* istanbul ignore next */
   const handleReweighShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentRequestReweigh(
       {
@@ -552,6 +564,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleEditAccountingCodes = (fields, shipment) => {
     const body = { tacType: null, sacType: null, ...fields };
     mutateMTOShipment({
@@ -562,6 +575,7 @@ export const MoveTaskOrder = (props) => {
     });
   };
 
+  /* istanbul ignore next */
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus(
       {
@@ -580,6 +594,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleEditFacilityInfo = (fields, shipment) => {
     const formattedStorageFacility = formatStorageFacilityForAPI(fields.storageFacility);
     const formattedStorageFacilityAddress = removeEtag(formatAddressForAPI(fields.storageFacility.address));
@@ -595,6 +610,7 @@ export const MoveTaskOrder = (props) => {
     });
   };
 
+  /* istanbul ignore next */
   const handleEditServiceOrderNumber = (fields, shipment) => {
     mutateMTOShipment({
       moveTaskOrderID: shipment.moveTaskOrderID,
@@ -604,6 +620,7 @@ export const MoveTaskOrder = (props) => {
     });
   };
 
+  /* istanbul ignore next */
   const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, mtoShipmentID, status, rejectionReason) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
@@ -624,6 +641,36 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
+  const handleUpdateSITServiceItemCustomerExpense = (
+    mtoShipmentID,
+    convertToCustomerExpense,
+    customerExpenseReason,
+    eTag,
+  ) => {
+    mutateSITServiceItemCustomerExpense(
+      {
+        shipmentID: mtoShipmentID,
+        convertToCustomerExpense,
+        customerExpenseReason,
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: `SIT successfully converted to customer expense`,
+      },
+      {
+        onSuccess: (data, variables) => {
+          setMessage(
+            `MSG_CONVERT_TO_CUSTOMER_EXPENSE_SUCCESS_${variables.shipmentID}`,
+            'success',
+            variables.onSuccessFlashMsg,
+            '',
+            true,
+          );
+        },
+      },
+    );
+  };
+
+  /* istanbul ignore next */
   const handleUpdateBillableWeight = (maxBillableWeight) => {
     mutateOrderBillableWeight(
       {
@@ -660,91 +707,26 @@ export const MoveTaskOrder = (props) => {
   /**
    * @function
    * @param {string} mtoServiceItemID
-   * @param {Object} formValues
-   * @param {AddressShape} formValues.newAddress
-   * @param {string} formValues.officeRemarks
-   * @description Updates the sitAddressUpdate logs and final SIT address with the new address submitted.
+   * @param {Date} newSitEntryDate
+   * @description Updates the selected SIT entry date
    * OnSuccess, it closes the modal and sets a success message.
    */
-  const handleSubmitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
-    mutateSitAddressUpdate(
+  /* istanbul ignore next */
+  const handleSubmitSitEntryDateChange = (mtoServiceItemID, newSitEntryDate) => {
+    mutateServiceItemSitEntryDate(
       {
         mtoServiceItemID,
-        body: { newAddress, officeRemarks },
+        body: { ID: mtoServiceItemID, SitEntryDate: newSitEntryDate },
       },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           setSelectedServiceItem({});
-          setIsEditSitAddressModalVisible(false);
-          setAlertMessage('Changes saved');
+          setIsEditSitEntryDateModalVisible(false);
+          setAlertMessage('SIT entry date updated');
           setAlertType('success');
-
-          // Setting up the approved service item table alert for TOO edits
-          // TODO: We should probably change the endpoint to send back the id of the latest update so we can match by id instead of position.
-          const calculatedDistance = data.sitAddressUpdates.slice(-1)[0].distance; // Resulting update should be the last item in the array
-          const type = calculatedDistance <= 50 ? 'info' : 'warning';
-          const message =
-            calculatedDistance <= 50 ? 'Address update within 50 miles.' : 'Address update over 50 miles approved.';
-          setServiceItemAddressUpdateAlert({
-            ...serviceItemAddressUpdateAlert,
-            makeVisible: true,
-            alertType: type,
-            alertMessage: message,
-          });
         },
       },
     );
-  };
-
-  const handleSubmitSitAddressUpdateChange = (mtoServiceItemID, { sitAddressUpdate, officeRemarks }) => {
-    const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
-    const runOnSuccess = (data) => {
-      setIsReviewRequestSITAddressModalVisible(false);
-      setSelectedServiceItem({});
-      setAlertMessage('Changes saved');
-      setAlertType('success');
-
-      // Setting up the approved service item table alert for TOO edits
-      const { status } = data.sitAddressUpdates.find((update) => update.id === id);
-      const type = status === 'REJECTED' ? 'info' : 'warning';
-      const message =
-        status === 'REJECTED' ? 'Address update over 50 miles rejected.' : 'Address update over 50 miles approved.';
-
-      setServiceItemAddressUpdateAlert({
-        ...serviceItemAddressUpdateAlert,
-        makeVisible: true,
-        alertType: type,
-        alertMessage: message,
-      });
-    };
-
-    if (sitAddressUpdate === 'YES') {
-      mutateApproveSitAddressUpdate(
-        {
-          sitAddressUpdateID: id,
-          ifMatchETag: eTag,
-          body: { officeRemarks },
-        },
-        {
-          onSuccess: (data) => {
-            runOnSuccess(data);
-          },
-        },
-      );
-    } else if (sitAddressUpdate === 'NO') {
-      mutateRejectSitAddressUpdate(
-        {
-          sitAddressUpdateID: id,
-          ifMatchETag: eTag,
-          body: { officeRemarks },
-        },
-        {
-          onSuccess: (data) => {
-            runOnSuccess(data);
-          },
-        },
-      );
-    }
   };
 
   /*
@@ -756,9 +738,7 @@ export const MoveTaskOrder = (props) => {
   /* ------------------ Update Notification counts ------------------------- */
   useEffect(() => {
     let serviceItemCount = 0;
-    let sitAddressUpdateServiceItemCount = 0;
     const serviceItemsCountForShipment = {};
-    const sitAddressUpdateServiceItems = {};
     mtoShipments?.forEach((mtoShipment) => {
       if (
         mtoShipment.status === shipmentStatuses.APPROVED ||
@@ -769,30 +749,11 @@ export const MoveTaskOrder = (props) => {
         )?.length;
         serviceItemCount += requestedServiceItemCount || 0;
         serviceItemsCountForShipment[`${mtoShipment.id}`] = requestedServiceItemCount;
-
-        const requestedSITAddressUpdateCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter((serviceItem) => {
-          if (
-            ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(serviceItem.reServiceCode) &&
-            serviceItem?.sitAddressUpdates
-          ) {
-            const requestedSITAddressUpdates = serviceItem.sitAddressUpdates.filter(
-              (s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED,
-            );
-            return requestedSITAddressUpdates.length > 0;
-          }
-          return false;
-        })?.length;
-        sitAddressUpdateServiceItemCount += requestedSITAddressUpdateCount || 0;
-        sitAddressUpdateServiceItems[`${mtoShipment.id}`] = requestedSITAddressUpdateCount;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
     setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
-
-    setIsSITAddressUpdateAlertVisible(Boolean(sitAddressUpdateServiceItemCount > 0));
-    setUnapprovedSITAddressUpdateCount(sitAddressUpdateServiceItemCount);
-    setUnapprovedSITAddressUpdatesForServiceItems(sitAddressUpdateServiceItems);
-  }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount, setUnapprovedSITAddressUpdateCount]);
+  }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount]);
 
   /* ------------------ Update Shipment approvals ------------------------- */
   useEffect(() => {
@@ -849,15 +810,28 @@ export const MoveTaskOrder = (props) => {
 
   /* ------------------ Update SIT extension counts ------------------------- */
   useEffect(() => {
-    let unapprovedSITExtensionCount = 0;
-    mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
-        unapprovedSITExtensionCount += 1;
-        unapprovedSITExtensionForShipment[`${mtoShipment.id}`] = 1;
-        setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
-      }
-    });
-    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+    const copyItemsFromTempArrayToSourceArray = (temp, target) => {
+      Object.keys(temp).forEach((item) => {
+        const targetArray = target;
+        targetArray[item] = temp[item];
+      });
+    };
+    const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
+      const unapprovedSITExtensionShipmentItems = [];
+      let unapprovedSITExtensionCount = 0;
+      shipmentsWithStatus?.forEach((mtoShipment) => {
+        const unapprovedSITExtItems =
+          mtoShipment.sitExtensions?.filter((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING) ?? [];
+        const unapprovedSITCount = unapprovedSITExtItems.length;
+        unapprovedSITExtensionCount += unapprovedSITCount; // Top bar Label
+        unapprovedSITExtensionShipmentItems[`${mtoShipment.id}`] = unapprovedSITCount; // Nav bar Label
+      });
+      return { count: unapprovedSITExtensionCount, items: unapprovedSITExtensionShipmentItems };
+    };
+    const { count, items } = checkShipmentsForUnapprovedSITExtensions(mtoShipments);
+    setUnapprovedSITExtensionCount(count);
+    copyItemsFromTempArrayToSourceArray(items, unapprovedSITExtensionForShipment);
+    setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
   }, [
     mtoShipments,
     setUnapprovedSITExtensionCount,
@@ -873,29 +847,6 @@ export const MoveTaskOrder = (props) => {
    * @todo ETag and Id need to be removed from response from backend or address fields needs to be in their own object
    * @returns {AddressShape}
    */
-  const getSitAddressInitialValues = () => {
-    const address = selectedServiceItem.sitDestinationOriginalAddress || selectedServiceItem.destinationAddress;
-    const blankAddress = {
-      city: '',
-      state: '',
-      // Some moves already have a postal code so we will autofill that if available.
-      postalCode: selectedServiceItem.SITPostalCode || '',
-      streetAddress1: '',
-      streetAddress2: '',
-      streetAddress3: '',
-      country: '',
-    };
-    if (!address || Object.keys(address).length === 0) {
-      return blankAddress;
-    }
-    const initialValues = {};
-    // Fill in the known address values
-    Object.keys(blankAddress).forEach((field) => {
-      const value = address[field] || '';
-      initialValues[field] = value;
-    });
-    return initialValues;
-  };
 
   /*
   *
@@ -923,12 +874,6 @@ export const MoveTaskOrder = (props) => {
 
   const excessWeightAlertControl = (
     <Button type="button" onClick={handleHideWeightAlert} unstyled>
-      <FontAwesomeIcon icon="times" />
-    </Button>
-  );
-
-  const sitAddressUpdateRequestAlertControl = (
-    <Button type="button" onClick={handleSITAddressUpdateAlert} unstyled>
       <FontAwesomeIcon icon="times" />
     </Button>
   );
@@ -961,14 +906,11 @@ export const MoveTaskOrder = (props) => {
                 {s.label}{' '}
                 <LeftNavTag
                   showTag={Boolean(
-                    unapprovedServiceItemsForShipment[`${s.id}`] ||
-                      unapprovedSITExtensionForShipment[`${s.id}`] ||
-                      unapprovedSITAddressUpdatesForServiceItems[`${s.id}`],
+                    unapprovedServiceItemsForShipment[`${s.id}`] || unapprovedSITExtensionForShipment[`${s.id}`],
                   )}
                 >
                   {(unapprovedServiceItemsForShipment[`${s.id}`] || 0) +
-                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0) +
-                    (unapprovedSITAddressUpdatesForServiceItems[`${s.id}`] || 0)}
+                    (unapprovedSITExtensionForShipment[`${s.id}`] || 0)}
                 </LeftNavTag>
               </LeftNavSection>
             );
@@ -995,11 +937,13 @@ export const MoveTaskOrder = (props) => {
               <span>
                 This move is at risk for excess weight.{' '}
                 <Restricted to={permissionTypes.updateBillableWeight}>
-                  <span className={styles.rightAlignButtonWrapper}>
-                    <Button type="button" onClick={handleShowWeightModal} unstyled>
-                      Review billable weight
-                    </Button>
-                  </span>
+                  <Restricted to={permissionTypes.updateMTOPage}>
+                    <span className={styles.rightAlignButtonWrapper}>
+                      <Button type="button" onClick={handleShowWeightModal} unstyled>
+                        Review billable weight
+                      </Button>
+                    </span>
+                  </Restricted>
                 </Restricted>
               </span>
             </Alert>
@@ -1007,17 +951,6 @@ export const MoveTaskOrder = (props) => {
           {isSuccessAlertVisible && (
             <Alert headingLevel="h4" slim type="success">
               Your changes were saved
-            </Alert>
-          )}
-          {isSITAddressUpdateAlertVisible && (
-            <Alert
-              type="warning"
-              headingLevel="h4"
-              slim
-              cta={sitAddressUpdateRequestAlertControl}
-              className={styles.alertWithButton}
-            >
-              Service item update requested. Review request below.
             </Alert>
           )}
 
@@ -1043,21 +976,6 @@ export const MoveTaskOrder = (props) => {
             />
           )}
 
-          {isReviewRequestSITAddressModalVisible && (
-            <ConnectedServiceItemUpdateModal
-              isOpen={isReviewRequestSITAddressModalVisible}
-              closeModal={handleCancelReviewRequestAddressModal}
-              title="Review request: service item update"
-              onSave={handleSubmitSitAddressUpdateChange}
-              serviceItem={selectedServiceItem}
-              validations={{ sitAddressUpdate: Yup.string().required('Required') }}
-            >
-              <ReviewSitAddressChange
-                sitAddressUpdate={findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates)}
-              />
-            </ConnectedServiceItemUpdateModal>
-          )}
-
           <ConnectedEditMaxBillableWeightModal
             isOpen={isWeightModalVisible}
             defaultWeight={order.entitlement.totalWeight}
@@ -1074,20 +992,14 @@ export const MoveTaskOrder = (props) => {
               initialSelection={move?.financialReviewFlag}
             />
           )}
-          {isEditSitAddressModalVisible && (
-            <ConnectedServiceItemUpdateModal
-              closeModal={handleCancelEditAddressModal}
-              onSave={handleSubmitSitAddressChange}
-              isOpen={isEditSitAddressModalVisible}
+          {isEditSitEntryDateModalVisible && (
+            <EditSitEntryDateModal
+              onClose={handleCancelEditSitEntryDateModal}
+              onSubmit={handleSubmitSitEntryDateChange}
+              isOpen={isEditSitEntryDateModalVisible}
               serviceItem={selectedServiceItem}
-              initialValues={{
-                newAddress: getSitAddressInitialValues(),
-              }}
-              validations={{ newAddress: requiredAddressSchema }}
-              title="Edit service item"
-            >
-              <EditSitAddressChangeForm initialAddress={getSitAddressInitialValues()} />
-            </ConnectedServiceItemUpdateModal>
+              shipmentInfo={selectedShipment}
+            />
           )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
@@ -1096,12 +1008,14 @@ export const MoveTaskOrder = (props) => {
               <h6>Contract #{move?.contractor?.contractNumber}</h6>
               <h6>NAICS: {order?.naics}</h6>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-                <div className={moveTaskOrderStyles.financialReviewContainer}>
-                  <FinancialReviewButton
-                    onClick={handleShowFinancialReviewModal}
-                    reviewRequested={move.financialReviewFlag}
-                  />
-                </div>
+                <Restricted to={permissionTypes.updateMTOPage}>
+                  <div className={moveTaskOrderStyles.financialReviewContainer}>
+                    <FinancialReviewButton
+                      onClick={handleShowFinancialReviewModal}
+                      reviewRequested={move.financialReviewFlag}
+                    />
+                  </div>
+                </Restricted>
               </Restricted>
             </div>
           </div>
@@ -1182,6 +1096,7 @@ export const MoveTaskOrder = (props) => {
                   handleRequestReweighModal={handleRequestReweighModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
+                  handleUpdateSITServiceItemCustomerExpense={handleUpdateSITServiceItemCustomerExpense}
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}
@@ -1191,9 +1106,10 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={requestedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
-                    handleShowEditSitAddressModal={handleShowEditSitAddressModal}
+                    handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
-                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1201,10 +1117,10 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={approvedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
-                    handleRequestSITAddressUpdateModal={handleReviewRequestSITAddressUpdateModal}
-                    handleShowEditSitAddressModal={handleShowEditSitAddressModal}
+                    handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
-                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
@@ -1212,9 +1128,9 @@ export const MoveTaskOrder = (props) => {
                     serviceItems={rejectedServiceItems}
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
-                    handleShowEditSitAddressModal={handleShowEditSitAddressModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
-                    serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+                    shipment={mtoShipment}
+                    sitStatus={mtoShipment.sitStatus}
                   />
                 )}
               </ShipmentContainer>
@@ -1235,7 +1151,6 @@ export const MoveTaskOrder = (props) => {
 MoveTaskOrder.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
-  setUnapprovedSITAddressUpdateCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,

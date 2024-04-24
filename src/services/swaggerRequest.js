@@ -136,8 +136,41 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       // Otherwise, return raw response body
       return response.body;
     })
-    .catch((response) => {
-      milmoveLogger.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
-      return Promise.reject(response);
+    .catch((responseError) => {
+      const traceId = responseError?.response?.headers['x-milmove-trace-id'] || 'unknown-milmove-trace-id';
+      milmoveLogger.error(
+        `Operation ${operationPath} failed: ${responseError} (${responseError.status})`,
+        `milmove_trace_id: ${traceId}`,
+      );
+      return Promise.reject(responseError);
+    });
+}
+
+export async function makeSwaggerRequestRaw(client, operationPath, params = {}) {
+  const operation = get(client, `apis.${operationPath}`);
+  if (!operation) {
+    throw new Error(`Operation '${operationPath}' does not exist!`);
+  }
+
+  let request;
+  try {
+    request = operation(params);
+  } catch (e) {
+    milmoveLogger.error(`Operation ${operationPath} failed: ${e}`);
+    return Promise.reject(e);
+  }
+
+  return request
+    .then((response) => {
+      // no normalizaton ..etc...just return entire response
+      return response;
+    })
+    .catch((responseError) => {
+      const traceId = responseError?.response?.headers['x-milmove-trace-id'] || 'unknown-milmove-trace-id';
+      milmoveLogger.error(
+        `Operation ${operationPath} failed: ${responseError} (${responseError.status})`,
+        `milmove_trace_id: ${traceId}`,
+      );
+      return Promise.reject(responseError);
     });
 }

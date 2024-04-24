@@ -28,7 +28,10 @@ const InvalidPermissions = ({ context }) => {
     logOut();
     LogoutUser().then((r) => {
       const redirectURL = r.body;
-      if (redirectURL) {
+      // checking to see if "Local Sign In" button was used to sign in
+      const urlParams = new URLSearchParams(redirectURL.split('?')[1]);
+      const idTokenHint = urlParams.get('id_token_hint');
+      if (redirectURL && idTokenHint !== 'devlocal') {
         window.location.href = redirectURL;
       } else {
         navigate('/sign-in', {
@@ -53,10 +56,10 @@ const InvalidPermissions = ({ context }) => {
               <br />
               <br />
               If that doesn&apos;t work, please contact the{' '}
-              <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
+              <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
                 Technical Help Desk
               </a>{' '}
-              and give them this code: <strong>{traceId}</strong>
+              (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
             </Alert>
           )}
           <ButtonGroup type="default">

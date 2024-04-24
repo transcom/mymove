@@ -40,7 +40,7 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
                       <dt className={classnames({ [styles.hiddenTerm]: hideLabel })} aria-hidden={hideLabel}>
                         {label}
                       </dt>
-                      <dd>{value}</dd>
+                      <dd style={{ textTransform: 'capitalize' }}>{value}</dd>
                     </div>
                   ))}
                 </dl>

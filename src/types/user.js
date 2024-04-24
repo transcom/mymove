@@ -21,3 +21,12 @@ export const OfficeUserInfoShape = PropTypes.shape({
   telephone: PropTypes.string,
   transportation_office: TransportationOfficeShape,
 });
+
+export const OktaUserInfoShape = PropTypes.shape({
+  username: PropTypes.string,
+  email: PropTypes.string,
+  first_name: PropTypes.string,
+  last_name: PropTypes.string,
+  edipi: PropTypes.string,
+  sub: PropTypes.string,
+});

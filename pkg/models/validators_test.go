@@ -10,7 +10,9 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/dates"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -703,4 +705,226 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 			t.Errorf("got no errors when should be invalid")
 		}
 	})
+}
+
+func Test_ItemCanFitInsideCrate_IsValid_V2(t *testing.T) {
+	makeInt32 := func(i int) *int32 {
+		val := int32(i)
+		return &val
+	}
+
+	item := primev2messages.MTOServiceItemDimension{
+		Height: makeInt32(10000),
+		Length: makeInt32(10000),
+		Width:  makeInt32(10000),
+	}
+	crate := primev2messages.MTOServiceItemDimension{
+		Height: makeInt32(20000),
+		Length: makeInt32(20000),
+		Width:  makeInt32(20000),
+	}
+
+	t.Run("item and crate both have values succeeds", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name:         "Item",
+			Item:         &item,
+			NameCompared: "Crate",
+			Crate:        &crate,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Errorf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("item and crate both nil fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name:         "Item",
+			Item:         nil,
+			NameCompared: "Crate",
+			Crate:        nil,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Errorf("got no errors when should be invalid")
+		}
+	})
+
+	t.Run("item and crate dimension nil values fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name:         "Item",
+			Item:         &primev2messages.MTOServiceItemDimension{},
+			NameCompared: "Crate",
+			Crate:        &primev2messages.MTOServiceItemDimension{},
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Errorf("got no errors when should be invalid")
+		}
+	})
+
+	t.Run("item dimensions greater than or equal to crate dimensions fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name: "Item",
+			Item: &primev2messages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
+			NameCompared: "Crate",
+			Crate: &primev2messages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Errorf("got no errors when should be invalid")
+		}
+	})
+}
+
+func (suite *ModelSuite) TestOptionalInt64IsPositive() {
+	// Test cases
+	testCases := []struct {
+		name     string
+		input    *int64
+		expected bool
+	}{
+		{"nil", nil, true},
+		{"positive", models.Int64Pointer(5), true},
+		{"zero", models.Int64Pointer(0), false},
+		{"negative", models.Int64Pointer(-3), false},
+	}
+
+	// Run test cases
+	for _, tc := range testCases {
+		validator := models.OptionalInt64IsPositive{Name: "test", Field: tc.input}
+		errors := validate.NewErrors()
+		validator.IsValid(errors)
+
+		suite.Equal(tc.expected, !errors.HasAny(), tc.name)
+	}
+}
+
+func (suite *ModelSuite) TestOptionalIntIsPositive() {
+	// Test cases
+	testCases := []struct {
+		name     string
+		input    *int
+		expected bool
+	}{
+		{"nil", nil, true},
+		{"postive", models.IntPointer(1), true},
+		{"zero", models.IntPointer(0), false},
+		{"negative", models.IntPointer(-1), false},
+	}
+
+	for _, tc := range testCases {
+		validator := models.OptionalIntIsPositive{Name: "test", Field: tc.input}
+		errors := validate.NewErrors()
+		validator.IsValid(errors)
+
+		suite.Equal(tc.expected, !errors.HasAny(), tc.name)
+	}
+}
+
+func (suite *ModelSuite) TestDiscountRateIsValid() {
+	testCases := []struct {
+		name     string
+		input    float64
+		expected bool
+	}{
+		{"discount", 0.5, true},
+		{"discount", -0.1, false},
+	}
+
+	for _, tc := range testCases {
+		validator := models.DiscountRateIsValid{Name: "test", Field: unit.DiscountRate(tc.input)}
+		errors := validate.NewErrors()
+		validator.IsValid(errors)
+
+		suite.Equal(tc.expected, !errors.HasAny(), tc.name)
+	}
+}
+
+func (suite *ModelSuite) TestOptionalDateNotBefore() {
+	now := time.Now()
+	pastDate := now.AddDate(-1, 0, 0)
+	futureDate := now.AddDate(1, 0, 0)
+
+	testCases := []struct {
+		name     string
+		input    *time.Time
+		minDate  *time.Time
+		expected bool
+	}{
+		{"NilValue", nil, &now, true},
+		{"ValidDate", &futureDate, &now, true},
+		{"EqualMinDate", &now, &now, true},
+		{"BeforeMinDate", &pastDate, &now, false},
+	}
+
+	for _, tc := range testCases {
+		validator := models.OptionalDateNotBefore{Name: "test", Field: tc.input, MinDate: tc.minDate}
+		errors := validate.NewErrors()
+		validator.IsValid(errors)
+
+		suite.Equal(tc.expected, !errors.HasAny(), tc.name)
+	}
+}
+
+func (suite *ModelSuite) TestAffiliationIsPresent() {
+	testCases := []struct {
+		name     string
+		input    internalmessages.Affiliation
+		expected bool
+	}{
+		{"Valid", internalmessages.AffiliationARMY, true},
+		{"Invalid", "", false},
+	}
+
+	for _, tc := range testCases {
+		validator := models.AffiliationIsPresent{Name: "test", Field: tc.input}
+		errors := validate.NewErrors()
+		validator.IsValid(errors)
+
+		suite.Equal(tc.expected, !errors.HasAny(), tc.name)
+	}
+}
+
+func (suite *ModelSuite) TestCannotBeTrueIfFalse() {
+	field1 := true
+	field2 := false
+	validator := models.CannotBeTrueIfFalse{
+		Name1:  "Field1",
+		Field1: field1,
+		Name2:  "Field2",
+		Field2: field2,
+	}
+	errors := validate.NewErrors()
+
+	validator.IsValid(errors)
+	suite.NotNil(errors)
+}
+
+func (suite *ModelSuite) TestOptionalUUIDIsPresentWithCustomMessage() {
+	invalidUUID := uuid.UUID{}
+
+	customMessage := "custom error message for invalid UUID"
+
+	validator := models.OptionalUUIDIsPresent{
+		Name:    "badUUID",
+		Field:   &invalidUUID,
+		Message: customMessage,
+	}
+	errors := validate.NewErrors()
+
+	validator.IsValid(errors)
+	suite.NotNil(errors)
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // Entitlement is an object representing entitlements for orders
@@ -18,7 +20,7 @@ type Entitlement struct {
 	PrivatelyOwnedVehicle *bool     `db:"privately_owned_vehicle"`
 	//DBAuthorizedWeight is AuthorizedWeight when not null
 	DBAuthorizedWeight                           *int             `db:"authorized_weight"`
-	weightAllotment                              *WeightAllotment `db:"-"`
+	WeightAllotted                               *WeightAllotment `db:"-"`
 	StorageInTransit                             *int             `db:"storage_in_transit"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
@@ -48,13 +50,13 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 // TODO and possibly consider creating ghc specific GetWeightAllotment should the two
 // TODO diverge in the future
 func (e *Entitlement) SetWeightAllotment(grade string) {
-	wa := GetWeightAllotment(ServiceMemberRank(grade))
-	e.weightAllotment = &wa
+	wa := GetWeightAllotment(internalmessages.OrderPayGrade(grade))
+	e.WeightAllotted = &wa
 }
 
 // WeightAllotment returns the weight allotment
 func (e *Entitlement) WeightAllotment() *WeightAllotment {
-	return e.weightAllotment
+	return e.WeightAllotted
 }
 
 // AuthorizedWeight returns authorized weight. If authorized weight has not been
@@ -74,7 +76,7 @@ func (e *Entitlement) AuthorizedWeight() *int {
 	}
 }
 
-// WeightAllowance will return the service member's weight allotment based on their rank and if dependents are
+// WeightAllowance will return the service member's weight allotment based on their grade and if dependents are
 // authorized
 func (e *Entitlement) WeightAllowance() *int {
 	if weightAllotment := e.WeightAllotment(); weightAllotment != nil {

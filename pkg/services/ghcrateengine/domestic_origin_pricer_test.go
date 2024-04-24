@@ -63,7 +63,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 
 		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(5470)
+		expectedCost := unit.Cents(5472)
 
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
@@ -121,7 +121,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestServiceArea,
 			isPPM,
 		)
-		expectedCost := unit.Cents(5470)
+		expectedCost := unit.Cents(5472)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
@@ -148,7 +148,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			isPPM,
 		)
 
-		expectedCost := unit.Cents(4758)
+		expectedCost := unit.Cents(4752)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 

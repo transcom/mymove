@@ -37,6 +37,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 	var mtoShipmentID *uuid.UUID
 	var mtoShipment models.MTOShipment
 	var move models.Move
+	var isCustomerExpense = false
 	if buildType == mtoServiceItemBuildExtended {
 		// BuildMTOShipment creates a move as necessary
 		mtoShipment = BuildMTOShipment(db, customs, traits)
@@ -53,15 +54,19 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		reService = FetchOrBuildReServiceByCode(db, models.ReServiceCode("STEST"))
 	}
 
+	requestedApprovalsRequestedStatus := false
+
 	// Create default MTOServiceItem
 	mtoServiceItem := models.MTOServiceItem{
-		MoveTaskOrder:   move,
-		MoveTaskOrderID: move.ID,
-		MTOShipment:     mtoShipment,
-		MTOShipmentID:   mtoShipmentID,
-		ReService:       reService,
-		ReServiceID:     reService.ID,
-		Status:          models.MTOServiceItemStatusSubmitted,
+		MoveTaskOrder:                     move,
+		MoveTaskOrderID:                   move.ID,
+		MTOShipment:                       mtoShipment,
+		MTOShipmentID:                     mtoShipmentID,
+		ReService:                         reService,
+		ReServiceID:                       reService.ID,
+		Status:                            models.MTOServiceItemStatusSubmitted,
+		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
+		CustomerExpense:                   isCustomerExpense,
 	}
 
 	// only set SITOriginHHGOriginalAddress if a customization is provided
@@ -348,6 +353,25 @@ var (
 			paramPriceRateOrFactor,
 		},
 		models.ReServiceCodeDLH: {
+			paramActualPickupDate,
+			paramContractCode,
+			paramContractYearName,
+			paramDistanceZip,
+			paramEscalationCompounded,
+			paramIsPeak,
+			paramPriceRateOrFactor,
+			paramReferenceDate,
+			paramRequestedPickupDate,
+			paramServiceAreaOrigin,
+			paramWeightAdjusted,
+			paramWeightBilled,
+			paramWeightEstimated,
+			paramWeightOriginal,
+			paramWeightReweigh,
+			paramZipDestAddress,
+			paramZipPickupAddress,
+		},
+		models.ReServiceCodeDSH: {
 			paramActualPickupDate,
 			paramContractCode,
 			paramContractYearName,
@@ -694,6 +718,7 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 	postalCode := "90210"
 	reason := "peak season all trucks in use"
 	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	defaultApprovedAtDate := time.Now()
 	if entryDate != nil {
 		defaultEntryDate = *entryDate
 	}
@@ -706,6 +731,8 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -724,9 +751,19 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
 		},
 	}, nil)
 
@@ -734,11 +771,20 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:           models.MTOServiceItemStatusApproved,
+				ApprovedAt:       &defaultApprovedAtDate,
 				SITEntryDate:     &defaultEntryDate,
 				SITDepartureDate: defaultDepartureDate,
 				SITPostalCode:    &postalCode,
 				Reason:           &reason,
 			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
 		},
 	}, nil)
 
@@ -746,6 +792,8 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -770,6 +818,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 	postalCode := "90210"
 	reason := "peak season all trucks in use"
 	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	defaultApprovedAtDate := time.Now()
 	if entryDate != nil {
 		defaultEntryDate = *entryDate
 	}
@@ -782,6 +831,8 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -792,6 +843,8 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -802,6 +855,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:           models.MTOServiceItemStatusApproved,
+				ApprovedAt:       &defaultApprovedAtDate,
 				SITEntryDate:     &defaultEntryDate,
 				SITDepartureDate: defaultDepartureDate,
 				SITPostalCode:    &postalCode,
@@ -822,6 +876,83 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
+		},
+	}, nil)
+	return []models.MTOServiceItem{ddfsit, ddasit, dddsit, ddsfsc}
+}
+
+func BuildDestSITServiceItemsNoSITDepartureDate(db *pop.Connection, move models.Move, shipment models.MTOShipment, entryDate *time.Time) models.MTOServiceItems {
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	defaultApprovedAtDate := time.Now()
+	if entryDate != nil {
+		defaultEntryDate = *entryDate
+	}
+
+	ddfsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDFSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+	}, nil)
+
+	ddasit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDASIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+	}, nil)
+
+	dddsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDDSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
+		},
+	}, nil)
+
+	ddsfsc := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDSFSC, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},

@@ -44,3 +44,7 @@ input:disabled {
   display: block;
 }
 
+:global(.usa-form-group.usa-form-group--error) {
+  text-wrap: balance;
+  margin-top: 1.6rem;
+}

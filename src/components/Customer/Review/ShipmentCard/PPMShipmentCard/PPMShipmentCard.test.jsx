@@ -16,6 +16,7 @@ const defaultProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       pickupPostalCode: '10001',
@@ -34,6 +35,7 @@ const completeProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       pickupPostalCode: '10001',
@@ -52,12 +54,34 @@ const completeProps = {
   },
 };
 
+const mockedOnIncompleteClickFunction = jest.fn();
+const incompleteProps = {
+  showEditAndDeleteBtn: true,
+  onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
+  onIncompleteClick: mockedOnIncompleteClickFunction,
+  shipmentNumber: 1,
+  shipment: {
+    moveTaskOrderID: 'testMove123',
+    id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      pickupPostalCode: '10001',
+      destinationPostalCode: '11111',
+      sitExpected: false,
+      expectedDepartureDate: new Date('01/01/2020').toISOString(),
+      hasRequestedAdvance: null,
+    },
+  },
+};
+
 describe('PPMShipmentCard component', () => {
   it('renders component with all fields', () => {
     render(<PPMShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
@@ -94,7 +118,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...defaultProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
@@ -145,7 +169,7 @@ describe('PPMShipmentCard component', () => {
   });
 
   it('renders component with closeout office and army affiliation', () => {
-    const move = { closeout_office: transportationOfficeFactory() };
+    const move = { closeoutOffice: transportationOfficeFactory() };
 
     render(<PPMShipmentCard {...completeProps} affiliation={affiliations.ARMY} move={move} />);
 
@@ -159,7 +183,7 @@ describe('PPMShipmentCard component', () => {
       ['Second origin ZIP', '10002'],
       ['Destination ZIP', '11111'],
       ['Second destination ZIP', '22222'],
-      ['Closeout office', move.closeout_office.name],
+      ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
       ['Pro-gear', 'Yes, 1,250 lbs'],
@@ -179,7 +203,7 @@ describe('PPMShipmentCard component', () => {
   });
 
   it('renders component with closeout office and air force affiliation', () => {
-    const move = { closeout_office: transportationOfficeFactory() };
+    const move = { closeoutOffice: transportationOfficeFactory() };
 
     render(<PPMShipmentCard {...completeProps} affiliation={affiliations.AIR_FORCE} move={move} />);
 
@@ -193,7 +217,7 @@ describe('PPMShipmentCard component', () => {
       ['Second origin ZIP', '10002'],
       ['Destination ZIP', '11111'],
       ['Second destination ZIP', '22222'],
-      ['Closeout office', move.closeout_office.name],
+      ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
       ['Pro-gear', 'Yes, 1,250 lbs'],
@@ -210,5 +234,29 @@ describe('PPMShipmentCard component', () => {
     });
 
     expect();
+  });
+
+  it('does not render incomplete label and tooltip icon for completed ppm shipment with SUBMITTED status', async () => {
+    render(<PPMShipmentCard {...completeProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.queryByText('Incomplete')).toBeNull();
+  });
+
+  it('renders incomplete label and tooltip icon for incomplete ppm shipment with DRAFT status', async () => {
+    render(<PPMShipmentCard {...incompleteProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
+
+    expect(screen.getByTitle('Help about incomplete shipment')).toBeInTheDocument();
+    await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
+
+    // verify onclick is getting json string as parameter
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', 'testMove123-01', 'PPM');
   });
 });

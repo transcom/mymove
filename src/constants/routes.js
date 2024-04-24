@@ -6,18 +6,21 @@ export const generalRoutes = {
 };
 
 export const customerRoutes = {
+  MOVE_HOME_PAGE: '/move',
+  MOVE_HOME_PATH: '/move/:moveId',
+  VALIDATION_CODE_PATH: '/service-member/validation-code',
   CONUS_OCONUS_PATH: '/service-member/conus-oconus',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
   CONTACT_INFO_PATH: '/service-member/contact-info',
-  CURRENT_DUTY_LOCATION_PATH: '/service-member/current-duty',
   CURRENT_ADDRESS_PATH: '/service-member/current-address',
   BACKUP_ADDRESS_PATH: '/service-member/backup-address',
   BACKUP_CONTACTS_PATH: '/service-member/backup-contact',
-  ORDERS_INFO_PATH: '/orders/info',
-  ORDERS_UPLOAD_PATH: '/orders/upload',
-  ORDERS_AMEND_PATH: '/orders/amend',
-  ORDERS_EDIT_PATH: '/moves/:moveId/review/edit-orders',
+  ORDERS_ADD_PATH: '/orders/add',
+  ORDERS_INFO_PATH: '/orders/info/:orderId',
+  ORDERS_UPLOAD_PATH: '/orders/upload/:orderId',
+  ORDERS_AMEND_PATH: '/orders/amend/:orderId',
+  ORDERS_EDIT_PATH: '/move/:moveId/review/edit-orders/:orderId',
   SHIPMENT_MOVING_INFO_PATH: '/moves/:moveId/moving-info',
   SHIPMENT_SELECT_TYPE_PATH: '/moves/:moveId/shipment-type',
   SHIPMENT_CREATE_PATH: '/moves/:moveId/new-shipment',
@@ -37,6 +40,7 @@ export const customerRoutes = {
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
+  EDIT_OKTA_PROFILE_PATH: '/moves/review/edit-okta-profile',
   PROFILE_PATH: '/service-member/profile',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
@@ -52,6 +56,8 @@ export const servicesCounselingRoutes = {
   BASE_QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: 'PPM-closeout',
   BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
+  QUEUE_SEARCH_PATH: 'Search',
+  BASE_QUEUE_SEARCH_PATH: '/Search',
   BASE_COUNSELING_MOVE_PATH,
   BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
@@ -59,6 +65,10 @@ export const servicesCounselingRoutes = {
   CUSTOMER_INFO_EDIT_PATH: 'customer',
   BASE_MOVE_VIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/details`,
   MOVE_VIEW_PATH: 'details',
+  BASE_ORDERS_ADD_PATH: `${BASE_COUNSELING_MOVE_PATH}/new-orders`,
+  ORDERS_ADD_PATH: 'new-orders',
+  BASE_CREATE_MOVE_EDIT_CUSTOMER_PATH: `${BASE_COUNSELING_MOVE_PATH}/edit-customer`,
+  CREATE_MOVE_EDIT_CUSTOMER_PATH: 'edit-customer',
   BASE_ORDERS_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
   BASE_SHIPMENT_ADD_PATH: `${BASE_COUNSELING_MOVE_PATH}/new-shipment/:shipmentType`,
@@ -69,12 +79,15 @@ export const servicesCounselingRoutes = {
   SHIPMENT_ADVANCE_PATH: 'shipments/:shipmentId/advance',
   BASE_MOVE_HISTORY_PATH: `${BASE_COUNSELING_MOVE_PATH}/history`,
   MOVE_HISTORY_PATH: 'history',
+  BASE_MTO_PATH: `${BASE_COUNSELING_MOVE_PATH}/mto`,
+  MTO_PATH: 'mto',
   BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_COUNSELING_MOVE_PATH}/customer-support-remarks`,
   CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
   BASE_SHIPMENT_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/document-review`,
   SHIPMENT_REVIEW_PATH: 'shipments/:shipmentId/document-review',
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
+  CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
 };
 
 const BASE_MOVES_PATH = '/moves/:moveCode';
@@ -96,6 +109,9 @@ export const tooRoutes = {
   MOVE_VIEW_PATH: 'details',
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
+  BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
+  BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
+  CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
 export const qaeCSRRoutes = {
@@ -120,9 +136,15 @@ export const primeSimulatorRoutes = {
   UPDATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId`,
   CREATE_PAYMENT_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/new`,
   CREATE_SERVICE_ITEM_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/service-items/new`,
-  UPDATE_SERVICE_ITEMS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/mto-service-items/update`,
+  UPDATE_SIT_SERVICE_ITEM_PATH: `${BASE_PRIME_SIMULATOR_PATH}/mto-service-items/:mtoServiceItemId/update`,
   UPLOAD_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/:paymentRequestId/upload`,
   UPLOAD_SERVICE_REQUEST_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/mto-service-items/:mtoServiceItemId/upload`,
   SHIPMENT_UPDATE_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/addresses/update`,
   SHIPMENT_UPDATE_REWEIGH_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/reweigh/:reweighId/update`,
+  CREATE_SIT_EXTENSION_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/sit-extension-requests/new`,
+  SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/updateDestinationAddress`,
+};
+
+export const adminRoutes = {
+  HOME_PATH: '/',
 };

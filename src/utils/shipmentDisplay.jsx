@@ -6,8 +6,12 @@ import { LOA_TYPE, shipmentOptionLabels } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 import affiliations from 'content/serviceMemberAgencies';
 
-export function formatAddress(address) {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+export function formatAddress(pickupAddress) {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = pickupAddress;
+
+  if (streetAddress1 === 'n/a') {
+    return city ? `${city}, ${state} ${postalCode}` : postalCode;
+  }
   return (
     <>
       {streetAddress1 && <>{streetAddress1},&nbsp;</>}
@@ -167,6 +171,15 @@ export function getShipmentModificationType(shipment) {
   return undefined;
 }
 
-export function isArmyOrAirForce(affiliation) {
-  return affiliation === affiliations.AIR_FORCE || affiliation === affiliations.ARMY;
+/**
+ * @description Returns whether the service member is affilated a branch that is allowed to choose their PPM closeout office.
+ * @param {string} affiliation - String representing the service member's branch (i.e. "AIR_FORCE") (these string constants are defined in src/content/serviceMemberAgencies.js)
+ * @returns {boolean} - True if member is affiliated with any of the branches allowed to choose their PPM closeout office.
+ */
+export function canChoosePPMLocation(affiliation) {
+  return (
+    affiliation === affiliations.AIR_FORCE ||
+    affiliation === affiliations.ARMY ||
+    affiliation === affiliations.SPACE_FORCE
+  );
 }

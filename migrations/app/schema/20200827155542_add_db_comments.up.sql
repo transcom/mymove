@@ -58,7 +58,7 @@ COMMENT ON COLUMN orders.created_at IS 'Date & time the orders were created';
 COMMENT ON COLUMN orders.updated_at IS 'Date & time the orders were last updated';
 COMMENT ON COLUMN orders.uploaded_orders_id IS 'A foreign key that points to the document table';
 COMMENT ON COLUMN orders.status IS 'Date & time the address was last updated';
-COMMENT ON COLUMN orders.department_indicator IS 'Name of the service branch. NAVY_AND_MARINES, ARMY, AIR_FORCE, COAST_GUARD';
+COMMENT ON COLUMN orders.department_indicator IS 'Name of the service branch. NAVY_AND_MARINES, ARMY, AIR_AND_SPACE_FORCE, ARMY_CORPS_OF_ENGINEERS, COAST_GUARD, OFFICE_OF_SECRETARY_OF_DEFENSE';
 COMMENT ON COLUMN orders.spouse_has_pro_gear IS 'Does the spouse have any pro-gear';
 COMMENT ON COLUMN orders.sac IS 'Shipment Account Classification - used for accounting';
 COMMENT ON COLUMN orders.confirmation_number IS 'This column is not used and should be deleted';
@@ -68,7 +68,7 @@ COMMENT ON COLUMN orders.entitlement_id IS 'A foreign key that points to the ent
 COMMENT ON TABLE notifications IS 'Holds information about the notifications (emails) sent to customers';
 COMMENT ON COLUMN notifications.service_member_id IS 'A foreign key that points to the service_members table';
 COMMENT ON COLUMN notifications.ses_message_id IS 'Uuid returned after a successful sent email message';
-COMMENT ON COLUMN notifications.notification_type IS 'The type of notification sent to the customer including: move approved, move canceled, move reviewed, move submitted, and payment reminder';
+COMMENT ON COLUMN notifications.notification_type IS 'The type of notification sent to the customer including: move approved, move canceled, move submitted, and payment reminder';
 COMMENT ON COLUMN notifications.created_at IS 'Date & time the notification was created';
 
 -- personally_procured_moves

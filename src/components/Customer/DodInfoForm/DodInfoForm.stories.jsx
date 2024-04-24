@@ -20,7 +20,7 @@ export const WithInitialValues = (argTypes) => (
     initialValues={{
       affiliation: 'ARMY',
       edipi: '9999999999',
-      rank: 'E_2',
+      grade: 'E_2',
     }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}

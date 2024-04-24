@@ -7,8 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +21,7 @@ import (
 func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	ppmShipmentUpdater := mocks.PPMShipmentUpdater{}
 
-	setupForTest := func(appCtx appcontext.AppContext, overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {
+	setupForTest := func(overrides *models.WeightTicket, hasEmptyFiles bool, hasFullFiles bool, hasProofFiles bool) *models.WeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
@@ -99,7 +99,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			testdatagen.MergeModels(&originalWeightTicket, overrides)
 		}
 
-		verrs, err := appCtx.DB().ValidateAndCreate(&originalWeightTicket)
+		verrs, err := suite.DB().ValidateAndCreate(&originalWeightTicket)
 
 		suite.NoVerrs(verrs)
 		suite.Nil(err)
@@ -144,9 +144,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
-		appCtx := suite.AppContextForTest()
+		originalWeightTicket := setupForTest(nil, false, false, false)
 
-		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+		})
 
 		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -165,14 +168,17 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Successfully updates", func() {
-		appCtx := suite.AppContextForTest()
-
 		override := models.WeightTicket{
 			EmptyWeight: models.PoundPointer(3000),
 			FullWeight:  models.PoundPointer(4200),
 		}
 
-		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+		originalWeightTicket := setupForTest(&override, true, true, false)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+		})
 
 		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -186,6 +192,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
 			AdjustedNetWeight:        models.PoundPointer(1200),
+			AllowableWeight:          models.PoundPointer(1200),
 			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 
@@ -208,13 +215,16 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
-		appCtx := suite.AppContextForTest()
-
 		override := models.WeightTicket{
 			EmptyWeight: models.PoundPointer(3000),
 			FullWeight:  models.PoundPointer(4200),
 		}
-		originalWeightTicket := setupForTest(appCtx, &override, true, true, true)
+		originalWeightTicket := setupForTest(&override, true, true, true)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+		})
 
 		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -253,9 +263,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Successfully updates and calls the ppmShipmentUpdater when weights are updated", func() {
-		appCtx := suite.AppContextForTest()
+		originalWeightTicket := setupForTest(nil, true, true, false)
 
-		originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+		})
 
 		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 		ppmShipmentUpdater.
@@ -299,13 +312,16 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Successfully updates and does not call ppmShipmentUpdater when total weight is unchanged", func() {
-		appCtx := suite.AppContextForTest()
-
 		override := models.WeightTicket{
 			EmptyWeight: models.PoundPointer(3000),
 			FullWeight:  models.PoundPointer(4200),
 		}
-		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+		originalWeightTicket := setupForTest(&override, true, true, false)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+		})
 
 		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -341,15 +357,18 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Successfully updates when total weight is changed - taking adjustedNetWeight into account", func() {
-		appCtx := suite.AppContextForTest()
-
 		override := models.WeightTicket{
 			EmptyWeight:       models.PoundPointer(3000),
 			FullWeight:        models.PoundPointer(4200),
 			AdjustedNetWeight: models.PoundPointer(1200),
 			NetWeightRemarks:  models.StringPointer("Weight has been adjusted"),
 		}
-		originalWeightTicket := setupForTest(appCtx, &override, true, true, false)
+		originalWeightTicket := setupForTest(&override, true, true, false)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+		})
 
 		updater := NewOfficeWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -385,9 +404,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
-		appCtx := suite.AppContextForTest()
+		originalWeightTicket := setupForTest(nil, false, false, false)
 
-		originalWeightTicket := setupForTest(appCtx, nil, false, false, false)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+		})
 
 		updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -489,9 +511,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Run("successfully", func() {
 
 			suite.Run("changes status and reason", func() {
-				appCtx := suite.AppContextForTest()
-
 				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
+
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.MilApp,
+					ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+				})
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -512,8 +537,6 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			})
 
 			suite.Run("changes reason", func() {
-				appCtx := suite.AppContextForTest()
-
 				status := models.PPMDocumentStatusExcluded
 				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
 					{
@@ -523,6 +546,11 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 						},
 					},
 				}, nil)
+
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.MilApp,
+					ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+				})
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -540,8 +568,6 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			})
 
 			suite.Run("changes reason from rejected to approved", func() {
-				appCtx := suite.AppContextForTest()
-
 				status := models.PPMDocumentStatusExcluded
 				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
 					{
@@ -551,6 +577,11 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 						},
 					},
 				}, nil)
+
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.MilApp,
+					ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+				})
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -572,9 +603,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 
 		suite.Run("fails", func() {
 			suite.Run("to update when status or reason are changed", func() {
-				appCtx := suite.AppContextForTest()
+				originalWeightTicket := setupForTest(nil, true, true, false)
 
-				originalWeightTicket := setupForTest(appCtx, nil, true, true, false)
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.MilApp,
+					ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+				})
 
 				updater := NewCustomerWeightTicketUpdater(setUpFetcher(originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -604,8 +638,6 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			})
 
 			suite.Run("to update status if reason is also set when approving", func() {
-				appCtx := suite.AppContextForTest()
-
 				status := models.PPMDocumentStatusExcluded
 				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
 					{
@@ -615,6 +647,11 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 						},
 					},
 				}, nil)
+
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.MilApp,
+					ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+				})
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 
@@ -634,9 +671,12 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			})
 
 			suite.Run("to update because of invalid status", func() {
-				appCtx := suite.AppContextForTest()
-
 				originalWeightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
+
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.MilApp,
+					ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
+				})
 
 				updater := NewOfficeWeightTicketUpdater(setUpFetcher(&originalWeightTicket, nil), &ppmShipmentUpdater)
 

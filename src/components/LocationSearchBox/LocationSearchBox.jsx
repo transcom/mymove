@@ -169,6 +169,12 @@ export const LocationSearchBoxComponent = ({
     [styles.dutyInputBoxError]: errorMsg,
   });
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Backspace' && !inputValue) {
+      onChange(null);
+    }
+  };
+
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasLocation = !!value && !!value.address;
   return (
@@ -189,6 +195,7 @@ export const LocationSearchBoxComponent = ({
           getOptionValue={getOptionName}
           loadOptions={loadOptions}
           onChange={selectOption}
+          onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
           placeholder={placeholder || 'Start typing a duty location...'}
           value={hasLocation ? value : null}

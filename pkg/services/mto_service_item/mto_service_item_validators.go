@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -33,7 +34,7 @@ type updateMTOServiceItemValidator interface {
 type basicUpdateMTOServiceItemValidator struct{}
 
 func (v *basicUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
-	err := serviceItemData.checkLinkedIDs(appCtx)
+	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ type primeUpdateMTOServiceItemValidator struct{}
 
 func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 	// Checks that the MTO ID, Shipment ID, and ReService IDs haven't changed
-	err := serviceItemData.checkLinkedIDs(appCtx)
+	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that there aren't any pending payment requests for this service item
-	err = serviceItemData.checkPaymentRequests(appCtx)
+	err = serviceItemData.checkPaymentRequests(appCtx, serviceItemData)
 	if err != nil {
 		return err
 	}
@@ -105,7 +106,6 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that SITDestinationFinalAddress isn't updated through this endpoint
-	// Should use the createSITAddressUpdate endpoint
 	err = serviceItemData.checkSITDestinationFinalAddress(appCtx)
 	if err != nil {
 		return err
@@ -113,6 +113,18 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Gets any validation errors from the above checks
 	err = serviceItemData.getVerrs()
+	if err != nil {
+		return err
+	}
+
+	// Checks that the Old MTO SIT Service Item has a REJECTED status. If not the update req is rejected
+	err = serviceItemData.checkOldServiceItemStatus(appCtx, serviceItemData)
+	if err != nil {
+		return err
+	}
+
+	// Check to see if the updated service item is different than the old one
+	err = serviceItemData.checkForSITItemChanges(serviceItemData)
 	if err != nil {
 		return err
 	}
@@ -128,8 +140,80 @@ type updateMTOServiceItemData struct {
 	verrs               *validate.Errors
 }
 
+// Check to see if the updatedSIT service item is different than the old one
+// Turns out creating a custom comparsion method using if-statements has better performance than using a library in go
+func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updateMTOServiceItemData) error {
+
+	oldServiceItem := serviceItemData.oldServiceItem
+
+	// This check is for the service items in this list
+	serviceItemsToCheck := []models.ReServiceCode{
+		models.ReServiceCodeDOFSIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOASIT,
+	}
+
+	// Check will only be executed for serviceItems with reservice codes in the serviceItemsToCheck array
+	if slices.Contains(serviceItemsToCheck, oldServiceItem.ReService.Code) {
+
+		updatedServiceItem := serviceItemData.updatedServiceItem
+
+		// Start checking for differences. If a difference is found return nil. No need to reject the request if there are changes.
+		// For now only check fields that the prime can actually submit a change for
+
+		if updatedServiceItem.ReService.Code.String() != "" && updatedServiceItem.ReService.Code != oldServiceItem.ReService.Code {
+			return nil
+		}
+
+		if updatedServiceItem.SITDepartureDate != nil && oldServiceItem.SITDepartureDate != nil {
+			if updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
+				return nil
+			}
+		} else if updatedServiceItem.SITDepartureDate != nil && oldServiceItem.SITDepartureDate == nil {
+			return nil
+		}
+
+		if updatedServiceItem.SITDestinationFinalAddress != nil && updatedServiceItem.SITDestinationFinalAddress != oldServiceItem.SITDestinationFinalAddress {
+			return nil
+		}
+
+		if updatedServiceItem.SITCustomerContacted != nil && updatedServiceItem.SITCustomerContacted != oldServiceItem.SITCustomerContacted {
+			return nil
+		}
+
+		if updatedServiceItem.SITRequestedDelivery != nil && oldServiceItem.SITRequestedDelivery != nil {
+			if updatedServiceItem.SITRequestedDelivery.UTC() != oldServiceItem.SITRequestedDelivery.UTC() {
+				return nil
+			}
+		} else if updatedServiceItem.SITRequestedDelivery != nil && oldServiceItem.SITRequestedDelivery == nil {
+			return nil
+		}
+
+		if updatedServiceItem.SITEntryDate != nil && updatedServiceItem.SITEntryDate.UTC() != oldServiceItem.SITEntryDate.UTC() {
+			return nil
+		}
+
+		if updatedServiceItem.Reason != nil && *updatedServiceItem.Reason != *oldServiceItem.Reason {
+			return nil
+		}
+
+		if updatedServiceItem.SITPostalCode != nil && *updatedServiceItem.SITPostalCode != *oldServiceItem.SITPostalCode {
+			return nil
+		}
+
+		if updatedServiceItem.RequestedApprovalsRequestedStatus != nil && *updatedServiceItem.RequestedApprovalsRequestedStatus != *oldServiceItem.RequestedApprovalsRequestedStatus {
+			return nil
+		}
+
+		// If execution made it this far no changes were detected. Reject the request.
+		return apperror.NewConflictError(oldServiceItem.ID,
+			"- To re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
+
+	}
+
+	return nil
+}
+
 // checkLinkedIDs checks that the user didn't attempt to change the service item's move, shipment, or reService IDs
-func (v *updateMTOServiceItemData) checkLinkedIDs(_ appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 	if v.updatedServiceItem.MoveTaskOrderID != uuid.Nil && v.updatedServiceItem.MoveTaskOrderID != v.oldServiceItem.MoveTaskOrderID {
 		v.verrs.Add("moveTaskOrderID", "cannot be updated")
 	}
@@ -138,6 +222,72 @@ func (v *updateMTOServiceItemData) checkLinkedIDs(_ appcontext.AppContext) error
 	}
 	if v.updatedServiceItem.ReServiceID != uuid.Nil && v.updatedServiceItem.ReServiceID != v.oldServiceItem.ReServiceID {
 		v.verrs.Add("reServiceID", "cannot be updated")
+	}
+
+	return nil
+}
+
+// checkOldServiceItemStatus checks that the old service item has a REJECTED status
+func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
+
+	// Only apply this check to the service items in this list
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+
+	if slices.Contains(reServiceCodesAllowed, serviceItemData.oldServiceItem.ReService.Code) {
+		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
+			return nil
+		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
+
+			invalidFieldChange := false
+			// Fields that are not allowed to change when status is approved
+
+			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.SITEntryDate != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.Reason != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.SITPostalCode != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+				invalidFieldChange = true
+			}
+
+			if invalidFieldChange {
+				return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+					"- one or more fields is not allowed to be updated when the SIT service item has an approved status.")
+			}
+
+			// Fields allowed to changed when status is approved
+			if serviceItemData.updatedServiceItem.SITDepartureDate != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
+				return nil
+			}
+			if serviceItemData.updatedServiceItem.SITRequestedDelivery != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
+				return nil
+			}
+			if serviceItemData.updatedServiceItem.SITCustomerContacted != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
+				return nil
+			}
+
+			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+				"- unknown field or fields attempting to be updated.")
+
+		} else {
+			// Rejects the update if the original SIT does not have a REJECTED status
+			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+				"- this SIT service item cannot be updated because the status is not in an editable state.")
+		}
 	}
 
 	return nil
@@ -156,7 +306,10 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
 func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
-	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status {
+
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+
+	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(reServiceCodesAllowed, v.oldServiceItem.ReService.Code)) {
 		v.verrs.Add("status", "cannot be updated")
 	}
 
@@ -178,16 +331,20 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) 
 // checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
 // SITDepartureDate
 func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) error {
+
+	// Manual updates to SIT Departure dates are allowed for these service items
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
 
-	if v.oldServiceItem.ReService.Code == models.ReServiceCodeDDDSIT || v.oldServiceItem.ReService.Code == models.ReServiceCodeDOPSIT {
-		return nil // the service item is a SIT departure service, so we're fine
+	if slices.Contains(reServiceCodesAllowed, v.oldServiceItem.ReService.Code) {
+		return nil // the service item is a SIT departure service or SIT Domestic origin 1st day SIT , so we're fine
 	}
 
 	return apperror.NewConflictError(v.updatedServiceItem.ID,
-		fmt.Sprintf("- SIT Departure Date may only be manually updated for %s and %s service items.", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
+		fmt.Sprintf("- SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
 }
 
 // checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
@@ -220,15 +377,16 @@ func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(_ appcontext.
 		return nil // the SITDestinationFinalAddress is being created, so we're fine here
 	}
 
-	if v.oldServiceItem.ReService.Code != models.ReServiceCodeDDDSIT {
-		return apperror.NewConflictError(v.updatedServiceItem.ID,
-			fmt.Sprintf("- SIT Destination Final Address may only be manually created for %s service items.", models.ReServiceCodeDDDSIT))
+	reServiceCodesDestination := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC}
+	if slices.Contains(reServiceCodesDestination, v.oldServiceItem.ReService.Code) {
+		v.verrs.Add("SITDestinationFinalAddress", "Update the shipment destination address to update the service item's SIT final destination address.")
+		return nil
 	}
 
 	if *v.oldServiceItem.SITDestinationFinalAddressID != uuid.Nil &&
 		v.updatedServiceItem.SITDestinationFinalAddress != nil &&
 		v.updatedServiceItem.SITDestinationFinalAddress.ID != *v.oldServiceItem.SITDestinationFinalAddressID {
-		v.verrs.Add("SITDestinationFinalAddress", "cannot be updated")
+		v.verrs.Add("SITDestinationFinalAddress", "Update the shipment destination address to update the service item's SIT final destination address.")
 	}
 
 	return nil
@@ -236,11 +394,15 @@ func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(_ appcontext.
 
 // checkPaymentRequests looks for any existing payment requests connected to this service item and returns a
 // Conflict Error if any are found
-func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkPaymentRequests(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 	var paymentServiceItem models.PaymentServiceItem
+
+	// Check what fields are being updated to allow this update
+	allowUpdateBasedOnAllowableFieldChange := paymentRequestCheckAllowableFieldCheck(serviceItemData)
+
 	err := appCtx.DB().Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(&paymentServiceItem)
 
-	if err == nil && paymentServiceItem.ID != uuid.Nil {
+	if err == nil && paymentServiceItem.ID != uuid.Nil && !allowUpdateBasedOnAllowableFieldChange {
 		return apperror.NewConflictError(v.updatedServiceItem.ID,
 			"- this service item has an existing payment request and can no longer be updated.")
 	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
@@ -272,6 +434,11 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		newMTOServiceItem.Status = v.updatedServiceItem.Status
 	}
 
+	// If the updated RequestedApprovalsRequestedStatus param is not null/nil then update the new serviceItem
+	if v.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+		newMTOServiceItem.RequestedApprovalsRequestedStatus = v.updatedServiceItem.RequestedApprovalsRequestedStatus
+	}
+
 	// Set string fields:
 	newMTOServiceItem.Reason = services.SetOptionalStringField(v.updatedServiceItem.Reason, newMTOServiceItem.Reason)
 
@@ -280,6 +447,11 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	newMTOServiceItem.RejectionReason = services.SetOptionalStringField(
 		v.updatedServiceItem.RejectionReason, newMTOServiceItem.RejectionReason)
+
+	if v.updatedServiceItem.SITPostalCode != nil {
+		newMTOServiceItem.SITPostalCode = services.SetOptionalStringField(
+			v.updatedServiceItem.SITPostalCode, newMTOServiceItem.SITPostalCode)
+	}
 
 	newMTOServiceItem.SITPostalCode = services.SetOptionalStringField(
 		v.updatedServiceItem.SITPostalCode, newMTOServiceItem.SITPostalCode)
@@ -293,11 +465,18 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	newMTOServiceItem.RejectedAt = services.SetOptionalDateTimeField(v.updatedServiceItem.RejectedAt, newMTOServiceItem.RejectedAt)
 
+	if v.updatedServiceItem.SITEntryDate != nil {
+		newMTOServiceItem.SITEntryDate = services.SetOptionalDateTimeField(
+			v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)
+	}
+
 	newMTOServiceItem.SITEntryDate = services.SetOptionalDateTimeField(
 		v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)
 
-	newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
-		v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
+	if v.updatedServiceItem.SITDepartureDate != nil {
+		newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
+			v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
+	}
 
 	newMTOServiceItem.SITCustomerContacted = services.SetOptionalDateTimeField(v.updatedServiceItem.SITCustomerContacted, newMTOServiceItem.SITCustomerContacted)
 	newMTOServiceItem.SITRequestedDelivery = services.SetOptionalDateTimeField(v.updatedServiceItem.SITRequestedDelivery, newMTOServiceItem.SITRequestedDelivery)
@@ -370,4 +549,32 @@ func (v *updateMTOServiceItemData) setNewCustomerContacts() models.MTOServiceIte
 		}
 	}
 	return newCustomerContacts
+}
+
+func paymentRequestCheckAllowableFieldCheck(serviceItemData *updateMTOServiceItemData) bool {
+
+	allowableFieldChange, disallowedFieldChange := false, false
+
+	// Fields allowed to change when service item has a payment request
+	if serviceItemData.updatedServiceItem.SITDepartureDate != nil ||
+		serviceItemData.updatedServiceItem.SITRequestedDelivery != nil ||
+		serviceItemData.updatedServiceItem.SITCustomerContacted != nil {
+		allowableFieldChange = true
+	}
+
+	// Fields not allowed to change when service item has a payment request
+	if serviceItemData.updatedServiceItem.ReService.Code.String() != "" &&
+		serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() ||
+		serviceItemData.updatedServiceItem.SITEntryDate != nil ||
+		serviceItemData.updatedServiceItem.Reason != nil ||
+		serviceItemData.updatedServiceItem.SITPostalCode != nil ||
+		serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+		disallowedFieldChange = true
+	}
+
+	if allowableFieldChange && !disallowedFieldChange {
+		return true
+	}
+
+	return false
 }

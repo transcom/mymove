@@ -23,6 +23,10 @@ type ShipmentPaymentSITBalance struct {
 	// Format: date
 	PendingBilledEndDate *strfmt.Date `json:"pendingBilledEndDate,omitempty"`
 
+	// pending billed start date
+	// Format: date
+	PendingBilledStartDate *strfmt.Date `json:"pendingBilledStartDate,omitempty"`
+
 	// pending s i t days invoiced
 	PendingSITDaysInvoiced int64 `json:"pendingSITDaysInvoiced,omitempty"`
 
@@ -60,6 +64,10 @@ func (m *ShipmentPaymentSITBalance) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePendingBilledStartDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePreviouslyBilledEndDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -88,6 +96,18 @@ func (m *ShipmentPaymentSITBalance) validatePendingBilledEndDate(formats strfmt.
 	}
 
 	if err := validate.FormatOf("pendingBilledEndDate", "body", "date", m.PendingBilledEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentPaymentSITBalance) validatePendingBilledStartDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.PendingBilledStartDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("pendingBilledStartDate", "body", "date", m.PendingBilledStartDate.String(), formats); err != nil {
 		return err
 	}
 

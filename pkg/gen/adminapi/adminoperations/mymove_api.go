@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
@@ -81,6 +82,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		}),
+		RequestedOfficeUsersGetRequestedOfficeUserHandler: requested_office_users.GetRequestedOfficeUserHandlerFunc(func(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.GetRequestedOfficeUser has not yet been implemented")
+		}),
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		}),
@@ -114,6 +118,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrganizationsIndexOrganizationsHandler: organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
 		}),
+		RequestedOfficeUsersIndexRequestedOfficeUsersHandler: requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
+		}),
 		UsersIndexUsersHandler: users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
 		}),
@@ -134,6 +141,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
+		}),
+		RequestedOfficeUsersUpdateRequestedOfficeUserHandler: requested_office_users.UpdateRequestedOfficeUserHandlerFunc(func(params requested_office_users.UpdateRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.UpdateRequestedOfficeUser has not yet been implemented")
 		}),
 		UsersUpdateUserHandler: users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
@@ -199,6 +209,8 @@ type MymoveAPI struct {
 	MovesGetMoveHandler moves.GetMoveHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
+	// RequestedOfficeUsersGetRequestedOfficeUserHandler sets the operation handler for the get requested office user operation
+	RequestedOfficeUsersGetRequestedOfficeUserHandler requested_office_users.GetRequestedOfficeUserHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
 	// UsersGetUserHandler sets the operation handler for the get user operation
@@ -221,6 +233,8 @@ type MymoveAPI struct {
 	TransportationOfficesIndexOfficesHandler transportation_offices.IndexOfficesHandler
 	// OrganizationsIndexOrganizationsHandler sets the operation handler for the index organizations operation
 	OrganizationsIndexOrganizationsHandler organizations.IndexOrganizationsHandler
+	// RequestedOfficeUsersIndexRequestedOfficeUsersHandler sets the operation handler for the index requested office users operation
+	RequestedOfficeUsersIndexRequestedOfficeUsersHandler requested_office_users.IndexRequestedOfficeUsersHandler
 	// UsersIndexUsersHandler sets the operation handler for the index users operation
 	UsersIndexUsersHandler users.IndexUsersHandler
 	// WebhookSubscriptionsIndexWebhookSubscriptionsHandler sets the operation handler for the index webhook subscriptions operation
@@ -235,6 +249,8 @@ type MymoveAPI struct {
 	MovesUpdateMoveHandler moves.UpdateMoveHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
+	// RequestedOfficeUsersUpdateRequestedOfficeUserHandler sets the operation handler for the update requested office user operation
+	RequestedOfficeUsersUpdateRequestedOfficeUserHandler requested_office_users.UpdateRequestedOfficeUserHandler
 	// UsersUpdateUserHandler sets the operation handler for the update user operation
 	UsersUpdateUserHandler users.UpdateUserHandler
 	// WebhookSubscriptionsUpdateWebhookSubscriptionHandler sets the operation handler for the update webhook subscription operation
@@ -343,6 +359,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
 	}
+	if o.RequestedOfficeUsersGetRequestedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "requested_office_users.GetRequestedOfficeUserHandler")
+	}
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
 	}
@@ -376,6 +395,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrganizationsIndexOrganizationsHandler == nil {
 		unregistered = append(unregistered, "organizations.IndexOrganizationsHandler")
 	}
+	if o.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
+		unregistered = append(unregistered, "requested_office_users.IndexRequestedOfficeUsersHandler")
+	}
 	if o.UsersIndexUsersHandler == nil {
 		unregistered = append(unregistered, "users.IndexUsersHandler")
 	}
@@ -396,6 +418,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
+	}
+	if o.RequestedOfficeUsersUpdateRequestedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "requested_office_users.UpdateRequestedOfficeUserHandler")
 	}
 	if o.UsersUpdateUserHandler == nil {
 		unregistered = append(unregistered, "users.UpdateUserHandler")
@@ -530,6 +555,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/requested-office-users/{officeUserId}"] = requested_office_users.NewGetRequestedOfficeUser(o.context, o.RequestedOfficeUsersGetRequestedOfficeUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/uploads/{uploadId}"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -574,6 +603,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/requested-office-users"] = requested_office_users.NewIndexRequestedOfficeUsers(o.context, o.RequestedOfficeUsersIndexRequestedOfficeUsersHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/users"] = users.NewIndexUsers(o.context, o.UsersIndexUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -599,6 +632,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/office-users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/requested-office-users/{officeUserId}"] = requested_office_users.NewUpdateRequestedOfficeUser(o.context, o.RequestedOfficeUsersUpdateRequestedOfficeUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

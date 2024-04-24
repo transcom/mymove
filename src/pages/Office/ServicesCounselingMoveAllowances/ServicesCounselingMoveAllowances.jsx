@@ -11,7 +11,7 @@ import AllowancesDetailForm from '../../../components/Office/AllowancesDetailFor
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -19,8 +19,6 @@ import { counselingUpdateAllowance } from 'services/ghcApi';
 import { dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-
-const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
@@ -156,7 +154,6 @@ const ServicesCounselingMoveAllowances = () => {
               <div className={styles.body}>
                 <AllowancesDetailForm
                   entitlements={order.entitlement}
-                  rankOptions={rankDropdownOptions}
                   branchOptions={branchDropdownOption}
                   header="Counseling"
                 />

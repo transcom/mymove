@@ -8,19 +8,21 @@ import (
 
 // shipmentCreator is the concrete struct implementing the services.ShipmentCreator interface
 type shipmentCreator struct {
-	checks             []shipmentValidator
-	mtoShipmentCreator services.MTOShipmentCreator
-	ppmShipmentCreator services.PPMShipmentCreator
-	shipmentRouter     services.ShipmentRouter
+	checks               []shipmentValidator
+	mtoShipmentCreator   services.MTOShipmentCreator
+	ppmShipmentCreator   services.PPMShipmentCreator
+	shipmentRouter       services.ShipmentRouter
+	moveTaskOrderUpdater services.MoveTaskOrderUpdater
 }
 
 // NewShipmentCreator creates a new shipmentCreator struct with the basic checks and service dependencies.
-func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, shipmentRouter services.ShipmentRouter) services.ShipmentCreator {
+func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentCreator {
 	return &shipmentCreator{
-		checks:             basicShipmentChecks(),
-		mtoShipmentCreator: mtoShipmentCreator,
-		ppmShipmentCreator: ppmShipmentCreator,
-		shipmentRouter:     shipmentRouter,
+		checks:               basicShipmentChecks(),
+		mtoShipmentCreator:   mtoShipmentCreator,
+		ppmShipmentCreator:   ppmShipmentCreator,
+		shipmentRouter:       shipmentRouter,
+		moveTaskOrderUpdater: moveTaskOrderUpdater,
 	}
 }
 
@@ -54,6 +56,12 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 		}
 
 		if !isPPMShipment {
+			// Update PPMType once shipment gets created.
+			_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
+
+			if err != nil {
+				return err
+			}
 			return nil
 		}
 
@@ -61,6 +69,12 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 		mtoShipment.PPMShipment.Shipment = *mtoShipment
 
 		_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
+
+		if err != nil {
+			return err
+		}
+		// Update PPMType once shipment gets created.
+		_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
 
 		if err != nil {
 			return err

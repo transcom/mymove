@@ -9,11 +9,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	movingexpenseops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -186,39 +184,10 @@ func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingE
 
 			// Make sure the service member is not modifying another service member's PPM
 			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
-			var ppmShipment models.PPMShipment
-			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
-				EagerPreload(
-					"Shipment.MoveTaskOrder.Orders",
-					"MovingExpenses",
-				).
-				Find(&ppmShipment, ppmID)
-			if err != nil {
-				if err == sql.ErrNoRows {
-					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
-				}
-				return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
-			}
-			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-				wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
-				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(wrongServiceMemberIDErr))
-				return movingexpenseops.NewDeleteMovingExpenseForbidden(), wrongServiceMemberIDErr
-			}
 
 			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
-			found := false
-			for _, lineItem := range ppmShipment.MovingExpenses {
-				if lineItem.ID == movingExpenseID {
-					found = true
-					break
-				}
-			}
-			if !found {
-				mismatchedPPMShipmentAndMovingExpenseIDErr := apperror.NewSessionError("Moving expense does not exist on ppm shipment")
-				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(mismatchedPPMShipmentAndMovingExpenseIDErr))
-				return movingexpenseops.NewDeleteMovingExpenseNotFound(), mismatchedPPMShipmentAndMovingExpenseIDErr
-			}
-			err = h.movingExpenseDeleter.DeleteMovingExpense(appCtx, movingExpenseID)
+
+			err := h.movingExpenseDeleter.DeleteMovingExpense(appCtx, ppmID, movingExpenseID)
 			if err != nil {
 				appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(err))
 

@@ -32,6 +32,7 @@ const sitExtension = {
 const sitStatus = {
   totalDaysRemaining: 30,
   totalSITDaysUsed: 15,
+  calculatedTotalDaysInSIT: 15,
   currentSIT: {
     daysInSIT: 15,
     sitEntryDate: new Date('22 Aug 2023'),

@@ -19,7 +19,7 @@ const (
 	dupkTestServicesScheduleDest = 1
 	dupkTestContractYearName     = "DUPK Test Year"
 	dupkTestBasePriceCents       = unit.Cents(123)
-	dupkTestPriceCents           = unit.Cents(5451) // dupkTestBasePriceCents * (dupkTestWeight / 100) * dupkTestEscalationCompounded
+	dupkTestPriceCents           = unit.Cents(5436)
 )
 
 var dupkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).AddDate(0, 0, -1)

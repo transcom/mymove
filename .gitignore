@@ -1,6 +1,7 @@
 # direnv
 .envrc.local
 .envrc.chamber
+.envrc.okta
 
 # dependencies
 /vendor
@@ -29,6 +30,7 @@ bin/
 #debugging
 /cmd/milmove/debug
 /cmd/webserver/debug
+__debug_bin*
 
 # misc
 .DS_Store
@@ -60,6 +62,7 @@ public/swagger-ui/*
 !public/swagger-ui/prime.html
 !public/swagger-ui/prime_v2.html
 !public/swagger-ui/ghc.html
+!public/swagger-ui/support.html
 
 # Playwright integration tests
 playwright/.cache
@@ -131,3 +134,4 @@ pour.sh
 Brewfile.local.lock.json
 Brewfile.lock.json
 /junit.xml
+.envrc.okta

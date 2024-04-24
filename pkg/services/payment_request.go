@@ -64,7 +64,7 @@ type PaymentRequestStatusUpdater interface {
 //
 //go:generate mockery --name PaymentRequestUploadCreator
 type PaymentRequestUploadCreator interface {
-	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
+	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string, isWeightTicket bool) (*models.Upload, error)
 }
 
 // PaymentRequestReviewedProcessor is the exported interface for processing reviewed payment requests
@@ -89,6 +89,7 @@ type FetchPaymentRequestListParams struct {
 	Sort                    *string
 	Order                   *string
 	OriginDutyLocation      *string
+	OrderType               *string
 }
 
 // ShipmentPaymentSITBalance is a public struct that's used to return current SIT balances to the TIO for a payment
@@ -99,6 +100,7 @@ type ShipmentPaymentSITBalance struct {
 	TotalSITDaysRemaining   int
 	TotalSITEndDate         time.Time
 	PendingSITDaysInvoiced  int
+	PendingBilledStartDate  time.Time
 	PendingBilledEndDate    time.Time
 	PreviouslyBilledDays    *int
 	PreviouslyBilledEndDate *time.Time

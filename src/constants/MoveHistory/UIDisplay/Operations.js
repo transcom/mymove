@@ -35,9 +35,28 @@ export default {
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
+  updateServiceItemSitEntryDate: 'updateServiceItemSitEntryDate', // ghc.yaml
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   patchServiceMember: 'patchServiceMember', // internal.yaml
   createServiceMember: 'createServiceMember', // internal.yaml
   createServiceMemberBackupContact: 'createServiceMemberBackupContact', // internal.yaml
   updateServiceMemberBackupContact: 'updateServiceMemberBackupContact', // internal.yaml
+  createSITAddressUpdateRequest: 'createSITAddressUpdateRequest', // prime.yaml
+  approveSITAddressUpdate: 'approveSITAddressUpdate', // ghc.yaml
+  rejectSITAddressUpdate: 'rejectSITAddressUpdate', // ghc.yaml
+  createSITAddressUpdate: 'createSITAddressUpdate', // ghc.yaml
+  updateWeightTicket: 'updateWeightTicket', // ghc.yaml, internal.yaml
+  updateProGearWeightTicket: 'updateProGearWeightTicket', // ghc.yaml, internal.yaml
+  updateMovingExpense: 'updateMovingExpense', // ghc.yaml, internal.yaml
+  deleteMTOShipment: 'deleteMTOShipment', // prime.yaml
+  updateCloseoutOffice: 'updateCloseoutOffice', // ghc.yaml, internal.yaml
+  createWeightTicket: 'createWeightTicket', // internal.yaml
+  deleteWeightTicket: 'deleteWeightTicket', // internal.yaml
+  createPPMUpload: 'createPPMUpload', // internal.yaml
+  createProGearWeightTicket: 'createProGearWeightTicket', // internal.yaml
+  deleteProGearWeightTicket: 'deleteProGearWeightTicket', // internal.yaml
+  createMovingExpense: 'createMovingExpense', // internal.yaml
+  deleteMovingExpense: 'deleteMovingExpense', // internal.yaml
+  submitPPMShipmentDocumentation: 'submitPPMShipmentDocumentation', // internal.yaml
+  finishDocumentReview: 'finishDocumentReview', // ghc.yaml
 };

@@ -34,7 +34,7 @@ func (o *clientCertCreator) CreateClientCert(
 		// A user may already exist with the email from a previous user
 		// (admin, office, ...) if we are creating a CAC login certificate
 		var user models.User
-		userEmailFilter := query.NewQueryFilter("login_gov_email", "=", email)
+		userEmailFilter := query.NewQueryFilter("okta_email", "=", email)
 		err := o.builder.FetchOne(txnAppCtx, &user, []services.QueryFilter{userEmailFilter})
 
 		if err != nil && err != sql.ErrNoRows {
@@ -46,8 +46,8 @@ func (o *clientCertCreator) CreateClientCert(
 		// This logic is similar to what is used when creating office users
 		if err == sql.ErrNoRows {
 			user = models.User{
-				LoginGovEmail: strings.ToLower(email),
-				Active:        true,
+				OktaEmail: strings.ToLower(email),
+				Active:    true,
 			}
 
 			verrs, err = o.builder.CreateOne(txnAppCtx, &user)

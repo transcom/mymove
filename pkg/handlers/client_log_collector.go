@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 type ClientLoggerStats struct {
@@ -45,9 +46,19 @@ func NewClientLogHandler(appCtx appcontext.AppContext) http.HandlerFunc {
 			// problems in this case, it can't do anything about it
 			return
 		}
-		appCtx.Logger().Info("client log upload stats",
-			zap.String("source", "client_stats"),
+		// use the appCtx logger and not the one associated with the
+		// request so that client logs have only the attributes
+		// configured here
+		clientLogger := appCtx.Logger().With(
 			zap.String("app", logUpload.App),
+		)
+
+		if sessionID := auth.SessionIDFromContext(r.Context()); sessionID != "" {
+			clientLogger = clientLogger.With(zap.String("session_id", sessionID))
+		}
+
+		clientLogger.Info("client log upload stats",
+			zap.String("source", "client_stats"),
 			zap.Int("logEntryCount", len(logUpload.LogEntries)),
 			zap.Int("droppedLogCount", logUpload.LoggerStats.DroppedLogsCount),
 			zap.Int("failedSendCount", logUpload.LoggerStats.FailedSendCount),
@@ -56,9 +67,8 @@ func NewClientLogHandler(appCtx appcontext.AppContext) http.HandlerFunc {
 
 		for i := range logUpload.LogEntries {
 			logEntry := logUpload.LogEntries[i]
-			appCtx.Logger().Info("client log entry",
+			clientLogger.Info("client log entry",
 				zap.String("source", "client_log_entry"),
-				zap.String("app", logUpload.App),
 				zap.String("logLevel", logEntry.Level),
 				zap.Any("args", logEntry.Args),
 			)

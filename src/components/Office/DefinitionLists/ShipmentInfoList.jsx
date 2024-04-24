@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
 import styles from 'styles/descriptionList.module.scss';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 import {
@@ -90,7 +90,7 @@ const ShipmentInfoList = ({
     <div className={scheduledPickupDateElementFlags.classes}>
       <dt>Scheduled pickup date</dt>
       <dd data-testid="requestedPickupDate">
-        {(scheduledPickupDate && formatDate(scheduledPickupDate, 'DD MMM YYYY')) ||
+        {(scheduledPickupDate && formatDateWithUTC(scheduledPickupDate, 'DD MMM YYYY')) ||
           getMissingOrDash('scheduledPickupDate')}
       </dd>
     </div>
@@ -101,7 +101,7 @@ const ShipmentInfoList = ({
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Requested pickup date</dt>
       <dd data-testid="requestedPickupDate">
-        {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) ||
+        {(requestedPickupDate && formatDateWithUTC(requestedPickupDate, 'DD MMM YYYY')) ||
           getMissingOrDash('requestedPickupDate')}
       </dd>
     </div>
@@ -112,7 +112,8 @@ const ShipmentInfoList = ({
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Actual pickup date</dt>
       <dd data-testid="actualPickupDate">
-        {(actualPickupDate && formatDate(actualPickupDate, 'DD MMM YYYY')) || getMissingOrDash('actualPickupDate')}
+        {(actualPickupDate && formatDateWithUTC(actualPickupDate, 'DD MMM YYYY')) ||
+          getMissingOrDash('actualPickupDate')}
       </dd>
     </div>
   );
@@ -122,7 +123,7 @@ const ShipmentInfoList = ({
     <div className={requestedDeliveryDateElementFlags.classes}>
       <dt>Requested delivery date</dt>
       <dd data-testid="requestedDeliveryDate">
-        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) ||
+        {(requestedDeliveryDate && formatDateWithUTC(requestedDeliveryDate, 'DD MMM YYYY')) ||
           getMissingOrDash('requestedDeliveryDate')}
       </dd>
     </div>
@@ -133,7 +134,7 @@ const ShipmentInfoList = ({
     <div className={scheduledDeliveryDateElementFlags.classes}>
       <dt>Scheduled delivery date</dt>
       <dd data-testid="scheduledDeliveryDate">
-        {(scheduledDeliveryDate && formatDate(scheduledDeliveryDate, 'DD MMM YYYY')) ||
+        {(scheduledDeliveryDate && formatDateWithUTC(scheduledDeliveryDate, 'DD MMM YYYY')) ||
           getMissingOrDash('scheduledDeliveryDate')}
       </dd>
     </div>
@@ -144,7 +145,7 @@ const ShipmentInfoList = ({
     <div className={requiredDeliveryDateElementFlags.classes}>
       <dt>Required delivery date</dt>
       <dd data-testid="requiredDeliveryDate">
-        {(requiredDeliveryDate && formatDate(requiredDeliveryDate, 'DD MMM YYYY')) ||
+        {(requiredDeliveryDate && formatDateWithUTC(requiredDeliveryDate, 'DD MMM YYYY')) ||
           getMissingOrDash('requiredDeliveryDate')}
       </dd>
     </div>
@@ -154,7 +155,8 @@ const ShipmentInfoList = ({
     <div className={actualDeliveryDateElementFlags.classes}>
       <dt>Actual delivery date</dt>
       <dd data-testid="actualDeliveryDate">
-        {(actualDeliveryDate && formatDate(actualDeliveryDate, 'DD MMM YYYY')) || getMissingOrDash('actualDeliverDate')}
+        {(actualDeliveryDate && formatDateWithUTC(actualDeliveryDate, 'DD MMM YYYY')) ||
+          getMissingOrDash('actualDeliverDate')}
       </dd>
     </div>
   );
@@ -194,7 +196,7 @@ const ShipmentInfoList = ({
       <dd data-testid="destinationAddress">
         {deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED
           ? 'Review required'
-          : (destinationAddress && formatAddress(destinationAddress)) || '-'}
+          : (destinationAddress && formatAddress(destinationAddress)) || '—'}
       </dd>
     </div>
   );

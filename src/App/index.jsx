@@ -7,10 +7,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { isOfficeSite, isAdminSite, serviceName } from 'shared/constants';
+import { isOfficeSite, isAdminSite } from 'shared/constants';
 import { store, persistor } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
-import { configureLogger } from 'utils/milmoveLog';
 import { detectFlags } from 'utils/featureFlags';
 import '../icons';
 import 'shared/shared.css';
@@ -34,9 +33,6 @@ const SystemAdmin = lazy(() => import('scenes/SystemAdmin'));
 
 const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
-const loggingType = process.env.REACT_APP_ERROR_LOGGING || 'none';
-const loggingLevel = process.env.REACT_APP_ERROR_LOGGING_LEVEL || 'unknown';
-
 const officeContext = { ...defaultOfficeContext, flags };
 const myMoveContext = { ...defaultMyMoveContext, flags };
 const adminContext = { ...defaultAdminContext, flags };
@@ -58,8 +54,6 @@ const officeQueryConfig = new QueryClient({
 });
 
 const App = () => {
-  configureLogger(serviceName(), { loggingType, loggingLevel });
-
   // We need an error boundary around each of the main apps (Office,
   // SystemAdmin, MyMove) because they are lazy loaded and it's
   // possible we could get a ChunkLoadError when trying to load them.

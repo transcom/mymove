@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -22,9 +23,15 @@ import (
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingCompleted() {
 	moveRouter := moverouter.NewMoveRouter()
 	queryBuilder := query.NewQueryBuilder()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	mtoUpdater := NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
 		moveRouter,
 	)
 
@@ -67,6 +74,38 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			ppmShipment := *shipment.PPMShipment
 			suite.NotNil(ppmShipment.ApprovedAt)
 			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+		}
+	})
+
+	suite.Run("Move/shipment/PPM statuses are updated successfully (with HHG and PPM shipment)", func() {
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(actualMTO.ID)
+		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
+		for _, shipment := range actualMTO.MTOShipments {
+			if shipment.ShipmentType == models.MTOShipmentTypePPM {
+				suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
+				ppmShipment := *shipment.PPMShipment
+				suite.NotNil(ppmShipment.ApprovedAt)
+				suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+			}
 		}
 	})
 
@@ -183,9 +222,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	mtoUpdater := NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
 		moveRouter,
 	)
 
@@ -316,9 +361,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	updater := NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
 		moveRouter,
 	)
 
@@ -464,7 +515,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -495,7 +552,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -523,7 +586,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		planner := &routemocks.Planner{}
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -675,4 +739,104 @@ func (suite *MoveTaskOrderServiceSuite) containsServiceCode(items models.MTOServ
 func (suite *MoveTaskOrderServiceSuite) createMSAndCSReServices() {
 	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePPMType() {
+	// Set up a default move
+
+	// Set up the necessary updater objects:
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	updater := NewMoveTaskOrderUpdater(
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
+		moveRouter,
+	)
+
+	// Case: When there is only PPM shipment
+	suite.Run("Success - Set PPMType to FULL", func() {
+		ppmTypeFull := models.MovePPMTypeFULL
+		ppmTypePartial := models.MovePPMTypePARTIAL
+
+		customShipmentPPM := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
+		}
+
+		customMove := models.Move{
+			ID:      uuid.Must(uuid.NewV4()),
+			PPMType: &ppmTypeFull,
+		}
+		// build move with a ppm shipment
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: customMove},
+			{Model: customShipmentPPM},
+		}, nil)
+		// add a HHG shipment
+		factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+
+		updatedMove, err := updater.UpdatePPMType(suite.AppContextForTest(), move.ID)
+
+		suite.NotNil(updatedMove)
+		suite.NoError(err)
+		suite.Equal(updatedMove.ID, move.ID)
+		suite.Equal(*updatedMove.PPMType, ppmTypePartial)
+	})
+	// Case: When there is HHG and PPM shipments
+	suite.Run("Success - Set PPMType to PARTIAL", func() {
+		ppmTypeFull := models.MovePPMTypeFULL
+		ppmTypePartial := models.MovePPMTypePARTIAL
+
+		customShipmentPPM := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
+		}
+
+		customMove := models.Move{
+			ID:      uuid.Must(uuid.NewV4()),
+			PPMType: &ppmTypePartial,
+		}
+		// build move with a ppm shipment
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: customMove},
+			{Model: customShipmentPPM},
+		}, nil)
+
+		updatedMove, err := updater.UpdatePPMType(suite.AppContextForTest(), move.ID)
+
+		suite.NotNil(updatedMove)
+		suite.NoError(err)
+		suite.Equal(updatedMove.ID, move.ID)
+		suite.Equal(*updatedMove.PPMType, ppmTypeFull)
+	})
+
+	// Case: When there is only HHG shipment
+	suite.Run("Success - Set PPMType to nil", func() {
+		ppmTypePartial := models.MovePPMTypePARTIAL
+
+		customShipmentHHG := models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHG,
+		}
+
+		customMove := models.Move{
+			ID:      uuid.Must(uuid.NewV4()),
+			PPMType: &ppmTypePartial,
+		}
+		// build move with a HHG shipment
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{Model: customMove},
+			{Model: customShipmentHHG},
+		}, nil)
+
+		updatedMove, err := updater.UpdatePPMType(suite.AppContextForTest(), move.ID)
+
+		suite.NotNil(updatedMove)
+		suite.NoError(err)
+		suite.Equal(updatedMove.ID, move.ID)
+		suite.Nil(updatedMove.PPMType)
+	})
 }

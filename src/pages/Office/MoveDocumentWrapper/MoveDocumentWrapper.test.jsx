@@ -53,7 +53,7 @@ const useOrdersDocumentQueriesReturnValue = {
       agency: 'ARMY',
       customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: mockDestinationDutyLocation,
       eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
       entitlement: {
@@ -184,7 +184,7 @@ describe('MoveDocumentWrapper', () => {
 
       const wrapper = shallow(<MoveDocumentWrapper />);
       expect(wrapper.find('DocumentViewer').props('files')).toEqual({
-        allowDownload: false,
+        allowDownload: true,
         files: [
           {
             contentType: 'application/pdf',

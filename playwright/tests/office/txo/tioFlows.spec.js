@@ -105,7 +105,7 @@ class TioFlowPage extends OfficePage {
     await expect(siCalc).toContainText('14 cwt');
     await expect(siCalc).toContainText('354');
     await expect(siCalc).toContainText('ZIP 80301 to ZIP 80501');
-    await expect(siCalc).toContainText('0.15');
+    await expect(siCalc).toContainText('0.1');
     await expect(siCalc).toContainText('EIA diesel: $2.81');
     await expect(siCalc).toContainText('Weight-based distance multiplier: 0.0004170');
     await expect(siCalc).toContainText('$107.00');
@@ -193,6 +193,10 @@ test.describe('TIO user', () => {
 
       await form.getByRole('link', { name: 'View orders' }).click();
       await tioFlowPage.waitForLoading();
+
+      // Check for link that allows TIO to download the PDF for copy/paste functionality
+      await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
+
       // Edit orders page | Make edits
       await form.locator('input[name="tac"]').clear();
       await form.locator('input[name="tac"]').type('E15A');
@@ -233,7 +237,7 @@ test.describe('TIO user', () => {
       // Confirm TIO can view the calculations
       await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
-      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total amount requested');
+      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Fuel rate adjustment');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Service schedule: 2');
 
       // Confirm TIO can hide the calculations. This ensures there's
@@ -254,7 +258,7 @@ test.describe('TIO user', () => {
       // Confirm TIO can view the calculations
       await page.getByText('Show calculations').click();
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Calculations');
-      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Total amount requested');
+      await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Fuel rate adjustment');
       await expect(page.locator('[data-testid="ServiceItemCalculations"]')).toContainText('Dimensions: 12x3x10 in');
 
       // Confirm TIO can hide the calculations. This ensures there's no scrolling weirdness before the next action
@@ -454,6 +458,12 @@ test.describe('TIO user', () => {
       // cy.wait(['@getMovePaymentRequests']);
 
       // await expect(page.locator('[data-testid="tag"]')).toContainText('Reviewed');
+    });
+
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
     });
   });
 

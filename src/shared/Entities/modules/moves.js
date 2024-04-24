@@ -8,7 +8,6 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient, getGHCClient } from 'shared/Swagger/api';
 import { selectEntitlements } from 'shared/entitlements.js';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
-import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 
 /** REMAINING EXPORTS ARE USED BY PPM OFFICE */
 
@@ -18,6 +17,7 @@ const cancelMoveLabel = 'Moves.CancelMove';
 export const loadMoveLabel = 'Moves.loadMove';
 export const getMoveDatesSummaryLabel = 'Moves.getMoveDatesSummary';
 export const getMoveByLocatorOperation = 'move.getMove';
+export const getAllMovesLabel = 'move.getAllMoves';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -32,6 +32,11 @@ export default function reducer(state = {}, action) {
   }
 }
 
+export function getAllMoves(serviceMemberId, label = getAllMovesLabel) {
+  const swaggerTag = 'moves.getAllMoves';
+  return swaggerRequest(getClient, swaggerTag, { serviceMemberId }, { label });
+}
+
 export function getMoveByLocator(locator, label = getMoveByLocatorOperation) {
   return swaggerRequest(getGHCClient, getMoveByLocatorOperation, { locator }, { label });
 }
@@ -39,10 +44,6 @@ export function getMoveByLocator(locator, label = getMoveByLocatorOperation) {
 // TODO - migrate
 export function loadMove(moveId, label = loadMoveLabel) {
   return swaggerRequest(getClient, 'moves.showMove', { moveId }, { label });
-}
-
-export function getMoveDatesSummary(moveId, moveDate, label = getMoveDatesSummaryLabel) {
-  return swaggerRequest(getClient, 'moves.showMoveDatesSummary', { moveId, moveDate }, { label });
 }
 
 export function approveBasics(moveId, label = approveBasicsLabel) {
@@ -60,12 +61,10 @@ export function calculateEntitlementsForMove(state, moveId) {
   const orders = selectOrdersForMove(state, moveId);
   const hasDependents = orders.has_dependents;
   const spouseHasProGear = orders.spouse_has_pro_gear;
-  const serviceMember = selectServiceMemberForMove(state, moveId);
-  const weightAllotment = serviceMember.weight_allotment;
-  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(weightAllotment)) {
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(orders.authorizedWeight)) {
     return null;
   }
-  return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
+  return selectEntitlements(orders, hasDependents, spouseHasProGear);
 }
 
 // Selectors

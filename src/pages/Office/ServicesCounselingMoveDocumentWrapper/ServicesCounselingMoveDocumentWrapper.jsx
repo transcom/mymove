@@ -13,13 +13,12 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 const ServicesCounselingMoveDocumentWrapper = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
-
   const { upload, amendedUpload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
+  const hasDocuments = documentsForViewer?.length > 0;
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
 
   const showOrders = matchPath(
     {
@@ -33,11 +32,11 @@ const ServicesCounselingMoveDocumentWrapper = () => {
     <div className={styles.DocumentWrapper}>
       {documentsForViewer && (
         <div className={styles.embed}>
-          <DocumentViewer files={documentsForViewer} />
+          <DocumentViewer files={documentsForViewer} allowDownload />
         </div>
       )}
       {showOrders ? (
-        <ServicesCounselingOrders moveCode={moveCode} />
+        <ServicesCounselingOrders moveCode={moveCode} hasDocuments={hasDocuments} />
       ) : (
         <ServicesCounselingMoveAllowances moveCode={moveCode} />
       )}

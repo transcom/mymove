@@ -50,7 +50,7 @@ const useOrdersDocumentQueriesReturnValue = {
       agency: 'ARMY',
       customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: mockDestinationDutyLocation,
       eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
       entitlement: {
@@ -150,7 +150,6 @@ describe('MoveAllowances page', () => {
       expect(screen.getByTestId('proGearWeightSpouseInput')).toHaveDisplayValue('500');
       expect(screen.getByTestId('rmeInput')).toHaveDisplayValue('1,000');
       expect(screen.getByTestId('branchInput')).toHaveDisplayValue('Army');
-      expect(screen.getByTestId('rankInput')).toHaveDisplayValue('E-1');
       expect(screen.getByTestId('sitInput')).toHaveDisplayValue('2');
 
       expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();

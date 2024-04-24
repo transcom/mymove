@@ -115,14 +115,14 @@ func (suite *FactorySuite) TestBuildTransportationAccountingCode() {
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID: models.IntPointer(4321),
+					LoaSysID: models.StringPointer("4321"),
 				},
 			},
 		}, nil)
 
 		// VALIDATE RESULTS
 		suite.Equal("1234", tac.TAC)
-		suite.Equal(4321, *tac.LineOfAccounting.LoaSysID)
+		suite.Equal("4321", *tac.LineOfAccounting.LoaSysID)
 	})
 
 	suite.Run("Successful creation of a fully-filled TAC", func() {

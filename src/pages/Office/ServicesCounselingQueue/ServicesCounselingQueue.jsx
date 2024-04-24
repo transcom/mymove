@@ -1,5 +1,6 @@
-import React from 'react';
-import { generatePath, useNavigate, Navigate, useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -16,19 +17,40 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries, useUserQueries } from 'hooks/queries';
+import {
+  useServicesCounselingQueueQueries,
+  useServicesCounselingQueuePPMQueries,
+  useUserQueries,
+  useMoveSearchQueries,
+} from 'hooks/queries';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotFound from 'components/NotFound/NotFound';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { roleTypes } from 'constants/userRoles';
+import SearchResultsTable from 'components/Table/SearchResultsTable';
+import TabNav from 'components/TabNav';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import retryPageLoading from 'utils/retryPageLoading';
+import { milmoveLogger } from 'utils/milmoveLog';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return (
+        <div>
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
     },
     {
       id: 'lastName',
@@ -106,7 +128,14 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return (
+        <div>
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
     },
     {
       id: 'lastName',
@@ -183,9 +212,65 @@ const ServicesCounselingQueue = () => {
 
   const navigate = useNavigate();
 
-  const handleClick = (values) => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+  const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
+  const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+
+  // Feature Flag
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const isEnabled = await isCounselorMoveCreateEnabled();
+        setisCounselorMoveCreateFFEnabled(isEnabled);
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        setErrorState({
+          hasError: true,
+          error,
+          info: null,
+        });
+        retryPageLoading(error);
+      }
+    };
+    fetchData();
+  }, [setErrorState]);
+
+  const handleClick = (values, e) => {
+    if (e?.target?.innerHTML === 'Create New Move') {
+      navigate(
+        generatePath(servicesCounselingRoutes.BASE_CREATE_MOVE_EDIT_CUSTOMER_PATH, { moveCode: values.locator }),
+      );
+    } else {
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
+
+  const handleAddCustomerClick = () => {
+    navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
+  };
+
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [searchHappened, setSearchHappened] = useState(false);
+  const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
+
+  const onSubmit = useCallback((values) => {
+    const payload = {
+      moveCode: null,
+      dodID: null,
+      customerName: null,
+    };
+
+    if (values.searchType === 'moveCode') {
+      payload.moveCode = values.searchText;
+    } else if (values.searchType === 'dodID') {
+      payload.dodID = values.searchText;
+    } else if (values.searchType === 'customerName') {
+      payload.customerName = values.searchText;
+    }
+
+    setSearch(payload);
+    setSearchHappened(true);
+  }, []);
 
   // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
   // the column filter for the closeout location column because it will have no effect.
@@ -201,11 +286,83 @@ const ServicesCounselingQueue = () => {
     );
   }
 
+  const renderNavBar = () => {
+    return (
+      <TabNav
+        className={styles.tableTabs}
+        items={[
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
+          >
+            <span data-testid="counseling-tab-link" className="tab-title">
+              Counseling Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
+          >
+            <span data-testid="closeout-tab-link" className="tab-title">
+              PPM Closeout Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
+          >
+            <span data-testid="search-tab-link" className="tab-title">
+              Search
+            </span>
+          </NavLink>,
+        ]}
+      />
+    );
+  };
+
+  if (queueType === 'Search') {
+    return (
+      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
+        <ConnectedFlashMessage />
+        <div className={styles.searchFormContainer}>
+          <h1>Search for a move</h1>
+          {searchHappened && counselorMoveCreateFeatureFlag && (
+            <Button type="submit" onClick={handleAddCustomerClick} className={styles.addCustomerBtn}>
+              Add Customer
+            </Button>
+          )}
+        </div>
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        {searchHappened && (
+          <SearchResultsTable
+            showFilters
+            showPagination
+            defaultCanSort
+            disableMultiSort
+            disableSortBy={false}
+            title="Results"
+            handleClick={handleClick}
+            useQueries={useMoveSearchQueries}
+            moveCode={search.moveCode}
+            dodID={search.dodID}
+            customerName={search.customerName}
+            roleType={roleTypes.SERVICES_COUNSELOR}
+            isCounselorMoveCreateFFEnabled={isCounselorMoveCreateFFEnabled}
+          />
+        )}
+      </div>
+    );
+  }
+
   if (queueType === 'PPM-closeout') {
     return (
       <div className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
         <TableQueue
-          showTabs
           showFilters
           showPagination
           manualSortBy
@@ -224,9 +381,9 @@ const ServicesCounselingQueue = () => {
   if (queueType === 'counseling') {
     return (
       <div className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
         <TableQueue
           className={styles.ServicesCounseling}
-          showTabs
           showFilters
           showPagination
           manualSortBy

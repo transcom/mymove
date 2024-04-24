@@ -55,7 +55,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.DestinationPrice]: 'Destination price',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
-  [SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]: 'FRA',
+  [SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]: 'Baseline rate difference',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
@@ -92,7 +92,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   DestinationSchedule: 'Destination schedule',
   Dimensions: 'Dimensions',
   Domestic: 'Domestic',
-  FuelSurchargePrice: 'Fuel surcharge price (per mi)',
+  FuelSurchargePrice: 'Mileage factor',
   Mileage: 'Mileage',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
@@ -105,11 +105,11 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   ServiceSchedule: 'Service schedule',
   ShuttleWeight: 'Shuttle weight',
   SITDeliveryPrice: 'SIT delivery price',
-  TotalAmountRequested: 'Total amount requested',
+  FuelRateAdjustment: 'Fuel rate adjustment',
   UnpackPrice: 'Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
-  SITFuelSurchargePrice: 'SIT fuel surcharge price (per mi)',
+  SITFuelSurchargePrice: 'SIT mileage factor',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -136,6 +136,29 @@ const SERVICE_ITEM_CODES = {
   DOSFSC: 'DOSFSC',
   DDSFSC: 'DDSFSC',
 };
+
+const SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM = [
+  SERVICE_ITEM_CODES.DDASIT,
+  SERVICE_ITEM_CODES.DDDSIT,
+  SERVICE_ITEM_CODES.DDFSIT,
+  SERVICE_ITEM_CODES.DOASIT,
+  SERVICE_ITEM_CODES.DOFSIT,
+  SERVICE_ITEM_CODES.DOPSIT,
+  SERVICE_ITEM_CODES.DOSHUT,
+  SERVICE_ITEM_CODES.DDSHUT,
+  SERVICE_ITEM_CODES.DLH,
+  SERVICE_ITEM_CODES.DSH,
+  SERVICE_ITEM_CODES.DUPK,
+  SERVICE_ITEM_CODES.DNPK,
+  SERVICE_ITEM_CODES.FSC,
+];
+
+const SIT_SERVICE_ITEMS_ALLOWED_UPDATE = [
+  SERVICE_ITEM_CODES.DDDSIT,
+  SERVICE_ITEM_CODES.DOASIT,
+  SERVICE_ITEM_CODES.DOFSIT,
+  SERVICE_ITEM_CODES.DOPSIT,
+];
 
 /**
  * @description Service item codes related to storage in transit (SIT).
@@ -187,4 +210,7 @@ export {
   SERVICE_ITEM_CODES,
   SIT_SERVICE_ITEM_CODES,
   allowedServiceItemCalculations,
+  SERVICE_ITEM_STATUSES,
+  SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM,
+  SIT_SERVICE_ITEMS_ALLOWED_UPDATE,
 };

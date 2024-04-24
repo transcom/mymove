@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { generatePath, Link, matchPath } from 'react-router-dom';
-import { arrayOf, func, shape, bool, string } from 'prop-types';
+import { func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
 import styles from './Summary.module.scss';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
+import ConnectedIncompleteShipmentModal from 'components/Customer/Review/IncompleteShipmentModal/IncompleteShipmentModal';
 import OrdersTable from 'components/Customer/Review/OrdersTable/OrdersTable';
 import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
@@ -17,25 +21,23 @@ import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipme
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { updateMTOShipments } from 'store/entities/actions';
+import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectCurrentOrders,
-  selectCurrentMove,
   selectMoveIsApproved,
   selectHasCanceledMove,
-  selectMTOShipmentsForCurrentMove,
+  selectAllMoves,
+  selectCurrentMoveFromAllMoves,
+  selectShipmentsFromMove,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
-import { OrdersShape, MoveShape } from 'types/customerShapes';
-import { ShipmentShape } from 'types/shipment';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export class Summary extends Component {
   constructor(props) {
@@ -43,29 +45,50 @@ export class Summary extends Component {
 
     this.state = {
       showModal: false,
+      showIncompletePPMModal: false,
       showDeleteModal: false,
       targetShipmentId: null,
+      targetShipmentLabel: null,
+      targetShipmentMoveCode: null,
+      targetShipmentType: null,
+      enablePPM: true,
+      enableNTS: true,
+      enableNTSR: true,
     };
   }
 
   componentDidMount() {
-    const { onDidMount, serviceMember } = this.props;
+    const { onDidMount, serviceMember, updateAllMoves } = this.props;
 
     if (onDidMount) {
       onDidMount(serviceMember.id);
     }
-  }
 
-  get getSortedShipments() {
-    const { mtoShipments } = this.props;
-    const sortedShipments = [...mtoShipments];
+    getAllMoves(serviceMember.id).then((response) => {
+      updateAllMoves(response);
+    });
 
-    return sortedShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
+      this.setState({
+        enablePPM: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
+      this.setState({
+        enableNTS: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
+      this.setState({
+        enableNTSR: enabled,
+      });
+    });
   }
 
   handleEditClick = (path) => {
     const { router } = this.props;
-    router.navigate(path);
+    const { state } = this;
+    router.navigate(path, { state });
   };
 
   handleDeleteClick = (shipmentId) => {
@@ -82,10 +105,13 @@ export class Summary extends Component {
   };
 
   handleDeleteShipmentConfirmation = (shipmentId) => {
-    const { currentMove, updateShipmentList, setMsg } = this.props;
+    const { serviceMember, updateAllMoves, moveId, updateShipmentList, setMsg } = this.props;
     deleteMTOShipment(shipmentId)
       .then(() => {
-        getMTOShipmentsForMove(currentMove.id).then((response) => {
+        getAllMoves(serviceMember.id).then((res) => {
+          updateAllMoves(res);
+        });
+        getMTOShipmentsForMove(moveId).then((response) => {
           updateShipmentList(response);
           setMsg('MTO_SHIPMENT_DELETE_SUCCESS', 'success', 'The shipment was deleted.', '', true);
         });
@@ -105,12 +131,32 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentMove, currentOrders, router, serviceMember } = this.props;
+    const { router, serviceMember, serviceMemberMoves } = this.props;
     const { moveId } = router.params;
+
+    const currentMove = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
+    const { mtoShipments } = currentMove ?? {};
+    const { orders } = currentMove ?? {};
+    const currentOrders = orders;
+    this.state = { ...this.state, moveId };
+
+    const sortedShipments = mtoShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+
+    // loading placeholder while data loads - this handles any async issues
+    if (!currentMove || !mtoShipments) {
+      return (
+        <div className={styles.homeContainer}>
+          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            <LoadingPlaceholder />
+          </div>
+        </div>
+      );
+    }
+
     const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
-    return this.getSortedShipments.map((shipment) => {
+    return sortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
 
@@ -126,6 +172,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             onEditClick={this.handleEditClick}
             onDeleteClick={this.handleDeleteClick}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -148,6 +195,8 @@ export class Summary extends Component {
             requestedPickupDate={shipment.requestedPickupDate}
             shipmentId={shipment.id}
             shipmentType={shipment.shipmentType}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -167,6 +216,8 @@ export class Summary extends Component {
             requestedDeliveryDate={shipment.requestedDeliveryDate}
             shipmentId={shipment.id}
             shipmentType={shipment.shipmentType}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -188,9 +239,12 @@ export class Summary extends Component {
           requestedDeliveryDate={shipment.requestedDeliveryDate}
           requestedPickupDate={shipment.requestedPickupDate}
           shipmentId={shipment.id}
+          shipmentLocator={shipment.shipmentLocator}
           shipmentNumber={hhgShipmentNumber}
           shipmentType={shipment.shipmentType}
           showEditAndDeleteBtn={showEditAndDeleteBtn}
+          status={shipment.status}
+          onIncompleteClick={this.toggleIncompleteShipmentModal}
         />
       );
     });
@@ -202,13 +256,50 @@ export class Summary extends Component {
     }));
   };
 
+  toggleIncompleteShipmentModal = (ShipmentLabel, shipmentMoveCode, shipmentType) => {
+    this.setState((state) => ({
+      showIncompletePPMModal: !state.showIncompletePPMModal,
+      targetShipmentLabel: ShipmentLabel,
+      targetShipmentMoveCode: shipmentMoveCode,
+      targetShipmentType: shipmentType,
+    }));
+  };
+
   render() {
-    const { currentMove, currentOrders, router, moveIsApproved, mtoShipments, serviceMember } = this.props;
-    const { showModal, showDeleteModal, targetShipmentId } = this.state;
+    const { serviceMemberMoves, router, moveIsApproved, serviceMember } = this.props;
+    const {
+      showModal,
+      showDeleteModal,
+      targetShipmentId,
+      showIncompletePPMModal,
+      targetShipmentLabel,
+      targetShipmentMoveCode,
+      targetShipmentType,
+      enablePPM,
+      enableNTS,
+      enableNTSR,
+    } = this.state;
 
     const { pathname } = router.location;
     const { moveId } = router.params;
-    const currentDutyLocation = serviceMember?.current_location;
+
+    const currentMove = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
+    const mtoShipments = selectShipmentsFromMove(currentMove);
+    const { orders } = currentMove ?? {};
+    const currentOrders = orders;
+
+    // loading placeholder while data loads - this handles any async issues
+    if (!currentMove || !mtoShipments) {
+      return (
+        <div className={styles.homeContainer}>
+          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            <LoadingPlaceholder />
+          </div>
+        </div>
+      );
+    }
+
+    const currentDutyLocation = orders?.origin_duty_location?.transportation_office;
     const officePhone = currentDutyLocation?.transportation_office?.phone_lines?.[0];
 
     const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
@@ -244,18 +335,23 @@ export class Summary extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
+        <ConnectedIncompleteShipmentModal
+          isOpen={showIncompletePPMModal}
+          closeModal={this.toggleIncompleteShipmentModal}
+          shipmentLabel={targetShipmentLabel}
+          shipmentMoveCode={targetShipmentMoveCode}
+          shipmentType={targetShipmentType}
+        />
         <SectionWrapper className={styles.SummarySectionWrapper}>
           <ProfileTable
             affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
             city={serviceMember.residential_address.city}
-            currentDutyLocationName={currentOrders.origin_duty_location.name}
             edipi={serviceMember.edipi}
             email={serviceMember.personal_email}
             firstName={serviceMember.first_name}
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={ORDERS_RANK_OPTIONS[serviceMember?.rank] || ''}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
@@ -272,6 +368,9 @@ export class Summary extends Component {
             orderType={currentOrders.orders_type}
             reportByDate={currentOrders.report_by_date}
             uploads={currentOrders.uploaded_orders.uploads}
+            payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
+            originDutyLocationName={currentOrders.origin_duty_location.name}
+            orderId={currentOrders.id}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (
@@ -308,18 +407,21 @@ export class Summary extends Component {
             {officePhone ? ` at ${officePhone}` : ''}.
           </div>
         )}
-        <ConnectedAddShipmentModal isOpen={showModal} closeModal={this.toggleModal} />
+        <ConnectedAddShipmentModal
+          isOpen={showModal}
+          closeModal={this.toggleModal}
+          enablePPM={enablePPM}
+          enableNTS={enableNTS}
+          enableNTSR={enableNTSR}
+        />
       </>
     );
   }
 }
 
 Summary.propTypes = {
-  currentMove: MoveShape.isRequired,
-  currentOrders: OrdersShape.isRequired,
   router: RouterShape,
   moveIsApproved: bool.isRequired,
-  mtoShipments: arrayOf(ShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
   updateShipmentList: func.isRequired,
@@ -330,12 +432,24 @@ Summary.defaultProps = {
   router: {},
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  const serviceMemberMoves = selectAllMoves(state);
+  const {
+    router: {
+      params: { moveId },
+    },
+  } = ownProps;
+  const currentMove = selectCurrentMoveFromAllMoves(state, moveId);
+  const mtoShipments = currentMove?.mtoShipments ?? [];
+  const currentOrders = currentMove?.orders ?? {};
+
   return {
-    mtoShipments: selectMTOShipmentsForCurrentMove(state),
+    serviceMemberMoves,
+    mtoShipments,
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    currentMove: selectCurrentMove(state) || {},
-    currentOrders: selectCurrentOrders(state) || {},
+    currentMove,
+    currentOrders,
+    moveId,
     moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: selectHasCanceledMove(state),
     entitlement: loadEntitlementsFromState(state),
@@ -344,6 +458,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   updateShipmentList: updateMTOShipments,
+  updateAllMoves: updateAllMovesAction,
   setMsg: setFlashMessage,
 };
 

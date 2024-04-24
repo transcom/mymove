@@ -14,7 +14,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -81,13 +80,14 @@ func MakeMoveWithOrders(db *pop.Connection) models.Move {
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -100,8 +100,8 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 		{
@@ -109,6 +109,7 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 				PersonalEmail: models.StringPointer(userInfo.email),
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -122,76 +123,19 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	return move
 }
 
-func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
-	userInfo := newUserInfo("customer")
-	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
-		{
-			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
-			},
-		},
-	}, nil)
-
-	cal := dates.NewUSCalendar()
-	nextValidMoveDate := dates.NextValidMoveDate(time.Now(), cal)
-
-	nextValidMoveDateMinusTen := dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
-	pastTime := nextValidMoveDateMinusTen
-
-	ppm1 := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			UserID:        user.ID,
-			PersonalEmail: models.StringPointer(userInfo.email),
-			FirstName:     models.StringPointer(userInfo.firstName),
-			LastName:      models.StringPointer(userInfo.lastName),
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &pastTime,
-		},
-	})
-
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    ppm1.Move,
-			LinkOnly: true,
-		},
-	}, nil)
-	moveRouter := moverouter.NewMoveRouter()
-	err := moveRouter.Submit(appCtx, &ppm1.Move, &newSignedCertification)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = moveRouter.Approve(appCtx, &ppm1.Move)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm1.Move)
-	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
-	}
-
-	// re-fetch the move so that we ensure we have exactly what is in
-	// the db
-	move, err := models.FetchMove(appCtx.DB(), &auth.Session{}, ppm1.Move.ID)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
-	}
-	return *move
-}
-
 func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 	userInfo := newUserInfo("customer")
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 		{
 			Model: models.ServiceMember{
 				PersonalEmail: models.StringPointer(userInfo.email),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -255,8 +199,8 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -266,6 +210,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -606,7 +551,7 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipmentFields := models.MTOShipment{
-		Status:                models.MTOShipmentStatusApproved,
+		Status:                models.MTOShipmentStatusSubmitted,
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 	}
@@ -892,6 +837,7 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
 				Edipi:         models.StringPointer(dodID),
+				CacValidated:  true,
 			},
 		},
 		{
@@ -961,6 +907,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1147,6 +1094,7 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -1664,6 +1612,7 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 	}, nil)
@@ -2285,9 +2234,11 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
+	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(appCtx.DB())
 	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersType: retirement,
+			OrdersType:         retirement,
+			OriginDutyLocation: &originDutyLocation,
 		},
 		MTOShipment: models.MTOShipment{
 			ShipmentType:    hhg,
@@ -2314,6 +2265,36 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 func MakeHHGMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveWithPPMShipmentsForTOO creates an HHG Move with a PPM shipment.
+func MakeHHGMoveWithPPMShipmentsForTOO(appCtx appcontext.AppContext, readyForCloseout bool) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+	move := scenario.CreateMoveWithHHGAndPPM(appCtx, userUploader, moveInfo, models.AffiliationARMY, readyForCloseout)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2379,7 +2360,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2483,7 +2464,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2556,6 +2537,21 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	locator := models.GenerateLocator()
 	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveNeedsServicesCounselingUSMC creates an fully ready move as USMC needing SC approval
+func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	locator := models.GenerateLocator()
+	move := scenario.CreateHHGNeedsServicesCounselingUSMC3(appCtx, userUploader, locator)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2641,6 +2637,33 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "1 First St",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Miami Gardens",
+				State:          "FL",
+				PostalCode:     "33169",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Bldg 2"),
+				City:           "Key West",
+				State:          "FL",
+				PostalCode:     "33040",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -2656,6 +2679,8 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			PickupAddressID:             &pickupAddress.ID,
+			DestinationAddressID:        &destinationAddress.ID,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -2664,6 +2689,193 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(14000),
+				FullWeight:  models.PoundPointer(18000),
+			},
+		},
+	}, nil)
+
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
+
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+	}
+	return *newmove
+}
+
+// This one is the actual function that's used for testdatagen harness(I think)
+func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	sitLocationType := models.SITLocationTypeOrigin
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	sitDaysAllowance := 90
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "42444",
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "30813",
+			},
+		},
+	}, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusApproved,
+			SITDaysAllowance:     &sitDaysAllowance,
+			PickupAddressID:      &pickupAddress.ID,
+			DestinationAddressID: &destinationAddress.ID,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+			FinalIncentive:              models.CentPointer(50000000),
+			SITExpected:                 models.BoolPointer(true),
+			SITEstimatedEntryDate:       models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedDepartureDate:   models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedWeight:          models.PoundPointer(unit.Pound(1234)),
+			SITEstimatedCost:            models.CentPointer(unit.Cents(12345600)),
+			SITLocation:                 &sitLocationType,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment.Shipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment.Shipment, &twoMonthsAgo, nil)...)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	for i := range sitItems {
+		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    sitItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+			originalAddress := sitAddressUpdate.OldAddress
+			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
+			err := appCtx.DB().Update(&sitItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+	scenario.MakeSITExtensionsForShipment(appCtx, shipment.Shipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2821,7 +3033,6 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 
 func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
-
 	userInfo := newUserInfo("customer")
 	moveInfo := scenario.MoveCreatorInfo{
 		UserID:      uuid.Must(uuid.NewV4()),
@@ -3185,6 +3396,95 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -3600,8 +3900,8 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -3611,6 +3911,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3698,6 +3999,139 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
+	twoMonthsAgo := now.AddDate(0, 0, -60)
+	oneMonthAgo := now.AddDate(0, 0, -30)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
+	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
+	for i := range destSITItems {
+		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    destSITItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+
+			originalAddress := sitAddressUpdate.OldAddress
+			finalAddress := sitAddressUpdate.NewAddress
+			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
+			err := appCtx.DB().Update(&destSITItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
+	}
+
+	return move
+}
+
+func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(1350)
+
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{Model: models.MTOAgent{
+			FirstName:    &agentUserInfo.firstName,
+			LastName:     &agentUserInfo.lastName,
+			Email:        &agentUserInfo.email,
+			MTOAgentType: models.MTOAgentReleasing,
+		},
+		},
+	}, nil)
+
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
@@ -3732,8 +4166,8 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -3743,6 +4177,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -3873,12 +4308,13 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -3977,8 +4413,8 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -3988,6 +4424,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4114,8 +4551,8 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4125,6 +4562,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4227,8 +4665,8 @@ func MakeHHGMoveInSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4238,6 +4676,7 @@ func MakeHHGMoveInSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4340,8 +4779,8 @@ func MakeHHGMoveInSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4351,6 +4790,7 @@ func MakeHHGMoveInSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4453,8 +4893,8 @@ func MakeHHGMoveInSITDeparted(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4464,6 +4904,7 @@ func MakeHHGMoveInSITDeparted(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4567,8 +5008,8 @@ func MakeHHGMoveInSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4578,6 +5019,7 @@ func MakeHHGMoveInSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4678,8 +5120,8 @@ func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4689,6 +5131,7 @@ func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4798,8 +5241,8 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4809,6 +5252,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4836,7 +5280,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Gordon",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30813",
 			},
@@ -4881,8 +5325,8 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4892,6 +5336,7 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -4917,10 +5362,10 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 	destinationAddress := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				City:       customer.DutyLocation.Address.City,
-				State:      customer.DutyLocation.Address.State,
-				PostalCode: customer.DutyLocation.Address.PostalCode,
-				Country:    customer.DutyLocation.Address.Country,
+				City:       orders.OriginDutyLocation.Address.City,
+				State:      orders.OriginDutyLocation.Address.State,
+				PostalCode: orders.OriginDutyLocation.Address.PostalCode,
+				Country:    orders.OriginDutyLocation.Address.Country,
 			},
 		},
 	}, nil)
@@ -4963,8 +5408,8 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: userInfo.email,
-				Active:        true,
+				OktaEmail: userInfo.email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -4974,6 +5419,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 				PersonalEmail: &userInfo.email,
 				FirstName:     &userInfo.firstName,
 				LastName:      &userInfo.lastName,
+				CacValidated:  true,
 			},
 		},
 		{
@@ -5009,7 +5455,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Gordon",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30813",
 			},
@@ -5050,4 +5496,1402 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 	}, nil)
 
 	return shipmentAddressUpdate
+}
+
+func MakeMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	currentTime := time.Now()
+
+	// Create Army Customer
+	userInfo := newUserInfo("customer")
+	userAffiliation := models.AffiliationARMY
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				Affiliation:   &userAffiliation,
+				CacValidated:  true,
+			},
+		},
+	}, nil)
+
+	// Create LOA and TAC
+	sixMonthsBefore := currentTime.AddDate(0, -6, 0)
+	sixMonthsAfter := currentTime.AddDate(0, 6, 0)
+	loa := factory.BuildFullLineOfAccounting(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaBgnDt: &sixMonthsBefore,
+				LoaEndDt: &sixMonthsAfter,
+			},
+		},
+	}, nil)
+
+	tac := factory.BuildTransportationAccountingCode(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TacFnBlModCd: models.StringPointer("W"),
+			},
+		}, {
+			Model:    loa,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Orders
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC:       &tac.TAC,
+				IssueDate: currentTime,
+			},
+		},
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	// Create Move
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Status:             models.MoveStatusAPPROVED,
+			},
+		},
+	}, nil)
+	// Create Pickup Address
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
+
+	serviceOrderNumber := "1234"
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	ntsrShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+				ServiceOrderNumber:   &serviceOrderNumber,
+			},
+		},
+	}, nil)
+
+	// Create Releasing Agent
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	// Create Payment Request
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Domestic linehaul service item
+	dlCost := unit.Cents(80000)
+	dlItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DL Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.01, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "21",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+
+		{
+			Key:     models.ServiceItemParamNameActualPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(354)),
+		},
+
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1400),
+		},
+		{
+			Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(0.000417, 'f', 7, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameEIAFuelPrice,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Millicents(281400))),
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80301",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipDestAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80501",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDLH,
+		dlItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &dlCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Fuel surcharge service item
+	fsCost := unit.Cents(10700)
+	fsItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "FS Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.01, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "21",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+
+		{
+			Key:     models.ServiceItemParamNameActualPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(354)),
+		},
+
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1400),
+		},
+		{
+			Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(0.000417, 'f', 7, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameEIAFuelPrice,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Millicents(281400))),
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80301",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipDestAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80501",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeFSC,
+		fsItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &fsCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Domestic origin price service item
+	doCost := unit.Cents(15000)
+	doItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DO Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "6.25",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDOP,
+		doItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &doCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Domestic destination price service item
+	ddpCost := unit.Cents(15000)
+	ddpItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DDP Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "6.25",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDDP,
+		ddpItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &ddpCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Domestic unpacking service item
+	duCost := unit.Cents(45900)
+	duItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DUPK Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "5.79",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDUPK,
+		duItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &duCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// re-fetch the move so that we ensure we have exactly what is in the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeCoastGuardMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	currentTime := time.Now()
+
+	// Create Coast Guard Customer
+	userInfo := newUserInfo("customer")
+	userAffiliation := models.AffiliationCOASTGUARD
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				Affiliation:   &userAffiliation,
+				CacValidated:  true,
+			},
+		},
+	}, nil)
+
+	// Create LOA and TAC
+	sixMonthsBefore := currentTime.AddDate(0, -6, 0)
+	sixMonthsAfter := currentTime.AddDate(0, 6, 0)
+
+	loa := factory.BuildFullLineOfAccounting(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaHsGdsCd: models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeNTS),
+				LoaBgnDt:   &sixMonthsBefore,
+				LoaEndDt:   &sixMonthsAfter,
+			},
+		},
+	}, nil)
+
+	tac := factory.BuildTransportationAccountingCode(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TacFnBlModCd: models.StringPointer("W"),
+			},
+		}, {
+			Model:    loa,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Orders
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				TAC:       &tac.TAC,
+				IssueDate: currentTime,
+			},
+		},
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	// Create Move
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				Status:             models.MoveStatusAPPROVED,
+			},
+		},
+	}, nil)
+	// Create Pickup Address
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// KKFA GBLOC
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
+
+	serviceOrderNumber := "1234"
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	ntsrShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusApproved,
+				ServiceOrderNumber:   &serviceOrderNumber,
+			},
+		},
+	}, nil)
+
+	// Create Releasing Agent
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    ntsrShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	// Create Payment Request
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Domestic linehaul service item
+	dlCost := unit.Cents(80000)
+	dlItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DL Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.01, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "21",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+
+		{
+			Key:     models.ServiceItemParamNameActualPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(354)),
+		},
+
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1400),
+		},
+		{
+			Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(0.000417, 'f', 7, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameEIAFuelPrice,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Millicents(281400))),
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80301",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipDestAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80501",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDLH,
+		dlItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &dlCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Fuel surcharge service item
+	fsCost := unit.Cents(10700)
+	fsItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "FS Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.01, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "21",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+
+		{
+			Key:     models.ServiceItemParamNameActualPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(354)),
+		},
+
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1400),
+		},
+		{
+			Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   strconv.FormatFloat(0.000417, 'f', 7, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameEIAFuelPrice,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Millicents(281400))),
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80301",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipDestAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "80501",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeFSC,
+		fsItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &fsCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Domestic origin price service item
+	doCost := unit.Cents(15000)
+	doItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DO Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "6.25",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDOP,
+		doItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &doCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Domestic destination price service item
+	ddpCost := unit.Cents(15000)
+	ddpItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DDP Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "6.25",
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaDest,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.Itoa(144),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDDP,
+		ddpItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &ddpCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Create Domestic unpacking service item
+	duCost := unit.Cents(45900)
+	duItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleDest,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(1),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(4300),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: "DUPK Test Year",
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: strconv.FormatFloat(1.04071, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNameIsPeak,
+			KeyType: models.ServiceItemParamTypeBoolean,
+			Value:   strconv.FormatBool(false),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "5.79",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1500",
+		},
+	}
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDUPK,
+		duItemParams,
+		[]factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &duCost,
+					Status:     models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    ntsrShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(1350)
+
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{Model: models.MTOAgent{
+			FirstName:    &agentUserInfo.firstName,
+			LastName:     &agentUserInfo.lastName,
+			Email:        &agentUserInfo.email,
+			MTOAgentType: models.MTOAgentReleasing,
+		},
+		},
+	}, nil)
+
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
+	destSITItems := factory.BuildDestSITServiceItemsNoSITDepartureDate(appCtx.DB(), move, shipment, &oneMonthAgo)
+	err := appCtx.DB().Update(&destSITItems)
+	move.MTOServiceItems = destSITItems
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+	}
+	return move
 }

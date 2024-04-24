@@ -1,0 +1,1 @@
+Update organizations set name = 'TEST_ORG', poc_email = 'test@milmove.gov' where name ='Truss';

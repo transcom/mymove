@@ -1,6 +1,10 @@
 package internalapi
 
 import (
+	"fmt"
+	"io"
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -245,5 +249,102 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
 			return ppmops.NewResubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
+		})
+}
+
+// ShowAOAPacketHandler returns a Shipment Summary Worksheet PDF
+type showAOAPacketHandler struct {
+	handlers.HandlerConfig
+	services.SSWPPMComputer
+	services.SSWPPMGenerator
+	services.AOAPacketCreator
+}
+
+// Handle returns a generated PDF
+func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
+
+			// Ensures session
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return ppmops.NewShowAOAPacketForbidden(), noSessionErr
+			}
+			// Ensures service member ID is present
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return ppmops.NewShowAOAPacketForbidden(), noServiceMemberIDErr
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
+			if err != nil {
+				err := apperror.NewBadDataError("missing/empty required URI parameter: PPMShipmentID")
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			// Ensures AOA is for the accessing member
+			err = h.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+			if err != nil {
+				err := apperror.NewBadDataError("PPMShipment cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+			if err != nil {
+				logger.Error("Error creating AOA", zap.Error(err))
+				aoaError := err.Error()
+				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
+				return ppmops.NewShowAOAPacketInternalServerError().
+					WithPayload(payload), err
+			}
+
+			payload := io.NopCloser(AOAPacket)
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
+
+			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+		})
+}
+
+// ShowPaymentPacketHandler returns a PPM Payment Packet PDF
+type ShowPaymentPacketHandler struct {
+	handlers.HandlerConfig
+	services.PaymentPacketCreator
+}
+
+// Handle returns a generated PDF
+func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+			if err != nil {
+				switch err.(type) {
+				case apperror.ForbiddenError:
+					// this indicates user does not have access to PPM
+					appCtx.Logger().Warn(fmt.Sprintf("internalapi.DownPaymentPacket ForbiddenError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+					return ppmops.NewShowPaymentPacketForbidden(), err
+				case apperror.NotFoundError:
+					// this indicates ppm was not found
+					appCtx.Logger().Warn(fmt.Sprintf("internalapi.DownPaymentPacket NotFoundError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+					return ppmops.NewShowPaymentPacketNotFound(), err
+				default:
+					appCtx.Logger().Error(fmt.Sprintf("internalapi.DownPaymentPacket InternalServerError ppmShipmentID:%s", ppmShipmentID.String()), zap.Error(err))
+					return ppmops.NewShowPaymentPacketInternalServerError(), err
+				}
+			}
+
+			payload := io.NopCloser(pdf)
+			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+
+			return ppmops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }

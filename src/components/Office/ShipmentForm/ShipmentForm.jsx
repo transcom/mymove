@@ -13,6 +13,7 @@ import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
 import styles from './ShipmentForm.module.scss';
 import ppmShipmentSchema from './ppmShipmentSchema';
 
+import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedShipmentAddressUpdateReviewRequestModal from 'components/Office/ShipmentAddressUpdateReviewRequestModal/ShipmentAddressUpdateReviewRequestModal';
@@ -188,7 +189,11 @@ const ShipmentForm = (props) => {
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
   const showCloseoutOffice =
-    isServiceCounselor && isPPM && (serviceMember.agency === 'ARMY' || serviceMember.agency === 'AIR_FORCE');
+    isServiceCounselor &&
+    isPPM &&
+    (serviceMember.agency === SERVICE_MEMBER_AGENCIES.ARMY ||
+      serviceMember.agency === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
+      serviceMember.agency === SERVICE_MEMBER_AGENCIES.SPACE_FORCE);
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
@@ -243,6 +248,19 @@ const ShipmentForm = (props) => {
     //* PPM Shipment *//
     if (isPPM) {
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
+
+      // Allow blank values to be entered into Pro Gear input fields
+      if (
+        ppmShipmentBody.ppmShipment.hasProGear &&
+        ppmShipmentBody.ppmShipment.spouseProGearWeight >= 0 &&
+        ppmShipmentBody.ppmShipment.proGearWeight === undefined
+      ) {
+        ppmShipmentBody.ppmShipment.proGearWeight = 0;
+      }
+      if (ppmShipmentBody.ppmShipment.hasProGear && ppmShipmentBody.ppmShipment.spouseProGearWeight === undefined) {
+        ppmShipmentBody.ppmShipment.spouseProGearWeight = 0;
+      }
+
       // Add a PPM shipment
       if (isCreatePage) {
         const body = { ...ppmShipmentBody, moveTaskOrderID };
@@ -303,12 +321,16 @@ const ShipmentForm = (props) => {
         moveETag: move.eTag,
       };
 
+      const tooAdvancePath = generatePath(tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO, {
+        moveCode,
+        shipmentId: mtoShipment.id,
+      });
       const advancePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_ADVANCE_PATH, {
         moveCode,
         shipmentId: mtoShipment.id,
       });
       const SCMoveViewPath = generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
-      const TOOMoveViewPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
+      const tooMoveViewPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
 
       submitHandler(updatePPMPayload, {
         onSuccess: () => {
@@ -344,9 +366,12 @@ const ShipmentForm = (props) => {
             // If we are on the second page as an SC, we submit and redirect to the SC move view path.
             navigate(SCMoveViewPath);
             onUpdate('success');
+          } else if (!isAdvancePage && isTOO) {
+            actions.setSubmitting(false);
+            navigate(tooMoveViewPath);
+            onUpdate('success');
           } else {
-            // If we are a TOO, we redirect to the TOO move path.
-            navigate(TOOMoveViewPath);
+            navigate(tooAdvancePath);
             onUpdate('success');
           }
         },
@@ -470,6 +495,7 @@ const ShipmentForm = (props) => {
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
+
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -563,7 +589,7 @@ const ShipmentForm = (props) => {
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
-                {!isCreatePage && (
+                {!isCreatePage && mtoShipment?.status !== 'APPROVED' && (
                   <Button
                     type="button"
                     onClick={() => {
@@ -584,7 +610,7 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 

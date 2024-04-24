@@ -16,9 +16,12 @@ const OrdersTable = ({
   orderType,
   reportByDate,
   uploads,
+  originDutyLocationName,
+  payGrade,
+  orderId,
 }) => {
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(orderType);
-  const editPath = `/moves/${moveId}/review/edit-orders`;
+  const editPath = `/move/${moveId}/review/edit-orders/${orderId}`;
 
   return (
     <div className={reviewStyles['review-container']}>
@@ -52,6 +55,14 @@ const OrdersTable = ({
             <td>{formatCustomerDate(reportByDate)}</td>
           </tr>
           <tr>
+            <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
+              Current duty location
+            </th>
+            <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
+              {originDutyLocationName}
+            </td>
+          </tr>
+          <tr>
             <th scope="row">{isRetirementOrSeparation ? 'HOR, PLEAD or HOS' : 'New duty location'}</th>
             <td>{newDutyLocationName}</td>
           </tr>
@@ -64,6 +75,10 @@ const OrdersTable = ({
             <td>
               {uploads.length} file{uploads.length > 1 ? 's' : ''}
             </td>
+          </tr>
+          <tr>
+            <th scope="row">Pay grade</th>
+            <td>{payGrade}</td>
           </tr>
         </tbody>
       </table>
@@ -80,6 +95,8 @@ OrdersTable.propTypes = {
   orderType: string.isRequired,
   reportByDate: string.isRequired,
   uploads: arrayOf(shape({})).isRequired,
+  payGrade: string.isRequired,
+  originDutyLocationName: string.isRequired,
 };
 
 export default OrdersTable;

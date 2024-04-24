@@ -13,16 +13,20 @@ beforeEach(() => {
 });
 
 const defaultProps = {
-  ppmShipment: {
+  ppmShipmentInfo: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+    expectedDepartureDate: '2022-12-02',
+    actualMoveDate: '2022-12-06',
     actualPickupPostalCode: '90210',
-    actualMoveDate: '2022-04-30',
     actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+    miles: 300,
+    estimatedWeight: 3000,
+    actualWeight: 3500,
   },
   tripNumber: 1,
   ppmNumber: 1,
+  showAllFields: false,
+  categoryIndex: 1,
 };
 
 const expenseRequiredProps = {
@@ -32,7 +36,7 @@ const expenseRequiredProps = {
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'boxes, tape, bubble wrap',
     paidWithGtcc: false,
-    amount: 12345,
+    amount: 123456,
   },
 };
 
@@ -62,13 +66,13 @@ describe('ReviewExpenseForm component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Expense type')).toBeInTheDocument();
+      expect(screen.getByText('Expense Type')).toBeInTheDocument();
       expect(screen.getByText('Description')).toBeInTheDocument();
       expect(screen.getByLabelText('Amount')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByRole('heading', { level: 3, name: 'Review receipt 1' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3, name: `Review #1` })).toBeInTheDocument();
 
-      expect(screen.getByText('Add a review for this receipt')).toBeInTheDocument();
+      expect(screen.getByText('Add a review for this')).toBeInTheDocument();
 
       expect(screen.getByLabelText('Accept')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Exclude')).toBeInstanceOf(HTMLInputElement);
@@ -79,11 +83,11 @@ describe('ReviewExpenseForm component', () => {
       render(<ReviewExpense {...defaultProps} {...expenseRequiredProps} />, { wrapper: MockProviders });
 
       await waitFor(() => {
-        expect(screen.getByText('Packing materials')).toBeInTheDocument();
+        expect(screen.getByText('Expense Type')).toBeInTheDocument();
       });
+      expect(screen.getByText('Packing Materials #1')).toBeInTheDocument();
       expect(screen.getByText('boxes, tape, bubble wrap')).toBeInTheDocument();
-
-      expect(screen.getByLabelText('Amount')).toHaveDisplayValue('123.45');
+      expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
     });
 
     it('shows SIT fields when expense type is Storage', async () => {

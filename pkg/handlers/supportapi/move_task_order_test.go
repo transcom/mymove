@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -166,7 +167,13 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{handlerConfig,
@@ -234,14 +241,14 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		issueDate := models.TimePointer(time.Now())
 		reportByDate := models.TimePointer(time.Now().AddDate(0, 0, -1))
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
-		deptIndicator := supportmessages.DeptIndicatorAIRFORCE
+		deptIndicator := supportmessages.DeptIndicatorAIRANDSPACEFORCE
 
-		rank := (supportmessages.Rank)("E_6")
+		grade := (supportmessages.Rank)("E_6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
 			PpmType:      "FULL",
 			ContractorID: handlers.FmtUUID(contractor.ID),
 			Order: &supportmessages.Order{
-				Rank:                      &rank,
+				Rank:                      &grade, // Convert support API "Rank" into our internal tracking of "Grade"
 				OrderNumber:               models.StringPointer("4554"),
 				DestinationDutyLocationID: handlers.FmtUUID(destinationDutyLocation.ID),
 				OriginDutyLocationID:      handlers.FmtUUID(originDutyLocation.ID),
@@ -348,7 +355,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{

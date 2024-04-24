@@ -103,6 +103,7 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 		db:                 suite.DB(),
 		logger:             suite.Logger(),
 		appNames:           ApplicationTestServername(),
+		notificationSender: suite.TestNotificationSender(),
 		sessionManagers:    setupSessionManagers(),
 		featureFlagFetcher: mockFeatureFlagFetcher,
 	}
@@ -212,7 +213,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
-		Email:           serviceMember.User.LoginGovEmail,
+		Email:           serviceMember.User.OktaEmail,
 	}
 	session.Roles = append(session.Roles, serviceMember.User.Roles...)
 	ctx := auth.SetSessionInRequestContext(req, &session)

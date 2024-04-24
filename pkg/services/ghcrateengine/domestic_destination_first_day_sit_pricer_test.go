@@ -18,7 +18,7 @@ const (
 	ddfsitTestContractYearName     = "DDFSIT Test Year"
 	ddfsitTestEscalationCompounded = 1.052
 	ddfsitTestWeight               = unit.Pound(3300)
-	ddfsitTestPriceCents           = unit.Cents(18226) // ddfsitTestBasePriceCents * (ddfsitTestWeight / 100) * ddfsitTestEscalationCompounded
+	ddfsitTestPriceCents           = unit.Cents(18216)
 )
 
 var ddfsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)

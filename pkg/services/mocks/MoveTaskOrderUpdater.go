@@ -68,6 +68,32 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 	return r0, r1
 }
 
+// UpdatePPMType provides a mock function with given fields: appCtx, moveTaskOrderID
+func (_m *MoveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID)
+
+	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.Move, error)); ok {
+		return rf(appCtx, moveTaskOrderID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.Move); ok {
+		r0 = rf(appCtx, moveTaskOrderID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Move)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, moveTaskOrderID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdatePostCounselingInfo provides a mock function with given fields: appCtx, moveTaskOrderID, eTag
 func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)

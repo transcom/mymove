@@ -77,20 +77,20 @@ func (suite *FactorySuite) TestBuildLineOfAccounting() {
 		loa := BuildLineOfAccounting(suite.DB(), []Customization{
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID: models.IntPointer(4321),
+					LoaSysID: models.StringPointer("4321"),
 				},
 			},
 		}, nil)
 
 		// VALIDATE RESULTS
-		suite.Equal(4321, *loa.LoaSysID)
+		suite.Equal("4321", *loa.LoaSysID)
 	})
 
 	suite.Run("Successful creation of a fully-filled Line of Accounting", func() {
 		// Under test:      BuildFullLineOfAccounting
 		// Set up:          Create a Line of Accounting with no customizations or traits
 		// Expected outcome:TAC should be created with custom value
-		loa := BuildFullLineOfAccounting(suite.DB())
+		loa := BuildFullLineOfAccounting(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
 		suite.NotNil(loa.LoaSysID)

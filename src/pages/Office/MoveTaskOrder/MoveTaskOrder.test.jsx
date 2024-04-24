@@ -18,17 +18,20 @@ import {
   sitExtensionApproved,
   allApprovedExternalVendorMTOQuery,
   riskOfExcessWeightQueryExternalShipment,
-  unapprovedSITAddressUpdates,
+  multiplePaymentRequests,
+  moveHistoryTestData,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
-import { useMoveTaskOrderQueries } from 'hooks/queries';
+import { useMoveTaskOrderQueries, useMovePaymentRequestsQueries, useGHCGetMoveHistory } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 
 jest.mock('hooks/queries', () => ({
   useMoveTaskOrderQueries: jest.fn(),
+  useMovePaymentRequestsQueries: jest.fn(),
+  useGHCGetMoveHistory: jest.fn(),
 }));
 
 const mockPush = jest.fn();
@@ -113,6 +116,8 @@ describe('MoveTaskOrder', () => {
 
     it('displays the estimated total weight with all weights not set', async () => {
       useMoveTaskOrderQueries.mockReturnValue(missingWeightQuery);
+      useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+      useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
 
       render(
         <MockProviders>
@@ -517,8 +522,10 @@ describe('MoveTaskOrder', () => {
 
   describe('approved mto with both submitted and approved shipments', () => {
     useMoveTaskOrderQueries.mockReturnValue(someShipmentsApprovedMTOQuery);
+    useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
+      <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
         <MoveTaskOrder
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -767,52 +774,6 @@ describe('MoveTaskOrder', () => {
       expect(navLinks.at(1).contains('1'));
     });
   });
-  describe('SIT Address Update Alerts/Tags', () => {
-    it('displays service item update requested alert', async () => {
-      useMoveTaskOrderQueries.mockReturnValue(unapprovedSITAddressUpdates);
-
-      render(
-        <MockProviders>
-          <MoveTaskOrder
-            {...requiredProps}
-            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
-            setExcessWeightRiskCount={setExcessWeightRiskCount}
-            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
-          />
-        </MockProviders>,
-      );
-
-      expect(setUnapprovedSITAddressUpdateCount).toHaveBeenCalledWith(1);
-
-      const serviceItemUpdateRequestedAlert = await screen.getByText(
-        /Service item update requested. Review request below./,
-      );
-      expect(serviceItemUpdateRequestedAlert).toBeInTheDocument();
-    });
-
-    it('renders the left nav with tag for SIT Address Update request', async () => {
-      const wrapper = mount(
-        <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
-          <MoveTaskOrder
-            {...requiredProps}
-            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
-            setExcessWeightRiskCount={setExcessWeightRiskCount}
-            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
-          />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('nav').exists()).toBe(true);
-
-      const navLinks = wrapper.find('nav a');
-      expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(1).contains('1'));
-    });
-  });
   describe('SIT extension approved', () => {
     useMoveTaskOrderQueries.mockReturnValue(sitExtensionApproved);
     const wrapper = mount(
@@ -856,7 +817,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the financial review flag button when user has permission', async () => {
       render(
-        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag, permissionTypes.updateMTOPage]}>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );
@@ -867,6 +828,16 @@ describe('MoveTaskOrder', () => {
     it('does not show the financial review flag button if user does not have permission', () => {
       render(
         <MockProviders>
+          <MoveTaskOrder {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+    });
+
+    it('does not show the financial review flag button if user does not have updateMTOPage permission', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );

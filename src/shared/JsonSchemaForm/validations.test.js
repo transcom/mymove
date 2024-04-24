@@ -220,9 +220,17 @@ describe('SchemaField tests', () => {
       ['615-222-3323', '615-222-3323', null],
       ['6152223323', '615-222-3323', null],
       ['615-222-332sdfsdfsd3', '615-222-3323', null],
-      ['615-222-332', '615-222-332', 'Number must have 10 digits and a valid area code'],
+      [
+        '615-222-332',
+        '615-222-332',
+        'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
+      ],
       ['615-222-33233', '615-222-3323', null],
-      ['115-222-33233', '115-222-3323', 'Number must have 10 digits and a valid area code'],
+      [
+        '115-222-33233',
+        '115-222-3323',
+        'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
+      ],
     ];
 
     testField(telephoneField, stringTests);

@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
@@ -208,6 +209,17 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		return ediinvoice.Invoice858C{}, err
 	}
 
+	// Add order pay grade detail to header
+	if moveTaskOrder.Orders.Grade == nil {
+		// Nil check
+		return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ID, "order pay grade not found")
+	}
+
+	edi858.Header.OrderPayGrade = edisegment.N9{
+		ReferenceIdentificationQualifier: "ML",
+		ReferenceIdentification:          string(*moveTaskOrder.Orders.Grade),
+	}
+
 	var paymentServiceItems models.PaymentServiceItems
 	err = appCtx.DB().Q().
 		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
@@ -302,16 +314,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	header.ServiceMemberName = edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
 		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
-	}
-
-	// rank
-	rank := serviceMember.Rank
-	if rank == nil {
-		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
-	}
-	header.ServiceMemberRank = edisegment.N9{
-		ReferenceIdentificationQualifier: "ML",
-		ReferenceIdentification:          string(*rank),
 	}
 
 	// branch
@@ -613,7 +615,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 		}
 	}
 
-	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
+	affiliation := models.ServiceMemberAffiliation(*orders.ServiceMember.Affiliation)
 	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
 
 	if !found {
@@ -652,81 +654,135 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 	return fa1, fa2s, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
-	var loas []models.LineOfAccounting
-	var loa models.LineOfAccounting
-
+// Fetches the long lines of accounting for an invoice based off a service member, tacCode, and the orders issue date.
+// There is special logic for whether or not the service member affiliation is for the US Coast Guard.
+func FetchLongLinesOfAccountingForInvoice(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
+	// Note regarding TAC:
 	// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
 	// numbers before letters. This is the behavior we get from order by.
-	err := appCtx.DB().Q().
-		Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
-		Where("t.tac = ?", tac).
-		Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
-		Where("t.tac_fn_bl_mod_cd != 'P'").
-		Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
-		Order("t.tac_fn_bl_mod_cd asc").
-		Order("loa_bgn_dt desc").
-		Order("t.tac_fy_txt desc").
-		All(&loas)
+	var loas []models.LineOfAccounting
+	var err error
+	// If a service member is in the Coast Guard don't filter out the household goods code of 'HS' because that is
+	// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
+	// then this can be revisited to weight the different LOAs similar to the other services.
+	if serviceMemberAffiliation == models.AffiliationCOASTGUARD {
+		err = appCtx.DB().Q().
+			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
+			Where("t.tac = ?", tacCode).
+			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
+			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
+			Where("t.tac_fn_bl_mod_cd != 'P'").
+			Order("t.tac_fn_bl_mod_cd asc").
+			Order("loa_bgn_dt desc").
+			Order("t.tac_fy_txt desc").
+			All(&loas)
+
+	} else {
+		// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
+		err = appCtx.DB().Q().
+			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
+			Where("t.tac = ?", tacCode).
+			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
+			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
+			Where("t.tac_fn_bl_mod_cd != 'P'").
+			Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
+			Order("t.tac_fn_bl_mod_cd asc").
+			Order("loa_bgn_dt desc").
+			Order("t.tac_fy_txt desc").
+			All(&loas)
+	}
+
+	// Handle error
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			// If no matching rows, don't include any long lines of accounting.
+			// We do not want to error here because there are cases in which no lines of accounting are present.
 			return nil, nil
 		default:
-			return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
+			return nil, err
 		}
 	}
+	return loas, nil
+}
 
+func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
+	var loas []models.LineOfAccounting
+	var loa models.LineOfAccounting
+
+	// Nil check on service member affiliation
+	if orders.ServiceMember.Affiliation == nil {
+		return nil, apperror.NewQueryError("orders", fmt.Errorf("Could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
+	}
+
+	loas, err := FetchLongLinesOfAccountingForInvoice(*orders.ServiceMember.Affiliation, orders.IssueDate, tac, appCtx)
+	if err != nil {
+		return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
+	}
 	if len(loas) == 0 {
 		return nil, nil
 	}
+	// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt)
+	loa = loas[0]
 
-	//"HE" - E-1 through E-9 and Special Enlisted
-	//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
-	//"HC" - Civilian employee
+	if *orders.ServiceMember.Affiliation != models.AffiliationCOASTGUARD {
 
-	if orders.ServiceMember.Rank == nil {
-		return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
-	}
-	rank := *orders.ServiceMember.Rank
+		//"HE" - E-1 through E-9 and Special Enlisted
+		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
+		//"HC" - Civilian employee
 
-	hhgCode := ""
-	if rank[:2] == "E_" {
-		hhgCode = "HE"
-	} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
-		hhgCode = "HO"
-	} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
-		hhgCode = "HC"
-	} else {
-		return nil, apperror.NotImplementedError{}
-	}
-	// if just one, pick it
-	// if multiple,lowest FBMC
-	var loaWithMatchingCode []models.LineOfAccounting
+		if orders.Grade == nil {
+			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no pay grade for the specified order")
+		}
+		grade := *orders.Grade
 
-	for _, line := range loas {
-		if line.LoaHsGdsCd != nil && *line.LoaHsGdsCd == hhgCode {
-			loaWithMatchingCode = append(loaWithMatchingCode, line)
+		hhgCode := ""
+		if grade[:2] == "E_" {
+			hhgCode = "HE"
+		} else if grade[:2] == "O_" || grade[:2] == "W_" || grade == models.ServiceMemberGradeACADEMYCADET || grade == models.ServiceMemberGradeAVIATIONCADET || grade == models.ServiceMemberGradeMIDSHIPMAN {
+			hhgCode = "HO"
+		} else if grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+			hhgCode = "HC"
+		} else {
+			return nil, apperror.NotImplementedError{}
+		}
+		// if just one, pick it
+		// if multiple,lowest FBMC
+		var loaWithMatchingCode []models.LineOfAccounting
+
+		for _, line := range loas {
+			if line.LoaHsGdsCd != nil && *line.LoaHsGdsCd == hhgCode {
+				loaWithMatchingCode = append(loaWithMatchingCode, line)
+			}
+		}
+		if len(loaWithMatchingCode) == 0 {
+			// fall back to the whole set and then sort by fbmc
+			// take first thing from whole set
+			loa = loas[0]
+		}
+		if len(loaWithMatchingCode) >= 1 {
+			// take first of loaWithMatchingCode
+			loa = loaWithMatchingCode[0]
 		}
 	}
-	if len(loaWithMatchingCode) == 0 {
-		// fall back to the whole set and then sort by fbmc
-		// take first thing from whole set
-		loa = loas[0]
-	}
-	if len(loaWithMatchingCode) >= 1 {
-		// take first of loaWithMatchingCode
-		loa = loaWithMatchingCode[0]
-	}
-
 	var fa2LongLoaSegments []edisegment.FA2
 
 	var concatDate *string
-	if (loa.LoaBgnDt != nil && !loa.LoaBgnDt.IsZero()) &&
-		(loa.LoaEndDt != nil && !loa.LoaEndDt.IsZero()) {
-		fiscalYearStr := fmt.Sprintf("%d%d", loa.LoaBgnDt.Year(), loa.LoaEndDt.Year())
+	if loa.LoaBgFyTx != nil && loa.LoaEndFyTx != nil {
+		fiscalYearStr := fmt.Sprintf("%d%d", *loa.LoaBgFyTx, *loa.LoaEndFyTx)
 		concatDate = &fiscalYearStr
+	} else {
+		blankValue := "XXXXXXXX"
+		concatDate = &blankValue
+	}
+
+	// The FA2 L1 segment must be exactly six characters in length. Our imported database values from TRDM are numeric
+	// strings and so we need to left pad with zeros to meet the threshold.  This may not be needed when the real TGET
+	// integration is introduced.
+	var accountingInstallationNumber *string
+	if loa.LoaInstlAcntgActID != nil {
+		zeroPaddedInstlAcntgActID := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
+		accountingInstallationNumber = &zeroPaddedInstlAcntgActID
 	}
 
 	// Create long LOA FA2 segments
@@ -759,7 +815,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
 		{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
 		{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
-		{edisegment.FA2DetailCodeL1, loa.LoaInstlAcntgActID},
+		{edisegment.FA2DetailCodeL1, accountingInstallationNumber},
 		{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
 		{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
 		{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},

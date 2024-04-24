@@ -145,7 +145,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 						h.GetTraceIDFromRequest(params.HTTPRequest))), invalidShipmentStatusErr
 			}
 
-			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
+			updatedMTOShipment, err := h.shipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "internal")
 
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
@@ -160,6 +160,13 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 								h.GetTraceIDFromRequest(params.HTTPRequest),
 							),
 						), err
+				case apperror.UpdateError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.BadRequestErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+						),
+					), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.
 						NewUpdateMTOShipmentUnprocessableEntity().

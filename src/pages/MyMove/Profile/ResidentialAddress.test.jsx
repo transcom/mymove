@@ -54,7 +54,7 @@ describe('ResidentialAddress page', () => {
     render(<ResidentialAddress {...testProps} />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Current pickup address', level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Current address', level: 1 })).toBeInTheDocument();
     });
   });
 
@@ -79,7 +79,7 @@ describe('ResidentialAddress page', () => {
     });
   });
 
-  it('back button goes to the Current duty location step', async () => {
+  it('back button goes to the contact info step', async () => {
     const testProps = generateTestProps(blankAddress);
 
     render(<ResidentialAddress {...testProps} />);
@@ -88,7 +88,7 @@ describe('ResidentialAddress page', () => {
     expect(backButton).toBeInTheDocument();
     await userEvent.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONTACT_INFO_PATH);
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
@@ -191,7 +191,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     updateServiceMember: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DUTY LOCATION COMPLETE" state', async () => {
+  it('dispatches a redirect if the current state is earlier than the "CONTACT_INFO_PATH" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -204,14 +204,10 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
             last_name: 'Testperson',
-            telephone: '1234567890',
-            personal_email: 'test@example.com',
-            email_is_preferred: true,
           },
         },
       },
@@ -223,15 +219,15 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
+      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONTACT_INFO_PATH);
     });
   });
 
-  it('does not redirect if the current state equals the "DUTY LOCATION COMPLETE" state', async () => {
+  it('does not redirect if the current state equals the "CONTACT_INFO_COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -244,7 +240,6 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -266,7 +261,7 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
@@ -274,7 +269,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     });
   });
 
-  it('does not redirect if the current state is after the "DUTY LOCATION COMPLETE" state and profile is not complete', async () => {
+  it('does not redirect if the current state is after the "CONTACT_INFO_COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -287,7 +282,6 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -315,7 +309,7 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
@@ -336,7 +330,6 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -369,7 +362,7 @@ describe('requireCustomerState ResidentialAddress', () => {
       </MockProviders>,
     );
 
-    const h1 = screen.getByRole('heading', { name: 'Current pickup address', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Current address', level: 1 });
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {

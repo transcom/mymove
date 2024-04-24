@@ -39,8 +39,11 @@ type UpdateMTOServiceItemSIT struct {
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 	// Service code allowed for this model type.
-	// Enum: [DDDSIT DOPSIT]
+	// Enum: [DDDSIT DOPSIT DOASIT DOFSIT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
+
+	// Indicates if "Approvals Requested" status is being requested.
+	RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 
 	// Date when the customer contacted the prime for a delivery out of SIT.
 	// Format: date
@@ -52,6 +55,15 @@ type UpdateMTOServiceItemSIT struct {
 
 	// sit destination final address
 	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
+	// Entry date for the SIT.
+	// Format: date
+	SitEntryDate *strfmt.Date `json:"sitEntryDate,omitempty"`
+
+	// sit postal code
+	// Example: 90210
+	// Pattern: ^(\d{5}([\-]\d{4})?)$
+	SitPostalCode *string `json:"sitPostalCode,omitempty"`
 
 	// Date when the customer has requested delivery out of SIT.
 	// Format: date
@@ -66,6 +78,9 @@ type UpdateMTOServiceItemSIT struct {
 	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
+
+	// Reason for updating service item.
+	UpdateReason *string `json:"updateReason,omitempty"`
 }
 
 // ID gets the id of this subtype
@@ -108,8 +123,11 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DOPSIT]
+		// Enum: [DDDSIT DOPSIT DOASIT DOFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
+
+		// Indicates if "Approvals Requested" status is being requested.
+		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
@@ -121,6 +139,15 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
+		// Entry date for the SIT.
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate,omitempty"`
+
+		// sit postal code
+		// Example: 90210
+		// Pattern: ^(\d{5}([\-]\d{4})?)$
+		SitPostalCode *string `json:"sitPostalCode,omitempty"`
 
 		// Date when the customer has requested delivery out of SIT.
 		// Format: date
@@ -135,6 +162,9 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
+
+		// Reason for updating service item.
+		UpdateReason *string `json:"updateReason,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -173,12 +203,16 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
+	result.RequestApprovalsRequestedStatus = data.RequestApprovalsRequestedStatus
 	result.SitCustomerContacted = data.SitCustomerContacted
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
+	result.SitEntryDate = data.SitEntryDate
+	result.SitPostalCode = data.SitPostalCode
 	result.SitRequestedDelivery = data.SitRequestedDelivery
 	result.TimeMilitary1 = data.TimeMilitary1
 	result.TimeMilitary2 = data.TimeMilitary2
+	result.UpdateReason = data.UpdateReason
 
 	*m = result
 
@@ -208,8 +242,11 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DOPSIT]
+		// Enum: [DDDSIT DOPSIT DOASIT DOFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
+
+		// Indicates if "Approvals Requested" status is being requested.
+		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
@@ -221,6 +258,15 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
+		// Entry date for the SIT.
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate,omitempty"`
+
+		// sit postal code
+		// Example: 90210
+		// Pattern: ^(\d{5}([\-]\d{4})?)$
+		SitPostalCode *string `json:"sitPostalCode,omitempty"`
 
 		// Date when the customer has requested delivery out of SIT.
 		// Format: date
@@ -235,6 +281,9 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
+
+		// Reason for updating service item.
+		UpdateReason *string `json:"updateReason,omitempty"`
 	}{
 
 		DateOfContact1: m.DateOfContact1,
@@ -247,17 +296,25 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 
 		ReServiceCode: m.ReServiceCode,
 
+		RequestApprovalsRequestedStatus: m.RequestApprovalsRequestedStatus,
+
 		SitCustomerContacted: m.SitCustomerContacted,
 
 		SitDepartureDate: m.SitDepartureDate,
 
 		SitDestinationFinalAddress: m.SitDestinationFinalAddress,
 
+		SitEntryDate: m.SitEntryDate,
+
+		SitPostalCode: m.SitPostalCode,
+
 		SitRequestedDelivery: m.SitRequestedDelivery,
 
 		TimeMilitary1: m.TimeMilitary1,
 
 		TimeMilitary2: m.TimeMilitary2,
+
+		UpdateReason: m.UpdateReason,
 	})
 	if err != nil {
 		return nil, err
@@ -316,6 +373,14 @@ func (m *UpdateMTOServiceItemSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitDestinationFinalAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -406,7 +471,7 @@ var updateMTOServiceItemSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DDDSIT","DOPSIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DDDSIT","DOPSIT","DOASIT","DOFSIT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -477,6 +542,32 @@ func (m *UpdateMTOServiceItemSIT) validateSitDestinationFinalAddress(formats str
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) validateSitEntryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitEntryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) validateSitPostalCode(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("sitPostalCode", "body", *m.SitPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
+		return err
 	}
 
 	return nil

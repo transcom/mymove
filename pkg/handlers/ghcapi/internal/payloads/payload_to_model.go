@@ -53,6 +53,7 @@ func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
 // CustomerToServiceMember transforms UpdateCustomerPayload to ServiceMember model
 func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.ServiceMember {
 	address := AddressModel(&payload.CurrentAddress.Address)
+	backupAddress := AddressModel(&payload.BackupAddress.Address)
 
 	var backupContacts []models.BackupContact
 	if payload.BackupContact != nil {
@@ -64,14 +65,18 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	}
 
 	return models.ServiceMember{
-		ResidentialAddress: address,
-		BackupContacts:     backupContacts,
-		FirstName:          &payload.FirstName,
-		LastName:           &payload.LastName,
-		Suffix:             payload.Suffix,
-		MiddleName:         payload.MiddleName,
-		PersonalEmail:      payload.Email,
-		Telephone:          payload.Phone,
+		ResidentialAddress:   address,
+		BackupContacts:       backupContacts,
+		FirstName:            &payload.FirstName,
+		LastName:             &payload.LastName,
+		Suffix:               payload.Suffix,
+		MiddleName:           payload.MiddleName,
+		PersonalEmail:        payload.Email,
+		Telephone:            payload.Phone,
+		SecondaryTelephone:   payload.SecondaryTelephone,
+		PhoneIsPreferred:     &payload.PhoneIsPreferred,
+		EmailIsPreferred:     &payload.EmailIsPreferred,
+		BackupMailingAddress: backupAddress,
 	}
 }
 
@@ -147,24 +152,6 @@ func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateApprovedSITD
 		ApprovedDays:  &ad,
 		OfficeRemarks: sitExtension.OfficeRemarks,
 		DecisionDate:  &now,
-	}
-
-	return model
-}
-
-// ApprovedSITAddressUpdateFromCreate model
-func ApprovedSITAddressUpdateFromCreate(sitAddressUpdate *ghcmessages.CreateSITAddressUpdate, serviceItemID strfmt.UUID) *models.SITAddressUpdate {
-	if sitAddressUpdate == nil {
-		return nil
-	}
-	model := &models.SITAddressUpdate{
-		MTOServiceItemID: uuid.FromStringOrNil(serviceItemID.String()),
-		OfficeRemarks:    sitAddressUpdate.OfficeRemarks,
-	}
-
-	addressModel := AddressModel(sitAddressUpdate.NewAddress)
-	if addressModel != nil {
-		model.NewAddress = *addressModel
 	}
 
 	return model
@@ -375,6 +362,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
@@ -508,6 +497,7 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		Reason:               handlers.FmtString(weightTicket.Reason),
 		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
+		AllowableWeight:      handlers.PoundPtrFromInt64Ptr(weightTicket.AllowableWeight),
 	}
 	return model
 }

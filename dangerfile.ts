@@ -20,12 +20,6 @@ const githubChecks = () => {
     if (danger.github.pr.body.length < 10) {
       warn('Please include a description of your PR changes.');
     }
-    // PRs should have a Jira ID in the title
-    jiraIssue({
-      key: 'MB',
-      url: 'https://dp3.atlassian.net/browse',
-      location: 'title',
-    });
   }
 };
 
@@ -36,7 +30,7 @@ const fileChecks = () => {
   const legacyFiles = danger.git.fileMatch('src/shared/**/*', 'src/scenes/**/*');
 
   if (legacyFiles.created) {
-    fail(`New files have been created under one of the legacy directories
+    warn(`New files have been created under one of the legacy directories
 (src/shared or src/scenes). Please relocate them according to the file structure described [here](https://transcom.github.io/mymove-docs/docs/dev/contributing/frontend/frontend#file-layout--naming).
 
 View the [frontend file org ADR](https://github.com/transcom/mymove/blob/main/docs/adr/0048-frontend-file-org.md) for more information`);
@@ -47,26 +41,6 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/main/do
 been edited. Are you sure you don’t want to also relocate them to the new [file structure](https://transcom.github.io/mymove-docs/docs/dev/contributing/frontend/frontend#file-layout--naming)?
 
 View the [frontend file org ADR](https://github.com/transcom/mymove/blob/main/docs/adr/0048-frontend-file-org.md) for more information`);
-  }
-
-  const deprecatedDevSeedFiles = danger.git.fileMatch(
-    'pkg/testdatagen/scenario/devseed.go',
-    'pkg/testdatagen/scenario/subscenarios.go',
-    'cmd/generate-test-data/main.go',
-  );
-
-  if (deprecatedDevSeedFiles.modified) {
-    fail(`One of these files have been edited:
-
-* ${'`'}pkg/testdatagen/scenario/devseed.go${'`'}
-* ${'`'}pkg/testdatagen/scenario/subscenarios.go${'`'}
-* ${'`'}cmd/generate-test-data/main.go${'`'}
-
-Please undo changes to these files as we have deprecated
-${'`'}devseed${'`'} data functions from MilMove entirely and will be
-deleting this code on the 8th of November 2023.
-
-View the [ADR 0083](https://transcom.github.io/mymove-docs/docs/adrs/deprecating-devseed-scenarios) for more information`);
   }
 
   // Request changes to app code to also include changes to tests.

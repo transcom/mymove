@@ -16,13 +16,11 @@ import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS } from 'constants/queryKeys';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
-
-const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
@@ -171,18 +169,13 @@ const MoveAllowances = () => {
                   fallback={
                     <AllowancesDetailForm
                       entitlements={order.entitlement}
-                      rankOptions={rankDropdownOptions}
                       branchOptions={branchDropdownOption}
                       editableAuthorizedWeight
                       formIsDisabled
                     />
                   }
                 >
-                  <AllowancesDetailForm
-                    entitlements={order.entitlement}
-                    rankOptions={rankDropdownOptions}
-                    branchOptions={branchDropdownOption}
-                  />
+                  <AllowancesDetailForm entitlements={order.entitlement} branchOptions={branchDropdownOption} />
                 </Restricted>
               </div>
               <Restricted to={permissionTypes.updateAllowances}>

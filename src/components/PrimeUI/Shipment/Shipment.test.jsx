@@ -23,6 +23,8 @@ const approvedMoveTaskOrder = {
     mtoShipments: [
       {
         actualPickupDate: '2020-03-17',
+        actualProGearWeight: null,
+        actualSpouseProGearWeight: 117,
         agents: [],
         approvedDate: '2021-10-20',
         counselorRemarks: 'These are counselor remarks for an HHG.',
@@ -89,7 +91,7 @@ describe('Shipment details component', () => {
     const shipmentLevelHeader = screen.getByRole('heading', { name: 'HHG shipment', level: 3 });
     expect(shipmentLevelHeader).toBeInTheDocument();
 
-    const updateShipmentLink = screen.getByText(/Update Shipment/, { selector: 'a.usa-button' });
+    const updateShipmentLink = screen.getAllByText(/Update Shipment/, { selector: 'a.usa-button' })[0];
     expect(updateShipmentLink).toBeInTheDocument();
     expect(updateShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}`);
 
@@ -152,6 +154,14 @@ describe('Shipment details component', () => {
     field = screen.getByText('Reweigh Requested Date:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.reweigh.requestedAt);
+
+    field = screen.getByText('Actual Pro Gear Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('—');
+
+    field = screen.getByText('Actual Spouse Pro Gear Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.actualSpouseProGearWeight.toString());
 
     field = screen.getByText('Pickup Address:');
     expect(field).toBeInTheDocument();
@@ -400,6 +410,20 @@ describe('PPM shipments are handled', () => {
     const field = screen.getByText(ppmShipmentField);
     await expect(field).toBeInTheDocument();
     await expect(field.nextElementSibling.textContent).toBe(ppmShipmentFieldValue);
+  });
+
+  it('PPM does not display HHG fields', async () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    let field = screen.queryByText('Actual Pro Gear Weight:');
+    expect(field).not.toBeInTheDocument();
+
+    field = screen.queryByText('Actual Spouse Pro Gear Weight:');
+    expect(field).not.toBeInTheDocument();
   });
 
   it('PPM can be deleted', async () => {

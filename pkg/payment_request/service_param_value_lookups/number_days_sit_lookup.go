@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 )
 
 // NumberDaysSITLookup does lookup of the number of SIT days a Move Task Orders MTO Shipment can bill for
@@ -47,7 +47,7 @@ func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *Servi
 		return "", errors.New("new requested SIT dates overlap previously requested dates")
 	}
 
-	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
+	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 	totalSITAllowance, err := shipmentSITStatus.CalculateShipmentSITAllowance(appCtx, s.MTOShipment)
 	if err != nil {
 		return "", err
@@ -168,9 +168,7 @@ func fetchAndVerifyMTOShipmentSITDates(appCtx appcontext.AppContext, mtoShipment
 	for _, mtoShipmentSITPaymentServiceItem := range mtoShipmentSITPaymentServiceItems {
 		if isDomesticOrigin(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
 			if isDomesticOrigin(mtoServiceItem) {
-				if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil && mtoShipmentSITPaymentServiceItem.MTOServiceItem.ID != mtoServiceItem.ID {
-					return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has an Origin MTO Service Item %v with a SIT Departure Date of %v", mtoServiceItem.MTOShipmentID, mtoShipmentSITPaymentServiceItem.ID, mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate)
-				} else if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+				if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
 					sitEntryDate := mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate
 					if originSITEntryDate.IsZero() {
 						originSITEntryDate = *sitEntryDate
@@ -182,9 +180,7 @@ func fetchAndVerifyMTOShipmentSITDates(appCtx appcontext.AppContext, mtoShipment
 		} else if isDomesticDestination(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
 			if isDomesticDestination(mtoServiceItem) {
 				appCtx.Logger().Debug(fmt.Sprintf("Type of Service Item: %v", mtoServiceItem.ReService.Code.String()))
-				if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil && mtoShipmentSITPaymentServiceItem.MTOServiceItem.ID != mtoServiceItem.ID {
-					return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has a Destination MTO Service Item %v with a SIT Departure Date of %v", mtoServiceItem.MTOShipmentID, mtoShipmentSITPaymentServiceItem.ID, mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate)
-				} else if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+				if mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
 					sitEntryDate := mtoShipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate
 					if destinationSITEntryDate.IsZero() {
 						destinationSITEntryDate = *sitEntryDate

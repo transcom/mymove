@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../../utils/office/officeTest';
+import { test, expect, DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { TooFlowPage } from './tooTestFixture';
 
@@ -199,6 +199,16 @@ test.describe('TOO user', () => {
       await page.getByText('Edit orders').click();
       await tooFlowPage.waitForLoading();
 
+      // Check for department indicators
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.AIR_AND_SPACE_FORCE);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY_CORPS_OF_ENGINEERS);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.NAVY_AND_MARINES);
+      await page
+        .getByLabel('Department indicator')
+        .selectOption(DEPARTMENT_INDICATOR_OPTIONS.OFFICE_OF_SECRETARY_OF_DEFENSE);
+
       // Toggle between Edit Allowances and Edit Orders page
       await page.getByTestId('view-allowances').click();
       await tooFlowPage.waitForLoading();
@@ -206,6 +216,9 @@ test.describe('TOO user', () => {
       await page.getByTestId('view-orders').click();
       await tooFlowPage.waitForLoading();
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/orders`);
+
+      // Check for link that allows TIO to download the PDF for copy/paste functionality
+      await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
 
       // Edit orders fields
 
@@ -236,7 +249,7 @@ test.describe('TOO user', () => {
 
       await expect(page.locator('[data-testid="currentDutyLocation"]')).toContainText('Fort Irwin');
       await expect(page.locator('[data-testid="newDutyLocation"]')).toContainText(
-        'Joint Base Lewis-McChord (McChord AFB)',
+        'JB Langley-Eustis (Fort Eustis), VA 23604',
       );
       await expect(page.locator('[data-testid="issuedDate"]')).toContainText('16 Mar 2018');
       await expect(page.locator('[data-testid="reportByDate"]')).toContainText('22 Mar 2018');
@@ -283,6 +296,31 @@ test.describe('TOO user', () => {
           .locator('[data-testid="alert"]')
           .getByText('The request to cancel that shipment has been sent to the movers.'),
       ).toBeVisible();
+
+      // Alert should disappear if focus changes
+      await page.locator('[data-testid="rejectTextButton"]').first().click();
+      await page.locator('[data-testid="closeRejectServiceItem"]').click();
+      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
+    });
+
+    test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      await tooFlowPage.approveAllShipments();
+
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
+
+      // Move Task Order page
+      await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
+
+      await page.locator('button').getByText('Request diversion').click();
+
+      await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
+
+      // Check the alert message with shipment locator
+      const alertText = await page.locator('[data-testid="alert"]').textContent();
+      const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
+      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
+      expect(hasValidShipmentNumber).toBeTruthy();
 
       // Alert should disappear if focus changes
       await page.locator('[data-testid="rejectTextButton"]').first().click();
@@ -339,8 +377,8 @@ test.describe('TOO user', () => {
       // await expect(page.locator('[data-testid="ocie"]')).toContainText('Unauthorized');
 
       // await expect(page.locator('[data-testid="authorizedWeight"]')).toContainText('11,111');
-      // await expect(page.locator('[data-testid="branchRank"]')).toContainText('Navy');
-      // await expect(page.locator('[data-testid="branchRank"]')).toContainText('W-2');
+      // await expect(page.locator('[data-testid="branchGrade"]')).toContainText('Navy');
+      // await expect(page.locator('[data-testid="branchGrade"]')).toContainText('W-2');
       // await expect(page.locator('[data-testid="dependents"]')).toContainText('Unauthorized');
 
       // // Edit allowances page | Cancel
@@ -392,6 +430,12 @@ test.describe('TOO user', () => {
       // Make sure we go to move details page
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/details`);
     });
+
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
   });
 
   test.describe('with retiree moves', () => {
@@ -425,6 +469,56 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="submitForm"]').click();
 
       await tooFlowPage.waitForPage.moveDetails();
+    });
+  });
+
+  let moveLoc;
+  test.describe('with payment requests', () => {
+    test.beforeEach(async ({ officePage, page }) => {
+      const move = await officePage.testHarness.buildHHGMoveInSITEndsToday();
+      moveLoc = move.locator;
+      await officePage.signInAsNewMultiRoleUser();
+
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select prime_simulator' }).click();
+      await page.locator('#moveCode').click();
+      await page.locator('#moveCode').fill(moveLoc);
+      await page.locator('#moveCode').press('Enter');
+      await page.getByTestId('moveCode-0').click();
+      await page.getByRole('link', { name: 'Create Payment Request' }).click();
+      await page.waitForSelector('h3:has-text("Domestic origin SIT fuel surcharge")');
+      const serviceItemID = await page.$eval(
+        `//h3[text()='Domestic origin SIT fuel surcharge']/following-sibling::div[contains(@class, 'descriptionList_row__TsTvp')]//dt[text()='ID:']/following-sibling::dd[1]`,
+        (ddElement) => ddElement.textContent.trim(),
+      );
+      await page.locator(`label[for="${serviceItemID}"]`).nth(0).check();
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).fill('10000');
+      await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
+      await page.getByTestId('form').getByTestId('button').click();
+      await page.getByRole('link', { name: 'Change user role' }).click();
+      await page.getByRole('button', { name: 'Select transportation_ordering_officer' }).click();
+    });
+    test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
+      await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .fill(moveLoc);
+      await page
+        .getByRole('row', { name: 'Select...' })
+        .getByTestId('locator')
+        .getByTestId('TextBoxFilter')
+        .press('Enter');
+      await page.getByTestId('locator-0').click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByRole('button', { name: 'Review weights' }).click();
+      await page.getByRole('button', { name: 'Review shipment weights' }).click();
+      await page.getByRole('button', { name: 'Back' }).click();
+      await page.getByRole('link', { name: 'Payment requests' }).click();
+      await page.getByTestId('reviewBtn').click();
+      await page.getByTestId('toggleCalculations').click();
+      await expect(page.getByText('Weight-based distance multiplier: 0.0006255')).toBeVisible();
     });
   });
 

@@ -90,6 +90,7 @@ func (s *NamedServer) ListenAndServeTLS() error {
 			fmt.Println(fmt.Errorf("Failed to close listener due to %w", closeErr))
 		}
 	}()
+
 	return s.Serve(listener)
 }
 

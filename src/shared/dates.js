@@ -16,6 +16,7 @@ const allowedDateFormats = [
   'DD-MMM-YY',
   'DD MMM YYYY',
   'YYYY-MM-DDTHH:mm:ssZ',
+  'YYYY-MM-DDTHH:mm:ss.SSSZ',
 ];
 
 export function parseDate(str, _format, locale = 'en') {
@@ -30,6 +31,10 @@ export function parseDate(str, _format, locale = 'en') {
 
 export function formatDate(date, format = defaultDateFormat, locale = 'en') {
   return moment(date, allowedDateFormats, locale, true).locale(locale).format(format);
+}
+
+export function formatDateWithUTC(date, format = defaultDateFormat, locale = 'en') {
+  return moment.utc(date, allowedDateFormats, locale, true).locale(locale).format(format);
 }
 
 export function formatDateForSwagger(dateString) {
@@ -56,7 +61,7 @@ export function formatDateTime(dateString) {
  */
 export function formatDateForDatePicker(date) {
   if (date) {
-    return date.format(datePickerFormat);
+    return formatDate(date, datePickerFormat);
   }
   return undefined;
 }

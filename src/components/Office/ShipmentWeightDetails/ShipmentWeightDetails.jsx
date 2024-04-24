@@ -15,17 +15,22 @@ import { ShipmentOptionsOneOf } from 'types/shipment';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, handleRequestReweighModal }) => {
-  const lowestWeight = returnLowestValue(actualWeight, shipmentInfo.reweighWeight);
+const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, handleRequestReweighModal }) => {
+  const emDash = '\u2014';
+  const lowestWeight = returnLowestValue(initialWeight, shipmentInfo.reweighWeight);
+  const shipmentIsPPM = shipmentInfo.shipmentType === SHIPMENT_OPTIONS.PPM;
+
   const reweighHeader = (
     <div className={styles.shipmentWeight}>
-      <span>Shipment weight</span>
+      <span>Reweigh weight</span>
       {!shipmentInfo.reweighID && (
         <div className={styles.rightAlignButtonWrapper}>
           <Restricted to={permissionTypes.createReweighRequest}>
-            <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
-              Request reweigh
-            </Button>
+            <Restricted to={permissionTypes.updateMTOPage}>
+              <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
+                Request reweigh
+              </Button>
+            </Restricted>
           </Restricted>
         </div>
       )}
@@ -33,22 +38,39 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
       {shipmentInfo.reweighWeight && <Tag>reweighed</Tag>}
     </div>
   );
+
   return (
     <div className={classnames('maxw-tablet', styles.ShipmentWeightDetails)}>
-      {shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR && (
-        <DataTableWrapper className={classnames('maxw-mobile', 'table--data-point-group')}>
+      <DataTableWrapper className={classnames('table--data-point-group')}>
+        <DataTable
+          columnHeaders={['Estimated weight', 'Initial weight']}
+          dataRow={[
+            estimatedWeight && shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR
+              ? formatWeight(estimatedWeight)
+              : emDash,
+            initialWeight ? formatWeight(initialWeight) : emDash,
+          ]}
+        />
+        <DataTable
+          columnHeaders={[reweighHeader, 'Actual shipment weight']}
+          dataRow={[
+            shipmentInfo.reweighWeight ? formatWeight(shipmentInfo.reweighWeight) : emDash,
+            lowestWeight ? formatWeight(lowestWeight) : emDash,
+          ]}
+        />
+        {!shipmentIsPPM && (
           <DataTable
-            columnHeaders={['Estimated weight']}
-            dataRow={estimatedWeight ? [formatWeight(estimatedWeight)] : ['']}
+            columnHeaders={['Actual pro gear weight', 'Actual spouse pro gear weight']}
+            dataRow={[
+              shipmentInfo.shipmentActualProGearWeight && shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR
+                ? formatWeight(shipmentInfo.shipmentActualProGearWeight)
+                : emDash,
+              shipmentInfo.shipmentActualSpouseProGearWeight
+                ? formatWeight(shipmentInfo.shipmentActualSpouseProGearWeight)
+                : emDash,
+            ]}
           />
-        </DataTableWrapper>
-      )}
-      <DataTableWrapper
-        className={classnames('table--data-point-group', {
-          'maxw-mobile': shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.NTSR,
-        })}
-      >
-        <DataTable columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
+        )}
       </DataTableWrapper>
     </div>
   );
@@ -56,20 +78,22 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
 
 ShipmentWeightDetails.propTypes = {
   estimatedWeight: PropTypes.number,
-  actualWeight: PropTypes.number,
+  initialWeight: PropTypes.number,
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string,
     ifMatchEtag: PropTypes.string,
     reweighID: PropTypes.string,
     reweighWeight: PropTypes.number,
     shipmentType: ShipmentOptionsOneOf.isRequired,
+    shipmentActualProGearWeight: PropTypes.number,
+    shipmentActualSpouseProGearWeight: PropTypes.number,
   }).isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
 };
 
 ShipmentWeightDetails.defaultProps = {
   estimatedWeight: null,
-  actualWeight: null,
+  initialWeight: null,
 };
 
 export default ShipmentWeightDetails;

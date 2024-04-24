@@ -72,7 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		paymentServiceItem := suite.setupDomesticShorthaulServiceItems(requestedPickup)
 		expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
 		cost, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(6563903)
+		expectedCost := unit.Cents(6566400)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
@@ -136,7 +136,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			dshTestWeight,
 			dshTestServiceArea,
 		)
-		expectedCost := unit.Cents(6563903)
+		expectedCost := unit.Cents(6566400)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)
@@ -159,7 +159,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			dshTestWeight,
 			dshTestServiceArea,
 		)
-		expectedCost := unit.Cents(5709696)
+		expectedCost := unit.Cents(5702400)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)

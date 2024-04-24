@@ -1,3 +1,13 @@
+@media (max-width:1240px) {
+  body{
+    min-width: 375px;
+    overflow-x: scroll;
+  }
+  .sb-main-padded, .sb-show-main {
+    min-width: 0;
+  }
+}
+
 button.signInButton {
   display: inline-flex;
   width: 100%;
@@ -5,4 +15,9 @@ button.signInButton {
 
 :global(.usa-button-group) {
   justify-content: center;
+}
+.center {
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }

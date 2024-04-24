@@ -9,22 +9,26 @@ export function numOfDaysBetweenDates(date1, date2) {
   return mDate2.diff(mDate1, 'days');
 }
 
-export function selectDateFieldByStatus(status) {
-  let dateField;
-
+export const selectDatePrefixByStatus = (status) => {
   switch (status) {
-    case SERVICE_ITEM_STATUS.SUBMITTED:
-      dateField = 'createdAt';
-      break;
     case SERVICE_ITEM_STATUS.APPROVED:
-      dateField = 'approvedAt';
-      break;
+      return 'Date approved';
     case SERVICE_ITEM_STATUS.REJECTED:
-      dateField = 'rejectedAt';
-      break;
+      return 'Date rejected';
+    case SERVICE_ITEM_STATUS.SUBMITTED:
     default:
-      dateField = 'createdAt';
+      return 'Date requested';
   }
+};
 
-  return dateField;
-}
+export const selectDateFieldByStatus = (status) => {
+  switch (status) {
+    case SERVICE_ITEM_STATUS.APPROVED:
+      return 'approvedAt';
+    case SERVICE_ITEM_STATUS.REJECTED:
+      return 'rejectedAt';
+    case SERVICE_ITEM_STATUS.SUBMITTED:
+    default:
+      return 'createdAt';
+  }
+};

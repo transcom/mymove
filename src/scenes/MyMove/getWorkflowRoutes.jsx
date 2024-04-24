@@ -3,27 +3,23 @@ import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
 
 import { generalRoutes, customerRoutes } from 'constants/routes';
-import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
-import { no_op } from 'shared/utils';
-import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
+import { NULL_UUID } from 'shared/constants';
 import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import SMName from 'pages/MyMove/Profile/Name';
-import DutyLocation from 'pages/MyMove/Profile/DutyLocation';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import SelectShipmentType from 'pages/MyMove/SelectShipmentType';
-import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
-import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import BackupAddress from 'pages/MyMove/Profile/BackupAddress';
 import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review/Review';
 import Agreement from 'pages/MyMove/Agreement';
+import ValidationCode from 'pages/MyMove/Profile/ValidationCode';
 
 const PageNotInFlow = () => (
   <div className="usa-grid">
@@ -32,64 +28,29 @@ const PageNotInFlow = () => (
   </div>
 );
 
-// USE THESE FOR STUBBING OUT FUTURE WORK
-// const Placeholder = props => {
-//   return (
-//     <WizardPage
-//       handleSubmit={() => undefined}
-//       pageList={props.pageList}
-//       pageKey={props.pageKey}
-//     >
-//       <div className="Todo-phase2">
-//         <h1>Placeholder for {props.title}</h1>
-//         <h2>{props.description}</h2>
-//       </div>
-//     </WizardPage>
-//   );
-// };
-
-// const stub = (key, pages, description) => (
-//   <Placeholder
-//     pageList={pages}
-//     pageKey={key}
-//     title={key}
-//     description={description}
-//   />
-// );
-
 const always = () => true;
 const never = () => false;
-// Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
-const hasPPM = ({ move }) => {
-  return Boolean(move?.mtoShipments?.some((mtoShipment) => mtoShipment.shipmentType === SHIPMENT_OPTIONS.PPM));
-};
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
 
 const pages = {
+  [customerRoutes.VALIDATION_CODE_PATH]: {
+    isInFlow: myFirstRodeo,
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
+    render: () => <ValidationCode />,
+  },
   [customerRoutes.CONUS_OCONUS_PATH]: {
     isInFlow: inGhcFlow,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
-    render: (key, pages, description, props) => {
-      return (
-        <WizardPage
-          handleSubmit={no_op}
-          pageList={pages}
-          pageKey={key}
-          canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
-        >
-          <ConusOrNot conusStatus={props.conusStatus} />
-        </WizardPage>
-      );
-    },
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
+    render: () => <ConusOrNot />,
   },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: () => <DodInfo />,
   },
   [customerRoutes.NAME_PATH]: {
@@ -103,15 +64,6 @@ const pages = {
       sm.is_profile_complete ||
       (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
     render: () => <ContactInfo />,
-  },
-  [customerRoutes.CURRENT_DUTY_LOCATION_PATH]: {
-    isInFlow: myFirstRodeo,
-
-    // api for duty location always returns an object, even when duty location is not set
-    // if there is no duty location, that object will have a null uuid
-    isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_location.id', NULL_UUID) !== NULL_UUID,
-    render: () => <DutyLocation />,
-    description: 'current duty location',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
@@ -153,6 +105,8 @@ const pages = {
         orders.issue_date,
         orders.report_by_date,
         get(orders, 'new_duty_location.id', NULL_UUID) !== NULL_UUID,
+        get(orders, 'origin_duty_location.id', NULL_UUID) !== NULL_UUID,
+        orders.grade,
       ]),
     render: (key, pages) => <Orders />,
   },
@@ -167,19 +121,6 @@ const pages = {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'mtoShipments', []).length > 0,
     render: () => <SelectShipmentType />,
-  },
-  '/moves/:moveId/ppm-start': {
-    isInFlow: hasPPM,
-    isComplete: ({ sm, orders, move, ppm }) => {
-      return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
-    },
-    render: (key, pages) => <PpmDateAndLocations pages={pages} pageKey={key} />,
-  },
-  '/moves/:moveId/ppm-incentive': {
-    isInFlow: hasPPM,
-    isComplete: ({ sm, orders, move, ppm }) =>
-      get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
-    render: (key, pages) => <PpmWeight pages={pages} pageKey={key} />,
   },
   [customerRoutes.MOVE_REVIEW_PATH]: {
     isInFlow: always,
@@ -224,6 +165,7 @@ export const getNextIncompletePage = ({
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),
     moveId: get(move, 'id'),
+    orderId: get(orders, 'id'),
   });
   return compiledPath;
 };

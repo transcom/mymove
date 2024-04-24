@@ -12,7 +12,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
@@ -173,6 +173,12 @@ const newMoveDetailsQuery = {
     first_name: 'Smith',
     dodID: '999999999',
     agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
   },
   order: {
     id: '1',
@@ -225,7 +231,7 @@ const newMoveDetailsQuery = {
       id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
       nonTemporaryStorage: true,
       privatelyOwnedVehicle: true,
-      proGearWeight: 2000,
+      proGearWeight: 1,
       proGearWeightSpouse: 500,
       storageInTransit: 2,
       totalDependents: 1,
@@ -395,7 +401,7 @@ const ppmShipmentQuery = {
   ],
 };
 
-const renderComponent = (props, permissions = [permissionTypes.updateShipment]) => {
+const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
   return render(
     <MockProviders permissions={permissions} {...mockRoutingOptions}>
       <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} {...props} />
@@ -505,7 +511,7 @@ describe('MoveDetails page', () => {
 
       for (let i = 0; i < moveDateTerms.length; i += 1) {
         expect(moveDateTerms[i].nextElementSibling.textContent).toBe(
-          formatDate(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
+          formatDateWithUTC(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
         );
       }
 
@@ -588,6 +594,13 @@ describe('MoveDetails page', () => {
       // In this case, we would expect 6 shipment concerns since 3 shipments are missing counselor remarks,
       // 2 shipments are missing advance status, and the move has excess weight
       expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('6');
+    });
+
+    it('renders the allowances error message when allowances are less than moves values', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      renderComponent();
+      const allowanceError = screen.getByTestId('allowanceError');
+      expect(allowanceError).toBeInTheDocument();
     });
 
     it('renders shipments info even if destination address is missing', async () => {
@@ -733,7 +746,7 @@ describe('MoveDetails page', () => {
         renderComponent();
 
         expect(await screen.findByRole('heading', { name: 'Allowances', level: 2 })).toBeInTheDocument();
-        expect(screen.getByText('Branch, rank')).toBeInTheDocument();
+        expect(screen.getByText('Branch')).toBeInTheDocument();
       });
 
       it('allows the service counselor to use the modal as expected', async () => {
@@ -867,7 +880,7 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
       });
     });
 
@@ -892,6 +905,16 @@ describe('MoveDetails page', () => {
         );
 
         expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+      });
+
+      it('does not show the edit customer info button if user does not have permission', () => {
+        render(
+          <MockProviders {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(screen.queryByText('Edit customer info')).not.toBeInTheDocument();
       });
     });
   });

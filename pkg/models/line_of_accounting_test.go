@@ -12,14 +12,14 @@ func (suite *ModelSuite) Test_LineOfAccountingAllFieldsOptionalCanSave() {
 }
 
 func (suite *ModelSuite) Test_LineOfAccountingAllFieldsPresentCanSave() {
-	loa := factory.BuildFullLineOfAccounting(suite.DB())
+	loa := factory.BuildFullLineOfAccounting(suite.DB(), nil, nil)
 
 	suite.MustSave(&loa)
 }
 
 func (suite *ModelSuite) Test_LineOfAccountingCanSaveAndFetch() {
 	// Can save
-	loa := models.LineOfAccounting{LoaSysID: models.IntPointer(1234)}
+	loa := models.LineOfAccounting{LoaSysID: models.StringPointer("1234")}
 
 	suite.MustCreate(&loa)
 

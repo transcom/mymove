@@ -31,7 +31,18 @@ export const ShipmentListItem = ({
     [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
     [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
   });
-
+  const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
+  const estimated = 'Estimated';
+  const actual = 'Actual';
+  let requestedWeightPPM = 0;
+  if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+    if (shipment.ppmShipment?.weightTickets !== undefined) {
+      const wt = shipment.ppmShipment.weightTickets;
+      for (let i = 0; i < wt.length; i += 1) {
+        requestedWeightPPM += wt[i].fullWeight - wt[i].emptyWeight;
+      }
+    }
+  }
   return (
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName} ${
@@ -45,13 +56,31 @@ export const ShipmentListItem = ({
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
-        <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
+        <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>
       )}{' '}
       {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
-        <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
+        <div className={styles.shipmentWeight}>
+          {isPPM && (
+            <div className={styles.spaceBetween}>
+              <div className={styles.textAlignRight}>
+                <h6>{estimated}</h6>
+                <h6>{actual}</h6>
+              </div>
+              <div className={styles.textAlignLeft}>
+                <h6>
+                  <strong>{formatWeight(shipment.ppmShipment.estimatedWeight)}</strong>
+                </h6>
+                <h6>
+                  <strong>{requestedWeightPPM > 0 ? formatWeight(requestedWeightPPM) : '-'}</strong>
+                </h6>
+              </div>
+            </div>
+          )}
+          {!isPPM && formatWeight(shipment.calculatedBillableWeight)}
+        </div>
       )}
-      {(isOverweight || isMissingWeight) && (
+      {(isOverweight || (isMissingWeight && !isPPM)) && (
         <div className={styles['warning-section']}>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
           <span className={styles.warningText}>{isOverweight ? 'Over weight' : 'Missing weight'}</span>
@@ -63,7 +92,12 @@ export const ShipmentListItem = ({
             Delete
           </Button>
           |
-          <Button className={styles['edit-btn']} onClick={onShipmentClick} type="button">
+          <Button
+            className={styles['edit-btn']}
+            onClick={onShipmentClick}
+            type="button"
+            data-testid="editShipmentButton"
+          >
             Edit
           </Button>
         </div>
@@ -75,7 +109,8 @@ export const ShipmentListItem = ({
 };
 
 ShipmentListItem.propTypes = {
-  shipment: shape({ id: string.isRequired, shipmentType: string.isRequired }).isRequired,
+  shipment: shape({ id: string.isRequired, shipmentLocator: string.isRequired, shipmentType: string.isRequired })
+    .isRequired,
   onShipmentClick: func,
   onDeleteClick: func,
   shipmentNumber: number.isRequired,

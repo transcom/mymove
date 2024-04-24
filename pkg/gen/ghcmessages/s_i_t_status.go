@@ -19,6 +19,10 @@ import (
 // swagger:model SITStatus
 type SITStatus struct {
 
+	// calculated total days in s i t
+	// Minimum: 0
+	CalculatedTotalDaysInSIT *int64 `json:"calculatedTotalDaysInSIT,omitempty"`
+
 	// current s i t
 	CurrentSIT *SITStatusCurrentSIT `json:"currentSIT,omitempty"`
 
@@ -37,6 +41,10 @@ type SITStatus struct {
 // Validate validates this s i t status
 func (m *SITStatus) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCalculatedTotalDaysInSIT(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCurrentSIT(formats); err != nil {
 		res = append(res, err)
@@ -57,6 +65,18 @@ func (m *SITStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SITStatus) validateCalculatedTotalDaysInSIT(formats strfmt.Registry) error {
+	if swag.IsZero(m.CalculatedTotalDaysInSIT) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("calculatedTotalDaysInSIT", "body", *m.CalculatedTotalDaysInSIT, 0, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -204,6 +224,11 @@ type SITStatusCurrentSIT struct {
 	// Enum: [ORIGIN DESTINATION]
 	Location interface{} `json:"location,omitempty"`
 
+	// service item ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	ServiceItemID strfmt.UUID `json:"serviceItemID,omitempty"`
+
 	// sit allowance end date
 	// Format: date
 	SitAllowanceEndDate *strfmt.Date `json:"sitAllowanceEndDate,omitempty"`
@@ -230,6 +255,10 @@ func (m *SITStatusCurrentSIT) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateDaysInSIT(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceItemID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -265,6 +294,18 @@ func (m *SITStatusCurrentSIT) validateDaysInSIT(formats strfmt.Registry) error {
 	}
 
 	if err := validate.MinimumInt("currentSIT"+"."+"daysInSIT", "body", *m.DaysInSIT, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatusCurrentSIT) validateServiceItemID(formats strfmt.Registry) error {
+	if swag.IsZero(m.ServiceItemID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("currentSIT"+"."+"serviceItemID", "body", "uuid", m.ServiceItemID.String(), formats); err != nil {
 		return err
 	}
 

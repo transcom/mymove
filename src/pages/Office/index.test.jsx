@@ -142,6 +142,18 @@ describe('Office App', () => {
         expect(wrapper.find('SomethingWentWrong')).toHaveLength(1);
       });
     });
+    describe('if redirected from okta', () => {
+      it('renders the okta banner following log out', () => {
+        wrapper.setState({ oktaLoggedOut: true });
+        expect(wrapper.find('OktaLoggedOutBanner')).toHaveLength(1);
+      });
+    });
+    describe('if redirected from okta', () => {
+      it('renders the okta banner when not logged out', () => {
+        wrapper.setState({ oktaNeedsLoggedOut: true });
+        expect(wrapper.find('OktaNeedsLoggedOutBanner')).toHaveLength(1);
+      });
+    });
   });
 
   describe('logged out routing', () => {
@@ -250,6 +262,7 @@ describe('Office App', () => {
       ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
       ['QAE CSR Move Search', '/', roleTypes.QAE_CSR],
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
+      ['Services Counseling Move Info', '/moves/move123/shipments/:shipmentId/advance', roleTypes.TOO],
     ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {
       renderOfficeAppAtRoute(path, role);
 

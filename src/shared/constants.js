@@ -11,7 +11,6 @@ export const gitBranch = process.env.REACT_APP_GIT_BRANCH || 'unknown';
 export const gitSha = process.env.REACT_APP_GIT_COMMIT || 'unknown';
 
 export const NULL_UUID = '00000000-0000-0000-0000-000000000000';
-export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
 
 export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
@@ -77,6 +76,9 @@ export const SHIPMENT_OPTIONS = {
   PPM: 'PPM',
   NTS: 'HHG_INTO_NTS_DOMESTIC',
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
+  BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
+  BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
+  MOTOR_HOME: 'MOTOR_HOME',
 };
 
 // These constants are used for forming URLs that have the shipment type in
@@ -139,6 +141,12 @@ export const MTOAgentType = {
   RECEIVING: 'RECEIVING_AGENT',
 };
 
+export const MoveOrderDocumentType = {
+  ALL: 'ALL',
+  ORDERS: 'ORDERS',
+  AMENDMENTS: 'AMENDMENTS',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
@@ -156,3 +164,9 @@ export const DATE_FORMAT_STRING = 'DD MMM YYYY';
 export const DATE_TIME_FORMAT_STRING = 'DD MMM YYYY, hh:mm a';
 
 export const DEFAULT_EMPTY_VALUE = '—'; // emdash
+
+export const FEATURE_FLAG_KEYS = {
+  PPM: 'ppm',
+  NTS: 'nts',
+  NTSR: 'ntsr',
+};

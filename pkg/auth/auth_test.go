@@ -40,7 +40,6 @@ type authSuite struct {
 
 func TestAuthSuite(t *testing.T) {
 	logger := zaptest.NewLogger(t)
-
 	hs := &authSuite{logger: logger}
 	suite.Run(t, hs)
 }
