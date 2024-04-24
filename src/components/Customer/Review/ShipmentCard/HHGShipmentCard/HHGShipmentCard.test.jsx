@@ -15,6 +15,7 @@ const defaultProps = {
   onDeleteClick: jest.fn(),
   shipmentNumber: 1,
   shipmentId: '#ABC123K',
+  shipmentLocator: '#ABC123K-01',
   shipmentType: 'HHG',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -51,6 +52,7 @@ const incompleteProps = {
   onIncompleteClick: mockedOnIncompleteClickFunction,
   shipmentNumber: 1,
   shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
   shipmentType: 'HHG',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -64,6 +66,7 @@ const completeProps = {
   onDeleteClick: jest.fn(),
   shipmentNumber: 1,
   shipmentId: 'ABC123K',
+  shipmentLocator: 'ABC123K-01',
   shipmentType: 'HHG',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -182,7 +185,7 @@ describe('HHGShipmentCard component', () => {
     render(<HHGShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('HHG 1');
-    expect(screen.getByText(/^#ABC123K$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
@@ -191,7 +194,7 @@ describe('HHGShipmentCard component', () => {
     render(<HHGShipmentCard {...incompleteProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('HHG 1');
-    expect(screen.getByText(/^#ABC123K$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
 
@@ -199,6 +202,6 @@ describe('HHGShipmentCard component', () => {
     await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
 
     // verify onclick is getting json string as parameter
-    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('HHG 1', 'ABC123K', 'HHG');
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('HHG 1', 'ABC123K-01', 'HHG');
   });
 });

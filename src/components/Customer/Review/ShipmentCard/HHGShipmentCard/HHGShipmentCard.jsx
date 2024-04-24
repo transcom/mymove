@@ -8,7 +8,7 @@ import PickupDisplay from '../PickupDisplay';
 import DeliveryDisplay from '../DeliveryDisplay';
 
 import { AddressShape } from 'types/address';
-import { getShipmentTypeLabel, getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { shipmentStatuses } from 'constants/shipments';
@@ -29,6 +29,7 @@ const HHGShipmentCard = ({
   requestedDeliveryDate,
   requestedPickupDate,
   shipmentId,
+  shipmentLocator,
   shipmentNumber,
   shipmentType,
   showEditAndDeleteBtn,
@@ -41,7 +42,7 @@ const HHGShipmentCard = ({
   })}?shipmentNumber=${shipmentNumber}`;
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
-  const moveCodeLabel = getMoveCodeLabel(shipmentId);
+  const moveCodeLabel = shipmentLocator;
   const shipmentIsIncomplete = status === shipmentStatuses.DRAFT;
 
   return (
@@ -107,6 +108,7 @@ HHGShipmentCard.propTypes = {
   shipmentNumber: number.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
+  shipmentLocator: string.isRequired,
   showEditAndDeleteBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
