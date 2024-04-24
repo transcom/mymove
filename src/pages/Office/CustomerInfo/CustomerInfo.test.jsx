@@ -173,4 +173,24 @@ describe('CustomerInfo', () => {
       await expect(mockUpdate).toHaveBeenCalledWith('error');
     });
   });
+
+  it('displays appropriate warning for unsupported states', async () => {
+    updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));
+    render(
+      <MockProviders>
+        <CustomerInfo
+          customer={mockCustomer}
+          ordersId="abc123"
+          isLoading={false}
+          isError={false}
+          onUpdate={mockUpdate}
+        />
+      </MockProviders>,
+    );
+
+    const alerts = await screen.findAllByTestId('alert');
+    expect(await alerts[0]).toHaveTextContent(
+      'Warning: Moves to AK and HI are not supported at this time. If AK or HI is selected as a state you will not be able to move forward.',
+    );
+  });
 });
