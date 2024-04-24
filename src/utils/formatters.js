@@ -364,8 +364,8 @@ export const formatWeightCWTFromLbs = (value) => {
 };
 
 // Translate currency from millicents to dollars
-export const formatDollarFromMillicents = (value) => {
-  return `$${(parseInt(value, 10) / 100000).toFixed(2)}`;
+export const formatDollarFromMillicents = (value, decimalPlaces = 2) => {
+  return `$${(parseInt(value, 10) / 100000).toFixed(decimalPlaces)}`;
 };
 
 // Takes an whole number of day value and pluralizes with unit label

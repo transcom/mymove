@@ -3099,6 +3099,43 @@ func init() {
           }
         }
       }
+    },
+    "/validation_code": {
+      "post": {
+        "description": "The customer will input a validation code given to them and if the code provided is present in the database, then they will be allowed to progress in setting up their profile and create a move",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Returns a value if the code provided is correct",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ValidationCode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validation Code",
+            "schema": {
+              "$ref": "#/definitions/ValidationCode"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3128,7 +3165,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -6912,6 +6949,15 @@ func init() {
         }
       }
     },
+    "ValidationCode": {
+      "type": "object",
+      "properties": {
+        "validationCode": {
+          "type": "string",
+          "format": "string"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalidFields"
@@ -7300,6 +7346,9 @@ func init() {
     },
     {
       "name": "okta_profile"
+    },
+    {
+      "name": "application_parameters"
     }
   ]
 }`))
@@ -10826,6 +10875,43 @@ func init() {
           }
         }
       }
+    },
+    "/validation_code": {
+      "post": {
+        "description": "The customer will input a validation code given to them and if the code provided is present in the database, then they will be allowed to progress in setting up their profile and create a move",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Returns a value if the code provided is correct",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ValidationCode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validation Code",
+            "schema": {
+              "$ref": "#/definitions/ValidationCode"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -10855,7 +10941,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -14649,6 +14735,15 @@ func init() {
         }
       }
     },
+    "ValidationCode": {
+      "type": "object",
+      "properties": {
+        "validationCode": {
+          "type": "string",
+          "format": "string"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalidFields"
@@ -15044,6 +15139,9 @@ func init() {
     },
     {
       "name": "okta_profile"
+    },
+    {
+      "name": "application_parameters"
     }
   ]
 }`))
