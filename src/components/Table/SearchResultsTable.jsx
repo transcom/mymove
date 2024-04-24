@@ -155,7 +155,7 @@ const columns = () => [
   ),
 ];
 
-const columnsWithCreateMove = () => [
+const columnsWithCreateMove = (roleType) => [
   createHeader(
     'Create Move',
     (row) => {
