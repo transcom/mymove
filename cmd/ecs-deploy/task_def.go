@@ -227,7 +227,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 
 	// Open Telemetry SideCar
 	flag.Bool(openTelemetrySidecarFlag, false, "Include open telemetry sidecar container")
-	const defaultOtelImage = "public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0"
+	const defaultOtelImage = "public.ecr.aws/aws-observability/aws-otel-collector:v0.38.1"
 	flag.String(otelCollectorImageFlag, defaultOtelImage,
 		"Image to use for open telemetry sidecar")
 
