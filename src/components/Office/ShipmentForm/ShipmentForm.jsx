@@ -581,13 +581,17 @@ const ShipmentForm = (props) => {
             {deliveryAddressUpdateRequested && (
               <Alert type="error">Request needs review. See delivery location to proceed.</Alert>
             )}
+            <Alert headingLevel="h4" type="warning" noIcon>
+              Warning: Moves to AK and HI are not supported at this time. If AK or HI is selected as a state you will
+              not be able to move forward.
+            </Alert>
 
             <div className={styles.ShipmentForm}>
               <div className={styles.headerWrapper}>
                 <div>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
-                  <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
+                  <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details 3</h1>
                 </div>
                 {!isCreatePage && mtoShipment?.status !== 'APPROVED' && (
                   <Button
