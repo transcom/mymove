@@ -45,13 +45,13 @@ func (f *shipmentCancellationRequester) RequestShipmentCancellation(appCtx appco
 		}
 
 		// save the shipment to the db
-		verrs, err := appCtx.DB().ValidateAndSave(shipment)
+		verrs, saveErr := appCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while requesting the shipment cancellation.")
 
 			return invalidInputError
 		}
-		if err != nil {
+		if saveErr != nil {
 			return err
 		}
 
