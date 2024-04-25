@@ -229,10 +229,6 @@ class MtoShipmentForm extends Component {
                       Remember: You can move {formatWeight(orders.authorizedWeight)} total. You’ll be billed for any
                       excess weight you move.
                     </Alert>
-                    <Alert headingLevel="h4" type="warning" noIcon>
-                      Warning: Moves to AK and HI are not supported at this time. If AK or HI is selected as a state you
-                      will not be able to move forward.
-                    </Alert>
 
                     <Form className={formStyles.form}>
                       {showPickupFields && (

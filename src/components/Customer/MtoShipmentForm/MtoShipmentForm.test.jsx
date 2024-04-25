@@ -126,14 +126,6 @@ describe('MtoShipmentForm component', () => {
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 
-    it('displays appropriate warning for unsupported states', async () => {
-      renderMtoShipmentForm();
-      const alerts = await screen.findAllByTestId('alert');
-      expect(await alerts[1]).toHaveTextContent(
-        'Warning: Moves to AK and HI are not supported at this time. If AK or HI is selected as a state you will not be able to move forward.',
-      );
-    });
-
     it('renders the correct weight allowance when there are dependents', async () => {
       renderMtoShipmentForm({ orders: { has_dependents: true, authorizedWeight: 8000 } });
 
