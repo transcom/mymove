@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -140,6 +141,7 @@ func main() {
 	root.AddCommand(completionCommand)
 
 	if err := root.Execute(); err != nil {
+		log.Println(err)
 		panic(err)
 	}
 }
