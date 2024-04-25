@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { GridContainer, Alert } from '@trussworks/react-uswds';
+import { GridContainer } from '@trussworks/react-uswds';
 
 import CustomerContactInfoForm from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
 
@@ -104,10 +104,6 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
   return (
     <div className={styles.customerInfoPage}>
       <GridContainer>
-        <Alert headingLevel="h4" type="warning" noIcon>
-          Warning: Moves to AK and HI are not supported at this time. If AK or HI is selected as a state you will not be
-          able to move forward.
-        </Alert>
         <h1>Customer Info</h1>
         <CustomerContactInfoForm initialValues={initialValues} onBack={handleClose} onSubmit={onSubmit} />
       </GridContainer>
