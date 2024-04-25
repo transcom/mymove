@@ -520,9 +520,9 @@ describe('ShipmentForm component', () => {
         );
 
         const alerts = await screen.findAllByTestId('alert');
-        expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
+        expect(alerts).toHaveLength(3); // Should have 3 alerts shown due to the address update request
         expect(await alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
-        expect(await alerts[1]).toHaveTextContent(
+        expect(await alerts[2]).toHaveTextContent(
           'Pending delivery location change request needs review. Review request to proceed.',
         );
       });
@@ -538,9 +538,9 @@ describe('ShipmentForm component', () => {
           />,
         );
 
-        const unsupportedStatesAlert = await screen.findAllByTestId('unSupportedStateWarning');
-        expect(unsupportedStatesAlert).toHaveLength(1);
-        expect(await unsupportedStatesAlert[0]).toHaveTextContent(
+        const alerts = await screen.findAllByTestId('alert');
+        expect(alerts).toHaveLength(3); // Should have 3 alerts shown due to the address update request
+        expect(await alerts[1]).toHaveTextContent(
           'Warning: Moves to AK and HI are not supported at this time. If AK or HI is selected as a state you will not be able to move forward.',
         );
       });
@@ -604,7 +604,7 @@ describe('ShipmentForm component', () => {
 
         const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
 
-        expect(await findAlerts()).toHaveLength(2);
+        expect(await findAlerts()).toHaveLength(3);
 
         // Open the modal
         await user.click(reviewRequestLink);
