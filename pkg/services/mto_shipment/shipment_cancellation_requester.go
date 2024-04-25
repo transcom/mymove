@@ -56,6 +56,7 @@ func (f *shipmentCancellationRequester) RequestShipmentCancellation(appCtx appco
 		}
 
 		// checking if the move still requires action by the TOO
+		// if no action is needed, then the move status will stay in APPROVED or APPROVALS_REQUESTED
 		move := shipment.MoveTaskOrder
 		if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
 			_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, shipment.MoveTaskOrder)
