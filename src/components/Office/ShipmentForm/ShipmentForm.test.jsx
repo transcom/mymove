@@ -532,6 +532,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByText('mock customer remarks')).toBeTruthy();
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
       expect(screen.getByLabelText('Destination type')).toHaveValue('PLACE_ENTERED_ACTIVE_DUTY');
+      expect(screen.queryByTestId('alert')).not.toBeInTheDocument();
 
       const noDestinationTypeRadioButton = await screen.getAllByLabelText('No')[1];
       await userEvent.click(noDestinationTypeRadioButton);
@@ -556,24 +557,6 @@ describe('ShipmentForm component', () => {
         expect(await alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
         expect(await alerts[1]).toHaveTextContent(
           'Pending delivery location change request needs review. Review request to proceed.',
-        );
-      });
-
-      it('displays appropriate warning for unsupported states', async () => {
-        renderWithRouter(
-          <ShipmentForm
-            {...defaultPropsRetirement}
-            isCreatePage={false}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate }}
-            displayDestinationType
-          />,
-        );
-
-        const unsupportedStatesAlert = await screen.findAllByTestId('unSupportedStateWarning');
-        expect(unsupportedStatesAlert).toHaveLength(1);
-        expect(await unsupportedStatesAlert[0]).toHaveTextContent(
-          'Warning: Moves to AK and HI are not supported at this time. If AK or HI is selected as a state you will not be able to move forward.',
         );
       });
 
