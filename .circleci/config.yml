@@ -1240,7 +1240,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      # - restore_cache_for_go
+      - restore_cache_for_go
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
