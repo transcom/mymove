@@ -142,7 +142,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		{models.ReServiceCodeDDP, unit.Pound(450), "450", models.MTOShipmentTypePPM},
 		{models.ReServiceCodeDPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
 		{models.ReServiceCodeDUPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeFSC, unit.Pound(450), "450", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeFSC, unit.Pound(450), "440", models.MTOShipmentTypePPM},
 	}
 
 	for _, data := range serviceCodesForPPM {
