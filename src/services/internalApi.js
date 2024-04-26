@@ -233,13 +233,14 @@ export async function createUploadForDocument(file, documentId) {
   );
 }
 
-export async function createUploadForPPMDocument(ppmShipmentId, documentId, file) {
+export async function createUploadForPPMDocument(ppmShipmentId, documentId, file, weightReceipt) {
   return makeInternalRequest(
     'ppm.createPPMUpload',
     {
       ppmShipmentId,
       documentId,
       file,
+      weightReceipt,
     },
     {
       normalize: false,

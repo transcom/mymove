@@ -13,6 +13,7 @@ describe('LabeledDetailsWithToolTip', () => {
         changedValues: {
           sit_entry_date: '2023-10-01',
           shipment_id_display: '1A2B3',
+          shipment_locator: 'ABC123-01',
         },
       },
     };
@@ -58,6 +59,7 @@ it('renders shipment_type as a header & SIT entry date', async () => {
     changedValues: {
       sit_entry_date: '2023-10-01',
       shipment_id_display: '1A2B3',
+      shipment_locator: 'ABC123-01',
       shipment_type: SHIPMENT_OPTIONS.HHG,
     },
     oldValues: {
@@ -67,7 +69,7 @@ it('renders shipment_type as a header & SIT entry date', async () => {
 
   render(<LabeledDetailsWithToolTip historyRecord={historyRecord} />);
 
-  expect(screen.getByText('HHG shipment #1A2B3')).toBeInTheDocument();
+  expect(screen.getByText('HHG shipment #ABC123-01')).toBeInTheDocument();
   expect(screen.getByText('SIT entry date')).toBeInTheDocument();
   expect(screen.getByText(': 01 Oct 2023')).toBeInTheDocument();
 });

@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { requiredAddressSchema, ZIP_CODE_REGEX } from 'utils/validation';
+import { requiredAddressSchema, ZIP_CODE_REGEX, IsSupportedState, UnsupportedStateErrorMsg } from 'utils/validation';
 
 export const AgentSchema = Yup.object().shape({
   firstName: Yup.string(),
@@ -23,6 +23,7 @@ export const OptionalAddressSchema = Yup.object().shape(
         street1 || street2 || state || postalCode ? schema.required('Required') : schema,
     ),
     state: Yup.string()
+      .test('', UnsupportedStateErrorMsg, IsSupportedState)
       .length(2, 'Must use state abbreviation')
       .when(
         ['streetAddress1', 'streetAddress2', 'city', 'postalCode'],

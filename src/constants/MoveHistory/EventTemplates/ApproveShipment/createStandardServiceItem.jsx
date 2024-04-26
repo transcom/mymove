@@ -15,7 +15,7 @@ export default {
     const shipmentLabel = getMtoShipmentLabel(historyRecord);
     return (
       <>
-        {SHIPMENT_TYPE[shipmentLabel.shipment_type]} shipment #{shipmentLabel.shipment_id_display}
+        {SHIPMENT_TYPE[shipmentLabel.shipment_type]} shipment #{shipmentLabel.shipment_locator}
         {', '}
         {shipmentLabel.service_item_name}
       </>
