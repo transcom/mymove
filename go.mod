@@ -12,7 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.11
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.4.5
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.23.4
-	github.com/aws/aws-sdk-go-v2/service/ecr v1.19.5
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.27.4
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.41.2
 	github.com/aws/aws-sdk-go-v2/service/rds v1.78.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
