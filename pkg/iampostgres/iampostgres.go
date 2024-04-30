@@ -124,8 +124,17 @@ func (i *iamPostgresConfig) generateNewIamPassword() {
 }
 
 // Refreshes the RDS IAM on the given interval.
-func (i *iamPostgresConfig) refreshRDSIAM() {
+func (i *iamPostgresConfig) refreshRDSIAM(ticker time.Ticker) {
 	i.logger.Info("Starting refresh of RDS IAM")
+	i.logger.Info("Logging our ticker it may be nil..")
+	if i.ticker == nil {
+		i.logger.Error("Our iamPostgresConfig ticker was nil. Attempting to manually set it again")
+		i.ticker = &ticker
+		i.logger.Info("iamPostgresConfig ticker has been manually set. Proceeding..")
+	} else {
+		i.logger.Info("Our iamPostgresConfig ticket is not nil, it can't be the issue. The memory is present, at least on this call.")
+	}
+
 	// This for loop immediately runs the first tick then on interval
 	// This for loop will run indefinitely until true is passed to the
 	// should quit channel.
@@ -184,7 +193,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	iamPostgres.generateNewIamPassword()
 
 	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
-	go iamPostgres.refreshRDSIAM()
+	go iamPostgres.refreshRDSIAM(*ticker)
 	return nil
 }
 
