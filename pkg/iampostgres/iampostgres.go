@@ -169,6 +169,11 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	}
 
 	ticker := time.NewTicker(waitDuration)
+	if ticker == nil {
+		logger.Error("ticker was nil, this should never happen. Defaulting back to minWaitDuration.")
+		ticker = time.NewTicker(minWaitDuration)
+	}
+
 	// Lets enable and configure the DSN settings
 	iamPostgres = &iamPostgresConfig{
 		useIAM:           true,
