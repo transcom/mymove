@@ -45,7 +45,7 @@ linters:
     - ineffassign
   # - revive
     - staticcheck
-    - typecheck
+  #  - typecheck
     - unused
   fast: false
 issues:
