@@ -126,6 +126,9 @@ func (i *iamPostgresConfig) generateNewIamPassword() {
 // Refreshes the RDS IAM on the given interval.
 func (i *iamPostgresConfig) refreshRDSIAM(ticker time.Ticker) {
 	i.logger.Info("Starting refresh of RDS IAM")
+	if i.shouldQuitChan == nil {
+		i.logger.Error("Attempting to refresh IDM but shouldQuitChan is nil, this is bad")
+	}
 	i.logger.Info("Logging our ticker it may be nil..")
 	if i.ticker == nil {
 		i.logger.Error("Our iamPostgresConfig ticker was nil. Attempting to manually set it again")
@@ -172,6 +175,26 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	if ticker == nil {
 		logger.Error("ticker was nil, this should never happen. Defaulting back to minWaitDuration.")
 		ticker = time.NewTicker(minWaitDuration)
+	}
+
+	if defaultPauseFn == nil {
+		logger.Error("defaultPauseFn was nil, this should not be the case")
+	}
+
+	if logger == nil {
+		logger.Error("logger was nil, this should not be the case")
+	}
+
+	if creds == nil {
+		logger.Error("creds was nil, this should not be the case")
+	}
+
+	if rus == nil {
+		logger.Error("rus was nil, this should not be the case")
+	}
+
+	if shouldQuitChan == nil {
+		logger.Error("shouldQuitChan was nil, this should not be the case")
 	}
 
 	// Lets enable and configure the DSN settings
