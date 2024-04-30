@@ -5,7 +5,7 @@
 //	This API does things. For more information, see our detailed documentation.
 //	Schemes:
 //	  http
-//	Host: officelocal
+//	Host: pptaslocal
 //	BasePath: /pptas/v1
 //	Version: 0.0.1
 //	License: MIT https://opensource.org/licenses/MIT

@@ -436,6 +436,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		PrimeServername:  v.GetString(cli.HTTPPrimeServerNameFlag),
+		PPTASServerName:  v.GetString(cli.HTTPPPTASServerNameFlag),
 	}
 
 	clientAuthSecretKey := v.GetString(cli.ClientAuthSecretKeyFlag)

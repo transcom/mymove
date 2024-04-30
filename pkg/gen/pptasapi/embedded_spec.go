@@ -34,7 +34,7 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "officelocal",
+  "host": "pptaslocal",
   "basePath": "/pptas/v1",
   "paths": {
     "/test/getMovesSince": {
@@ -278,7 +278,7 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "officelocal",
+  "host": "pptaslocal",
   "basePath": "/pptas/v1",
   "paths": {
     "/test/getMovesSince": {

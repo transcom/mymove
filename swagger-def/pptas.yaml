@@ -8,7 +8,7 @@ info:
     url: 'https://opensource.org/licenses/MIT'
   contact:
     email: milmove-developers@caci.com
-host: 'officelocal'
+host: pptaslocal
 basePath: /pptas/v1
 schemes:
   - http

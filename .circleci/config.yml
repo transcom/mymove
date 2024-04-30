@@ -813,6 +813,7 @@ commands:
             echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
             echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
             echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
+            echo "127.0.0.1 pptaslocal" | sudo tee -a /etc/hosts
       - run:
           background: true
           name: run server
@@ -860,6 +861,7 @@ commands:
             export HTTP_OFFICE_SERVER_NAME=officelocal
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
+            export HTTP_PPTAS_SERVER_NAME=pptaslocal
             export ENVIRONMENT=test
             export FEATURE_FLAG_MULTI_MOVE=true
             export FEATURE_FLAG_PPM=true
