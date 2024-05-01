@@ -739,6 +739,17 @@ func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	return site
 }
 
+func newPPTASRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+
+	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
+
+	mountHealthRoute(appCtx, redisPool, routingConfig, site)
+	mountPPTASAPI(appCtx, routingConfig, site)
+
+	return site
+}
+
 func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
 
@@ -786,6 +797,10 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 	primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
 	primeRouter := newPrimeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(primeServerName, primeRouter)
+
+	pptasServerName := routingConfig.HandlerConfig.AppNames().PPTASServerName
+	pptasRouter := newPPTASRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	hostRouter.Map(pptasServerName, pptasRouter)
 
 	// need a wildcard health router as the ELB makes requests to the
 	// IP, not the hostname
