@@ -11,32 +11,32 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// IndexMovesHandler returns a list of moves/MTOs via GET /moves
-type IndexMovesHandler struct {
+// ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
+type ListMovesHandler struct {
 	handlers.HandlerConfig
-	services.MoveListFetcher
-	services.MoveSearcher
+	services.MoveTaskOrderFetcher
 }
 
-// Handle retrieves a list of moves
-func (h IndexMovesHandler) Handle(params pptasop.MovesSinceParams) middleware.Responder {
+// Handle fetches all moves with the option to filter since a particular date. Optimized version.
+func (h ListMovesHandler) Handle(params pptasop.ListMovesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			searchMovesParams := services.SearchMovesParams{
-				MoveCreatedDate: handlers.FmtDateTimePtrToPopPtr(&params.Body.MoveSinceDate),
+			var searchParams services.MoveTaskOrderFetcherParams
+			if params.Since != nil {
+				since := handlers.FmtDateTimePtrToPop(params.Since)
+				searchParams.Since = &since
 			}
 
-			moves, _, err := h.SearchMoves(appCtx, &searchMovesParams)
+			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {
-				appCtx.Logger().Error("Error searching for move", zap.Error(err))
-				return pptasop.NewMovesSinceInternalServerError(), err
+				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
+				return pptasop.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			movesToReturn := moves[0:params.Body.NumMoves]
+			payload := payloads.ListMoves(&mtos)
 
-			payload := payloads.MovesSince(appCtx, movesToReturn)
-			return pptasop.NewMovesSinceOK().WithPayload(payload), nil
+			return pptasop.NewListMovesOK().WithPayload(payload), nil
 		})
 }

@@ -2,94 +2,58 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func MovesSince(appCtx appcontext.AppContext, moves models.Moves) *pptasmessages.GetMovesSinceResponse {
-	searchMoves := make(pptasmessages.SearchMoves, len(moves))
-
-	for i, move := range moves {
-		customer := move.Orders.ServiceMember
-
-		numShipments := 0
-		for _, shipment := range move.MTOShipments {
-			if shipment.Status != models.MTOShipmentStatusDraft {
-				numShipments++
-			}
-		}
-
-		var pickupDate, deliveryDate *strfmt.Date
-
-		if numShipments > 0 && move.MTOShipments[0].ScheduledPickupDate != nil {
-			pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledPickupDate)
-		} else {
-			pickupDate = nil
-		}
-
-		if numShipments > 0 && move.MTOShipments[0].ScheduledDeliveryDate != nil {
-			deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledDeliveryDate)
-		} else {
-			deliveryDate = nil
-		}
-
-		var originGBLOC pptasmessages.GBLOC
-		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			originGBLOC = pptasmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
-		} else if len(move.ShipmentGBLOC) > 0 {
-			// There is a Pop bug that prevents us from using a has_one association for
-			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
-			// though there can never be more than one GBLOC for a move.
-			if move.ShipmentGBLOC[0].GBLOC != nil {
-				originGBLOC = pptasmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
-			}
-		} else {
-			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
-			// we need to fall back to the origin duty location GBLOC.  If that's not available for
-			// some reason, then we should get the empty string (no GBLOC).
-			originGBLOC = pptasmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
-		}
-
-		var destinationGBLOC pptasmessages.GBLOC
-		var PostalCodeToGBLOC models.PostalCodeToGBLOC
-		var err error
-		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
-		} else {
-			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
-		}
-
-		if err != nil {
-			destinationGBLOC = *pptasmessages.NewGBLOC("")
-		} else {
-			destinationGBLOC = pptasmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
-		}
-
-		searchMoves[i] = &pptasmessages.SearchMove{
-			FirstName:                         customer.FirstName,
-			LastName:                          customer.LastName,
-			DodID:                             customer.Edipi,
-			Branch:                            customer.Affiliation.String(),
-			Status:                            pptasmessages.MoveStatus(move.Status),
-			ID:                                *handlers.FmtUUID(move.ID),
-			Locator:                           move.Locator,
-			ShipmentsCount:                    int64(numShipments),
-			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
-			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
-			OrderType:                         string(move.Orders.OrdersType),
-			RequestedPickupDate:               pickupDate,
-			RequestedDeliveryDate:             deliveryDate,
-			OriginGBLOC:                       originGBLOC,
-			DestinationGBLOC:                  destinationGBLOC,
-		}
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Error {
+	payload := pptasmessages.Error{
+		Title:    handlers.FmtString(handlers.InternalServerErrMessage),
+		Detail:   handlers.FmtString(handlers.InternalServerErrDetail),
+		Instance: strfmt.UUID(traceID.String()),
 	}
-
-	payload := pptasmessages.GetMovesSinceResponse{
-		MovesFound: searchMoves,
+	if detail != nil {
+		payload.Detail = detail
 	}
-
 	return &payload
+}
+
+// ListMove payload
+func ListMove(move *models.Move) *pptasmessages.ListMove {
+	if move == nil {
+		return nil
+	}
+	payload := &pptasmessages.ListMove{
+		ID:                 strfmt.UUID(move.ID.String()),
+		MoveCode:           move.Locator,
+		CreatedAt:          strfmt.DateTime(move.CreatedAt),
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		OrderID:            strfmt.UUID(move.OrdersID.String()),
+		ReferenceID:        *move.ReferenceID,
+		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
+		ETag:               etag.GenerateEtag(move.UpdatedAt),
+	}
+
+	if move.PPMType != nil {
+		payload.PpmType = *move.PPMType
+	}
+
+	return payload
+}
+
+// ListMoves payload
+func ListMoves(moves *models.Moves) []*pptasmessages.ListMove {
+	payload := make(pptasmessages.ListMoves, len(*moves))
+
+	for i, m := range *moves {
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = ListMove(&copyOfM)
+	}
+	return payload
 }

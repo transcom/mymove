@@ -18,13 +18,19 @@ var (
 
 func init() {
 	SwaggerJSON = json.RawMessage([]byte(`{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "schemes": [
     "http"
   ],
   "swagger": "2.0",
   "info": {
-    "description": "This API does things. For more information, see our detailed documentation.",
-    "title": "PPTAS API",
+    "description": "All endpoints are located at ` + "`" + `/prime/pptas` + "`" + `.\n",
+    "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
     },
@@ -34,45 +40,40 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "officelocal",
-  "basePath": "/pptas/v1",
+  "basePath": "/prime/pptas",
   "paths": {
-    "/test/getMovesSince": {
-      "post": {
-        "description": "summary2",
-        "consumes": [
-          "application/json"
-        ],
+    "/moves": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "summary",
-        "operationId": "movesSince",
+        "summary": "listMoves",
+        "operationId": "listMoves",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/movesSince"
-            }
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Moves returned sucessfully",
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/GetMovesSinceResponse"
+              "$ref": "#/definitions/ListMoves"
             }
           },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
           "401": {
-            "$ref": "#/responses/InvalidRequest"
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -102,173 +103,136 @@ func init() {
         }
       }
     },
-    "GBLOC": {
-      "type": "string",
-      "enum": [
-        "AGFM",
-        "APAT",
-        "BGAC",
-        "BGNC",
-        "BKAS",
-        "CFMQ",
-        "CLPK",
-        "CNNQ",
-        "DMAT",
-        "GSAT",
-        "HAFC",
-        "HBAT",
-        "JEAT",
-        "JENQ",
-        "KKFA",
-        "LHNQ",
-        "LKNQ",
-        "MAPK",
-        "MAPS",
-        "MBFL",
-        "MLNQ",
-        "XXXX"
-      ]
-    },
-    "GetMovesSinceResponse": {
+    "Error": {
       "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
       "properties": {
-        "movesFound": {
-          "$ref": "#/definitions/SearchMoves"
-        }
-      }
-    },
-    "MoveStatus": {
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVED",
-        "CANCELED"
-      ]
-    },
-    "SearchMove": {
-      "type": "object",
-      "properties": {
-        "branch": {
+        "detail": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "dodID": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "1234567890"
-        },
-        "firstName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "John"
-        },
-        "id": {
+        "instance": {
           "type": "string",
           "format": "uuid"
         },
-        "lastName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "Doe"
-        },
-        "locator": {
+        "title": {
           "type": "string"
-        },
-        "orderType": {
-          "type": "string"
-        },
-        "originDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "shipmentsCount": {
-          "type": "integer"
-        },
-        "status": {
-          "$ref": "#/definitions/MoveStatus"
         }
       }
     },
-    "SearchMoves": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SearchMove"
-      }
-    },
-    "movesSince": {
+    "ListMove": {
+      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
-        "moveSinceDate": {
-          "description": "moves retrieved since this date",
+        "availableToPrimeAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
-        "numMoves": {
-          "description": "number of moves to return",
-          "type": "integer"
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
+      }
+    },
+    "ListMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ListMove"
       }
     }
   },
   "responses": {
     "InvalidRequest": {
-      "description": "The request was invalid as called.",
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {
-      "description": "An unexpected error has occurred in the server.",
+      "description": "A server error occurred.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     }
   },
   "tags": [
     {
-      "description": "tag to describe test endpoints",
-      "name": "test"
-    },
-    {
-      "description": "describes all endpoints relating to moves",
       "name": "moves"
     }
   ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "schemes": [
     "http"
   ],
   "swagger": "2.0",
   "info": {
-    "description": "This API does things. For more information, see our detailed documentation.",
-    "title": "PPTAS API",
+    "description": "All endpoints are located at ` + "`" + `/prime/pptas` + "`" + `.\n",
+    "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
     },
@@ -278,56 +242,51 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "officelocal",
-  "basePath": "/pptas/v1",
+  "basePath": "/prime/pptas",
   "paths": {
-    "/test/getMovesSince": {
-      "post": {
-        "description": "summary2",
-        "consumes": [
-          "application/json"
-        ],
+    "/moves": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "summary",
-        "operationId": "movesSince",
+        "summary": "listMoves",
+        "operationId": "listMoves",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/movesSince"
-            }
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Moves returned sucessfully",
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/GetMovesSinceResponse"
+              "$ref": "#/definitions/ListMoves"
             }
           },
-          "400": {
-            "description": "The request was invalid as called.",
+          "401": {
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
           },
-          "401": {
-            "description": "The request was invalid as called.",
+          "403": {
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
           },
           "500": {
-            "description": "An unexpected error has occurred in the server.",
+            "description": "A server error occurred.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -355,161 +314,118 @@ func init() {
         }
       }
     },
-    "GBLOC": {
-      "type": "string",
-      "enum": [
-        "AGFM",
-        "APAT",
-        "BGAC",
-        "BGNC",
-        "BKAS",
-        "CFMQ",
-        "CLPK",
-        "CNNQ",
-        "DMAT",
-        "GSAT",
-        "HAFC",
-        "HBAT",
-        "JEAT",
-        "JENQ",
-        "KKFA",
-        "LHNQ",
-        "LKNQ",
-        "MAPK",
-        "MAPS",
-        "MBFL",
-        "MLNQ",
-        "XXXX"
-      ]
-    },
-    "GetMovesSinceResponse": {
+    "Error": {
       "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
       "properties": {
-        "movesFound": {
-          "$ref": "#/definitions/SearchMoves"
-        }
-      }
-    },
-    "MoveStatus": {
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVED",
-        "CANCELED"
-      ]
-    },
-    "SearchMove": {
-      "type": "object",
-      "properties": {
-        "branch": {
+        "detail": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "dodID": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "1234567890"
-        },
-        "firstName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "John"
-        },
-        "id": {
+        "instance": {
           "type": "string",
           "format": "uuid"
         },
-        "lastName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "Doe"
-        },
-        "locator": {
+        "title": {
           "type": "string"
-        },
-        "orderType": {
-          "type": "string"
-        },
-        "originDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "shipmentsCount": {
-          "type": "integer"
-        },
-        "status": {
-          "$ref": "#/definitions/MoveStatus"
         }
       }
     },
-    "SearchMoves": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SearchMove"
-      }
-    },
-    "movesSince": {
+    "ListMove": {
+      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
-        "moveSinceDate": {
-          "description": "moves retrieved since this date",
+        "availableToPrimeAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
-        "numMoves": {
-          "description": "number of moves to return",
-          "type": "integer"
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
+      }
+    },
+    "ListMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ListMove"
       }
     }
   },
   "responses": {
     "InvalidRequest": {
-      "description": "The request was invalid as called.",
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {
-      "description": "An unexpected error has occurred in the server.",
+      "description": "A server error occurred.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     }
   },
   "tags": [
     {
-      "description": "tag to describe test endpoints",
-      "name": "test"
-    },
-    {
-      "description": "describes all endpoints relating to moves",
       "name": "moves"
     }
   ]
