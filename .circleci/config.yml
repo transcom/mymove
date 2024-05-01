@@ -277,7 +277,7 @@ commands:
       - create_dot_go_version
       - restore_cache:
           keys:
-            - go-mod-sources-v6-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
 
   save_cache_for_go:
     steps:
