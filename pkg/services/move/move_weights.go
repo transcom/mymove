@@ -92,11 +92,11 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	}
 
 	var gradeNotExists = move.Orders.Grade == nil
-	var DependentsAuthorizedNotExists = move.Orders.Entitlement.DependentsAuthorized == nil
+	var dependentsAuthorizedNotExists = move.Orders.Entitlement.DependentsAuthorized == nil
 	if gradeNotExists {
 		return nil, nil, errors.New("could not determine excess weight entitlement without grade")
 	}
-	if DependentsAuthorizedNotExists {
+	if dependentsAuthorizedNotExists {
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 

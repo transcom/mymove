@@ -54,7 +54,7 @@ import {
   calculateWeightRequested,
   includedStatusesForCalculatingWeights,
   groupShipmentTypes,
-  ShipmentGroupKeys,
+  shipmentGroupKeys,
 } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
@@ -139,7 +139,7 @@ export const MoveTaskOrder = (props) => {
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
   const order = Object.values(orders)?.[0];
 
-  const { [ShipmentGroupKeys.keyOnlyPPM]: onlyPPMShipments, [ShipmentGroupKeys.keyNonPPM]: nonPPMShipments } =
+  const { [shipmentGroupKeys.keyOnlyPPM]: onlyPPMShipments, [shipmentGroupKeys.keyNonPPM]: nonPPMShipments } =
     groupShipmentTypes(mtoShipments);
 
   const shipmentServiceItems = useMemo(() => {

@@ -33,7 +33,7 @@ import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
-import { ShipmentGroupKeys, calculateEstimatedWeight, groupShipmentTypes } from 'hooks/custom';
+import { shipmentGroupKeys, calculateEstimatedWeight, groupShipmentTypes } from 'hooks/custom';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -69,7 +69,7 @@ const MoveDetails = ({
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
-  const { [ShipmentGroupKeys.keyNonPPM]: nonPPMShipments } = groupShipmentTypes(mtoShipments);
+  const { [shipmentGroupKeys.keyNonPPM]: nonPPMShipments } = groupShipmentTypes(mtoShipments);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;

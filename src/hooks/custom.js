@@ -8,19 +8,21 @@ import { ADMIN_BASE_PAGE_TITLE, MILMOVE_BASE_PAGE_TITLE, OFFICE_BASE_PAGE_TITLE 
 import { shipmentStatuses } from 'constants/shipments';
 import { calculateShipmentNetWeight, getShipmentEstimatedWeight } from 'utils/shipmentWeights';
 
-// group shipments by type
-export const ShipmentGroupKeys = {
-  keyOnlyPPM: 'nonPPMShipments',
-  keyNonPPM: 'onlyPPMShipments',
+// property keys of the shipmentGroupTypes accumulator
+export const shipmentGroupKeys = {
+  keyOnlyPPM: 'onlyPPMShipments',
+  keyNonPPM: 'nonPPMShipments',
 };
+
+//  groups shipments by ppm, or non-ppm
 export const groupShipmentTypes = (mtoShipments = []) =>
   (mtoShipments || []).reduce(
     (shipmentAcc, shipment) =>
       ((shipmentTypeKey) => ({
         ...shipmentAcc,
         [shipmentTypeKey]: [...shipmentAcc[shipmentTypeKey], shipment],
-      }))((shipment.shipmentType === 'PPM' && ShipmentGroupKeys.keyOnlyPPM) || ShipmentGroupKeys.keyNonPPM),
-    { [ShipmentGroupKeys.keyOnlyPPM]: [], [ShipmentGroupKeys.keyNonPPM]: [] },
+      }))((shipment.shipmentType === 'PPM' && shipmentGroupKeys.keyOnlyPPM) || shipmentGroupKeys.keyNonPPM),
+    { [shipmentGroupKeys.keyOnlyPPM]: [], [shipmentGroupKeys.keyNonPPM]: [] },
   );
 
 // only sum estimated/actual/reweigh weights for shipments in these statuses
