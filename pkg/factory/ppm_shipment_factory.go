@@ -18,6 +18,7 @@ type ppmBuildType byte
 const (
 	ppmBuildStandard ppmBuildType = iota
 	ppmBuildMinimal
+	ppmBuildFullAddress
 )
 
 // buildPPMShipmentWithBuildType does the actual work
@@ -117,6 +118,38 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	ppmShipment.DestinationAddressID = &destinationAddress.ID
 	ppmShipment.DestinationAddress = &destinationAddress
 
+	if buildType == ppmBuildFullAddress {
+		secondaryPickupAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main Street",
+					City:           pickupAddress.City,
+					State:          pickupAddress.State,
+					PostalCode:     pickupAddress.PostalCode,
+				},
+			},
+		}, nil)
+		secondaryDestinationAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Main Street",
+					City:           destinationAddress.City,
+					State:          destinationAddress.State,
+					PostalCode:     destinationAddress.PostalCode,
+				},
+			},
+		}, nil)
+		ppmShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+		ppmShipment.SecondaryPickupAddress = &secondaryPickupAddress
+		ppmShipment.SecondaryPickupPostalCode = &secondaryPickupAddress.PostalCode
+		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
+
+		ppmShipment.SecondaryDestinationAddressID = &secondaryDestinationAddress.ID
+		ppmShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
+		ppmShipment.SecondaryDestinationPostalCode = &secondaryDestinationAddress.PostalCode
+		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
+	}
+
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&ppmShipment, cPPMShipment)
 
@@ -136,6 +169,10 @@ func BuildPPMShipment(db *pop.Connection, customs []Customization, traits []Trai
 
 func BuildMinimalPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.PPMShipment {
 	return buildPPMShipmentWithBuildType(db, customs, traits, ppmBuildMinimal)
+}
+
+func BuildFullAddressPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.PPMShipment {
+	return buildPPMShipmentWithBuildType(db, customs, traits, ppmBuildFullAddress)
 }
 
 // buildApprovedPPMShipmentWaitingOnCustomer creates a single
