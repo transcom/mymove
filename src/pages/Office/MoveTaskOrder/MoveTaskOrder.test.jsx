@@ -20,6 +20,7 @@ import {
   riskOfExcessWeightQueryExternalShipment,
   multiplePaymentRequests,
   moveHistoryTestData,
+  actualPPMWeightQuery,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -358,6 +359,50 @@ describe('MoveTaskOrder', () => {
       expect(moveWeightTotal).toBeInTheDocument();
     });
 
+    it('displays the ppm estimated weight and no ppm actual weight', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const weightSummaries = await screen.findAllByTestId('weight-display');
+
+      expect(weightSummaries[4]).toHaveTextContent('2,000 lbs');
+      expect(weightSummaries[5]).toHaveTextContent('—');
+    });
+
+    it('displays the ppm actual weight (total)', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(actualPPMWeightQuery);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const weightSummaries = await screen.findAllByTestId('weight-display');
+
+      expect(weightSummaries[4]).toHaveTextContent('2,000 lbs');
+      expect(weightSummaries[5]).toHaveTextContent('2,100 lbs');
+    });
+
     it('displays the move weight total using lower reweighs', async () => {
       useMoveTaskOrderQueries.mockReturnValue(lowerReweighsMTOQuery);
 
@@ -647,7 +692,7 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the ShipmentContainer', () => {
-      expect(wrapper.find('ShipmentContainer').length).toBe(5);
+      expect(wrapper.find('ShipmentContainer').length).toBe(6);
     });
 
     it('renders the ShipmentHeading', () => {

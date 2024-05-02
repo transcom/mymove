@@ -49,7 +49,11 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
-import { calculateEstimatedWeight, calculateWeightRequested } from 'hooks/custom';
+import {
+  calculateEstimatedWeight,
+  calculateWeightRequested,
+  includedStatusesForCalculatingWeights,
+} from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
@@ -61,6 +65,7 @@ import { permissionTypes } from 'constants/permissions';
 import { tooRoutes } from 'constants/routes';
 import { formatDateForSwagger } from 'shared/dates';
 import EditSitEntryDateModal from 'components/Office/EditSitEntryDateModal/EditSitEntryDateModal';
+import { formatWeight } from 'utils/formatters';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -113,6 +118,7 @@ export const MoveTaskOrder = (props) => {
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
   /* ------------------ Miscellaneous ------------------------- */
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
 
   const nonShipmentSections = useMemo(() => {
@@ -130,6 +136,8 @@ export const MoveTaskOrder = (props) => {
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
   const order = Object.values(orders)?.[0];
+  const nonPPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+  const onlyPPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType === 'PPM');
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -793,7 +801,8 @@ export const MoveTaskOrder = (props) => {
   }, [mtoShipments]);
 
   useEffect(() => {
-    setEstimatedWeightTotal(calculateEstimatedWeight(mtoShipments));
+    setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
+    setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
@@ -810,7 +819,8 @@ export const MoveTaskOrder = (props) => {
   }, [
     estimatedWeightTotal,
     move?.excess_weight_acknowledged_at,
-    mtoShipments,
+    nonPPMShipments,
+    onlyPPMShipments,
     order?.entitlement.totalWeight,
     setEstimatedWeightTotal,
     setExcessWeightRiskCount,
@@ -848,8 +858,17 @@ export const MoveTaskOrder = (props) => {
   ]);
 
   /* ------------------ Utils ------------------------- */
+  // determine if max billable weight should be displayed yet
+  const displayMaxBillableWeight = (shipments) => {
+    return shipments?.some(
+      (shipment) => includedStatusesForCalculatingWeights(shipment.status) && shipment.primeEstimatedWeight,
+    );
+  };
   // Edge case of diversion shipments being counted twice
-  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+  const moveWeightTotal = calculateWeightRequested(nonPPMShipments);
+  const ppmWeightTotal = calculateWeightRequested(onlyPPMShipments);
+  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? order?.entitlement?.authorizedWeight : '-';
+
   /**
    * @function getSitAddressInitialValues
    * @todo ETag and Id need to be removed from response from backend or address fields needs to be in their own object
@@ -861,6 +880,17 @@ export const MoveTaskOrder = (props) => {
   -------------------------  UI -------------------------
   *
   */
+  // this should always be 110% of estimated weight regardless of allowance
+  // or max billable weight
+  const estimateWeight110 = (
+    <div className={moveTaskOrderStyles.childHeader}>
+      <div>110% of estimated weight</div>
+      <div className={moveTaskOrderStyles.value}>
+        {Number.isFinite(estimatedWeightTotal) ? formatWeight(Math.round(estimatedWeightTotal * 1.1)) : '—'}
+      </div>
+    </div>
+  );
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -1042,14 +1072,21 @@ export const MoveTaskOrder = (props) => {
                   </Link>
                 </small>
               )}
+              {estimateWeight110}
             </WeightDisplay>
             <WeightDisplay
               heading="Max billable weight"
-              weightValue={order.entitlement.authorizedWeight}
-              onEdit={handleShowWeightModal}
+              weightValue={maxBillableWeight}
+              onEdit={displayMaxBillableWeight(nonPPMShipments) ? handleShowWeightModal : null}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
+          {onlyPPMShipments.length > 0 && (
+            <div className={moveTaskOrderStyles.secondRow} id="move-weights">
+              <WeightDisplay heading="PPM estimated weight (total)" weightValue={estimatedPPMWeightTotal} />
+              <WeightDisplay heading="Actual PPM weight (total)" weightValue={ppmWeightTotal} />
+            </div>
+          )}
           {mtoShipments.map((mtoShipment) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
