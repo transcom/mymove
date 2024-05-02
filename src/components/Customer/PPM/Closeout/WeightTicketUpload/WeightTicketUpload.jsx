@@ -8,7 +8,6 @@ import Hint from 'components/Hint';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import {
-  WeightTicketUploadInstructions,
   SpreadsheetUploadInstructions,
   UploadDropZoneLabel,
   UploadDropZoneLabelMobile,
@@ -94,7 +93,7 @@ const WeightTicketUpload = ({
   const weightTicketUploadHint = () => {
     return missingWeightTicket && !weightTicketRentalAgreement
       ? SpreadsheetUploadInstructions
-      : WeightTicketUploadInstructions;
+      : DocumentAndImageUploadInstructions;
   };
 
   return (
