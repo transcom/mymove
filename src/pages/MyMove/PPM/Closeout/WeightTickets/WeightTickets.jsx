@@ -16,6 +16,7 @@ import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { updateMTOShipment } from 'store/entities/actions';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -29,6 +30,14 @@ const WeightTickets = () => {
   const { weightTicket: currentWeightTicket, index: currentIndex } = useSelector((state) =>
     selectWeightTicketAndIndexById(state, mtoShipmentId, weightTicketId),
   );
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
+
+  const errorModalMessage =
+    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
 
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
@@ -63,15 +72,17 @@ const WeightTickets = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file, true)
       .then((upload) => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         setFieldTouched(fieldName, true);
+        setIsErrorModalVisible(false);
         return upload;
       })
       .catch(() => {
-        setErrorMessage('Failed to save the file upload');
+        // setErrorMessage('Failed to save the file upload');
+        setIsErrorModalVisible(true);
       });
   };
 
@@ -176,6 +187,7 @@ const WeightTickets = () => {
               onSubmit={handleSubmit}
               onBack={handleBack}
             />
+            <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
           </Grid>
         </Grid>
       </GridContainer>

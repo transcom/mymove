@@ -368,6 +368,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewShipmentCancellationRequester(
 			mtoshipment.NewShipmentRouter(),
+			moveRouter,
 		),
 		shipmentSITStatus,
 	}
@@ -579,6 +580,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
+
+	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
+		HandlerConfig:    handlerConfig,
+		CustomerSearcher: customer.NewCustomerSearcher(),
+	}
 
 	return ghcAPI
 }
