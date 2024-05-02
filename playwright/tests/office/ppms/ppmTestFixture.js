@@ -83,39 +83,27 @@ export class PpmPage extends ServiceCounselorPage {
    *
    * @returns Promise<void>
    */
-  async fillOutOriginInfo(options = {}) {
-    const {
-      expectedDepartureDate = '09 Jun 2022',
-      pickupPostalCode = '90210',
-      secondPickupPostalCode = '07003',
-    } = options;
+  async fillOutOriginInfo() {
+    await this.page.locator('input[name="expectedDepartureDate"]').type('09 Jun 2022');
 
-    await this.page.locator('input[name="expectedDepartureDate"]').clear();
-    await this.page.locator('input[name="expectedDepartureDate"]').type(expectedDepartureDate);
-    await this.page.locator('input[name="pickupPostalCode"]').clear();
-    await this.page.locator('input[name="pickupPostalCode"]').type(pickupPostalCode);
-    if (secondPickupPostalCode) {
-      await this.page.locator('input[name="secondPickupPostalCode"]').clear();
-      await this.page.locator('input[name="secondPickupPostalCode"]').type(secondPickupPostalCode);
-    }
+    await this.page.locator('input[name="pickup.address.streetAddress1"]').type('123 Street');
+    await this.page.locator('input[name="pickup.address.city"]').type('SomeCity - Secondary');
+    await this.page.locator('select[name="pickup.address.state"]').selectOption({ label: 'CA' });
+    await this.page.locator('input[name="pickup.address.postalCode"]').type('90210');
   }
 
   /**
    * @param {Object} options
    * @param {string} [options.destinationPostalCode=76127]
-   * @param {string} [options.secondDestinationPostalCode=98444]
+   * @param {string} [options.secondDestinatixonPostalCode=98444]
    *
    * @returns Promise<void>
    */
-  async fillOutDestinationInfo(options = {}) {
-    const { destinationPostalCode = '76127', secondDestinationPostalCode = '08540' } = options;
-
-    await this.page.locator('input[name="destinationPostalCode"]').clear();
-    await this.page.locator('input[name="destinationPostalCode"]').type(destinationPostalCode);
-    if (secondDestinationPostalCode) {
-      await this.page.locator('input[name="secondDestinationPostalCode"]').clear();
-      await this.page.locator('input[name="secondDestinationPostalCode"]').type(secondDestinationPostalCode);
-    }
+  async fillOutDestinationInfo() {
+    await this.page.locator('input[name="destination.address.postalCode"]').type('76127');
+    await this.page.locator('input[name="destination.address.streetAddress1"]').type('123 Street');
+    await this.page.locator('input[name="destination.address.city"]').type('SomeCity');
+    await this.page.locator('select[name="destination.address.state"]').selectOption({ label: 'TX' });
   }
 
   /**
