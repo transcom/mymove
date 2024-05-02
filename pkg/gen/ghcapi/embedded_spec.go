@@ -3773,12 +3773,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -16161,12 +16161,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
