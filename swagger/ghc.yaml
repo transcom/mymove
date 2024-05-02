@@ -3363,12 +3363,12 @@ paths:
           items:
             type: string
             enum:
-              - Payment requested
-              - Reviewed
-              - Rejected
-              - Paid
-              - Deprecated
-              - Error
+              - PENDING
+              - REVIEWED
+              - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+              - PAID
+              - DEPRECATED
+              - EDI_ERROR
         - in: query
           name: orderType
           type: string
@@ -3888,7 +3888,7 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
@@ -3990,7 +3990,7 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
         x-nullable: true
       backupAddress:
         allOf:
@@ -5236,35 +5236,26 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -5507,33 +5498,26 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       sitLocation:
@@ -5567,8 +5551,8 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
+      - pickupAddress
+      - destinationAddress
       - sitExpected
       - estimatedWeight
       - hasProGear
@@ -6429,7 +6413,7 @@ definitions:
         type: string
         title: County
         x-nullable: true
-        example: JESSAMINE
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -8202,6 +8186,11 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
+      shipmentLocator:
+        type: string
+        x-nullable: true
+        readOnly: true
+        example: 1K43AR-01
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string

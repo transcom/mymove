@@ -282,7 +282,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 		var translatedStatuses []string
 		if len(statuses) > 0 {
 			for _, status := range statuses {
-				if strings.EqualFold(status, "Payment requested") {
+				if strings.EqualFold(status, "Pending") || strings.EqualFold(status, "Payment Requested") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
 
 				} else if strings.EqualFold(status, "Reviewed") {
@@ -290,14 +290,14 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
 						models.PaymentRequestStatusReceivedByGex.String())
-				} else if strings.EqualFold(status, "Rejected") {
+				} else if strings.EqualFold(status, "Rejected") || strings.EqualFold(status, "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED") {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewedAllRejected.String())
 				} else if strings.EqualFold(status, "Paid") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
 				} else if strings.EqualFold(status, "Deprecated") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusDeprecated.String())
-				} else if strings.EqualFold(status, "Error") {
+				} else if strings.EqualFold(status, "Error") || strings.EqualFold(status, "EDI_ERROR") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusEDIError.String())
 				}
 			}

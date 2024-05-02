@@ -3773,12 +3773,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -5097,7 +5097,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -5832,19 +5832,19 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
+        "pickupAddress",
+        "destinationAddress",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -5859,33 +5859,40 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -6061,7 +6068,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -7375,6 +7382,12 @@ func init() {
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -10512,7 +10525,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -10688,13 +10701,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -10717,34 +10729,40 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
           "x-nullable": true,
-          "example": "90210"
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -16143,12 +16161,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -17800,7 +17818,7 @@ func init() {
           "type": "string",
           "title": "County",
           "x-nullable": true,
-          "example": "JESSAMINE"
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -18539,19 +18557,19 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
+        "pickupAddress",
+        "destinationAddress",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -18566,33 +18584,40 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -18768,7 +18793,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -20082,6 +20107,12 @@ func init() {
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -23277,7 +23308,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -23453,13 +23484,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -23482,34 +23512,40 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
           "x-nullable": true,
-          "example": "90210"
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",

@@ -350,7 +350,24 @@ describe('formatMtoShipmentForAPI', () => {
     const params = {
       ...mtoShipmentParams,
       shipmentType: SHIPMENT_OPTIONS.NTSR,
-      delivery: { ...deliveryInfo },
+      pickup: {
+        address: {
+          streetAddress1: '111 E Block Hoop Circle',
+          streetAddress2: '#1A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78112',
+        },
+      },
+      destination: {
+        address: {
+          streetAddress1: '444 W Block Hoop Circle',
+          streetAddress2: '#34A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+      },
       ntsRecordedWeight: '4,500',
       storageFacility,
     };
@@ -409,11 +426,40 @@ describe('formatPpmShipmentForDisplay', () => {
   it('converts an existing shipment to formatted display values', () => {
     const api = {
       expectedDepatureDate: '2022-12-25',
-      pickupPostalCode: '90210',
-      secondaryPickupPostalCode: '80014',
-      destinationPostalCode: '22201',
-      secondaryDestinationPostalCode: '20002',
-
+      hasSecondaryPickupAddress: true,
+      hasSecondaryDestinationAddress: true,
+      pickupAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'KY',
+        postalCode: '42701',
+      },
+      secondaryPickupAddress: {
+        streetAddress1: '777 Test Street',
+        streetAddress2: '888 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'KY',
+        postalCode: '42702',
+      },
+      destinationAddress: {
+        streetAddress1: '222 Test Street',
+        streetAddress2: '333 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'KY',
+        postalCode: '42703',
+      },
+      secondaryDestinationAddress: {
+        streetAddress1: '444 Test Street',
+        streetAddress2: '555 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'KY',
+        postalCode: '42701',
+      },
       sitExpected: true,
       sitLocation: 'DESTINATION',
       sitEstimatedWeight: 2750,
@@ -431,7 +477,16 @@ describe('formatPpmShipmentForDisplay', () => {
 
     const display = formatPpmShipmentForDisplay({ ppmShipment: api, counselorRemarks: 'test remarks' });
 
-    expect(display.secondPickupPostalCode).toEqual('80014');
+    expect(display.pickup.address).toEqual(api.pickupAddress);
+
+    expect(display.destination.address).toEqual(api.destinationAddress);
+
+    expect(display.secondaryPickup.address).toEqual(api.secondaryPickupAddress);
+    expect(display.secondaryDestination.address).toEqual(api.secondaryDestinationAddress);
+
+    expect(display.hasSecondaryPickup).toEqual('true');
+    expect(display.hasSecondaryDestination).toEqual('true');
+
     expect(display.sitEstimatedWeight).toEqual('2750');
     expect(display.estimatedWeight).toEqual('9000');
     expect(display.proGearWeight).toEqual('1000');
@@ -445,10 +500,44 @@ describe('formatPpmShipmentForAPI', () => {
   it('converts fully filled-out formValues to api values', () => {
     const formValues = {
       expectedDepatureDate: '2022-12-25',
-      pickupPostalCode: '90210',
-      secondPickupPostalCode: '80014',
-      destinationPostalCode: '22201',
-
+      pickup: {
+        address: {
+          streetAddress1: '111 E Block Hoop Circle',
+          streetAddress2: '#1A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78112',
+        },
+      },
+      hasSecondaryPickup: 'true',
+      secondaryPickup: {
+        address: {
+          streetAddress1: '222 E Barrel Hoop Circle',
+          streetAddress2: '#2A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78212',
+        },
+      },
+      destination: {
+        address: {
+          streetAddress1: '444 W Block Hoop Circle',
+          streetAddress2: '#34A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+      },
+      hasSecondaryDestination: 'true',
+      secondaryDestination: {
+        address: {
+          streetAddress1: '444 W Block Hoop Circle',
+          streetAddress2: '#34A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+      },
       sitExpected: true,
       sitLocation: 'ORIGIN',
       sitEstimatedWeight: '2500',
@@ -467,7 +556,16 @@ describe('formatPpmShipmentForAPI', () => {
 
     const { counselorRemarks, ppmShipment } = formatPpmShipmentForAPI(formValues);
 
-    expect(ppmShipment.secondaryPickupPostalCode).toEqual('80014');
+    expect(ppmShipment.pickupAddress).toEqual(formValues.pickup.address);
+
+    expect(ppmShipment.destinationAddress).toEqual(formValues.destination.address);
+
+    expect(ppmShipment.secondaryPickupAddress).toEqual(formValues.secondaryPickup.address);
+    expect(ppmShipment.secondaryDestinationAddress).toEqual(formValues.secondaryDestination.address);
+
+    expect(ppmShipment.hasSecondaryPickupAddress).toEqual(true);
+    expect(ppmShipment.hasSecondaryDestinationAddress).toEqual(true);
+
     expect(ppmShipment.estimatedWeight).toEqual(7500);
     expect(ppmShipment.proGearWeight).toEqual(1000);
     expect(ppmShipment.spouseProGearWeight).toEqual(undefined);
@@ -481,8 +579,24 @@ describe('formatPpmShipmentForAPI', () => {
   it('converts minimal formValues to api values', () => {
     const formValues = {
       expectedDepatureDate: '2022-12-25',
-      pickupPostalCode: '90210',
-      destinationPostalCode: '22201',
+      pickup: {
+        address: {
+          streetAddress1: '111 E Block Hoop Circle',
+          streetAddress2: '#3A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78312',
+        },
+      },
+      destination: {
+        address: {
+          streetAddress1: '222 W Block Hoop Circle',
+          streetAddress2: '#4A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+      },
 
       sitExpected: false,
 
