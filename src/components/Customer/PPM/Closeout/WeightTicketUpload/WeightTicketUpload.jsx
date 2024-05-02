@@ -8,6 +8,7 @@ import Hint from 'components/Hint';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import {
+  DocumentAndImageUploadInstructions,
   SpreadsheetUploadInstructions,
   UploadDropZoneLabel,
   UploadDropZoneLabelMobile,
