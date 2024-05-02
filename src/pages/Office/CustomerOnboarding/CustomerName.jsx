@@ -9,7 +9,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import NameForm from 'components/Customer/NameForm/NameForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { ServiceMemberShape } from 'types/customerShapes';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { generalRoutes } from 'constants/routes';
 
 export const CustomerName = ({ serviceMember, updateServiceMember }) => {
   const [serverError, setServerError] = useState(null);
@@ -26,7 +26,7 @@ export const CustomerName = ({ serviceMember, updateServiceMember }) => {
   };
 
   const handleBack = () => {
-    navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
+    navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
   };
 
   const handleSubmit = (values) => {

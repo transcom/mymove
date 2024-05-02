@@ -38,13 +38,13 @@ test.describe('Office authorization', () => {
   test('redirects TOO to TOO homepage', async ({ page, officePage }) => {
     await officePage.signInAsNewTOOUser();
     await expect(page.getByText('All moves')).toBeVisible();
-    expect(new URL(page.url()).pathname).toBe('/');
+    expect(new URL(page.url()).pathname).toBe('/move-queue');
   });
 
   test('redirects TIO to TIO homepage', async ({ page, officePage }) => {
     await officePage.signInAsNewTIOUser();
     await expect(page.getByRole('heading', { name: 'Payment requests' })).toBeVisible();
-    expect(new URL(page.url()).pathname).toBe('/');
+    expect(new URL(page.url()).pathname).toBe('/payment-requests');
   });
 
   test('redirects Services Counselor to Services Counselor homepage', async ({ page, officePage }) => {
