@@ -1,5 +1,5 @@
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/base:latest@sha256:9bc3117a99c731a41200a28774405125cb6fbda1819f4a1af88bd3bfad5dcf32
+FROM gcr.io/distroless/base:latest@sha256:d8d01e2d5868f622544543ca0311679bbc2f3fbf7f7bafd11af78a284c479ea3
 
 #AWS GovCloud RDS cert
 COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
