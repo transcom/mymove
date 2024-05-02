@@ -282,7 +282,7 @@ func (WeightTicketComputer *WeightTicketComputer) ParseWeightEstimatorExcelFile(
 	pagesStructs := []reflect.Value{page1Reflect, page2Reflect, page3Reflect, page4Reflect, page5Reflect, page6Reflect, page7Reflect, page8Reflect, page9Reflect, page10Reflect, page11Reflect}
 
 	// Loop through each row of the .xlsx file and read each cell. It is worth noting that excelize will skip reading any rows that are
-	// completely blank and will end a reading columns in that row when it encounters the last column to have data in it. We take this
+	// completely blank and will end reading columns in that row when it encounters the last column to have data in it. We take this
 	// into consideration when we are parsing the Weight Estimator .xlsx file.
 	for _, row := range rows {
 		currentCellCount := 1
