@@ -11,7 +11,7 @@ test.describe('Onboarding', () => {
     await customerPage.signInAsNewCustomer();
 
     // Input validation code
-    await customerPage.submitValidationCode();
+    await customerPage.submitParameterValue();
 
     // CONUS/OCONUS section
     await customerPage.waitForPage.onboardingConus();
@@ -76,7 +76,7 @@ test.describe('(MultiMove) Onboarding', () => {
     // if the user needs to input a validation code
     const validationCodeInput = page.locator('[name="code"]');
     if (await validationCodeInput.isVisible()) {
-      await customerPage.submitValidationCode();
+      await customerPage.submitParameterValue();
     }
 
     // CONUS/OCONUS section
