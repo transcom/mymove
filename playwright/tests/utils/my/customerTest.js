@@ -42,6 +42,32 @@ export class CustomerPage extends BaseTestPage {
   }
 
   /**
+   * Submits a validation code
+   *
+   * returns {Promise<void>}
+   */
+  async submitValidationCode() {
+    const testCode = '123456';
+    await this.page.locator('[name="code"]').type(testCode);
+    await expect(this.page.getByTestId('wizardNextButton')).toBeVisible();
+
+    // Regex for the path of the validation code api call
+    const pathRegex = /\/internal\/validation_code$/;
+
+    // Mock the api call and its response
+    await this.page.route(pathRegex, async (route) => {
+      await route.fulfill({
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ validationCode: '123456' }),
+      });
+    });
+
+    // Click on the submit button
+    await this.page.getByTestId('wizardNextButton').click();
+  }
+
+  /**
    * Sign in as existing customer with devlocal
    *
    * @param {string} userId
@@ -61,7 +87,14 @@ export class CustomerPage extends BaseTestPage {
 
     await this.page.getByTestId('goToMoveBtn').click();
 
-    await expect(this.page.getByText(`${move.locator}`)).toBeVisible();
+    await expect(this.page.getByTestId('customer-header').getByText(`${move.locator}`)).toBeVisible();
+
+    const targetElements = await this.page.$$(`[data-testid="shipment-list-item-container"]`);
+
+    for (const element of targetElements) {
+      const matches = (await element.textContent()).match(/[0-9|A-Z]{6}-[0-9]{2}/);
+      expect(matches).not.toBeNull();
+    }
   }
 
   /**

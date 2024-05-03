@@ -12,7 +12,6 @@ import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 import { isPPMShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
-import { getMoveCodeLabel } from 'utils/shipmentDisplay';
 
 export const ShipmentListItem = ({
   shipment,
@@ -57,7 +56,7 @@ export const ShipmentListItem = ({
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
-        <span className={styles['shipment-code']}>#{getMoveCodeLabel(shipment.id)}</span>
+        <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>
       )}{' '}
       {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
@@ -73,7 +72,7 @@ export const ShipmentListItem = ({
                   <strong>{formatWeight(shipment.ppmShipment.estimatedWeight)}</strong>
                 </h6>
                 <h6>
-                  <strong>{formatWeight(requestedWeightPPM)}</strong>
+                  <strong>{requestedWeightPPM > 0 ? formatWeight(requestedWeightPPM) : '-'}</strong>
                 </h6>
               </div>
             </div>
@@ -93,7 +92,12 @@ export const ShipmentListItem = ({
             Delete
           </Button>
           |
-          <Button className={styles['edit-btn']} onClick={onShipmentClick} type="button">
+          <Button
+            className={styles['edit-btn']}
+            onClick={onShipmentClick}
+            type="button"
+            data-testid="editShipmentButton"
+          >
             Edit
           </Button>
         </div>
@@ -105,7 +109,8 @@ export const ShipmentListItem = ({
 };
 
 ShipmentListItem.propTypes = {
-  shipment: shape({ id: string.isRequired, shipmentType: string.isRequired }).isRequired,
+  shipment: shape({ id: string.isRequired, shipmentLocator: string.isRequired, shipmentType: string.isRequired })
+    .isRequired,
   onShipmentClick: func,
   onDeleteClick: func,
   shipmentNumber: number.isRequired,

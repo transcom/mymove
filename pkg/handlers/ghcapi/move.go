@@ -81,7 +81,6 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				appCtx.Logger().Error("Error searching for move", zap.Error(err))
 				return moveop.NewSearchMovesInternalServerError(), err
 			}
-
 			searchMoves := payloads.SearchMoves(appCtx, moves)
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        searchMovesParams.Page,
