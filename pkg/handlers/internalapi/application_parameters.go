@@ -12,7 +12,7 @@ import (
 
 func payloadForApplicationParametersModel(v models.ApplicationParameters) internalmessages.ValidationCode {
 	payload := internalmessages.ValidationCode{
-		ValidationCode: *handlers.FmtString(v.ValidationCode),
+		ValidationCode: *handlers.FmtString(v.ParameterValue),
 	}
 	return payload
 }

@@ -8,10 +8,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ApplicationParameters is a model representing validation codes stored in the database
+// ApplicationParameters is a model representing application parameters and holds validation codes stored in the database
 type ApplicationParameters struct {
 	ID             uuid.UUID `json:"id" db:"id"`
-	ValidationCode string    `json:"validation_code" db:"validation_code"`
+	ParameterName  string    `json:"parameter_name" db:"parameter_name"`
+	ParameterValue string    `json:"parameter_value" db:"parameter_value"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -23,7 +24,7 @@ func (a ApplicationParameters) TableName() string {
 // FetchValidationCode returns a specific validation code from the db
 func FetchValidationCode(db *pop.Connection, code string) (ApplicationParameters, error) {
 	var validationCode ApplicationParameters
-	err := db.Q().Where(`validation_code=$1`, code).First(&validationCode)
+	err := db.Q().Where(`parameter_value=$1 AND parameter_name=$2`, code, "validation_code").First(&validationCode)
 	// if it isn't found, we'll return an empty object
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
