@@ -21,10 +21,10 @@ func (a ApplicationParameters) TableName() string {
 	return "application_parameters"
 }
 
-// FetchValidationCode returns a specific validation code from the db
-func FetchValidationCode(db *pop.Connection, code string) (ApplicationParameters, error) {
-	var validationCode ApplicationParameters
-	err := db.Q().Where(`parameter_value=$1 AND parameter_name=$2`, code, "validation_code").First(&validationCode)
+// FetchParameterValue returns a specific parameter value from the db
+func FetchParameterValue(db *pop.Connection, code string, value string) (ApplicationParameters, error) {
+	var parameterValue ApplicationParameters
+	err := db.Q().Where(`parameter_value=$1 AND parameter_name=$2`, code, value).First(&parameterValue)
 	// if it isn't found, we'll return an empty object
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -33,5 +33,5 @@ func FetchValidationCode(db *pop.Connection, code string) (ApplicationParameters
 		return ApplicationParameters{}, err
 	}
 
-	return validationCode, nil
+	return parameterValue, nil
 }

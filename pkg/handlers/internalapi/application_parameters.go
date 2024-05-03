@@ -10,32 +10,34 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForApplicationParametersModel(v models.ApplicationParameters) internalmessages.ValidationCode {
-	payload := internalmessages.ValidationCode{
-		ValidationCode: *handlers.FmtString(v.ParameterValue),
+func payloadForApplicationParametersModel(v models.ApplicationParameters) internalmessages.ApplicationParameters {
+	payload := internalmessages.ApplicationParameters{
+		ParameterValue: *handlers.FmtString(v.ParameterValue),
+		ParameterName:  *handlers.FmtString(v.ParameterName),
 	}
 	return payload
 }
 
-// ApplicationParametersValidateHandler validates a code provided by the service member
+// ApplicationParametersValidateHandler validates a value provided by the service member
 type ApplicationParametersValidateHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handler receives a POST request containing a validation code
+// Handler receives a POST request containing a parameter value
 // if the code is present, it returns it back, if not, it returns an empty object
 func (h ApplicationParametersValidateHandler) Handle(params application_parameters.ValidateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			// receive the code
-			code := params.Body.ValidationCode
+			value := params.Body.ApplicationParameters.ParameterValue
+			name := params.Body.ApplicationParameters.ParameterName
 
 			// fetch the code, if not found it will be an empty string
-			result, _ := models.FetchValidationCode(appCtx.DB(), code)
+			result, _ := models.FetchParameterValue(appCtx.DB(), value, name)
 
-			validationCodePayload := payloadForApplicationParametersModel(result)
+			parameterValuePayload := payloadForApplicationParametersModel(result)
 
-			return application_parameters.NewValidateOK().WithPayload(&validationCodePayload), nil
+			return application_parameters.NewValidateOK().WithPayload(&parameterValuePayload), nil
 		})
 }
