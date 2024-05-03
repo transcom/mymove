@@ -30,8 +30,8 @@ func (h ApplicationParametersValidateHandler) Handle(params application_paramete
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			// receive the code
-			value := params.Body.ApplicationParameters.ParameterValue
-			name := params.Body.ApplicationParameters.ParameterName
+			value := params.Body.ParameterValue
+			name := params.Body.ParameterName
 
 			// fetch the code, if not found it will be an empty string
 			result, _ := models.FetchParameterValue(appCtx.DB(), value, name)
