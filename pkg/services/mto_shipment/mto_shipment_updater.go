@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -638,6 +639,39 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return err
 					}
 				}
+			}
+		}
+
+		if newShipment.PrimeEstimatedWeight != nil {
+			var move models.Move
+			err := appCtx.DB().EagerPreload(
+				"MTOShipments",
+				"Orders.Entitlement",
+			).Find(&move, dbShipment.MoveTaskOrderID)
+
+			if err != nil {
+				return apperror.NewQueryError("Move", err, "unable to find Move")
+			}
+
+			dBAuthorizedWeight := int(*newShipment.PrimeEstimatedWeight)
+			if len(move.MTOShipments) != 0 {
+				for _, mtoShipment := range move.MTOShipments {
+					if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved {
+						dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
+					}
+				}
+			}
+			dBAuthorizedWeight = int(math.Round(float64(dBAuthorizedWeight) * 1.10))
+			entitlement := move.Orders.Entitlement
+			entitlement.DBAuthorizedWeight = &dBAuthorizedWeight
+			verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+
+			if verrs != nil && verrs.HasAny() {
+				invalidInputError := apperror.NewInvalidInputError(newShipment.ID, nil, verrs, "There was an issue with validating the updates")
+				return invalidInputError
+			}
+			if err != nil {
+				return err
 			}
 		}
 
