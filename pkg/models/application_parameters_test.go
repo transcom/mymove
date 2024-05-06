@@ -14,12 +14,12 @@ func (suite *ModelSuite) Test_FetchParameterValue() {
 	}
 	suite.MustCreate(&parameterValue)
 
-	// if the code is found, it should return the same code provided
+	// if the value is found, it should return the same code provided
 	shouldHaveValue, err := models.FetchParameterValue(suite.DB(), "TestCode123123", "validation_code")
 	suite.NoError(err)
 	suite.Equal(parameterValue.ParameterValue, shouldHaveValue.ParameterValue)
 
-	// if the code is not found, it should return an empty string
+	// if the value is not found, it should return an empty string
 	shouldNotHaveValue, err := models.FetchParameterValue(suite.DB(), "TestCode123456", "validation_code")
 	suite.NoError(err)
 	suite.Equal("", shouldNotHaveValue.ParameterValue)

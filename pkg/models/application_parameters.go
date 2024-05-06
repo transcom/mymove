@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ApplicationParameters is a model representing application parameters and holds validation codes stored in the database
+// ApplicationParameters is a model representing application parameters and holds parameter values and parameter names stored in the database
 type ApplicationParameters struct {
 	ID             uuid.UUID `json:"id" db:"id"`
 	ParameterName  string    `json:"parameter_name" db:"parameter_name"`
