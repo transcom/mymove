@@ -185,6 +185,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
+			usersprivileges.NewUsersPrivilegesCreator(),
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 		response := handler.Handle(params)
@@ -233,6 +234,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
+			usersprivileges.NewUsersPrivilegesCreator(),
 		}
 
 		response := handler.Handle(params)

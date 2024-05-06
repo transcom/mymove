@@ -28,6 +28,7 @@ import RequestReweighModal from 'components/Office/RequestReweighModal/RequestRe
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
+import ServiceItemContainer from 'components/Office/ServiceItemContainer/ServiceItemContainer';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   acknowledgeExcessWeightRisk,
@@ -43,7 +44,7 @@ import {
   updateServiceItemSITEntryDate,
   updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -141,10 +142,6 @@ export const MoveTaskOrder = (props) => {
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
     mtoServiceItems?.forEach((item) => {
-      // We're not interested in basic service items
-      if (!item.mtoShipmentID) {
-        return;
-      }
       const newItem = { ...item };
       newItem.code = item.reServiceCode;
       newItem.serviceItem = item.reServiceName;
@@ -173,11 +170,22 @@ export const MoveTaskOrder = (props) => {
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
         serviceItemsForShipment[`${newItem.mtoShipmentID}`].push(newItem);
       } else {
-        serviceItemsForShipment[`${newItem.mtoShipmentID}`] = [newItem];
+        serviceItemsForShipment[`${newItem.mtoShipmentID}`] = [newItem]; // Basic service items belong under shipmentServiceItems[`${undefined}`]
       }
     });
     return serviceItemsForShipment;
   }, [mtoServiceItems]);
+
+  const serviceItemsForMove = shipmentServiceItems[`${undefined}`];
+  const requestedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
+  );
+  const approvedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
+  );
+  const rejectedMoveServiceItems = serviceItemsForMove?.filter(
+    (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
+  );
 
   /*
   *
@@ -1173,6 +1181,32 @@ export const MoveTaskOrder = (props) => {
               </ShipmentContainer>
             );
           })}
+          <ServiceItemContainer className={styles.shipmentCard}>
+            {requestedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={requestedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.SUBMITTED}
+              />
+            )}
+            {approvedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={approvedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.APPROVED}
+              />
+            )}
+            {rejectedMoveServiceItems?.length > 0 && (
+              <RequestedServiceItemsTable
+                serviceItems={rejectedMoveServiceItems}
+                handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                handleShowRejectionDialog={handleShowRejectionDialog}
+                statusForTableType={MTO_SERVICE_ITEM_STATUS.REJECTED}
+              />
+            )}
+          </ServiceItemContainer>
           <div className={styles.pageFooter}>
             <div className={styles.pageFooterDetails}>
               <h6>{order?.packingAndShippingInstructions}</h6>

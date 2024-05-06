@@ -185,6 +185,7 @@ type CreateOfficeUserHandler struct {
 	services.NewQueryFilter
 	services.UserRoleAssociator
 	services.RoleAssociater
+	services.UserPrivilegeAssociator
 }
 
 // Handle creates an office user
@@ -260,6 +261,13 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 			}
 
 			createdOfficeUser.User.Roles = roles
+
+			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
+			_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *createdOfficeUser.UserID, updatedPrivileges)
+			if err != nil {
+				appCtx.Logger().Error("Error updating user privileges", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
 
 			_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
 			if err != nil {
