@@ -84,7 +84,7 @@ function testData(code) {
   if (code.includes('FSC')) {
     result = {
       ...result,
-      'Fuel rate adjustment': '$999.98',
+      Total: '$999.98',
     };
   } else {
     result = {
