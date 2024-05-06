@@ -27,7 +27,24 @@ function testData(code) {
       'Billable weight (cwt)': '85 cwt',
     };
   }
-  if (code.includes('SIT')) {
+  if (code === 'DDDSIT') {
+    result = {
+      ...result,
+      Mileage: '51',
+      'SIT delivery price': '1.71',
+    };
+  } else if (code === 'DDDSITb') {
+    result = {
+      ...result,
+      Mileage: '3',
+      'SIT delivery price': '1.71',
+    };
+  } else if (code === 'DDDSITc') {
+    result = {
+      ...result,
+      'SIT delivery price': '1.71',
+    };
+  } else if (code.includes('SIT')) {
     result = {
       ...result,
       'SIT days invoiced': '2',
@@ -219,14 +236,14 @@ describe('DomesticDestinationSITDelivery', () => {
 
   it('returns the correct data for mileage below 50 with matching ZIP3s', () => {
     const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryMatchingZip3);
-    const expected = testData('DDDSIT');
+    const expected = testData('DDDSITb');
 
     testAB(result, expected);
   });
 
   it('returns the correct data for mileage below 50 with non-matching ZIP3s', () => {
     const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDelivery);
-    const expected = testData('DDDSIT');
+    const expected = testData('DDDSITc');
 
     testAB(result, expected);
   });
