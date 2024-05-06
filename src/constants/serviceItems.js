@@ -112,6 +112,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
+  Total: 'Total',
 };
 
 const SERVICE_ITEM_CODES = {
