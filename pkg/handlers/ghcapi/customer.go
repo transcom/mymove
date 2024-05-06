@@ -184,9 +184,9 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 
 			// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
 			// to true so that the customer can log in without having to authenticate with a CAC
-			var cacValidateFlag = false
+			var cacValidated = false
 			if !payload.CacUser {
-				cacValidateFlag = true
+				cacValidated = true
 			}
 
 			transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -225,7 +225,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 					EmailIsPreferred:     &payload.EmailIsPreferred,
 					ResidentialAddress:   residentialAddress,
 					BackupMailingAddress: backupMailingAddress,
-					CacValidated:         cacValidateFlag,
+					CacValidated:         cacValidated,
 				}
 
 				// create the service member and save to the db
