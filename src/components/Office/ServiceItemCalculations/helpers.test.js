@@ -44,14 +44,20 @@ function testData(code) {
       ...result,
       'SIT delivery price': '1.71',
     };
-  } else if (code.includes('SIT')) {
+  } else if (code !== 'DOFSIT' && code !== 'DDFSIT' && code !== 'DOPSIT' && code.includes('SIT')) {
     result = {
       ...result,
       'SIT days invoiced': '2',
       'Additional day SIT price': '1.71',
     };
   }
-  if (code === 'DLH') {
+  if (code === 'DOPSIT') {
+    result = {
+      ...result,
+      Mileage: '29',
+      'SIT pickup price': '1.71',
+    };
+  } else if (code === 'DLH') {
     result = {
       ...result,
       Mileage: '210',
@@ -64,7 +70,7 @@ function testData(code) {
       'Baseline shorthaul price': '1.71',
     };
   }
-  if (code === 'DOP') {
+  if (code === 'DOP' || code === 'DOFSIT') {
     result = {
       ...result,
       'Origin price': '1.71',
