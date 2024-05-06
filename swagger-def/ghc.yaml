@@ -3747,6 +3747,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: 'definitions/Address.yaml'
+      cacValidated:
+        type: boolean
   CreatedCustomer:
     type: object
     properties:
@@ -3850,6 +3852,8 @@ definitions:
       backupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
