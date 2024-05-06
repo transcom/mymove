@@ -3806,7 +3806,7 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: 'definitions/Address.yaml'
-      cacValidatedUser:
+      cacValidated:
         type: boolean
   UpdateCustomerPayload:
     type: object
