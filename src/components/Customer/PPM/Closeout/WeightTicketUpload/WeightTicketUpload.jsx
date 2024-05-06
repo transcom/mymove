@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import { ErrorMessage, FormGroup, Label, Link, Alert } from '@trussworks/react-uswds';
+import { FormGroup, Label, Link, Alert } from '@trussworks/react-uswds';
 import { string, bool, func, shape } from 'prop-types';
 
 import styles from 'components/Customer/PPM/Closeout/WeightTicketUpload/WeightTicketUpload.module.scss';
@@ -67,7 +67,7 @@ const WeightTicketUpload = ({
   onUploadDelete,
   fileUploadRef,
   values,
-  formikProps: { touched, errors, setFieldTouched, setFieldValue },
+  formikProps: { setFieldTouched, setFieldValue },
 }) => {
   const weightTicketRentalAgreement = fieldName === 'emptyDocument' && missingWeightTicket;
 
@@ -97,8 +97,6 @@ const WeightTicketUpload = ({
       : DocumentAndImageUploadInstructions;
   };
 
-  const showError = touched[`${fieldName}`] && errors[`${fieldName}`];
-
   return (
     <div className={styles.WeightTicketUpload}>
       {missingWeightTicket && weightTicketRentalAgreement && rentalAgreement}
@@ -108,14 +106,11 @@ const WeightTicketUpload = ({
         uploads={values[`${fieldName}`]}
         onDelete={(uploadId) => onUploadDelete(uploadId, fieldName, setFieldTouched, setFieldValue)}
       />
-      <FormGroup error={showError}>
+      <FormGroup>
         <div className="labelWrapper">
-          <Label error={showError} htmlFor={fieldName}>
-            {weightTicketUploadLabel(fieldName, missingWeightTicket)}
-          </Label>
+          <Label htmlFor={fieldName}> {weightTicketUploadLabel(fieldName, missingWeightTicket)} </Label>
         </div>
-        {showError && <ErrorMessage>{errors[`${fieldName}`]}</ErrorMessage>}
-        <Hint className={styles.uploadTypeHint}>{weightTicketUploadHint()}</Hint>
+        <Hint className={styles.uploadTypeHint}> {weightTicketUploadHint()} </Hint>
         <FileUpload
           name={fieldName}
           className={fieldName}
