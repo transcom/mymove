@@ -24,16 +24,16 @@ type ApplicationParametersValidateHandler struct {
 }
 
 // Handler receives a POST request containing a parameter value
-// if the code is present, it returns it back, if not, it returns an empty object
+// if the value is present, it returns it back, if not, it returns an empty object
 func (h ApplicationParametersValidateHandler) Handle(params application_parameters.ValidateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			// receive the code
+			// receive the value
 			value := params.Body.ParameterValue
 			name := params.Body.ParameterName
 
-			// fetch the code, if not found it will be an empty string
+			// fetch the value, if not found it will be an empty string
 			result, _ := models.FetchParameterValue(appCtx.DB(), value, name)
 
 			parameterValuePayload := payloadForApplicationParametersModel(result)
