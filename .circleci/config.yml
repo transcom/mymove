@@ -867,6 +867,7 @@ commands:
             export FEATURE_FLAG_NTSR=true
             export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
+            export FEATURE_FLAG_MOVE_LOCK=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -897,6 +898,7 @@ commands:
             FEATURE_FLAG_NTSR: 'true'
             FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
+            FEATURE_FLAG_MOVE_LOCK: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
