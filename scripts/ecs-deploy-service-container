@@ -25,8 +25,8 @@ readonly environment=$3
 readonly entrypoint=$4
 
 # assign the default values, but allow them to be overridden
-: "${SERVICE_RESERVATION_CPU:=2048}"
-: "${SERVICE_RESERVATION_MEM:=4096}"
+: "${SERVICE_RESERVATION_CPU:=1024}"
+: "${SERVICE_RESERVATION_MEM:=2048}"
 
 # The cluster name is always `app-ENV`
 # Needs to support `app` and `app-client-tls` on the same cluster.

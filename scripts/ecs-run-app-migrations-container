@@ -23,7 +23,7 @@ readonly environment=$2
 readonly RESERVATION_CPU=1024
 #readonly RESERVATION_MEM=512
 # comment out above and uncomment below to fix out of memory errors.
-readonly RESERVATION_MEM=8192
+readonly RESERVATION_MEM=4096
 
 readonly log_prefix="${name}"
 readonly container_name="${name}-${environment}"
