@@ -32,6 +32,8 @@ const (
 	RoleTypeQaeCsr RoleType = "qae_csr"
 	// RoleTypePrime is the Role associated with actions performed by the Prime
 	RoleTypePrime RoleType = "prime"
+	// RoleTypeHQ is the Headquarters Role
+	RoleTypeHQ RoleType = "headquarters"
 )
 
 // Role represents a Role for users

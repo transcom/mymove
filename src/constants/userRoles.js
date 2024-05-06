@@ -7,6 +7,7 @@ export const roleTypes = {
   SERVICES_COUNSELOR: 'services_counselor',
   PRIME_SIMULATOR: 'prime_simulator',
   QAE_CSR: 'qae_csr',
+  HQ: 'headquarters',
 };
 
 export const adminOfficeRoles = [
@@ -17,6 +18,7 @@ export const adminOfficeRoles = [
   { roleType: 'services_counselor', name: 'Services Counselor' },
   { roleType: 'prime_simulator', name: 'Prime Simulator' },
   { roleType: 'qae_csr', name: 'Quality Assurance and Customer Support' },
+  { roleType: 'headquarters', name: 'Headquarters' },
 ];
 
 export const officeRoles = [
@@ -25,4 +27,5 @@ export const officeRoles = [
   roleTypes.SERVICES_COUNSELOR,
   roleTypes.PRIME_SIMULATOR,
   roleTypes.QAE_CSR,
+  roleTypes.HQ,
 ];
