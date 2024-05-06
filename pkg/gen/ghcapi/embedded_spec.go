@@ -6034,7 +6034,7 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
-        "cacValidatedUser": {
+        "cacValidated": {
           "type": "boolean"
         },
         "edipi": {
@@ -18932,7 +18932,7 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
-        "cacValidatedUser": {
+        "cacValidated": {
           "type": "boolean"
         },
         "edipi": {
