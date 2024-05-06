@@ -28,7 +28,15 @@ describe('When given a deleted trip weight ticket upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Deleted upload')).toBeInTheDocument();
+    expect(screen.getByText('Deleted document')).toBeInTheDocument();
+  });
+
+  it('displays trip event properly', () => {
+    historyRecord.context[0].upload_type = 'fullWeightTicket';
+    const template = getTemplate(historyRecord);
+
+    render(template.getEventNameDisplay(historyRecord));
+    expect(screen.getByText('Deleted trip document')).toBeInTheDocument();
   });
 
   it('displays details of shipment type, shipment ID', () => {

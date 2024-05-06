@@ -2215,6 +2215,143 @@ func init() {
         }
       }
     },
+    "/open/requested-office-users": {
+      "post": {
+        "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Create an Office User",
+        "operationId": "createRequestedOfficeUser",
+        "parameters": [
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/OfficeUserCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully requested the creation of provided office user",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/transportation-offices": {
+      "get": {
+        "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOfficesOpen",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "description": "Creates an instance of orders tied to a service member, which allow for creation of a move and an entitlement. Orders are required before the creation of a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Creates an orders model for a logged-in user",
+        "operationId": "createOrder",
+        "parameters": [
+          {
+            "name": "createOrders",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateOrders"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -3636,12 +3773,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -3715,6 +3852,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "order type",
             "name": "orderType",
             "in": "query"
           }
@@ -4875,6 +5013,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -4899,6 +5092,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -5550,23 +5749,102 @@ func init() {
         }
       }
     },
+    "CreateOrders": {
+      "type": "object",
+      "required": [
+        "serviceMemberId",
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "hasDependents",
+        "spouseHasProGear",
+        "newDutyLocationId"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date"
+        },
+        "newDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "serviceMemberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "spouseHasProGear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
+        "pickupAddress",
+        "destinationAddress",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -5581,33 +5859,40 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -5783,7 +6068,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -7278,6 +7563,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -7716,6 +8004,180 @@ func init() {
         "type": "String"
       }
     },
+    "OfficeUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "firstName",
+        "middleInitials",
+        "lastName",
+        "email",
+        "telephone",
+        "transportationOfficeId",
+        "active",
+        "roles",
+        "edipi",
+        "otherUniqueId",
+        "rejectionReason",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "edipi": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "middleInitials": {
+          "type": "string"
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REQUESTED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "OfficeUserCreate": {
+      "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "email",
+        "telephone",
+        "transportationOfficeId",
+        "roles"
+      ],
+      "properties": {
+        "edipi": {
+          "type": "string",
+          "title": "EDIPI",
+          "maxLength": 10,
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "otherUniqueId": {
+          "type": "string",
+          "title": "Office user identifier when EDIPI is not available",
+          "x-nullable": true
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          },
+          "x-nullable": false
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": false,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserRole": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "roleType",
+          "x-nullable": true,
+          "example": "transportation_ordering_officer"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -7906,6 +8368,15 @@ func init() {
         }
       }
     },
+    "OrderBody": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "OrdersType": {
       "type": "string",
       "title": "Orders type",
@@ -7914,6 +8385,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -7921,7 +8393,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -9138,6 +9611,41 @@ func init() {
         "TOO"
       ]
     },
+    "Role": {
+      "type": "object",
+      "required": [
+        "id",
+        "roleType",
+        "roleName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleName": {
+          "type": "string",
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "SITAddressUpdate": {
       "description": "An update to a SIT service item address.",
       "type": "object",
@@ -10017,7 +10525,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -10193,13 +10701,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -10222,34 +10729,40 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
           "x-nullable": true,
-          "example": "90210"
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -10892,6 +11405,12 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))
@@ -13705,6 +14224,161 @@ func init() {
         }
       }
     },
+    "/open/requested-office-users": {
+      "post": {
+        "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Create an Office User",
+        "operationId": "createRequestedOfficeUser",
+        "parameters": [
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/OfficeUserCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully requested the creation of provided office user",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/transportation-offices": {
+      "get": {
+        "description": "This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the transportation offices matching the search query",
+        "operationId": "getTransportationOfficesOpen",
+        "parameters": [
+          {
+            "minLength": 2,
+            "type": "string",
+            "description": "Search string for transportation offices",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "description": "Creates an instance of orders tied to a service member, which allow for creation of a move and an entitlement. Orders are required before the creation of a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Creates an orders model for a logged-in user",
+        "operationId": "createOrder",
+        "parameters": [
+          {
+            "name": "createOrders",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateOrders"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -15487,12 +16161,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "Payment requested",
-                "Reviewed",
-                "Rejected",
-                "Paid",
-                "Deprecated",
-                "Error"
+                "PENDING",
+                "REVIEWED",
+                "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+                "PAID",
+                "DEPRECATED",
+                "EDI_ERROR"
               ],
               "type": "string"
             },
@@ -15572,6 +16246,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "order type",
             "name": "orderType",
             "in": "query"
           }
@@ -17059,6 +17734,61 @@ func init() {
           }
         }
       }
+    },
+    "/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -17083,6 +17813,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -17738,23 +18474,102 @@ func init() {
         }
       }
     },
+    "CreateOrders": {
+      "type": "object",
+      "required": [
+        "serviceMemberId",
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "hasDependents",
+        "spouseHasProGear",
+        "newDutyLocationId"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "hasDependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date"
+        },
+        "newDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "serviceMemberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "spouseHasProGear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
+        "pickupAddress",
+        "destinationAddress",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -17769,33 +18584,40 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -17971,7 +18793,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -19466,6 +20288,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "shipmentGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -19904,6 +20729,180 @@ func init() {
         "type": "String"
       }
     },
+    "OfficeUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "firstName",
+        "middleInitials",
+        "lastName",
+        "email",
+        "telephone",
+        "transportationOfficeId",
+        "active",
+        "roles",
+        "edipi",
+        "otherUniqueId",
+        "rejectionReason",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "edipi": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "middleInitials": {
+          "type": "string"
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REQUESTED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "OfficeUserCreate": {
+      "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "email",
+        "telephone",
+        "transportationOfficeId",
+        "roles"
+      ],
+      "properties": {
+        "edipi": {
+          "type": "string",
+          "title": "EDIPI",
+          "maxLength": 10,
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "otherUniqueId": {
+          "type": "string",
+          "title": "Office user identifier when EDIPI is not available",
+          "x-nullable": true
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          },
+          "x-nullable": false
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": false,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OfficeUserRole": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "roleType",
+          "x-nullable": true,
+          "example": "transportation_ordering_officer"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -20094,6 +21093,15 @@ func init() {
         }
       }
     },
+    "OrderBody": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "OrdersType": {
       "type": "string",
       "title": "Orders type",
@@ -20102,6 +21110,7 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -20109,7 +21118,8 @@ func init() {
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -21328,6 +22338,41 @@ func init() {
         "TOO"
       ]
     },
+    "Role": {
+      "type": "object",
+      "required": [
+        "id",
+        "roleType",
+        "roleName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleName": {
+          "type": "string",
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "SITAddressUpdate": {
       "description": "An update to a SIT service item address.",
       "type": "object",
@@ -22263,7 +23308,7 @@ func init() {
         "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$|^$",
           "x-nullable": true
         },
         "suffix": {
@@ -22439,13 +23484,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "estimatedWeight": {
           "type": "integer",
@@ -22468,34 +23512,40 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
           "x-nullable": true,
-          "example": "90210"
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "sitEstimatedDepartureDate": {
           "type": "string",
@@ -23150,6 +24200,12 @@ func init() {
     },
     {
       "name": "transportationOffice"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "paymentRequests"
     }
   ]
 }`))

@@ -1191,7 +1191,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -1257,7 +1257,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -1297,7 +1297,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Update a Requested Office User",
         "operationId": "updateRequestedOfficeUser",
@@ -1799,6 +1799,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "postalCode": {
           "description": "zip code, international allowed",
@@ -2713,6 +2719,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -2796,6 +2825,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",
@@ -4496,7 +4529,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -4562,7 +4595,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -4602,7 +4635,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Update a Requested Office User",
         "operationId": "updateRequestedOfficeUser",
@@ -5104,6 +5137,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "postalCode": {
           "description": "zip code, international allowed",
@@ -6019,6 +6058,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -6102,6 +6164,10 @@ func init() {
       "properties": {
         "edipi": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
         },
         "firstName": {
           "type": "string",

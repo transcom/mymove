@@ -24,7 +24,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parseRolesCheckboxInput = (input) => {
-    if (privilegesSelected.includes('supervisor')) {
+    if (privilegesSelected.includes('supervisor') || privilegesSelected.includes('safety')) {
       var index;
       if (input.includes('customer')) {
         index = input.indexOf('customer');
@@ -66,6 +66,13 @@ const RolesPrivilegesCheckboxInput = (props) => {
       var index;
       if (input.includes('supervisor')) {
         index = input.indexOf('supervisor');
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+
+      if (input.includes('safety')) {
+        index = input.indexOf('safety');
         if (index !== -1) {
           input.splice(index, 1);
         }

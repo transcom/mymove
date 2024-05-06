@@ -29,14 +29,14 @@ describe('When given a deleted pro-gear weight ticket upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Deleted upload')).toBeInTheDocument();
+    expect(screen.getByText('Deleted document')).toBeInTheDocument();
   });
 
   it('displays details of shipment type, shipment ID', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01, Spouse pro-gear')).toBeInTheDocument();
   });
 
   it('displays details the deleted document', () => {

@@ -8,7 +8,7 @@ import PickupDisplay from '../PickupDisplay';
 
 import { AddressShape } from 'types/address';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import { getShipmentTypeLabel, getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { shipmentStatuses } from 'constants/shipments';
 import { customerRoutes } from 'constants/routes';
@@ -23,6 +23,7 @@ const NTSShipmentCard = ({
   remarks,
   requestedPickupDate,
   shipmentId,
+  shipmentLocator,
   shipmentType,
   shipmentNumber,
   showEditAndDeleteBtn,
@@ -35,7 +36,7 @@ const NTSShipmentCard = ({
   });
 
   const shipmentLabel = getShipmentTypeLabel(shipmentType);
-  const moveCodeLabel = getMoveCodeLabel(shipmentId);
+  const moveCodeLabel = shipmentLocator;
   const shipmentIsIncomplete = status === shipmentStatuses.DRAFT;
 
   return (
@@ -52,7 +53,7 @@ const NTSShipmentCard = ({
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
-            <p>#{getMoveCodeLabel(shipmentId)}</p>
+            <p>#{shipmentLocator}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
@@ -92,6 +93,7 @@ NTSShipmentCard.propTypes = {
   onDeleteClick: func.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
+  shipmentLocator: string.isRequired,
   showEditAndDeleteBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,

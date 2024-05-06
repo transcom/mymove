@@ -43,6 +43,13 @@ func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
 		return nil
 	}
+	// Adds shipmentGBLOC to be used for TOO/TIO's origin GBLOC
+	var gbloc ghcmessages.GBLOC
+	if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+	} else if move.Orders.OriginDutyLocationGBLOC != nil {
+		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
 
 	payload := &ghcmessages.Move{
 		ID:                           strfmt.UUID(move.ID.String()),
@@ -68,6 +75,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		FinancialReviewRemarks:       move.FinancialReviewRemarks,
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
+		ShipmentGBLOC:                gbloc,
 	}
 
 	return payload
@@ -655,6 +663,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -818,6 +827,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitExpected:                    ppmShipment.SITExpected,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -846,6 +857,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.W2Address != nil {
 		payloadPPMShipment.W2Address = Address(ppmShipment.W2Address)
+	}
+
+	if ppmShipment.SecondaryPickupAddress != nil {
+		payloadPPMShipment.SecondaryPickupAddress = Address(ppmShipment.SecondaryPickupAddress)
+	}
+
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
 	}
 
 	return payloadPPMShipment
@@ -1879,6 +1898,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
+
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++

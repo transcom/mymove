@@ -28,7 +28,6 @@ test.describe('PPM Onboarding - Estimated Incentive', () => {
 
 test.describe('(MultiMove) PPM Onboarding - Estimated Incentive', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   forEachViewport(async ({ isMobile }) => {
     test.beforeEach(async ({ customerPpmPage }) => {
@@ -40,7 +39,7 @@ test.describe('(MultiMove) PPM Onboarding - Estimated Incentive', () => {
       await expect(customerPpmPage.page.locator('.container h2')).toContainText('is your estimated incentive');
     });
 
-    test.skip('go to estimated incentives page', async ({ customerPpmPage }) => {
+    test('go to estimated incentives page', async ({ customerPpmPage }) => {
       await customerPpmPage.generalVerifyEstimatedIncentivePage({ isMobile });
     });
   });
