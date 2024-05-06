@@ -17,7 +17,8 @@ const ShipmentWeight = () => {
     hasProGearHelper.setValue(event.target.value === 'yes');
   };
   const handleEstimatedWeight = (event) => {
-    estimatedWeightHelper.setValue(event.target.value);
+    const parsedTargetValue = event.target.value?.replace(/,/g, '');
+    estimatedWeightHelper.setValue(parsedTargetValue);
   };
 
   return (
@@ -35,7 +36,6 @@ const ShipmentWeight = () => {
               scale={0} // digits after point, 0 for integers
               signed={false} // disallow negative
               thousandsSeparator=","
-              lazy={false} // immediate masking evaluation
               suffix="lbs"
               onChange={handleEstimatedWeight}
             />
