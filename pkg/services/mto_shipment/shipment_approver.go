@@ -56,14 +56,14 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return nil, err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if shipment.PrimeEstimatedWeight != nil {
-			err = f.updateAuthorizedWeight(appCtx, shipment)
-			if err != nil {
-				return err
-			}
+	if shipment.PrimeEstimatedWeight != nil {
+		err = f.updateAuthorizedWeight(appCtx, shipment)
+		if err != nil {
+			return nil, err
 		}
+	}
 
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
