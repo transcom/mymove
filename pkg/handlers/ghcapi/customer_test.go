@@ -173,6 +173,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Address: backupAddress,
 		},
 		CreateOktaAccount: true,
+		CacUser:           true,
 	}
 
 	defer goth.ClearProviders()

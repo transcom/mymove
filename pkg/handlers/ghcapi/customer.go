@@ -183,6 +183,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 					EmailIsPreferred:     &payload.EmailIsPreferred,
 					ResidentialAddress:   residentialAddress,
 					BackupMailingAddress: backupMailingAddress,
+					CacValidated:         payload.CacUser,
 				}
 
 				// create the service member and save to the db

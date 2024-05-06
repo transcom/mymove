@@ -4047,6 +4047,8 @@ definitions:
           - $ref: '#/definitions/Address'
       createOktaAccount:
         type: boolean
+      cacUser:
+        type: boolean
   Entitlements:
     properties:
       id:

@@ -5549,6 +5549,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -18273,6 +18276,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "cacUser": {
+          "type": "boolean"
         },
         "createOktaAccount": {
           "type": "boolean"

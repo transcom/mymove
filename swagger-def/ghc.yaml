@@ -3902,6 +3902,8 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       createOktaAccount:
         type: boolean
+      cacUser:
+        type: boolean
   Entitlements:
     properties:
       id:
