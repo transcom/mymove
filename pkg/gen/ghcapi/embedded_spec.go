@@ -6110,6 +6110,9 @@ func init() {
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "current_address": {
           "$ref": "#/definitions/Address"
         },
@@ -10644,6 +10647,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "current_address": {
           "allOf": [
@@ -19002,6 +19008,9 @@ func init() {
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "current_address": {
           "$ref": "#/definitions/Address"
         },
@@ -23594,6 +23603,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "current_address": {
           "allOf": [
