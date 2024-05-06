@@ -5944,6 +5944,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidatedUser": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -18671,6 +18674,9 @@ func init() {
         },
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidatedUser": {
+          "type": "boolean"
         },
         "edipi": {
           "type": "string",
