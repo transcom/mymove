@@ -6,13 +6,14 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import styles from './ServicesCounselingAddOrders.module.scss';
 
 import { dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import AddOrdersForm from 'components/Office/AddOrdersForm/AddOrdersForm';
 import { counselingCreateOrder } from 'services/ghcApi';
 import { ORDERS } from 'constants/queryKeys';
 import { formatDateForSwagger } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServicesCounselingAddOrders = ({ customer }) => {
   const navigate = useNavigate();
@@ -45,7 +46,15 @@ const ServicesCounselingAddOrders = ({ customer }) => {
     },
   });
 
+  const safetyMoveEnabledFeatureFlag = isBooleanFlagEnabled('safety_move');
+  alert('sm ff? ', safetyMoveEnabledFeatureFlag);
+  // const allowedOrdersTypes = safetyMoveEnabledFeatureFlag
+  //   ? { SAFETY_MOVE: SPECIAL_ORDERS_TYPES.SAFETY_MOVE }
+  //   : ORDERS_TYPE_OPTIONS;
+
+  // const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
   const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
+
   const initialValues = {
     ordersType: '',
     issueDate: '',

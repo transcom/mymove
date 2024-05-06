@@ -87,6 +87,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   const backupContactName = 'backup_contact';
 
   const initialValues = {
+    create_safety_move: '',
     affiliation: '',
     edipi: '',
     first_name: '',
@@ -128,6 +129,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
 
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
+    const createSafetyMove = values.create_safety_move === 'true';
     const createOktaAccount = values.create_okta_account === 'true';
 
     const body = {
@@ -165,6 +167,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   };
 
   const validationSchema = Yup.object().shape({
+    create_safety_move: Yup.boolean().required('Required'),
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
     edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
     first_name: Yup.string().required('Required'),
@@ -211,6 +214,13 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                   <h1 className={styles.header}>Create Customer Profile</h1>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Affiliation</h3>
+                    <Fieldset className={styles.trailerOwnershipFieldset}>
+                      <legend className="usa-label">Is this a Safety Move?</legend>
+                      <div className="grid-row grid-gap">
+                        <Field as={Radio} id="yesCreateSafetyMove" label="Yes" name="create_safety_move" value="true" />
+                        <Field as={Radio} id="noCreateSafetyMove" label="No" name="create_safety_move" value="false" />
+                      </div>
+                    </Fieldset>
                     <DropdownInput
                       label="Branch of service"
                       name="affiliation"
