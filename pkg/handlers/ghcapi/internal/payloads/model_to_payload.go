@@ -616,6 +616,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
+	gunSafe := entitlement.GunSafe
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -629,7 +630,8 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		ETag: etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe: gunSafe,
+		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -819,14 +821,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
-		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -1898,7 +1900,6 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
-
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++
@@ -2007,4 +2008,20 @@ func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSI
 	}
 
 	return payload
+}
+
+func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustomers {
+	searchCustomers := make(ghcmessages.SearchCustomers, len(customers))
+	for i, customer := range customers {
+		searchCustomers[i] = &ghcmessages.SearchCustomer{
+			FirstName:     customer.FirstName,
+			LastName:      customer.LastName,
+			DodID:         customer.Edipi,
+			Branch:        customer.Affiliation.String(),
+			ID:            *handlers.FmtUUID(customer.ID),
+			PersonalEmail: *customer.PersonalEmail,
+			Telephone:     customer.Telephone,
+		}
+	}
+	return &searchCustomers
 }

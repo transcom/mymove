@@ -1,5 +1,7 @@
 import * as Yup from 'yup';
 
+import { unSupportedStates } from '../constants/states';
+
 import { ValidateZipRateData } from 'shared/api';
 
 const INVALID_DATE = 'Invalid date';
@@ -49,13 +51,29 @@ export const validatePostalCode = async (value, postalCodeType, errMsg = Unsuppo
   return responseBody.valid ? undefined : errMsg;
 };
 
+export const UnsupportedStateErrorMsg = 'Moves to this state are not supported at this time.';
+export const IsSupportedState = async (value) => {
+  const selectedState = value;
+
+  const found = unSupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
+
+  if (found) {
+    return false;
+  }
+
+  return true;
+};
+
 /** Yup validation schemas */
 
 export const requiredAddressSchema = Yup.object().shape({
   streetAddress1: Yup.string().trim().required('Required'),
   streetAddress2: Yup.string(),
   city: Yup.string().trim().required('Required'),
-  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
+  state: Yup.string()
+    .test('', UnsupportedStateErrorMsg, IsSupportedState)
+    .length(2, 'Must use state abbreviation')
+    .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
@@ -155,4 +173,83 @@ export const oktaInfoSchema = Yup.object().shape({
     .max(10, edipiMaxErrorMsg)
     .matches(/^[0-9]*$/, numericOnlyErrorMsg)
     .nullable(),
+});
+
+export const otherUniqueIdErrorMsg = 'Only accepts alphanumeric characters';
+export const middleInitialErrorMsg = 'Must be a single uppercase character';
+
+// Validation method for Office Account Request Form checkbox fields
+const validateRoleRequestedMethod = (value, testContext) => {
+  return (
+    testContext.parent.transportationOrderingOfficerCheckBox ||
+    testContext.parent.transportationInvoicingOfficerCheckBox ||
+    testContext.parent.servicesCounselorCheckBox ||
+    testContext.parent.transportationContractingOfficerCheckBox ||
+    testContext.parent.qualityAssuranceAndCustomerSupportCheckBox
+  );
+};
+
+const validateOtherUniqueId = (value, testContext) => {
+  if (testContext.parent.officeAccountRequestOtherUniqueId || testContext.parent.officeAccountRequestEdipi) {
+    return true;
+  }
+
+  return false;
+};
+
+const validateEdipi = (value, testContext) => {
+  if (testContext.parent.officeAccountRequestOtherUniqueId || testContext.parent.officeAccountRequestEdipi) {
+    return true;
+  }
+
+  return false;
+};
+
+// checking request office account form
+export const officeAccountRequestSchema = Yup.object().shape({
+  officeAccountRequestFirstName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  officeAccountRequestMiddleInitial: Yup.string()
+    .matches(/^[A-Z]$/, middleInitialErrorMsg)
+    .optional(),
+  officeAccountRequestLastName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  officeAccountRequestEdipi: Yup.string()
+    .min(10, edipiMaxErrorMsg)
+    .max(10, edipiMaxErrorMsg)
+    .matches(/^[0-9]*$/, numericOnlyErrorMsg)
+    .test('officeAccountRequestEdipi', 'Required if not using other unique identifier', validateEdipi),
+  officeAccountRequestOtherUniqueId: Yup.string()
+    .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
+    .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
+  officeAccountRequestTelephone: phoneSchema.required('Required'),
+  officeAccountRequestEmail: emailSchema.required('Required'),
+  officeAccountTransportationOffice: Yup.object().required('Required'),
+  transportationOrderingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  transportationInvoicingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  servicesCounselorCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  transportationContractingOfficerCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  qualityAssuranceAndCustomerSupportCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
 });

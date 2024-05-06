@@ -1335,7 +1335,7 @@ definitions:
         example: 7000
         x-nullable: true
       entitlement:
-        $ref: '#/definitions/Entitlement'
+        $ref: "#/definitions/Entitlement"
       providesServicesCounseling:
         type: boolean
         x-omitempty: false
@@ -1843,7 +1843,7 @@ definitions:
         example: "90210"
         pattern: ^(\d{5})$
       pickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
@@ -1851,7 +1851,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryPickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       destinationPostalCode:
         format: zip
         type: string
@@ -1859,7 +1859,7 @@ definitions:
         example: "90210"
         pattern: ^(\d{5})$
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
@@ -1867,7 +1867,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryDestinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       sitExpected:
         type: boolean
     required:
@@ -1899,7 +1899,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       pickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
@@ -1907,7 +1907,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryPickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
@@ -1929,7 +1929,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
@@ -1937,7 +1937,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryDestinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -2135,9 +2135,9 @@ definitions:
         readOnly: true
         x-nullable: true
       mtoShipments:
-        $ref: '#/definitions/MTOShipments'
+        $ref: "#/definitions/MTOShipments"
       closeoutOffice:
-        $ref: 'definitions/TransportationOffice.yaml'
+        $ref: "definitions/TransportationOffice.yaml"
       eTag:
         type: string
         readOnly: true
@@ -2903,16 +2903,16 @@ paths:
           schema:
             format: binary
             type: file
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
@@ -2930,7 +2930,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        '200':
+        "200":
           headers:
             Content-Disposition:
               type: string
@@ -2939,15 +2939,15 @@ paths:
           schema:
             format: binary
             type: file
-        '400':
+        "400":
           description: invalid request
-        '401':
+        "401":
           description: request requires user authentication
-        '403':
+        "403":
           description: user is not authorized
-        '404':
+        "404":
           description: ppm not found
-        '500':
+        "500":
           description: internal server error
 
   /documents:
@@ -3864,6 +3864,11 @@ paths:
           name: file
           type: file
           description: The file to upload.
+          required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
           required: true
       responses:
         "201":

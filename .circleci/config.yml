@@ -40,11 +40,12 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch upgrade_GO
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env demo
-
+  dp3-branch: &dp3-branch integrationTesting
+  # MUST BE ONE OF: loadtest, demo, exp.
+  # These are used to pull in env vars so the spelling matters!
+  dp3-env: &dp3-env loadtest
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
@@ -53,17 +54,19 @@ references:
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch upgrade_GO
+
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch integrationTesting
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch upgrade_GO
+  client-ignore-branch: &client-ignore-branch integrationTesting
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch upgrade_GO
+
+  server-ignore-branch: &server-ignore-branch integrationTesting
 
 executors:
   base_small:
@@ -779,7 +782,6 @@ commands:
             OKTA_API_KEY: notrealapikey8675309
             OKTA_OFFICE_GROUP_ID: notrealgroupId
             OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
-
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
   # SLOOOOOOW
@@ -849,7 +851,6 @@ commands:
             export OKTA_API_KEY=notrealapikey
             export OKTA_OFFICE_GROUP_ID=notrealgroupId
             export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
             export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
@@ -970,7 +971,6 @@ commands:
             export OKTA_API_KEY=notrealapikey
             export OKTA_OFFICE_GROUP_ID=notrealgroupId
             export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -1059,7 +1059,6 @@ commands:
             export OKTA_API_KEY=notrealapikey
             export OKTA_OFFICE_GROUP_ID=notrealgroupId
             export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
@@ -1267,7 +1266,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v17-spectral-lint-
+            - v18-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1326,7 +1325,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v17-spectral-lint-{{ .BuildNum }}
+                key: v18-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:

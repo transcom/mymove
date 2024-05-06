@@ -168,7 +168,7 @@ func init() {
     },
     "/customer": {
       "post": {
-        "description": "Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.",
+        "description": "Creates a customer with option to create an Okta profile account",
         "consumes": [
           "application/json"
         ],
@@ -313,6 +313,91 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/customer/search": {
+      "post": {
+        "description": "Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Search customers by DOD ID or customer name",
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "description": "field that results should be sorted by",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "branch": {
+                  "description": "Branch",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all customers matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchCustomersResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/customer/{customerID}": {
       "get": {
@@ -2225,7 +2310,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -5387,6 +5472,11 @@ func init() {
         "grade": {
           "$ref": "#/definitions/Grade"
         },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -6281,6 +6371,10 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -9863,6 +9957,68 @@ func init() {
         }
       }
     },
+    "SearchCustomer": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchCustomers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchCustomer"
+      }
+    },
+    "SearchCustomersResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchCustomers": {
+          "$ref": "#/definitions/SearchCustomers"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "SearchMove": {
       "type": "object",
       "properties": {
@@ -10424,6 +10580,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
@@ -11595,7 +11756,7 @@ func init() {
     },
     "/customer": {
       "post": {
-        "description": "Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.",
+        "description": "Creates a customer with option to create an Okta profile account",
         "consumes": [
           "application/json"
         ],
@@ -11794,6 +11955,97 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/customer/search": {
+      "post": {
+        "description": "Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Search customers by DOD ID or customer name",
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "description": "field that results should be sorted by",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "branch": {
+                  "description": "Branch",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all customers matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchCustomersResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/customer/{customerID}": {
       "get": {
@@ -14234,7 +14486,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -18108,6 +18360,11 @@ func init() {
         "grade": {
           "$ref": "#/definitions/Grade"
         },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
           "type": "boolean",
@@ -19006,6 +19263,10 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -22640,6 +22901,68 @@ func init() {
         }
       }
     },
+    "SearchCustomer": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchCustomers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchCustomer"
+      }
+    },
+    "SearchCustomersResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchCustomers": {
+          "$ref": "#/definitions/SearchCustomers"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "SearchMove": {
       "type": "object",
       "properties": {
@@ -23203,6 +23526,11 @@ func init() {
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "gunSafe": {
+          "description": "True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.",
+          "type": "boolean",
+          "x-nullable": true
         },
         "organizationalClothingAndIndividualEquipment": {
           "description": "only for Army",

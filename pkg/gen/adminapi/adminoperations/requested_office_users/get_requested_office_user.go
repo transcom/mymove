@@ -30,7 +30,7 @@ func NewGetRequestedOfficeUser(ctx *middleware.Context, handler GetRequestedOffi
 }
 
 /*
-	GetRequestedOfficeUser swagger:route GET /requested-office-users/{officeUserId} Requested Office Users getRequestedOfficeUser
+	GetRequestedOfficeUser swagger:route GET /requested-office-users/{officeUserId} Requested office users getRequestedOfficeUser
 
 # Get a Requested Office User
 

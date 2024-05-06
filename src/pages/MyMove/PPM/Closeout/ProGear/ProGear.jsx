@@ -75,7 +75,7 @@ const ProGear = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file, false)
       .then((upload) => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));

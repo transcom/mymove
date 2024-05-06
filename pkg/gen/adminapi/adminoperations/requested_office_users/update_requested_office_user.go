@@ -30,7 +30,7 @@ func NewUpdateRequestedOfficeUser(ctx *middleware.Context, handler UpdateRequest
 }
 
 /*
-	UpdateRequestedOfficeUser swagger:route PATCH /requested-office-users/{officeUserId} Requested Office Users updateRequestedOfficeUser
+	UpdateRequestedOfficeUser swagger:route PATCH /requested-office-users/{officeUserId} Requested office users updateRequestedOfficeUser
 
 # Update a Requested Office User
 
