@@ -1898,6 +1898,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
+
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++
