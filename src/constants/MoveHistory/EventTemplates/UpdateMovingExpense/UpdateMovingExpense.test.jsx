@@ -87,7 +87,7 @@ describe('When given an updated expense document it', () => {
       const template = getTemplate(expenseRecord);
 
       render(template.getDetails(expenseRecord));
-      expect(screen.getByText(`PPM shipment #71F6F, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText(`PPM shipment #RQ38D4-01, ${label}`)).toBeInTheDocument();
       expect(screen.getByText('Paid with gtcc')).toBeInTheDocument();
       expect(screen.getByText(': No')).toBeInTheDocument();
       expect(screen.getByText('Missing receipt')).toBeInTheDocument();
