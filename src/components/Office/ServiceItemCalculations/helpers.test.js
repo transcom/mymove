@@ -89,7 +89,7 @@ function testData(code) {
   } else {
     result = {
       ...result,
-      'Total amount requested': '$999.99',
+      Total: '$999.99',
     };
   }
 
