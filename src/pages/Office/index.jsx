@@ -227,6 +227,16 @@ export class OfficeApp extends Component {
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
+                    {/* HQ */}
+                    <Route
+                      path="/moves/queue"
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                          <MoveQueue />
+                        </PrivateRoute>
+                      }
+                    />
                     {/* TXO */}
                     <Route
                       path="/moves/queue"
@@ -286,6 +296,17 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <MoveQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+                    {activeRole === roleTypes.HQ && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.HQ]}>
                             <MoveQueue />
                           </PrivateRoute>
                         }
@@ -467,6 +488,7 @@ export class OfficeApp extends Component {
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
                     {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<MoveQueue />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}

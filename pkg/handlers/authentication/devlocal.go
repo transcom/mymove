@@ -37,8 +37,8 @@ const (
 	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
 	AdminUserType string = "admin"
-	// HQOfficeUserType is a type of user for a headquarters user
-	HQOfficeUserType string = "headquarters"
+	// HQOfficeUserType is a type of user for a HQ user
+	HQOfficeUserType string = "HQ office"
 )
 
 // UserListHandler handles redirection
