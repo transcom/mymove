@@ -1,10 +1,21 @@
 import React from 'react';
 import Select from 'react-select';
 import { mount } from 'enzyme';
+import * as reactRouterDom from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
 
 import MoveQueue from './MoveQueue';
 
 import { MockProviders } from 'testUtils';
+import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { generalRoutes, tooRoutes } from 'constants/routes';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
+  useParams: jest.fn(), // mock useParams
+  useNavigate: jest.fn(), // mock useNavigate if needed
+}));
+jest.setTimeout(60000);
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: () => {
@@ -66,24 +77,27 @@ jest.mock('hooks/queries', () => ({
     };
   },
 }));
-
-describe('MoveQueue', () => {
+const GetMountedComponent = (queueTypeToMount) => {
+  reactRouterDom.useParams.mockReturnValue({ queueType: queueTypeToMount });
   const wrapper = mount(
     <MockProviders>
       <MoveQueue />
     </MockProviders>,
   );
-
+  return wrapper;
+};
+const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
+describe('MoveQueue', () => {
   it('should render the h1', () => {
-    expect(wrapper.find('h1').text()).toBe('All moves (2)');
+    expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (2)');
   });
 
   it('should render the table', () => {
-    expect(wrapper.find('Table').exists()).toBe(true);
+    expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('Table').exists()).toBe(true);
   });
 
   it('should format the column data', () => {
-    const moves = wrapper.find('tbody tr');
+    const moves = GetMountedComponent(tooRoutes.MOVE_QUEUE).find('tbody tr');
 
     const firstMove = moves.at(0);
     expect(firstMove.find({ 'data-testid': 'lastName-0' }).text()).toBe('test last, test first');
@@ -111,19 +125,21 @@ describe('MoveQueue', () => {
   });
 
   it('should render the pagination component', () => {
-    expect(wrapper.find({ 'data-testid': 'pagination' }).exists()).toBe(true);
+    expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'pagination' }).exists()).toBe(true);
   });
 
   it('applies the sort to the status column in descending direction', () => {
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(true);
+    expect(
+      GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending'),
+    ).toBe(true);
   });
 
   it('toggles the sort direction when clicked', () => {
+    const wrapper = GetMountedComponent(tooRoutes.MOVE_QUEUE);
     const statusHeading = wrapper.find({ 'data-testid': 'status' }).at(0);
 
     statusHeading.simulate('click');
-    wrapper.update();
-
+    GetMountedComponent(tooRoutes.MOVE_QUEUE).update();
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
 
     statusHeading.simulate('click');
@@ -141,11 +157,72 @@ describe('MoveQueue', () => {
   });
 
   it('filters the queue', () => {
+    const wrapper = GetMountedComponent(tooRoutes.MOVE_QUEUE);
     const input = wrapper.find(Select).at(0).find('input');
     input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
     input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
 
     wrapper.update();
     expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
+  });
+  it('renders Search and Move Queue tabs', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
+    expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
+    expect(screen.getByText('Task Order Queue', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.getByText('Search', { selector: 'span' })).toBeInTheDocument();
+  });
+  it('renders TableQueue when Search tab is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+    expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
+  });
+  it('has all options for searches', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+  });
+  it('Has all status options for move search', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+  });
+
+  it('Has all status options for move queue', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+  });
+  it('renders a 404 if a bad route is provided', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await expect(screen.getByText('Error - 404')).toBeInTheDocument();
+    await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
   });
 });
