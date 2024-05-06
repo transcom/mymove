@@ -616,8 +616,15 @@ const cratingSize = (params, mtoParams) => {
   return calculation(value, label, formatDetail(description), formatDetail(formattedDimensions));
 };
 
-// totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
+  const value = toDollarString(formatCents(totalAmount));
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Total;
+  const detail = '';
+
+  return calculation(value, label, formatDetail(detail));
+};
+
+const fuelRateAdjustment = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
   const label = SERVICE_ITEM_CALCULATION_LABELS.FuelRateAdjustment;
   const detail = '';
@@ -668,7 +675,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         billableWeight(params),
         mileageZip(params),
         mileageFactor(params, itemCode),
-        totalAmountRequested(totalAmount),
+        fuelRateAdjustment(totalAmount),
       ];
       break;
     // Domestic origin SIT fuel surcharge
@@ -677,7 +684,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         billableWeight(params),
         mileageZipSIT(params, itemCode),
         mileageFactor(params, itemCode),
-        totalAmountRequested(totalAmount),
+        fuelRateAdjustment(totalAmount),
       ];
       break;
     // Domestic destination SIT fuel surcharge
@@ -686,7 +693,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         billableWeight(params),
         mileageZipSIT(params, itemCode),
         mileageFactor(params, itemCode),
-        totalAmountRequested(totalAmount),
+        fuelRateAdjustment(totalAmount),
       ];
       break;
     // Domestic origin price
