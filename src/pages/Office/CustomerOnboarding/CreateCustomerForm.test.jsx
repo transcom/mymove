@@ -128,6 +128,7 @@ describe('CreateCustomerForm', () => {
     expect(screen.getByText('Backup Address')).toBeInTheDocument();
     expect(screen.getByText('Backup Contact')).toBeInTheDocument();
     expect(screen.getByText('Okta Account')).toBeInTheDocument();
+    expect(screen.getByText('Non-CAC Users')).toBeInTheDocument();
 
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
