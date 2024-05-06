@@ -618,7 +618,7 @@ const cratingSize = (params, mtoParams) => {
 
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
-  const label = SERVICE_ITEM_CALCULATION_LABELS.Total;
+  const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}:`;
   const detail = '';
 
   return calculation(value, label, formatDetail(detail));

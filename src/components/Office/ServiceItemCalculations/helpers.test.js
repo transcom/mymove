@@ -84,12 +84,12 @@ function testData(code) {
   if (code.includes('FSC')) {
     result = {
       ...result,
-      Total: '$999.98',
+      'Total:': '$999.98',
     };
   } else {
     result = {
       ...result,
-      Total: '$999.99',
+      'Total:': '$999.99',
     };
   }
 
