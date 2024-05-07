@@ -353,6 +353,30 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			if err != nil {
 				return err
 			}
+
+			//////////////////////////////////////////////////////////
+			// Hack
+			var movePostTrigger models.Move
+			moveID := shipment.MoveTaskOrderID
+			queryFilters := []services.QueryFilter{
+				query.NewQueryFilter("id", "=", moveID),
+			}
+			// check if Move exists
+			err = f.builder.FetchOne(appCtx, &movePostTrigger, queryFilters)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(moveID, "for move")
+				default:
+					return apperror.NewQueryError("Move", err, "")
+				}
+			}
+			if len(movePostTrigger.MTOShipments) > *move.ShipmentSeqNum {
+				move.ShipmentSeqNum = models.IntPointer(len(movePostTrigger.MTOShipments))
+			}
+
+			/////////////////////////////////////////////////////////
+
 			verrs, err = f.builder.UpdateOne(txnAppCtx, &move, nil)
 			if err != nil {
 				return err
