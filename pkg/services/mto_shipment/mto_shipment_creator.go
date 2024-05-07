@@ -460,7 +460,7 @@ func ensureMoveShipmentSeqNumIsInSync(f mtoShipmentCreator, appCtx appcontext.Ap
 	}
 	// Ensure ShipmentSeqNum matches current database value. Will use shipment count
 	// for true count.
-	if len(currentMove.MTOShipments) > *move.ShipmentSeqNum {
+	if move.ShipmentSeqNum != nil && currentMove.MTOShipments != nil && len(currentMove.MTOShipments) != *move.ShipmentSeqNum {
 		move.ShipmentSeqNum = models.IntPointer(len(currentMove.MTOShipments))
 	}
 	return nil
