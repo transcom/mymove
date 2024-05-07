@@ -39,13 +39,13 @@ linters:
     - gofmt
     - goimports
     - gomodguard
-   # - gosec
+    - gosec
     - gosimple
     - govet
     - ineffassign
-  # - revive
+    - revive
     - staticcheck
-  #  - typecheck
+    - typecheck
     - unused
   fast: false
 issues:

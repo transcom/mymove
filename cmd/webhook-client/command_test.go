@@ -69,7 +69,7 @@ func (suite *WebhookClientTestingSuite) Test_DBConnection() {
 	b := bytes.NewBufferString("")
 	rootCmd.SetOut(b)
 
-	suite.T().Run("db-connection: Success", func(t *testing.T) {
+	suite.T().Run("db-connection: Success", func(_ *testing.T) {
 		rootCmd.SetArgs([]string{
 			"db-connection-test",
 		})
@@ -87,7 +87,7 @@ func (suite *WebhookClientTestingSuite) Test_PostWebhookNotify() {
 	b := bytes.NewBufferString("")
 	filename := "../../pkg/testdatagen/testdata/webhook_test_data.json"
 	rootCmd.SetOut(b)
-	suite.T().Run("post-webhook-notify: Send a request to server", func(t *testing.T) {
+	suite.T().Run("post-webhook-notify: Send a request to server", func(_ *testing.T) {
 		rootCmd.SetArgs([]string{
 			"--filename", filename,
 			"--certpath", suite.certPath,

@@ -13,7 +13,7 @@ import (
 func (suite *testSuite) TestContextLoggerWithoutTrace() {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	// Create logger that writes to the buffer instead of stdout/stderr
-	logger := suite.logger.WithOptions(zap.WrapCore(func(c zapcore.Core) zapcore.Core {
+	logger := suite.logger.WithOptions(zap.WrapCore(func(_ zapcore.Core) zapcore.Core {
 		return zapcore.NewCore(
 			zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
 			zapcore.AddSync(buf),

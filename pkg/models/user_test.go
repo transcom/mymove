@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	userroles "github.com/transcom/mymove/pkg/services/users_roles"
 	"github.com/transcom/mymove/pkg/testdatagen"

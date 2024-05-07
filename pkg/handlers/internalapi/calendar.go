@@ -21,7 +21,7 @@ type ShowAvailableMoveDatesHandler struct {
 // Handle returns the available move dates.
 func (h ShowAvailableMoveDatesHandler) Handle(params calendarop.ShowAvailableMoveDatesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+		func(_ appcontext.AppContext) (middleware.Responder, error) {
 
 			startDate := time.Time(params.StartDate)
 

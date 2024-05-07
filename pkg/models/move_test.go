@@ -19,7 +19,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	. "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
