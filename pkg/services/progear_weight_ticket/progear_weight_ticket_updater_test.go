@@ -147,6 +147,7 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
+		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.SubmittedWeight)
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
@@ -175,6 +176,7 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
+		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.SubmittedWeight)
 		suite.Len(updatedProgearWeightTicket.Document.UserUploads, 2)
 	})
 
