@@ -7639,6 +7639,17 @@ func init() {
           "type": "string",
           "example": "1K43AR"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lockedByOfficeUser": {
+          "$ref": "#/definitions/OfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid"
+        },
         "orders": {
           "$ref": "#/definitions/Order"
         },
@@ -20530,6 +20541,17 @@ func init() {
         "locator": {
           "type": "string",
           "example": "1K43AR"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lockedByOfficeUser": {
+          "$ref": "#/definitions/OfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid"
         },
         "orders": {
           "$ref": "#/definitions/Order"

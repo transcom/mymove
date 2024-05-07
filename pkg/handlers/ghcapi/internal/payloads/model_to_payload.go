@@ -38,6 +38,16 @@ func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
 	return payload
 }
 
+func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.OfficeUser {
+	payload := ghcmessages.OfficeUser{
+		FirstName: &officeUser.FirstName,
+		LastName:  &officeUser.LastName,
+		Email:     &officeUser.Email,
+		Telephone: &officeUser.Telephone,
+	}
+	return &payload
+}
+
 // Move payload
 func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
@@ -76,6 +86,9 @@ func Move(move *models.Move) *ghcmessages.Move {
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
 		ShipmentGBLOC:                gbloc,
+		LockedByOfficeUserID:         *handlers.FmtUUID(*move.LockedByOfficeUserID),
+		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
+		LockExpiresAt:                strfmt.DateTime(*move.LockExpiresAt),
 	}
 
 	return payload
