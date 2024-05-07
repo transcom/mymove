@@ -19,6 +19,7 @@ type ProgearWeightTicket struct {
 	Description      *string            `json:"description" db:"description"`
 	HasWeightTickets *bool              `json:"has_weight_tickets" db:"has_weight_tickets"`
 	Weight           *unit.Pound        `json:"weight" db:"weight"`
+	SubmittedWeight  *unit.Pound        `json:"submitted_weight" db:"submitted_weight"`
 	DocumentID       uuid.UUID          `json:"document_id" db:"document_id"`
 	Document         Document           `belongs_to:"documents" fk_id:"document_id"`
 	Status           *PPMDocumentStatus `json:"status" db:"status"`
