@@ -2225,7 +2225,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
@@ -14234,7 +14234,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Office users"
+          "officeUsers"
         ],
         "summary": "Create an Office User",
         "operationId": "createRequestedOfficeUser",
