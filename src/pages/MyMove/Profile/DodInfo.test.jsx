@@ -54,13 +54,17 @@ describe('DodInfo page', () => {
     const testServiceMemberValues = {
       id: 'testServiceMemberId',
       affiliation: 'ARMY',
-      edipi: '9999999999',
+    };
+    const testOktaValues = {
+      cac_edipi: '1234567890',
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<DodInfo {...testProps} serviceMember={testServiceMemberValues} />);
+    const { queryByText } = render(
+      <DodInfo {...testProps} serviceMember={testServiceMemberValues} oktaUser={testOktaValues} />,
+    );
 
     const submitButton = queryByText('Next');
     expect(submitButton).toBeInTheDocument();
@@ -80,6 +84,9 @@ describe('DodInfo page', () => {
       affiliation: 'ARMY',
       edipi: '9999999999',
     };
+    const testOktaValues = {
+      cac_edipi: '1234567890',
+    };
 
     patchServiceMember.mockImplementation(() =>
       // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
@@ -95,7 +102,9 @@ describe('DodInfo page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<DodInfo {...testProps} serviceMember={testServiceMemberValues} />);
+    const { queryByText } = render(
+      <DodInfo {...testProps} serviceMember={testServiceMemberValues} oktaUser={testOktaValues} />,
+    );
 
     const submitButton = queryByText('Next');
     expect(submitButton).toBeInTheDocument();
