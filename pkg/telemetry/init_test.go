@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/telemetry/metrictest"
 )
 
+// nolint:staticcheck
 func (suite *TelemetrySuite) TestInitConfigDisabled() {
 	config := &Config{
 		Enabled: false,
