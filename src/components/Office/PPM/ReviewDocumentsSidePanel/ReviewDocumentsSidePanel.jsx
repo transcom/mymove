@@ -232,7 +232,7 @@ export default function ReviewDocumentsSidePanel({
                     <div className={classnames(styles.ItemDetails)}>
                       <dl>
                         <span className={classnames(styles.ReceiptTotal)}>
-                          <dt>Accepted Receipt Total:</dt>
+                          <dt>Accepted Receipt Totals:</dt>
                           <dd>${formatCents(total)}</dd>
                         </span>
                       </dl>
