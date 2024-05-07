@@ -1,4 +1,4 @@
-The PPTAS API gives you programmatic access to support functionality useful
-for testing and debugging.
+The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request
+information relating to current moves in progress.
 
 All endpoints are located at `/prime/pptas/`.
