@@ -229,7 +229,7 @@ export class OfficeApp extends Component {
 
                     {/* HQ */}
                     <Route
-                      path="/moves/queue"
+                      path="/hq-moves/queue"
                       end
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.HQ]}>
