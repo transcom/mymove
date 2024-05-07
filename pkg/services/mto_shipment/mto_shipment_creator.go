@@ -354,28 +354,16 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return err
 			}
 
-			//////////////////////////////////////////////////////////
-			// Hack
-			var movePostTrigger models.Move
-			moveID := shipment.MoveTaskOrderID
-			queryFilters := []services.QueryFilter{
-				query.NewQueryFilter("id", "=", moveID),
-			}
-			// check if Move exists
-			err = f.builder.FetchOne(appCtx, &movePostTrigger, queryFilters)
+			// This is to make sure SeqNum for move matches what is currently
+			// in database. DB Trigger updates to moves.shipment_seq_num but we
+			// have to ensure it does not get overwritten with stale data in the
+			// update following this check. If this is not done, stale data will cause
+			// a unique index constraint error for subsequent new shipments due to
+			// shipment_seq_num is not correct.
+			err = ensureMoveShipmentSeqNumIsInSync(f, appCtx, &move)
 			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return apperror.NewNotFoundError(moveID, "for move")
-				default:
-					return apperror.NewQueryError("Move", err, "")
-				}
+				return err
 			}
-			if len(movePostTrigger.MTOShipments) > *move.ShipmentSeqNum {
-				move.ShipmentSeqNum = models.IntPointer(len(movePostTrigger.MTOShipments))
-			}
-
-			/////////////////////////////////////////////////////////
 
 			verrs, err = f.builder.UpdateOne(txnAppCtx, &move, nil)
 			if err != nil {
@@ -453,5 +441,27 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Fields that cannot be set found while creating new shipment.")
 	}
 
+	return nil
+}
+
+func ensureMoveShipmentSeqNumIsInSync(f mtoShipmentCreator, appCtx appcontext.AppContext, move *models.Move) error {
+	var currentMove models.Move
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", move.ID),
+	}
+	err := f.builder.FetchOne(appCtx, &currentMove, queryFilters)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(move.ID, "for move")
+		default:
+			return apperror.NewQueryError("Move", err, "")
+		}
+	}
+	// Ensure ShipmentSeqNum matches current database value. Will use shipment count
+	// for true count.
+	if len(currentMove.MTOShipments) > *move.ShipmentSeqNum {
+		move.ShipmentSeqNum = models.IntPointer(len(currentMove.MTOShipments))
+	}
 	return nil
 }
