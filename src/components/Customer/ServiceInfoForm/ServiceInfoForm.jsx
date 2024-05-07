@@ -23,9 +23,6 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     last_name: Yup.string().required('Required'),
     suffix: Yup.string(),
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string()
-      .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
-      .required('Required'),
   });
 
   return (
@@ -75,6 +72,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                     maxLength="10"
                     inputMode="numeric"
                     pattern="[0-9]{10}"
+                    isDisabled
                   />
                 </Grid>
               </Grid>
