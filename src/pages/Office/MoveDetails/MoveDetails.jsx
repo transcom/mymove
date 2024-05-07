@@ -66,6 +66,9 @@ const MoveDetails = ({
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
+  const { [shipmentGroupKeys.keyNonPPM]: nonPPMShipments } = groupShipmentTypes(mtoShipments);
+  console.log('move', move);
+
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
 

@@ -4118,6 +4118,14 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+      lockedByOfficeUser:
+        $ref: '#/definitions/OfficeUser'
+      lockExpiresAt:
+        type: string
+        format: date-time
   MoveHistory:
     properties:
       id:

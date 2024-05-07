@@ -21,6 +21,7 @@ import (
 type GetMoveHandler struct {
 	handlers.HandlerConfig
 	services.MoveFetcher
+	services.MoveLocker
 }
 
 // Handle handles the getMove by locator request
@@ -34,7 +35,6 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 			}
 
 			move, err := h.FetchMove(appCtx, locator, nil)
-
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
 				switch err.(type) {
@@ -42,6 +42,13 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 					return moveop.NewGetMoveNotFound(), err
 				default:
 					return moveop.NewGetMoveInternalServerError(), err
+				}
+			}
+
+			if appCtx.Session().IsOfficeUser() {
+				move, err = h.LockMove(appCtx, move, appCtx.Session().OfficeUserID)
+				if err != nil {
+					return moveop.NewGetMoveBadRequest(), apperror.NewBadDataError("unable to lock move")
 				}
 			}
 
