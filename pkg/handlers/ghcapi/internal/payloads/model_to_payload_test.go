@@ -273,10 +273,10 @@ func (suite *PayloadsSuite) TestCustomer() {
 		CacValidated:         cacValidated,
 	}
 
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
-		returnedShipmentAddressUpdate := Customer(&customer)
+	suite.Run("Success - Returns a ghcmessages Customer payload from Customer Struct", func() {
+		customer := Customer(&customer)
 
-		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.Customer{})
+		suite.IsType(customer, &ghcmessages.Customer{})
 	})
 }
 
