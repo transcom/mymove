@@ -14,7 +14,7 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ab828282e822f49a59bcc1eca2b63f50e72dff66
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
