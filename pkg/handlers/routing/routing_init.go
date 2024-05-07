@@ -25,6 +25,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/pptasapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
+	"github.com/transcom/mymove/pkg/handlers/primeapiv3"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
 	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
 	"github.com/transcom/mymove/pkg/logging"
@@ -71,6 +72,8 @@ type Config struct {
 	PrimeSwaggerPath string
 	// The path to the prime V2 api swagger definition
 	PrimeV2SwaggerPath string
+	// The path to the prime V3 api swagger definition
+	PrimeV3SwaggerPath string
 
 	// Should the support api be served? Mostly only used in dev environments
 	ServeSupport bool
@@ -335,6 +338,22 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 					r.Method("GET", "/docs", http.NotFoundHandler())
 				}
 				api := primeapiv2.NewPrimeAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				r.Mount("/", api.Serve(tracingMiddleware))
+			})
+			// Setup version specific info for v3
+			primeRouter.Route("/v3", func(r chi.Router) {
+				r.Method("GET", "/swagger.yaml",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						routingConfig.PrimeV3SwaggerPath))
+				if routingConfig.ServeSwaggerUI {
+					r.Method("GET", "/docs",
+						handlers.NewFileHandler(routingConfig.FileSystem,
+							path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v3.html")))
+				} else {
+					r.Method("GET", "/docs", http.NotFoundHandler())
+				}
+				api := primeapiv3.NewPrimeAPI(routingConfig.HandlerConfig)
 				tracingMiddleware := middleware.OpenAPITracing(api)
 				r.Mount("/", api.Serve(tracingMiddleware))
 			})
@@ -603,7 +622,6 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 			r.Route("/open", func(rOpen chi.Router) {
 				rOpen.Mount("/", api.Serve(tracingMiddleware))
 			})
-
 			// Mux for GHC API that enforces auth
 			r.Route("/", func(rAuth chi.Router) {
 				rAuth.Use(userAuthMiddleware)

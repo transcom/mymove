@@ -8,7 +8,7 @@ import PrimeUIShipmentUpdate from './PrimeUIShipmentUpdate';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { updatePrimeMTOShipmentV2 } from 'services/primeApi';
+import { updatePrimeMTOShipmentV3 } from 'services/primeApi';
 
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
 const ppmShipmentId = '1b695b60-c3ed-401b-b2e3-808d095eb8cc';
@@ -30,6 +30,7 @@ jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
   updatePrimeMTOShipment: jest.fn().mockImplementation(() => Promise.resolve()),
   updatePrimeMTOShipmentV2: jest.fn().mockImplementation(() => Promise.resolve()),
+  updatePrimeMTOShipmentV3: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -428,7 +429,7 @@ expect(
 describe('successful submission of form', () => {
   it('calls history router back to move details', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
-    updatePrimeMTOShipmentV2.mockReturnValue({});
+    updatePrimeMTOShipmentV3.mockReturnValue({});
 
     render(mockedComponent);
 

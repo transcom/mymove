@@ -1,0 +1,52 @@
+type: object
+required:
+  - orderNumber
+  - rank
+  - linesOfAccounting
+properties:
+  id:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    type: string
+  customer:
+    $ref: '../Customer.yaml'
+  customerID:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    type: string
+  entitlement:
+    $ref: '../Entitlements.yaml'
+  destinationDutyLocation:
+    $ref: '../DutyLocation.yaml'
+  originDutyLocation:
+    $ref: '../DutyLocation.yaml'
+  originDutyLocationGBLOC:
+    type: string
+    example: 'KKFA'
+  rank:
+    type: string
+    example: 'E_5'
+  reportByDate:
+    type: string
+    format: date
+  ordersType:
+    $ref: '../../OrdersType.yaml'
+  orderNumber:
+    type: string
+  linesOfAccounting:
+    type: string
+  supplyAndServicesCostEstimate:
+    type: string
+    readOnly: true
+  packingAndShippingInstructions:
+    type: string
+    readOnly: true
+  methodOfPayment:
+    type: string
+    readOnly: true
+  naics:
+    type: string
+    readOnly: true
+  eTag:
+    type: string
+    readOnly: true
