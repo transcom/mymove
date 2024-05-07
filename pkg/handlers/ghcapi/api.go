@@ -15,7 +15,6 @@ import (
 	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/move"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -56,7 +55,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
-	moveLocker := movelocker.NewMoveLocker()
 	addressCreator := address.NewAddressCreator()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	officerUserCreator := officeusercreator.NewOfficeUserCreator(
@@ -98,7 +96,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerConfig: handlerConfig,
 		MoveFetcher:   move.NewMoveFetcher(),
-		MoveLocker:    moveLocker,
 	}
 
 	ghcAPI.MoveGetMoveHistoryHandler = GetMoveHistoryHandler{

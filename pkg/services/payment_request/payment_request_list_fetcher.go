@@ -141,8 +141,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"ProofOfServiceDocs.PrimeUploads.Upload",
 		"MoveTaskOrder.Contractor",
 		"MoveTaskOrder.Orders.ServiceMember",
-		"MoveTaskOrder.Orders.NewDutyLocation.Address",
-		"MoveTaskOrder.LockedByOfficeUser").
+		"MoveTaskOrder.Orders.NewDutyLocation.Address").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -150,7 +149,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
 		// Need to use left join because some duty locations do not have transportation offices
 		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
-		LeftJoin("office_users", "office_users.id = moves.locked_by").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		Where("moves.show = ?", models.BoolPointer(true))
