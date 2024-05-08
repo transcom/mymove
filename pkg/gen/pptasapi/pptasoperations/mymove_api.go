@@ -51,11 +51,10 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 }
 
 /*
-MymoveAPI The Prime API is a RESTful API that enables the Prime contractor to request
-information about upcoming moves, update the details and status of those moves,
-and make payment requests. It uses Mutual TLS for authentication procedures.
+MymoveAPI The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request
+information relating to current moves in progress.
 
-All endpoints are located at `/prime/v1/`.
+All endpoints are located at `/prime/pptas/`.
 */
 type MymoveAPI struct {
 	spec            *loads.Document
