@@ -40,6 +40,8 @@ tags:
   - name: transportationOffice
   - name: uploads
   - name: paymentRequests
+  - name: uploads
+  - name: paymentRequests
 paths:
   /open/requested-office-users:
     post:
