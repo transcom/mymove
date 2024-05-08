@@ -10,6 +10,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+type MoveOrderAmendmentAvailableSinceCount struct {
+	MoveID              uuid.UUID
+	Total               int
+	AvailableSinceTotal int
+}
+
+type MoveOrderAmendmentAvailableSinceCounts []MoveOrderAmendmentAvailableSinceCount
+
 // HiddenMove struct used to store the MTO ID and the reason that the move is being hidden.
 type HiddenMove struct {
 	MTOID  uuid.UUID
@@ -42,6 +50,7 @@ type MoveTaskOrderFetcher interface {
 	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 	ListNewPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, int, error)
 	GetMove(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error)
+	ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, MoveOrderAmendmentAvailableSinceCounts, error)
 }
 
 // MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
