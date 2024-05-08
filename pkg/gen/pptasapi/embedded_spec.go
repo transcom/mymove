@@ -29,7 +29,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "All endpoints are located at ` + "`" + `/prime/pptas` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
     "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
@@ -40,6 +40,7 @@ func init() {
     },
     "version": "0.0.1"
   },
+  "host": "primelocal",
   "basePath": "/prime/pptas",
   "paths": {
     "/moves": {
@@ -80,6 +81,49 @@ func init() {
           }
         }
       }
+    },
+    "/test/getMovesSince": {
+      "post": {
+        "description": "summary2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "summary",
+        "operationId": "movesSince",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/movesSince"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Moves returned sucessfully",
+            "schema": {
+              "$ref": "#/definitions/GetMovesSinceResponse"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -103,22 +147,38 @@ func init() {
         }
       }
     },
-    "Error": {
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
+    },
+    "GetMovesSinceResponse": {
       "type": "object",
-      "required": [
-        "title",
-        "detail"
-      ],
       "properties": {
-        "detail": {
-          "type": "string"
-        },
-        "instance": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "title": {
-          "type": "string"
+        "movesFound": {
+          "$ref": "#/definitions/SearchMoves"
         }
       }
     },
@@ -179,37 +239,117 @@ func init() {
       "items": {
         "$ref": "#/definitions/ListMove"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ]
+    },
+    "SearchMove": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "destinationDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "originDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        }
+      }
+    },
+    "SearchMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchMove"
+      }
+    },
+    "movesSince": {
+      "type": "object",
+      "properties": {
+        "moveSinceDate": {
+          "description": "moves retrieved since this date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "numMoves": {
+          "description": "number of moves to return",
+          "type": "integer"
+        }
+      }
     }
   },
   "responses": {
-    "InvalidRequest": {
-      "description": "The request payload is invalid.",
-      "schema": {
-        "$ref": "#/definitions/ClientError"
-      }
-    },
-    "NotImplemented": {
-      "description": "The requested feature is still in development.",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }
     },
-    "PreconditionFailed": {
-      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+    "ServerError": {
+      "description": "An unexpected error has occurred in the server.",
       "schema": {
         "$ref": "#/definitions/ClientError"
-      }
-    },
-    "ServerError": {
-      "description": "A server error occurred.",
-      "schema": {
-        "$ref": "#/definitions/Error"
       }
     }
   },
@@ -231,7 +371,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "All endpoints are located at ` + "`" + `/prime/pptas` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
     "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
@@ -242,6 +382,7 @@ func init() {
     },
     "version": "0.0.1"
   },
+  "host": "primelocal",
   "basePath": "/prime/pptas",
   "paths": {
     "/moves": {
@@ -284,9 +425,61 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred.",
+            "description": "An unexpected error has occurred in the server.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
+            }
+          }
+        }
+      }
+    },
+    "/test/getMovesSince": {
+      "post": {
+        "description": "summary2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "summary",
+        "operationId": "movesSince",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/movesSince"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Moves returned sucessfully",
+            "schema": {
+              "$ref": "#/definitions/GetMovesSinceResponse"
+            }
+          },
+          "400": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "An unexpected error has occurred in the server.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
             }
           }
         }
@@ -314,22 +507,38 @@ func init() {
         }
       }
     },
-    "Error": {
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
+    },
+    "GetMovesSinceResponse": {
       "type": "object",
-      "required": [
-        "title",
-        "detail"
-      ],
       "properties": {
-        "detail": {
-          "type": "string"
-        },
-        "instance": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "title": {
-          "type": "string"
+        "movesFound": {
+          "$ref": "#/definitions/SearchMoves"
         }
       }
     },
@@ -390,37 +599,117 @@ func init() {
       "items": {
         "$ref": "#/definitions/ListMove"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ]
+    },
+    "SearchMove": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "destinationDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "orderType": {
+          "type": "string"
+        },
+        "originDutyLocationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        }
+      }
+    },
+    "SearchMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchMove"
+      }
+    },
+    "movesSince": {
+      "type": "object",
+      "properties": {
+        "moveSinceDate": {
+          "description": "moves retrieved since this date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "numMoves": {
+          "description": "number of moves to return",
+          "type": "integer"
+        }
+      }
     }
   },
   "responses": {
-    "InvalidRequest": {
-      "description": "The request payload is invalid.",
-      "schema": {
-        "$ref": "#/definitions/ClientError"
-      }
-    },
-    "NotImplemented": {
-      "description": "The requested feature is still in development.",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }
     },
-    "PreconditionFailed": {
-      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+    "ServerError": {
+      "description": "An unexpected error has occurred in the server.",
       "schema": {
         "$ref": "#/definitions/ClientError"
-      }
-    },
-    "ServerError": {
-      "description": "A server error occurred.",
-      "schema": {
-        "$ref": "#/definitions/Error"
       }
     }
   },

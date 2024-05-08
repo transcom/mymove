@@ -32,6 +32,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	ListMoves(params *ListMovesParams, opts ...ClientOption) (*ListMovesOK, error)
 
+	MovesSince(params *MovesSinceParams, opts ...ClientOption) (*MovesSinceOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -79,6 +81,46 @@ func (a *Client) ListMoves(params *ListMovesParams, opts ...ClientOption) (*List
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for listMoves: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+MovesSince summaries
+
+summary2
+*/
+func (a *Client) MovesSince(params *MovesSinceParams, opts ...ClientOption) (*MovesSinceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewMovesSinceParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "movesSince",
+		Method:             "POST",
+		PathPattern:        "/test/getMovesSince",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &MovesSinceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*MovesSinceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for movesSince: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

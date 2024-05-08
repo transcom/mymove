@@ -262,10 +262,10 @@ func NewListMovesInternalServerError() *ListMovesInternalServerError {
 /*
 ListMovesInternalServerError describes a response with status code 500, with default header values.
 
-A server error occurred.
+An unexpected error has occurred in the server.
 */
 type ListMovesInternalServerError struct {
-	Payload *pptasmessages.Error
+	Payload *pptasmessages.ClientError
 }
 
 // IsSuccess returns true when this list moves internal server error response has a 2xx status code
@@ -306,13 +306,13 @@ func (o *ListMovesInternalServerError) String() string {
 	return fmt.Sprintf("[GET /moves][%d] listMovesInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *ListMovesInternalServerError) GetPayload() *pptasmessages.Error {
+func (o *ListMovesInternalServerError) GetPayload() *pptasmessages.ClientError {
 	return o.Payload
 }
 
 func (o *ListMovesInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(pptasmessages.Error)
+	o.Payload = new(pptasmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

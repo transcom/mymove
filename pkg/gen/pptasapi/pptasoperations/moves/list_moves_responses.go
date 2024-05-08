@@ -155,7 +155,7 @@ func (o *ListMovesForbidden) WriteResponse(rw http.ResponseWriter, producer runt
 const ListMovesInternalServerErrorCode int = 500
 
 /*
-ListMovesInternalServerError A server error occurred.
+ListMovesInternalServerError An unexpected error has occurred in the server.
 
 swagger:response listMovesInternalServerError
 */
@@ -164,7 +164,7 @@ type ListMovesInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload *pptasmessages.Error `json:"body,omitempty"`
+	Payload *pptasmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewListMovesInternalServerError creates ListMovesInternalServerError with default headers values
@@ -174,13 +174,13 @@ func NewListMovesInternalServerError() *ListMovesInternalServerError {
 }
 
 // WithPayload adds the payload to the list moves internal server error response
-func (o *ListMovesInternalServerError) WithPayload(payload *pptasmessages.Error) *ListMovesInternalServerError {
+func (o *ListMovesInternalServerError) WithPayload(payload *pptasmessages.ClientError) *ListMovesInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the list moves internal server error response
-func (o *ListMovesInternalServerError) SetPayload(payload *pptasmessages.Error) {
+func (o *ListMovesInternalServerError) SetPayload(payload *pptasmessages.ClientError) {
 	o.Payload = payload
 }
 
