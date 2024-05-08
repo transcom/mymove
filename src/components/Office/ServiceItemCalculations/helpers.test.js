@@ -3,30 +3,128 @@ import testParams from './serviceItemTestParams';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
+function testData(code) {
+  let result;
+  if (code === 'DCRT' || code === 'DUCRT') {
+    result = {
+      ...result,
+      'Crating size (cu ft)': '4.00',
+    };
+  }
+  if (code === 'DCRT') {
+    result = {
+      ...result,
+      'Crating price (per cu ft)': '1.71',
+    };
+  } else if (code === 'DUCRT') {
+    result = {
+      ...result,
+      'Uncrating price (per cu ft)': '1.71',
+    };
+  } else {
+    result = {
+      ...result,
+      'Billable weight (cwt)': '85 cwt',
+    };
+  }
+  if (code === 'DDDSIT') {
+    result = {
+      ...result,
+      Mileage: '51',
+      'SIT delivery price': '1.71',
+    };
+  } else if (code === 'DDDSITb') {
+    result = {
+      ...result,
+      Mileage: '3',
+      'SIT delivery price': '1.71',
+    };
+  } else if (code === 'DDDSITc') {
+    result = {
+      ...result,
+      'SIT delivery price': '1.71',
+    };
+  } else if (code !== 'DOFSIT' && code !== 'DDFSIT' && code !== 'DOPSIT' && code.includes('SIT')) {
+    result = {
+      ...result,
+      'SIT days invoiced': '2',
+      'Additional day SIT price': '1.71',
+    };
+  }
+  if (code === 'DOPSIT') {
+    result = {
+      ...result,
+      Mileage: '29',
+      'SIT pickup price': '1.71',
+    };
+  } else if (code === 'DLH') {
+    result = {
+      ...result,
+      Mileage: '210',
+      'Baseline linehaul price': '1.71',
+    };
+  } else if (code === 'DSH') {
+    result = {
+      ...result,
+      Mileage: '210',
+      'Baseline shorthaul price': '1.71',
+    };
+  }
+  if (code === 'DOP' || code === 'DOFSIT') {
+    result = {
+      ...result,
+      'Origin price': '1.71',
+    };
+  } else if (code === 'DDP') {
+    result = {
+      ...result,
+      'Destination price': '1.71',
+    };
+  }
+  if (!code.includes('FSC')) {
+    result = {
+      ...result,
+      'Price escalation factor': '1.033',
+    };
+  }
+  if (code.includes('FSC')) {
+    result = {
+      ...result,
+      'Total:': '$999.98',
+    };
+  } else {
+    result = {
+      ...result,
+      'Total:': '$999.99',
+    };
+  }
+
+  return result;
+}
+
+function testAB(a, b) {
+  const keys = Object.keys(b);
+  for (let j = 0; j < keys.length; j += 1) {
+    for (let i = 0; i < a.length; i += 1) {
+      if (i < a.length - 1) {
+        if (a[i].label === keys[j]) {
+          expect(a[i].value).toEqual(b[keys[j]]);
+          break;
+        }
+      } else {
+        expect(a[i].value).toEqual(b[keys[j]]);
+        break;
+      }
+    }
+  }
+}
+
 describe('makeCalculations', () => {
   it('returns correct data for DomesticLongHaul', () => {
     const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul, testParams.additionalCratingDataDCRT);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].details).toEqual([{ text: 'ZIP 32210 to ZIP 91910', styles: {} }]);
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DLH');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticLongHaul for NTS-release', () => {
@@ -37,27 +135,9 @@ describe('makeCalculations', () => {
       testParams.additionalCratingDataDCRT,
       SHIPMENT_OPTIONS.NTSR,
     );
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].details).toEqual([{ text: 'ZIP 32210 to ZIP 91910', styles: {} }]);
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DLH');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticLongHaul with reweigh weight', () => {
@@ -67,27 +147,9 @@ describe('makeCalculations', () => {
       testParams.DomesticLongHaulWithReweigh,
       testParams.additionalCratingDataDCRT,
     );
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].details).toEqual([{ text: 'ZIP 32210 to ZIP 91910', styles: {} }]);
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DLH');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticLongHaul weigh reweigh and adjusted weight', () => {
@@ -97,27 +159,9 @@ describe('makeCalculations', () => {
       testParams.DomesticLongHaulWeightWithAdjustedAndReweigh,
       testParams.additionalCratingDataDCRT,
     );
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].details).toEqual([{ text: 'ZIP 32210 to ZIP 91910', styles: {} }]);
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DLH');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticLongHaul with no reweigh but billable weight adjusted', () => {
@@ -127,457 +171,136 @@ describe('makeCalculations', () => {
       testParams.DomesticLongHaulWithAdjusted,
       testParams.additionalCratingDataDCRT,
     );
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].details).toEqual([{ text: 'ZIP 32210 to ZIP 91910', styles: {} }]);
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DLH');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticShortHaul', () => {
     const result = makeCalculations('DSH', 99999, testParams.DomesticShortHaul);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].details).toEqual([{ text: 'ZIP 32210 to ZIP 91910', styles: {} }]);
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DSH');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticOriginPrice', () => {
-    const result = makeCalculations('DOP', 99998, testParams.DomesticOriginPrice);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Origin price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.98');
-          break;
-        default:
-          break;
-      }
-    }
+    const result = makeCalculations('DOP', 99999, testParams.DomesticOriginPrice);
+    const expected = testData('DOP');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticDestinationPrice', () => {
     const result = makeCalculations('DDP', 99999, testParams.DomesticDestinationPrice);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Destination price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DDP');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticOrigin1stSIT', () => {
     const result = makeCalculations('DOFSIT', 99999, testParams.DomesticOrigin1stSIT);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Origin price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DOFSIT');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticDestination1stSIT', () => {
     const result = makeCalculations('DDFSIT', 99999, testParams.DomesticDestination1stSIT);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Destination price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Baseline linehaul price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DDFSIT');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticOriginAdditionalSIT', () => {
     const result = makeCalculations('DOASIT', 99999, testParams.DomesticOriginAdditionalSIT);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'SIT days invoiced':
-          expect(result[i].value).toEqual('2');
-          break;
-        case 'Additional day SIT price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DOASIT');
+
+    testAB(result, expected);
   });
 });
 describe('returns correct data for DomesticDestinationAdditionalSIT', () => {
   const result = makeCalculations('DDASIT', 99999, testParams.DomesticDestinationAdditionalSIT);
-  for (let i = 0; i < result.length; i += 1) {
-    switch (result[i].label) {
-      case 'Billable weight (cwt)':
-        expect(result[i].value).toEqual('85 cwt');
-        break;
-      case 'SIT days invoiced':
-        expect(result[i].value).toEqual('2');
-        break;
-      case 'Additional day SIT price':
-        expect(result[i].value).toEqual('1.71');
-        break;
-      case 'Price escalation factor':
-        expect(result[i].value).toEqual('1.033');
-        break;
-      case 'Fuel rate adjustment':
-        expect(result[i].value).toEqual('$999.99');
-        break;
-      default:
-        break;
-    }
-  }
+  const expected = testData('DDASIT');
+
+  testAB(result, expected);
 });
 
 it('returns correct data for DomesticOriginSITPickup', () => {
   const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
-  for (let i = 0; i < result.length; i += 1) {
-    switch (result[i].label) {
-      case 'Billable weight (cwt)':
-        expect(result[i].value).toEqual('85 cwt');
-        break;
-      case 'Mileage':
-        expect(result[i].value).toEqual('29');
-        break;
-      case 'SIT pickup price':
-        expect(result[i].value).toEqual('1.71');
-        break;
-      case 'Price escalation factor':
-        expect(result[i].value).toEqual('1.033');
-        break;
-      case 'Fuel rate adjustment':
-        expect(result[i].value).toEqual('$999.99');
-        break;
-      default:
-        break;
-    }
-  }
+  const expected = testData('DOPSIT');
+
+  testAB(result, expected);
 });
 
 describe('DomesticDestinationSITDelivery', () => {
   it('returns the correct data for mileage above 50', () => {
     const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryLonghaul);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].value).toEqual('51');
-          break;
-        case 'SIT pickup price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DDDSIT');
+
+    testAB(result, expected);
   });
 
   it('returns the correct data for mileage below 50 with matching ZIP3s', () => {
     const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDeliveryMatchingZip3);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage':
-          expect(result[i].value).toEqual('3');
-          break;
-        case 'SIT delivery price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DDDSITb');
+
+    testAB(result, expected);
   });
 
   it('returns the correct data for mileage below 50 with non-matching ZIP3s', () => {
     const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDelivery);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'SIT delivery price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DDDSITc');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticPacking', () => {
     const result = makeCalculations('DPK', 99999, testParams.DomesticPacking);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Pack price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DPK');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticNTSPacking', () => {
     const result = makeCalculations('DNPK', 99999, testParams.DomesticNTSPacking);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Pack price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'NTS packing factor':
-          expect(result[i].value).toEqual('1.35');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DNPK');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticUnpacking', () => {
     const result = makeCalculations('DUPK', 99999, testParams.DomesticUnpacking);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Unpack price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DUPK');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticCrating', () => {
     const result = makeCalculations('DCRT', 99999, testParams.DomesticCrating, testParams.additionalCratingDataDCRT);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Crating size (cu ft)':
-          expect(result[i].value).toEqual('4.00');
-          break;
-        case 'Crating price (per cu ft)':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DCRT');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticUncrating', () => {
     const result = makeCalculations('DUCRT', 99999, testParams.DomesticUncrating, testParams.additionalCratingDataDCRT);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Crating size (cu ft)':
-          expect(result[i].value).toEqual('4.00');
-          break;
-        case 'Uncrating price (per cu ft)':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DUCRT');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticOriginShuttleService', () => {
     const result = makeCalculations('DOSHUT', 99999, testParams.DomesticOriginShuttleService);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Origin price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DOSHUT');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for DomesticDestinationShuttleService', () => {
     const result = makeCalculations('DDSHUT', 99999, testParams.DomesticDestinationShuttleService);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Destination price':
-          expect(result[i].value).toEqual('1.71');
-          break;
-        case 'Price escalation factor':
-          expect(result[i].value).toEqual('1.033');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const expected = testData('DDSHUT');
+
+    testAB(result, expected);
   });
 
   it('returns correct data for NonStandardHHG', () => {
@@ -591,66 +314,24 @@ describe('DomesticDestinationSITDelivery', () => {
   });
 
   it('FuelSurcharge returns correct data for FSC', () => {
-    const result = makeCalculations('FSC', 99999, testParams.FuelSurchage);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Fuel surcharge price (per mi)':
-          expect(result[i].value).toEqual('0.1');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const result = makeCalculations('FSC', 99998, testParams.FuelSurchage);
+    const expected = testData('FSC');
+
+    testAB(result, expected);
   });
 
   it('FuelSurcharge returns correct data for DOSFSC', () => {
-    const result = makeCalculations('DOSFSC', 99999, testParams.DomesticOriginSITFuelSurchage);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage into SIT':
-          expect(result[i].value).toEqual('29');
-          break;
-        case 'SIT mileage factor':
-          expect(result[i].value).toEqual('0.012');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const result = makeCalculations('DOSFSC', 99998, testParams.DomesticOriginSITFuelSurchage);
+    const expected = testData('DOSFSC');
+
+    testAB(result, expected);
   });
 
   it('FuelSurcharge returns correct data for DDSFSC', () => {
-    const result = makeCalculations('DDSFSC', 99999, testParams.DomesticDestinationSITFuelSurchage);
-    for (let i = 0; i < result.length; i += 1) {
-      switch (result[i].label) {
-        case 'Billable weight (cwt)':
-          expect(result[i].value).toEqual('85 cwt');
-          break;
-        case 'Mileage into SIT':
-          expect(result[i].value).toEqual('29');
-          break;
-        case 'SIT fuel surcharge price (per mi)':
-          expect(result[i].value).toEqual('0.0');
-          break;
-        case 'Fuel rate adjustment':
-          expect(result[i].value).toEqual('$999.99');
-          break;
-        default:
-          break;
-      }
-    }
+    const result = makeCalculations('DDSFSC', 99998, testParams.DomesticDestinationSITFuelSurchage);
+    const expected = testData('DDSFSC');
+
+    testAB(result, expected);
   });
 
   // it('returns correct data for DomesticMobileHomeFactor', () => {
