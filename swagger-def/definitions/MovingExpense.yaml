@@ -80,6 +80,8 @@ properties:
   weightStored:
     description: The total weight stored in PPM SIT
     type: integer
+    x-nullable: true
+    x-omitempty: false
 required:
   - id
   - createdAt
@@ -87,4 +89,3 @@ required:
   - ppmShipmentId
   - documentId
   - document
-  - weightStored

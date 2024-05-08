@@ -35,6 +35,9 @@ type UpdateMovingExpense struct {
 
 	// status
 	Status PPMDocumentStatus `json:"status,omitempty"`
+
+	// The total weight stored in PPM SIT
+	WeightStored int64 `json:"weightStored,omitempty"`
 }
 
 // Validate validates this update moving expense

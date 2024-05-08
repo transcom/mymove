@@ -5365,6 +5365,9 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7465,6 +7468,8 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
@@ -7472,7 +7477,6 @@ definitions:
       - ppmShipmentId
       - documentId
       - document
-      - weightStored
   ProGearWeightTicket:
     description: Pro-gear associated information and weight docs for a PPM shipment
     type: object

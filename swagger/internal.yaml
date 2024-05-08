@@ -432,14 +432,12 @@ definitions:
           The date the shipment entered storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2022-04-26'
         format: date
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2018-05-26'
         format: date
       weightStored:
         description: The total weight stored in PPM SIT
@@ -2907,6 +2905,8 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
@@ -2914,7 +2914,6 @@ definitions:
       - ppmShipmentId
       - documentId
       - document
-      - weightStored
   ProGearWeightTicket:
     description: Pro-gear associated information and weight docs for a PPM shipment
     type: object

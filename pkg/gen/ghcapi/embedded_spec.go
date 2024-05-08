@@ -7885,8 +7885,7 @@ func init() {
         "updatedAt",
         "ppmShipmentId",
         "documentId",
-        "document",
-        "weightStored"
+        "document"
       ],
       "properties": {
         "amount": {
@@ -7988,7 +7987,9 @@ func init() {
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -10600,6 +10601,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -20615,8 +20620,7 @@ func init() {
         "updatedAt",
         "ppmShipmentId",
         "documentId",
-        "document",
-        "weightStored"
+        "document"
       ],
       "properties": {
         "amount": {
@@ -20718,7 +20722,9 @@ func init() {
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -23388,6 +23394,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
