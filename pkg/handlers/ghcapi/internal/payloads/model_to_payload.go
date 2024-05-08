@@ -962,7 +962,7 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	if movingExpense.WeightStored != nil {
-		payload.WeightStored = handlers.FmtInt64(int64(*movingExpense.WeightStored))
+		payload.WeightStored = handlers.FmtPoundPtr(movingExpense.WeightStored)
 	}
 
 	return payload
