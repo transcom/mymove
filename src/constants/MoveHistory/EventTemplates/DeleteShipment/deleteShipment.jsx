@@ -12,7 +12,7 @@ export default {
   getEventNameDisplay: () => 'Deleted shipment',
   getDetails: ({ context }) => (
     <>
-      {s[context[0].shipment_type]} shipment #{context[0].shipment_id_abbr.toUpperCase()} deleted
+      {s[context[0].shipment_type]} shipment #{context[0].shipment_locator} deleted
     </>
   ),
 };

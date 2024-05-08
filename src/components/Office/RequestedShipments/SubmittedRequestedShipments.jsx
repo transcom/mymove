@@ -88,7 +88,7 @@ const SubmittedRequestedShipments = ({
     },
     onSubmit: (values, { setSubmitting }) => {
       const mtoApprovalServiceItemCodes = {
-        serviceCodeMS: values.shipmentManagementFee,
+        serviceCodeMS: values.shipmentManagementFee && !moveTaskOrder.availableToPrimeAt,
         serviceCodeCS: values.counselingFee,
       };
 
