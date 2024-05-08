@@ -428,12 +428,16 @@ definitions:
         type: string
         example: "2018-05-26"
         format: date
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
     required:
       - movingExpenseType
       - description
       - paidWithGTCC
       - amount
       - missingReceipt
+      - weightStored
   MoveDocumentStatus:
     type: string
     title: Document status

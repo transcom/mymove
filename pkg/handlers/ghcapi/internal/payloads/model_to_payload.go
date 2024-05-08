@@ -937,6 +937,7 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		Amount:         handlers.FmtCost(movingExpense.Amount),
 		MissingReceipt: movingExpense.MissingReceipt,
 		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
+		WeightStored:   handlers.FmtInt64(int64(*movingExpense.WeightStored)),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := ghcmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
@@ -959,6 +960,10 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.SITEndDate != nil {
 		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
+	}
+
+	if movingExpense.WeightStored != nil {
+		payload.WeightStored = handlers.FmtInt64(int64(*movingExpense.WeightStored))
 	}
 
 	return payload

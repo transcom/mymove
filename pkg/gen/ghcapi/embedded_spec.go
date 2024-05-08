@@ -7885,7 +7885,8 @@ func init() {
         "updatedAt",
         "ppmShipmentId",
         "documentId",
-        "document"
+        "document",
+        "weightStored"
       ],
       "properties": {
         "amount": {
@@ -7984,6 +7985,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -20610,7 +20615,8 @@ func init() {
         "updatedAt",
         "ppmShipmentId",
         "documentId",
-        "document"
+        "document",
+        "weightStored"
       ],
       "properties": {
         "amount": {
@@ -20709,6 +20715,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },

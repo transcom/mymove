@@ -441,12 +441,16 @@ definitions:
         type: string
         example: '2018-05-26'
         format: date
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
     required:
       - movingExpenseType
       - description
       - paidWithGTCC
       - amount
       - missingReceipt
+      - weightStored
   MoveDocumentStatus:
     type: string
     title: Document status
@@ -2900,6 +2904,9 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
     required:
       - id
       - createdAt
@@ -2907,6 +2914,7 @@ definitions:
       - ppmShipmentId
       - documentId
       - document
+      - weightStored
   ProGearWeightTicket:
     description: Pro-gear associated information and weight docs for a PPM shipment
     type: object

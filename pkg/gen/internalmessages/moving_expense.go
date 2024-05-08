@@ -90,6 +90,10 @@ type MovingExpense struct {
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt"`
+
+	// The total weight stored in PPM SIT
+	// Required: true
+	WeightStored *int64 `json:"weightStored"`
 }
 
 // Validate validates this moving expense
@@ -137,6 +141,10 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateWeightStored(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -306,6 +314,15 @@ func (m *MovingExpense) validateUpdatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateWeightStored(formats strfmt.Registry) error {
+
+	if err := validate.Required("weightStored", "body", m.WeightStored); err != nil {
 		return err
 	}
 

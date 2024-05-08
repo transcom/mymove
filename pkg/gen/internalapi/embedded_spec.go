@@ -4858,7 +4858,8 @@ func init() {
         "updatedAt",
         "ppmShipmentId",
         "documentId",
-        "document"
+        "document",
+        "weightStored"
       ],
       "properties": {
         "amount": {
@@ -4957,6 +4958,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -6535,7 +6540,8 @@ func init() {
         "description",
         "paidWithGTCC",
         "amount",
-        "missingReceipt"
+        "missingReceipt",
+        "weightStored"
       ],
       "properties": {
         "amount": {
@@ -6568,6 +6574,10 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -12638,7 +12648,8 @@ func init() {
         "updatedAt",
         "ppmShipmentId",
         "documentId",
-        "document"
+        "document",
+        "weightStored"
       ],
       "properties": {
         "amount": {
@@ -12737,6 +12748,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -14316,7 +14331,8 @@ func init() {
         "description",
         "paidWithGTCC",
         "amount",
-        "missingReceipt"
+        "missingReceipt",
+        "weightStored"
       ],
       "properties": {
         "amount": {
@@ -14349,6 +14365,10 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },

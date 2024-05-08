@@ -77,6 +77,9 @@ properties:
     description: A hash that should be used as the "If-Match" header for any updates.
     type: string
     readOnly: true
+  weightStored:
+    description: The total weight stored in PPM SIT
+    type: integer
 required:
   - id
   - createdAt
@@ -84,3 +87,4 @@ required:
   - ppmShipmentId
   - documentId
   - document
+  - weightStored
