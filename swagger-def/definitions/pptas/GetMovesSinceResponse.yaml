@@ -1,0 +1,4 @@
+type: object
+properties:
+  movesFound:
+    $ref: '../../definitions/SearchMoves.yaml'

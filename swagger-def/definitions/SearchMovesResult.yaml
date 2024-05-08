@@ -1,0 +1,11 @@
+SearchMovesResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchMoves:
+        $ref: '../definitions/SearchMove.yaml'

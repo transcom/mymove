@@ -180,7 +180,7 @@ repos:
         name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
         language: script
-        files: swagger/(admin|prime|prime_v2|prime_v3|support).yaml
+        files: swagger/(admin|prime|prime_v2|prime_v3|support|pptas).yaml
         types: [yaml]
 
   - repo: local
