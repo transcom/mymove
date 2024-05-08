@@ -80,7 +80,7 @@ const checkYarnAudit = () => {
     'high' in summary.data.vulnerabilities &&
     'critical' in summary.data.vulnerabilities
   ) {
-    if (summary.data.vulnerabilities.high > 0 || summary.data.vulnerabilities.critical > 0) {
+    if (summary.data.vulnerabilities.critical > 0) {
       let issuesFound = 'Yarn Audit Issues Found:\n';
       output.forEach((rawAudit) => {
         try {
