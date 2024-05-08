@@ -41,6 +41,10 @@ definitions:
   ApplicationParameters:
     type: object
     properties:
+      validationCode:
+        type: string
+        format: string
+        x-nullable: true
       parameterName:
         type: string
         format: string

@@ -3346,6 +3346,11 @@ func init() {
         "parameterValue": {
           "type": "string",
           "format": "string"
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
         }
       }
     },
@@ -11126,6 +11131,11 @@ func init() {
         "parameterValue": {
           "type": "string",
           "format": "string"
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
         }
       }
     },
