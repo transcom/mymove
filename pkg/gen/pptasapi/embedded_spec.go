@@ -82,7 +82,7 @@ func init() {
         }
       }
     },
-    "/test/getMovesSince": {
+    "/test/get-moves-since": {
       "post": {
         "description": "summary2",
         "consumes": [
@@ -433,7 +433,7 @@ func init() {
         }
       }
     },
-    "/test/getMovesSince": {
+    "/test/get-moves-since": {
       "post": {
         "description": "summary2",
         "consumes": [

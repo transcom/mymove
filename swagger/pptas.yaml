@@ -28,7 +28,7 @@ schemes:
 tags:
   - name: moves
 paths:
-  /test/getMovesSince:
+  /test/get-moves-since:
     post:
       tags:
         - moves

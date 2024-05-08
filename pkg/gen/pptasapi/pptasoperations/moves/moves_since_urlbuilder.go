@@ -35,7 +35,7 @@ func (o *MovesSinceURL) SetBasePath(bp string) {
 func (o *MovesSinceURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/test/getMovesSince"
+	var _path = "/test/get-moves-since"
 
 	_basePath := o._basePath
 	if _basePath == "" {

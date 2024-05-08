@@ -1,4 +1,4 @@
-/test/getMovesSince:
+/test/get-moves-since:
   post:
     tags:
     - moves

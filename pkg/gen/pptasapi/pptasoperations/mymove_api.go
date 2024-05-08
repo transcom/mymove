@@ -274,7 +274,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/test/getMovesSince"] = moves.NewMovesSince(o.context, o.MovesMovesSinceHandler)
+	o.handlers["POST"]["/test/get-moves-since"] = moves.NewMovesSince(o.context, o.MovesMovesSinceHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

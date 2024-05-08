@@ -30,7 +30,7 @@ func NewMovesSince(ctx *middleware.Context, handler MovesSinceHandler) *MovesSin
 }
 
 /*
-	MovesSince swagger:route POST /test/getMovesSince moves movesSince
+	MovesSince swagger:route POST /test/get-moves-since moves movesSince
 
 summary
 

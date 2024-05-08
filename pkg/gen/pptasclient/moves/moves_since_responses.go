@@ -48,7 +48,7 @@ func (o *MovesSinceReader) ReadResponse(response runtime.ClientResponse, consume
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[POST /test/getMovesSince] movesSince", response, response.Code())
+		return nil, runtime.NewAPIError("[POST /test/get-moves-since] movesSince", response, response.Code())
 	}
 }
 
@@ -97,11 +97,11 @@ func (o *MovesSinceOK) Code() int {
 }
 
 func (o *MovesSinceOK) Error() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceOK  %+v", 200, o.Payload)
 }
 
 func (o *MovesSinceOK) String() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceOK  %+v", 200, o.Payload)
 }
 
 func (o *MovesSinceOK) GetPayload() *pptasmessages.GetMovesSinceResponse {
@@ -165,11 +165,11 @@ func (o *MovesSinceBadRequest) Code() int {
 }
 
 func (o *MovesSinceBadRequest) Error() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *MovesSinceBadRequest) String() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *MovesSinceBadRequest) GetPayload() *pptasmessages.ClientError {
@@ -233,11 +233,11 @@ func (o *MovesSinceUnauthorized) Code() int {
 }
 
 func (o *MovesSinceUnauthorized) Error() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *MovesSinceUnauthorized) String() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *MovesSinceUnauthorized) GetPayload() *pptasmessages.ClientError {
@@ -301,11 +301,11 @@ func (o *MovesSinceInternalServerError) Code() int {
 }
 
 func (o *MovesSinceInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *MovesSinceInternalServerError) String() string {
-	return fmt.Sprintf("[POST /test/getMovesSince][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[POST /test/get-moves-since][%d] movesSinceInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *MovesSinceInternalServerError) GetPayload() *pptasmessages.ClientError {
