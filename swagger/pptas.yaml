@@ -7,9 +7,18 @@ info:
     url: https://opensource.org/licenses/MIT
   contact:
     email: milmove-developers@caci.com
-  description: |
-    All endpoints are located at `/prime/pptas`.
+  description: >
+    The Prime API is a RESTful API that enables the Prime contractor to request
+
+    information about upcoming moves, update the details and status of those
+    moves,
+
+    and make payment requests. It uses Mutual TLS for authentication procedures.
+
+
+    All endpoints are located at `/prime/v1/`.
 basePath: /prime/pptas
+host: primelocal
 consumes:
   - application/json
 produces:
@@ -19,6 +28,34 @@ schemes:
 tags:
   - name: moves
 paths:
+  /test/getMovesSince:
+    post:
+      tags:
+        - moves
+      summary: summary
+      description: summary2
+      operationId: movesSince
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/movesSince'
+      responses:
+        '200':
+          description: Moves returned sucessfully
+          schema:
+            $ref: '#/definitions/GetMovesSinceResponse'
+        '400':
+          $ref: '#/responses/PermissionDenied'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves:
     get:
       summary: listMoves
@@ -66,7 +103,111 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  Error:
+  movesSince:
+    type: object
+    properties:
+      moveSinceDate:
+        type: string
+        description: moves retrieved since this date
+        format: date-time
+      numMoves:
+        type: integer
+        description: number of moves to return
+  MoveStatus:
+    type: string
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+  GBLOC:
+    type: string
+    enum:
+      - AGFM
+      - APAT
+      - BGAC
+      - BGNC
+      - BKAS
+      - CFMQ
+      - CLPK
+      - CNNQ
+      - DMAT
+      - GSAT
+      - HAFC
+      - HBAT
+      - JEAT
+      - JENQ
+      - KKFA
+      - LHNQ
+      - LKNQ
+      - MAPK
+      - MAPS
+      - MBFL
+      - MLNQ
+      - XXXX
+  SearchMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        example: '1234567890'
+        x-nullable: true
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+      branch:
+        type: string
+      shipmentsCount:
+        type: integer
+      originDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      destinationDutyLocationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
+      orderType:
+        type: string
+  SearchMoves:
+    type: array
+    items:
+      $ref: '#/definitions/SearchMove'
+  GetMovesSinceResponse:
+    type: object
+    properties:
+      movesFound:
+        $ref: '#/definitions/SearchMoves'
+  ClientError:
+    type: object
     properties:
       title:
         type: string
@@ -78,7 +219,7 @@ definitions:
     required:
       - title
       - detail
-    type: object
+      - instance
   ListMove:
     description: >
       An abbreviated definition for a move, without all the nested information
@@ -126,40 +267,12 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ListMove'
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
-        format: uuid
-    required:
-      - title
-      - detail
-      - instance
 responses:
-  InvalidRequest:
-    description: The request payload is invalid.
+  PermissionDenied:
+    description: The request was denied.
     schema:
       $ref: '#/definitions/ClientError'
   ServerError:
-    description: A server error occurred.
-    schema:
-      $ref: '#/definitions/Error'
-  NotImplemented:
-    description: The requested feature is still in development.
-    schema:
-      $ref: '#/definitions/Error'
-  PreconditionFailed:
-    description: >-
-      Precondition failed, likely due to a stale eTag (If-Match). Fetch the
-      request again to get the updated eTag value.
-    schema:
-      $ref: '#/definitions/ClientError'
-  PermissionDenied:
-    description: The request was denied.
+    description: An unexpected error has occurred in the server.
     schema:
       $ref: '#/definitions/ClientError'
