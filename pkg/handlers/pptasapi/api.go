@@ -18,13 +18,13 @@ func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	pptasApi := pptasops.NewMymoveAPI(pptasSpec)
-	pptasApi.ServeError = handlers.ServeCustomError
+	pptasAPI := pptasops.NewMymoveAPI(pptasSpec)
+	pptasAPI.ServeError = handlers.ServeCustomError
 
-	pptasApi.MovesListMovesHandler = ListMovesHandler{
+	pptasAPI.MovesListMovesHandler = ListMovesHandler{
 		HandlerConfig:        handlerConfig,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
-	return pptasApi.Serve(nil)
+	return pptasAPI.Serve(nil)
 }
