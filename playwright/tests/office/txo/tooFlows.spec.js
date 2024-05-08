@@ -481,7 +481,7 @@ test.describe('TOO user', () => {
       await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
 
       // Check the alert message with shipment locator
-      const alertText = await page.locator('[data-testid="alert"]').nth(1).textContent();
+      const alertText = await page.locator('[data-testid="alert"]').textContent();
       const shipmentNumberPattern = /Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})/;
       const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
       expect(hasValidShipmentNumber).toBeTruthy();
