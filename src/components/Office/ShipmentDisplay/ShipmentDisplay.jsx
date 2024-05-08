@@ -189,6 +189,7 @@ ShipmentDisplay.propTypes = {
       tacType: PropTypes.string,
       sacType: PropTypes.string,
       ntsRecordedWeight: PropTypes.number,
+      shipmentLocator: PropTypes.string,
     }),
     PropTypes.shape({
       heading: PropTypes.string.isRequired,
