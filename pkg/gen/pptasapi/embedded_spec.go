@@ -29,7 +29,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
+    "description": "The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request\ninformation relating to current moves in progress.\n\nAll endpoints are located at ` + "`" + `/prime/pptas/` + "`" + `.\n",
     "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
@@ -195,7 +195,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
+    "description": "The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request\ninformation relating to current moves in progress.\n\nAll endpoints are located at ` + "`" + `/prime/pptas/` + "`" + `.\n",
     "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
