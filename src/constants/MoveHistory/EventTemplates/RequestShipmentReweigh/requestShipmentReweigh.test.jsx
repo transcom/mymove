@@ -6,7 +6,7 @@ import e from 'constants/MoveHistory/EventTemplates/RequestShipmentReweigh/reque
 describe('when given a Request shipment reweigh history record', () => {
   const historyRecord = {
     action: 'INSERT',
-    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c', shipment_locator: 'ABC123-01' }],
     eventName: 'requestShipmentReweigh',
     tableName: 'reweighs',
   };
@@ -20,6 +20,6 @@ describe('when given a Request shipment reweigh history record', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #A1B2C, reweigh requested')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #ABC123-01, reweigh requested')).toBeInTheDocument();
   });
 });
