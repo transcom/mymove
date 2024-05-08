@@ -22,6 +22,9 @@ type ApplicationParameters struct {
 
 	// parameter value
 	ParameterValue string `json:"parameterValue,omitempty"`
+
+	// validation code
+	ValidationCode *string `json:"validationCode,omitempty"`
 }
 
 // Validate validates this application parameters
