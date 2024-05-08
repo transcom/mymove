@@ -1711,19 +1711,19 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
-		var strbloc string
+		var gbloc string
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			strbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
 			// though there can never be more than one GBLOC for a move.
-			strbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
+			gbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
-			strbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
 		var closeoutLocation string
 		if move.CloseoutOffice != nil {
@@ -1750,7 +1750,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
-			OriginGBLOC:             ghcmessages.GBLOC(strbloc),
+			OriginGBLOC:             ghcmessages.GBLOC(gbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
