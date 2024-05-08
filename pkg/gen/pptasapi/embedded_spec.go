@@ -81,49 +81,6 @@ func init() {
           }
         }
       }
-    },
-    "/test/get-moves-since": {
-      "post": {
-        "description": "summary2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "summary",
-        "operationId": "movesSince",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/movesSince"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Moves returned sucessfully",
-            "schema": {
-              "$ref": "#/definitions/GetMovesSinceResponse"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -144,41 +101,6 @@ func init() {
         },
         "title": {
           "type": "string"
-        }
-      }
-    },
-    "GBLOC": {
-      "type": "string",
-      "enum": [
-        "AGFM",
-        "APAT",
-        "BGAC",
-        "BGNC",
-        "BKAS",
-        "CFMQ",
-        "CLPK",
-        "CNNQ",
-        "DMAT",
-        "GSAT",
-        "HAFC",
-        "HBAT",
-        "JEAT",
-        "JENQ",
-        "KKFA",
-        "LHNQ",
-        "LKNQ",
-        "MAPK",
-        "MAPS",
-        "MBFL",
-        "MLNQ",
-        "XXXX"
-      ]
-    },
-    "GetMovesSinceResponse": {
-      "type": "object",
-      "properties": {
-        "movesFound": {
-          "$ref": "#/definitions/SearchMoves"
         }
       }
     },
@@ -238,104 +160,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ListMove"
-      }
-    },
-    "MoveStatus": {
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVED",
-        "CANCELED"
-      ]
-    },
-    "SearchMove": {
-      "type": "object",
-      "properties": {
-        "branch": {
-          "type": "string"
-        },
-        "destinationDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "dodID": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "1234567890"
-        },
-        "firstName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "John"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "lastName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "Doe"
-        },
-        "locator": {
-          "type": "string"
-        },
-        "orderType": {
-          "type": "string"
-        },
-        "originDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "shipmentsCount": {
-          "type": "integer"
-        },
-        "status": {
-          "$ref": "#/definitions/MoveStatus"
-        }
-      }
-    },
-    "SearchMoves": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SearchMove"
-      }
-    },
-    "movesSince": {
-      "type": "object",
-      "properties": {
-        "moveSinceDate": {
-          "description": "moves retrieved since this date",
-          "type": "string",
-          "format": "date-time"
-        },
-        "numMoves": {
-          "description": "number of moves to return",
-          "type": "integer"
-        }
       }
     }
   },
@@ -432,58 +256,6 @@ func init() {
           }
         }
       }
-    },
-    "/test/get-moves-since": {
-      "post": {
-        "description": "summary2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "summary",
-        "operationId": "movesSince",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/movesSince"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Moves returned sucessfully",
-            "schema": {
-              "$ref": "#/definitions/GetMovesSinceResponse"
-            }
-          },
-          "400": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "500": {
-            "description": "An unexpected error has occurred in the server.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -504,41 +276,6 @@ func init() {
         },
         "title": {
           "type": "string"
-        }
-      }
-    },
-    "GBLOC": {
-      "type": "string",
-      "enum": [
-        "AGFM",
-        "APAT",
-        "BGAC",
-        "BGNC",
-        "BKAS",
-        "CFMQ",
-        "CLPK",
-        "CNNQ",
-        "DMAT",
-        "GSAT",
-        "HAFC",
-        "HBAT",
-        "JEAT",
-        "JENQ",
-        "KKFA",
-        "LHNQ",
-        "LKNQ",
-        "MAPK",
-        "MAPS",
-        "MBFL",
-        "MLNQ",
-        "XXXX"
-      ]
-    },
-    "GetMovesSinceResponse": {
-      "type": "object",
-      "properties": {
-        "movesFound": {
-          "$ref": "#/definitions/SearchMoves"
         }
       }
     },
@@ -598,104 +335,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ListMove"
-      }
-    },
-    "MoveStatus": {
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVED",
-        "CANCELED"
-      ]
-    },
-    "SearchMove": {
-      "type": "object",
-      "properties": {
-        "branch": {
-          "type": "string"
-        },
-        "destinationDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "dodID": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "1234567890"
-        },
-        "firstName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "John"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "lastName": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "Doe"
-        },
-        "locator": {
-          "type": "string"
-        },
-        "orderType": {
-          "type": "string"
-        },
-        "originDutyLocationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "originGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "shipmentsCount": {
-          "type": "integer"
-        },
-        "status": {
-          "$ref": "#/definitions/MoveStatus"
-        }
-      }
-    },
-    "SearchMoves": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SearchMove"
-      }
-    },
-    "movesSince": {
-      "type": "object",
-      "properties": {
-        "moveSinceDate": {
-          "description": "moves retrieved since this date",
-          "type": "string",
-          "format": "date-time"
-        },
-        "numMoves": {
-          "description": "number of moves to return",
-          "type": "integer"
-        }
       }
     }
   },

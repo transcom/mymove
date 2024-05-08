@@ -43,11 +43,6 @@ func configureAPI(api *pptasoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.ListMoves has not yet been implemented")
 		})
 	}
-	if api.MovesMovesSinceHandler == nil {
-		api.MovesMovesSinceHandler = moves.MovesSinceHandlerFunc(func(params moves.MovesSinceParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.MovesSince has not yet been implemented")
-		})
-	}
 
 	api.PreServerShutdown = func() {}
 

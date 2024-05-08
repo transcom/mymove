@@ -1,31 +1,3 @@
-/test/get-moves-since:
-  post:
-    tags:
-    - moves
-    summary: summary
-    description: summary2
-    operationId: movesSince
-    produces:
-      - application/json
-    consumes:
-      - application/json
-    parameters:
-    - name: body
-      in: body
-      required: true
-      schema:
-        $ref: '../../parameters/movesSince.yaml'
-    responses:
-      '200':
-        description: Moves returned sucessfully
-        schema:
-          $ref: '../../definitions/pptas/GetMovesSinceResponse.yaml'
-      '400':
-        $ref: '../../responses/PermissionDenied.yaml'
-      '401':
-        $ref: '../../responses/PermissionDenied.yaml'
-      '500':
-        $ref: '../../responses/ServerError.yaml'
 /moves:
     get:
       summary: listMoves

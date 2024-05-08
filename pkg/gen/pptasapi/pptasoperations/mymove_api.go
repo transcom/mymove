@@ -47,9 +47,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesListMovesHandler: moves.ListMovesHandlerFunc(func(params moves.ListMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.ListMoves has not yet been implemented")
 		}),
-		MovesMovesSinceHandler: moves.MovesSinceHandlerFunc(func(params moves.MovesSinceParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.MovesSince has not yet been implemented")
-		}),
 	}
 }
 
@@ -94,8 +91,6 @@ type MymoveAPI struct {
 
 	// MovesListMovesHandler sets the operation handler for the list moves operation
 	MovesListMovesHandler moves.ListMovesHandler
-	// MovesMovesSinceHandler sets the operation handler for the moves since operation
-	MovesMovesSinceHandler moves.MovesSinceHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -175,9 +170,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MovesListMovesHandler == nil {
 		unregistered = append(unregistered, "moves.ListMovesHandler")
-	}
-	if o.MovesMovesSinceHandler == nil {
-		unregistered = append(unregistered, "moves.MovesSinceHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -271,10 +263,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves"] = moves.NewListMoves(o.context, o.MovesListMovesHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/test/get-moves-since"] = moves.NewMovesSince(o.context, o.MovesMovesSinceHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
