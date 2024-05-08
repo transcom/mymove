@@ -40,5 +40,14 @@ var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
 // This is ugly, but the best we can do with go's Postgresql adapter
 const RecordNotFoundErrorString = "sql: no rows in result set"
 
+// This is for when the office user email unique idx constraint is hit
+const UniqueConstraintViolationOfficeUserEmailErrorString = "pq: duplicate key value violates unique constraint \"office_users_email_idx\""
+
+// This is for when the office user edipi unique idx constraint is hit
+const UniqueConstraintViolationOfficeUserEdipiErrorString = "pq: duplicate key value violates unique constraint \"office_users_edipi_key\""
+
+// This is for when the office user other unique id unique idx constraint is hit
+const UniqueConstraintViolationOfficeUserOtherUniqueIDErrorString = "pq: duplicate key value violates unique constraint \"office_users_other_unique_id_key\""
+
 // ErrInvalidMoveID is used if a argument is provided in cases where a move ID is provided, but may be malformed, empty, or nonexistent
 var ErrInvalidMoveID = errors.New("INVALID_MOVE_ID")

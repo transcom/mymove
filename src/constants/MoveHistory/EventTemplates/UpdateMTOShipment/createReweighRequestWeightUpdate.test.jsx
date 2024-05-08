@@ -12,6 +12,7 @@ describe('when given an mto shipment reweigh request', () => {
       {
         shipment_type: 'PPM',
         shipment_id_abbr: 'b4b4b',
+        shipment_locator: 'ABC123-01',
       },
     ],
   };
@@ -23,6 +24,6 @@ describe('when given an mto shipment reweigh request', () => {
   it('displays the correct details component', () => {
     const result = getTemplate(historyRecord);
     render(result.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #B4B4B, reweigh requested')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #ABC123-01, reweigh requested')).toBeInTheDocument();
   });
 });
