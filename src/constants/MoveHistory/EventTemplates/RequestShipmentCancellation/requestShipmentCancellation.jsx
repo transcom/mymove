@@ -12,7 +12,7 @@ export default {
   getEventNameDisplay: () => 'Updated shipment',
   getDetails: ({ context }) => (
     <>
-      Requested cancellation for {s[context[0]?.shipment_type]} shipment #{context[0]?.shipment_id_abbr.toUpperCase()}
+      Requested cancellation for {s[context[0]?.shipment_type]} shipment #{context[0]?.shipment_locator}
     </>
   ),
 };
