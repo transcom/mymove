@@ -15,6 +15,7 @@ import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
 import { isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
@@ -67,6 +68,8 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
               </Alert>
             </div>
           )}
+
+          {siteName === 'office.move.mil' && <ConnectedFlashMessage />}
 
           <h1 className="align-center">Welcome to {siteName}!</h1>
           {showLoginWarning && (
