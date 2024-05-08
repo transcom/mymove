@@ -11,8 +11,9 @@ import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
-import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -42,6 +43,7 @@ const TXOMoveInfo = () => {
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
   const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { data } = useUserQueries();
 
   const hideNav =
     matchPath(
@@ -83,9 +85,28 @@ const TXOMoveInfo = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  // this locked move banner will display if the current user is not the one who has it locked
+  // if the current user is the one who has it locked, it will not display
+  const renderMoveLockBanner = () => {
+    const officeUser = data?.office_user;
+    if (move.lockedByOfficeUserID) {
+      if (move?.lockedByOfficeUserID !== officeUser?.id) {
+        return (
+          <LockedMoveBanner data-testid="locked-move-banner">
+            This move is locked by {move.lockedByOfficeUser.firstName} {move.lockedByOfficeUser.lastName} at{' '}
+            {move.lockedByOfficeUser?.transportationOffice?.name}
+          </LockedMoveBanner>
+        );
+      }
+      return null;
+    }
+    return null;
+  };
+
   return (
     <>
       <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+      {renderMoveLockBanner()}
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.

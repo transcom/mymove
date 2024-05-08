@@ -1,4 +1,4 @@
-package lock_move
+package lockmove
 
 import (
 	"time"
@@ -27,10 +27,18 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 		return &models.Move{}, apperror.NewQueryError("OfficeUserID", err, "No office user provided in request to lock move")
 	}
 
+	// fetching office user
 	officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
 	if err != nil {
 		return nil, err
 	}
+
+	// fetching transportation office that office user belongs to
+	// this data will be used to display to read-only viewers in the UI
+	var transportationOffice models.TransportationOffice
+	err = appCtx.DB().Q().
+		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
+		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
 	if move.LockedByOfficeUserID != &officeUserID {
 		move.LockedByOfficeUserID = &officeUserID
@@ -40,12 +48,17 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 		move.LockedByOfficeUser = officeUser
 	}
 
+	if transportationOffice.ID != uuid.Nil {
+		move.LockedByOfficeUser.TransportationOffice = transportationOffice
+	}
+
+	// the lock will have a default expiration time of 30 minutes from initial opening
+	// this will reset with valid user activity
 	now := time.Now()
 	expirationTime := now.Add(30 * time.Minute)
 	move.LockExpiresAt = &expirationTime
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// save the move to the db
 		verrs, saveErr := appCtx.DB().ValidateAndSave(move)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(move.ID, nil, verrs, "Could not validate move while locking it.")

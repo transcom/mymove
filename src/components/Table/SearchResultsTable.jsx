@@ -3,6 +3,7 @@ import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
@@ -21,6 +22,18 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const moveSearchColumns = () => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+      return (
+        <div>
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null; // Return null if any condition is not met
+  }),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,

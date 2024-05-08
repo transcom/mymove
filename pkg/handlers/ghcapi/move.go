@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"errors"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -45,10 +46,23 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				}
 			}
 
+			// if this user is accessing the move record, we need to lock it so others can't edit it
+			// to allow for locking a move, we need to look at these things
+			// 1. Is the user an office user?
+			// 2. Are the columns empty (lock_expires_at & locked_by) in the db?
+			// 3. Is the lock_expires_at after right now?
+			// 4. Is the current user the one that locked it? This will reset the locked_at time.
+			// if all of those questions have the answer "yes", then we will proceed with locking the move by the current user
+			officeUserID := appCtx.Session().OfficeUserID
+			lockedOfficeUserID := move.LockedByOfficeUserID
+			lockExpiresAt := move.LockExpiresAt
+			now := time.Now()
 			if appCtx.Session().IsOfficeUser() {
-				move, err = h.LockMove(appCtx, move, appCtx.Session().OfficeUserID)
-				if err != nil {
-					return moveop.NewGetMoveBadRequest(), apperror.NewBadDataError("unable to lock move")
+				if move.LockedByOfficeUserID == nil && move.LockExpiresAt == nil || now.After(*lockExpiresAt) || *lockedOfficeUserID == officeUserID {
+					move, err = h.LockMove(appCtx, move, officeUserID)
+					if err != nil {
+						return moveop.NewGetMoveInternalServerError(), err
+					}
 				}
 			}
 

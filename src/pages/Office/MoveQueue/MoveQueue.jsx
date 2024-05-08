@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MoveQueue.module.scss';
 
@@ -25,6 +26,18 @@ import NotFound from 'components/NotFound/NotFound';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+      return (
+        <div>
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null; // Return null if any condition is not met
+  }),
   createHeader(
     'Customer name',
     (row) => {

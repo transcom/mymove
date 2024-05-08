@@ -47,6 +47,17 @@ type QueueMove struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
+	// lock expires at
+	// Format: date-time
+	LockExpiresAt *strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+
+	// locked by office user
+	LockedByOfficeUser *OfficeUser `json:"lockedByOfficeUser,omitempty"`
+
+	// locked by office user ID
+	// Format: uuid
+	LockedByOfficeUserID *strfmt.UUID `json:"lockedByOfficeUserID,omitempty"`
+
 	// order type
 	OrderType *string `json:"orderType,omitempty"`
 
@@ -100,6 +111,18 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockExpiresAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockedByOfficeUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockedByOfficeUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -220,6 +243,49 @@ func (m *QueueMove) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateLockExpiresAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockExpiresAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockExpiresAt", "body", "date-time", m.LockExpiresAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateLockedByOfficeUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockedByOfficeUser) { // not required
+		return nil
+	}
+
+	if m.LockedByOfficeUser != nil {
+		if err := m.LockedByOfficeUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("lockedByOfficeUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("lockedByOfficeUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateLockedByOfficeUserID(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockedByOfficeUserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockedByOfficeUserID", "body", "uuid", m.LockedByOfficeUserID.String(), formats); err != nil {
 		return err
 	}
 
@@ -361,6 +427,10 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateLockedByOfficeUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOriginDutyLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -434,6 +504,27 @@ func (m *QueueMove) contextValidateDestinationDutyLocation(ctx context.Context, 
 				return ve.ValidateName("destinationDutyLocation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("destinationDutyLocation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) contextValidateLockedByOfficeUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.LockedByOfficeUser != nil {
+
+		if swag.IsZero(m.LockedByOfficeUser) { // not required
+			return nil
+		}
+
+		if err := m.LockedByOfficeUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("lockedByOfficeUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("lockedByOfficeUser")
 			}
 			return err
 		}
