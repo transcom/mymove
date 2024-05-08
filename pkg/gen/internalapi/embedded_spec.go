@@ -5811,6 +5811,16 @@ func init() {
           "title": "Email",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "format": "edipi",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
+        },
         "first_name": {
           "type": "string",
           "title": "First name",
@@ -13590,6 +13600,16 @@ func init() {
           "type": "boolean",
           "title": "Email",
           "x-nullable": true
+        },
+        "emplid": {
+          "type": "string",
+          "format": "edipi",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
         },
         "first_name": {
           "type": "string",

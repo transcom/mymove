@@ -47,6 +47,7 @@ type ServiceMember struct {
 	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
 	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
+	Emplid                 *string                   `json:"emplid" db:"emplid"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
 	FirstName              *string                   `json:"first_name" db:"first_name"`
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`

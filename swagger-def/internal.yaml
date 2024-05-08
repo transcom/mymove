@@ -790,6 +790,15 @@ definitions:
         example: "5789345789"
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        format: edipi
+        pattern: '^\d{7}$'
+        minLength: 7
+        maxLength: 7
+        example: "5789345"
+        x-nullable: true
+        title: USCG EMPLID
       affiliation:
         $ref: "definitions/Affiliation.yaml"
       first_name:

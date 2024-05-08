@@ -213,6 +213,9 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
+	if payload.Emplid != nil {
+		serviceMember.Emplid = payload.Emplid
+	}
 
 	if payload.FirstName != nil {
 		serviceMember.FirstName = payload.FirstName

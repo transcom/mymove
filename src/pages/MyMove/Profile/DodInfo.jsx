@@ -36,6 +36,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
       id: serviceMember.id,
       affiliation: values.affiliation,
       edipi: values.edipi,
+      emplid: values.affiliation === 'COAST_GUARD' ? values.emplid : null,
     };
 
     return patchServiceMember(payload)
@@ -44,7 +45,13 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        let errorMessage;
+        if (e.response.body.message === 'Unhandled data error encountered') {
+          errorMessage = 'This EMPLID is already in use';
+        } else {
+          errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        }
+
         setServerError(errorMessage);
       });
   };
