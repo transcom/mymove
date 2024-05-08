@@ -69,6 +69,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
+    cac_user: true,
   };
 
   const handleBack = () => {
@@ -78,6 +79,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
     const createOktaAccount = values.create_okta_account === 'true';
+    const cacUser = values.cac_user === 'true';
 
     const body = {
       affiliation: values.affiliation,
@@ -99,6 +101,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
         phone: values[backupContactName].telephone,
       },
       createOktaAccount,
+      cacUser,
     };
 
     return createCustomerWithOktaOption({ body })
@@ -135,6 +138,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
     [backupAddressName]: requiredAddressSchema.required(),
     [backupContactName]: backupContactInfoSchema.required(),
     create_okta_account: Yup.boolean().required('Required'),
+    cac_user: Yup.boolean().required('Required'),
   });
 
   return (
@@ -323,6 +327,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                           label="Yes"
                           name="create_okta_account"
                           value="true"
+                          data-testid="create-okta-account-yes"
                         />
                         <Field
                           as={Radio}
@@ -330,6 +335,31 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                           label="No"
                           name="create_okta_account"
                           value="false"
+                          data-testid="create-okta-account-no"
+                        />
+                      </div>
+                    </Fieldset>
+                  </SectionWrapper>
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h3>Non-CAC Users</h3>
+                    <Fieldset className={styles.trailerOwnershipFieldset}>
+                      <legend className="usa-label">Does the customer have a CAC?</legend>
+                      <div className="grid-row grid-gap">
+                        <Field
+                          as={Radio}
+                          id="yesCacUser"
+                          label="Yes"
+                          name="cac_user"
+                          value="true"
+                          data-testid="cac-user-yes"
+                        />
+                        <Field
+                          as={Radio}
+                          id="NonCacUser"
+                          label="No"
+                          name="cac_user"
+                          value="false"
+                          data-testid="cac-user-no"
                         />
                       </div>
                     </Fieldset>
