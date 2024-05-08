@@ -16,6 +16,7 @@ describe('when given a Request shipment cancellation history record', () => {
       {
         shipment_id_abbr: 'acf7b',
         shipment_type: 'HHG',
+        shipment_locator: 'ABC123-01',
       },
     ],
   };
@@ -29,6 +30,6 @@ describe('when given a Request shipment cancellation history record', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('Requested cancellation for HHG shipment #ACF7B'));
+    expect(screen.getByText('Requested cancellation for HHG shipment #ABC123-01'));
   });
 });
