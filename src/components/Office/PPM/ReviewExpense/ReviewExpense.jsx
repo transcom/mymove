@@ -122,7 +122,9 @@ export default function ReviewExpense({
 
           const daysInSIT =
             values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
-              ? moment(values.sitEndDate, 'DD MMM YYYY').diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
+              ? moment(values.sitEndDate, 'DD MMM YYYY')
+                  .add(1, 'days')
+                  .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
               : '##';
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
