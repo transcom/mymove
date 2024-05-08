@@ -295,7 +295,7 @@ export class OfficeApp extends Component {
                       path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateCustomerForm />
+                          <CreateCustomerForm roleType={activeRole} />
                         </PrivateRoute>
                       }
                     />

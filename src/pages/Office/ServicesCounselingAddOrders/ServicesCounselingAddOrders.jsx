@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -46,14 +46,18 @@ const ServicesCounselingAddOrders = ({ customer }) => {
     },
   });
 
-  const safetyMoveEnabledFeatureFlag = isBooleanFlagEnabled('safety_move');
-  alert('sm ff? ', safetyMoveEnabledFeatureFlag);
-  // const allowedOrdersTypes = safetyMoveEnabledFeatureFlag
-  //   ? { SAFETY_MOVE: SPECIAL_ORDERS_TYPES.SAFETY_MOVE }
-  //   : ORDERS_TYPE_OPTIONS;
+  const [safetyMove, setSafetyMove] = useState(false);
 
-  // const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
-  const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
+  useEffect(() => {
+    isBooleanFlagEnabled('safety_move').then((enabled) => {
+      setSafetyMove(enabled);
+    });
+  }, []);
+
+  const allowedOrdersTypes = safetyMove
+    ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY_MOVE: SPECIAL_ORDERS_TYPES.SAFETY_MOVE } }
+    : ORDERS_TYPE_OPTIONS;
+  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   const initialValues = {
     ordersType: '',

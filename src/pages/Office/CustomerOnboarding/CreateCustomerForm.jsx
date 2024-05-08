@@ -22,8 +22,9 @@ import { backupContactInfoSchema, requiredAddressSchema } from 'utils/validation
 import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { getResponseError } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { roleTypes } from 'constants/userRoles';
 
-export const CreateCustomerForm = ({ setFlashMessage }) => {
+export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
   const navigate = useNavigate();
 
@@ -87,7 +88,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   const backupContactName = 'backup_contact';
 
   const initialValues = {
-    create_safety_move: '',
+    isSafetyMove: '',
     affiliation: '',
     edipi: '',
     first_name: '',
@@ -129,7 +130,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
 
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
-    const createSafetyMove = values.create_safety_move === 'true';
+    const createSafetyMove = values.isSafetyMove === 'true';
     const createOktaAccount = values.create_okta_account === 'true';
 
     const body = {
@@ -167,7 +168,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   };
 
   const validationSchema = Yup.object().shape({
-    create_safety_move: Yup.boolean().required('Required'),
+    isSafetyMove: Yup.boolean().required('Required'),
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
     edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
     first_name: Yup.string().required('Required'),
@@ -188,7 +189,10 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
     [residentialAddressName]: requiredAddressSchema.required(),
     [backupAddressName]: requiredAddressSchema.required(),
     [backupContactName]: backupContactInfoSchema.required(),
-    create_okta_account: Yup.boolean().required('Required'),
+    create_okta_account: Yup.boolean().when('isSafetyMove', {
+      is: false,
+      then: (schema) => schema.required('Required'),
+    }),
   });
 
   return (
@@ -208,17 +212,45 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
       <Grid className={styles.nameFormContainer}>
         <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-            {({ isValid, handleSubmit }) => {
+            {({ isValid, handleSubmit, setValues, values }) => {
+              const handleIsSafetyMove = (e) => {
+                const { checked } = e.target;
+                if (checked) {
+                  // clear out DoDID and OKTA fields
+                  setValues({
+                    ...values,
+                    edipi: '',
+                    create_okta_account: '',
+                    isSafetyMove: 'true',
+                  });
+                }
+              };
               return (
                 <Form className={formStyles.form}>
                   <h1 className={styles.header}>Create Customer Profile</h1>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Affiliation</h3>
+                    {roleType === roleTypes.SERVICES_COUNSELOR && <Alert>Role is SC</Alert>}
                     <Fieldset className={styles.trailerOwnershipFieldset}>
                       <legend className="usa-label">Is this a Safety Move?</legend>
                       <div className="grid-row grid-gap">
-                        <Field as={Radio} id="yesCreateSafetyMove" label="Yes" name="create_safety_move" value="true" />
-                        <Field as={Radio} id="noCreateSafetyMove" label="No" name="create_safety_move" value="false" />
+                        <Field
+                          as={Radio}
+                          id="isSafetyMoveYes"
+                          label="Yes"
+                          name="isSafetyMove"
+                          value="true"
+                          checked={values.isSafetyMove === 'true'}
+                          onChange={handleIsSafetyMove}
+                        />
+                        <Field
+                          as={Radio}
+                          id="isSafetyMoveNo"
+                          label="No"
+                          name="isSafetyMove"
+                          value="false"
+                          checked={values.isSafetyMove === 'false'}
+                        />
                       </div>
                     </Fieldset>
                     <DropdownInput
@@ -228,7 +260,14 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                       required
                       options={branchOptions}
                     />
-                    <TextField label="DoD ID number" name="edipi" id="edipi" labelHint="Optional" maxLength="10" />
+                    <TextField
+                      label="DoD ID number"
+                      name="edipi"
+                      id="edipi"
+                      labelHint="Optional"
+                      maxLength="10"
+                      isDisabled={values.isSafetyMove === 'true'}
+                    />
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Name</h3>
@@ -373,28 +412,30 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                       required
                     />
                   </SectionWrapper>
-                  <SectionWrapper className={formStyles.formSection}>
-                    <h3>Okta Account</h3>
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>
-                      <div className="grid-row grid-gap">
-                        <Field
-                          as={Radio}
-                          id="yesCreateOktaAccount"
-                          label="Yes"
-                          name="create_okta_account"
-                          value="true"
-                        />
-                        <Field
-                          as={Radio}
-                          id="noCreateOktaAccount"
-                          label="No"
-                          name="create_okta_account"
-                          value="false"
-                        />
-                      </div>
-                    </Fieldset>
-                  </SectionWrapper>
+                  {values.isSafetyMove !== 'true' && (
+                    <SectionWrapper className={formStyles.formSection} disabled={values.isSafetyMove === 'true'}>
+                      <h3>Okta Account</h3>
+                      <Fieldset className={styles.trailerOwnershipFieldset}>
+                        <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>
+                        <div className="grid-row grid-gap">
+                          <Field
+                            as={Radio}
+                            id="yesCreateOktaAccount"
+                            label="Yes"
+                            name="create_okta_account"
+                            value="true"
+                          />
+                          <Field
+                            as={Radio}
+                            id="noCreateOktaAccount"
+                            label="No"
+                            name="create_okta_account"
+                            value="false"
+                          />
+                        </div>
+                      </Fieldset>
+                    </SectionWrapper>
+                  )}
                   <div className={formStyles.formActions}>
                     <WizardNavigation
                       editMode

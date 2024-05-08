@@ -26,7 +26,7 @@ jest.mock('store/flash/actions', () => ({
 beforeEach(jest.resetAllMocks);
 
 const fakePayload = {
-  create_safety_move: 'true',
+  isSafetyMove: 'true',
   affiliation: 'ARMY',
   edipi: '1234567890',
   first_name: 'Shish',
