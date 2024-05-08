@@ -3787,6 +3787,8 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
       active:
         type: boolean
       roles:
@@ -5877,6 +5879,17 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/OfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -6060,6 +6073,13 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
   SearchMovesResult:
     type: object
     properties:
@@ -6369,27 +6389,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - SPACE_FORCE
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      SPACE_FORCE: Space Force
-      OTHER: OTHER
   Address:
     description: A postal address
     type: object
@@ -6548,41 +6547,6 @@ definitions:
       - city
       - state
       - postalCode
-  DutyLocation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - LOCAL_MOVE
-      - RETIREMENT
-      - SEPARATION
-      - WOUNDED_WARRIOR
-      - BLUEBARK
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      LOCAL_MOVE: Local Move
-      RETIREMENT: Retirement
-      SEPARATION: Separation
-      WOUNDED_WARRIOR: Wounded Warrior
-      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:
@@ -6626,6 +6590,62 @@ definitions:
       - address
       - created_at
       - updated_at
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
+      - RETIREMENT
+      - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      LOCAL_MOVE: Local Move
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   NullableString:
     type: string
     x-go-type:

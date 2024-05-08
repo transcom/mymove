@@ -80,6 +80,9 @@ type OfficeUser struct {
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone"`
 
+	// transportation office
+	TransportationOffice *TransportationOffice `json:"transportationOffice,omitempty"`
+
 	// transportation office Id
 	// Required: true
 	// Format: uuid
@@ -149,6 +152,10 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTelephone(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTransportationOffice(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -358,6 +365,25 @@ func (m *OfficeUser) validateTelephone(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *OfficeUser) validateTransportationOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.TransportationOffice) { // not required
+		return nil
+	}
+
+	if m.TransportationOffice != nil {
+		if err := m.TransportationOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("transportationOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportationOffice")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *OfficeUser) validateTransportationOfficeID(formats strfmt.Registry) error {
 
 	if err := validate.Required("transportationOfficeId", "body", m.TransportationOfficeID); err != nil {
@@ -408,6 +434,10 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateTransportationOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -447,6 +477,27 @@ func (m *OfficeUser) contextValidateRoles(ctx context.Context, formats strfmt.Re
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) contextValidateTransportationOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TransportationOffice != nil {
+
+		if swag.IsZero(m.TransportationOffice) { // not required
+			return nil
+		}
+
+		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("transportationOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("transportationOffice")
+			}
+			return err
+		}
 	}
 
 	return nil

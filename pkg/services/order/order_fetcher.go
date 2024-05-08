@@ -117,12 +117,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.OriginDutyLocation.Address",
 			"Orders.Entitlement",
 			"MTOShipments.PPMShipment",
+			"LockedByOfficeUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -137,6 +139,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"ShipmentGBLOC",
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
+			"LockedByOfficeUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -147,6 +150,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// and we don't want it to get hidden from services counselors.
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {

@@ -8184,6 +8184,9 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -9488,6 +9491,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/OfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -10067,6 +10084,15 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"
@@ -21087,6 +21113,9 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -22393,6 +22422,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/OfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -23022,6 +23065,15 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"

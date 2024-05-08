@@ -3643,6 +3643,8 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
+      transportationOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
       active:
         type: boolean
       roles:
@@ -5655,6 +5657,17 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/OfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5835,6 +5848,13 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
   SearchMovesResult:
     type: object
     properties:

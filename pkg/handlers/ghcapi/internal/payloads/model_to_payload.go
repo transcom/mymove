@@ -40,10 +40,12 @@ func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
 
 func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.OfficeUser {
 	payload := ghcmessages.OfficeUser{
-		FirstName: &officeUser.FirstName,
-		LastName:  &officeUser.LastName,
-		Email:     &officeUser.Email,
-		Telephone: &officeUser.Telephone,
+		FirstName:              &officeUser.FirstName,
+		LastName:               &officeUser.LastName,
+		Email:                  &officeUser.Email,
+		Telephone:              &officeUser.Telephone,
+		TransportationOfficeID: handlers.FmtUUID(officeUser.TransportationOfficeID),
+		TransportationOffice:   TransportationOffice(&officeUser.TransportationOffice),
 	}
 	return &payload
 }
@@ -1755,6 +1757,11 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			}
 		}
 
+		var officeUser models.OfficeUser
+		if move.LockedByOfficeUser != nil {
+			officeUser = *move.LockedByOfficeUser
+		}
+
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
 			Status:                  ghcmessages.MoveStatus(move.Status),
@@ -1772,6 +1779,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
 			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
+			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockedByOfficeUser:      OfficeUser(&officeUser),
+			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 		}
 	}
 	return &queueMoves
@@ -1982,6 +1992,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			RequestedDeliveryDate:             deliveryDate,
 			OriginGBLOC:                       originGBLOC,
 			DestinationGBLOC:                  destinationGBLOC,
+			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockExpiresAt:                     strfmt.DateTime(*move.LockExpiresAt),
 		}
 	}
 	return &searchMoves

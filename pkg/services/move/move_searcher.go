@@ -53,6 +53,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		"Orders.ServiceMember",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address",
+		"LockedByOfficeUser",
 	).
 		Join("orders", "orders.id = moves.orders_id").
 		Join("service_members", "service_members.id = orders.service_member_id").
