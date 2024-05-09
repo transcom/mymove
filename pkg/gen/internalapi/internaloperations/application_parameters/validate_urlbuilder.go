@@ -35,7 +35,7 @@ func (o *ValidateURL) SetBasePath(bp string) {
 func (o *ValidateURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/validation_code"
+	var _path = "/application_parameters"
 
 	_basePath := o._basePath
 	if _basePath == "" {

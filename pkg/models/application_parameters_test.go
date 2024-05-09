@@ -6,20 +6,21 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) Test_FetchValidationCode() {
-	validationCode := models.ApplicationParameters{
+func (suite *ModelSuite) Test_FetchParameterValue() {
+	parameterValue := models.ApplicationParameters{
 		ID:             uuid.Must(uuid.NewV4()),
-		ValidationCode: "TestCode123123",
+		ParameterName:  "validation_code",
+		ParameterValue: "TestCode123123",
 	}
-	suite.MustCreate(&validationCode)
+	suite.MustCreate(&parameterValue)
 
-	// if the code is found, it should return the same code provided
-	shouldHaveValue, err := models.FetchValidationCode(suite.DB(), "TestCode123123")
+	// if the value is found, it should return the same code provided
+	shouldHaveValue, err := models.FetchParameterValue(suite.DB(), "TestCode123123", "validation_code")
 	suite.NoError(err)
-	suite.Equal(validationCode.ValidationCode, shouldHaveValue.ValidationCode)
+	suite.Equal(parameterValue.ParameterValue, shouldHaveValue.ParameterValue)
 
-	// if the code is not found, it should return an empty string
-	shouldNotHaveValue, err := models.FetchValidationCode(suite.DB(), "TestCode123456")
+	// if the value is not found, it should return an empty string
+	shouldNotHaveValue, err := models.FetchParameterValue(suite.DB(), "TestCode123456", "validation_code")
 	suite.NoError(err)
-	suite.Equal("", shouldNotHaveValue.ValidationCode)
+	suite.Equal("", shouldNotHaveValue.ParameterValue)
 }
