@@ -1879,16 +1879,18 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 		}
 
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
-			ID:                 *handlers.FmtUUID(paymentRequest.ID),
-			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
-			Customer:           Customer(&orders.ServiceMember),
-			Status:             ghcmessages.QueuePaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
-			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
-			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
-			Locator:            moveTaskOrder.Locator,
-			OriginGBLOC:        gbloc,
-			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
-			OrderType:          (*string)(orders.OrdersType.Pointer()),
+			ID:                   *handlers.FmtUUID(paymentRequest.ID),
+			MoveID:               *handlers.FmtUUID(moveTaskOrder.ID),
+			Customer:             Customer(&orders.ServiceMember),
+			Status:               ghcmessages.QueuePaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
+			Age:                  math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
+			SubmittedAt:          *handlers.FmtDateTime(paymentRequest.CreatedAt),
+			Locator:              moveTaskOrder.Locator,
+			OriginGBLOC:          gbloc,
+			OriginDutyLocation:   DutyLocation(orders.OriginDutyLocation),
+			OrderType:            (*string)(orders.OrdersType.Pointer()),
+			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
+			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
 		}
 
 		if orders.DepartmentIndicator != nil {

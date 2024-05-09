@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentRequestQueue.module.scss';
 
@@ -28,6 +29,18 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 
 const columns = (showBranchFilter = true) => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+      return (
+        <div id={row.id}>
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',

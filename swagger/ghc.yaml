@@ -6004,6 +6004,14 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
