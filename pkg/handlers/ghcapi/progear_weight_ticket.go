@@ -16,6 +16,55 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// CreateProGearWeightTicketHandler
+type CreateProGearWeightTicketHandler struct {
+	handlers.HandlerConfig
+	progearCreator services.ProgearWeightTicketCreator
+}
+
+// Handle creating a progear weight ticket
+func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return progearops.NewCreateWeightTicketUnauthorized(), noSessionErr
+			}
+
+			if !appCtx.Session().IsOfficeApp() {
+				return progearops.NewUpdateMovingExpenseForbidden(), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
+				return progearops.NewCreateProGearWeightTicketBadRequest(), nil
+			}
+
+			progear, err := h.progearCreator.CreateProgearWeightTicket(appCtx, ppmShipmentID)
+
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.CreateProgearWeightTicketHandler", zap.Error(err))
+				switch err.(type) {
+				case apperror.InvalidInputError:
+					return progearops.NewCreateProGearWeightTicketUnprocessableEntity(), err
+				case apperror.ForbiddenError:
+					return progearops.NewCreateProGearWeightTicketForbidden(), err
+				case apperror.NotFoundError:
+					return progearops.NewCreateProGearWeightTicketNotFound(), err
+				default:
+					return progearops.NewCreateProGearWeightTicketInternalServerError(), err
+				}
+			}
+			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), progear)
+
+			if returnPayload == nil {
+				return progearops.NewCreateProGearWeightTicketInternalServerError(), err
+			}
+			return progearops.NewCreateProGearWeightTicketCreated().WithPayload(returnPayload), nil
+		})
+}
+
 // UpdateProgearWeightTicketHandler
 type UpdateProgearWeightTicketHandler struct {
 	handlers.HandlerConfig
