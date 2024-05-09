@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -42,6 +43,18 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
 const counselingColumns = () => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+      return (
+        <div id={row.id}>
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',

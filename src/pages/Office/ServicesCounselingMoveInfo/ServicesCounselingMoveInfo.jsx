@@ -8,10 +8,11 @@ import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
+import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -75,6 +76,7 @@ const ServicesCounselingMoveInfo = () => {
 
   const { moveCode } = useParams();
   const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { data } = useUserQueries();
 
   const { pathname } = useLocation();
   const hideNav =
@@ -124,6 +126,24 @@ const ServicesCounselingMoveInfo = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  // this locked move banner will display if the current user is not the one who has it locked
+  // if the current user is the one who has it locked, it will not display
+  const renderLockedBanner = () => {
+    const officeUser = data?.office_user;
+    if (move.lockedByOfficeUserID) {
+      if (move?.lockedByOfficeUserID !== officeUser?.id) {
+        return (
+          <LockedMoveBanner data-testid="locked-move-banner">
+            This move is locked by {move.lockedByOfficeUser?.firstName} {move.lockedByOfficeUser?.lastName} at{' '}
+            {move.lockedByOfficeUser?.transportationOffice?.name}
+          </LockedMoveBanner>
+        );
+      }
+      return null;
+    }
+    return null;
+  };
+
   return (
     <>
       <CustomerHeader
@@ -133,6 +153,8 @@ const ServicesCounselingMoveInfo = () => {
         moveCode={moveCode}
         userRole={roleTypes.SERVICES_COUNSELOR}
       />
+      {renderLockedBanner()}
+
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
