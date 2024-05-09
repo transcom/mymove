@@ -1286,7 +1286,7 @@ describe('Home component', () => {
       await wrapper.find(buttonId).simulate('click');
       await waitFor(() => {
         // scrape text from error modal
-        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork');
+        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
         expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
       });
     });
