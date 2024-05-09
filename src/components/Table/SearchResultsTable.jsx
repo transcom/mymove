@@ -33,7 +33,7 @@ const moveSearchColumns = (moveLockFlag) => [
         </div>
       );
     }
-    return null; // Return null if any condition is not met
+    return null;
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',

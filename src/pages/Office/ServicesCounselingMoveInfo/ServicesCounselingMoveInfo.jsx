@@ -138,7 +138,7 @@ const ServicesCounselingMoveInfo = () => {
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
     const officeUser = data?.office_user;
-    if (move.lockedByOfficeUserID && moveLockFlag) {
+    if (move?.lockedByOfficeUserID && moveLockFlag) {
       if (move?.lockedByOfficeUserID !== officeUser?.id) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
