@@ -923,3 +923,4 @@
 20240411201158_add_application_parameter_and_validation_code_table.up.sql
 20240416145256_update_safety_privilege_label.up.sql
 20240507155817_add_moving_expense_weight_stored.up.sql
+20240503123556_add_diversion_reason_to_mto_shipments.up.sql
