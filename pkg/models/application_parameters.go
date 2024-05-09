@@ -23,9 +23,9 @@ func (a ApplicationParameters) TableName() string {
 }
 
 // FetchParameterValue returns a specific parameter value from the db
-func FetchParameterValue(db *pop.Connection, code string, value string) (ApplicationParameters, error) {
-	var parameterValue ApplicationParameters
-	err := db.Q().Where(`parameter_value=$1 AND parameter_name=$2`, code, value).First(&parameterValue)
+func FetchParameterValue(db *pop.Connection, param string, value string) (ApplicationParameters, error) {
+	var parameter ApplicationParameters
+	err := db.Q().Where(`parameter_name=$1 AND parameter_value=$2`, param, value).First(&parameter)
 	// if it isn't found, we'll return an empty object
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -34,5 +34,5 @@ func FetchParameterValue(db *pop.Connection, code string, value string) (Applica
 		return ApplicationParameters{}, err
 	}
 
-	return parameterValue, nil
+	return parameter, nil
 }
