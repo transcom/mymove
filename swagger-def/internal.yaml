@@ -614,7 +614,6 @@ definitions:
         title: DoD ID number
       emplid:
         type: string
-        format: edipi
         pattern: '^\d{7}$'
         minLength: 7
         maxLength: 7
@@ -801,7 +800,6 @@ definitions:
         title: DoD ID number
       emplid:
         type: string
-        format: edipi
         pattern: '^\d{7}$'
         minLength: 7
         maxLength: 7

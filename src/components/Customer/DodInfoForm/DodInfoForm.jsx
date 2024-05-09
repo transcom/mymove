@@ -89,7 +89,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   required
                   maxLength="7"
                   inputMode="numeric"
-                  pattern="[0-9]{10}"
+                  pattern="[0-9]{7}"
                 />
               )}
             </SectionWrapper>

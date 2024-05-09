@@ -5813,7 +5813,6 @@ func init() {
         },
         "emplid": {
           "type": "string",
-          "format": "edipi",
           "title": "USCG EMPLID",
           "maxLength": 7,
           "minLength": 7,
@@ -6225,7 +6224,6 @@ func init() {
         },
         "emplid": {
           "type": "string",
-          "format": "edipi",
           "title": "USCG EMPLID",
           "maxLength": 7,
           "minLength": 7,
@@ -13613,7 +13611,6 @@ func init() {
         },
         "emplid": {
           "type": "string",
-          "format": "edipi",
           "title": "USCG EMPLID",
           "maxLength": 7,
           "minLength": 7,
@@ -14026,7 +14023,6 @@ func init() {
         },
         "emplid": {
           "type": "string",
-          "format": "edipi",
           "title": "USCG EMPLID",
           "maxLength": 7,
           "minLength": 7,
