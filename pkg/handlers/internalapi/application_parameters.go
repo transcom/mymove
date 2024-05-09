@@ -12,8 +12,8 @@ import (
 
 func payloadForApplicationParametersModel(v models.ApplicationParameters) internalmessages.ApplicationParameters {
 	payload := internalmessages.ApplicationParameters{
-		ParameterValue: *handlers.FmtString(v.ParameterValue),
-		ParameterName:  *handlers.FmtString(v.ParameterName),
+		ParameterValue: *handlers.FmtStringPtr(v.ParameterValue),
+		ParameterName:  *handlers.FmtStringPtr(v.ParameterName),
 	}
 	return payload
 }
