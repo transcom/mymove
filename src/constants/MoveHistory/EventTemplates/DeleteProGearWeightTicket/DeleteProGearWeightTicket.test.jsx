@@ -14,6 +14,7 @@ describe('When given a deleted pro-gear set history record', () => {
     context: [
       {
         shipment_id_abbr: '125d1',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
       },
     ],
@@ -32,6 +33,6 @@ describe('When given a deleted pro-gear set history record', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #125D1')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
   });
 });

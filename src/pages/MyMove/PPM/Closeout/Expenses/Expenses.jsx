@@ -68,7 +68,7 @@ const Expenses = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file, false)
       .then((upload) => {
         mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));

@@ -433,6 +433,9 @@ export function getMtoShipmentLabel({ context }) {
   if (context[0].name) {
     mtoShipmentLabels.service_item_name = context[0].name;
   }
+  if (context[0].shipment_locator) {
+    mtoShipmentLabels.shipment_locator = context[0].shipment_locator;
+  }
   return mtoShipmentLabels;
 }
 
