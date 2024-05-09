@@ -10,7 +10,7 @@ import styles from './CreateCustomerForm.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { generalRoutes } from 'constants/routes';
+import { servicesCounselingRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
@@ -123,7 +123,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   };
 
   const handleBack = () => {
-    navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
+    navigate(servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH);
   };
 
   const onSubmit = async (values) => {
@@ -155,7 +155,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
     return createCustomerWithOktaOption({ body })
       .then(() => {
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
-        navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
+        navigate(servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH);
       })
       .catch((e) => {
         const { response } = e;
