@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -23,20 +23,21 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const columns = (showBranchFilter = true) => [
+const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader('ID', 'id'),
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
       return (
-        <div>
+        <div data-testid="lock-icon">
           <FontAwesomeIcon icon="lock" />
         </div>
       );
     }
-    return null; // Return null if any condition is not met
+    return null;
   }),
   createHeader(
     'Customer name',
@@ -126,6 +127,16 @@ const MoveQueue = () => {
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -224,7 +235,7 @@ const MoveQueue = () => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(showBranchFilter)}
+          columns={columns(moveLockFlag, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}

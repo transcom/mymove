@@ -1980,6 +1980,16 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}
 
+		var lockedByOfficeUser uuid.UUID
+		if move.LockedByOfficeUserID != nil {
+			lockedByOfficeUser = *move.LockedByOfficeUserID
+		}
+
+		var lockExpiresAt time.Time
+		if move.LockExpiresAt != nil {
+			lockExpiresAt = *move.LockExpiresAt
+		}
+
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
@@ -1996,8 +2006,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			RequestedDeliveryDate:             deliveryDate,
 			OriginGBLOC:                       originGBLOC,
 			DestinationGBLOC:                  destinationGBLOC,
-			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
-			LockExpiresAt:                     strfmt.DateTime(*move.LockExpiresAt),
+			LockedByOfficeUserID:              handlers.FmtUUID(lockedByOfficeUser),
+			LockExpiresAt:                     strfmt.DateTime(lockExpiresAt),
 		}
 	}
 	return &searchMoves
