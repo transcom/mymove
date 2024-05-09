@@ -7,14 +7,20 @@ import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
 import DomesticCratingForm from './DomesticCratingForm';
+import StandaloneCratingForm from './StandaloneCratingForm';
 
 import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 
 const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) => {
-  const { MTOServiceItemOriginSIT, MTOServiceItemDestSIT, MTOServiceItemShuttle, MTOServiceItemDomesticCrating } =
-    createServiceItemModelTypes;
+  const {
+    MTOServiceItemOriginSIT,
+    MTOServiceItemDestSIT,
+    MTOServiceItemShuttle,
+    MTOServiceItemDomesticCrating,
+    MTOServiceItemStandaloneCrating,
+  } = createServiceItemModelTypes;
   const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
 
   const handleServiceItemTypeChange = (event) => {
@@ -31,6 +37,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
           <option value={MTOServiceItemDestSIT}>Destination SIT</option>
           <option value={MTOServiceItemShuttle}>Shuttle</option>
           <option value={MTOServiceItemDomesticCrating}>Domestic Crating</option>
+          <option value={MTOServiceItemStandaloneCrating}>Standalone Crating</option>
         </>
       </Dropdown>
       {selectedServiceItemType === MTOServiceItemOriginSIT && (
@@ -44,6 +51,9 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       )}
       {selectedServiceItemType === MTOServiceItemDomesticCrating && (
         <DomesticCratingForm shipment={shipment} submission={createServiceItemMutation} />
+      )}
+      {selectedServiceItemType === MTOServiceItemStandaloneCrating && (
+        <StandaloneCratingForm shipment={shipment} submission={createServiceItemMutation} />
       )}
     </div>
   );

@@ -600,6 +600,33 @@ func MTOServiceItemModel(mtoServiceItem primev3messages.MTOServiceItem) (*models
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
 			},
 		}
+	case primev3messages.MTOServiceItemModelTypeMTOServiceItemStandaloneCrating:
+		standaloneCrating := mtoServiceItem.(*primev3messages.MTOServiceItemStandaloneCrating)
+
+		// additional validation for this specific service item type
+		verrs := validateStandaloneCrating(*standaloneCrating)
+		if verrs.HasAny() {
+			return nil, verrs
+		}
+
+		// have to get code from payload
+		model.ReService.Code = models.ReServiceCode(*standaloneCrating.ReServiceCode)
+		model.Description = standaloneCrating.Description
+		model.Reason = standaloneCrating.Reason
+		model.Dimensions = models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: unit.ThousandthInches(*standaloneCrating.Item.Length),
+				Height: unit.ThousandthInches(*standaloneCrating.Item.Height),
+				Width:  unit.ThousandthInches(*standaloneCrating.Item.Width),
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: unit.ThousandthInches(*standaloneCrating.Crate.Length),
+				Height: unit.ThousandthInches(*standaloneCrating.Crate.Height),
+				Width:  unit.ThousandthInches(*standaloneCrating.Crate.Width),
+			},
+		}
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primev3messages.MTOServiceItemBasic)
@@ -780,6 +807,17 @@ func SITAddressUpdateModel(sitAddressUpdate *primev3messages.CreateSITAddressUpd
 }
 
 func validateDomesticCrating(m primev3messages.MTOServiceItemDomesticCrating) *validate.Errors {
+	return validate.Validate(
+		&models.ItemCanFitInsideCrateV3{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
+	)
+}
+
+func validateStandaloneCrating(m primev3messages.MTOServiceItemStandaloneCrating) *validate.Errors {
 	return validate.Validate(
 		&models.ItemCanFitInsideCrateV3{
 			Name:         "Item",

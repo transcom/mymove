@@ -251,6 +251,12 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 			return nil, err
 		}
 		return &result, nil
+	case "MTOServiceItemStandaloneCrating":
+		var result MTOServiceItemStandaloneCrating
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	}
 	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
 }

@@ -48,6 +48,8 @@ const serviceItemCodes = {
   MS: 'Move management',
   NSTH: 'Nonstandard HHG',
   NSTUB: 'Nonstandard UB',
+  SCRT: 'Standalone crating',
+  SUCRT: 'Standalone uncrating',
 };
 
 export default serviceItemCodes;
