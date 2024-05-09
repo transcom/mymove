@@ -1614,6 +1614,24 @@ func init() {
         }
       }
     },
+    "Amendments": {
+      "description": "Metadata outlining number of amendments for given order.\n",
+      "type": "object",
+      "required": [
+        "total",
+        "availableSince"
+      ],
+      "properties": {
+        "availableSince": {
+          "description": "The total count of amendments available since specified time.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "The total count of amendments.",
+          "type": "integer"
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -2111,6 +2129,9 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "amendments": {
+          "$ref": "#/definitions/Amendments"
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -6736,6 +6757,24 @@ func init() {
         }
       }
     },
+    "Amendments": {
+      "description": "Metadata outlining number of amendments for given order.\n",
+      "type": "object",
+      "required": [
+        "total",
+        "availableSince"
+      ],
+      "properties": {
+        "availableSince": {
+          "description": "The total count of amendments available since specified time.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "The total count of amendments.",
+          "type": "integer"
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -7233,6 +7272,9 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "amendments": {
+          "$ref": "#/definitions/Amendments"
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",

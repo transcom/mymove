@@ -5,7 +5,7 @@ import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
-import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
@@ -42,7 +42,7 @@ const ShipmentDisplay = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
-  const [isDownloadPacketErrorModalVisible, setIsDownloadPacketErrorModalVisible] = useState(false);
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -56,9 +56,12 @@ const ShipmentDisplay = ({
     'chevron-down': !isExpanded,
   });
 
-  const toggleDownloadPacketErrorModal = () => {
-    setIsDownloadPacketErrorModalVisible((prev) => !prev);
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
   };
+
+  const errorModalMessage =
+    "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -110,12 +113,9 @@ const ShipmentDisplay = ({
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
-          onErrorModalToggle={toggleDownloadPacketErrorModal}
+          onErrorModalToggle={toggleErrorModal}
         />
-        <DownloadPacketErrorModal
-          isOpen={isDownloadPacketErrorModalVisible}
-          closeModal={toggleDownloadPacketErrorModal}
-        />
+        <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton
