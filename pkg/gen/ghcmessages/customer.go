@@ -28,6 +28,9 @@ type Customer struct {
 	// backup contact
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
 
+	// cac validated
+	CacValidated bool `json:"cacValidated,omitempty"`
+
 	// current address
 	CurrentAddress *Address `json:"current_address,omitempty"`
 
