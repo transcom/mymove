@@ -616,10 +616,9 @@ const cratingSize = (params, mtoParams) => {
   return calculation(value, label, formatDetail(description), formatDetail(formattedDimensions));
 };
 
-// totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
-  const label = SERVICE_ITEM_CALCULATION_LABELS.FuelRateAdjustment;
+  const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}:`;
   const detail = '';
 
   return calculation(value, label, formatDetail(detail));
