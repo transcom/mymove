@@ -12,19 +12,20 @@ import (
 )
 
 type shipmentDiversionApprover struct {
-	router services.ShipmentRouter
+	router     services.ShipmentRouter
+	moveRouter services.MoveRouter
 }
 
 // NewShipmentDiversionApprover creates a new struct with the service dependencies
-func NewShipmentDiversionApprover(router services.ShipmentRouter) services.ShipmentDiversionApprover {
+func NewShipmentDiversionApprover(router services.ShipmentRouter, moveRouter services.MoveRouter) services.ShipmentDiversionApprover {
 	return &shipmentDiversionApprover{
-		router,
+		router, moveRouter,
 	}
 }
 
 // ApproveShipmentDiversion Approves the shipment diversion
 func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	shipment, err := FindShipment(appCtx, shipmentID)
+	shipment, err := FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +35,24 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.ApproveDiversion(appCtx, shipment)
-	if err != nil {
-		return nil, err
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		err = f.router.ApproveDiversion(appCtx, shipment)
+		if err != nil {
+			return err
+		}
+
+		move := shipment.MoveTaskOrder
+		if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+			if _, err = f.moveRouter.ApproveOrRequestApproval(appCtx, move); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
 	verrs, err := appCtx.DB().ValidateAndSave(shipment)
@@ -44,6 +60,9 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while approving the diversion.")
 
 		return nil, invalidInputError
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return shipment, err
