@@ -620,7 +620,7 @@ func FormatSITDaysInStorage(ppm models.PPMShipment) string {
 	firstDate := ppm.SITEstimatedDepartureDate
 	secondDate := *ppm.SITEstimatedEntryDate
 	difference := firstDate.Sub(secondDate)
-	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24))
+	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24)+1)
 	return formattedDifference
 }
 
