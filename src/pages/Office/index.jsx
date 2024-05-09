@@ -114,7 +114,7 @@ export class OfficeApp extends Component {
     // while still logged into Okta which will force a redirect to logout
     const currentUrl = new URL(window.location.href);
     const oktaLoggedOutParam = currentUrl.searchParams.get('okta_logged_out');
-
+    debugger;
     // If the params "okta_logged_out=true" are in the url, we will change some state
     // so a banner will display
     if (oktaLoggedOutParam === 'true') {
@@ -154,6 +154,7 @@ export class OfficeApp extends Component {
       },
       hasRecentError,
       traceId,
+      userPrivileges,
     } = this.props;
 
     // TODO - test login page?

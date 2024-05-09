@@ -922,3 +922,4 @@
 20240405190435_add_safety_privilege.up.sql
 20240411201158_add_application_parameter_and_validation_code_table.up.sql
 20240416145256_update_safety_privilege_label.up.sql
+20240509122101_fix_issue_safety_privilege.up.sql
