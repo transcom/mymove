@@ -30,6 +30,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
     edipi: serviceMember?.edipi || '',
+    emplid: serviceMember?.emplid || '',
   };
 
   const handleBack = () => {
