@@ -87,13 +87,13 @@ const TXOMoveInfo = () => {
 
   // this locked move banner will display if the current user is not the one who has it locked
   // if the current user is the one who has it locked, it will not display
-  const renderMoveLockBanner = () => {
+  const renderLockedBanner = () => {
     const officeUser = data?.office_user;
     if (move.lockedByOfficeUserID) {
       if (move?.lockedByOfficeUserID !== officeUser?.id) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
-            This move is locked by {move.lockedByOfficeUser.firstName} {move.lockedByOfficeUser.lastName} at{' '}
+            This move is locked by {move.lockedByOfficeUser?.firstName} {move.lockedByOfficeUser?.lastName} at{' '}
             {move.lockedByOfficeUser?.transportationOffice?.name}
           </LockedMoveBanner>
         );
@@ -106,7 +106,7 @@ const TXOMoveInfo = () => {
   return (
     <>
       <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
-      {renderMoveLockBanner()}
+      {renderLockedBanner()}
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
