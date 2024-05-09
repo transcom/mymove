@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
@@ -13,10 +13,19 @@ import requireCustomerState from 'containers/requireCustomerState/requireCustome
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const DodInfo = ({ updateServiceMember, serviceMember }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
+    };
+    fetchData();
+  });
 
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
@@ -36,7 +45,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
       id: serviceMember.id,
       affiliation: values.affiliation,
       edipi: values.edipi,
-      emplid: values.affiliation === 'COAST_GUARD' ? values.emplid : null,
+      emplid: values.affiliation === 'COAST_GUARD' && isEmplidEnabled ? values.emplid : null,
     };
 
     return patchServiceMember(payload)

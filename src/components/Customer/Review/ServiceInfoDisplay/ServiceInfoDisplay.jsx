@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { string, bool } from 'prop-types';
 import { Link, useLocation } from 'react-router-dom';
 
 import serviceInfoDisplayStyles from './ServiceInfoDisplay.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServiceInfoDisplay = ({
   affiliation,
   originTransportationOfficeName,
   originTransportationOfficePhone,
   edipi,
+  emplid,
   firstName,
   isEditable,
   showMessage,
@@ -18,6 +20,14 @@ const ServiceInfoDisplay = ({
   editURL,
 }) => {
   const { state } = useLocation();
+  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
+    };
+    fetchData();
+  });
 
   return (
     <div className={serviceInfoDisplayStyles.serviceInfoContainer}>
@@ -53,6 +63,13 @@ const ServiceInfoDisplay = ({
             <dt>DoD ID#</dt>
             <dd>{edipi}</dd>
           </div>
+
+          {affiliation === 'Coast Guard' && isEmplidEnabled && (
+            <div className={descriptionListStyles.row}>
+              <dt>EMPLID</dt>
+              <dd>{emplid}</dd>
+            </div>
+          )}
         </dl>
       </div>
     </div>

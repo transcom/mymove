@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -13,9 +13,19 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
+  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
+  const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
+    };
+    fetchData();
+  });
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),
@@ -26,11 +36,32 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     edipi: Yup.string()
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
+    emplid: Yup.string().when('showEmplid', () => {
+      if (showEmplid && isEmplidEnabled)
+        return Yup.string()
+          .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
+          .required('Required');
+      return Yup.string().nullable();
+    }),
   });
 
   return (
-    <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+    <Formik
+      initialValues={initialValues}
+      validateOnMount
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+      showEmplid={showEmplid}
+      setShowEmplid={setShowEmplid}
+    >
+      {({ isValid, isSubmitting, handleSubmit, handleChange }) => {
+        const handleBranchChange = (e) => {
+          if (e.target.value === 'COAST_GUARD') {
+            setShowEmplid(true);
+          } else {
+            setShowEmplid(false);
+          }
+        };
         return (
           <Form className={formStyles.form}>
             <h1>Edit service info</h1>
@@ -61,8 +92,25 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                     id="affiliation"
                     required
                     options={branchOptions}
+                    onChange={(e) => {
+                      handleChange(e);
+                      handleBranchChange(e);
+                    }}
                   />
                 </Grid>
+                {showEmplid && isEmplidEnabled && (
+                  <Grid mobileLg={{ col: 6 }}>
+                    <TextField
+                      label="EMPLID"
+                      name="emplid"
+                      id="emplid"
+                      required
+                      maxLength="7"
+                      inputMode="numeric"
+                      pattern="[0-9]{7}"
+                    />
+                  </Grid>
+                )}
               </Grid>
 
               <Grid row gap>

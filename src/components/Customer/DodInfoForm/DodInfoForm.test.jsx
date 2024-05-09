@@ -4,11 +4,23 @@ import userEvent from '@testing-library/user-event';
 
 import DodInfoForm from './DodInfoForm';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 describe('DodInfoForm component', () => {
   const testProps = {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
     initialValues: { affiliation: '', edipi: '' },
     onBack: jest.fn(),
+  };
+
+  const coastGuardTestProps = {
+    ...testProps,
+    initialValues: { affiliation: 'COAST_GUARD', edipi: '6546546541' },
   };
 
   it('renders the form inputs', async () => {
@@ -75,6 +87,44 @@ describe('DodInfoForm component', () => {
 
     await waitFor(() => {
       expect(testProps.onBack).toHaveBeenCalled();
+    });
+  });
+
+  describe('Coast Guard Customers', () => {
+    it('shows an error message if EMPLID not present ', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...coastGuardTestProps} />);
+      await userEvent.click(getByLabelText('Branch of service'));
+      await userEvent.click(getByLabelText('DOD ID number'));
+      await userEvent.click(getByLabelText('EMPLID'));
+
+      const submitBtn = getByRole('button', { name: 'Next' });
+      await userEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(getAllByText('Required').length).toBe(1);
+        expect(submitBtn).toBeDisabled();
+      });
+      expect(testProps.onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('submits the form when its valid', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      const { getByRole, getByLabelText } = render(<DodInfoForm {...testProps} />);
+      const submitBtn = getByRole('button', { name: 'Next' });
+
+      await userEvent.selectOptions(getByLabelText('Branch of service'), ['COAST_GUARD']);
+      await userEvent.type(getByLabelText('DOD ID number'), '1234567890');
+      await userEvent.type(getByLabelText('EMPLID'), '1234567');
+
+      await userEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(testProps.onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({ affiliation: 'COAST_GUARD', edipi: '1234567890', emplid: '1234567' }),
+          expect.anything(),
+        );
+      });
     });
   });
 
