@@ -13,6 +13,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -43,6 +44,7 @@ const ServicesCounselingMoveInfo = () => {
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
@@ -60,18 +62,24 @@ const ServicesCounselingMoveInfo = () => {
   // Clear the alert when route changes
   const location = useLocation();
   useEffect(() => {
-    if (
-      infoSavedAlert &&
-      !matchPath(
-        {
-          path: servicesCounselingRoutes.BASE_MOVE_VIEW_PATH,
-          end: true,
-        },
-        location.pathname,
-      )
-    ) {
-      setInfoSavedAlert(null);
-    }
+    const fetchData = async () => {
+      if (
+        infoSavedAlert &&
+        !matchPath(
+          {
+            path: servicesCounselingRoutes.BASE_MOVE_VIEW_PATH,
+            end: true,
+          },
+          location.pathname,
+        )
+      ) {
+        setInfoSavedAlert(null);
+      }
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
   }, [infoSavedAlert, location]);
 
   const { moveCode } = useParams();
@@ -130,7 +138,7 @@ const ServicesCounselingMoveInfo = () => {
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
     const officeUser = data?.office_user;
-    if (move.lockedByOfficeUserID) {
+    if (move.lockedByOfficeUserID && moveLockFlag) {
       if (move?.lockedByOfficeUserID !== officeUser?.id) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">

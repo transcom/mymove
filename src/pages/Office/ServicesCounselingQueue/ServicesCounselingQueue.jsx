@@ -42,13 +42,13 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const counselingColumns = () => [
+const counselingColumns = (moveLockFlag) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt)) {
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
       return (
-        <div id={row.id}>
+        <div data-testid="lock-icon">
           <FontAwesomeIcon icon="lock" />
         </div>
       );
@@ -141,7 +141,19 @@ const counselingColumns = () => [
     isFilterable: true,
   }),
 ];
-const closeoutColumns = (ppmCloseoutGBLOC) => [
+const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+      return (
+        <div id={row.id}>
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -231,6 +243,7 @@ const ServicesCounselingQueue = () => {
   const navigate = useNavigate();
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
 
   // Feature Flag
@@ -239,6 +252,8 @@ const ServicesCounselingQueue = () => {
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
         setisCounselorMoveCreateFFEnabled(isEnabled);
+        const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+        setMoveLockFlag(lockedMoveFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -399,7 +414,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(inPPMCloseoutGBLOC)}
+          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}
@@ -420,7 +435,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns()}
+          columns={counselingColumns(moveLockFlag)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}

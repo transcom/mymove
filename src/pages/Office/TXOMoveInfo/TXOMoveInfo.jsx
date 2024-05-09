@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -14,6 +14,7 @@ import SystemError from 'components/SystemError';
 import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -38,12 +39,22 @@ const TXOMoveInfo = () => {
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
   const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   const hideNav =
     matchPath(
@@ -89,7 +100,7 @@ const TXOMoveInfo = () => {
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
     const officeUser = data?.office_user;
-    if (move.lockedByOfficeUserID) {
+    if (move.lockedByOfficeUserID && moveLockFlag) {
       if (move?.lockedByOfficeUserID !== officeUser?.id) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
