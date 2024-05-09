@@ -20,6 +20,7 @@ describe('When given a updated weight', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'f10be',
       },
     ],
@@ -40,6 +41,7 @@ describe('When given a updated weight', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'f10be',
       },
     ],
@@ -51,14 +53,14 @@ describe('When given a updated weight', () => {
     const template = getTemplate(progearRecord);
 
     render(template.getDetails(progearRecord));
-    expect(screen.getByText('PPM shipment #F10BE, Service member pro-gear')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01, Service member pro-gear')).toBeInTheDocument();
   });
 
   it('displays shipment type, shipment ID, and spouse properly', () => {
     const template = getTemplate(spouseProgearRecord);
 
     render(template.getDetails(spouseProgearRecord));
-    expect(screen.getByText('PPM shipment #F10BE, Spouse pro-gear')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01, Spouse pro-gear')).toBeInTheDocument();
   });
 
   it('displays weight updates', () => {
