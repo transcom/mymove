@@ -12,12 +12,12 @@ import (
 
 func payloadForApplicationParametersModel(v models.ApplicationParameters) internalmessages.ApplicationParameters {
 
-	parameterValue := *handlers.FmtStringPtr(v.ParameterValue)
-	parameterName := *handlers.FmtStringPtr(v.ParameterName)
+	parameterValue := v.ParameterValue
+	parameterName := v.ParameterName
 
 	payload := internalmessages.ApplicationParameters{
-		ParameterValue: &parameterValue,
-		ParameterName:  &parameterName,
+		ParameterValue: parameterValue,
+		ParameterName:  parameterName,
 	}
 	return payload
 }
