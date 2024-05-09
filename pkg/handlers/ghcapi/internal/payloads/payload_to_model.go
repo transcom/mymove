@@ -572,6 +572,7 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
 		Status:       (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
 		Reason:       handlers.FmtString(movingExpense.Reason),
+		WeightStored: handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
 	}
 
 	return model

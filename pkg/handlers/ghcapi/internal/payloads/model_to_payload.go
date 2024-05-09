@@ -965,6 +965,10 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
 	}
 
+	if movingExpense.WeightStored != nil {
+		payload.WeightStored = handlers.FmtPoundPtr(movingExpense.WeightStored)
+	}
+
 	return payload
 }
 

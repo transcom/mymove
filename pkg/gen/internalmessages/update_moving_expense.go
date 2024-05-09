@@ -40,14 +40,16 @@ type UpdateMovingExpense struct {
 	PaidWithGTCC *bool `json:"paidWithGTCC"`
 
 	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
-	// Example: 2018-05-26
 	// Format: date
 	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
 
 	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
-	// Example: 2022-04-26
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
+
+	// The total weight stored in PPM SIT
+	// Required: true
+	WeightStored *int64 `json:"weightStored"`
 }
 
 // Validate validates this update moving expense
@@ -79,6 +81,10 @@ func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitStartDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateWeightStored(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -166,6 +172,15 @@ func (m *UpdateMovingExpense) validateSitStartDate(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("sitStartDate", "body", "date", m.SitStartDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMovingExpense) validateWeightStored(formats strfmt.Registry) error {
+
+	if err := validate.Required("weightStored", "body", m.WeightStored); err != nil {
 		return err
 	}
 

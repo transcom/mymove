@@ -5292,6 +5292,9 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
   UpdateProGearWeightTicket:
     type: object
     properties:
