@@ -22,9 +22,6 @@ const ServicesCounselingMoveDetails = lazy(() =>
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
-const ServicesCounselingAddOrders = lazy(() =>
-  import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
-);
 const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
@@ -36,7 +33,6 @@ const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/Revi
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
-const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
 
 const ServicesCounselingMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -120,20 +116,6 @@ const ServicesCounselingMoveInfo = () => {
     matchPath(
       {
         path: servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH,
-        end: true,
-      },
-      pathname,
-    ) ||
-    matchPath(
-      {
-        path: servicesCounselingRoutes.BASE_ORDERS_ADD_PATH,
-        end: true,
-      },
-      pathname,
-    ) ||
-    matchPath(
-      {
-        path: servicesCounselingRoutes.BASE_CREATE_MOVE_EDIT_CUSTOMER_PATH,
         end: true,
       },
       pathname,
@@ -260,31 +242,6 @@ const ServicesCounselingMoveInfo = () => {
             path={servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH}
             exact
             element={<ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
-          />
-          <Route
-            path={servicesCounselingRoutes.CREATE_MOVE_EDIT_CUSTOMER_PATH}
-            exact
-            element={
-              <CreateMoveCustomerInfo
-                ordersId={order.id}
-                customer={customerData}
-                isLoading={isLoading}
-                isError={isError}
-                onUpdate={onInfoSavedUpdate}
-              />
-            }
-          />
-          <Route
-            path={servicesCounselingRoutes.ORDERS_ADD_PATH}
-            exact
-            element={
-              <ServicesCounselingAddOrders
-                ordersId={order.id}
-                customer={customerData}
-                isLoading={isLoading}
-                isError={isError}
-              />
-            }
           />
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={servicesCounselingRoutes.MOVE_VIEW_PATH} replace />} />

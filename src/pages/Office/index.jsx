@@ -90,6 +90,10 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
+const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
+const ServicesCounselingAddOrders = lazy(() =>
+  import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -273,6 +277,22 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+                    <Route
+                      path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateMoveCustomerInfo />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <ServicesCounselingAddOrders />
+                        </PrivateRoute>
+                      }
+                    />
                     {activeRole === roleTypes.TIO && (
                       <Route
                         path="/:queueType/*"
