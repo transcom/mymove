@@ -77,4 +77,17 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
     expect(screen.getByLabelText('Approve')).toBeInTheDocument();
     expect(screen.getByLabelText('Approve')).toBeChecked();
   });
+
+  it('EDITED advanceStatus should stay as APPROVED', async () => {
+    render(
+      <Formik
+        initialValues={{ advanceRequested: 'true', advance: '500', advanceStatus: 'EDITED' }}
+      >
+        <ShipmentIncentiveAdvance/>
+      </Formik>,
+    );
+
+    expect(screen.getByLabelText('Approve')).toBeInTheDocument();
+    expect(screen.getByLabelText('Approve')).toBeChecked();
+  });
 });
