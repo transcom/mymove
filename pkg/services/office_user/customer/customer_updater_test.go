@@ -49,6 +49,7 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 				PostalCode:     "12345",
 			},
 			BackupContacts: backupContacts,
+			CacValidated:   true,
 		}
 
 		expectedETag := etag.GenerateEtag(defaultCustomer.UpdatedAt)
@@ -66,5 +67,6 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		suite.Equal(updatedCustomer.BackupContacts[0].Name, actualCustomer.BackupContacts[0].Name)
 		suite.Equal(updatedCustomer.BackupContacts[0].Phone, actualCustomer.BackupContacts[0].Phone)
 		suite.Equal(updatedCustomer.BackupContacts[0].Email, actualCustomer.BackupContacts[0].Email)
+		suite.Equal(updatedCustomer.CacValidated, actualCustomer.CacValidated)
 	})
 }
