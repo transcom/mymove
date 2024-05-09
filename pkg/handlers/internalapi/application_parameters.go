@@ -38,7 +38,7 @@ func (h ApplicationParametersValidateHandler) Handle(params application_paramete
 			name := params.Body.ParameterName
 
 			// fetch the value, if not found it will be an empty string
-			result, _ := models.FetchParameterValue(appCtx.DB(), *value, *name)
+			result, _ := models.FetchParameterValue(appCtx.DB(), *name, *value)
 
 			parameterValuePayload := payloadForApplicationParametersModel(result)
 
