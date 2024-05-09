@@ -80,10 +80,8 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
 
   it('EDITED advanceStatus should stay as APPROVED', async () => {
     render(
-      <Formik
-        initialValues={{ advanceRequested: 'true', advance: '500', advanceStatus: 'EDITED' }}
-      >
-        <ShipmentIncentiveAdvance/>
+      <Formik initialValues={{ advanceRequested: 'true', advance: '500', advanceStatus: 'EDITED' }}>
+        <ShipmentIncentiveAdvance />
       </Formik>,
     );
 
