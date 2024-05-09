@@ -12,8 +12,8 @@ import (
 type ApplicationParameters struct {
 	ID             uuid.UUID `json:"id" db:"id"`
 	ValidationCode *string   `json:"validation_code" db:"validation_code"`
-	ParameterName  string    `json:"parameter_name" db:"parameter_name"`
-	ParameterValue string    `json:"parameter_value" db:"parameter_value"`
+	ParameterName  *string   `json:"parameter_name" db:"parameter_name"`
+	ParameterValue *string   `json:"parameter_value" db:"parameter_value"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
 }
