@@ -444,7 +444,6 @@ definitions:
       - paidWithGTCC
       - amount
       - missingReceipt
-      - weightStored
   MoveDocumentStatus:
     type: string
     title: Document status
