@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -11,17 +11,48 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
+  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
+  const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
+    };
+    fetchData();
+  });
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
+    emplid: Yup.string().when('showEmplid', () => {
+      if (showEmplid && isEmplidEnabled)
+        return Yup.string()
+          .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
+          .required('Required');
+      return Yup.string().nullable();
+    }),
   });
 
   return (
-    <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+    <Formik
+      initialValues={initialValues}
+      validateOnMount
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+      showEmplid={showEmplid}
+      setShowEmplid={setShowEmplid}
+    >
+      {({ isValid, isSubmitting, handleSubmit, handleChange }) => {
+        const handleBranchChange = (e) => {
+          if (e.target.value === 'COAST_GUARD') {
+            setShowEmplid(true);
+          } else {
+            setShowEmplid(false);
+          }
+        };
         return (
           <Form className={formStyles.form}>
             <h1>Create your profile</h1>
@@ -33,6 +64,10 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 id="affiliation"
                 required
                 options={branchOptions}
+                onChange={(e) => {
+                  handleChange(e);
+                  handleBranchChange(e);
+                }}
               />
               <TextField
                 label="DOD ID number"
@@ -44,6 +79,17 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 pattern="[0-9]{10}"
                 isDisabled
               />
+              {showEmplid && isEmplidEnabled && (
+                <TextField
+                  label="EMPLID"
+                  name="emplid"
+                  id="emplid"
+                  required
+                  maxLength="7"
+                  inputMode="numeric"
+                  pattern="[0-9]{7}"
+                />
+              )}
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

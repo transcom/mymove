@@ -40,6 +40,13 @@ type PatchServiceMemberPayload struct {
 	// Email
 	EmailIsPreferred *bool `json:"email_is_preferred,omitempty"`
 
+	// USCG EMPLID
+	// Example: 5789345
+	// Max Length: 7
+	// Min Length: 7
+	// Pattern: ^\d{7}$
+	Emplid *string `json:"emplid,omitempty"`
+
 	// First name
 	// Example: John
 	FirstName *string `json:"first_name,omitempty"`
@@ -100,6 +107,10 @@ func (m *PatchServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEdipi(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateEmplid(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -193,6 +204,26 @@ func (m *PatchServiceMemberPayload) validateEdipi(formats strfmt.Registry) error
 	}
 
 	if err := validate.Pattern("edipi", "body", *m.Edipi, `^\d{10}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PatchServiceMemberPayload) validateEmplid(formats strfmt.Registry) error {
+	if swag.IsZero(m.Emplid) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("emplid", "body", *m.Emplid, 7); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("emplid", "body", *m.Emplid, 7); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("emplid", "body", *m.Emplid, `^\d{7}$`); err != nil {
 		return err
 	}
 

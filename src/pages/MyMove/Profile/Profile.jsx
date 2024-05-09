@@ -121,6 +121,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
               payGrade={ORDERS_PAY_GRADE_OPTIONS[payGrade] || ''}
               edipi={serviceMember?.edipi || ''}
+              emplid={serviceMember?.emplid || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}
               showMessage={showMessages}
