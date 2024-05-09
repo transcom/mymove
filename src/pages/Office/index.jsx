@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Routes, Link, matchPath, Navigate } from 'react-router-dom';
@@ -33,6 +32,7 @@ import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
+import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { RouterShape, UserRolesShape } from 'types/index';
@@ -44,6 +44,7 @@ import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLo
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const RequestAccount = lazy(() => import('pages/Office/RequestAccount/RequestAccount'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
 // TXO
 const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
@@ -89,7 +90,6 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
-
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -192,7 +192,7 @@ export class OfficeApp extends Component {
             <CUIHeader />
             {userIsLoggedIn && activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
+            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {hasRecentError && location.pathname === '/' && (
@@ -215,6 +215,7 @@ export class OfficeApp extends Component {
                   // No Auth Routes
                   <Routes>
                     <Route path="/sign-in" element={<SignIn />} />
+                    <Route path="/request-account" element={<RequestAccount />} />
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
                     {/* 404 */}
@@ -267,6 +268,28 @@ export class OfficeApp extends Component {
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
                             <ServicesCounselingQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+                    {activeRole === roleTypes.TIO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+                            <PaymentRequestQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+                    {activeRole === roleTypes.TOO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <MoveQueue />
                           </PrivateRoute>
                         }
                       />
@@ -445,8 +468,8 @@ export class OfficeApp extends Component {
                     <Route end path="/select-application" element={<ConnectedSelectApplication />} />
 
                     {/* ROOT */}
-                    {activeRole === roleTypes.TIO && <Route end path="/" element={<PaymentRequestQueue />} />}
-                    {activeRole === roleTypes.TOO && <Route end path="/" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
+                    {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}

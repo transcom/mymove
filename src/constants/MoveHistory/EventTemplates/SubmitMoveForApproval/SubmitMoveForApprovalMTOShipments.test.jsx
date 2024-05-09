@@ -16,6 +16,7 @@ describe('when given a PPM shipment update', () => {
     context: [
       {
         shipment_type: 'HHG',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: '12992',
       },
     ],
@@ -24,7 +25,7 @@ describe('when given a PPM shipment update', () => {
   it('displays the correct label for shipment', () => {
     const result = getTemplate(historyRecord);
     render(result.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #12992')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   it('displays that the shipment was submitted', () => {

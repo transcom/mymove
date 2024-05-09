@@ -12,7 +12,7 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, ROLE_TYPE_OPTIONS, SortShape } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, SEARCH_QUEUE_STATUS_FILTER_OPTIONS, SortShape } from 'constants/queues';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
@@ -21,7 +21,7 @@ import { roleTypes } from 'constants/userRoles';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
-const columns = (roleType) => [
+const columns = () => [
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -58,7 +58,7 @@ const columns = (roleType) => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            options={SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />
@@ -155,7 +155,7 @@ const columns = (roleType) => [
   ),
 ];
 
-const columnsWithCreateMove = (roleType) => [
+const columnsWithCreateMove = () => [
   createHeader(
     'Create Move',
     (row) => {
@@ -187,7 +187,9 @@ const columnsWithCreateMove = (roleType) => [
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.lastName}, ${row.firstName}`}
         </div>
       );
@@ -208,7 +210,7 @@ const columnsWithCreateMove = (roleType) => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            options={SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />

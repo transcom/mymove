@@ -1,4 +1,4 @@
-import { test } from './servicesCounselingTestFixture';
+import { test, expect } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject moving expenses', async ({ page, scPage }) => {
   // Create a move with TestHarness, and then navigate to the move details page for it
@@ -91,4 +91,40 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
   // await page.getByRole('button', { name: 'Continue' }).click();
   // await expect(page.getByRole('radio', { name: 'Exclude' })).toBeChecked();
   // await expect(page.getByLabel('Reason')).toHaveValue('Reason for excluding storage');
+});
+
+test('Review documents page displays correct value for Total days in SIT', async ({ page, scPage }) => {
+  // Create a move with TestHarness, and then navigate to the move details page for it
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMMovingExpenseOffice();
+  await scPage.navigateToCloseoutMove(move.locator);
+
+  // Navigate to the "Review documents" page
+  await page.getByRole('button', { name: /Review documents/i }).click();
+
+  await scPage.waitForPage.reviewWeightTicket();
+  await page.getByText('Accept').click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+
+  await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+  await page.getByText('Accept').click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+
+  // Storage expense ticket.
+  await scPage.waitForPage.reviewExpenseTicket('Storage', 2, 1);
+
+  // The SIT Days should be counting the "Start date" and "End date" (i.e. Start date of 15 Apr 24 and End date of 19 Apr 24 is 5 days of Storage.
+  await page.locator('[name="sitStartDate"]').clear();
+  await page.locator('[name="sitStartDate"]').type('15 Apr 2024');
+  await page.locator('[name="sitEndDate"]').clear();
+  await page.locator('[name="sitEndDate"]').type('19 Apr 2024');
+  await page.locator('[name="sitEndDate"]').press('Tab'); // Exit out of datepicker view
+
+  await expect(page.locator('[data-testid="days-in-sit"]')).toContainText('5');
+
+  // Final review page in Review documents
+  await page.getByText('Accept').click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await scPage.waitForPage.reviewDocumentsConfirmation();
+
+  await expect(page.locator('[data-testid="days-in-sit"]')).toContainText('5');
 });

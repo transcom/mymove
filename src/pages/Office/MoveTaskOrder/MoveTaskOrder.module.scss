@@ -13,6 +13,34 @@
   flex: 1 1 0px;
 }
 
+.secondRow {
+  display: flex;
+  justify-content: space-evenly;
+  @include u-margin-bottom(3);
+  > div {
+    flex: 1 1 0px;
+    padding: 1.6rem;
+    background-color: white;
+    border-radius: 3px;
+    border: 1px solid #dcdee0;
+    margin-left: 16.4rem;
+  }
+}
+
+.childHeader {
+  @include u-font-size('base', 2);
+  @include u-text('uppercase');
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.value {
+  @include u-font-size('base', 11);
+  @include u-text('bold');
+  @include u-text('lowercase');
+}
+
 .financialReviewContainer {
   @include u-margin-top(1);
   :global(.usa-button) {
