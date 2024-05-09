@@ -49,6 +49,19 @@ export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload
   );
 }
 
+export async function deleteWeightTicket({ ppmShipmentId, weightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateMovingExpense',
@@ -64,6 +77,19 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
   );
 }
 
+export async function deleteExpense({ ppmShipmentId, movingExpenseId }) {
+  return makeGHCRequest(
+    'ppm.deleteMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateProGearWeightTicket',
@@ -72,6 +98,19 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
       proGearWeightTicketId,
       'If-Match': eTag,
       updateProGearWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteProGearWeightTicket',
+    {
+      ppmShipmentId,
+      proGearWeightTicketId,
     },
     {
       normalize: false,

@@ -117,8 +117,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		EvaluationReportsDeleteEvaluationReportHandler: evaluation_reports.DeleteEvaluationReportHandlerFunc(func(params evaluation_reports.DeleteEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.DeleteEvaluationReport has not yet been implemented")
 		}),
+		PpmDeleteMovingExpenseHandler: ppm.DeleteMovingExpenseHandlerFunc(func(params ppm.DeleteMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteMovingExpense has not yet been implemented")
+		}),
+		PpmDeleteProGearWeightTicketHandler: ppm.DeleteProGearWeightTicketHandlerFunc(func(params ppm.DeleteProGearWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteProGearWeightTicket has not yet been implemented")
+		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
+		}),
+		PpmDeleteWeightTicketHandler: ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		}),
 		ShipmentDenySITExtensionHandler: shipment.DenySITExtensionHandlerFunc(func(params shipment.DenySITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DenySITExtension has not yet been implemented")
@@ -395,8 +404,14 @@ type MymoveAPI struct {
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
 	EvaluationReportsDeleteEvaluationReportHandler evaluation_reports.DeleteEvaluationReportHandler
+	// PpmDeleteMovingExpenseHandler sets the operation handler for the delete moving expense operation
+	PpmDeleteMovingExpenseHandler ppm.DeleteMovingExpenseHandler
+	// PpmDeleteProGearWeightTicketHandler sets the operation handler for the delete pro gear weight ticket operation
+	PpmDeleteProGearWeightTicketHandler ppm.DeleteProGearWeightTicketHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
+	// PpmDeleteWeightTicketHandler sets the operation handler for the delete weight ticket operation
+	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
 	// ShipmentDenySITExtensionHandler sets the operation handler for the deny s i t extension operation
 	ShipmentDenySITExtensionHandler shipment.DenySITExtensionHandler
 	// EvaluationReportsDownloadEvaluationReportHandler sets the operation handler for the download evaluation report operation
@@ -661,8 +676,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.EvaluationReportsDeleteEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.DeleteEvaluationReportHandler")
 	}
+	if o.PpmDeleteMovingExpenseHandler == nil {
+		unregistered = append(unregistered, "ppm.DeleteMovingExpenseHandler")
+	}
+	if o.PpmDeleteProGearWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.DeleteProGearWeightTicketHandler")
+	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
+	}
+	if o.PpmDeleteWeightTicketHandler == nil {
+		unregistered = append(unregistered, "ppm.DeleteWeightTicketHandler")
 	}
 	if o.ShipmentDenySITExtensionHandler == nil {
 		unregistered = append(unregistered, "shipment.DenySITExtensionHandler")
@@ -1022,7 +1046,19 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
+	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewDeleteMovingExpense(o.context, o.PpmDeleteMovingExpenseHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}"] = ppm.NewDeleteProGearWeightTicket(o.context, o.PpmDeleteProGearWeightTicketHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
 	o.handlers["DELETE"]["/shipments/{shipmentID}"] = shipment.NewDeleteShipment(o.context, o.ShipmentDeleteShipmentHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewDeleteWeightTicket(o.context, o.PpmDeleteWeightTicketHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

@@ -74,3 +74,59 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 			return weightticketops.NewUpdateWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }
+
+// DeleteWeightTicketHandler
+type DeleteWeightTicketHandler struct {
+	handlers.HandlerConfig
+	weightTicketDeleter services.WeightTicketDeleter
+}
+
+func (h DeleteWeightTicketHandler) Handle(params weightticketops.DeleteWeightTicketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+
+			if !appCtx.Session().IsOfficeApp() {
+				return weightticketops.NewDeleteWeightTicketForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			weightTicketID := uuid.FromStringOrNil(params.WeightTicketID.String())
+			ppmID := uuid.FromStringOrNil(string(params.PpmShipmentID.String()))
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.DeleteWeightTicketHandler", zap.Error(err))
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return weightticketops.NewDeleteWeightTicketNotFound(), err
+				case apperror.InvalidInputError:
+					return weightticketops.NewDeleteWeightTicketUnprocessableEntity().WithPayload(
+						payloadForValidationError(
+							handlers.ValidationErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+							e.ValidationErrors,
+						),
+					), err
+				case apperror.PreconditionFailedError:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					return weightticketops.NewDeleteWeightTicketPreconditionFailed().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					), err
+				case apperror.QueryError:
+					return weightticketops.NewDeleteWeightTicketInternalServerError(), err
+				default:
+					return weightticketops.NewDeleteWeightTicketInternalServerError(), err
+				}
+			}
+
+			err := h.weightTicketDeleter.DeleteWeightTicket(appCtx, ppmID, weightTicketID)
+
+			if err != nil {
+				return handleError(err)
+			}
+
+			return weightticketops.NewDeleteWeightTicketNoContent(), nil
+		})
+}

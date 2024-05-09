@@ -1,6 +1,8 @@
 package ghcapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -68,4 +70,60 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 
 		return movingexpenseops.NewUpdateMovingExpenseOK().WithPayload(returnPayload), nil
 	})
+}
+
+// DeleteMovingExpenseHandler
+type DeleteMovingExpenseHandler struct {
+	handlers.HandlerConfig
+	progearDeleter services.MovingExpenseDeleter
+}
+
+func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingExpenseParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+
+			if !appCtx.Session().IsOfficeApp() {
+				return movingexpenseops.NewDeleteMovingExpenseForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			MovingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+			ppmID := uuid.FromStringOrNil(string(params.PpmShipmentID.String()))
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.DeleteMovingExpenseHandler", zap.Error(err))
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
+				case apperror.InvalidInputError:
+					return movingexpenseops.NewDeleteMovingExpenseUnprocessableEntity().WithPayload(
+						payloadForValidationError(
+							handlers.ValidationErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+							e.ValidationErrors,
+						),
+					), err
+				case apperror.PreconditionFailedError:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					return movingexpenseops.NewDeleteMovingExpensePreconditionFailed().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					), err
+				case apperror.QueryError:
+					return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+				default:
+					return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+				}
+			}
+
+			err := h.progearDeleter.DeleteMovingExpense(appCtx, ppmID, MovingExpenseID)
+
+			if err != nil {
+				return handleError(err)
+			}
+
+			return movingexpenseops.NewDeleteMovingExpenseNoContent(), nil
+		})
 }

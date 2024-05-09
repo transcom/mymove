@@ -497,6 +497,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		progear.NewOfficeProgearWeightTicketUpdater(),
 	}
 
+	ghcAPI.PpmDeleteProGearWeightTicketHandler = DeleteProgearWeightTicketHandler{
+		handlerConfig,
+		progear.NewProgearWeightTicketDeleter(),
+	}
+
 	ghcAPI.PpmFinishDocumentReviewHandler = FinishDocumentReviewHandler{
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
@@ -529,6 +534,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
 		handlerConfig,
 		weightticket.NewOfficeWeightTicketUpdater(weightTicketFetcher, ppmShipmentUpdater),
+	}
+
+	ghcAPI.PpmDeleteWeightTicketHandler = DeleteWeightTicketHandler{
+		handlerConfig,
+		weightticket.NewWeightTicketDeleter(weightTicketFetcher, ppmEstimator),
 	}
 
 	ghcAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{

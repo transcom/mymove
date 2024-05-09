@@ -81,3 +81,59 @@ func (h UpdateProgearWeightTicketHandler) Handle(params progearops.UpdateProGear
 			return progearops.NewUpdateProGearWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }
+
+// DeleteProgearWeightTicketHandler
+type DeleteProgearWeightTicketHandler struct {
+	handlers.HandlerConfig
+	progearDeleter services.ProgearWeightTicketDeleter
+}
+
+func (h DeleteProgearWeightTicketHandler) Handle(params progearops.DeleteProGearWeightTicketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+
+			if !appCtx.Session().IsOfficeApp() {
+				return progearops.NewDeleteProGearWeightTicketForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			progearWeightTicketID := uuid.FromStringOrNil(string(params.ProGearWeightTicketID))
+			ppmID := uuid.FromStringOrNil(string(params.PpmShipmentID))
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.DeleteProgearWeightTicketHandler", zap.Error(err))
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return progearops.NewDeleteProGearWeightTicketNotFound(), err
+				case apperror.InvalidInputError:
+					return progearops.NewDeleteProGearWeightTicketUnprocessableEntity().WithPayload(
+						payloadForValidationError(
+							handlers.ValidationErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+							e.ValidationErrors,
+						),
+					), err
+				case apperror.PreconditionFailedError:
+					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
+					return progearops.NewDeleteProGearWeightTicketPreconditionFailed().WithPayload(
+						&ghcmessages.Error{Message: &msg},
+					), err
+				case apperror.QueryError:
+					return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
+				default:
+					return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
+				}
+			}
+
+			err := h.progearDeleter.DeleteProgearWeightTicket(appCtx, ppmID, progearWeightTicketID)
+
+			if err != nil {
+				return handleError(err)
+			}
+
+			return progearops.NewDeleteProGearWeightTicketNoContent(), nil
+		})
+}
