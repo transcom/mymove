@@ -14,7 +14,7 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -40,11 +40,12 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
+  # MUST BE ONE OF: loadtest, demo, exp.
+  # These are used to pull in env vars so the spelling matters!
   dp3-branch: &dp3-branch integrationTesting
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
   dp3-env: &dp3-env loadtest
-
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
@@ -53,6 +54,7 @@ references:
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
+
   integration-mtls-ignore-branch: &integration-mtls-ignore-branch integrationTesting
 
   # set client-ignore-branch to the branch if you want to IGNORE
@@ -63,6 +65,7 @@ references:
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
+
   server-ignore-branch: &server-ignore-branch integrationTesting
 
 executors:
@@ -277,13 +280,13 @@ commands:
       - create_dot_go_version
       - restore_cache:
           keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
 
   save_cache_for_go:
     steps:
       - create_dot_go_version
       - save_cache:
-          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          key: go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
             - '~/transcom/mymove/bin/swagger'
@@ -865,6 +868,7 @@ commands:
             export FEATURE_FLAG_NTSR=true
             export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
+            export FEATURE_FLAG_MOVE_LOCK=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -895,6 +899,7 @@ commands:
             FEATURE_FLAG_NTSR: 'true'
             FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
+            FEATURE_FLAG_MOVE_LOCK: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
