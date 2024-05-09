@@ -11,9 +11,13 @@ import (
 )
 
 func payloadForApplicationParametersModel(v models.ApplicationParameters) internalmessages.ApplicationParameters {
+
+	parameterValue := *handlers.FmtStringPtr(v.ParameterValue)
+	parameterName := *handlers.FmtStringPtr(v.ParameterName)
+
 	payload := internalmessages.ApplicationParameters{
-		ParameterValue: *handlers.FmtStringPtr(v.ParameterValue),
-		ParameterName:  *handlers.FmtStringPtr(v.ParameterName),
+		ParameterValue: &parameterValue,
+		ParameterName:  &parameterName,
 	}
 	return payload
 }
@@ -34,7 +38,7 @@ func (h ApplicationParametersValidateHandler) Handle(params application_paramete
 			name := params.Body.ParameterName
 
 			// fetch the value, if not found it will be an empty string
-			result, _ := models.FetchParameterValue(appCtx.DB(), value, name)
+			result, _ := models.FetchParameterValue(appCtx.DB(), *value, *name)
 
 			parameterValuePayload := payloadForApplicationParametersModel(result)
 
