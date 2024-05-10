@@ -33,7 +33,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		moveRouter,
 	)
 	suite.Run("Returns an error when shipment is not found", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		id := uuid.Must(uuid.NewV4())
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -47,7 +47,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		move := shipment.MoveTaskOrder
 		move.Status = models.MoveStatusServiceCounselingCompleted
@@ -65,7 +66,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the shipment when it is found", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
 		validStatuses := []struct {
@@ -106,8 +108,9 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the shipment when it is found and check if shipment_seq_num changed", func() {
+		moveRouter := moveservices.NewMoveRouter()
 		move := factory.BuildMove(suite.DB(), nil, nil)
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -168,7 +171,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Returns not found error when the shipment is already deleted", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -184,7 +188,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the associated PPM shipment", func() {
-		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater)
+		moveRouter := moveservices.NewMoveRouter()
+		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
