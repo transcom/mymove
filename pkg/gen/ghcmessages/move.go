@@ -81,14 +81,14 @@ type Move struct {
 
 	// lock expires at
 	// Format: date-time
-	LockExpiresAt strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+	LockExpiresAt *strfmt.DateTime `json:"lockExpiresAt,omitempty"`
 
 	// locked by office user
 	LockedByOfficeUser *OfficeUser `json:"lockedByOfficeUser,omitempty"`
 
 	// locked by office user ID
 	// Format: uuid
-	LockedByOfficeUserID strfmt.UUID `json:"lockedByOfficeUserID,omitempty"`
+	LockedByOfficeUserID *strfmt.UUID `json:"lockedByOfficeUserID,omitempty"`
 
 	// orders
 	Orders *Order `json:"orders,omitempty"`

@@ -7650,14 +7650,17 @@ func init() {
         },
         "lockExpiresAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "lockedByOfficeUser": {
+          "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
         "lockedByOfficeUserID": {
           "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "x-nullable": true
         },
         "orders": {
           "$ref": "#/definitions/Order"
@@ -20600,14 +20603,17 @@ func init() {
         },
         "lockExpiresAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "lockedByOfficeUser": {
+          "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
         "lockedByOfficeUserID": {
           "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "x-nullable": true
         },
         "orders": {
           "$ref": "#/definitions/Order"
