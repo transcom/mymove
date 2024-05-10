@@ -6846,6 +6846,24 @@ func init() {
         }
       }
     },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -7655,7 +7673,7 @@ func init() {
         },
         "lockedByOfficeUser": {
           "x-nullable": true,
-          "$ref": "#/definitions/OfficeUser"
+          "$ref": "#/definitions/LockedOfficeUser"
         },
         "lockedByOfficeUserID": {
           "type": "string",
@@ -9510,7 +9528,7 @@ func init() {
         },
         "lockedByOfficeUser": {
           "x-nullable": true,
-          "$ref": "#/definitions/OfficeUser"
+          "$ref": "#/definitions/LockedOfficeUser"
         },
         "lockedByOfficeUserID": {
           "type": "string",
@@ -19799,6 +19817,24 @@ func init() {
         }
       }
     },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -20608,7 +20644,7 @@ func init() {
         },
         "lockedByOfficeUser": {
           "x-nullable": true,
-          "$ref": "#/definitions/OfficeUser"
+          "$ref": "#/definitions/LockedOfficeUser"
         },
         "lockedByOfficeUserID": {
           "type": "string",
@@ -22465,7 +22501,7 @@ func init() {
         },
         "lockedByOfficeUser": {
           "x-nullable": true,
-          "$ref": "#/definitions/OfficeUser"
+          "$ref": "#/definitions/LockedOfficeUser"
         },
         "lockedByOfficeUserID": {
           "type": "string",

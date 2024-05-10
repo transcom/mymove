@@ -3834,6 +3834,18 @@ definitions:
       - status
       - createdAt
       - updatedAt
+  LockedOfficeUser:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
   OfficeUserCreate:
     type: object
     properties:
@@ -4396,7 +4408,7 @@ definitions:
         format: uuid
         x-nullable: true
       lockedByOfficeUser:
-        $ref: '#/definitions/OfficeUser'
+        $ref: '#/definitions/LockedOfficeUser'
         x-nullable: true
       lockExpiresAt:
         type: string
@@ -5897,7 +5909,7 @@ definitions:
         format: uuid
         x-nullable: true
       lockedByOfficeUser:
-        $ref: '#/definitions/OfficeUser'
+        $ref: '#/definitions/LockedOfficeUser'
         x-nullable: true
       lockExpiresAt:
         type: string
