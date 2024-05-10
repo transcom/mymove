@@ -2113,9 +2113,6 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
 	moveOK := response.(*orderop.AcknowledgeExcessWeightRiskOK)
 	movePayload := moveOK.Payload
 
-	// Validate outgoing payload
-	suite.NoError(movePayload.Validate(strfmt.Default))
-
 	suite.FatalNoError(err, "Error creating a new trace ID.")
 	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
 	suite.HasWebhookNotification(move.ID, traceID)

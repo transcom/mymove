@@ -4231,11 +4231,14 @@ definitions:
       lockedByOfficeUserID:
         type: string
         format: uuid
+        x-nullable: true
       lockedByOfficeUser:
         $ref: '#/definitions/OfficeUser'
+        x-nullable: true
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
   MoveHistory:
     properties:
       id:
