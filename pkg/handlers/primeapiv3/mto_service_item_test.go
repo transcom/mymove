@@ -580,7 +580,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestCreateMTOServiceItemStandardCratingHandler() {
+func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticStandaloneCratingHandler() {
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
@@ -599,8 +599,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemStandardCratingHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRTSA)
 		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{

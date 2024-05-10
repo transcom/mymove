@@ -1543,7 +1543,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDCRT,
+					Code: models.ReServiceCodeDCRTSA,
 				},
 			},
 		}, nil)

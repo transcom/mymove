@@ -724,7 +724,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 }
 
 func (suite *PayloadsSuite) TestMTOServiceItemDCRTSA() {
-	reServiceCode := models.ReServiceCodeDCRT
+	reServiceCode := models.ReServiceCodeDCRTSA
 	reason := "reason"
 	dateOfContact1 := time.Now()
 	timeMilitary1 := "1500Z"
