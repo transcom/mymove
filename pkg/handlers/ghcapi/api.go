@@ -499,6 +499,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		progear.NewOfficeProgearWeightTicketUpdater(),
 	}
 
+	ghcAPI.PpmCreateProGearWeightTicketHandler = CreateProGearWeightTicketHandler{handlerConfig, progear.NewCustomerProgearWeightTicketCreator()}
+
+	ghcAPI.PpmDeleteProGearWeightTicketHandler = DeleteProgearWeightTicketHandler{
+		handlerConfig,
+		progear.NewProgearWeightTicketDeleter(),
+	}
+
 	ghcAPI.PpmFinishDocumentReviewHandler = FinishDocumentReviewHandler{
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
@@ -528,16 +535,29 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
 
+	ghcAPI.PpmCreateWeightTicketHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewCustomerWeightTicketCreator()}
+
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
 		handlerConfig,
 		weightticket.NewOfficeWeightTicketUpdater(weightTicketFetcher, ppmShipmentUpdater),
 	}
+
+	ghcAPI.PpmDeleteWeightTicketHandler = DeleteWeightTicketHandler{
+		handlerConfig,
+		weightticket.NewWeightTicketDeleter(weightTicketFetcher, ppmEstimator),
+	}
+
+	ghcAPI.PpmCreateMovingExpenseHandler = CreateMovingExpenseHandler{handlerConfig, movingexpense.NewMovingExpenseCreator()}
 
 	ghcAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{
 		handlerConfig,
 		movingexpense.NewOfficeMovingExpenseUpdater(),
 	}
 
+	ghcAPI.PpmDeleteMovingExpenseHandler = DeleteMovingExpenseHandler{
+		handlerConfig,
+		movingexpense.NewMovingExpenseDeleter(),
+	}
 	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{
 		handlerConfig,
 		pwsviolation.NewPWSViolationsFetcher(),

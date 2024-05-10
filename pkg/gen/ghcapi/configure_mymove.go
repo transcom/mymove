@@ -123,9 +123,19 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
+	if api.PpmCreateMovingExpenseHandler == nil {
+		api.PpmCreateMovingExpenseHandler = ppm.CreateMovingExpenseHandlerFunc(func(params ppm.CreateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
+		})
+	}
 	if api.OrderCreateOrderHandler == nil {
 		api.OrderCreateOrderHandler = order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
+		})
+	}
+	if api.PpmCreateProGearWeightTicketHandler == nil {
+		api.PpmCreateProGearWeightTicketHandler = ppm.CreateProGearWeightTicketHandlerFunc(func(params ppm.CreateProGearWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateProGearWeightTicket has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersCreateRequestedOfficeUserHandler == nil {
@@ -138,6 +148,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		})
 	}
+	if api.PpmCreateWeightTicketHandler == nil {
+		api.PpmCreateWeightTicketHandler = ppm.CreateWeightTicketHandlerFunc(func(params ppm.CreateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateWeightTicket has not yet been implemented")
+		})
+	}
 	if api.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
 		api.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler = customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
@@ -148,9 +163,24 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation evaluation_reports.DeleteEvaluationReport has not yet been implemented")
 		})
 	}
+	if api.PpmDeleteMovingExpenseHandler == nil {
+		api.PpmDeleteMovingExpenseHandler = ppm.DeleteMovingExpenseHandlerFunc(func(params ppm.DeleteMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteMovingExpense has not yet been implemented")
+		})
+	}
+	if api.PpmDeleteProGearWeightTicketHandler == nil {
+		api.PpmDeleteProGearWeightTicketHandler = ppm.DeleteProGearWeightTicketHandlerFunc(func(params ppm.DeleteProGearWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteProGearWeightTicket has not yet been implemented")
+		})
+	}
 	if api.ShipmentDeleteShipmentHandler == nil {
 		api.ShipmentDeleteShipmentHandler = shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
+		})
+	}
+	if api.PpmDeleteWeightTicketHandler == nil {
+		api.PpmDeleteWeightTicketHandler = ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		})
 	}
 	if api.ShipmentDenySITExtensionHandler == nil {

@@ -1,6 +1,8 @@
 package progearweightticket
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -45,12 +47,29 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 	var progearWeightTicket models.ProgearWeightTicket
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		var document models.Document
 
-		document := &models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
+		// If this is an office user request, get the service member ID from PPM Shipment instead
+		if appCtx.Session().IsOfficeApp() {
+			serviceMember, err := models.GetCustomerFromPPMShipment(appCtx.DB(), ppmShipmentID)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(ppmShipmentID, "PPM Shipment not found")
+				default:
+					return apperror.NewQueryError("PPM Shipment", err, "")
+				}
+			}
+			document = models.Document{
+				ServiceMemberID: serviceMember.ID,
+			}
+		} else {
+			document = models.Document{
+				ServiceMemberID: appCtx.Session().ServiceMemberID,
+			}
 		}
 
-		verrs, err := appCtx.DB().ValidateAndCreate(document)
+		verrs, err := appCtx.DB().ValidateAndCreate(&document)
 
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the Document.")
@@ -59,7 +78,7 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 		}
 
 		progearWeightTicket = models.ProgearWeightTicket{
-			Document:      *document,
+			Document:      document,
 			DocumentID:    document.ID,
 			PPMShipmentID: ppmShipment.ID,
 		}

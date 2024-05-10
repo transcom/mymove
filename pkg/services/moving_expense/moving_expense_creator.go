@@ -1,6 +1,8 @@
 package movingexpense
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -35,11 +37,31 @@ func (f *movingExpenseCreator) CreateMovingExpense(appCtx appcontext.AppContext,
 		return nil, ppmShipmentErr
 	}
 
+	var document models.Document
+
+	// If this is an office user request, get the service member ID from PPM Shipment instead
+	if appCtx.Session().IsOfficeApp() {
+		serviceMember, err := models.GetCustomerFromPPMShipment(appCtx.DB(), ppmShipmentID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(ppmShipmentID, "PPM Shipment not found")
+			default:
+				return nil, apperror.NewQueryError("PPM Shipment", err, "")
+			}
+		}
+		document = models.Document{
+			ServiceMemberID: serviceMember.ID,
+		}
+	} else {
+		document = models.Document{
+			ServiceMemberID: appCtx.Session().ServiceMemberID,
+		}
+	}
+
 	newMovingExpense := &models.MovingExpense{
 		PPMShipmentID: ppmShipment.ID,
-		Document: models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
-		},
+		Document:      document,
 	}
 
 	err := validateMovingExpense(appCtx, newMovingExpense, nil, f.checks...)
