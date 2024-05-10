@@ -1,6 +1,8 @@
 package weightticket
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -38,16 +40,33 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 		return nil, ppmShipmentErr
 	}
 
-	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+	if !appCtx.Session().IsOfficeApp() && ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
 		return nil, apperror.NewNotFoundError(ppmShipmentID, "No such shipment found for this service member")
 	}
 
 	var weightTicket models.WeightTicket
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		var document models.Document
 
-		document := models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
+		// If this is an office user request, get the service member ID from PPM Shipment instead
+		if appCtx.Session().IsOfficeApp() {
+			serviceMember, err := models.GetCustomerFromPPMShipment(appCtx.DB(), ppmShipmentID)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(ppmShipmentID, "PPM Shipment not found")
+				default:
+					return apperror.NewQueryError("PPM Shipment", err, "")
+				}
+			}
+			document = models.Document{
+				ServiceMemberID: serviceMember.ID,
+			}
+		} else {
+			document = models.Document{
+				ServiceMemberID: appCtx.Session().ServiceMemberID,
+			}
 		}
 		allDocs := models.Documents{document, document, document}
 		verrs, err := appCtx.DB().ValidateAndCreate(allDocs)

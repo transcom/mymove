@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -285,4 +286,20 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
+}
+
+// GetCustomerFromPPMShipment gets the service member given a shipment id
+func GetCustomerFromPPMShipment(db *pop.Connection, ppmID uuid.UUID) (*ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Q().
+		InnerJoin("orders", "orders.service_member_id = service_members.id").
+		InnerJoin("moves", "moves.orders_id = orders.id").
+		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
+		InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+		Where("ppm_shipments.id = ?", ppmID).
+		First(&serviceMember)
+	if err != nil {
+		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", ppmID, err)
+	}
+	return &serviceMember, nil
 }
