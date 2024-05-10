@@ -432,6 +432,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             label="Yes"
                             name="create_okta_account"
                             value="true"
+                            data-testid="create-okta-account-yes"
                           />
                           <Field
                             as={Radio}
@@ -439,6 +440,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             label="No"
                             name="create_okta_account"
                             value="false"
+                            data-testid="create-okta-account-no"
                           />
                         </div>
                       </Fieldset>
