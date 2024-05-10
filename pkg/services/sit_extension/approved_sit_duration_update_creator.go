@@ -8,11 +8,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type approvedSITDurationUpdateCreator struct {
@@ -41,11 +39,6 @@ func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCt
 	err = validateSITExtension(appCtx, *sitDurationUpdate, shipment, f.checks...)
 	if err != nil {
 		return nil, err
-	}
-
-	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
-	if existingETag != eTag {
-		return nil, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	var returnedShipment *models.MTOShipment
