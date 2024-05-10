@@ -39,15 +39,19 @@ func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
 }
 
 func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.OfficeUser {
-	payload := ghcmessages.OfficeUser{
-		FirstName:              &officeUser.FirstName,
-		LastName:               &officeUser.LastName,
-		Email:                  &officeUser.Email,
-		Telephone:              &officeUser.Telephone,
-		TransportationOfficeID: handlers.FmtUUID(officeUser.TransportationOfficeID),
-		TransportationOffice:   TransportationOffice(&officeUser.TransportationOffice),
+	if officeUser != nil {
+		payload := ghcmessages.OfficeUser{
+			FirstName:              &officeUser.FirstName,
+			LastName:               &officeUser.LastName,
+			Email:                  &officeUser.Email,
+			Telephone:              &officeUser.Telephone,
+			TransportationOfficeID: handlers.FmtUUID(officeUser.TransportationOfficeID),
+			TransportationOffice:   TransportationOffice(&officeUser.TransportationOffice),
+		}
+		return &payload
+	} else {
+		return &ghcmessages.OfficeUser{}
 	}
-	return &payload
 }
 
 // Move payload
@@ -61,6 +65,16 @@ func Move(move *models.Move) *ghcmessages.Move {
 		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 	} else if move.Orders.OriginDutyLocationGBLOC != nil {
 		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
+
+	var lockedByOfficeUserID uuid.UUID
+	if move.LockedByOfficeUserID != nil {
+		lockedByOfficeUserID = *move.LockedByOfficeUserID
+	}
+
+	var lockExpiresAt time.Time
+	if move.LockExpiresAt != nil {
+		lockExpiresAt = *move.LockExpiresAt
 	}
 
 	payload := &ghcmessages.Move{
@@ -88,9 +102,9 @@ func Move(move *models.Move) *ghcmessages.Move {
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
 		ShipmentGBLOC:                gbloc,
-		LockedByOfficeUserID:         *handlers.FmtUUID(*move.LockedByOfficeUserID),
+		LockedByOfficeUserID:         *handlers.FmtUUID(lockedByOfficeUserID),
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
-		LockExpiresAt:                strfmt.DateTime(*move.LockExpiresAt),
+		LockExpiresAt:                strfmt.DateTime(lockExpiresAt),
 	}
 
 	return payload
