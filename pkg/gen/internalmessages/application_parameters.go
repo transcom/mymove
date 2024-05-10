@@ -18,10 +18,10 @@ import (
 type ApplicationParameters struct {
 
 	// parameter name
-	ParameterName string `json:"parameterName,omitempty"`
+	ParameterName *string `json:"parameterName,omitempty"`
 
 	// parameter value
-	ParameterValue string `json:"parameterValue,omitempty"`
+	ParameterValue *string `json:"parameterValue,omitempty"`
 
 	// validation code
 	ValidationCode *string `json:"validationCode,omitempty"`

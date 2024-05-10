@@ -3348,11 +3348,13 @@ func init() {
       "properties": {
         "parameterName": {
           "type": "string",
-          "format": "string"
+          "format": "string",
+          "x-nullable": true
         },
         "parameterValue": {
           "type": "string",
-          "format": "string"
+          "format": "string",
+          "x-nullable": true
         },
         "validationCode": {
           "type": "string",
@@ -11140,11 +11142,13 @@ func init() {
       "properties": {
         "parameterName": {
           "type": "string",
-          "format": "string"
+          "format": "string",
+          "x-nullable": true
         },
         "parameterValue": {
           "type": "string",
-          "format": "string"
+          "format": "string",
+          "x-nullable": true
         },
         "validationCode": {
           "type": "string",

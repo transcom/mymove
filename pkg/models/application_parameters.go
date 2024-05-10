@@ -12,8 +12,8 @@ import (
 type ApplicationParameters struct {
 	ID             uuid.UUID `json:"id" db:"id"`
 	ValidationCode *string   `json:"validation_code" db:"validation_code"`
-	ParameterName  string    `json:"parameter_name" db:"parameter_name"`
-	ParameterValue string    `json:"parameter_value" db:"parameter_value"`
+	ParameterName  *string   `json:"parameter_name" db:"parameter_name"`
+	ParameterValue *string   `json:"parameter_value" db:"parameter_value"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -23,9 +23,9 @@ func (a ApplicationParameters) TableName() string {
 }
 
 // FetchParameterValue returns a specific parameter value from the db
-func FetchParameterValue(db *pop.Connection, code string, value string) (ApplicationParameters, error) {
-	var parameterValue ApplicationParameters
-	err := db.Q().Where(`parameter_value=$1 AND parameter_name=$2`, code, value).First(&parameterValue)
+func FetchParameterValue(db *pop.Connection, param string, value string) (ApplicationParameters, error) {
+	var parameter ApplicationParameters
+	err := db.Q().Where(`parameter_name=$1 AND parameter_value=$2`, param, value).First(&parameter)
 	// if it isn't found, we'll return an empty object
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -34,5 +34,5 @@ func FetchParameterValue(db *pop.Connection, code string, value string) (Applica
 		return ApplicationParameters{}, err
 	}
 
-	return parameterValue, nil
+	return parameter, nil
 }
