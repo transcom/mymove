@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -55,10 +56,11 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 }
 
 // ListMove payload
-func ListMove(move *models.Move) *primemessages.ListMove {
+func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primemessages.ListMove {
 	if move == nil {
 		return nil
 	}
+
 	payload := &primemessages.ListMove{
 		ID:                 strfmt.UUID(move.ID.String()),
 		MoveCode:           move.Locator,
@@ -68,23 +70,42 @@ func ListMove(move *models.Move) *primemessages.ListMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		Amendments: &primemessages.Amendments{
+			Total:          handlers.FmtInt64(0),
+			AvailableSince: handlers.FmtInt64(0),
+		},
 	}
 
 	if move.PPMType != nil {
 		payload.PpmType = *move.PPMType
 	}
 
+	if moveOrderAmendmentsCount != nil {
+		payload.Amendments.Total = handlers.FmtInt64(int64(moveOrderAmendmentsCount.Total))
+		payload.Amendments.AvailableSince = handlers.FmtInt64(int64(moveOrderAmendmentsCount.AvailableSinceTotal))
+	}
+
 	return payload
 }
 
 // ListMoves payload
-func ListMoves(moves *models.Moves) []*primemessages.ListMove {
+func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primemessages.ListMove {
 	payload := make(primemessages.ListMoves, len(*moves))
+
+	moveOrderAmendmentsFilterCountMap := make(map[uuid.UUID]services.MoveOrderAmendmentAvailableSinceCount, len(*moves))
+	for _, info := range moveOrderAmendmentAvailableSinceCounts {
+		moveOrderAmendmentsFilterCountMap[info.MoveID] = info
+	}
 
 	for i, m := range *moves {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListMove(&copyOfM)
+		if value, ok := moveOrderAmendmentsFilterCountMap[m.ID]; ok {
+			payload[i] = ListMove(&copyOfM, &value)
+		} else {
+			payload[i] = ListMove(&copyOfM, nil)
+		}
 	}
+
 	return payload
 }
 
