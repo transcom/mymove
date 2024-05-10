@@ -7,7 +7,7 @@ describe('when given an updated reweigh weight', () => {
   const historyRecord = {
     action: 'UPDATE',
     changedValues: { weight: '9001' },
-    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+    context: [{ shipment_type: 'HHG', shipment_locator: 'RQ38D4-01', shipment_id_abbr: 'a1b2c' }],
     eventName: 'updateReweigh',
     tableName: 'reweighs',
   };
@@ -21,7 +21,7 @@ describe('when given an updated reweigh weight', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #A1B2C')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   describe('displays the correct labeled values in the details column', () => {

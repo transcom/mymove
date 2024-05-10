@@ -21,7 +21,7 @@ describe('when given an mto shipment agents update with mto agents table history
         last_name: 'Griffin',
         phone: '555-555-5551',
       },
-      context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+      context: [{ shipment_type: 'HHG', shipment_locator: 'RQ38D4-01', shipment_id_abbr: 'a1b2c' }],
     },
     RECEIVE: {
       action: 'UPDATE',
@@ -39,7 +39,7 @@ describe('when given an mto shipment agents update with mto agents table history
         last_name: 'Drew',
         phone: '555-555-5551',
       },
-      context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+      context: [{ shipment_type: 'HHG', shipment_locator: 'RQ38D4-01', shipment_id_abbr: 'a1b2c' }],
     },
   };
 
@@ -52,7 +52,7 @@ describe('when given an mto shipment agents update with mto agents table history
     it('displays the proper shipment title in the details column', () => {
       const template = getTemplate(historyRecord.RELEASE);
       render(template.getDetails(historyRecord.RELEASE));
-      expect(screen.getAllByText('HHG shipment #A1B2C'));
+      expect(screen.getAllByText('HHG shipment #RQ38D4-01'));
     });
 
     it('it displays the proper labeled details for the given releasing agent', () => {
@@ -72,7 +72,7 @@ describe('when given an mto shipment agents update with mto agents table history
     it('displays the proper shipment title in the details column', () => {
       const template = getTemplate(historyRecord.RECEIVE);
       render(template.getDetails(historyRecord.RECEIVE));
-      expect(screen.getAllByText('HHG shipment #A1B2C'));
+      expect(screen.getAllByText('HHG shipment #RQ38D4-01'));
     });
 
     it('it displays the proper labeled details for the given releasing agent', () => {

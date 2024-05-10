@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
@@ -647,4 +648,182 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	suite.Contains(sinceMoveIDs, primeMove2.ID)
 	suite.Contains(sinceMoveIDs, primeMove3.ID)
 	suite.Contains(sinceMoveIDs, primeMove4.ID)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFetcher() {
+	suite.Run("Test with and without filter of moves containing amendments", func() {
+		now := time.Now()
+		// Set up a hidden move so we can check if it's in the output:
+		hiddenMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Show: models.BoolPointer(false),
+				},
+			},
+		}, nil)
+		// Make a default, not Prime-available move:
+		nonPrimeMove := factory.BuildMove(suite.DB(), nil, nil)
+		// Make some Prime moves:
+		primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		primeMove3 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
+		primeMove4 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipmentForPrimeMove4 := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
+		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			MTOShipment: shipmentForPrimeMove4,
+		})
+		suite.Logger().Info(fmt.Sprintf("Reweigh %s", reweigh.ID))
+
+		primeMove5 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		//////////////////////////////////////////
+		// setup amendments for move
+		//////////////////////////////////////////
+		primeMoves := make([]models.Move, 0)
+		primeMoves = append(primeMoves, primeMove1)
+		primeMoves = append(primeMoves, primeMove2)
+		primeMoves = append(primeMoves, primeMove3)
+		primeMoves = append(primeMoves, primeMove4)
+		primeMoves = append(primeMoves, primeMove5)
+
+		docIDs := make([]uuid.UUID, 0)
+		hasAmendmentsMap := make(map[uuid.UUID]bool)
+		for i, pm := range primeMoves {
+			document := factory.BuildDocumentLinkServiceMember(suite.DB(), primeMove1.Orders.ServiceMember)
+
+			docIDs = append(docIDs, document.ID)
+
+			suite.MustSave(&document)
+			suite.Nil(document.DeletedAt)
+			pm.Orders.UploadedOrders = document
+			pm.Orders.UploadedOrdersID = document.ID
+
+			if i != 4 {
+				// set amendment for all except for one.
+				pm.Orders.UploadedAmendedOrders = &document
+				pm.Orders.UploadedAmendedOrdersID = &document.ID
+				hasAmendmentsMap[pm.ID] = true
+			} else {
+				hasAmendmentsMap[pm.ID] = false
+			}
+
+			suite.MustSave(&pm.Orders)
+			upload := models.Upload{
+				Filename:    "test.pdf",
+				Bytes:       1048576,
+				ContentType: uploader.FileTypePDF,
+				Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+				UploadType:  models.UploadTypeUSER,
+			}
+			suite.MustSave(&upload)
+			userUpload := models.UserUpload{
+				DocumentID: &document.ID,
+				UploaderID: document.ServiceMember.UserID,
+				UploadID:   upload.ID,
+				Upload:     upload,
+			}
+			suite.MustSave(&userUpload)
+		}
+
+		// Move primeMove1, primeMove3, and primeMove4 into the past so we can exclude them:
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3, $4);",
+			now.Add(-10*time.Second), primeMove1.ID, primeMove3.ID, primeMove4.ID).Exec())
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id IN ($2, $3);",
+			now.Add(-10*time.Second), primeMove1.OrdersID, primeMove4.OrdersID).Exec())
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
+			now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
+
+		fetcher := NewMoveTaskOrderFetcher()
+		page := int64(1)
+		perPage := int64(20)
+		// filling out search params to allow for pagination
+		searchParams := services.MoveTaskOrderFetcherParams{Page: &page, PerPage: &perPage, MoveCode: nil, ID: nil}
+
+		// Run the fetcher without `since` to get all Prime moves:
+		primeMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersAmendments(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.Len(primeMoves, 5)
+
+		moveIDs := []uuid.UUID{primeMoves[0].ID, primeMoves[1].ID, primeMoves[2].ID, primeMoves[3].ID, primeMoves[4].ID}
+		suite.NotContains(moveIDs, hiddenMove.ID)
+		suite.NotContains(moveIDs, nonPrimeMove.ID)
+		suite.Contains(moveIDs, primeMove1.ID)
+		suite.Contains(moveIDs, primeMove2.ID)
+		suite.Contains(moveIDs, primeMove3.ID)
+		suite.Contains(moveIDs, primeMove4.ID)
+		suite.Contains(moveIDs, primeMove5.ID)
+		suite.Equal(amendmentCountInfo[0].MoveID, moveIDs[0])
+
+		// amendmentCountInfo should only contain moves that have amendments.
+		suite.Len(amendmentCountInfo, 4)
+
+		cnt := 0
+		for _, value := range amendmentCountInfo {
+			if hasAmendmentsMap[value.MoveID] {
+				suite.Equal(1, value.Total)
+				suite.Equal(1, value.AvailableSinceTotal)
+				cnt++
+			}
+			// verify the Prime Moves without any amendments are NOT
+			// in amendmentCountInfo
+			for moveID, hasAmendment := range hasAmendmentsMap {
+				if !hasAmendment {
+					suite.False(value.MoveID == moveID)
+				}
+			}
+		}
+		suite.Equal(len(amendmentCountInfo), cnt)
+
+		// Run the fetcher with `since` to get primeMove2, primeMove3 (because of the shipment), and primeMove4 (because of the reweigh)
+		since := now.Add(-5 * time.Second)
+		searchParams.Since = &since
+
+		// fake out timestamp for new amendment upload by manually setting update column
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE user_uploads SET updated_at=$1 WHERE document_id IN ($2, $3, $4, $5, $6);",
+			now.Add(-100*time.Second), docIDs[0], docIDs[1], docIDs[2], docIDs[3], docIDs[4]).Exec())
+
+		sinceMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersAmendments(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.Len(sinceMoves, 4)
+		suite.Len(amendmentCountInfo, 3)
+
+		sinceMoveIDs := []uuid.UUID{sinceMoves[0].ID, sinceMoves[1].ID, sinceMoves[2].ID, sinceMoves[3].ID}
+		suite.Contains(sinceMoveIDs, primeMove2.ID)
+		suite.Contains(sinceMoveIDs, primeMove3.ID)
+		suite.Contains(sinceMoveIDs, primeMove4.ID)
+
+		for _, value := range amendmentCountInfo {
+			if hasAmendmentsMap[value.MoveID] {
+				suite.Equal(1, value.Total)
+				// verify sinceCount is filtering based on since parameter. Amendment was uploaded at an older date.
+				suite.Equal(0, value.AvailableSinceTotal)
+			}
+		}
+	})
+
+	suite.Run("Test moves without any amendments", func() {
+		now := time.Now()
+		primeMove1 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		primeMove2 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		// Move primeMove1, primeMove2 into the past so we can exclude them:
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",
+			now.Add(-10*time.Second), primeMove1.ID, primeMove2.ID).Exec())
+
+		fetcher := NewMoveTaskOrderFetcher()
+		page := int64(1)
+		perPage := int64(20)
+		// filling out search params to allow for pagination
+		searchParams := services.MoveTaskOrderFetcherParams{Page: &page, PerPage: &perPage, MoveCode: nil, ID: nil}
+
+		// Run the fetcher without `since` to get all Prime moves:
+		primeMoves, amendmentCountInfo, err := fetcher.ListPrimeMoveTaskOrdersAmendments(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		suite.Len(primeMoves, 2)
+		suite.Len(amendmentCountInfo, 0)
+		moveIDs := []uuid.UUID{primeMoves[0].ID, primeMoves[1].ID}
+		suite.Contains(moveIDs, primeMove1.ID)
+		suite.Contains(moveIDs, primeMove2.ID)
+	})
 }
