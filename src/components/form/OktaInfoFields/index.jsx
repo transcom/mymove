@@ -1,15 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { func, node, string } from 'prop-types';
 import { Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField/TextField';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const OktaInfoFields = ({ legend, className, render }) => {
+  const [isDodidDisabled, setIsDodidDisabled] = useState(false);
+
   const usernameFieldName = 'oktaUsername';
   const emailFieldName = 'oktaEmail';
   const firstNameFieldName = 'oktaFirstName';
   const lastNameFieldName = 'oktaLastName';
   const edipiFieldName = 'oktaEdipi';
+
+  useEffect(() => {
+    // checking feature flag to see if DODID input should be disabled
+    // this data pulls from Okta and doens't let the customer update it
+    const fetchData = async () => {
+      setIsDodidDisabled(await isBooleanFlagEnabled('okta_dodid_input'));
+    };
+    fetchData();
+  }, []);
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -25,7 +37,7 @@ export const OktaInfoFields = ({ legend, className, render }) => {
             id="oktaEdipi"
             maxLength="10"
             inputMode="numeric"
-            isDisabled
+            isDisabled={isDodidDisabled}
           />
         </>,
       )}
