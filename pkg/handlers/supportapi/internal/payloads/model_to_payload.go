@@ -336,10 +336,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			},
 			Description: mtoServiceItem.Description,
 		}
-	case models.ReServiceCodeSCRT, models.ReServiceCodeSUCRT:
+	case models.ReServiceCodeDCRTSA:
 		item := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
-		payload = &supportmessages.MTOServiceItemStandaloneCrating{
+		payload = &supportmessages.MTOServiceItemDomesticStandaloneCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &supportmessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(item.ID.String()),

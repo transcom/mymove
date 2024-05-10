@@ -722,8 +722,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 	suite.True(ok)
 }
 
-func (suite *PayloadsSuite) TestMTOServiceItemSCRT() {
-	reServiceCode := models.ReServiceCodeSCRT
+func (suite *PayloadsSuite) TestMTOServiceItemDCRTSA() {
+	reServiceCode := models.ReServiceCodeDCRTSA
 	reason := "reason"
 	dateOfContact1 := time.Now()
 	timeMilitary1 := "1500Z"
@@ -732,7 +732,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemSCRT() {
 	timeMilitary2 := "1300Z"
 	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
 
-	mtoServiceItemSCRT := &models.MTOServiceItem{
+	mtoServiceItemDCRTSA := &models.MTOServiceItem{
 		ID:        uuid.Must(uuid.NewV4()),
 		ReService: models.ReService{Code: reServiceCode},
 		Reason:    &reason,
@@ -752,11 +752,11 @@ func (suite *PayloadsSuite) TestMTOServiceItemSCRT() {
 		},
 	}
 
-	resultSCRT := MTOServiceItem(mtoServiceItemSCRT)
+	resultDCRTSA := MTOServiceItem(mtoServiceItemDCRTSA)
 
-	suite.NotNil(resultSCRT)
+	suite.NotNil(resultDCRTSA)
 
-	_, ok := resultSCRT.(*primev3messages.MTOServiceItemStandaloneCrating)
+	_, ok := resultDCRTSA.(*primev3messages.MTOServiceItemDomesticStandaloneCrating)
 
 	suite.True(ok)
 }

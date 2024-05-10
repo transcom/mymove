@@ -1417,7 +1417,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeSCRT,
+					Code: models.ReServiceCodeDCRTSA,
 				},
 			},
 		}, nil)
@@ -1481,14 +1481,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		json, err := json.Marshal(serviceItemPayload)
 		suite.NoError(err)
-		payload := primev3messages.MTOServiceItemStandaloneCrating{}
+		payload := primev3messages.MTOServiceItemDomesticStandaloneCrating{}
 		err = payload.UnmarshalJSON(json)
 		suite.NoError(err)
 
 		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
 		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
 		suite.Equal(serviceItem.ID.String(), payload.ID().String())
-		suite.Equal("MTOServiceItemStandaloneCrating", string(payload.ModelType()))
+		suite.Equal("MTOServiceItemDomesticStandaloneCrating", string(payload.ModelType()))
 		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
 		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
 		suite.Equal(string(serviceItem.Status), string(payload.Status()))

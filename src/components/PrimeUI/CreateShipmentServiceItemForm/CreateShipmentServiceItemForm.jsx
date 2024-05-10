@@ -7,7 +7,7 @@ import DestinationSITServiceItemForm from './DestinationSITServiceItemForm';
 import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
 import DomesticCratingForm from './DomesticCratingForm';
-import StandaloneCratingForm from './StandaloneCratingForm';
+import DomesticStandaloneCratingForm from './DomesticStandaloneCratingForm';
 
 import { ShipmentShape } from 'types/shipment';
 import { createServiceItemModelTypes } from 'constants/prime';
@@ -19,7 +19,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
     MTOServiceItemDestSIT,
     MTOServiceItemShuttle,
     MTOServiceItemDomesticCrating,
-    MTOServiceItemStandaloneCrating,
+    MTOServiceItemDomesticStandaloneCrating,
   } = createServiceItemModelTypes;
   const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
 
@@ -37,7 +37,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
           <option value={MTOServiceItemDestSIT}>Destination SIT</option>
           <option value={MTOServiceItemShuttle}>Shuttle</option>
           <option value={MTOServiceItemDomesticCrating}>Domestic Crating</option>
-          <option value={MTOServiceItemStandaloneCrating}>Standalone Crating</option>
+          <option value={MTOServiceItemDomesticStandaloneCrating}>Standalone Crating</option>
         </>
       </Dropdown>
       {selectedServiceItemType === MTOServiceItemOriginSIT && (
@@ -52,8 +52,8 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       {selectedServiceItemType === MTOServiceItemDomesticCrating && (
         <DomesticCratingForm shipment={shipment} submission={createServiceItemMutation} />
       )}
-      {selectedServiceItemType === MTOServiceItemStandaloneCrating && (
-        <StandaloneCratingForm shipment={shipment} submission={createServiceItemMutation} />
+      {selectedServiceItemType === MTOServiceItemDomesticStandaloneCrating && (
+        <DomesticStandaloneCratingForm shipment={shipment} submission={createServiceItemMutation} />
       )}
     </div>
   );

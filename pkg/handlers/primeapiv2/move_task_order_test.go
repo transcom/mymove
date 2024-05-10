@@ -1379,7 +1379,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(payload.ETag())
 	})
 
-	suite.Run("Success - return all MTOServiceItemStandaloneCrating fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all MTOServiceItemDomesticStandaloneCrating fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
@@ -1417,7 +1417,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeSCRT,
+					Code: models.ReServiceCodeDCRTSA,
 				},
 			},
 		}, nil)
@@ -1481,14 +1481,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		json, err := json.Marshal(serviceItemPayload)
 		suite.NoError(err)
-		payload := primev2messages.MTOServiceItemStandaloneCrating{}
+		payload := primev2messages.MTOServiceItemDomesticStandaloneCrating{}
 		err = payload.UnmarshalJSON(json)
 		suite.NoError(err)
 
 		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
 		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
 		suite.Equal(serviceItem.ID.String(), payload.ID().String())
-		suite.Equal("MTOServiceItemStandaloneCrating", string(payload.ModelType()))
+		suite.Equal("MTOServiceItemDomesticStandaloneCrating", string(payload.ModelType()))
 		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
 		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
 		suite.Equal(string(serviceItem.Status), string(payload.Status()))

@@ -8,7 +8,7 @@ import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { ShipmentShape } from 'types/shipment';
-import { standaloneCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
+import { domesticStandaloneCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
 const standaloneShippingValidationSchema = Yup.object().shape({
@@ -23,11 +23,11 @@ const standaloneShippingValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
 });
 
-const StandaloneCratingForm = ({ shipment, submission }) => {
+const DomesticStandaloneCratingForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: createServiceItemModelTypes.MTOServiceItemStandaloneCrating,
+    modelType: createServiceItemModelTypes.MTOServiceItemDomesticStandaloneCrating,
     itemLength: '',
     itemWidth: '',
     itemHeight: '',
@@ -59,13 +59,13 @@ const StandaloneCratingForm = ({ shipment, submission }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={standaloneShippingValidationSchema} onSubmit={onSubmit}>
-      <Form data-testid="standaloneCratingForm">
+      <Form data-testid="domesticStandaloneCratingForm">
         <DropdownInput
           label="Service item code"
           name="reServiceCode"
           id="reServiceCode"
           required
-          options={standaloneCratingServiceItemCodeOptions}
+          options={domesticStandaloneCratingServiceItemCodeOptions}
         />
         <MaskedTextField
           data-testid="itemLength"
@@ -135,9 +135,9 @@ const StandaloneCratingForm = ({ shipment, submission }) => {
   );
 };
 
-StandaloneCratingForm.propTypes = {
+DomesticStandaloneCratingForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
 };
 
-export default StandaloneCratingForm;
+export default DomesticStandaloneCratingForm;

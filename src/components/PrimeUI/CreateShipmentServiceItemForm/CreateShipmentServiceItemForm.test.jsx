@@ -84,7 +84,7 @@ describe('CreateShipmentServiceItemForm component', () => {
     ['destinationSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemDestSIT],
     ['shuttleSITServiceItemForm', createServiceItemModelTypes.MTOServiceItemShuttle],
     ['DomesticCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticCrating],
-    ['StandaloneCratingForm', createServiceItemModelTypes.MTOServiceItemStandaloneCrating],
+    ['DomesticStandaloneCratingForm', createServiceItemModelTypes.MTOServiceItemDomesticStandaloneCrating],
   ])('renders %s after selecting %s type', async (formName, serviceItemType) => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
     render(

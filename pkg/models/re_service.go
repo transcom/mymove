@@ -121,10 +121,6 @@ const (
 	ReServiceCodeNSTH ReServiceCode = "NSTH"
 	// ReServiceCodeNSTUB Nonstandard UB
 	ReServiceCodeNSTUB ReServiceCode = "NSTUB"
-	// ReServiceCodeSUCRT Standalone crating
-	ReServiceCodeSCRT ReServiceCode = "SCRT"
-	// ReServiceCodeSUCRT Standalone uncrating
-	ReServiceCodeSUCRT ReServiceCode = "SUCRT"
 )
 
 // ReService model struct

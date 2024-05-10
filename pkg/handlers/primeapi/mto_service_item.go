@@ -25,11 +25,11 @@ import (
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
 var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
-	primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:         true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:           true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:           true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:   true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemStandaloneCrating: true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:                 true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:                   true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:                   true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:           true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticStandaloneCrating: true,
 }
 
 // CreateMTOServiceItemHandler is the handler to create MTO service items

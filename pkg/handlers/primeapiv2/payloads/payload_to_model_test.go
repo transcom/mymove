@@ -26,8 +26,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	basicServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	basicServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
-	// SCRT Service Item
-	scrtCode := models.ReServiceCodeSCRT.String()
+	// DCRTSA Service Item
+	dcrtsaCode := models.ReServiceCodeDCRTSA.String()
 
 	// DCRT Service Item
 	itemMeasurement := int32(1100)
@@ -72,16 +72,16 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		StreetAddress1: &destStreet,
 	}
 
-	SCRTServiceItem := &primev2messages.MTOServiceItemStandaloneCrating{
-		ReServiceCode: &scrtCode,
+	DCRTSAServiceItem := &primev2messages.MTOServiceItemDomesticStandaloneCrating{
+		ReServiceCode: &dcrtsaCode,
 		Reason:        &reason,
 		Description:   &description,
 	}
-	SCRTServiceItem.Item.MTOServiceItemDimension = *item
-	SCRTServiceItem.Crate.MTOServiceItemDimension = *crate
+	DCRTSAServiceItem.Item.MTOServiceItemDimension = *item
+	DCRTSAServiceItem.Crate.MTOServiceItemDimension = *crate
 
-	SCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
-	SCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+	DCRTSAServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DCRTSAServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	destServiceItem := &primev2messages.MTOServiceItemDestSIT{
 		ReServiceCode:               &destServiceCode,
@@ -155,8 +155,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	})
 
-	suite.Run("Success - Returns a SCRT service item model", func() {
-		returnedModel, verrs := MTOServiceItemModel(SCRTServiceItem)
+	suite.Run("Success - Returns a DCRTSA service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DCRTSAServiceItem)
 
 		var returnedItem, returnedCrate models.MTOServiceItemDimension
 		for _, dimension := range returnedModel.Dimensions {
@@ -170,14 +170,14 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
 		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
-		suite.Equal(models.ReServiceCodeSCRT, returnedModel.ReService.Code)
-		suite.Equal(SCRTServiceItem.Reason, returnedModel.Reason)
-		suite.Equal(SCRTServiceItem.Description, returnedModel.Description)
-		suite.Equal(unit.ThousandthInches(*SCRTServiceItem.Item.Length), returnedItem.Length)
-		suite.Equal(unit.ThousandthInches(*SCRTServiceItem.Crate.Length), returnedCrate.Length)
+		suite.Equal(models.ReServiceCodeDCRTSA, returnedModel.ReService.Code)
+		suite.Equal(DCRTSAServiceItem.Reason, returnedModel.Reason)
+		suite.Equal(DCRTSAServiceItem.Description, returnedModel.Description)
+		suite.Equal(unit.ThousandthInches(*DCRTSAServiceItem.Item.Length), returnedItem.Length)
+		suite.Equal(unit.ThousandthInches(*DCRTSAServiceItem.Crate.Length), returnedCrate.Length)
 	})
 
-	suite.Run("Fail -  Returns error for SCRT service item because of validation error", func() {
+	suite.Run("Fail -  Returns error for DCRTSA service item because of validation error", func() {
 		badCrateMeasurement := int32(200)
 		badCrate := &primev2messages.MTOServiceItemDimension{
 			Height: &badCrateMeasurement,
@@ -185,20 +185,20 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 			Length: &badCrateMeasurement,
 		}
 
-		badSCRTServiceItem := &primev2messages.MTOServiceItemStandaloneCrating{
-			ReServiceCode: &scrtCode,
+		badDCRTSAServiceItem := &primev2messages.MTOServiceItemDomesticStandaloneCrating{
+			ReServiceCode: &dcrtsaCode,
 			Reason:        &reason,
 			Description:   &description,
 		}
-		badSCRTServiceItem.Item.MTOServiceItemDimension = *item
-		badSCRTServiceItem.Crate.MTOServiceItemDimension = *badCrate
+		badDCRTSAServiceItem.Item.MTOServiceItemDimension = *item
+		badDCRTSAServiceItem.Crate.MTOServiceItemDimension = *badCrate
 
-		badSCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
-		badSCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		badDCRTSAServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		badDCRTSAServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
-		returnedModel, verrs := MTOServiceItemModel(badSCRTServiceItem)
+		returnedModel, verrs := MTOServiceItemModel(badDCRTSAServiceItem)
 
-		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeSCRT))
+		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRTSA))
 		suite.Nil(returnedModel, "returned a model when erroring")
 	})
 

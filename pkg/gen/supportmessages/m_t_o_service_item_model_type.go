@@ -21,7 +21,7 @@ import (
 //   - DDFSIT, DDASIT - MTOServiceItemDestSIT
 //   - DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   - DCRT, DUCRT - MTOServiceItemDomesticCrating
-//   - SCRT, SUCRT - MTOServiceItemStandaloneCrating
+//   - DCRTSA- MTOServiceItemDomesticStandaloneCrating
 //
 // The documentation will then update with the supported fields.
 //
@@ -54,8 +54,8 @@ const (
 	// MTOServiceItemModelTypeMTOServiceItemDomesticCrating captures enum value "MTOServiceItemDomesticCrating"
 	MTOServiceItemModelTypeMTOServiceItemDomesticCrating MTOServiceItemModelType = "MTOServiceItemDomesticCrating"
 
-	// MTOServiceItemModelTypeMTOServiceItemStandaloneCrating captures enum value "MTOServiceItemStandaloneCrating"
-	MTOServiceItemModelTypeMTOServiceItemStandaloneCrating MTOServiceItemModelType = "MTOServiceItemStandaloneCrating"
+	// MTOServiceItemModelTypeMTOServiceItemDomesticStandaloneCrating captures enum value "MTOServiceItemDomesticStandaloneCrating"
+	MTOServiceItemModelTypeMTOServiceItemDomesticStandaloneCrating MTOServiceItemModelType = "MTOServiceItemDomesticStandaloneCrating"
 )
 
 // for schema
@@ -63,7 +63,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating","MTOServiceItemStandaloneCrating"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating","MTOServiceItemDomesticStandaloneCrating"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

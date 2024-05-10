@@ -1358,10 +1358,8 @@ definitions:
           - item
           - crate
           - description
-  MTOServiceItemStandaloneCrating:
-    description: >-
-      Describes a standalone crating/uncrating service item subtype of a
-      MTOServiceItem.
+  MTOServiceItemDomesticStandaloneCrating:
+    description: Describes a standalone crating service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1370,8 +1368,7 @@ definitions:
             type: string
             description: Service codes allowed for this model type.
             enum:
-              - SCRT
-              - SUCRT
+              - DCRTSA
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
           crate:
@@ -1395,7 +1392,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
-        * SCRT, SUCRT - MTOServiceItemStandaloneCrating
+        * DCRTSA- MTOServiceItemDomesticStandaloneCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -1405,7 +1402,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
-      - MTOServiceItemStandaloneCrating
+      - MTOServiceItemDomesticStandaloneCrating
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:

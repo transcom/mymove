@@ -671,10 +671,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			Width:  crate.Width.Int32Ptr(),
 		}
 		payload = &cratingSI
-	case models.ReServiceCodeSCRT, models.ReServiceCodeSUCRT:
+	case models.ReServiceCodeDCRTSA:
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
-		cratingSI := primemessages.MTOServiceItemStandaloneCrating{
+		cratingSI := primemessages.MTOServiceItemDomesticStandaloneCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Description:   mtoServiceItem.Description,
 			Reason:        mtoServiceItem.Reason,

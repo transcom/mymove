@@ -8,7 +8,7 @@ description: >
     * DDFSIT, DDASIT - MTOServiceItemDestSIT
     * DOSHUT, DDSHUT - MTOServiceItemShuttle
     * DCRT, DUCRT - MTOServiceItemDomesticCrating
-    * SCRT - MTOServiceItemStandaloneCrating
+    * DCRTSA - MTOServiceItemDomesticStandaloneCrating
 
   The documentation will then update with the supported fields.
 type: string
@@ -18,4 +18,4 @@ enum:
   - MTOServiceItemDestSIT
   - MTOServiceItemShuttle
   - MTOServiceItemDomesticCrating
-  - MTOServiceItemStandaloneCrating
+  - MTOServiceItemDomesticStandaloneCrating

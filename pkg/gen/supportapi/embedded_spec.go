@@ -1509,8 +1509,44 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticStandaloneCrating": {
+      "description": "Describes a standalone crating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "description": {
+              "type": "string",
+              "example": "A motorcycle to be crated."
+            },
+            "item": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DCRTSA"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * SCRT, SUCRT - MTOServiceItemStandaloneCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * DCRTSA- MTOServiceItemDomesticStandaloneCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -1518,7 +1554,7 @@ func init() {
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating",
-        "MTOServiceItemStandaloneCrating"
+        "MTOServiceItemDomesticStandaloneCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -1610,43 +1646,6 @@ func init() {
               "description": "Explanation of why a shuttle service is required.",
               "type": "string",
               "example": "Storage items need to be picked up."
-            }
-          }
-        }
-      ]
-    },
-    "MTOServiceItemStandaloneCrating": {
-      "description": "Describes a standalone crating/uncrating service item subtype of a MTOServiceItem.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOServiceItem"
-        },
-        {
-          "type": "object",
-          "required": [
-            "reServiceCode",
-            "item",
-            "crate",
-            "description"
-          ],
-          "properties": {
-            "crate": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
-            },
-            "description": {
-              "type": "string",
-              "example": "A motorcycle to be crated."
-            },
-            "item": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
-            },
-            "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
-              "type": "string",
-              "enum": [
-                "SCRT",
-                "SUCRT"
-              ]
             }
           }
         }
@@ -4352,8 +4351,44 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticStandaloneCrating": {
+      "description": "Describes a standalone crating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "description": {
+              "type": "string",
+              "example": "A motorcycle to be crated."
+            },
+            "item": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DCRTSA"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * SCRT, SUCRT - MTOServiceItemStandaloneCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * DCRTSA- MTOServiceItemDomesticStandaloneCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -4361,7 +4396,7 @@ func init() {
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating",
-        "MTOServiceItemStandaloneCrating"
+        "MTOServiceItemDomesticStandaloneCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -4453,43 +4488,6 @@ func init() {
               "description": "Explanation of why a shuttle service is required.",
               "type": "string",
               "example": "Storage items need to be picked up."
-            }
-          }
-        }
-      ]
-    },
-    "MTOServiceItemStandaloneCrating": {
-      "description": "Describes a standalone crating/uncrating service item subtype of a MTOServiceItem.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOServiceItem"
-        },
-        {
-          "type": "object",
-          "required": [
-            "reServiceCode",
-            "item",
-            "crate",
-            "description"
-          ],
-          "properties": {
-            "crate": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
-            },
-            "description": {
-              "type": "string",
-              "example": "A motorcycle to be crated."
-            },
-            "item": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
-            },
-            "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
-              "type": "string",
-              "enum": [
-                "SCRT",
-                "SUCRT"
-              ]
             }
           }
         }

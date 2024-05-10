@@ -257,6 +257,12 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 			return nil, err
 		}
 		return &result, nil
+	case "MTOServiceItemDomesticStandaloneCrating":
+		var result MTOServiceItemDomesticStandaloneCrating
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "MTOServiceItemOriginSIT":
 		var result MTOServiceItemOriginSIT
 		if err := consumer.Consume(buf2, &result); err != nil {
@@ -265,12 +271,6 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 		return &result, nil
 	case "MTOServiceItemShuttle":
 		var result MTOServiceItemShuttle
-		if err := consumer.Consume(buf2, &result); err != nil {
-			return nil, err
-		}
-		return &result, nil
-	case "MTOServiceItemStandaloneCrating":
-		var result MTOServiceItemStandaloneCrating
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}

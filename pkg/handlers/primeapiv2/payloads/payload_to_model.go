@@ -536,8 +536,8 @@ func MTOServiceItemModel(mtoServiceItem primev2messages.MTOServiceItem) (*models
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
 			},
 		}
-	case primev2messages.MTOServiceItemModelTypeMTOServiceItemStandaloneCrating:
-		standaloneCrating := mtoServiceItem.(*primev2messages.MTOServiceItemStandaloneCrating)
+	case primev2messages.MTOServiceItemModelTypeMTOServiceItemDomesticStandaloneCrating:
+		standaloneCrating := mtoServiceItem.(*primev2messages.MTOServiceItemDomesticStandaloneCrating)
 
 		// additional validation for this specific service item type
 		verrs := validateStandaloneCrating(*standaloneCrating)
@@ -755,7 +755,7 @@ func validateDomesticCrating(m primev2messages.MTOServiceItemDomesticCrating) *v
 }
 
 // validateStandaloneCrating validates this mto service item domestic crating
-func validateStandaloneCrating(m primev2messages.MTOServiceItemStandaloneCrating) *validate.Errors {
+func validateStandaloneCrating(m primev2messages.MTOServiceItemDomesticStandaloneCrating) *validate.Errors {
 	return validate.Validate(
 		&models.ItemCanFitInsideCrateV2{
 			Name:         "Item",

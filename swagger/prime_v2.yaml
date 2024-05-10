@@ -469,7 +469,7 @@ definitions:
             type: string
             description: >-
               A unique code for the service item. Indicates if the service is
-              for crating (SCRT) or uncrating (SUCRT).
+              for crating (DCRT) or uncrating (DUCRT).
             enum:
               - DCRT
               - DUCRT
@@ -499,10 +499,8 @@ definitions:
           - item
           - crate
           - description
-  MTOServiceItemStandaloneCrating:
-    description: >-
-      Describes a standard crating/uncrating service item subtype of a
-      MTOServiceItem.
+  MTOServiceItemDomesticStandaloneCrating:
+    description: Describes a standard crating service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -511,10 +509,9 @@ definitions:
             type: string
             description: >-
               A unique code for the service item. Indicates if the service is
-              for crating (DCRT) or uncrating (DUCRT).
+              for crating (DCRTSA).
             enum:
-              - SCRT
-              - SUCRT
+              - DCRTSA
           item:
             description: The dimensions of the item being crated.
             allOf:
@@ -531,9 +528,9 @@ definitions:
             type: string
             example: Storage items need to be picked up
             description: >
-              The contractor's explanation for why an item needed to be crated
-              or uncrated. Used by the TOO while deciding to approve or reject
-              the service item.
+              The customer's explanation for why an item needed to be crated or
+              uncrated. Used by the TOO while deciding to approve or reject the
+              service item.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1972,7 +1969,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
-        * SCRT - MTOServiceItemStandaloneCrating
+        * DCRTSA - MTOServiceItemDomesticStandaloneCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -1982,7 +1979,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
-      - MTOServiceItemStandaloneCrating
+      - MTOServiceItemDomesticStandaloneCrating
   ServiceRequestDocument:
     properties:
       uploads:

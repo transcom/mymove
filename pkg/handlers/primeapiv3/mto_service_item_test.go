@@ -644,44 +644,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemStandardCratingHandler() {
 			mtoChecker,
 		}
 
-		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeSCRT
-		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest: subtestData.req,
-			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-
-		// Validate outgoing payload (each element of slice)
-		for _, mtoServiceItem := range okResponse.Payload {
-			suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-		}
-
-		suite.NotZero(okResponse.Payload[0].ID())
-	})
-
-	suite.Run("Successful POST - Integration Test - Standalone Uncrating", func() {
-		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
-		handler := CreateMTOServiceItemHandler{
-			suite.HandlerConfig(),
-			creator,
-			mtoChecker,
-		}
-
-		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeSUCRT
+		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: subtestData.req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
@@ -717,14 +680,14 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemStandardCratingHandler() {
 			mock.Anything,
 		).Return(nil, nil, err)
 
-		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeSUCRT
+		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: subtestData.req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
 
 		var height int32
-		params.Body.(*primemessages.MTOServiceItemStandaloneCrating).Crate.Height = &height
+		params.Body.(*primemessages.MTOServiceItemDomesticStandaloneCrating).Crate.Height = &height
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
