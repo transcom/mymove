@@ -22,9 +22,9 @@ import { backupContactInfoSchema, requiredAddressSchema } from 'utils/validation
 import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { getResponseError } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { roleTypes } from 'constants/userRoles';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
-export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
+export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
   const navigate = useNavigate();
 
@@ -87,8 +87,11 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
   const backupAddressName = 'backup_mailing_address';
   const backupContactName = 'backup_contact';
 
+  const isSafetyPrivileged = userPrivileges?.some(
+    (privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY,
+  );
+
   const initialValues = {
-    isSafetyMove: '',
     affiliation: '',
     edipi: '',
     first_name: '',
@@ -122,6 +125,7 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
+    is_safety_move: '',
   };
 
   const handleBack = () => {
@@ -130,7 +134,7 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
 
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
-    const createSafetyMove = values.isSafetyMove === 'true';
+    const isSafetyMove = values.is_safety_move === 'true';
     const createOktaAccount = values.create_okta_account === 'true';
 
     const body = {
@@ -153,6 +157,7 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
         phone: values[backupContactName].telephone,
       },
       createOktaAccount,
+      isSafetyMove,
     };
 
     return createCustomerWithOktaOption({ body })
@@ -168,7 +173,6 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
   };
 
   const validationSchema = Yup.object().shape({
-    isSafetyMove: Yup.boolean().required('Required'),
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
     edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
     first_name: Yup.string().required('Required'),
@@ -189,10 +193,11 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
     [residentialAddressName]: requiredAddressSchema.required(),
     [backupAddressName]: requiredAddressSchema.required(),
     [backupContactName]: backupContactInfoSchema.required(),
-    create_okta_account: Yup.boolean().when('isSafetyMove', {
+    create_okta_account: Yup.boolean().when('is_safety_move', {
       is: false,
       then: (schema) => schema.required('Required'),
     }),
+    is_safety_move: Yup.boolean().required('Required'),
   });
 
   return (
@@ -221,7 +226,7 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
                     ...values,
                     edipi: '',
                     create_okta_account: '',
-                    isSafetyMove: 'true',
+                    is_safety_move: 'true',
                   });
                 }
               };
@@ -230,29 +235,32 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
                   <h1 className={styles.header}>Create Customer Profile</h1>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Affiliation</h3>
-                    {roleType === roleTypes.SERVICES_COUNSELOR && <Alert>Role is SC</Alert>}
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Is this a Safety Move?</legend>
-                      <div className="grid-row grid-gap">
-                        <Field
-                          as={Radio}
-                          id="isSafetyMoveYes"
-                          label="Yes"
-                          name="isSafetyMove"
-                          value="true"
-                          checked={values.isSafetyMove === 'true'}
-                          onChange={handleIsSafetyMove}
-                        />
-                        <Field
-                          as={Radio}
-                          id="isSafetyMoveNo"
-                          label="No"
-                          name="isSafetyMove"
-                          value="false"
-                          checked={values.isSafetyMove === 'false'}
-                        />
-                      </div>
-                    </Fieldset>
+                    {isSafetyPrivileged && (
+                      <Fieldset className={styles.trailerOwnershipFieldset}>
+                        <legend className="usa-label">Is this a Safety Move?</legend>
+                        <div className="grid-row grid-gap">
+                          <Field
+                            as={Radio}
+                            id="isSafetyMoveYes"
+                            label="Yes"
+                            name="is_safety_move"
+                            value="true"
+                            data-testid="is-safety-move-yes"
+                            checked={values.is_safety_move === 'true'}
+                            onChange={handleIsSafetyMove}
+                          />
+                          <Field
+                            as={Radio}
+                            id="isSafetyMoveNo"
+                            label="No"
+                            name="is_safety_move"
+                            value="false"
+                            data-testid="is-safety-move-no"
+                            checked={values.is_safety_move === 'false'}
+                          />
+                        </div>
+                      </Fieldset>
+                    )}
                     <DropdownInput
                       label="Branch of service"
                       name="affiliation"
@@ -266,7 +274,7 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
                       id="edipi"
                       labelHint="Optional"
                       maxLength="10"
-                      isDisabled={values.isSafetyMove === 'true'}
+                      isDisabled={values.is_safety_move === 'true'}
                     />
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
@@ -412,8 +420,8 @@ export const CreateCustomerForm = ({ roleType, setFlashMessage }) => {
                       required
                     />
                   </SectionWrapper>
-                  {values.isSafetyMove !== 'true' && (
-                    <SectionWrapper className={formStyles.formSection} disabled={values.isSafetyMove === 'true'}>
+                  {values.is_safety_move !== 'true' && (
+                    <SectionWrapper className={formStyles.formSection} disabled={values.is_safety_move === 'true'}>
                       <h3>Okta Account</h3>
                       <Fieldset className={styles.trailerOwnershipFieldset}>
                         <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>

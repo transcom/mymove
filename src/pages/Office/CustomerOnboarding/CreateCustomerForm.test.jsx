@@ -26,7 +26,6 @@ jest.mock('store/flash/actions', () => ({
 beforeEach(jest.resetAllMocks);
 
 const fakePayload = {
-  isSafetyMove: 'true',
   affiliation: 'ARMY',
   edipi: '1234567890',
   first_name: 'Shish',
@@ -60,6 +59,7 @@ const fakePayload = {
     email: 'allOverDaPlace@mail.com',
   },
   create_okta_account: 'true',
+  is_safety_move: 'false',
 };
 
 const fakeResponse = {
@@ -162,6 +162,7 @@ describe('CreateCustomerForm', () => {
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
+    await userEvent.type(getByTestId('is-safety-move-no'), fakePayload.is_safety_move);
     await user.selectOptions(getByLabelText('Branch of service'), [fakePayload.affiliation]);
 
     await user.type(getByLabelText('First name'), fakePayload.first_name);

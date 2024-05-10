@@ -319,7 +319,7 @@ export class OfficeApp extends Component {
                       path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateCustomerForm roleType={activeRole} />
+                          <CreateCustomerForm userPrivileges={userPrivileges} />
                         </PrivateRoute>
                       }
                     />
@@ -526,6 +526,7 @@ OfficeApp.propTypes = {
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
   router: RouterShape.isRequired,
+  userPrivileges: PropTypes.arrayOf(PropTypes.string),
 };
 
 OfficeApp.defaultProps = {
@@ -535,6 +536,7 @@ OfficeApp.defaultProps = {
   userPermissions: [],
   userRoles: [],
   activeRole: null,
+  userPrivileges: [],
 };
 
 const mapStateToProps = (state) => {
@@ -550,6 +552,7 @@ const mapStateToProps = (state) => {
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
+    userPrivileges: user?.privileges || [],
   };
 };
 
