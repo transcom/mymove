@@ -3953,6 +3953,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   CreatedCustomer:
     type: object
     properties:
@@ -4012,6 +4014,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -4056,6 +4060,8 @@ definitions:
       backupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
@@ -4107,6 +4113,8 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       createOktaAccount:
+        type: boolean
+      cacUser:
         type: boolean
   SearchCustomersResult:
     type: object
