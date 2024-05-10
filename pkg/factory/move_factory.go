@@ -55,17 +55,19 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		defaultShow = *cMove.Show
 	}
 	defaultLocator := models.GenerateLocator()
+	var lockExpiresAt *time.Time
 
 	move := models.Move{
-		Orders:       order,
-		OrdersID:     order.ID,
-		PPMType:      ppmType,
-		Status:       models.MoveStatusDRAFT,
-		Locator:      defaultLocator,
-		Show:         &defaultShow,
-		Contractor:   &contractor,
-		ContractorID: &contractor.ID,
-		ReferenceID:  &defaultReferenceID,
+		Orders:        order,
+		OrdersID:      order.ID,
+		PPMType:       ppmType,
+		Status:        models.MoveStatusDRAFT,
+		Locator:       defaultLocator,
+		Show:          &defaultShow,
+		Contractor:    &contractor,
+		ContractorID:  &contractor.ID,
+		ReferenceID:   &defaultReferenceID,
+		LockExpiresAt: lockExpiresAt,
 	}
 
 	if closeoutOfficeResult != nil {
