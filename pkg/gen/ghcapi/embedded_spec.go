@@ -7382,6 +7382,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -7429,6 +7433,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -20354,6 +20362,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -20401,6 +20413,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
