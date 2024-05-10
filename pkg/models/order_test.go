@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -383,19 +384,22 @@ func (suite *ModelSuite) TestSaveOrder() {
 
 	postalCode := "30813"
 	newPostalCode := "12345"
-	address := Address{
+	addressCreator := address.NewAddressCreator()
+
+	newAddress := &Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
 	}
-	suite.MustSave(&address)
+	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
+	suite.NoError(err)
 
 	dutyLocationName := "New Duty Location"
 	location := DutyLocation{
 		Name:      dutyLocationName,
-		AddressID: address.ID,
-		Address:   address,
+		AddressID: newAddress.ID,
+		Address:   *newAddress,
 	}
 	suite.MustSave(&location)
 
@@ -434,19 +438,21 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 
 	postalCode := "30813"
 	newPostalCode := "12345"
-	address := Address{
+	addressCreator := address.NewAddressCreator()
+	newAddress := &Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     newPostalCode,
 	}
-	suite.MustSave(&address)
+	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
+	suite.NoError(err)
 
 	dutyLocationName := "New Duty Location"
 	location := DutyLocation{
 		Name:      dutyLocationName,
-		AddressID: address.ID,
-		Address:   address,
+		AddressID: newAddress.ID,
+		Address:   *newAddress,
 	}
 	suite.MustSave(&location)
 

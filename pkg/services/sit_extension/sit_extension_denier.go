@@ -6,11 +6,13 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -25,7 +27,13 @@ type sitExtensionDenier struct {
 
 // NewSITExtensionDenier creates a new struct with the service dependencies
 func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtensionDenier {
-	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator())}
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator())}
 }
 
 // DenySITExtension denies the SIT Extension

@@ -30,7 +30,7 @@ func NewIndexRequestedOfficeUsers(ctx *middleware.Context, handler IndexRequeste
 }
 
 /*
-	IndexRequestedOfficeUsers swagger:route GET /requested-office-users Requested office users indexRequestedOfficeUsers
+	IndexRequestedOfficeUsers swagger:route GET /requested-office-users Requested Office Users indexRequestedOfficeUsers
 
 # List of Office Users Requesting Accounts
 

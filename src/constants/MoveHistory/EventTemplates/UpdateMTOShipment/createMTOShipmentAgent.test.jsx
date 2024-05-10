@@ -15,7 +15,7 @@ describe('when given a historyRecord that updates a receiving/releasing agent', 
       phone: '555-555-5555',
       agent_type: 'RELEASING_AGENT',
     },
-    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+    context: [{ shipment_type: 'HHG', shipment_locator: 'RQ38D4-01', shipment_id_abbr: 'a1b2c' }],
   };
   const historyRecord2 = {
     action: 'INSERT',
@@ -28,7 +28,7 @@ describe('when given a historyRecord that updates a receiving/releasing agent', 
       phone: '999-999-9999',
       agent_type: 'RECEIVING_AGENT',
     },
-    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+    context: [{ shipment_type: 'HHG', shipment_locator: 'RQ38D4-01', shipment_id_abbr: 'a1b2c' }],
   };
   const historyRecord3 = {
     action: 'INSERT',
@@ -41,7 +41,7 @@ describe('when given a historyRecord that updates a receiving/releasing agent', 
       phone: '555-555-5555',
       agent_type: 'RELEASING_AGENT',
     },
-    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+    context: [{ shipment_type: 'HHG', shipment_locator: 'RQ38D4-01', shipment_id_abbr: 'a1b2c' }],
   };
   const historyRecord4 = {
     action: 'INSERT',
@@ -54,7 +54,7 @@ describe('when given a historyRecord that updates a receiving/releasing agent', 
       phone: '999-999-9999',
       agent_type: 'RECEIVING_AGENT',
     },
-    context: [{ shipment_type: 'HHG', shipment_id_abbr: 'a1b2c' }],
+    context: [{ shipment_type: 'HHG', shipment_locator: 'RQ38D4-01', shipment_id_abbr: 'a1b2c' }],
   };
   it.each([
     ['Releasing agent', ': Grace Griffin, 555-555-5555, grace@email.com', historyRecord1],
@@ -66,7 +66,7 @@ describe('when given a historyRecord that updates a receiving/releasing agent', 
     expect(template).toMatchObject(e);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #A1B2C')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01')).toBeInTheDocument();
     expect(screen.getByText(label)).toBeInTheDocument();
     expect(screen.getByText(value)).toBeInTheDocument();
   });

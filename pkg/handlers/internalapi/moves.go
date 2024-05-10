@@ -54,6 +54,9 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	if move.CloseoutOffice != nil {
 		movePayload.CloseoutOffice = payloads.TransportationOffice(*move.CloseoutOffice)
 	}
+	if move.PrimeCounselingCompletedAt != nil {
+		movePayload.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
+	}
 	return movePayload, nil
 }
 
@@ -96,6 +99,10 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
 			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
+		}
+
+		if move.PrimeCounselingCompletedAt != nil {
+			currentMove.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
@@ -236,12 +243,15 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewMoveSubmitted(moveID),
-			)
-			if err != nil {
-				logger.Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
+			/* Don't send Move Creation email if orders type is BLUEBARK */
+			if move.Orders.OrdersType != "BLUEBARK" {
+				err = h.NotificationSender().SendNotification(appCtx,
+					notifications.NewMoveSubmitted(moveID),
+				)
+				if err != nil {
+					logger.Error("problem sending email to user", zap.Error(err))
+					return handlers.ResponseForError(logger, err), err
+				}
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

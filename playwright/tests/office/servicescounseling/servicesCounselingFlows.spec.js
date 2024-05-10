@@ -96,6 +96,24 @@ test.describe('Services counselor user', () => {
 
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
+  });
+
+  test.describe('with HHG Move with Marine Corps as BOS', () => {
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveAsUSMCNeedsSC();
+      await scPage.navigateToMove(move.locator);
+    });
+
+    test('is able to view USMC as Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA / USMC');
+    });
   });
 
   test.describe('with HHG Move with amended orders', () => {

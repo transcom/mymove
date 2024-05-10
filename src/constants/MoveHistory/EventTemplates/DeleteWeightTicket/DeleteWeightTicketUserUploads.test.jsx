@@ -16,6 +16,7 @@ describe('When given a deleted trip weight ticket upload', () => {
         filename: 'pgWeight.jpg',
         moving_expense_type: '',
         shipment_id_abbr: '125d1',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
       },
     ],
@@ -27,14 +28,22 @@ describe('When given a deleted trip weight ticket upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Deleted upload')).toBeInTheDocument();
+    expect(screen.getByText('Deleted document')).toBeInTheDocument();
+  });
+
+  it('displays trip event properly', () => {
+    historyRecord.context[0].upload_type = 'fullWeightTicket';
+    const template = getTemplate(historyRecord);
+
+    render(template.getEventNameDisplay(historyRecord));
+    expect(screen.getByText('Deleted trip document')).toBeInTheDocument();
   });
 
   it('displays details of shipment type, shipment ID', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #125D1')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   describe('displays details of a deleted ', () => {

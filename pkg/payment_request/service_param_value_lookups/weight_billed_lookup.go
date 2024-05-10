@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"strconv"
@@ -28,7 +29,60 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 		models.ReServiceCodeIDSHUT:
 		estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
 
-		originalWeight = keyData.MTOServiceItem.ActualWeight
+		// Check both the service item weight and if it can't find that then check the shipment's weight
+		if keyData.MTOServiceItem.ActualWeight == nil {
+			originalWeight = r.MTOShipment.PrimeActualWeight
+			if originalWeight == nil {
+				return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s] or for MTOShipmentID [%s]", keyData.MTOServiceItem.ID, r.MTOShipment.ID)
+			}
+		} else {
+			originalWeight = keyData.MTOServiceItem.ActualWeight
+		}
+
+		if estimatedWeight != nil {
+			estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
+			if float64(*originalWeight) > estimatedWeightCap {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
+			} else {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
+			}
+		} else {
+			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
+		}
+		return value, nil
+	case models.ReServiceCodeDDSFSC,
+		models.ReServiceCodeDOSFSC,
+		models.ReServiceCodeFSC:
+
+		var weightBilled string
+
+		// Check if a value is in WeightBilled
+		query := `select psip.value
+			from payment_service_item_params psip
+				join payment_service_items psi
+					on psip.payment_service_item_id = psi.id
+				join mto_service_items msi
+					on msi.id = psi.mto_service_item_id
+				join re_services rs
+					on rs.id = msi.re_service_id
+				join payment_requests pr
+					on psi.payment_request_id = pr.id
+				join service_item_param_keys sipk
+					on sipk.id = psip.service_item_param_key_id
+			where sipk.key = 'WeightBilled' and psi.payment_request_id = $1 and rs.code = $2`
+
+		err := appCtx.DB().RawQuery(query, keyData.PaymentRequestID, keyData.MTOServiceItem.ReService.Code).First(&weightBilled)
+
+		if err != nil && err != sql.ErrNoRows {
+			return "", err
+		}
+
+		if len(weightBilled) > 0 {
+			return weightBilled, nil
+		}
+		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
+
+		originalWeight = r.MTOShipment.PrimeActualWeight
 
 		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
@@ -46,6 +100,7 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 		}
 		return value, nil
+
 	default:
 		// Shipments that are a diversion must utilize the lowest weight that can be found
 		// in their "diverted shipment chain". Diverted shipments are tied together by "divertedFromShipmentId"s after the implementation
@@ -64,6 +119,7 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			// Initialize to maximum int value of 32. This is done to replicate `Number.MAX_SAFE_INTEGER` and comparing down like it was
 			// done on the frontend with JavaScript
 			var lowestWeight = math.MaxInt32
+			var shipmentWithLowestWeight *models.MTOShipment
 			for _, divertedShipment := range *diversionChain {
 				if divertedShipment.PrimeActualWeight == nil {
 					// ! Payments should never be created for a diverted shipment that has a nil PrimeActualWeight inside the chain
@@ -83,15 +139,17 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 				// Update the lowest weight if the current shipment's weight is lower
 				if billableWeightInt < lowestWeight {
 					lowestWeight = billableWeightInt
+					newDivertedShipmentMemoryRef := divertedShipment
+					shipmentWithLowestWeight = &newDivertedShipmentMemoryRef
 				}
 			}
-			if lowestWeight == math.MaxInt32 {
+			if shipmentWithLowestWeight == nil || lowestWeight == math.MaxInt32 {
 				return "", fmt.Errorf("unexpected error when calculating the minimum billable weight for a chain of diverted shipments, a lowest weight could not be identified")
 			}
 
-			// Once we have looped over all shipments in the diversion chain, return the minimim billable weight for this item
-			return strconv.Itoa(lowestWeight), nil
+			return calculateMinimumBillableWeight(appCtx, *shipmentWithLowestWeight, keyData)
 		}
+
 		// If not a diversion, proceed with calculations normally
 		return calculateMinimumBillableWeight(appCtx, r.MTOShipment, keyData)
 	}
@@ -166,7 +224,8 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeIOPSIT,
 			models.ReServiceCodeIDDSIT,
 			models.ReServiceCodeIOSHUT,
-			models.ReServiceCodeIDSHUT:
+			models.ReServiceCodeIDSHUT,
+			models.ReServiceCodeFSC:
 			if weight < 500 {
 				result = 500
 			}

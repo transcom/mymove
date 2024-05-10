@@ -23,6 +23,7 @@ mockPage('pages/Office/EvaluationReport/EvaluationReport');
 mockPage('pages/Office/EvaluationViolations/EvaluationViolations');
 mockPage('pages/Office/MoveHistory/MoveHistory');
 mockPage('pages/Office/MovePaymentRequests/MovePaymentRequests');
+mockPage('pages/Office/CustomerInfo/CustomerInfo');
 mockPage('pages/Office/Forbidden/Forbidden');
 
 const testMoveCode = '1A5PM3';
@@ -211,6 +212,7 @@ describe('TXO Move Info Container', () => {
       ['Customer Support Remarks', 'customer-support-remarks'],
       ['Evaluation Reports', 'evaluation-reports'],
       ['Move History', 'history'],
+      ['Customer Info', 'customer'],
       ['Forbidden', 'evaluation-reports/123'], // Permission restricted
       ['Forbidden', 'evaluation-reports/report123/violations'], // Permission restricted
     ])('should render the %s component when at the route: /moves/:moveCode/%s', async (componentName, nestedPath) => {

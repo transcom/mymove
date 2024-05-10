@@ -12,10 +12,6 @@ const initialValues = {
   counselorRemarks: '',
   ppmShipment: {
     expectedDepartureDate: '',
-    pickupPostalCode: '',
-    secondaryPickupPostalCode: '',
-    destinationPostalCode: '',
-    secondaryDestinationPostalCode: '',
     sitExpected: false,
     sitLocation: '',
     sitEstimatedWeight: '',
@@ -25,6 +21,32 @@ const initialValues = {
     hasProGear: false,
     proGearWeight: '',
     spouseProGearWeight: '',
+    pickupAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    destinationAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    secondaryDeliveryAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    secondaryPickupAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    hasSecondaryPickupAddress: 'false',
+    hasSecondaryDestinationAddress: 'false',
   },
 
   // Other shipment types
@@ -70,18 +92,25 @@ describe('PrimeUIShipmentCreateForm', () => {
       initialValues.ppmShipment.expectedDepartureDate,
     );
 
-    expect(await screen.findByText('Origin Info')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Pickup Postal Code')).toHaveValue(initialValues.ppmShipment.pickupPostalCode);
-    expect(await screen.findByLabelText('Secondary Pickup Postal Code')).toHaveValue(
-      initialValues.ppmShipment.secondaryPickupPostalCode,
+    expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      initialValues.ppmShipment.pickupAddress.streetAddress1,
     );
 
-    expect(await screen.findByText('Destination Info')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Destination Postal Code')).toHaveValue(
-      initialValues.ppmShipment.destinationPostalCode,
+    expect(await screen.getAllByLabelText('City')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.city);
+    expect(await screen.getAllByLabelText('State')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.state);
+    expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.postalCode);
+
+    expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
     );
-    expect(await screen.findByLabelText('Secondary Destination Postal Code')).toHaveValue(
-      initialValues.ppmShipment.secondaryDestinationPostalCode,
+    expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.city,
+    );
+    expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.state,
+    );
+    expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.postalCode,
     );
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
@@ -92,6 +121,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.findByLabelText('Estimated Weight (lbs)')).toHaveValue(
       initialValues.ppmShipment.estimatedWeight,
     );
+
     const hasProGearInput = await screen.findByLabelText('Has Pro Gear');
     expect(hasProGearInput).not.toBeChecked();
 

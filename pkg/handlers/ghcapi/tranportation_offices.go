@@ -30,3 +30,23 @@ func (h GetTransportationOfficesHandler) Handle(params transportationofficeop.Ge
 			return transportationofficeop.NewGetTransportationOfficesOK().WithPayload(returnPayload), nil
 		})
 }
+
+type GetTransportationOfficesOpenHandler struct {
+	handlers.HandlerConfig
+	services.TransportationOfficesFetcher
+}
+
+func (h GetTransportationOfficesOpenHandler) Handle(params transportationofficeop.GetTransportationOfficesOpenParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search)
+			if err != nil {
+				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
+				return transportationofficeop.NewGetTransportationOfficesInternalServerError(), err
+			}
+
+			returnPayload := payloads.TransportationOffices(*transportationOffices)
+			return transportationofficeop.NewGetTransportationOfficesOK().WithPayload(returnPayload), nil
+		})
+}

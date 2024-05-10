@@ -16,6 +16,9 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	if address == nil {
 		return nil
 	}
+	if address.County == nil {
+		address.County = models.StringPointer("")
+	}
 	return &models.Address{
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress1: *address.StreetAddress1,
@@ -25,6 +28,7 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
+		County:         *address.County,
 	}
 }
 

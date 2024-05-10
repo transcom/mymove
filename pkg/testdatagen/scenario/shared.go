@@ -4197,9 +4197,15 @@ func createHHGWithOriginSITServiceItems(
 	if err != nil || verrs.HasAny() {
 		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
 	}
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4216,8 +4222,6 @@ func createHHGWithOriginSITServiceItems(
 	}
 	move.AvailableToPrimeAt = &May14GHCTestYear
 	testdatagen.MustSave(appCtx.DB(), &move)
-
-	planner := &routemocks.Planner{}
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -4266,7 +4270,12 @@ func createHHGWithOriginSITServiceItems(
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 	addressCreator := address.NewAddressCreator()
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4451,7 +4460,14 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4468,8 +4484,6 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
 	}
-
-	planner := &routemocks.Planner{}
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -4514,7 +4528,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}
 
 	addressCreator := address.NewAddressCreator()
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -4848,7 +4867,10 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(123, nil).Once()
+
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4865,9 +4887,6 @@ func createHHGWithPaymentServiceItems(
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
 	}
-
-	planner := &routemocks.Planner{}
-
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)
 
@@ -4977,7 +4996,12 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	addressCreator := address.NewAddressCreator()
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -10620,6 +10644,77 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 		},
 	}, nil)
 
+}
+
+func CreateHHGNeedsServicesCounselingUSMC3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string) models.Move {
+	db := appCtx.DB()
+
+	marineCorps := models.AffiliationMARINES
+	submittedAt := time.Now()
+
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marineCorps,
+				LastName:    models.StringPointer("Marine"),
+				FirstName:   models.StringPointer("Ted"),
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
+	return move
 }
 
 func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {

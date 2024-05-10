@@ -11,6 +11,7 @@ package models_test
 
 import (
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 )
 
 func (suite *ModelSuite) Test_TransportationOfficeInstantiation() {
@@ -23,15 +24,18 @@ func (suite *ModelSuite) Test_TransportationOfficeInstantiation() {
 }
 
 func CreateTestShippingOffice(suite *ModelSuite) TransportationOffice {
-	address := Address{
+	addressCreator := address.NewAddressCreator()
+	newAddress := &Address{
 		StreetAddress1: "123 washington Ave",
 		City:           "Springfield",
 		State:          "AK",
 		PostalCode:     "99515"}
-	suite.MustSave(&address)
+	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
+	suite.NoError(err)
+
 	office := TransportationOffice{
 		Name:      "JPSO Supreme",
-		AddressID: address.ID,
+		AddressID: newAddress.ID,
 		Gbloc:     "BMAF",
 		Latitude:  61.1262383,
 		Longitude: -149.9212882,
@@ -51,12 +55,14 @@ func (suite *ModelSuite) Test_BasicShippingOffice() {
 
 func (suite *ModelSuite) Test_TransportationOffice() {
 	jppso := CreateTestShippingOffice(suite)
-	ppoAddress := Address{
+	addressCreator := address.NewAddressCreator()
+	ppoAddress := &Address{
 		StreetAddress1: "456 Lincoln St",
 		City:           "Sitka",
 		State:          "AK",
 		PostalCode:     "99835"}
-	suite.MustSave(&ppoAddress)
+	ppoAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), ppoAddress)
+	suite.NoError(err)
 	ppo := TransportationOffice{
 		Name:             "Best PPO of the North",
 		ShippingOfficeID: &jppso.ID,

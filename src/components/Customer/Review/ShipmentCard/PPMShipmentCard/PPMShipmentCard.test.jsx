@@ -16,6 +16,7 @@ const defaultProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       pickupPostalCode: '10001',
@@ -34,6 +35,7 @@ const completeProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       pickupPostalCode: '10001',
@@ -62,6 +64,7 @@ const incompleteProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       pickupPostalCode: '10001',
@@ -78,7 +81,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
@@ -115,7 +118,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...defaultProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
@@ -237,7 +240,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
@@ -246,7 +249,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...incompleteProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
 
@@ -254,6 +257,6 @@ describe('PPMShipmentCard component', () => {
     await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
 
     // verify onclick is getting json string as parameter
-    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', '20FDBF58', 'PPM');
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', 'testMove123-01', 'PPM');
   });
 });

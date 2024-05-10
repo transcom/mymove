@@ -324,6 +324,11 @@ export async function counselingUpdateOrder({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function counselingCreateOrder({ body }) {
+  const operationPath = 'order.createOrder';
+  return makeGHCRequest(operationPath, { createOrders: body }, { normalize: true });
+}
+
 export async function updateAllowance({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateAllowance';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
@@ -347,6 +352,11 @@ export async function updateMaxBillableWeightAsTIO({ orderID, ifMatchETag, body 
 export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   const operationPath = 'order.acknowledgeExcessWeightRisk';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
+}
+
+export async function createCustomerWithOktaOption({ body }) {
+  const operationPath = 'customer.createCustomerWithOktaOption';
+  return makeGHCRequest(operationPath, { body });
 }
 
 export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
@@ -656,6 +666,11 @@ export async function searchTransportationOffices(search) {
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
 
+export async function searchTransportationOfficesOpen(search) {
+  const operationPath = 'transportationOffice.getTransportationOfficesOpen';
+  return makeGHCRequest(operationPath, { search }, { normalize: false });
+}
+
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
   const operationPath = 'shipment.reviewShipmentAddressUpdate';
   const schemaKey = 'ShipmentAddressUpdate';
@@ -674,4 +689,25 @@ export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, bod
 
 export async function downloadPPMAOAPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
+}
+
+export async function downloadPPMPaymentPacket(ppmShipmentId) {
+  return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}
+
+export async function createOfficeAccountRequest({ body }) {
+  return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
+}
+
+export async function createUploadForDocument(file, documentId) {
+  return makeGHCRequest(
+    'uploads.createUpload',
+    {
+      documentId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
 }

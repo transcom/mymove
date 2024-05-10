@@ -61,21 +61,21 @@ test.describe('Expenses', () => {
 
 test.describe('(MultiMove) Expenses', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMMovingExpense();
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateToPPMReviewPage();
+      await customerPpmPage.clickOnGoToMoveButton();
+      await customerPpmPage.navigateToPPMReviewPage();
     });
 
-    test.skip(`new expense page loads`, async ({ customerPpmPage }) => {
+    test(`new expense page loads`, async ({ customerPpmPage }) => {
       await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
       await customerPpmPage.submitExpensePage();
     });
 
-    test.skip(`edit expense page loads`, async ({ page }) => {
+    test(`edit expense page loads`, async ({ page }) => {
       // edit the first expense receipt
       const receipt1 = page.getByText('Receipt 1', { exact: true });
       await expect(receipt1).toBeVisible();

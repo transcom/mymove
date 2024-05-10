@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -133,11 +134,19 @@ func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocument
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
-			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewPpmPacketEmail(ppmShipment.ID),
-			)
+			/* Don't send emails to BLUEBARK moves */
+			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), ppmShipment.Shipment.MoveTaskOrderID)
 			if err != nil {
-				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+				return nil, err
+			}
+
+			if move.Orders.OrdersType != "BLUEBARK" {
+				err = h.NotificationSender().SendNotification(appCtx,
+					notifications.NewPpmPacketEmail(ppmShipment.ID),
+				)
+				if err != nil {
+					appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+				}
 			}
 
 			return ppmdocumentops.NewFinishDocumentReviewOK().WithPayload(returnPayload), nil

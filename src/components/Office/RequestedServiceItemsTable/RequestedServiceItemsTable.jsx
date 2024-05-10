@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+import { SERVICE_ITEM_STATUS, MTO_SERVICE_ITEM_STATUS } from '../../../shared/constants';
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
 import styles from './RequestedServiceItemsTable.module.scss';
 
 import ServiceItemsTable from 'components/Office/ServiceItemsTable/ServiceItemsTable';
+import { ShipmentShape } from 'types';
+import { SitStatusShape } from 'types/sitStatusShape';
 
 const RequestedServiceItemsTable = ({
   serviceItems,
@@ -15,6 +17,8 @@ const RequestedServiceItemsTable = ({
   handleShowEditSitEntryDateModal,
   statusForTableType,
   serviceItemAddressUpdateAlert,
+  shipment,
+  sitStatus,
 }) => {
   const chooseTitleText = (status) => {
     switch (status) {
@@ -24,8 +28,14 @@ const RequestedServiceItemsTable = ({
         return 'Approved';
       case SERVICE_ITEM_STATUS.REJECTED:
         return 'Rejected';
+      case MTO_SERVICE_ITEM_STATUS.APPROVED:
+        return 'Move Task Order Approved';
+      case MTO_SERVICE_ITEM_STATUS.REJECTED:
+        return 'Move Task Order Approved';
+      case MTO_SERVICE_ITEM_STATUS.SUBMITTED:
+        return 'Move Task Order Requested';
       default:
-        return 'Requested';
+        return status;
     }
   };
 
@@ -34,7 +44,7 @@ const RequestedServiceItemsTable = ({
   return (
     <div className={styles.RequestedServiceItemsTable} data-testid={`${statusTitleText}ServiceItemsTable`}>
       <h3>
-        {statusTitleText} service items&nbsp;
+        {statusTitleText} Service Items&nbsp;
         <span>
           ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
         </span>
@@ -46,6 +56,8 @@ const RequestedServiceItemsTable = ({
         handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
         statusForTableType={statusForTableType}
         serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
+        shipment={shipment}
+        sitStatus={sitStatus}
       />
     </div>
   );
@@ -56,6 +68,13 @@ RequestedServiceItemsTable.propTypes = {
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
+  shipment: ShipmentShape,
+  sitStatus: SitStatusShape,
+};
+
+RequestedServiceItemsTable.defaultProps = {
+  shipment: {},
+  sitStatus: undefined,
 };
 
 export default RequestedServiceItemsTable;

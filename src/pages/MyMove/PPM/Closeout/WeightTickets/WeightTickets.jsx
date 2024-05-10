@@ -3,8 +3,10 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { createUploadForPPMDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -14,9 +16,11 @@ import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { updateMTOShipment } from 'store/entities/actions';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -27,7 +31,18 @@ const WeightTickets = () => {
     selectWeightTicketAndIndexById(state, mtoShipmentId, weightTicketId),
   );
 
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
+
+  const errorModalMessage =
+    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
+
   useEffect(() => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
     if (!weightTicketId) {
       createWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -57,15 +72,17 @@ const WeightTickets = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file, true)
       .then((upload) => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         setFieldTouched(fieldName, true);
+        setIsErrorModalVisible(false);
         return upload;
       })
       .catch(() => {
-        setErrorMessage('Failed to save the file upload');
+        // setErrorMessage('Failed to save the file upload');
+        setIsErrorModalVisible(true);
       });
   };
 
@@ -93,7 +110,11 @@ const WeightTickets = () => {
   };
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -166,6 +187,7 @@ const WeightTickets = () => {
               onSubmit={handleSubmit}
               onBack={handleBack}
             />
+            <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
           </Grid>
         </Grid>
       </GridContainer>

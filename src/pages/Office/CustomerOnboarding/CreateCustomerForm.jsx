@@ -3,13 +3,14 @@ import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/
 import { useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
+import { connect } from 'react-redux';
 
 import styles from './CreateCustomerForm.module.scss';
 
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { generalRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
@@ -18,9 +19,12 @@ import { dropdownInputOptions } from 'utils/formatters';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { backupContactInfoSchema, requiredAddressSchema } from 'utils/validation';
+import { createCustomerWithOktaOption } from 'services/ghcApi';
+import { getResponseError } from 'services/internalApi';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-export const CreateCustomerForm = () => {
-  const [serverError] = useState(null);
+export const CreateCustomerForm = ({ setFlashMessage }) => {
+  const [serverError, setServerError] = useState(null);
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -90,10 +94,10 @@ export const CreateCustomerForm = () => {
     last_name: '',
     suffix: '',
     telephone: '',
-    secondary_telephone: '',
+    secondary_telephone: null,
     personal_email: '',
-    phone_is_preferred: '',
-    email_is_preferred: '',
+    phone_is_preferred: false,
+    email_is_preferred: false,
     [residentialAddressName]: {
       streetAddress1: '',
       streetAddress2: '',
@@ -119,13 +123,45 @@ export const CreateCustomerForm = () => {
   };
 
   const handleBack = () => {
-    navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
+    navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
   };
 
-  const onSubmit = () => {
-    // TODO pass in values and call the API
-    // console.log(values);
-    navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
+  const onSubmit = async (values) => {
+    // Convert strings to booleans to satisfy swagger
+    const createOktaAccount = values.create_okta_account === 'true';
+
+    const body = {
+      affiliation: values.affiliation,
+      edipi: values.edipi,
+      firstName: values.first_name,
+      middleName: values.middle_name,
+      lastName: values.last_name,
+      suffix: values.suffix,
+      telephone: values.telephone,
+      secondaryTelephone: values.secondary_telephone,
+      personalEmail: values.personal_email,
+      phoneIsPreferred: values.phone_is_preferred,
+      emailIsPreferred: values.email_is_preferred,
+      residentialAddress: values[residentialAddressName],
+      backupMailingAddress: values[backupAddressName],
+      backupContact: {
+        name: values[backupContactName].name,
+        email: values[backupContactName].email,
+        phone: values[backupContactName].telephone,
+      },
+      createOktaAccount,
+    };
+
+    return createCustomerWithOktaOption({ body })
+      .then(() => {
+        setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
+        navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
+      })
+      .catch((e) => {
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to create service member due to server error');
+        setServerError(errorMessage);
+      });
   };
 
   const validationSchema = Yup.object().shape({
@@ -138,10 +174,9 @@ export const CreateCustomerForm = () => {
     telephone: Yup.string()
       .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
       .required('Required'),
-    secondary_telephone: Yup.string().min(
-      12,
-      'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
-    ),
+    secondary_telephone: Yup.string()
+      .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
+      .nullable(),
     personal_email: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
@@ -159,7 +194,7 @@ export const CreateCustomerForm = () => {
 
       {serverError && (
         <Grid>
-          <Grid col desktop={{ col: 8, offset: 2 }} style={{ width: '750px' }}>
+          <Grid col desktop={{ col: 8 }}>
             <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
@@ -368,4 +403,8 @@ export const CreateCustomerForm = () => {
   );
 };
 
-export default CreateCustomerForm;
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(CreateCustomerForm);

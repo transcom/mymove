@@ -36,6 +36,7 @@ import {
   selectHasCanceledMove,
 } from 'store/entities/selectors';
 import { generalRoutes, customerRoutes } from 'constants/routes';
+import { pageNames } from 'constants/signInPageNames';
 /** Pages */
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
@@ -84,6 +85,7 @@ export class CustomerApp extends Component {
       info: undefined,
       multiMoveFeatureFlag: false,
       cacValidatedFeatureFlag: false,
+      validationCodeRequired: false,
     };
   }
 
@@ -101,6 +103,11 @@ export class CustomerApp extends Component {
     isBooleanFlagEnabled('cac_validated_login').then((enabled) => {
       this.setState({
         cacValidatedFeatureFlag: enabled,
+      });
+    });
+    isBooleanFlagEnabled('validation_code_required').then((enabled) => {
+      this.setState({
+        validationCodeRequired: enabled,
       });
     });
     document.title = generatePageTitle('Sign In');
@@ -135,7 +142,7 @@ export class CustomerApp extends Component {
           <BypassBlock />
           <GovBanner />
 
-          {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader />}
+          {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader app={pageNames.MYMOVE} />}
 
           <main role="main" className="site__content my-move-container" id="main">
             <ConnectedLogoutOnInactivity />

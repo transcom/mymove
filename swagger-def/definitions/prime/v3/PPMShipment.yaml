@@ -1,0 +1,195 @@
+description: A personally procured move is a type of shipment that a service member moves themselves.
+x-nullable: true
+properties:
+  id:
+    description: The primary unique identifier of this PPM shipment
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  shipmentId:
+    description: The id of the parent MTOShipment record
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  createdAt:
+    description: The timestamp of when the PPM shipment was created (UTC)
+    format: date-time
+    type: string
+    readOnly: true
+  updatedAt:
+    description: The timestamp of when a property of this object was last updated (UTC)
+    format: date-time
+    type: string
+    readOnly: true
+  status:
+    $ref: '../../PPMShipmentStatus.yaml'
+  expectedDepartureDate:
+    description: >
+      Date the customer expects to begin moving from their origin.
+    format: date
+    type: string
+  actualMoveDate:
+    description: The actual start date of when the PPM shipment left the origin.
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  submittedAt:
+    description: The timestamp of when the customer submitted their PPM documentation to the counselor for review.
+    format: date-time
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  reviewedAt:
+    description: The timestamp of when the Service Counselor has reviewed all of the closeout documents.
+    format: date-time
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  approvedAt:
+    description: The timestamp of when the shipment was approved and the service member can begin their move.
+    format: date-time
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  pickupAddress:
+    $ref: '../../Address.yaml'
+  secondaryPickupAddress:
+    $ref: '../../Address.yaml'
+  hasSecondaryPickupAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
+  actualPickupPostalCode:
+    description: >
+      The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
+  destinationAddress:
+    $ref: '../../Address.yaml'
+  secondaryDestinationAddress:
+    $ref: '../../Address.yaml'
+  hasSecondaryDestinationAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
+  actualDestinationPostalCode:
+    description: >
+      The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
+    format: zip
+    type: string
+    title: ZIP
+    example: '90210'
+    pattern: ^(\d{5})$
+    x-nullable: true
+    x-omitempty: false
+  sitExpected:
+    description: |
+      Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
+
+      Must be set to `true` when providing `sitLocation`, `sitEstimatedWeight`, `sitEstimatedEntryDate`, and `sitEstimatedDepartureDate` values to calculate the `sitEstimatedCost`.
+    type: boolean
+  estimatedWeight:
+    description: The estimated weight of the PPM shipment goods being moved in pounds.
+    type: integer
+    example: 4200
+    x-nullable: true
+    x-omitempty: false
+  hasProGear:
+    description: >
+      Indicates whether PPM shipment has pro gear for themselves or their spouse.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  proGearWeight:
+    description: The estimated weight of the pro-gear being moved belonging to the service member in pounds.
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  spouseProGearWeight:
+    description: The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  estimatedIncentive:
+    description: The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  hasRequestedAdvance:
+    description: >
+      Indicates whether an advance has been requested for the PPM shipment.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  advanceAmountRequested:
+    description: >
+      The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  hasReceivedAdvance:
+    description: >
+      Indicates whether an advance was received for the PPM shipment.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  advanceAmountReceived:
+    description: >
+      The amount received for an advance, or null if no advance is received.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  sitLocation:
+    allOf:
+      - $ref: '../../SITLocationType.yaml'
+      - x-nullable: true
+      - x-omitempty: false
+  sitEstimatedWeight:
+    description: The estimated weight of the goods being put into storage in pounds.
+    type: integer
+    example: 2000
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedEntryDate:
+    description: The date that goods will first enter the storage location.
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedDepartureDate:
+    description: The date that goods will exit the storage location.
+    format: date
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  sitEstimatedCost:
+    description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
+  eTag:
+    description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+required:
+  - id
+  - shipmentId
+  - createdAt
+  - status
+  - expectedDepartureDate
+  - pickupAddress
+  - destinationAddress
+  - sitExpected
+  - eTag

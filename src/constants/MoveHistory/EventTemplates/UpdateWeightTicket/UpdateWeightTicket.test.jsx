@@ -16,6 +16,7 @@ describe('When given a updated weight', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'f10be',
       },
     ],
@@ -35,6 +36,7 @@ describe('When given a updated weight', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'f10be',
       },
     ],
@@ -46,7 +48,7 @@ describe('When given a updated weight', () => {
     const template = getTemplate(netWeightRecord);
 
     render(template.getDetails(netWeightRecord));
-    expect(screen.getByText('PPM shipment #F10BE')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   it('displays an approved request', () => {

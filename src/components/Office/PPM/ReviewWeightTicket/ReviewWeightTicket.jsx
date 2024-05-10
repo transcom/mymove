@@ -7,6 +7,7 @@ import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswd
 import * as Yup from 'yup';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
+import HHGWeightSummary from '../HHGWeightSummary/HHGWeightSummary';
 import EditPPMNetWeight from '../EditNetWeights/EditPPMNetWeight';
 
 import styles from './ReviewWeightTicket.module.scss';
@@ -252,6 +253,7 @@ function ReviewWeightTicket({
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
+              <HHGWeightSummary mtoShipments={currentMtoShipments} />
               <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>

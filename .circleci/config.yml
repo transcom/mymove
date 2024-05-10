@@ -751,7 +751,6 @@ commands:
 
             make server_test
           no_output_timeout: 20m
-
           environment:
             APPLICATION: '<< parameters.application >>'
             # 8 since this runs on xlarge with 8 CPUs
@@ -862,10 +861,12 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
+            export FEATURE_FLAG_MULTI_MOVE=true
             export FEATURE_FLAG_PPM=true
             export FEATURE_FLAG_NTS=true
             export FEATURE_FLAG_NTSR=true
             export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
+            export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -890,10 +891,12 @@ commands:
             PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
             # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            FEATURE_FLAG_MULTI_MOVE: 'true'
             FEATURE_FLAG_PPM: 'true'
             FEATURE_FLAG_NTS: 'true'
             FEATURE_FLAG_NTSR: 'true'
             FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
+            FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -1264,7 +1267,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v11-spectral-lint-
+            - v17-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1323,7 +1326,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v11-spectral-lint-{{ .BuildNum }}
+                key: v17-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
@@ -2363,8 +2366,8 @@ workflows:
             - compile_app_server
             # limiting this run to integrationBranch only due to multiple branch pipeline
           filters:
-              branches:
-                only: integrationTesting
+            branches:
+              only: integrationTesting
 
       - client_test:
           requires:
@@ -2609,7 +2612,7 @@ workflows:
 
       - prod_auth_check:
           requires:
-           - approve_prd_deploy
+            - approve_prd_deploy
           filters:
             branches:
               only: main

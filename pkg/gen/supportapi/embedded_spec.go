@@ -807,6 +807,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1110,6 +1116,10 @@ func init() {
         "eTag": {
           "type": "string",
           "readOnly": true
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -2012,6 +2022,7 @@ func init() {
         "SEPARATION",
         "GHC",
         "NTS",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -2021,7 +2032,8 @@ func init() {
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -3604,6 +3616,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -3907,6 +3925,10 @@ func init() {
         "eTag": {
           "type": "string",
           "readOnly": true
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -4809,6 +4831,7 @@ func init() {
         "SEPARATION",
         "GHC",
         "NTS",
+        "WOUNDED_WARRIOR",
         "BLUEBARK"
       ],
       "x-display-value": {
@@ -4818,7 +4841,8 @@ func init() {
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {

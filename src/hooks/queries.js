@@ -145,6 +145,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
+    move,
     order,
     customerData,
     isLoading,

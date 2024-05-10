@@ -3,6 +3,7 @@ package ppmshipment
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -777,15 +778,17 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeSITEstimatedCost, *updatedPPM.SITEstimatedCost)
 	})
 
-	suite.Run("Can successfully update a PPMShipment - final incentive", func() {
+	suite.Run("Can successfully update a PPMShipment - final incentive and actual move date", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil)
 
+		today := time.Now()
+
 		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					ActualMoveDate:              models.TimePointer(testdatagen.NextValidMoveDate),
+					ActualMoveDate:              &today,
 					ActualPickupPostalCode:      models.StringPointer("79912"),
 					ActualDestinationPostalCode: models.StringPointer("90909"),
 					EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
@@ -803,6 +806,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		// Fields that should now be updated
 		suite.Equal(newPPM.FinalIncentive, updatedPPM.FinalIncentive)
+		suite.Equal(newPPM.ActualMoveDate, updatedPPM.ActualMoveDate)
 	})
 
 	suite.Run("Can't update if Shipment can't be found", func() {

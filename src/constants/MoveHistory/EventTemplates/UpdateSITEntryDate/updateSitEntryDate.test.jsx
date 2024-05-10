@@ -16,6 +16,7 @@ describe('when given a Update sit entry date service item history record', () =>
         name: "Domestic destination add'l SIT",
         shipment_type: 'HHG',
         shipment_id_abbr: 'a1b2c',
+        shipment_locator: 'ABC123-01',
       },
     ],
     oldValues: {
@@ -28,7 +29,7 @@ describe('when given a Update sit entry date service item history record', () =>
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText("HHG shipment #A1B2C, Domestic destination add'l SIT")).toBeInTheDocument();
+    expect(screen.getByText("HHG shipment #ABC123-01, Domestic destination add'l SIT")).toBeInTheDocument();
   });
 
   describe('When given a specific set of details', () => {

@@ -13,7 +13,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { requiredAddressSchema } from 'utils/validation';
+import { phoneSchema, requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
 
 const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
@@ -25,13 +25,8 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     customerEmail: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
-    customerTelephone: Yup.string()
-      .min(12, 'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.')
-      .required('Required'), // min 12 includes hyphens
-    secondaryPhone: Yup.string().min(
-      12,
-      'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
-    ),
+    customerTelephone: phoneSchema.required('Required'),
+    secondaryPhone: phoneSchema,
     customerAddress: requiredAddressSchema.required(),
     backupAddress: requiredAddressSchema.required(),
     name: Yup.string().required('Required'),
@@ -103,8 +98,13 @@ CustomerContactInfoForm.propTypes = {
     email: PropTypes.string,
     customerAddress: ResidentialAddressShape,
   }).isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func,
+  onBack: PropTypes.func,
+};
+
+CustomerContactInfoForm.defaultProps = {
+  onSubmit: () => {},
+  onBack: () => {},
 };
 
 export default CustomerContactInfoForm;

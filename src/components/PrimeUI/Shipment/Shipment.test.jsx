@@ -23,6 +23,8 @@ const approvedMoveTaskOrder = {
     mtoShipments: [
       {
         actualPickupDate: '2020-03-17',
+        actualProGearWeight: null,
+        actualSpouseProGearWeight: 117,
         agents: [],
         approvedDate: '2021-10-20',
         counselorRemarks: 'These are counselor remarks for an HHG.',
@@ -152,6 +154,14 @@ describe('Shipment details component', () => {
     field = screen.getByText('Reweigh Requested Date:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.reweigh.requestedAt);
+
+    field = screen.getByText('Actual Pro Gear Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('—');
+
+    field = screen.getByText('Actual Spouse Pro Gear Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipment.actualSpouseProGearWeight.toString());
 
     field = screen.getByText('Pickup Address:');
     expect(field).toBeInTheDocument();
@@ -283,7 +293,6 @@ const ppmShipment = {
     advanceAmountRequested: 598700,
     approvedAt: '2022-07-03T14:20:21.620Z',
     createdAt: '2022-06-30T13:41:33.265Z',
-    destinationPostalCode: '30813',
     eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43ODA1Mlo=',
     estimatedIncentive: 1000000,
     estimatedWeight: 4000,
@@ -292,11 +301,8 @@ const ppmShipment = {
     hasReceivedAdvance: true,
     hasRequestedAdvance: true,
     id: 'd733fe2f-b08d-434a-ad8d-551f4d597b03',
-    pickupPostalCode: '90210',
     proGearWeight: 1987,
     reviewedAt: '2022-07-02T14:20:14.636Z',
-    secondaryDestinationPostalCode: '30814',
-    secondaryPickupPostalCode: '90211',
     shipmentId: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
     sitEstimatedCost: 123456,
     sitEstimatedDepartureDate: '2022-07-13',
@@ -308,6 +314,40 @@ const ppmShipment = {
     status: 'SUBMITTED',
     submittedAt: '2022-07-01T13:41:33.252Z',
     updatedAt: '2022-07-01T14:23:19.780Z',
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '777 Test Street',
+      streetAddress2: '888 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42702',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42703',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '444 Test Street',
+      streetAddress2: '555 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    hasSecondaryPickupAddress: 'true',
+    hasSecondaryDestinationAddress: 'true',
   },
   primeEstimatedWeightRecordedDate: null,
   requestedPickupDate: null,
@@ -369,10 +409,6 @@ describe('PPM shipments are handled', () => {
     ['PPM Submitted at:', formatDateFromIso(ppmShipmentFields.submittedAt, 'YYYY-MM-DD')],
     ['PPM Reviewed at:', formatDateFromIso(ppmShipmentFields.reviewedAt, 'YYYY-MM-DD')],
     ['PPM Approved at:', formatDateFromIso(ppmShipmentFields.approvedAt, 'YYYY-MM-DD')],
-    ['PPM Pickup Postal Code:', ppmShipmentFields.pickupPostalCode],
-    ['PPM Secondary Pickup Postal Code:', ppmShipmentFields.secondaryPickupPostalCode],
-    ['PPM Destination Postal Code:', ppmShipmentFields.destinationPostalCode],
-    ['PPM Secondary Destination Postal Code:', ppmShipmentFields.secondaryDestinationPostalCode],
     ['PPM SIT Expected:', formatYesNoInputValue(ppmShipmentFields.sitExpected)],
     ['PPM Estimated Weight:', ppmShipmentFields.estimatedWeight.toString()],
     ['PPM Has Pro Gear:', formatYesNoInputValue(ppmShipmentFields.hasProGear)],
@@ -400,6 +436,20 @@ describe('PPM shipments are handled', () => {
     const field = screen.getByText(ppmShipmentField);
     await expect(field).toBeInTheDocument();
     await expect(field.nextElementSibling.textContent).toBe(ppmShipmentFieldValue);
+  });
+
+  it('PPM does not display HHG fields', async () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={ppmShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    let field = screen.queryByText('Actual Pro Gear Weight:');
+    expect(field).not.toBeInTheDocument();
+
+    field = screen.queryByText('Actual Spouse Pro Gear Weight:');
+    expect(field).not.toBeInTheDocument();
   });
 
   it('PPM can be deleted', async () => {

@@ -32,16 +32,14 @@ func init() {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
     "contact": {
-      "name": "MilMove AppEng",
-      "email": "support@movemil.pagerduty.com"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
+      "url": "https://opensource.org/licenses/MIT"
     },
     "version": "1.0.0"
   },
-  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin-users": {
@@ -1193,7 +1191,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -1254,12 +1252,12 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user in any status",
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -1287,6 +1285,57 @@ func init() {
           },
           "404": {
             "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested Office Users"
+        ],
+        "summary": "Update a Requested Office User",
+        "operationId": "updateRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestedOfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "server error"
@@ -1750,6 +1799,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "postalCode": {
           "description": "zip code, international allowed",
@@ -2664,6 +2719,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -2739,6 +2817,66 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        }
+      }
+    },
+    "RequestedOfficeUserUpdate": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "Q."
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -3232,16 +3370,14 @@ func init() {
     "description": "The Admin API is a RESTful API that enables the Admin application for MilMove.\n\nAll endpoints are located under ` + "`" + `/admin/v1` + "`" + `.\n",
     "title": "MilMove Admin API",
     "contact": {
-      "name": "MilMove AppEng",
-      "email": "support@movemil.pagerduty.com"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/main/LICENSE.md"
+      "url": "https://opensource.org/licenses/MIT"
     },
     "version": "1.0.0"
   },
-  "host": "admin.move.mil",
   "basePath": "/admin/v1",
   "paths": {
     "/admin-users": {
@@ -4393,7 +4529,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "List of Office Users Requesting Accounts",
         "operationId": "indexRequestedOfficeUsers",
@@ -4454,12 +4590,12 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user in any status",
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "Requested office users"
+          "Requested Office Users"
         ],
         "summary": "Get a Requested Office User",
         "operationId": "getRequestedOfficeUser",
@@ -4487,6 +4623,57 @@ func init() {
           },
           "404": {
             "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Requested Office Users"
+        ],
+        "summary": "Update a Requested Office User",
+        "operationId": "updateRequestedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestedOfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "server error"
@@ -4950,6 +5137,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "postalCode": {
           "description": "zip code, international allowed",
@@ -5865,6 +6058,29 @@ func init() {
         "$ref": "#/definitions/OfficeUser"
       }
     },
+    "OktaAccountInfoResponse": {
+      "type": "object",
+      "properties": {
+        "activated": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "Organization": {
       "type": "object",
       "required": [
@@ -5940,6 +6156,66 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        }
+      }
+    },
+    "RequestedOfficeUserUpdate": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "user@userdomain.com"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleInitials": {
+          "type": "string",
+          "title": "Middle Initials",
+          "x-nullable": true,
+          "example": "Q."
+        },
+        "otherUniqueId": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },

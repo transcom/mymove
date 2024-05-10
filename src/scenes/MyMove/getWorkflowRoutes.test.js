@@ -20,6 +20,11 @@ const ghcContext = {
   },
 };
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 describe('when getting the routes for the current workflow', () => {
   describe('given a complete service member', () => {
     describe('given a PPM', () => {
@@ -30,6 +35,7 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
         expect(pages).toEqual([
+          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -71,6 +77,7 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
         expect(pages).toEqual([
+          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -93,6 +100,7 @@ describe('when getting the routes for the current workflow', () => {
         const pages = getPagesInFlow(props);
         it('getPagesInFlow returns service member, order and move pages', () => {
           expect(pages).toEqual([
+            '/service-member/validation-code',
             '/service-member/conus-oconus',
             '/service-member/dod-info',
             '/service-member/name',
@@ -118,6 +126,7 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and PPM-specific move pages', () => {
         expect(pages).toEqual([
+          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -139,6 +148,7 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
+          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -160,6 +170,7 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
+          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -181,6 +192,7 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
+          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -206,7 +218,7 @@ describe('when getting the next incomplete page', () => {
         serviceMember,
         context: ppmContext,
       });
-      expect(result).toEqual('/service-member/dod-info');
+      expect(result).toEqual('/service-member/validation-code');
     });
     describe('when dod info is complete', () => {
       it('returns the next page of the user profile', () => {

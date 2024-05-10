@@ -33,6 +33,10 @@ export async function makeInternalRequestRaw(operationPath, params = {}) {
   return makeSwaggerRequestRaw(client, operationPath, params);
 }
 
+export async function validateCode(body) {
+  return makeInternalRequestRaw('application_parameters.validate', { body });
+}
+
 export async function getLoggedInUser(normalize = true) {
   return makeInternalRequest('users.showLoggedInUser', {}, { normalize });
 }
@@ -229,13 +233,14 @@ export async function createUploadForDocument(file, documentId) {
   );
 }
 
-export async function createUploadForPPMDocument(ppmShipmentId, documentId, file) {
+export async function createUploadForPPMDocument(ppmShipmentId, documentId, file, weightReceipt) {
   return makeInternalRequest(
     'ppm.createPPMUpload',
     {
       ppmShipmentId,
       documentId,
       file,
+      weightReceipt,
     },
     {
       normalize: false,
@@ -500,4 +505,8 @@ export async function searchTransportationOffices(search) {
 
 export async function downloadPPMAOAPacket(ppmShipmentId) {
   return makeInternalRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
+}
+
+export async function downloadPPMPaymentPacket(ppmShipmentId) {
+  return makeInternalRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }

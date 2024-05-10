@@ -95,6 +95,9 @@ type Move struct {
 	// Format: date-time
 	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
 
+	// shipment g b l o c
+	ShipmentGBLOC GBLOC `json:"shipmentGBLOC,omitempty"`
+
 	// status
 	Status MoveStatus `json:"status,omitempty"`
 
@@ -168,6 +171,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateServiceCounselingCompletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateShipmentGBLOC(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -378,6 +385,23 @@ func (m *Move) validateServiceCounselingCompletedAt(formats strfmt.Registry) err
 	return nil
 }
 
+func (m *Move) validateShipmentGBLOC(formats strfmt.Registry) error {
+	if swag.IsZero(m.ShipmentGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.ShipmentGBLOC.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentGBLOC")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *Move) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -440,6 +464,10 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 	}
 
 	if err := m.contextValidateOrders(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentGBLOC(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -529,6 +557,24 @@ func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registr
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateShipmentGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ShipmentGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.ShipmentGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentGBLOC")
+		}
+		return err
 	}
 
 	return nil

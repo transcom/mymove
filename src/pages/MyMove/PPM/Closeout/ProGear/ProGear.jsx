@@ -3,11 +3,13 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+
 import { selectMTOShipmentById, selectProGearWeightTicketAndIndexById } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import {
   createUploadForPPMDocument,
   createProGearWeightTicket,
@@ -22,11 +24,18 @@ import { updateMTOShipment } from 'store/entities/actions';
 const ProGear = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { moveId, mtoShipmentId, proGearId } = useParams();
+
+  const [multiMove, setMultiMove] = useState(false);
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
   const [errorMessage, setErrorMessage] = useState(null);
-  const { moveId, mtoShipmentId, proGearId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const { proGearWeightTicket: currentProGearWeightTicket, index: currentIndex } = useSelector((state) =>
@@ -34,6 +43,9 @@ const ProGear = () => {
   );
 
   useEffect(() => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
     if (!proGearId) {
       createProGearWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -63,7 +75,7 @@ const ProGear = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file, false)
       .then((upload) => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));

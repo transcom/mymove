@@ -211,7 +211,6 @@ export default function ReviewBillableWeight() {
                 title="Max billable weight"
                 estimatedWeight={totalEstimatedWeight}
                 maxBillableWeight={maxBillableWeight}
-                weightAllowance={weightAllowance}
                 editEntity={editEntity}
                 billableWeightJustification={move.tioRemarks}
                 isNTSRShipment={selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR}
@@ -307,6 +306,7 @@ export default function ReviewBillableWeight() {
                   Back
                 </Button>
                 {!isLastShipment && <Button onClick={handleClickNextButton}>Next Shipment</Button>}
+                {isLastShipment && <Button onClick={handleClose}>Done</Button>}
               </div>
             </DocumentViewerSidebar.Footer>
           </DocumentViewerSidebar>

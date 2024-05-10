@@ -45,6 +45,10 @@ Note that there are some restrictions on nested objects:
 These restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.
 
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+
+**NOTE**: New version in v3. Version will accept PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+secondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,
+destinationPostalCode and secondaryDestinationPostalCode].
 */
 type UpdateMTOShipment struct {
 	Context *middleware.Context

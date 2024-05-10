@@ -21,7 +21,7 @@ describe('WeightDisplay', () => {
 
   it('renders with edit button when user has permissions', () => {
     render(
-      <MockProviders permissions={[permissionTypes.updateBillableWeight]}>
+      <MockProviders permissions={[permissionTypes.updateBillableWeight, permissionTypes.updateMTOPage]}>
         <WeightDisplay heading="heading test" value={1234} onEdit={jest.fn()} />
       </MockProviders>,
     );
@@ -32,7 +32,7 @@ describe('WeightDisplay', () => {
   it('edit button is clicked', () => {
     const mockEditBtn = jest.fn();
     render(
-      <MockProviders permissions={[permissionTypes.updateBillableWeight]}>
+      <MockProviders permissions={[permissionTypes.updateBillableWeight, permissionTypes.updateMTOPage]}>
         <WeightDisplay heading="heading test" value={1234} showEditBtn onEdit={mockEditBtn} />
       </MockProviders>,
     );
@@ -44,6 +44,16 @@ describe('WeightDisplay', () => {
   it('renders with no edit button when user does not have permissions', () => {
     render(<WeightDisplay heading="heading test" value={1234} />);
 
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('renders with no edit button when user does not have updateMTOPage permission', () => {
+    const mockEditBtn = jest.fn();
+    render(
+      <MockProviders permissions={[permissionTypes.updateBillableWeight]}>
+        <WeightDisplay heading="heading test" value={1234} showEditBtn onEdit={mockEditBtn} />
+      </MockProviders>,
+    );
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 

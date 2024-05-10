@@ -244,6 +244,7 @@ const ShipmentDetailsMain = ({
           eTag: shipment.eTag,
           status: shipment.status,
           shipmentType: shipment.shipmentType,
+          shipmentLocator: shipment.shipmentLocator,
         }}
         handleDivertShipment={handleDivertShipment}
       />
@@ -256,6 +257,8 @@ const ShipmentDetailsMain = ({
           reweighID: shipment.reweigh?.id,
           reweighWeight: shipment.reweigh?.weight,
           shipmentType: shipment.shipmentType,
+          shipmentActualProGearWeight: shipment.actualProGearWeight,
+          shipmentActualSpouseProGearWeight: shipment.actualSpouseProGearWeight,
         }}
         handleRequestReweighModal={handleRequestReweighModal}
       />

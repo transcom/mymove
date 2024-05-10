@@ -389,6 +389,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	if routingConfig.ServePrime || routingConfig.ServePrimeSimulator {
 		routingConfig.PrimeSwaggerPath = v.GetString(cli.PrimeSwaggerFlag)
 		routingConfig.PrimeV2SwaggerPath = v.GetString(cli.PrimeV2SwaggerFlag)
+		routingConfig.PrimeV3SwaggerPath = v.GetString(cli.PrimeV3SwaggerFlag)
 	}
 
 	routingConfig.ServeSupport = v.GetBool(cli.ServeSupportFlag)

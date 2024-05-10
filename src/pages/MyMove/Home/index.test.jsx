@@ -652,7 +652,7 @@ describe('Home component', () => {
 
         await waitFor(() => {
           expect(
-            screen.getByText(/Something went wrong downloading PPM AOA paperwork./, { exact: false }),
+            screen.getByText(/Something went wrong downloading PPM paperwork./, { exact: false }),
           ).toBeInTheDocument();
           expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
         });

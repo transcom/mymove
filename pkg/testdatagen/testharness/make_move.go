@@ -551,7 +551,7 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipmentFields := models.MTOShipment{
-		Status:                models.MTOShipmentStatusApproved,
+		Status:                models.MTOShipmentStatusSubmitted,
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 	}
@@ -2360,7 +2360,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2464,7 +2464,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2537,6 +2537,21 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	locator := models.GenerateLocator()
 	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeHHGMoveNeedsServicesCounselingUSMC creates an fully ready move as USMC needing SC approval
+func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	locator := models.GenerateLocator()
+	move := scenario.CreateHHGNeedsServicesCounselingUSMC3(appCtx, userUploader, locator)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -3381,6 +3396,95 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{

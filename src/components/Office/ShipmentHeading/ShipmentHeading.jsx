@@ -43,9 +43,11 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
         </small>
         {isCancelModalVisible && (
           <Restricted to={permissionTypes.createShipmentCancellation}>
-            <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
-              Request Cancellation
-            </Button>
+            <Restricted to={permissionTypes.updateMTOPage}>
+              <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
+                Request Cancellation
+              </Button>
+            </Restricted>
           </Restricted>
         )}
         {isCancellationRequested && <Tag>Cancellation Requested</Tag>}

@@ -148,6 +148,7 @@ type MTOShipment struct {
 	CreatedAt                        time.Time              `db:"created_at"`
 	UpdatedAt                        time.Time              `db:"updated_at"`
 	DeletedAt                        *time.Time             `db:"deleted_at"`
+	ShipmentLocator                  *string                `db:"shipment_locator"`
 }
 
 // TableName overrides the table name used by Pop.

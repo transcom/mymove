@@ -64,11 +64,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	originCity := "Beverly Hills"
 	originPostalCode := "90210"
 	originStreet1 := "123 Rodeo Dr."
+	originCounty1 := "LOS ANGELES"
 	sitHHGActualOriginAddress := primemessages.Address{
 		State:          &originState,
 		City:           &originCity,
 		PostalCode:     &originPostalCode,
 		StreetAddress1: &originStreet1,
+		County:         &originCounty1,
 	}
 
 	destReason := "service member will pick up from storage at destination"
@@ -77,11 +79,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	destTime := "1400Z"
 	destCity := "Beverly Hills"
 	destPostalCode := "90210"
+	destCounty := "LOS ANGELES"
 	destStreet := "123 Rodeo Dr."
 	sitFinalDestAddress := primemessages.Address{
 		City:           &destCity,
 		PostalCode:     &destPostalCode,
 		StreetAddress1: &destStreet,
+		County:         &destCounty,
 	}
 
 	destServiceItem := &primemessages.MTOServiceItemDestSIT{
@@ -283,12 +287,14 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 	city := "Beverly Hills"
 	state := "CA"
 	postalCode := "90210"
+	county := "LOS ANGELES"
 	street := "123 Rodeo Dr."
 	newAddress := primemessages.Address{
 		City:           &city,
 		State:          &state,
 		PostalCode:     &postalCode,
 		StreetAddress1: &street,
+		County:         &county,
 	}
 
 	suite.Run("Success - Returns a SITAddressUpdate model as expected", func() {

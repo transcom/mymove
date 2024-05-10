@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import 'styles/office.scss';
 
 import { permissionTypes } from 'constants/permissions';
-import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
+import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -26,6 +26,7 @@ const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolation
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -40,7 +41,7 @@ const TXOMoveInfo = () => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const hideNav =
     matchPath(
@@ -70,6 +71,13 @@ const TXOMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH,
+        end: true,
+      },
+      pathname,
     );
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -77,7 +85,7 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
@@ -198,7 +206,15 @@ const TXOMoveInfo = () => {
               }
             />
           )}
-
+          {order.grade && (
+            <Route
+              path={tooRoutes.CUSTOMER_INFO_EDIT_PATH}
+              end
+              element={
+                <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
+              }
+            />
+          )}
           <Route path="history" end element={<MoveHistory moveCode={moveCode} />} />
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />

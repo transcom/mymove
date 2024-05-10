@@ -39,6 +39,7 @@ const testProps = {
     eTag: 'abc123',
     status: 'APPROVED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
   },
 };
 
@@ -100,13 +101,14 @@ const cancelledShipment = {
     eTag: 'abc123',
     status: 'CANCELED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
   },
 };
 
 describe('ShipmentAddresses', () => {
   it('calls props.handleDivertShipment on request diversion button click', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
         <ShipmentAddresses {...testProps} />
       </MockProviders>,
     );
@@ -118,13 +120,14 @@ describe('ShipmentAddresses', () => {
       expect(testProps.handleDivertShipment).toHaveBeenCalledWith(
         testProps.shipmentInfo.id,
         testProps.shipmentInfo.eTag,
+        testProps.shipmentInfo.shipmentLocator,
       );
     });
   });
 
   it('hides the request diversion button for a cancelled shipment', async () => {
     render(
-      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
         <ShipmentAddresses {...cancelledShipment} />
       </MockProviders>,
     );
@@ -137,6 +140,19 @@ describe('ShipmentAddresses', () => {
 
   it('hides the request diversion button when user does not have permissions', async () => {
     render(<ShipmentAddresses {...cancelledShipment} />);
+    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
+
+    await waitFor(() => {
+      expect(requestDiversionBtn).toBeNull();
+    });
+  });
+
+  it('hides the request diversion button when user does not have updateMTOPage permissions', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
+        <ShipmentAddresses {...cancelledShipment} />
+      </MockProviders>,
+    );
     const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
 
     await waitFor(() => {

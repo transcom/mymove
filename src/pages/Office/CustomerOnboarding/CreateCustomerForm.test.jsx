@@ -5,12 +5,25 @@ import userEvent from '@testing-library/user-event';
 import { CreateCustomerForm } from './CreateCustomerForm';
 
 import { MockProviders } from 'testUtils';
+import { createCustomerWithOktaOption } from 'services/ghcApi';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  createCustomerWithOktaOption: jest.fn(),
+}));
+
+jest.mock('store/flash/actions', () => ({
+  ...jest.requireActual('store/flash/actions'),
+  setFlashMessage: jest.fn(),
+}));
+
+beforeEach(jest.resetAllMocks);
 
 const fakePayload = {
   affiliation: 'ARMY',
@@ -48,11 +61,60 @@ const fakePayload = {
   create_okta_account: 'true',
 };
 
+const fakeResponse = {
+  affiliation: 'string',
+  firstName: 'John',
+  lastName: 'Doe',
+  telephone: '216-421-1392',
+  personalEmail: '73sGJ6jq7cS%6@PqElR.WUzkqFNvtduyyA',
+  suffix: 'Jr.',
+  middleName: 'David',
+  residentialAddress: {
+    id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+    streetAddress1: '123 Main Ave',
+    streetAddress2: 'Apartment 9000',
+    streetAddress3: 'Montmârtre',
+    city: 'Anytown',
+    eTag: 'string',
+    state: 'AL',
+    postalCode: '90210',
+    country: 'USA',
+  },
+  backupContact: {
+    name: 'string',
+    email: 'backupContact@mail.com',
+    phone: '381-100-5880',
+  },
+  id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+  edipi: 'string',
+  userID: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+  oktaID: 'string',
+  oktaEmail: 'string',
+  phoneIsPreferred: true,
+  emailIsPreferred: true,
+  secondaryTelephone: '499-793-2722',
+  backupAddress: {
+    id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+    streetAddress1: '123 Main Ave',
+    streetAddress2: 'Apartment 9000',
+    streetAddress3: 'Montmârtre',
+    city: 'Anytown',
+    eTag: 'string',
+    state: 'AL',
+    postalCode: '90210',
+    country: 'USA',
+  },
+};
+
+const testProps = {
+  setFlashMessage: jest.fn(),
+};
+
 describe('CreateCustomerForm', () => {
   it('renders without crashing', async () => {
     render(
       <MockProviders>
-        <CreateCustomerForm />
+        <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
 
@@ -76,7 +138,7 @@ describe('CreateCustomerForm', () => {
   it('navigates the user on cancel click', async () => {
     const { getByText } = render(
       <MockProviders>
-        <CreateCustomerForm />
+        <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
     fireEvent.click(getByText('Cancel'));
@@ -86,9 +148,11 @@ describe('CreateCustomerForm', () => {
   });
 
   it('submits the form and navigates the user once all required fields are filled out', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+
     const { getByLabelText, getByTestId, getByRole } = render(
       <MockProviders>
-        <CreateCustomerForm />
+        <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
 
@@ -126,6 +190,8 @@ describe('CreateCustomerForm', () => {
       expect(saveBtn).toBeEnabled();
     });
     await userEvent.click(saveBtn);
+
+    expect(createCustomerWithOktaOption).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalled();
-  });
+  }, 10000);
 });
