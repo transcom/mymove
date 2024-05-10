@@ -627,7 +627,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticStandaloneCratingHand
 		return subtestData
 	}
 
-	suite.Run("Successful POST - Integration Test - Standalone Crating", func() {
+	suite.Run("Successful POST - Integration Test - Domestic Standalone Crating", func() {
 		subtestData := makeSubtestData()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
