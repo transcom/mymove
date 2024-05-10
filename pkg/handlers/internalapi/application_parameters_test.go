@@ -14,9 +14,11 @@ func (suite *HandlerSuite) TestApplicationParametersValidateHandler() {
 	req := httptest.NewRequest("POST", "/application_parameters", nil)
 	req = suite.AuthenticateUserRequest(req, user)
 
+	validationCode := "validation_code"
+	testCode := "Testcode123123"
 	body := internalmessages.ApplicationParameters{
-		ParameterValue: "TestCode123123",
-		ParameterName:  "validation_code",
+		ParameterName:  &validationCode,
+		ParameterValue: &testCode,
 	}
 
 	params := application_parameters.ValidateParams{

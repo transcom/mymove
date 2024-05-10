@@ -467,6 +467,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
+		CacValidated:       swag.BoolValue(&customer.CacValidated),
 	}
 	return &payload
 }

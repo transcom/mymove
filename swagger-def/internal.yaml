@@ -48,9 +48,11 @@ definitions:
       parameterName:
         type: string
         format: string
+        x-nullable: true
       parameterValue:
         type: string
         format: string
+        x-nullable: true
   OktaUserProfileData:
     type: object
     properties:
