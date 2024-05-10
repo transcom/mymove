@@ -61,161 +61,172 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 
 // CreateMTOServiceItem creates a MTO Service Item
 func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
-	var verrs *validate.Errors
-	var err error
 	var requestedServiceItems models.MTOServiceItems // used in case additional service items need to be auto-created
 	var createdServiceItems models.MTOServiceItems
-
+	var mtoShipment models.MTOShipment
 	var move models.Move
-	moveID := serviceItem.MoveTaskOrderID
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveID),
-	}
-	// check if Move exists
-	err = o.builder.FetchOne(appCtx, &move, queryFilters)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(moveID, "in Moves")
-		default:
-			return nil, nil, apperror.NewQueryError("Move", err, "")
-		}
+
+	if err := o.checkMoveStatus(appCtx, serviceItem, &move); err != nil {
+		return nil, nil, err
 	}
 
-	// Service items can only be created if a Move's status is either Approved
-	// or Approvals Requested, so check and fail early.
-	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
-		return nil, nil, apperror.NewConflictError(
-			move.ID,
-			fmt.Sprintf("Cannot create service items before a move has been approved. The current status for the move with ID %s is %s", move.ID, move.Status),
-		)
+	if err := o.tryGetReServiceInfo(appCtx, serviceItem); err != nil {
+		return nil, nil, err
 	}
 
-	// find the re service code id
-	var reService models.ReService
-	reServiceCode := serviceItem.ReService.Code
-	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("code", "=", reServiceCode),
-	}
-	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
-		default:
-			return nil, nil, apperror.NewQueryError("ReService", err, "")
-		}
-	}
-	// set re service fields for service item
-	serviceItem.ReServiceID = reService.ID
-	serviceItem.ReService.Name = reService.Name
-
-	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
-	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
-	// also rather basic.
-	if serviceItem.MTOShipmentID == nil {
-		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
-			serviceItem.Status = "APPROVED"
-		}
-		verrs, err = o.builder.CreateOne(appCtx, serviceItem)
-		if verrs != nil {
-			return nil, verrs, nil
-		}
-		if err != nil {
-			return nil, nil, err
-		}
-
-		createdServiceItems = append(createdServiceItems, *serviceItem)
-
-		return &createdServiceItems, nil, nil
-	}
-
-	// By the time the serviceItem model object gets here to the creator it should have a status attached to it.
-	// If for some reason that isn't the case we will set it
-	if serviceItem.Status == "" {
-		serviceItem.Status = models.MTOServiceItemStatusSubmitted
+	if verrs, err := o.tryCreateSupportingServiceItems(appCtx, serviceItem, &createdServiceItems); err != nil {
+		return nil, nil, err
+	} else if verrs != nil {
+		return nil, verrs, nil
 	}
 
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
-	// check if shipment exists linked by MoveTaskOrderID
-	var mtoShipment models.MTOShipment
-	mtoShipmentID := *serviceItem.MTOShipmentID
-	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoShipmentID),
-		query.NewQueryFilter("move_id", "=", moveID),
-	}
-	err = o.builder.FetchOne(appCtx, &mtoShipment, queryFilters)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
-		default:
-			return nil, nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
+
+	if err := o.checkShipment(appCtx, serviceItem, &mtoShipment); err != nil {
+		return nil, nil, err
 	}
 
-	// checking to see if the service item being created is a destination SIT
-	// if so, we want the destination address to be the same as the shipment's
-	// which will later populate the additional dest SIT service items as well
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && mtoShipment.DestinationAddressID != nil {
-		serviceItem.SITDestinationFinalAddress = mtoShipment.DestinationAddress
-		serviceItem.SITDestinationFinalAddressID = mtoShipment.DestinationAddressID
+	o.harmonizeDestAddress(serviceItem, &mtoShipment)
+
+	var errSITValidation error
+	if serviceItem, errSITValidation = o.validateSIT(appCtx, serviceItem); errSITValidation != nil {
+		return nil, nil, errSITValidation
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
-		// DOASIT must be associated with shipment that has DOFSIT
-		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDOFSIT)
-		if err != nil {
-			return nil, nil, err
-		}
+	if err := o.checkCustomerContacts(appCtx, serviceItem); err != nil {
+		return nil, nil, err
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
-		// DDASIT must be associated with shipment that has DDFSIT
-		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDDFSIT)
-		if err != nil {
-			return nil, nil, err
-		}
-	}
-
-	for index := range serviceItem.CustomerContacts {
-		createCustContacts := &serviceItem.CustomerContacts[index]
-		err = validateTimeMilitaryField(appCtx, createCustContacts.TimeMilitary)
-		if err != nil {
-			return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, err, nil, err.Error())
-		}
-	}
-
-	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
-		verrs = validate.NewErrors()
+	// These service items should be created as part of a group and not individually
+	if o.isDeliveryItem(serviceItem.ReService.Code) {
+		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
-	updateShipmentPickupAddress := false
+	var updatedShipmentPickupAddress *bool
+	var err error
+	if updatedShipmentPickupAddress, err = o.checkShipmentAddress(appCtx, &requestedServiceItems, &mtoShipment, serviceItem); err != nil {
+		return nil, nil, err
+	}
+
+	requestedServiceItems = append(requestedServiceItems, *serviceItem)
+
+	// create new items in a transaction in case of failure
+	if transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := o.checkRequestedServiceItems(txnAppCtx, &requestedServiceItems, &createdServiceItems); err != nil {
+			return err
+		}
+
+		// If updates were made to shipment, save update in the database
+		if *updatedShipmentPickupAddress {
+			if verrs, err := o.builder.UpdateOne(txnAppCtx, mtoShipment.PickupAddress, nil); verrs != nil || err != nil {
+				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
+			}
+		}
+
+		if _, err := o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
+			return err
+		}
+
+		return nil
+	}); transactionErr != nil {
+		return nil, nil, transactionErr
+	}
+
+	return &createdServiceItems, nil, nil
+}
+
+func (o *mtoServiceItemCreator) checkRequestedServiceItems(txnAppCtx appcontext.AppContext, requestedServiceItems *models.MTOServiceItems, createdServiceItems *models.MTOServiceItems) error {
+	for serviceItemIndex := range *requestedServiceItems {
+		requestedServiceItem := (*requestedServiceItems)[serviceItemIndex]
+
+		if requestedServiceItem.SITOriginHHGActualAddress != nil {
+			address := requestedServiceItem.SITOriginHHGActualAddress
+			if address.ID == uuid.Nil {
+				if verrs, err := o.builder.CreateOne(txnAppCtx, address); verrs != nil || err != nil {
+					return fmt.Errorf("failed to save SITOriginHHGActualAddress: %#v %e", verrs, err)
+				}
+			}
+			requestedServiceItem.SITOriginHHGActualAddressID = &address.ID
+		}
+
+		if requestedServiceItem.SITOriginHHGOriginalAddress != nil {
+			address := requestedServiceItem.SITOriginHHGOriginalAddress
+			if address.ID == uuid.Nil {
+				if verrs, err := o.builder.CreateOne(txnAppCtx, address); verrs != nil || err != nil {
+					return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
+				}
+			}
+			requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
+		}
+
+		// create SITDestinationFinalAddress address if ID (UUID) is Nil
+		if requestedServiceItem.SITDestinationFinalAddress != nil {
+			address := requestedServiceItem.SITDestinationFinalAddress
+			if address.ID == uuid.Nil {
+				if verrs, err := o.builder.CreateOne(txnAppCtx, address); verrs != nil || err != nil {
+					return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
+				}
+			}
+			requestedServiceItem.SITDestinationFinalAddressID = &address.ID
+		}
+
+		// create customer contacts if any
+		for index := range requestedServiceItem.CustomerContacts {
+			createCustContact := &requestedServiceItem.CustomerContacts[index]
+			if createCustContact.ID == uuid.Nil {
+				if verrs, err := o.builder.CreateOne(txnAppCtx, createCustContact); verrs != nil || err != nil {
+					return fmt.Errorf("%#v %e", verrs, err)
+				}
+			}
+		}
+
+		if verrs, err := o.builder.CreateOne(txnAppCtx, requestedServiceItem); verrs != nil || err != nil {
+			return fmt.Errorf("%#v %e", verrs, err)
+		}
+
+		*createdServiceItems = append(*createdServiceItems, requestedServiceItem)
+
+		// create dimensions if any
+		for index := range requestedServiceItem.Dimensions {
+			createDimension := &requestedServiceItem.Dimensions[index]
+			createDimension.MTOServiceItemID = requestedServiceItem.ID
+			if verrs, err := o.builder.CreateOne(txnAppCtx, createDimension); verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
+			} else if err != nil {
+				return fmt.Errorf("%e", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (o *mtoServiceItemCreator) checkShipmentAddress(appCtx appcontext.AppContext, requestedServiceItems *models.MTOServiceItems, mtoShipment *models.MTOShipment, serviceItem *models.MTOServiceItem) (*bool, error) {
+	var extraServiceItems *models.MTOServiceItems
+	result := false
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
-		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(appCtx, serviceItem)
-		if errSIT != nil {
-			return nil, nil, errSIT
+		var err error
+		if extraServiceItems, err = o.validateFirstDaySITServiceItem(appCtx, serviceItem); err != nil {
+			return &result, err
 		}
 
 		// update HHG origin address for ReServiceCodeDOFSIT service item
 		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 			// When creating a DOFSIT, the prime must provide an HHG actual address for the move/shift in origin (pickup address)
 			if serviceItem.SITOriginHHGActualAddress == nil {
-				verrs = validate.NewErrors()
+				verrs := validate.NewErrors()
 				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
-				return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
+				return &result, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
 			}
 
-			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.PostalCode)
-			if errCounty != nil {
-				return nil, nil, errCounty
+			if county, err := models.FindCountyByZipCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.PostalCode); err != nil {
+				return &result, err
+			} else {
+				serviceItem.SITOriginHHGActualAddress.County = county
 			}
-			serviceItem.SITOriginHHGActualAddress.County = county
 
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
@@ -226,9 +237,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			// update the MTO shipment with the new (actual) pickup address
 			mtoShipment.PickupAddress = serviceItem.SITOriginHHGActualAddress.Copy()
 			mtoShipment.PickupAddress.ID = *mtoShipment.PickupAddressID // Keep to same ID to be updated with new values
-
-			// changes were made to the shipment, needs to be saved to the database
-			updateShipmentPickupAddress = true
 
 			// Find the DOPSIT service item and update the SIT related address fields. These fields
 			// will be used for pricing when a payment request is created for DOPSIT
@@ -258,7 +266,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
-		milesCalculated, errCalcSITDelivery := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
+		milesCalculated, errCalcSITDelivery := o.calculateSITDeliveryMiles(appCtx, serviceItem, *mtoShipment)
 
 		// only calculate SITDeliveryMiles for DOPSIT and DOSFSC origin service items
 		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT && milesCalculated != 0 {
@@ -286,113 +294,147 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
-		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
+		*requestedServiceItems = append(*requestedServiceItems, *extraServiceItems...)
 	}
-	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
-	// create new items in a transaction in case of failure
-	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	// If this is reached, then changes were made to the shipment which need to be saved to the DB
+	result = true
+	return &result, nil
+}
 
+func (o *mtoServiceItemCreator) isDeliveryItem(code models.ReServiceCode) bool {
+	return code == models.ReServiceCodeDDDSIT || code == models.ReServiceCodeDOPSIT ||
+		code == models.ReServiceCodeDDSFSC || code == models.ReServiceCodeDOSFSC
+}
+
+func (o *mtoServiceItemCreator) validateSIT(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, error) {
+	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+		// DOASIT must be associated with shipment that has DOFSIT
+		if serviceItemResult, err := o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDOFSIT); err != nil {
+			return nil, err
+		} else {
+			return serviceItemResult, nil
+		}
+	}
+
+	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+		// DDASIT must be associated with shipment that has DDFSIT
+		if serviceItemResult, err := o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDDFSIT); err != nil {
+			return nil, err
+		} else {
+			return serviceItemResult, nil
+		}
+	}
+	return serviceItem, nil
+}
+
+func (o *mtoServiceItemCreator) checkCustomerContacts(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) error {
+	for index := range serviceItem.CustomerContacts {
+		createCustContacts := &serviceItem.CustomerContacts[index]
+		if err := validateTimeMilitaryField(appCtx, createCustContacts.TimeMilitary); err != nil {
+			return apperror.NewInvalidInputError(serviceItem.ID, err, nil, err.Error())
+		}
+	}
+	return nil
+}
+
+func (o *mtoServiceItemCreator) harmonizeDestAddress(serviceItem *models.MTOServiceItem, mtoShipment *models.MTOShipment) {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && mtoShipment.DestinationAddressID != nil {
+		serviceItem.SITDestinationFinalAddress = mtoShipment.DestinationAddress
+		serviceItem.SITDestinationFinalAddressID = mtoShipment.DestinationAddressID
+	}
+}
+
+func (o *mtoServiceItemCreator) checkShipment(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment *models.MTOShipment) error {
+	// check if shipment exists linked by MoveTaskOrderID
+	mtoShipmentID := *serviceItem.MTOShipmentID
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", mtoShipmentID),
+		query.NewQueryFilter("move_id", "=", serviceItem.MoveTaskOrderID),
+	}
+	err := o.builder.FetchOne(appCtx, &mtoShipment, queryFilters)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", serviceItem.MoveTaskOrder.ID.String()))
+		default:
+			return apperror.NewQueryError("MTOShipment", err, "")
+		}
+	}
+	return nil
+}
+
+func (o *mtoServiceItemCreator) tryCreateSupportingServiceItems(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, createdServiceItems *models.MTOServiceItems) (*validate.Errors, error) {
+	if serviceItem.MTOShipmentID == nil {
+		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
+			serviceItem.Status = "APPROVED"
+		}
+		verrs, err := o.builder.CreateOne(appCtx, serviceItem)
+		if verrs != nil {
+			return verrs, nil
+		}
 		if err != nil {
-			txnAppCtx.Logger().Error(fmt.Sprintf("error starting txn: %v", err))
-			return err
-		}
-		for serviceItemIndex := range requestedServiceItems {
-			requestedServiceItem := &requestedServiceItems[serviceItemIndex]
-
-			// create address if ID (UUID) is Nil
-			if requestedServiceItem.SITOriginHHGActualAddress != nil {
-				address := requestedServiceItem.SITOriginHHGActualAddress
-				if address.ID == uuid.Nil {
-					verrs, err = o.builder.CreateOne(txnAppCtx, address)
-					if verrs != nil || err != nil {
-						return fmt.Errorf("failed to save SITOriginHHGActualAddress: %#v %e", verrs, err)
-					}
-				}
-				requestedServiceItem.SITOriginHHGActualAddressID = &address.ID
-			}
-
-			// create address if ID (UUID) is Nil
-			if requestedServiceItem.SITOriginHHGOriginalAddress != nil {
-				address := requestedServiceItem.SITOriginHHGOriginalAddress
-				if address.ID == uuid.Nil {
-					verrs, err = o.builder.CreateOne(txnAppCtx, address)
-					if verrs != nil || err != nil {
-						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
-					}
-				}
-				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
-			}
-
-			// create SITDestinationFinalAddress address if ID (UUID) is Nil
-			if requestedServiceItem.SITDestinationFinalAddress != nil {
-				address := requestedServiceItem.SITDestinationFinalAddress
-				if address.ID == uuid.Nil {
-					verrs, err = o.builder.CreateOne(txnAppCtx, address)
-					if verrs != nil || err != nil {
-						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
-					}
-				}
-				requestedServiceItem.SITDestinationFinalAddressID = &address.ID
-			}
-
-			// create customer contacts if any
-			for index := range requestedServiceItem.CustomerContacts {
-				createCustContact := &requestedServiceItem.CustomerContacts[index]
-				if createCustContact.ID == uuid.Nil {
-					verrs, err = o.builder.CreateOne(txnAppCtx, createCustContact)
-					if verrs != nil || err != nil {
-						return fmt.Errorf("%#v %e", verrs, err)
-					}
-				}
-			}
-
-			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
-			}
-
-			createdServiceItems = append(createdServiceItems, *requestedServiceItem)
-
-			// create dimensions if any
-			for index := range requestedServiceItem.Dimensions {
-				createDimension := &requestedServiceItem.Dimensions[index]
-				createDimension.MTOServiceItemID = requestedServiceItem.ID
-				verrs, err = o.builder.CreateOne(txnAppCtx, createDimension)
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
-				}
-				if err != nil {
-					return fmt.Errorf("%e", err)
-				}
-			}
-
+			return nil, err
 		}
 
-		// If updates were made to shipment, save update in the database
-		if updateShipmentPickupAddress {
-			verrs, err = o.builder.UpdateOne(txnAppCtx, mtoShipment.PickupAddress, nil)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
-			}
-		}
-
-		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if transactionErr != nil {
-		return nil, nil, transactionErr
-	} else if verrs != nil && verrs.HasAny() {
-		return nil, verrs, nil
-	} else if err != nil {
-		return nil, verrs, apperror.NewQueryError("unknown", err, "")
+		*createdServiceItems = append(*createdServiceItems, *serviceItem)
+		return nil, nil
 	}
 
-	return &createdServiceItems, nil, nil
+	// By the time the serviceItem model object gets here to the creator it should have a status attached to it.
+	// If for some reason that isn't the case we will set it
+	if serviceItem.Status == "" {
+		serviceItem.Status = models.MTOServiceItemStatusSubmitted
+	}
+	return nil, nil
+}
+
+func (o *mtoServiceItemCreator) tryGetReServiceInfo(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) error {
+	var reService models.ReService
+	reServiceCode := serviceItem.ReService.Code
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("code", "=", reServiceCode),
+	}
+	err := o.builder.FetchOne(appCtx, &reService, queryFilters)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+		default:
+			return apperror.NewQueryError("ReService", err, "")
+		}
+	}
+	// set re service fields for service item
+	serviceItem.ReServiceID = reService.ID
+	serviceItem.ReService.Name = reService.Name
+	return nil
+}
+
+func (o *mtoServiceItemCreator) checkMoveStatus(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, move *models.Move) error {
+	moveID := serviceItem.MoveTaskOrderID
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", moveID),
+	}
+	// check if Move exists
+	err := o.builder.FetchOne(appCtx, &move, queryFilters)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(moveID, "in Moves")
+		default:
+			return apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	// Service items can only be created if a Move's status is either Approved
+	// or Approvals Requested, so check and fail early.
+	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		return apperror.NewConflictError(
+			move.ID,
+			fmt.Sprintf("Cannot create service items before a move has been approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+		)
+	}
+	return nil
 }
 
 // checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one
