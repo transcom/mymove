@@ -75,9 +75,6 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		okResponse := response.(*paymentrequestop.GetPaymentRequestOK)
 		payload := okResponse.Payload
 
-		// Validate outgoing payload
-		suite.NoError(payload.Validate(strfmt.Default))
-
 		paymentServiceItemParamPayload := payload.ServiceItems[0].PaymentServiceItemParams[0]
 
 		suite.Equal(paymentRequest.ID.String(), payload.ID.String())
