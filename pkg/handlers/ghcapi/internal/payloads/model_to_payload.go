@@ -38,19 +38,17 @@ func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
 	return payload
 }
 
-func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.OfficeUser {
+func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 	if officeUser != nil {
-		payload := ghcmessages.OfficeUser{
-			FirstName:              &officeUser.FirstName,
-			LastName:               &officeUser.LastName,
-			Email:                  &officeUser.Email,
-			Telephone:              &officeUser.Telephone,
-			TransportationOfficeID: handlers.FmtUUID(officeUser.TransportationOfficeID),
+		payload := ghcmessages.LockedOfficeUser{
+			FirstName:              officeUser.FirstName,
+			LastName:               officeUser.LastName,
+			TransportationOfficeID: *handlers.FmtUUID(officeUser.TransportationOfficeID),
 			TransportationOffice:   TransportationOffice(&officeUser.TransportationOffice),
 		}
 		return &payload
 	} else {
-		return &ghcmessages.OfficeUser{}
+		return &ghcmessages.LockedOfficeUser{}
 	}
 }
 
