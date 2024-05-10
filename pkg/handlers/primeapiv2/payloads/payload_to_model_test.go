@@ -27,7 +27,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	basicServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	// SCRT Service Item
-	scrtCode := models.ReServiceCodeDCRT.String()
+	scrtCode := models.ReServiceCodeSCRT.String()
 
 	// DCRT Service Item
 	itemMeasurement := int32(1100)

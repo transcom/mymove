@@ -2314,7 +2314,7 @@ definitions:
             type: string
             description: >-
               A unique code for the service item. Indicates if the service is
-              for crating (DCRT) or uncrating (DUCRT).
+              for crating (SCRT) or uncrating (SUCRT).
             enum:
               - SCRT
               - SUCRT

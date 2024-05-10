@@ -34,7 +34,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	description := "Description"
 
 	// SCRT Service Item
-	scrtCode := models.ReServiceCodeDCRT.String()
+	scrtCode := models.ReServiceCodeSCRT.String()
 
 	item := &primemessages.MTOServiceItemDimension{
 		Height: &itemMeasurement,
