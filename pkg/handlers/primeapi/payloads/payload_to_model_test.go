@@ -33,6 +33,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	reason := "Reason"
 	description := "Description"
 
+	// SCRT Service Item
+	scrtCode := models.ReServiceCodeDCRT.String()
+
 	item := &primemessages.MTOServiceItemDimension{
 		Height: &itemMeasurement,
 		Width:  &itemMeasurement,
@@ -87,6 +90,17 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		StreetAddress1: &destStreet,
 		County:         &destCounty,
 	}
+
+	SCRTServiceItem := &primemessages.MTOServiceItemStandaloneCrating{
+		ReServiceCode: &scrtCode,
+		Reason:        &reason,
+		Description:   &description,
+	}
+	SCRTServiceItem.Item.MTOServiceItemDimension = *item
+	SCRTServiceItem.Crate.MTOServiceItemDimension = *crate
+
+	SCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	SCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	destServiceItem := &primemessages.MTOServiceItemDestSIT{
 		ReServiceCode:               &destServiceCode,
@@ -158,6 +172,53 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRT))
 		suite.Nil(returnedModel, "returned a model when erroring")
 
+	})
+
+	suite.Run("Success - Returns a DCRT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DCRTServiceItem)
+
+		var returnedItem, returnedCrate models.MTOServiceItemDimension
+		for _, dimension := range returnedModel.Dimensions {
+			if dimension.Type == models.DimensionTypeItem {
+				returnedItem = dimension
+			} else {
+				returnedCrate = dimension
+			}
+		}
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeSCRT, returnedModel.ReService.Code)
+		suite.Equal(SCRTServiceItem.Reason, returnedModel.Reason)
+		suite.Equal(SCRTServiceItem.Description, returnedModel.Description)
+		suite.Equal(unit.ThousandthInches(*SCRTServiceItem.Item.Length), returnedItem.Length)
+		suite.Equal(unit.ThousandthInches(*SCRTServiceItem.Crate.Length), returnedCrate.Length)
+	})
+
+	suite.Run("Fail -  Returns error for SCRT service item because of validation error", func() {
+		badCrateMeasurement := int32(200)
+		badCrate := &primemessages.MTOServiceItemDimension{
+			Height: &badCrateMeasurement,
+			Width:  &badCrateMeasurement,
+			Length: &badCrateMeasurement,
+		}
+
+		badSCRTServiceItem := &primemessages.MTOServiceItemStandaloneCrating{
+			ReServiceCode: &scrtCode,
+			Reason:        &reason,
+			Description:   &description,
+		}
+		badSCRTServiceItem.Item.MTOServiceItemDimension = *item
+		badSCRTServiceItem.Crate.MTOServiceItemDimension = *badCrate
+
+		badSCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		badSCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		returnedModel, verrs := MTOServiceItemModel(badSCRTServiceItem)
+
+		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeSCRT))
+		suite.Nil(returnedModel, "returned a model when erroring")
 	})
 
 	suite.Run("Success - Returns SIT origin service item model", func() {
