@@ -174,8 +174,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	})
 
-	suite.Run("Success - Returns a DCRT service item model", func() {
-		returnedModel, verrs := MTOServiceItemModel(DCRTServiceItem)
+	suite.Run("Success - Returns a SCRT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(SCRTServiceItem)
 
 		var returnedItem, returnedCrate models.MTOServiceItemDimension
 		for _, dimension := range returnedModel.Dimensions {
