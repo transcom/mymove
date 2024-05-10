@@ -1379,7 +1379,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(payload.ETag())
 	})
 
-	suite.Run("Success - return all MTOServiceItemStandaloneCrating fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all MTOServiceItemDomesticStandaloneCrating fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(),
