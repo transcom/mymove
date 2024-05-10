@@ -587,7 +587,6 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 			r.Route("/open", func(rOpen chi.Router) {
 				rOpen.Mount("/", api.Serve(tracingMiddleware))
 			})
-
 			// Mux for GHC API that enforces auth
 			r.Route("/", func(rAuth chi.Router) {
 				rAuth.Use(userAuthMiddleware)

@@ -19,7 +19,7 @@ RUN rm -f bin/milmove-tasks && make bin/milmove-tasks
 #########
 
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/base:latest@sha256:9bc3117a99c731a41200a28774405125cb6fbda1819f4a1af88bd3bfad5dcf32
+FROM gcr.io/distroless/base-debian11@sha256:2fb55308ef768a0ca0851f294d7f5b582579dba6522d1d2162e2d5f33b876e97
 
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
