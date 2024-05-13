@@ -8,19 +8,19 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import DodInfoForm from 'components/Customer/DodInfoForm/DodInfoForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectOktaUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
 
-export const DodInfo = ({ updateServiceMember, serviceMember }) => {
+export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
-    edipi: serviceMember?.edipi || '',
+    edipi: oktaUser?.cac_edipi || '',
   };
 
   const handleBack = () => {
@@ -83,6 +83,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => ({
   serviceMember: selectServiceMemberFromLoggedInUser(state),
+  oktaUser: selectOktaUser(state),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(requireCustomerState(DodInfo, profileStates.EMPTY_PROFILE));

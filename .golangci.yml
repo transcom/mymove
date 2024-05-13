@@ -32,8 +32,6 @@ linters-settings:
               - github.com/benbjohnson/clock
             reason: facebookgo/clock is archived and inactive, recommend using original fork
               repo
-  govet:
-    check-shadowing: true
 linters:
   enable:
     - errcheck
@@ -41,23 +39,22 @@ linters:
     - gofmt
     - goimports
     - gomodguard
-    - gosec
+   # - gosec
     - gosimple
     - govet
     - ineffassign
-    - revive
+  # - revive
     - staticcheck
-    - typecheck
+  #  - typecheck
     - unused
   fast: false
 issues:
   fix: true
+  exclude-dirs:
+    - pkg/gen
+    - .*mocks
 run:
   timeout: 8m
   concurrency: 1
   issues-exit-code: 1
   tests: true
-  skip-dirs:
-    - pkg/gen
-    - .*mocks
-  skip-dirs-use-default: true

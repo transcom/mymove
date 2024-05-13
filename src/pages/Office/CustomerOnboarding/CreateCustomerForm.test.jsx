@@ -59,6 +59,7 @@ const fakePayload = {
     email: 'allOverDaPlace@mail.com',
   },
   create_okta_account: 'true',
+  cac_user: 'false',
 };
 
 const fakeResponse = {
@@ -127,6 +128,7 @@ describe('CreateCustomerForm', () => {
     expect(screen.getByText('Backup Address')).toBeInTheDocument();
     expect(screen.getByText('Backup Contact')).toBeInTheDocument();
     expect(screen.getByText('Okta Account')).toBeInTheDocument();
+    expect(screen.getByText('Non-CAC Users')).toBeInTheDocument();
 
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
@@ -169,29 +171,34 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
 
-    await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
-    await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
-    await userEvent.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
-    await userEvent.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+    await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
+    await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
+    await user.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
+    await user.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
 
-    await userEvent.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
-    await userEvent.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
-    await userEvent.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+    await user.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
+    await user.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
+    await user.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
+    await user.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
 
-    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
-    await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
-    await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
+    await user.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
+    await user.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
-    const oktaRadioButton = getByLabelText('Yes');
-    await userEvent.click(oktaRadioButton);
+    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
+
+    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
 
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
     });
-    await userEvent.click(saveBtn);
 
-    expect(createCustomerWithOktaOption).toHaveBeenCalled();
+    const waiter = waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+    });
+
+    await user.click(saveBtn);
+    await waiter;
     expect(mockNavigate).toHaveBeenCalled();
   }, 10000);
 
@@ -231,8 +238,9 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
-    const oktaRadioButton = getByLabelText('Yes');
-    await userEvent.click(oktaRadioButton);
+    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
+
+    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
 
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
