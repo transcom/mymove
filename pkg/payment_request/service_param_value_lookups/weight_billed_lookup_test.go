@@ -148,7 +148,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 	for _, data := range serviceCodesForPPM {
 		suite.Run("returns the original weight for PPM service items", func() {
 			estimatedWeight := unit.Pound(400)
-			_, _, paramLookup := suite.setupTestMTOServiceItemWithEstimatedWeightForPPM(&estimatedWeight, &data.originalWeight, data.code)
+			_, _, paramLookup := suite.setupTestMTOServiceItemWithEstimatedWeightForPPM(&estimatedWeight, &data.originalWeight, data.code) // #nosec G601 new in 1.22.2
 
 			valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 			suite.FatalNoError(err)

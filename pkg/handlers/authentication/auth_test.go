@@ -44,6 +44,7 @@ const UserSessionCookieName = "session_token"
 
 // This is a dumy private key that has no use and is not reflective of any real keys utilized. This key was generated
 // specifically for the purpose of testing.
+// #nosec G101 not real key- only used for testing
 const DummyRSAPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDQ62hDHRRAduSuUQDxixn61bbRLj9iBBmRG03rW3PNnkSzrcof
 9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBrCskJqWLphifv6qoGX1pwsPA/
@@ -255,7 +256,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	req.AddCookie(&cookie)
 
 	var handlerSession *auth.Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 	sessionManager := scs.New()
@@ -297,7 +298,7 @@ func (suite *AuthSuite) TestCustomerAPIAuthMiddleware() {
 
 		api := internalapi.NewInternalAPI(handlerConfig)
 
-		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+		handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 		customerAPIAuthMiddleware := CustomerAPIAuthMiddleware(suite.AppContextForTest(), api)
 
@@ -412,7 +413,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	handlerConfig := suite.HandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
@@ -454,7 +455,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	handlerConfig := suite.HandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
@@ -521,7 +522,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/moves", nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	sessionManager := scs.New()
 	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.Logger())(handler))
 
@@ -552,7 +553,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	req = req.WithContext(ctx)
 
 	var handlerSession *auth.Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 
@@ -572,7 +573,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/admin/v1/office-users", nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := AdminAuthMiddleware(suite.Logger())(handler)
 
 	middleware.ServeHTTP(rr, req)
@@ -1675,7 +1676,7 @@ func (suite *AuthSuite) TestAuthorizePrime() {
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/prime/v1", appnames.PrimeServername), nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := PrimeAuthorizationMiddleware(suite.Logger())(handler)
 	rr := httptest.NewRecorder()
 

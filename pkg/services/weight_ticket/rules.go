@@ -129,7 +129,7 @@ func verifyReasonAndStatusAreConstant() weightTicketValidator {
 }
 
 func verifyReasonAndStatusAreValid() weightTicketValidator {
-	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
+	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, _ *models.WeightTicket) error {
 		verrs := validate.NewErrors()
 
 		if newWeightTicket.Status != nil {
@@ -148,7 +148,7 @@ func verifyReasonAndStatusAreValid() weightTicketValidator {
 }
 
 func verifyAdjustedNetWeightAndNetWeightRemarksAreValid() weightTicketValidator {
-	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, originalWeightTicket *models.WeightTicket) error {
+	return weightTicketValidatorFunc(func(_ appcontext.AppContext, newWeightTicket *models.WeightTicket, _ *models.WeightTicket) error {
 		verrs := validate.NewErrors()
 
 		if newWeightTicket.AdjustedNetWeight != nil {

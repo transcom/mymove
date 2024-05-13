@@ -139,7 +139,7 @@ func (suite *PaperworkServiceSuite) TestConvertFileToPDF() {
 	})
 
 	suite.Run(fmt.Sprintf("Returns an error if the response code isn't %d", http.StatusOK), func() {
-		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
+		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 		})
 
@@ -176,7 +176,7 @@ func (suite *PaperworkServiceSuite) TestConvertFileToPDF() {
 
 		suite.FatalNoError(seekErr)
 
-		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
+		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusOK)
 
 			_, err := io.Copy(w, expectedPDF)
