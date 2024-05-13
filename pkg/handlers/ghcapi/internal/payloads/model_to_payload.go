@@ -91,7 +91,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		ShipmentGBLOC:                gbloc,
 		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
-		LockExpiresAt:                handlers.FmtDateTime(*move.LockExpiresAt),
+		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 	}
 
 	return payload
