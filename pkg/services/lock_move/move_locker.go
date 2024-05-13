@@ -37,7 +37,10 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	var transportationOffice models.TransportationOffice
 	err = appCtx.DB().Q().
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
+		Join("addresses", "transportation_offices.address_id = addresses.id").
+		Where("office_users.id = ?", officeUserID).
+		EagerPreload("Address").
+		First(&transportationOffice)
 
 	if move.LockedByOfficeUserID != models.UUIDPointer(officeUserID) {
 		move.LockedByOfficeUserID = models.UUIDPointer(officeUserID)
