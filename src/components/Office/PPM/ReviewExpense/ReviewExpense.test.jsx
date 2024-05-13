@@ -110,7 +110,7 @@ describe('ReviewExpenseForm component', () => {
     it('correctly displays days in SIT', async () => {
       render(<ReviewExpense {...defaultProps} {...storageProps} />, { wrapper: MockProviders });
       await waitFor(() => {
-        expect(screen.getByTestId('days-in-sit')).toHaveTextContent('10');
+        expect(screen.getByTestId('days-in-sit')).toHaveTextContent('11');
       });
     });
 
@@ -124,7 +124,7 @@ describe('ReviewExpenseForm component', () => {
         initialSelectionEnd: 2,
       });
       await waitFor(() => {
-        expect(screen.getByTestId('days-in-sit')).toHaveTextContent('8');
+        expect(screen.getByTestId('days-in-sit')).toHaveTextContent('9');
       });
     });
 

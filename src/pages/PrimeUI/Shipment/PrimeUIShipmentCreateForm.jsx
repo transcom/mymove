@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Label, Textarea } from '@trussworks/react-uswds';
+import { Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 import { Field, useField, useFormikContext } from 'formik';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -18,7 +18,7 @@ const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 const PrimeUIShipmentCreateForm = () => {
   const { values } = useFormikContext();
   const { shipmentType } = values;
-  const { sitExpected, hasProGear } = values.ppmShipment;
+  const { sitExpected, hasProGear, hasSecondaryDestinationAddress, hasSecondaryPickupAddress } = values.ppmShipment;
   const [, , checkBoxHelperProps] = useField('diversion');
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
@@ -69,30 +69,87 @@ const PrimeUIShipmentCreateForm = () => {
             name="ppmShipment.expectedDepartureDate"
           />
           <h2 className={styles.sectionHeader}>Origin Info</h2>
-          <TextField
-            label="Pickup Postal Code"
-            id="ppmShipment.pickupPostalCodeInput"
-            name="ppmShipment.pickupPostalCode"
-            maxLength={10}
-          />
-          <TextField
-            label="Secondary Pickup Postal Code"
-            id="ppmShipment.secondaryPickupPostalCodeInput"
-            name="ppmShipment.secondaryPickupPostalCode"
-            maxLength={10}
+          <AddressFields
+            name="ppmShipment.pickupAddress"
+            legend="Pickup Address"
+            render={(fields) => (
+              <>
+                <p>What address are the movers picking up from?</p>
+                {fields}
+                <h4>Second pickup location</h4>
+                <FormGroup>
+                  <p>
+                    Will the movers pick up any belongings from a second address? (Must be near the pickup address.
+                    Subject to approval.)
+                  </p>
+                  <div className={formStyles.radioGroup}>
+                    <Field
+                      as={Radio}
+                      id="has-secondary-pickup"
+                      data-testid="has-secondary-pickup"
+                      label="Yes"
+                      name="ppmShipment.hasSecondaryPickupAddress"
+                      value="true"
+                      title="Yes, there is a second pickup location"
+                      checked={hasSecondaryPickupAddress === 'true'}
+                    />
+                    <Field
+                      as={Radio}
+                      id="no-secondary-pickup"
+                      data-testid="no-secondary-pickup"
+                      label="No"
+                      name="ppmShipment.hasSecondaryPickupAddress"
+                      value="false"
+                      title="No, there is not a second pickup location"
+                      checked={hasSecondaryPickupAddress !== 'true'}
+                    />
+                  </div>
+                </FormGroup>
+                {hasSecondaryPickupAddress === 'true' && <AddressFields name="ppmShipment.secondaryPickupAddress" />}
+              </>
+            )}
           />
           <h2 className={styles.sectionHeader}>Destination Info</h2>
-          <TextField
-            label="Destination Postal Code"
-            id="ppmShipment.destinationPostalCodeInput"
-            name="ppmShipment.destinationPostalCode"
-            maxLength={10}
-          />
-          <TextField
-            label="Secondary Destination Postal Code"
-            id="ppmShipment.secondaryDestinationPostalCodeInput"
-            name="ppmShipment.secondaryDestinationPostalCode"
-            maxLength={10}
+          <AddressFields
+            name="ppmShipment.destinationAddress"
+            legend="Destination Address"
+            render={(fields) => (
+              <>
+                {fields}
+                <h4>Second destination address</h4>
+                <FormGroup>
+                  <p>
+                    Will the movers deliver any belongings to a second address? (Must be near the destination address.
+                    Subject to approval.)
+                  </p>
+                  <div className={formStyles.radioGroup}>
+                    <Field
+                      as={Radio}
+                      data-testid="has-secondary-destination"
+                      id="has-secondary-destination"
+                      label="Yes"
+                      name="ppmShipment.hasSecondaryDestinationAddress"
+                      value="true"
+                      title="Yes, there is a second destination location"
+                      checked={hasSecondaryDestinationAddress === 'true'}
+                    />
+                    <Field
+                      as={Radio}
+                      data-testid="no-secondary-destination"
+                      id="no-secondary-destination"
+                      label="No"
+                      name="ppmShipment.hasSecondaryDestinationAddress"
+                      value="false"
+                      title="No, there is not a second destination location"
+                      checked={hasSecondaryDestinationAddress !== 'true'}
+                    />
+                  </div>
+                </FormGroup>
+                {hasSecondaryDestinationAddress === 'true' && (
+                  <AddressFields name="ppmShipment.secondaryDestinationAddress" />
+                )}
+              </>
+            )}
           />
           <h2 className={styles.sectionHeader}>Storage In Transit (SIT)</h2>
           <CheckboxField label="SIT Expected" id="ppmShipment.sitExpectedInput" name="ppmShipment.sitExpected" />

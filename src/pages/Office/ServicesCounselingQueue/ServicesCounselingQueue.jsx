@@ -11,12 +11,12 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import {
   SERVICE_COUNSELING_BRANCH_OPTIONS,
-  SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
+  SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import {
   useServicesCounselingQueueQueries,
   useServicesCounselingQueuePPMQueries,
@@ -37,6 +37,7 @@ import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -73,8 +74,10 @@ const counselingColumns = () => [
     {
       id: 'status',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_MOVE_STATUS_OPTIONS} {...props} />,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS} {...props} />
+      ),
     },
   ),
   createHeader(
@@ -259,13 +262,14 @@ const ServicesCounselingQueue = () => {
       dodID: null,
       customerName: null,
     };
-
-    if (values.searchType === 'moveCode') {
-      payload.moveCode = values.searchText;
-    } else if (values.searchType === 'dodID') {
-      payload.dodID = values.searchText;
-    } else if (values.searchType === 'customerName') {
-      payload.customerName = values.searchText;
+    if (!isNullUndefinedOrWhitespace(values.searchText)) {
+      if (values.searchType === 'moveCode') {
+        payload.moveCode = values.searchText;
+      } else if (values.searchType === 'dodID') {
+        payload.dodID = values.searchText;
+      } else if (values.searchType === 'customerName') {
+        payload.customerName = values.searchText;
+      }
     }
 
     setSearch(payload);
@@ -312,7 +316,7 @@ const ServicesCounselingQueue = () => {
           <NavLink
             end
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
+            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
           >
             <span data-testid="search-tab-link" className="tab-title">
               Search

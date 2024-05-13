@@ -34,7 +34,6 @@ const shipment = {
     advanceAmountRequested: 598700,
     approvedAt: '2022-07-03T14:20:21.620Z',
     createdAt: '2022-06-30T13:41:33.265Z',
-    destinationPostalCode: '30813',
     eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43ODA1Mlo=',
     estimatedIncentive: 1000000,
     estimatedWeight: 4000,
@@ -43,11 +42,8 @@ const shipment = {
     hasReceivedAdvance: true,
     hasRequestedAdvance: true,
     id: 'd733fe2f-b08d-434a-ad8d-551f4d597b03',
-    pickupPostalCode: '90210',
     proGearWeight: 1987,
     reviewedAt: '2022-07-02T14:20:14.636Z',
-    secondaryDestinationPostalCode: '30814',
-    secondaryPickupPostalCode: '90211',
     shipmentId: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
     sitEstimatedCost: 123456,
     sitEstimatedDepartureDate: '2022-07-13',
@@ -57,6 +53,40 @@ const shipment = {
     sitLocation: 'DESTINATION',
     spouseProGearWeight: 498,
     status: 'SUBMITTED',
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '777 Test Street',
+      streetAddress2: '888 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42702',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42703',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '444 Test Street',
+      streetAddress2: '555 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    hasSecondaryPickupAddress: 'true',
+    hasSecondaryDestinationAddress: 'true',
     submittedAt: '2022-07-01T13:41:33.252Z',
     updatedAt: '2022-07-01T14:23:19.780Z',
   },
@@ -115,17 +145,59 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     );
 
     expect(await screen.findByText('Origin Info')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Pickup Postal Code')).toHaveValue(initialValues.ppmShipment.pickupPostalCode);
-    expect(await screen.findByLabelText('Secondary Pickup Postal Code')).toHaveValue(
-      initialValues.ppmShipment.secondaryPickupPostalCode,
+
+    expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      initialValues.ppmShipment.pickupAddress.streetAddress1,
+    );
+    expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
+      initialValues.ppmShipment.pickupAddress.streetAddress2,
+    );
+    expect(await screen.getAllByLabelText('City')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.city);
+    expect(await screen.getAllByLabelText('State')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.state);
+    expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(initialValues.ppmShipment.pickupAddress.postalCode);
+
+    expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
+    );
+    expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.streetAddress2,
+    );
+    expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.city,
+    );
+    expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.state,
+    );
+    expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+      initialValues.ppmShipment.secondaryPickupAddress.postalCode,
     );
 
-    expect(await screen.findByText('Destination Info')).toBeInTheDocument();
-    expect(await screen.findByLabelText('Destination Postal Code')).toHaveValue(
-      initialValues.ppmShipment.destinationPostalCode,
+    expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+      initialValues.ppmShipment.destinationAddress.streetAddress1,
     );
-    expect(await screen.findByLabelText('Secondary Destination Postal Code')).toHaveValue(
-      initialValues.ppmShipment.secondaryDestinationPostalCode,
+    expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
+      initialValues.ppmShipment.destinationAddress.streetAddress2,
+    );
+    expect(await screen.getAllByLabelText('City')[2]).toHaveValue(initialValues.ppmShipment.destinationAddress.city);
+    expect(await screen.getAllByLabelText('State')[2]).toHaveValue(initialValues.ppmShipment.destinationAddress.state);
+    expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+      initialValues.ppmShipment.destinationAddress.postalCode,
+    );
+
+    expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+      initialValues.ppmShipment.secondaryDestinationAddress.streetAddress1,
+    );
+    expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
+      initialValues.ppmShipment.secondaryDestinationAddress.streetAddress2,
+    );
+    expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+      initialValues.ppmShipment.secondaryDestinationAddress.city,
+    );
+    expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
+      initialValues.ppmShipment.secondaryDestinationAddress.state,
+    );
+    expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+      initialValues.ppmShipment.secondaryDestinationAddress.postalCode,
     );
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();

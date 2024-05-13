@@ -136,6 +136,11 @@ const moveTaskOrder = {
       status: 'APPROVED',
     },
   ],
+  order: {
+    entitlement: {
+      gunSafe: true,
+    },
+  },
 };
 
 const moveReturnValue = {
