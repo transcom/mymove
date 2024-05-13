@@ -22,9 +22,8 @@ func NewMoveLocker() services.MoveLocker {
 // LockMove updates a move with relevant values of who has a move locked and the expiration of the lock pending it isn't unlocked before then
 func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, officeUserID uuid.UUID) (*models.Move, error) {
 
-	var err error
 	if officeUserID == uuid.Nil {
-		return &models.Move{}, apperror.NewQueryError("OfficeUserID", err, "No office user provided in request to lock move")
+		return &models.Move{}, apperror.NewQueryError("OfficeUserID", nil, "No office user provided in request to lock move")
 	}
 
 	// fetching office user
@@ -40,8 +39,8 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
-	if move.LockedByOfficeUserID != &officeUserID {
-		move.LockedByOfficeUserID = &officeUserID
+	if move.LockedByOfficeUserID != models.UUIDPointer(officeUserID) {
+		move.LockedByOfficeUserID = models.UUIDPointer(officeUserID)
 	}
 
 	if officeUser != nil {
@@ -73,7 +72,7 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	})
 
 	if transactionError != nil {
-		return &models.Move{}, transactionError
+		return nil, transactionError
 	}
 
 	return move, nil

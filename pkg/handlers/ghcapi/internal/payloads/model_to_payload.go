@@ -47,9 +47,8 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 			TransportationOffice:   TransportationOffice(&officeUser.TransportationOffice),
 		}
 		return &payload
-	} else {
-		return &ghcmessages.LockedOfficeUser{}
 	}
+	return nil
 }
 
 // Move payload
@@ -63,16 +62,6 @@ func Move(move *models.Move) *ghcmessages.Move {
 		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 	} else if move.Orders.OriginDutyLocationGBLOC != nil {
 		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
-	}
-
-	var lockedByOfficeUserID uuid.UUID
-	if move.LockedByOfficeUserID != nil {
-		lockedByOfficeUserID = *move.LockedByOfficeUserID
-	}
-
-	var lockExpiresAt time.Time
-	if move.LockExpiresAt != nil {
-		lockExpiresAt = *move.LockExpiresAt
 	}
 
 	payload := &ghcmessages.Move{
@@ -100,9 +89,9 @@ func Move(move *models.Move) *ghcmessages.Move {
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
 		ShipmentGBLOC:                gbloc,
-		LockedByOfficeUserID:         handlers.FmtUUID(lockedByOfficeUserID),
+		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
-		LockExpiresAt:                handlers.FmtDateTime(lockExpiresAt),
+		LockExpiresAt:                handlers.FmtDateTime(*move.LockExpiresAt),
 	}
 
 	return payload
@@ -1771,11 +1760,6 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			}
 		}
 
-		var officeUser models.OfficeUser
-		if move.LockedByOfficeUser != nil {
-			officeUser = *move.LockedByOfficeUser
-		}
-
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
 			Status:                  ghcmessages.MoveStatus(move.Status),
@@ -1794,7 +1778,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			CloseoutLocation:        &closeoutLocation,
 			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
-			LockedByOfficeUser:      OfficeUser(&officeUser),
+			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 		}
 	}
@@ -1993,16 +1977,6 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}
 
-		var lockedByOfficeUser uuid.UUID
-		if move.LockedByOfficeUserID != nil {
-			lockedByOfficeUser = *move.LockedByOfficeUserID
-		}
-
-		var lockExpiresAt time.Time
-		if move.LockExpiresAt != nil {
-			lockExpiresAt = *move.LockExpiresAt
-		}
-
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
@@ -2019,8 +1993,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			RequestedDeliveryDate:             deliveryDate,
 			OriginGBLOC:                       originGBLOC,
 			DestinationGBLOC:                  destinationGBLOC,
-			LockedByOfficeUserID:              handlers.FmtUUID(lockedByOfficeUser),
-			LockExpiresAt:                     strfmt.DateTime(lockExpiresAt),
+			LockedByOfficeUserID:              handlers.FmtUUID(*move.LockedByOfficeUserID),
+			LockExpiresAt:                     strfmt.DateTime(*move.LockExpiresAt),
 		}
 	}
 	return &searchMoves
