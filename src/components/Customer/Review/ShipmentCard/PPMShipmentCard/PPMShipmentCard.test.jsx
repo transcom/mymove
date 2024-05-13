@@ -19,7 +19,6 @@ const defaultProps = {
     shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
       pickupAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
@@ -28,7 +27,6 @@ const defaultProps = {
         state: 'NY',
         postalCode: '10001',
       },
-      destinationPostalCode: '11111',
       destinationAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
@@ -54,7 +52,6 @@ const completeProps = {
     shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
       pickupAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
@@ -63,7 +60,6 @@ const completeProps = {
         state: 'NY',
         postalCode: '10001',
       },
-      secondaryPickupPostalCode: '10002',
       secondaryPickupAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
@@ -72,7 +68,6 @@ const completeProps = {
         state: 'NY',
         postalCode: '10002',
       },
-      destinationPostalCode: '11111',
       destinationAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
@@ -81,7 +76,6 @@ const completeProps = {
         state: 'NY',
         postalCode: '11111',
       },
-      secondaryDestinationPostalCode: '22222',
       secondaryDestinationAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
@@ -115,7 +109,6 @@ const incompleteProps = {
     shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
       pickupAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
@@ -124,7 +117,6 @@ const incompleteProps = {
         state: 'NY',
         postalCode: '10001',
       },
-      destinationPostalCode: '11111',
       destinationAddress: {
         streetAddress1: '111 Test Street',
         streetAddress2: '222 Test Street',
