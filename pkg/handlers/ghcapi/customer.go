@@ -183,12 +183,12 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 			}
 
 			transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
-			// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
-			// to true so that the customer can log in without having to authenticate with a CAC
-			var cacValidated = false
-			if !payload.CacUser {
-				cacValidated = true
-			}
+				// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
+				// to true so that the customer can log in without having to authenticate with a CAC
+				var cacValidated = false
+				if !payload.CacUser {
+					cacValidated = true
+				}
 				var verrs *validate.Errors
 				// creating a user and populating okta values (for now these can be null)
 				user, userErr := models.CreateUser(appCtx.DB(), oktaSub, email)
@@ -304,7 +304,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	// Creating the OktaUserPayload struct
 	oktaPayload := models.OktaUserPayload{
 		Profile:  profile,
-		GroupIDs: []string{customerGroupID},
+		GroupIds: []string{customerGroupID},
 	}
 
 	// getting okta domain url for request

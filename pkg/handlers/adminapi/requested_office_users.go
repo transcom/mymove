@@ -111,12 +111,12 @@ func CreateOfficeOktaAccount(appCtx appcontext.AppContext, params requested_offi
 	// Build Post request body
 	body := models.OktaAccountCreationBody{
 		Profile:  oktaProfileBody,
-		GroupIDs: []string{},
+		GroupIds: []string{},
 	}
 
 	// Get Okta Office Group Id and add it to the request
 	oktaOfficeGroupID := v.GetString(cli.OktaOfficeGroupIDFlag)
-	body.GroupIDs = append(body.GroupIDs, oktaOfficeGroupID)
+	body.GroupIds = append(body.GroupIds, oktaOfficeGroupID)
 
 	// Marshall Post request body
 	marshalledBody, err := json.Marshal(body)
