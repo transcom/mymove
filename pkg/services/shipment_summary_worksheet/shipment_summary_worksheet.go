@@ -731,6 +731,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 
 	if ppmShipment.SpouseProGearWeight != nil {
 		ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear = true
+		ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents = true
 	}
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
