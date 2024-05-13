@@ -1,5 +1,12 @@
 ---
 linters-settings:
+  revive:
+    rules:
+      - name: indent-error-flow
+        disabled: true
+      - name: superfluous-else
+        disabled: true
+
   gci:
     sections:
       - standard
@@ -39,13 +46,13 @@ linters:
     - gofmt
     - goimports
     - gomodguard
-   # - gosec
+    - gosec
     - gosimple
     - govet
     - ineffassign
-  # - revive
+    - revive
     - staticcheck
-  #  - typecheck
+    - typecheck
     - unused
   fast: false
 issues:

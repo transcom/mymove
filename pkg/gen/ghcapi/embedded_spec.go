@@ -6846,6 +6846,24 @@ func init() {
         }
       }
     },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -7656,6 +7674,20 @@ func init() {
           "type": "string",
           "example": "1K43AR"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orders": {
           "$ref": "#/definitions/Order"
         },
@@ -8189,6 +8221,9 @@ func init() {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "transportationOfficeId": {
           "type": "string",
@@ -9494,6 +9529,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -9573,6 +9622,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "moveID": {
           "type": "string",
@@ -10073,6 +10132,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"
@@ -19758,6 +19827,24 @@ func init() {
         }
       }
     },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -20568,6 +20655,20 @@ func init() {
           "type": "string",
           "example": "1K43AR"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orders": {
           "$ref": "#/definitions/Order"
         },
@@ -21101,6 +21202,9 @@ func init() {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "transportationOfficeId": {
           "type": "string",
@@ -22408,6 +22512,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -22487,6 +22605,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "moveID": {
           "type": "string",
@@ -23037,6 +23165,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"

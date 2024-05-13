@@ -8,7 +8,7 @@ import (
 )
 
 // parseOtherIntlPrices: parser for: 3d) Other International Prices
-var parseOtherIntlPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseOtherIntlPrices processXlsxSheet = func(_ appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 13 // 3d) International Other Prices
 	const feeColIndexStart int = 4  // start at column 6 to get the rates

@@ -90,7 +90,7 @@ func checkPrimeAvailability(checker services.MoveTaskOrderChecker) sitExtensionV
 // checks that the total SIT duration for a shipment is not reduced below 1 day by a newly-approved SITDurationUpdate
 // since SITDurationUpdate.approvedDays can be negative
 func checkMinimumSITDuration() sitExtensionValidator {
-	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, sitDurationUpdate models.SITDurationUpdate, shipment *models.MTOShipment) error {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitDurationUpdate models.SITDurationUpdate, shipment *models.MTOShipment) error {
 		if sitDurationUpdate.ApprovedDays == nil {
 			return apperror.NewInvalidInputError(sitDurationUpdate.ID, nil, nil, "missing sitDurationUpdate.ApprovedDays, can't calculate newSITDuration")
 		}

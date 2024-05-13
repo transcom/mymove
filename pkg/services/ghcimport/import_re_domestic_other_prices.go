@@ -189,6 +189,7 @@ func (gre *GHCRateEngineImporter) importREDomesticOtherPrices(appCtx appcontext.
 
 	modelsToSave := append(modelsToSavePack, modelsToSaveSit...)
 	for _, modelToSave := range modelsToSave {
+		//nolint:gosec
 		if err := saveModel(appCtx, modelToSave.message, &modelToSave.model); err != nil {
 			return err
 		}

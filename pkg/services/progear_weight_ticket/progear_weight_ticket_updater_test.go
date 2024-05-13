@@ -14,7 +14,7 @@ import (
 )
 
 func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
-	setupForTest := func(overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
+	setupForTest := func(_ *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
