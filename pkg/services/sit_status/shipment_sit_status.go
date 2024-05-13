@@ -125,12 +125,14 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		sitCustomerContacted = currentSIT.SITCustomerContacted
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
 
-		doaSIT := getAdditionalSIT(shipmentSITs, shipment, today, location)
+		// we need to grab the add'l day SIT service item because the departure date, requested delivery, and customer contacted values
+		// are the ones we care about when displaying them in the SIT dashboard for office users
+		additionalDaysSIT := getAdditionalSIT(shipmentSITs, shipment, today, location)
 
-		if doaSIT != nil {
-			sitCustomerContacted = doaSIT.SITCustomerContacted
-			sitRequestedDelivery = doaSIT.SITRequestedDelivery
-			sitDepartureDate = doaSIT.SITDepartureDate
+		if additionalDaysSIT != nil {
+			sitCustomerContacted = additionalDaysSIT.SITCustomerContacted
+			sitRequestedDelivery = additionalDaysSIT.SITRequestedDelivery
+			sitDepartureDate = additionalDaysSIT.SITDepartureDate
 		}
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
@@ -200,6 +202,7 @@ func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipme
 		return nil
 	}
 
+	// we want to return the correct add'l SIT service item
 	for _, serviceItem := range shipmentSITs.currentSITs {
 		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOASIT && location == OriginSITLocation {
 			return &serviceItem
