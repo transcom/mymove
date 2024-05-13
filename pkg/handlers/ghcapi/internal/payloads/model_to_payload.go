@@ -768,7 +768,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
 		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
-		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		SitAuthorizedEndDate: handlers.FmtDate(currentSIT.SITAuthorizedEndDate),
 		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
 		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}

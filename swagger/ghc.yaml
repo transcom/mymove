@@ -7235,7 +7235,7 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAllowanceEndDate:
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
