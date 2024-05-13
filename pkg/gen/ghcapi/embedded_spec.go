@@ -10705,6 +10705,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
@@ -23500,6 +23506,12 @@ func init() {
         "actualMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
           "x-nullable": true
         },
         "advanceAmountRequested": {
