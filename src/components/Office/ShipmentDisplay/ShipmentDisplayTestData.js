@@ -55,6 +55,7 @@ export const ntsReleaseInfo = {
   shipmentStatus: shipmentStatuses.SUBMITTED,
   ntsRecordedWeight: 2000,
   isDiversion: false,
+  shipmentLocator: 'EVLRPT-04',
   storageFacility: {
     address: {
       city: 'Anytown',
