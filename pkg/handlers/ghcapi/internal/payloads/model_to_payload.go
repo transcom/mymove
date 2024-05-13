@@ -616,6 +616,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
+	gunSafe := entitlement.GunSafe
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -629,7 +630,8 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		ETag: etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe: gunSafe,
+		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -827,6 +829,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitExpected:                    ppmShipment.SITExpected,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -855,6 +859,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.W2Address != nil {
 		payloadPPMShipment.W2Address = Address(ppmShipment.W2Address)
+	}
+
+	if ppmShipment.SecondaryPickupAddress != nil {
+		payloadPPMShipment.SecondaryPickupAddress = Address(ppmShipment.SecondaryPickupAddress)
+	}
+
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
 	}
 
 	return payloadPPMShipment
@@ -1888,6 +1900,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
+
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++

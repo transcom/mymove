@@ -208,13 +208,12 @@ describe('Office App', () => {
     });
 
     it('renders the 404 component when the route is not found', async () => {
-      renderOfficeAppAtRoute('/not-a-real-route', roleTypes.TOO);
+      renderOfficeAppAtRoute('/not-a-real-route', roleTypes.QAE_CSR);
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
       expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
       expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
-
       await expect(screen.getByText('Error - 404')).toBeInTheDocument();
       await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
     });

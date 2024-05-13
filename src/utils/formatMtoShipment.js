@@ -87,10 +87,20 @@ const emptyAddressShape = {
 export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {}, closeoutOffice = {} }) {
   const displayValues = {
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
-    pickupPostalCode: ppmShipment.pickupPostalCode || '',
-    secondPickupPostalCode: ppmShipment.secondaryPickupPostalCode || '',
-    destinationPostalCode: ppmShipment.destinationPostalCode || '',
-    secondDestinationPostalCode: ppmShipment.secondaryDestinationPostalCode || '',
+    pickup: {
+      address: ppmShipment.pickupAddress || emptyAddressShape,
+    },
+    destination: {
+      address: ppmShipment.destinationAddress || emptyAddressShape,
+    },
+    secondaryPickup: {
+      address: { ...emptyAddressShape },
+    },
+    secondaryDestination: {
+      address: { ...emptyAddressShape },
+    },
+    hasSecondaryPickup: ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
+    hasSecondaryDestination: ppmShipment.hasSecondaryDestinationAddress ? 'true' : 'false',
 
     sitExpected: !!ppmShipment.sitExpected,
     sitLocation: ppmShipment.sitLocation ?? LOCATION_TYPES.DESTINATION,
@@ -110,6 +120,14 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     closeoutOffice,
     counselorRemarks,
   };
+
+  if (ppmShipment.hasSecondaryPickupAddress) {
+    displayValues.secondaryPickup.address = { ...emptyAddressShape, ...ppmShipment.secondaryPickupAddress };
+  }
+
+  if (ppmShipment.hasSecondaryDestinationAddress) {
+    displayValues.secondaryDestination.address = { ...emptyAddressShape, ...ppmShipment.secondaryDestinationAddress };
+  }
 
   return displayValues;
 }
@@ -240,16 +258,30 @@ export function formatMtoShipmentForDisplay({
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
     expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
-    pickupPostalCode: formValues.pickupPostalCode,
-    secondaryPickupPostalCode: formValues.secondPickupPostalCode || undefined,
-    destinationPostalCode: formValues.destinationPostalCode,
-    secondaryDestinationPostalCode: formValues.secondDestinationPostalCode || undefined,
+    pickupAddress: formatAddressForAPI(formValues.pickup.address),
+    destinationAddress: formatAddressForAPI(formValues.destination.address),
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
     hasRequestedAdvance: formValues.advanceRequested,
     advanceStatus: formValues.advanceStatus,
+    hasSecondaryPickupAddress: formValues.hasSecondaryPickup === 'true',
+    hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
   };
+
+  if (ppmShipmentValues.hasSecondaryPickupAddress) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      secondaryPickupAddress: formatAddressForAPI(formValues.secondaryPickup.address),
+    };
+  }
+
+  if (ppmShipmentValues.hasSecondaryDestinationAddress) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      secondaryDestinationAddress: formatAddressForAPI(formValues.secondaryDestination.address),
+    };
+  }
 
   if (formValues.hasProGear) {
     ppmShipmentValues = {
@@ -400,6 +432,9 @@ export function getMtoShipmentLabel({ context }) {
   }
   if (context[0].name) {
     mtoShipmentLabels.service_item_name = context[0].name;
+  }
+  if (context[0].shipment_locator) {
+    mtoShipmentLabels.shipment_locator = context[0].shipment_locator;
   }
   return mtoShipmentLabels;
 }

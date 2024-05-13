@@ -202,11 +202,10 @@ export default function ReviewDocumentsSidePanel({
                               </span>
                               <span>
                                 <dt>Total Days in SIT:</dt>
-                                <dl>
-                                  {moment(exp.sitEndDate, 'YYYY MM DD').diff(
-                                    moment(exp.sitStartDate, 'YYYY MM DD'),
-                                    'days',
-                                  )}
+                                <dl data-testid="days-in-sit">
+                                  {moment(exp.sitEndDate, 'YYYY MM DD')
+                                    .add(1, 'days')
+                                    .diff(moment(exp.sitStartDate, 'YYYY MM DD'), 'days')}
                                 </dl>
                               </span>
                               <span>

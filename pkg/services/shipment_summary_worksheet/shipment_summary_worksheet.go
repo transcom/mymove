@@ -586,7 +586,7 @@ func FormatSITNumberAndType(i int) string {
 func FormatPPMWeight(ppm models.PPMShipment) string {
 	if ppm.EstimatedWeight != nil {
 		wtg := FormatWeights(unit.Pound(*ppm.EstimatedWeight))
-		return fmt.Sprintf("%s lbs - FINAL", wtg)
+		return fmt.Sprintf("%s lbs - Estimated", wtg)
 	}
 	return ""
 }
@@ -867,7 +867,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader)
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "")
 	if err != nil {
 		return nil, nil, err
 	}

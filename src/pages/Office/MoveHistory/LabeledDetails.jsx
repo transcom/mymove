@@ -87,13 +87,13 @@ export const retrieveTextToDisplay = (fieldName, value) => {
 // testable for code coverage //
 export const createLineItemLabel = (
   shipmentType,
-  shipmentIdDisplay,
+  shipmentLocator,
   serviceItemName,
   movingExpenseType,
   belongs_to_self,
 ) =>
   [
-    shipmentType && `${shipmentTypes[shipmentType]} shipment #${shipmentIdDisplay}`,
+    shipmentType && `${shipmentTypes[shipmentType]} shipment #${shipmentLocator}`,
     serviceItemName,
     movingExpenseType && `${expenseTypeLabels[movingExpenseType]}`,
     belongs_to_self,
@@ -141,7 +141,7 @@ export const filterInLineItemValues = (changedValues, oldValues) =>
 const LabeledDetails = ({ historyRecord }) => {
   const { changedValues, oldValues = {} } = historyRecord;
 
-  const { shipment_type, shipment_id_display, service_item_name, ...changedValuesToUse } = changedValues;
+  const { shipment_type, shipment_locator, service_item_name, ...changedValuesToUse } = changedValues;
 
   let belongs_to_self =
     oldValues?.belongs_to_self !== null && oldValues?.belongs_to_self !== ''
@@ -157,7 +157,7 @@ const LabeledDetails = ({ historyRecord }) => {
   // Check for shipment_type to use it as a header for the row
   const shipmentDisplay = createLineItemLabel(
     shipment_type,
-    shipment_id_display,
+    shipment_locator,
     service_item_name,
     moving_expense_type,
     belongs_to_self,

@@ -55,6 +55,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			TransportationOfficeID: transportationOffice.ID,
 			Telephone:              "312-111-1111",
 			TransportationOffice:   transportationOffice,
+			EDIPI:                  models.StringPointer("1234567890"),
+			OtherUniqueID:          models.StringPointer("1234567890"),
 		}
 		return existingUser, officeUser
 	}
@@ -252,4 +254,68 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		_, _, err := creator.CreateOfficeUser(appCtx, &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
+
+	suite.Run("Test detailed uniqueness constraints being returned properly", func() {
+		testCases := []struct {
+			errorString              string
+			shouldEdipiBeNil         bool
+			shouldOtherUniqueIDBeNil bool
+		}{
+			{models.UniqueConstraintViolationOfficeUserEmailErrorString, false, false},
+			{models.UniqueConstraintViolationOfficeUserEdipiErrorString, false, false},
+			{models.UniqueConstraintViolationOfficeUserEdipiErrorString, true, false},
+			{models.UniqueConstraintViolationOfficeUserOtherUniqueIDErrorString, false, false},
+			{models.UniqueConstraintViolationOfficeUserOtherUniqueIDErrorString, false, true},
+		}
+
+		for _, tc := range testCases {
+			_, userInfo := setupTestData()
+			transportationOffice := userInfo.TransportationOffice
+			if tc.shouldEdipiBeNil {
+				userInfo.EDIPI = nil
+			}
+			if tc.shouldOtherUniqueIDBeNil {
+				userInfo.OtherUniqueID = nil
+			}
+			appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+
+			fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+				switch model.(type) {
+				case *models.TransportationOffice:
+					reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+				case *models.User:
+					return errors.New("User Not Found")
+				}
+				return nil
+			}
+
+			fakeCreateOne := func(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error) {
+				// Fail on the second createOne call with OfficeUser
+				switch model.(type) {
+				case *models.OfficeUser:
+					return nil, errors.New(tc.errorString)
+				default:
+					return nil, nil
+				}
+			}
+			fakeQueryAssociations := func(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+				return nil
+			}
+
+			filter := []services.QueryFilter{query.NewQueryFilter("id", "=", transportationOffice.ID)}
+
+			builder := &testOfficeUserQueryBuilder{
+				fakeFetchOne:             fakeFetchOne,
+				fakeCreateOne:            fakeCreateOne,
+				fakeQueryForAssociations: fakeQueryAssociations,
+			}
+
+			creator := NewOfficeUserCreator(builder, setUpMockNotificationSender())
+			_, _, err := creator.CreateOfficeUser(appCtx, &userInfo, filter)
+			suite.EqualError(err, tc.errorString)
+
+		}
+
+	})
+
 }

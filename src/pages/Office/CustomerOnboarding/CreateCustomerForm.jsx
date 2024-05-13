@@ -5,12 +5,14 @@ import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { connect } from 'react-redux';
 
+import { statesList } from '../../../constants/states';
+
 import styles from './CreateCustomerForm.module.scss';
 
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { generalRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
@@ -28,59 +30,6 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const statesList = [
-    { value: 'AL', key: 'AL' },
-    { value: 'AK', key: 'AK' },
-    { value: 'AR', key: 'AR' },
-    { value: 'AZ', key: 'AZ' },
-    { value: 'CA', key: 'CA' },
-    { value: 'CO', key: 'CO' },
-    { value: 'CT', key: 'CT' },
-    { value: 'DC', key: 'DC' },
-    { value: 'DE', key: 'DE' },
-    { value: 'FL', key: 'FL' },
-    { value: 'GA', key: 'GA' },
-    { value: 'HI', key: 'HI' },
-    { value: 'IA', key: 'IA' },
-    { value: 'ID', key: 'ID' },
-    { value: 'IL', key: 'IL' },
-    { value: 'IN', key: 'IN' },
-    { value: 'KS', key: 'KS' },
-    { value: 'KY', key: 'KY' },
-    { value: 'LA', key: 'LA' },
-    { value: 'MA', key: 'MA' },
-    { value: 'MD', key: 'MD' },
-    { value: 'ME', key: 'ME' },
-    { value: 'MI', key: 'MI' },
-    { value: 'MN', key: 'MN' },
-    { value: 'MO', key: 'MO' },
-    { value: 'MS', key: 'MS' },
-    { value: 'MT', key: 'MT' },
-    { value: 'NC', key: 'NC' },
-    { value: 'ND', key: 'ND' },
-    { value: 'NE', key: 'NE' },
-    { value: 'NH', key: 'NH' },
-    { value: 'NJ', key: 'NJ' },
-    { value: 'NM', key: 'NM' },
-    { value: 'NV', key: 'NV' },
-    { value: 'NY', key: 'NY' },
-    { value: 'OH', key: 'OH' },
-    { value: 'OK', key: 'OK' },
-    { value: 'OR', key: 'OR' },
-    { value: 'PA', key: 'PA' },
-    { value: 'RI', key: 'RI' },
-    { value: 'SC', key: 'SC' },
-    { value: 'SD', key: 'SD' },
-    { value: 'TN', key: 'TN' },
-    { value: 'TX', key: 'TX' },
-    { value: 'UT', key: 'UT' },
-    { value: 'VA', key: 'VA' },
-    { value: 'VT', key: 'VT' },
-    { value: 'WA', key: 'WA' },
-    { value: 'WI', key: 'WI' },
-    { value: 'WV', key: 'WV' },
-    { value: 'WY', key: 'WY' },
-  ];
 
   const residentialAddressName = 'residential_address';
   const backupAddressName = 'backup_mailing_address';
@@ -123,7 +72,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   };
 
   const handleBack = () => {
-    navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
+    navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
   };
 
   const onSubmit = async (values) => {
@@ -155,7 +104,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
     return createCustomerWithOktaOption({ body })
       .then(() => {
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
-        navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
+        navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
       })
       .catch((e) => {
         const { response } = e;

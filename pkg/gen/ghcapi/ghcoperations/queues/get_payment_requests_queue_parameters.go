@@ -425,7 +425,7 @@ func (o *GetPaymentRequestsQueueParams) bindStatus(rawData []string, hasKey bool
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"Payment requested", "Reviewed", "Rejected", "Paid", "Deprecated", "Error"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"PENDING", "REVIEWED", "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED", "PAID", "DEPRECATED", "EDI_ERROR"}, true); err != nil {
 			return err
 		}
 

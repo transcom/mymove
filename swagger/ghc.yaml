@@ -80,6 +80,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /open/requested-office-users:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals
+        who do not have an office account to request the creation of an office
+        account.
+
+        Request the creation of an office user. An administrator will need to
+        approve them after creation. Note on requirements: An identification
+        method must be present. The following 2 fields have an "OR" requirement.
+        - edipi - other_unique_id One of these two fields MUST be present to
+        serve as identification for the office user being created. This logic is
+        handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -3325,12 +3363,12 @@ paths:
           items:
             type: string
             enum:
-              - Payment requested
-              - Reviewed
-              - Rejected
-              - Paid
-              - Deprecated
-              - Error
+              - PENDING
+              - REVIEWED
+              - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+              - PAID
+              - DEPRECATED
+              - EDI_ERROR
         - in: query
           name: orderType
           type: string
@@ -3634,6 +3672,169 @@ definitions:
         type: string
       type:
         type: string
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      roleName:
+        type: string
+        example: Transportation Ordering Officer
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - roleType
+      - roleName
+      - createdAt
+      - updatedAt
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+      middleInitials:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+      transportationOfficeId:
+        type: string
+        format: uuid
+      active:
+        type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - firstName
+      - middleInitials
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - active
+      - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
+      - createdAt
+      - updatedAt
+  OfficeUserCreate:
+    type: object
+    properties:
+      email:
+        type: string
+        example: user@userdomain.com
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        example: '1234567890'
+        maxLength: 10
+        title: EDIPI
+        x-nullable: true
+      otherUniqueId:
+        type: string
+        title: Office user identifier when EDIPI is not available
+        x-nullable: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+        x-nullable: false
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: false
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+        x-nullable: false
+    required:
+      - firstName
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - roles
+  OfficeUserRole:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Transportation Ordering Officer
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: transportation_ordering_officer
+        x-nullable: true
+        title: roleType
   Customer:
     type: object
     properties:
@@ -3861,6 +4062,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -4636,6 +4840,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4707,6 +4917,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -5035,35 +5251,26 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -5306,33 +5513,26 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       sitLocation:
@@ -5366,8 +5566,8 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
+      - pickupAddress
+      - destinationAddress
       - sitExpected
       - estimatedWeight
       - hasProGear

@@ -1,12 +1,17 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 
 import LoggedOutHeader from './LoggedOutHeader';
 
 describe('LoggedOutHeader', () => {
   it('renders the logged out header', () => {
-    render(<LoggedOutHeader />);
+    render(
+      <MemoryRouter>
+        <LoggedOutHeader />
+      </MemoryRouter>,
+    );
 
     const homeLink = screen.getByTitle('Home');
     expect(homeLink).toBeInstanceOf(HTMLAnchorElement);
@@ -16,7 +21,11 @@ describe('LoggedOutHeader', () => {
   });
 
   it('shows the EULA modal when logging in', async () => {
-    render(<LoggedOutHeader />);
+    render(
+      <MemoryRouter>
+        <LoggedOutHeader />
+      </MemoryRouter>,
+    );
 
     const signInButton = screen.getByRole('button', { name: 'Sign In' });
     expect(signInButton).toBeInstanceOf(HTMLButtonElement);
@@ -28,7 +37,11 @@ describe('LoggedOutHeader', () => {
   });
 
   it('closes the EULA modal when cancel is clicked', async () => {
-    render(<LoggedOutHeader />);
+    render(
+      <MemoryRouter>
+        <LoggedOutHeader />
+      </MemoryRouter>,
+    );
 
     const signInButton = screen.getByRole('button', { name: 'Sign In' });
     expect(signInButton).toBeInstanceOf(HTMLButtonElement);
