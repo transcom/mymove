@@ -73,6 +73,9 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.IsType(&moveops.GetMoveOK{}, response)
 		payload := response.(*moveops.GetMoveOK).Payload
 
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
 		suite.Equal(move.ID.String(), payload.ID.String())
 		suite.Equal(move.AvailableToPrimeAt.Format(swaggerTimeFormat), time.Time(*payload.AvailableToPrimeAt).Format(swaggerTimeFormat))
 		suite.Equal(move.ContractorID.String(), payload.ContractorID.String())
@@ -130,6 +133,9 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveOK{}, response)
 		payload := response.(*moveops.GetMoveOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(transportationOffice.ID.String(), payload.CloseoutOfficeID.String())
 		suite.Equal(transportationOffice.ID.String(), payload.CloseoutOffice.ID.String())

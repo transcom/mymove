@@ -58,7 +58,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 			lockExpiresAt := move.LockExpiresAt
 			now := time.Now()
 			if appCtx.Session().IsOfficeUser() {
-				if move.LockedByOfficeUserID == nil && move.LockExpiresAt == nil || now.After(*lockExpiresAt) || *lockedOfficeUserID == officeUserID {
+				if move.LockedByOfficeUserID == nil && move.LockExpiresAt == nil || (lockExpiresAt != nil && now.After(*lockExpiresAt)) || (*lockedOfficeUserID == officeUserID && lockedOfficeUserID != nil) {
 					move, err = h.LockMove(appCtx, move, officeUserID)
 					if err != nil {
 						return moveop.NewGetMoveInternalServerError(), err
