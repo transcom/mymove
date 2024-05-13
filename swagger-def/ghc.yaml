@@ -5885,6 +5885,7 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:

@@ -10126,7 +10126,8 @@ func init() {
         },
         "lockExpiresAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "lockedByOfficeUserID": {
           "type": "string",
@@ -23149,7 +23150,8 @@ func init() {
         },
         "lockExpiresAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "lockedByOfficeUserID": {
           "type": "string",
