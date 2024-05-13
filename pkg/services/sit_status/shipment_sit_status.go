@@ -1,7 +1,6 @@
 package sitstatus
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -111,8 +110,6 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs
 
 	if currentSIT != nil {
-		id := currentSIT.ID
-		fmt.Println(id)
 		location := DestinationSITLocation
 		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT || currentSIT.ReService.Code == models.ReServiceCodeDOASIT {
 			location = OriginSITLocation
