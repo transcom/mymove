@@ -2,7 +2,7 @@ package models
 
 type OktaUserPayload struct {
 	Profile  Profile  `json:"profile"`
-	GroupIds []string `json:"groupIds"`
+	GroupIDs []string `json:"groupIds"`
 }
 
 type Profile struct {

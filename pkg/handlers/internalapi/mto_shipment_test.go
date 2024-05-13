@@ -829,7 +829,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SitExpected:           handlers.FmtBool(false),
 				},
 				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, _ models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
 					// check all fields changed as expected
 					desiredShipment.ExpectedDepartureDate.Equal(*updatedShipment.PpmShipment.ExpectedDepartureDate)
 
@@ -871,7 +871,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SecondaryDestinationPostalCode: nullable.NewNullString(),
 				},
 				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, _ internalmessages.UpdatePPMShipment) {
 					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated

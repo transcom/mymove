@@ -282,7 +282,7 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 				"- unknown field or fields attempting to be updated.")
-
+			//nolint:revive // This is intentionally returning an error
 		} else {
 			// Rejects the update if the original SIT does not have a REJECTED status
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
