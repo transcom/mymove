@@ -2557,6 +2557,7 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DDDSIT
+              - DDFSIT
               - DOPSIT
               - DOASIT
               - DOFSIT

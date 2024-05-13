@@ -1886,6 +1886,7 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DDDSIT # Domestic Destination SIT Delivery
+              - DDFSIT # Domestic Destination 1st Day SIT
               - DOPSIT # Domestic Origin SIT Pickup
               - DOASIT # Domestic Origin Add'l Days SIT
               - DOFSIT # Domestic Origin 1st Day SIT

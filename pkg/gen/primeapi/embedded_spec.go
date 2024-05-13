@@ -4185,6 +4185,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DDDSIT",
+                "DDFSIT",
                 "DOPSIT",
                 "DOASIT",
                 "DOFSIT"
@@ -9335,6 +9336,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DDDSIT",
+                "DDFSIT",
                 "DOPSIT",
                 "DOASIT",
                 "DOFSIT"
