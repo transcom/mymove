@@ -307,7 +307,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				appCtx.Logger().Error("ghcapi.UpdateMTOShipment could not generate the event")
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -432,7 +432,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 
 			h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -513,7 +513,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 
 			h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -594,7 +594,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 
 			h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -747,7 +747,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 
 			h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -852,7 +852,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 				}
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
 			if err != nil {
 				return handleError(err), err
 			}
@@ -981,7 +981,7 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 				return handleError(err)
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1061,7 +1061,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 				return handleError(err)
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1151,7 +1151,7 @@ func (h UpdateSITServiceItemCustomerExpenseHandler) Handle(params shipmentops.Up
 					return handleError(err)
 				}
 			}
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1219,7 +1219,7 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
