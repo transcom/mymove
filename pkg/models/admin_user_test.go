@@ -2,13 +2,13 @@ package models_test
 
 import (
 	"github.com/transcom/mymove/pkg/factory"
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestAdminUserCreation() {
 	user := factory.BuildUser(nil, nil, nil)
 
-	newAdminUser := AdminUser{
+	newAdminUser := m.AdminUser{
 		FirstName: "Leo",
 		LastName:  "Spaceman",
 		UserID:    &user.ID,
@@ -23,7 +23,7 @@ func (suite *ModelSuite) TestAdminUserCreation() {
 }
 
 func (suite *ModelSuite) TestAdminUserCreationWithoutValues() {
-	newAdminUser := &AdminUser{}
+	newAdminUser := &m.AdminUser{}
 
 	expErrors := map[string][]string{
 		"first_name": {"FirstName can not be blank."},

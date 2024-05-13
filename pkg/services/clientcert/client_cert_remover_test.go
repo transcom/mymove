@@ -76,7 +76,7 @@ func (suite *ClientCertServiceSuite) TestRemoveClientCert() {
 	suite.Run("If we are provided an id that doesn't exist, the update should fail", func() {
 		missingUUID, _ := uuid.NewV4()
 
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+		fakeFetchOne := func(_ appcontext.AppContext, _ interface{}, _ []services.QueryFilter) error {
 			return models.ErrFetchNotFound
 		}
 
