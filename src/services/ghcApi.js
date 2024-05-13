@@ -705,6 +705,11 @@ export async function searchTransportationOffices(search) {
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
 
+export async function searchTransportationOfficesOpen(search) {
+  const operationPath = 'transportationOffice.getTransportationOfficesOpen';
+  return makeGHCRequest(operationPath, { search }, { normalize: false });
+}
+
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
   const operationPath = 'shipment.reviewShipmentAddressUpdate';
   const schemaKey = 'ShipmentAddressUpdate';
@@ -727,6 +732,10 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 
 export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}
+
+export async function createOfficeAccountRequest({ body }) {
+  return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
 }
 
 export async function createUploadForDocument(file, documentId) {

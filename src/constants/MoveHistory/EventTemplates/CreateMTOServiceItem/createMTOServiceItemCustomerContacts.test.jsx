@@ -15,6 +15,7 @@ describe('when given a Create basic service item customer contacts history recor
       {
         name: 'Domestic destination 1st day SIT',
         shipment_id_abbr: 'c3a9e',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'HHG',
       },
     ],
@@ -33,6 +34,7 @@ describe('when given a Create basic service item customer contacts history recor
       {
         name: 'Domestic destination 1st day SIT',
         shipment_id_abbr: 'c3a9e',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'HHG',
       },
     ],
@@ -50,7 +52,7 @@ describe('when given a Create basic service item customer contacts history recor
     const template = getTemplate(firstHistoryRecord);
 
     render(template.getDetails(firstHistoryRecord));
-    expect(screen.getByText('HHG shipment #C3A9E, Domestic destination 1st day SIT'));
+    expect(screen.getByText('HHG shipment #RQ38D4-01, Domestic destination 1st day SIT'));
   });
 
   describe('when given a specific set of details', () => {

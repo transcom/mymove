@@ -12,7 +12,7 @@ export default {
   getEventNameDisplay: () => 'Approved shipment',
   getDetails: ({ context }) => (
     <>
-      {s[context[0]?.shipment_type]} shipment #{context[0]?.shipment_id_abbr.toUpperCase()}
+      {s[context[0]?.shipment_type]} shipment #{context[0]?.shipment_locator.toUpperCase()}
     </>
   ),
 };
