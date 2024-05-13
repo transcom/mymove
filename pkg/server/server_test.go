@@ -311,7 +311,7 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 	caCertPool.AppendCertsFromPEM(caFile)
 
 	// A handler that we can test with
-	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	httpHandler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		panic("This handler should have never fired")
 	})
 
@@ -370,7 +370,7 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 	caCertPool.AppendCertsFromPEM(caFile)
 
 	// A handler that we can test with
-	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	httpHandler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		panic("This handler should have never fired")
 	})
 

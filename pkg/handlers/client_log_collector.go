@@ -32,7 +32,7 @@ type ClientLogUpload struct {
 
 // NewClientLogHandler creates a handler for receiving client logs
 func NewClientLogHandler(appCtx appcontext.AppContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(_ http.ResponseWriter, r *http.Request) {
 		data, err := io.ReadAll(r.Body)
 		if err != nil {
 			appCtx.Logger().Error("client logs handler error", zap.Error(err))

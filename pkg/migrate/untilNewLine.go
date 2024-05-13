@@ -18,6 +18,7 @@ func untilNewLine(in *Buffer, i int, wait time.Duration) (int, string, error) {
 			} else if err == ErrWait {
 				time.Sleep(wait)
 				continue
+				//nolint:revive
 			} else {
 				return i, line.String(), errors.Wrap(err, "received unknown error ")
 			}
