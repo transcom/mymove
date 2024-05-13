@@ -5119,8 +5119,8 @@
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
 "@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer":
-  version "1.2.1"
-  resolved "git+https://github.com/transcom/react-file-viewer#9c74c57b519158f0f82f12a940220ac6baca80cc"
+  version "1.3.1"
+  resolved "git+https://github.com/transcom/react-file-viewer#2a443ae863b19168e8ba00e6725370cc8ba1ef38"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"

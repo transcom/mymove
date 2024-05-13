@@ -456,6 +456,7 @@ func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceIte
 			return paymentServiceItemParams, fmt.Errorf("failure creating payment service item param: %w", err)
 		} else if verrs.HasAny() {
 			return paymentServiceItemParams, apperror.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
+			//nolint:revive //
 		} else {
 			// Append it to a slice of PaymentServiceItemParams to return
 			paymentServiceItemParams = append(paymentServiceItemParams, newParam)

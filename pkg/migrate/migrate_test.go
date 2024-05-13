@@ -56,7 +56,7 @@ func (suite *MigrateSuite) TestCopyStdinPattern() {
 	}
 
 	for _, test := range tests {
-		suite.T().Run(test.name, func(t *testing.T) {
+		suite.T().Run(test.name, func(_ *testing.T) {
 			match := copyStdinPattern.FindStringSubmatch(test.copyStmt)
 			if !test.shouldMatch {
 				suite.Nil(match, "Match found, but wasn't expecting to match")
