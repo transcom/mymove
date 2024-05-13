@@ -131,7 +131,7 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 
 	lastStats := time.Now()
 	_, err = meter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
+		func(_ context.Context, observer metric.Observer) error {
 			lock.Lock()
 			defer lock.Unlock()
 

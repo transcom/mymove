@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 			pm.Orders.UploadedAmendedOrders = &document
 			pm.Orders.UploadedAmendedOrdersID = &document.ID
 
-			suite.MustSave(&pm.Orders)
+			suite.MustSave(&pm.Orders) //#nosec G601
 			upload := models.Upload{
 				Filename:    "test.pdf",
 				Bytes:       1048576,
@@ -2085,7 +2085,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2135,7 +2135,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2205,7 +2205,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 0, nil)
@@ -2246,7 +2246,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2280,7 +2280,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// mock returning error on move search
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(nil, 0, apperror.NewInternalServerError("mock"))
@@ -2320,7 +2320,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2366,7 +2366,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2413,7 +2413,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2460,7 +2460,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2508,7 +2508,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)

@@ -1,14 +1,14 @@
 package models_test
 
 import (
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestOrganizationValidation() {
 	email := "test@truss.works"
 	phone := "9144825484"
 
-	newOrganization := Organization{
+	newOrganization := m.Organization{
 		Name:     "Truss",
 		PocEmail: &email,
 		PocPhone: &phone,
@@ -21,7 +21,7 @@ func (suite *ModelSuite) TestOrganizationValidation() {
 }
 
 func (suite *ModelSuite) TestOrganizationCreationWithoutValues() {
-	newOrganization := &Organization{}
+	newOrganization := &m.Organization{}
 
 	expErrors := map[string][]string{
 		"name": {"Name can not be blank."},
