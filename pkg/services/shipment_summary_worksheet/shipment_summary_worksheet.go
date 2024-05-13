@@ -586,7 +586,7 @@ func FormatSITNumberAndType(i int) string {
 func FormatPPMWeight(ppm models.PPMShipment) string {
 	if ppm.EstimatedWeight != nil {
 		wtg := FormatWeights(unit.Pound(*ppm.EstimatedWeight))
-		return fmt.Sprintf("%s lbs - FINAL", wtg)
+		return fmt.Sprintf("%s lbs - Estimated", wtg)
 	}
 	return ""
 }
