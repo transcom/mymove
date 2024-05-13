@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/react-uswds';
 import { useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
@@ -23,6 +23,7 @@ import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { getResponseError } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
@@ -87,9 +88,17 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const backupAddressName = 'backup_mailing_address';
   const backupContactName = 'backup_contact';
 
-  const isSafetyPrivileged = userPrivileges?.some(
-    (privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY,
-  );
+  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('safety_move')?.then((enabled) => {
+      setSafetyMoveFF(enabled);
+    });
+  }, []);
+
+  const isSafetyPrivileged = isSafetyMoveFF
+    ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
+    : false;
 
   const initialValues = {
     affiliation: '',
@@ -125,7 +134,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
-    is_safety_move: '',
+    is_safety_move: false,
   };
 
   const handleBack = () => {
@@ -197,7 +206,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       is: false,
       then: (schema) => schema.required('Required'),
     }),
-    is_safety_move: Yup.boolean().required('Required'),
+    is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
   return (
@@ -246,7 +255,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             name="is_safety_move"
                             value="true"
                             data-testid="is-safety-move-yes"
-                            checked={values.is_safety_move === 'true'}
                             onChange={handleIsSafetyMove}
                           />
                           <Field
@@ -256,7 +264,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             name="is_safety_move"
                             value="false"
                             data-testid="is-safety-move-no"
-                            checked={values.is_safety_move === 'false'}
                           />
                         </div>
                       </Fieldset>
