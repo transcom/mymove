@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -173,8 +174,8 @@ func (suite *HandlerSuite) TestDeleteProGearWeightTicketHandler() {
 		subtestData.ppmShipment = subtestData.progear.PPMShipment
 
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progear.ID.String())
-		officeUser := factory.BuildOfficeUser(nil, nil, nil)
-		req := httptest.NewRequest("PATCH", endpoint, nil)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		req := httptest.NewRequest("DELETE", endpoint, nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		subtestData.params = progearops.DeleteProGearWeightTicketParams{
@@ -191,7 +192,7 @@ func (suite *HandlerSuite) TestDeleteProGearWeightTicketHandler() {
 		return subtestData
 	}
 
-	suite.Run("Successfully Delete Weight Ticket - Integration Test", func() {
+	suite.Run("Successfully Delete Progear Weight Ticket - Integration Test", func() {
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeDeleteSubtestData(appCtx, true)
@@ -237,7 +238,7 @@ func (suite *HandlerSuite) TestDeleteProGearWeightTicketHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 			mock.AnythingOfType("uuid.UUID"),
-		).Return(nil, err)
+		).Return(err)
 
 		handler := DeleteProgearWeightTicketHandler{
 			suite.HandlerConfig(),

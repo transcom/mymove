@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movingexpenseservice "github.com/transcom/mymove/pkg/services/moving_expense"
@@ -269,7 +270,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandlerUnit() {
 
 		req := httptest.NewRequest("DELETE", endpoint, nil)
 
-		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -307,7 +308,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandlerUnit() {
 
 		params.HTTPRequest = suite.AuthenticateRequest(params.HTTPRequest, otherServiceMember)
 
-		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil, nil)
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil)
 
 		handler := setUpHandler(movingExpenseDeleter)
 
@@ -320,7 +321,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandlerUnit() {
 		params := setUpRequestAndParams()
 
 		updateError := apperror.NewNotFoundError(ppmShipment.MovingExpenses[0].ID, "moving expense not found")
-		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil, updateError)
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(updateError)
 
 		handler := setUpHandler(movingExpenseDeleter)
 
@@ -333,7 +334,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandlerUnit() {
 		params := setUpRequestAndParams()
 
 		updateError := apperror.NewQueryError("MovingExpense", nil, "error getting moving expense")
-		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil, updateError)
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(updateError)
 
 		handler := setUpHandler(movingExpenseDeleter)
 
@@ -346,7 +347,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandlerUnit() {
 		params := setUpRequestAndParams()
 
 		updateError := apperror.NewNotImplementedError("Not implemented")
-		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil, updateError)
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(updateError)
 
 		handler := setUpHandler(movingExpenseDeleter)
 
@@ -358,11 +359,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandlerUnit() {
 	suite.Run("Returns a 204 No Content response if the Deleter succeeds", func() {
 		params := setUpRequestAndParams()
 
-		updatedMovingExpense := ppmShipment.MovingExpenses[0]
-		docStatusApproved := models.PPMDocumentStatusApproved
-		updatedMovingExpense.Status = &docStatusApproved
-
-		movingExpenseDeleter := setUpMockMovingExpenseDeleter(&updatedMovingExpense, nil)
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil)
 
 		handler := setUpHandler(movingExpenseDeleter)
 
