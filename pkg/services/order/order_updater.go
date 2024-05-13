@@ -426,6 +426,10 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.Entitlement.StorageInTransit = &newSITAllowance
 	}
 
+	if payload.GunSafe != nil {
+		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
 	return order
 }
 
@@ -476,6 +480,10 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 	if payload.StorageInTransit != nil {
 		newSITAllowance := int(*payload.StorageInTransit)
 		order.Entitlement.StorageInTransit = &newSITAllowance
+	}
+
+	if payload.GunSafe != nil {
+		order.Entitlement.GunSafe = *payload.GunSafe
 	}
 
 	return order
