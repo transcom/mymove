@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -19,7 +19,7 @@ func (suite *ModelSuite) SetupTest() {
 
 }
 
-func (suite *ModelSuite) verifyValidationErrors(model ValidateableModel, exp map[string][]string) {
+func (suite *ModelSuite) verifyValidationErrors(model m.ValidateableModel, exp map[string][]string) {
 	t := suite.T()
 	t.Helper()
 
