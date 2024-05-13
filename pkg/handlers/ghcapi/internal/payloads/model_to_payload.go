@@ -1992,7 +1992,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			RequestedDeliveryDate:             deliveryDate,
 			OriginGBLOC:                       originGBLOC,
 			DestinationGBLOC:                  destinationGBLOC,
-			LockedByOfficeUserID:              handlers.FmtUUID(*move.LockedByOfficeUserID),
+			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockExpiresAt:                     strfmt.DateTime(*move.LockExpiresAt),
 		}
 	}
