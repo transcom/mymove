@@ -209,9 +209,10 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					HasProGear:          models.BoolPointer(true),
-					ProGearWeight:       models.PoundPointer(unit.Pound(1900)),
-					SpouseProGearWeight: models.PoundPointer(unit.Pound(300)),
+					HasProGear:            models.BoolPointer(true),
+					ProGearWeight:         models.PoundPointer(unit.Pound(1900)),
+					SpouseProGearWeight:   models.PoundPointer(unit.Pound(300)),
+					AdvanceAmountReceived: models.CentPointer(unit.Cents(50000)),
 				},
 			},
 		}, nil)
@@ -219,6 +220,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		// set new field to update
 		shipment.PPMShipment.HasProGear = models.BoolPointer(false)
+		shipment.PPMShipment.AdvanceAmountReceived = models.CentPointer(unit.Cents(55000))
 
 		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
 
@@ -233,6 +235,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// check we got the latest version back
 		suite.NotEqual(&ppmShipment, mtoShipment.PPMShipment)
 		suite.False(*mtoShipment.PPMShipment.HasProGear)
+		suite.Equal(*mtoShipment.PPMShipment.AdvanceAmountReceived, *shipment.PPMShipment.AdvanceAmountReceived)
 	})
 
 	serviceObjectErrorTestCases := map[string]struct {
