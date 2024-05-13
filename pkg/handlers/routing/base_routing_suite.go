@@ -187,7 +187,7 @@ func (suite *BaseRoutingSuite) setupRequestSession(req *http.Request, user model
 
 	// set up CSRF cookie and headers
 	maskedToken := ""
-	tokenHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	tokenHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		maskedToken = csrf.Token(r)
 	})
 	fakeReq := httptest.NewRequest("GET", "/", nil)
