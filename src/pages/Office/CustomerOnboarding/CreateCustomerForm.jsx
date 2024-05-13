@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/react-uswds';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { connect } from 'react-redux';
@@ -170,9 +170,10 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     };
 
     return createCustomerWithOktaOption({ body })
-      .then(() => {
+      .then((res) => {
+        const customerId = Object.keys(res.createdCustomer)[0];
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
-        navigate(servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH);
+        navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, { customerId }));
       })
       .catch((e) => {
         const { response } = e;
