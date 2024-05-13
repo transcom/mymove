@@ -51,7 +51,7 @@ type SearchMove struct {
 
 	// lock expires at
 	// Format: date-time
-	LockExpiresAt strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+	LockExpiresAt *strfmt.DateTime `json:"lockExpiresAt,omitempty"`
 
 	// locked by office user ID
 	// Format: uuid
