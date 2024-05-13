@@ -72,6 +72,11 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 		}
 	}
 
+	if appCtx.Session().IsMilApp() {
+		mergedWeightTicket.SubmittedEmptyWeight = mergedWeightTicket.EmptyWeight
+		mergedWeightTicket.SubmittedFullWeight = mergedWeightTicket.FullWeight
+	}
+
 	// update the DB record
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		// if weight changes call update PPMShipment with new weightTicket

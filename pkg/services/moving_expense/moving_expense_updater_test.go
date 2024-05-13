@@ -209,6 +209,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.PaidWithGTCC, *updatedMovingExpense.PaidWithGTCC)
 		suite.Equal(*expectedMovingExpense.Amount, *updatedMovingExpense.Amount)
 		suite.Equal(*expectedMovingExpense.MissingReceipt, *updatedMovingExpense.MissingReceipt)
+		suite.Equal(*expectedMovingExpense.Amount, *updatedMovingExpense.SubmittedAmount)
 		// Only the storage type receipt should be able to set these fields, would we rather reject
 		// the update outright than fail silently?
 		suite.Nil(updatedMovingExpense.SITStartDate)
@@ -254,6 +255,8 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		// Only the storage type receipt should be able to set these fields
 		suite.Nil(updatedMovingExpense.SITStartDate)
 		suite.Nil(updatedMovingExpense.SITEndDate)
+		// Office user updates should not update SubmittedAmount
+		suite.Nil(updatedMovingExpense.SubmittedAmount)
 	})
 
 	suite.Run("Successfully updates storage receipt type", func() {
