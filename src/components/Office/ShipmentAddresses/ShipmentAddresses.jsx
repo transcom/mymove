@@ -56,7 +56,9 @@ const ShipmentAddresses = ({
                 <Restricted to={permissionTypes.updateMTOPage}>
                   <Button
                     type="button"
-                    onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)}
+                    onClick={() =>
+                      handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag, shipmentInfo.shipmentLocator)
+                    }
                     unstyled
                   >
                     Request diversion

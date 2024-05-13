@@ -1116,6 +1116,26 @@ describe('MoveDetails page', () => {
       expect(await screen.getByRole('link', { name: 'View allowances' })).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
     });
+
+    it('renders edit customer info button when user has permission', async () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateCustomer]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+    });
+
+    it('does not show edit customer info button when user does not have permission', async () => {
+      render(
+        <MockProviders>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+    });
   });
 
   describe('when MTO shipments are not yet defined', () => {

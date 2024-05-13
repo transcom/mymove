@@ -65,6 +65,15 @@ paths:
 
         It will provide information about the Customer and any associated
         MTOShipments, MTOServiceItems and PaymentRequests.
+
+
+        **NOTE**: New version in v3. Version will return PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
       operationId: getMoveTaskOrder
       tags:
         - moveTaskOrder
@@ -113,6 +122,15 @@ paths:
 
         the lowest weight possible in the chain to prevent overcharging as they
         are still separate shipments.
+
+
+        **NOTE**: New version in v3. Version will accept PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
 
 
         **WIP**: The Prime should be notified by a push notification whenever
@@ -233,6 +251,15 @@ paths:
         Note that some fields cannot be manually changed but will still be
         updated automatically, such as `primeEstimatedWeightRecordedDate` and
         `requiredDeliveryDate`.
+
+
+        **NOTE**: New version in v3. Version will accept PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -1432,7 +1459,7 @@ definitions:
         type: string
         title: County
         x-nullable: true
-        example: JESSAMINE
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -1489,6 +1516,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean

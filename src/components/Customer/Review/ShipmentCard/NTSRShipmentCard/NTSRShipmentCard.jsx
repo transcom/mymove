@@ -7,7 +7,7 @@ import styles from '../ShipmentCard.module.scss';
 import DeliveryDisplay from '../DeliveryDisplay';
 
 import { AddressShape } from 'types/address';
-import { getShipmentTypeLabel, getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { shipmentStatuses } from 'constants/shipments';
@@ -24,6 +24,7 @@ const NTSRShipmentCard = ({
   onEditClick,
   onDeleteClick,
   shipmentId,
+  shipmentLocator,
   shipmentType,
   showEditAndDeleteBtn,
   status,
@@ -35,7 +36,7 @@ const NTSRShipmentCard = ({
   });
 
   const shipmentLabel = getShipmentTypeLabel(shipmentType);
-  const moveCodeLabel = getMoveCodeLabel(shipmentId);
+  const moveCodeLabel = shipmentLocator;
   const shipmentIsIncomplete = status === shipmentStatuses.DRAFT;
 
   return (
@@ -96,6 +97,7 @@ NTSRShipmentCard.propTypes = {
   requestedDeliveryDate: string.isRequired,
   showEditAndDeleteBtn: bool.isRequired,
   shipmentId: string.isRequired,
+  shipmentLocator: string.isRequired,
   shipmentType: string.isRequired,
   receivingAgent: shape({
     firstName: string,

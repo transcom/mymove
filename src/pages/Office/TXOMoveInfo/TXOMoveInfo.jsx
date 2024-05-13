@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import 'styles/office.scss';
 
 import { permissionTypes } from 'constants/permissions';
-import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
+import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -26,6 +26,7 @@ const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolation
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -67,6 +68,13 @@ const TXOMoveInfo = () => {
     matchPath(
       {
         path: tioRoutes.BILLABLE_WEIGHT_PATH,
+        end: true,
+      },
+      pathname,
+    ) ||
+    matchPath(
+      {
+        path: tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH,
         end: true,
       },
       pathname,
@@ -198,7 +206,15 @@ const TXOMoveInfo = () => {
               }
             />
           )}
-
+          {order.grade && (
+            <Route
+              path={tooRoutes.CUSTOMER_INFO_EDIT_PATH}
+              end
+              element={
+                <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
+              }
+            />
+          )}
           <Route path="history" end element={<MoveHistory moveCode={moveCode} />} />
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />

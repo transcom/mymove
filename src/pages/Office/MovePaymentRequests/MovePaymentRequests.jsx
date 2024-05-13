@@ -138,8 +138,10 @@ const MovePaymentRequests = ({
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
-  const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
-  const weightRequested = calculateWeightRequested(mtoShipments);
+  const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+
+  const totalBillableWeight = useCalculatedTotalBillableWeight(excludePPMShipments);
+  const weightRequested = calculateWeightRequested(excludePPMShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
   const billableWeightsReviewed = move?.billableWeightsReviewedAt;
 

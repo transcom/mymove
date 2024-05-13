@@ -52,6 +52,11 @@ jest.mock('store/entities/selectors', () => ({
   selectServiceMemberFromLoggedInUser: jest.fn(),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const defaultProps = {
   showLoggedInUser: jest.fn(),
   updateAllMoves: jest.fn(),

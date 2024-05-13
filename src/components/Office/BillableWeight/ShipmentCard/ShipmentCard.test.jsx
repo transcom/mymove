@@ -279,4 +279,13 @@ describe('ShipmentCard', () => {
     expect(screen.queryByText(formatAddressShort(props.destinationAddress))).not.toBeInTheDocument();
     expect(screen.getByText(formatAddressShort(props.storageFacilityAddress))).toBeInTheDocument();
   });
+
+  it('displays the lower value of the original weight and reweigh weight as actual weight', () => {
+    defaultShipmentCardProps.reweighWeight = 4997;
+    defaultShipmentCardProps.primeActualWeight = 4997;
+
+    render(<ShipmentCard {...defaultShipmentCardProps} />);
+
+    expect(screen.getByTestId('actualWeight')).toHaveTextContent('4,997 lbs');
+  });
 });

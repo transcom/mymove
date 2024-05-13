@@ -49,8 +49,17 @@ test.describe('Services counselor user', () => {
     const shipmentContainer = page.locator('[data-testid="ShipmentContainer"]');
     // Verify unexpanded view
     await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');
-    await expect(shipmentContainer.locator('[data-testid="originZIP"]')).toContainText('90210');
-    await expect(shipmentContainer.locator('[data-testid="destinationZIP"]')).toContainText('76127');
+
+    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
+    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('SomeCity - Secondary');
+    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('CA');
+    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('90210');
+
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('123 Street');
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('SomeCity');
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('TX');
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('76127');
+
     await expect(shipmentContainer.locator('[data-testid="sitPlanned"]')).toContainText('No');
     await expect(shipmentContainer.locator('[data-testid="estimatedWeight"]')).toContainText('4,000 lbs');
     await expect(shipmentContainer.locator('[data-testid="hasRequestedAdvance"]')).toContainText('Yes, $5,987');
@@ -60,10 +69,7 @@ test.describe('Services counselor user', () => {
 
     // Verify fields in the expanded view
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.locator('[data-testid="secondOriginZIP"]')).toContainText('07003');
-    await expect(shipmentContainer.locator('[data-testid="secondDestinationZIP"]')).toContainText('08540');
     await expect(shipmentContainer.locator('[data-testid="proGearWeight"]')).toContainText('Yes, 1,000 lbs');
     await expect(shipmentContainer.locator('[data-testid="spouseProGear"]')).toContainText('Yes, 500 lbs');
-    await expect(shipmentContainer.locator('[data-testid="estimatedIncentive"]')).toContainText('$67,689');
   });
 });

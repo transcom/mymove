@@ -85,6 +85,7 @@ const ServicesCounselingMoveAllowances = () => {
       requiredMedicalEquipmentWeight,
       organizationalClothingAndIndividualEquipment,
       storageInTransit,
+      gunSafe,
     } = values;
     const body = {
       issueDate: order.date_issued,
@@ -101,6 +102,7 @@ const ServicesCounselingMoveAllowances = () => {
       requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
       storageInTransit: Number(storageInTransit),
       organizationalClothingAndIndividualEquipment,
+      gunSafe,
     };
     return mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
@@ -112,6 +114,7 @@ const ServicesCounselingMoveAllowances = () => {
     proGearWeightSpouse,
     requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment,
+    gunSafe,
     storageInTransit,
   } = entitlement;
 
@@ -123,6 +126,7 @@ const ServicesCounselingMoveAllowances = () => {
     proGearWeightSpouse: `${proGearWeightSpouse}`,
     requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
     storageInTransit: `${storageInTransit}`,
+    gunSafe,
     organizationalClothingAndIndividualEquipment,
   };
 

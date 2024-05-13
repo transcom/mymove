@@ -56,7 +56,7 @@ import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete }
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
@@ -76,6 +76,9 @@ Description.defaultProps = {
   dataTestId: '',
 };
 
+const errorModalMessage =
+  "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
+
 export class Home extends Component {
   constructor(props) {
     super(props);
@@ -84,7 +87,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
-      showDownloadPPMPaperworkErrorAlert: false,
+      showErrorAlert: false,
     };
   }
 
@@ -201,6 +204,12 @@ export class Home extends Component {
     const { orders } = this.props;
 
     return !orders.provides_services_counseling;
+  }
+
+  get isPrimeCounselingComplete() {
+    const { move } = this.props;
+
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   }
 
   renderAlert = () => {
@@ -364,9 +373,9 @@ export class Home extends Component {
     navigate(path);
   };
 
-  toggleDownloadPacketErrorModal = () => {
+  toggleErrorModal = () => {
     this.setState((prevState) => ({
-      showDownloadPPMPaperworkErrorAlert: !prevState.showDownloadPPMPaperworkErrorAlert,
+      showErrorAlert: !prevState.showErrorAlert,
     }));
   };
 
@@ -395,13 +404,8 @@ export class Home extends Component {
       orders,
     } = this.props;
 
-    const {
-      showDeleteModal,
-      targetShipmentId,
-      showDeleteSuccessAlert,
-      showDeleteErrorAlert,
-      showDownloadPPMPaperworkErrorAlert,
-    } = this.state;
+    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert, showErrorAlert } =
+      this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -448,10 +452,7 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
-        <DownloadPacketErrorModal
-          isOpen={showDownloadPPMPaperworkErrorAlert}
-          closeModal={this.toggleDownloadPacketErrorModal}
-        />
+        <ErrorModal isOpen={showErrorAlert} closeModal={this.toggleErrorModal} errorMessage={errorModalMessage} />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             {isSpecialMove ? (
@@ -637,7 +638,7 @@ export class Home extends Component {
                                         id={shipment?.ppmShipment?.id}
                                         label="Download AOA Paperwork (PDF)"
                                         asyncRetrieval={downloadPPMAOAPacket}
-                                        onFailure={this.toggleDownloadPacketErrorModal}
+                                        onFailure={this.toggleErrorModal}
                                       />
                                     </p>
                                   )}
@@ -679,7 +680,46 @@ export class Home extends Component {
                             <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                             incentive ends up being less than your advance, you will be required to pay back the
                             difference.
+                            <br />
+                            <br />
                           </Description>
+                        )}
+                        {this.isPrimeCounselingComplete && (
+                          <>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadPacketErrorModal}
+                                      />
+                                    </p>
+                                  )}
+                                  {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <>
+                                      <br />
+                                      <br />
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
                         )}
                       </SectionWrapper>
                     </Step>
@@ -693,7 +733,7 @@ export class Home extends Component {
                       <PPMSummaryList
                         shipments={ppmShipments}
                         onUploadClick={this.handlePPMUploadClick}
-                        onDownloadError={this.toggleDownloadPacketErrorModal}
+                        onDownloadError={this.toggleErrorModal}
                       />
                     </Step>
                   )}

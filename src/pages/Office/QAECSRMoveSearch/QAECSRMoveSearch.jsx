@@ -6,6 +6,7 @@ import styles from './QAECSRMoveSearch.module.scss';
 import { useMoveSearchQueries } from 'hooks/queries';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const QAECSRMoveSearch = () => {
   const navigate = useNavigate();
@@ -24,13 +25,16 @@ const QAECSRMoveSearch = () => {
       dodID: null,
       customerName: null,
     };
-    if (values.searchType === 'moveCode') {
-      payload.moveCode = values.searchText;
-    } else if (values.searchType === 'dodID') {
-      payload.dodID = values.searchText;
-    } else if (values.searchType === 'customerName') {
-      payload.customerName = values.searchText;
+    if (!isNullUndefinedOrWhitespace(values.searchText)) {
+      if (values.searchType === 'moveCode') {
+        payload.moveCode = values.searchText;
+      } else if (values.searchType === 'dodID') {
+        payload.dodID = values.searchText;
+      } else if (values.searchType === 'customerName') {
+        payload.customerName = values.searchText;
+      }
     }
+
     setSearch(payload);
     setSearchHappened(true);
   }, []);

@@ -612,12 +612,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// excess weight risk depending on the weight allowance and other shipment estimated weights
 		if newShipment.PrimeEstimatedWeight != nil {
 			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
-				/*
-					TODO: If the move was already in risk of excess we need to set the status back to APPROVED if
-					the new shipment estimated weight drops it out of the range. Can potentially reuse
-					moveRouter.ApproveAmmendedOrders if we also add checks for excess weight there and orders
-					acknowledgement
-				*/
+				// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
 				move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
 				if verrs != nil && verrs.HasAny() {
 					return errors.New(verrs.Error())
@@ -627,9 +622,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 
 				existingMoveStatus := move.Status
-				err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
-				if err != nil {
-					return err
+				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
+				// this will trigger the TOO to acknowledged the excess right, which populates ExcessWeightAcknowledgedAt
+				if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+					err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
+					if err != nil {
+						return err
+					}
 				}
 
 				if existingMoveStatus != move.Status {
@@ -657,12 +656,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			return apperror.NewInvalidInputError(newShipment.ID, nil, nil, errMessage)
 		}
 
+		weightsCalculator := NewShipmentBillableWeightCalculator()
+		calculatedBillableWeight := weightsCalculator.CalculateShipmentBillableWeight(dbShipment).CalculatedBillableWeight
+
 		// If the max allowable weight for a shipment has been adjusted set a flag to recalculate payment requests for
 		// this shipment
 		runShipmentRecalculate := false
 		if newShipment.BillableWeightCap != nil {
 			// new billable cap has a value and it is not the same as the previous value
-			if dbShipment.BillableWeightCap == nil || *newShipment.BillableWeightCap != *dbShipment.BillableWeightCap {
+			if *newShipment.BillableWeightCap != *calculatedBillableWeight {
 				runShipmentRecalculate = true
 			}
 		} else if dbShipment.BillableWeightCap != nil {

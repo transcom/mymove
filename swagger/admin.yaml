@@ -218,13 +218,18 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: '''90210'' or ''N15 3NL'''
       country:
         type: string
         title: Country
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - state
@@ -1229,7 +1234,7 @@ paths:
         as it is meant to be used with the Admin UI exclusively.
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested Office Users
+        - Requested office users
       parameters:
         - in: query
           name: filter
@@ -1274,7 +1279,7 @@ paths:
         data.
       operationId: getRequestedOfficeUser
       tags:
-        - Requested Office Users
+        - Requested office users
       parameters:
         - in: path
           name: officeUserId

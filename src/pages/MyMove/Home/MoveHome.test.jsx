@@ -34,6 +34,11 @@ jest.mock('services/internalApi', () => ({
   downloadPPMAOAPacket: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const props = {
   serviceMember: {
     id: v4(),
@@ -1281,7 +1286,7 @@ describe('Home component', () => {
       await wrapper.find(buttonId).simulate('click');
       await waitFor(() => {
         // scrape text from error modal
-        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork');
+        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
         expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
       });
     });

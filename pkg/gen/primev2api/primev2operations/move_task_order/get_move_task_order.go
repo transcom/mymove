@@ -38,6 +38,10 @@ getMoveTaskOrder
 This endpoint gets an individual MoveTaskOrder by ID.
 
 It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+**NOTE**: New version in v3. Version will return PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+secondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,
+destinationPostalCode and secondaryDestinationPostalCode].
 */
 type GetMoveTaskOrder struct {
 	Context *middleware.Context

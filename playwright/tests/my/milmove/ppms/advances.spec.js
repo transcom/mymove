@@ -88,23 +88,25 @@ test.describe('About Your PPM', () => {
 });
 
 test.describe('(MultiMove) Workflow About Your PPM', () => {
-  test.skip(
-    multiMoveEnabled === 'false',
-    'Skip if MultiMove workflow is enabled because need ability to navigate to a move.',
-  );
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled');
 
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);
+    await customerPpmPage.clickOnGoToMoveButton();
   });
 
   test('does not allow SM to progress if form is in an invalid state', async ({ page }) => {
-    test.skip(
-      multiMoveEnabled === 'false',
-      'Skipping due to time out while looking label[for="hasRequestedAdvanceYes"].click',
-    );
+    test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled');
 
-    test.skip(true, 'Test fails here');
+    await page.getByTestId('editShipmentButton').click();
+    await page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/.*/);
+    await page.getByRole('button', { name: 'Save & Continue' }).click();
+    await page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/estimated-weight$/);
+    await page.getByRole('button', { name: 'Save & Continue' }).click();
+    await page.waitForURL(/\/moves\/[\d|a-z|-]+\/shipments\/[\d|a-z|-]+\/estimated-incentive$/);
+    await page.getByRole('button', { name: 'Next' }).click();
+
     await page.locator('label[for="hasRequestedAdvanceYes"]').click();
 
     // missing advance
@@ -164,7 +166,7 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
     [true, false].forEach((addAdvance) => {
       const advanceText = addAdvance ? 'request' : 'opt to not receive';
       test(`can ${advanceText} an advance`, async ({ customerPpmPage }) => {
-        test.skip(true, 'Tests fails at submitsAdvancePage()');
+        await customerPpmPage.navigateFromMoveHomeToAdvances();
         await customerPpmPage.submitsAdvancePage({ addAdvance, isMobile });
       });
     });

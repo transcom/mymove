@@ -1772,6 +1772,20 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
+  Amendments:
+    description: |
+      Metadata outlining number of amendments for given order.
+    type: object
+    properties:
+      total:
+        description: The total count of amendments.
+        type: integer
+      availableSince:
+        description: The total count of amendments available since specified time.
+        type: integer
+    required:
+      - total
+      - availableSince
   CreateMTOShipment:
     type: object
     properties:
@@ -2060,6 +2074,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      amendments:
+        $ref: '#/definitions/Amendments'
   ListMoves:
     type: array
     items:
@@ -3049,7 +3065,7 @@ definitions:
         type: string
         title: County
         x-nullable: true
-        example: JESSAMINE
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -3106,6 +3122,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean

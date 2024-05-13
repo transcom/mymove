@@ -30,7 +30,7 @@ type Address struct {
 	Country *string `json:"country,omitempty"`
 
 	// County
-	// Example: JESSAMINE
+	// Example: LOS ANGELES
 	County *string `json:"county,omitempty"`
 
 	// e tag

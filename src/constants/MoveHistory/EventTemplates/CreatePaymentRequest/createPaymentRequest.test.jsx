@@ -16,6 +16,7 @@ describe('when given a payment request is created through shipment update', () =
         shipment_id: '123',
         shipment_type: 'HHG',
         shipment_id_abbr: 'acf7b',
+        shipment_locator: 'ABC123-01',
       },
       {
         name: 'Domestic uncrating',
@@ -24,6 +25,7 @@ describe('when given a payment request is created through shipment update', () =
         shipment_id: '123',
         shipment_type: 'HHG',
         shipment_id_abbr: 'acf7b',
+        shipment_locator: 'ABC123-01',
       },
       { name: 'Move management', price: '1234', status: 'REQUESTED' },
     ],
@@ -46,7 +48,7 @@ describe('when given a payment request is created through shipment update', () =
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #ACF7B')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #ABC123-01')).toBeInTheDocument();
   });
 
   describe('when given a specific set of details it displays the proper labeled information in the details column', () => {

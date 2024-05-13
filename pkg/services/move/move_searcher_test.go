@@ -189,7 +189,6 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.NoError(err)
 		suite.Len(moves, 0)
 	})
-
 	suite.Run("test pagination", func() {
 		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		session := auth.Session{

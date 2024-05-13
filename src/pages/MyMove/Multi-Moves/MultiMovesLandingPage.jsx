@@ -8,6 +8,7 @@ import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
 
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -93,6 +94,9 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+          <div className={styles.flashMessage}>
+            <ConnectedFlashMessage />
+          </div>
           {serviceMemberMoves &&
           serviceMemberMoves.previousMoves &&
           serviceMemberMoves.previousMoves.length === 0 &&

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect'; // For expect assertions
 
 import ButtonDropdownMenu from './ButtonDropdownMenu';
@@ -25,5 +25,35 @@ describe('ButtonDropdownMenu', () => {
 
     // Close the dropdown (optional)
     fireEvent.click(getByText('Test'));
+  });
+
+  it('renders the outline button dropdown menu', () => {
+    const onItemClickMock = jest.fn();
+    render(<ButtonDropdownMenu title="Test" items={items} onItemClick={onItemClickMock} outline />);
+    // Find the button by data-testid
+    const button = screen.getByTestId('button-dropdown-menu');
+
+    // Check if the button has the 'outline' class
+    expect(button).toHaveClass('usa-button--outline');
+  });
+
+  it('renders the minimal button dropdown menu', () => {
+    const onItemClickMock = jest.fn();
+    render(<ButtonDropdownMenu title="Test" items={items} onItemClick={onItemClickMock} minimal />);
+    // Find the button by data-testid
+    const button = screen.getByTestId('button-dropdown-menu');
+
+    // Check if the button has the 'minimal' class
+    expect(button).toHaveClass('btnMinimal');
+  });
+
+  it('renders the outline button dropdown menu', () => {
+    const onItemClickMock = jest.fn();
+    render(<ButtonDropdownMenu title="Test" items={items} onItemClick={onItemClickMock} />);
+    // Find the button by data-testid
+    const button = screen.getByTestId('button-dropdown-menu');
+
+    // Check if the button has the 'minimal' class
+    expect(button).toHaveClass('usa-button btn');
   });
 });

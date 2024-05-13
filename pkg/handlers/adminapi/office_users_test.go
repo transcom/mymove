@@ -21,6 +21,7 @@ import (
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	rolesservice "github.com/transcom/mymove/pkg/services/roles"
 	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
@@ -183,6 +184,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
+			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
@@ -231,6 +233,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
+			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
 		}
 

@@ -22,12 +22,16 @@ export const MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.APPROVED]: 'Move approved',
 };
 
-export const SERVICE_COUNSELING_MOVE_STATUS_OPTIONS = [
+export const SEARCH_QUEUE_STATUS_FILTER_OPTIONS = [
   { value: MOVE_STATUSES.DRAFT, label: 'Draft' },
   { value: MOVE_STATUSES.SUBMITTED, label: 'New Move' },
   { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
   { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
   { value: MOVE_STATUSES.APPROVED, label: 'Move Approved' },
+];
+export const SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS = [
+  { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
+  { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
 ];
 
 export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
@@ -36,17 +40,17 @@ export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
 };
 
 export const PAYMENT_REQUEST_STATUS_OPTIONS = [
-  { value: 'Payment requested', label: 'Payment requested' },
-  { value: 'Reviewed', label: 'Reviewed' },
-  { value: 'Rejected', label: 'Rejected' },
-  { value: 'Paid', label: 'Paid' },
-  { value: 'Deprecated', label: 'Deprecated' },
-  { value: 'Error', label: 'Error' },
+  { value: 'PENDING', label: 'Payment requested' },
+  { value: 'REVIEWED', label: 'Reviewed' },
+  { value: 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED', label: 'Rejected' },
+  { value: 'PAID', label: 'Paid' },
+  { value: 'DEPRECATED', label: 'Deprecated' },
+  { value: 'EDI_ERROR', label: 'Error' },
 ];
-
 export const ROLE_TYPE_OPTIONS = {
-  [roleTypes.SERVICES_COUNSELOR]: SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
+  [roleTypes.SERVICES_COUNSELOR]: SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
   [roleTypes.QAE_CSR]: MOVE_STATUS_OPTIONS,
+  [roleTypes.TOO]: MOVE_STATUS_OPTIONS,
   [roleTypes.TIO]: PAYMENT_REQUEST_STATUS_OPTIONS,
 };
 

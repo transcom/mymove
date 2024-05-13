@@ -21,8 +21,19 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { ShipmentShape } from 'types';
 
 // Sorts service items in an order preferred by the customer
-// Currently only SIT receives special sorting
+// Currently only SIT & shorthaul/linehaul receives special sorting
+// this current listed order goes:
+// shorthaul & linehaul
+// other service items
+// origin SIT
+// destination SIT
 function sortServiceItems(items) {
+  // Prioritize service items with codes 'DSH' (shorthaul) and 'DLH' (linehaul) to be at the top of the list
+  const haulTypeServiceItemCodes = ['DSH', 'DLH'];
+  const haulTypeServiceItems = items.filter((item) => haulTypeServiceItemCodes.includes(item.code));
+  const sortedHaulTypeServiceItems = haulTypeServiceItems.sort(
+    (a, b) => haulTypeServiceItemCodes.indexOf(a.code) - haulTypeServiceItemCodes.indexOf(b.code),
+  );
   // Filter and sort destination SIT. Code index is also the sort order
   const destinationServiceItemCodes = ['DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC'];
   const destinationServiceItems = items.filter((item) => destinationServiceItemCodes.includes(item.code));
@@ -38,10 +49,18 @@ function sortServiceItems(items) {
 
   // Filter all service items that are not specifically sorted
   const remainingServiceItems = items.filter(
-    (item) => !destinationServiceItemCodes.includes(item.code) && !originServiceItemCodes.includes(item.code),
+    (item) =>
+      !haulTypeServiceItemCodes.includes(item.code) &&
+      !destinationServiceItemCodes.includes(item.code) &&
+      !originServiceItemCodes.includes(item.code),
   );
 
-  return [...remainingServiceItems, ...sortedOriginServiceItems, ...sortedDestinationServiceItems];
+  return [
+    ...sortedHaulTypeServiceItems,
+    ...remainingServiceItems,
+    ...sortedOriginServiceItems,
+    ...sortedDestinationServiceItems,
+  ];
 }
 
 const ServiceItemsTable = ({

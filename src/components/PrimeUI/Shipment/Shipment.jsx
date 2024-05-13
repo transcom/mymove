@@ -72,13 +72,15 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <Link to={`../shipments/${shipment.id}`} relative="path" className="usa-button usa-button-secondary">
               Update Shipment
             </Link>
-            <Link
-              to={`../shipments/${shipment.id}/updateDestinationAddress`}
-              relative="path"
-              className="usa-button usa-button-secondary"
-            >
-              Update Shipment Destination Address
-            </Link>
+            {shipment.shipmentType !== SHIPMENT_OPTIONS.PPM && (
+              <Link
+                to={`../shipments/${shipment.id}/updateDestinationAddress`}
+                relative="path"
+                className="usa-button usa-button-secondary"
+              >
+                Update Shipment Destination Address
+              </Link>
+            )}
             {shipment.shipmentType === SHIPMENT_OPTIONS.PPM &&
               shipment.ppmShipment &&
               shipment.ppmShipment.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER && (
@@ -261,20 +263,20 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <dd>{formatDateFromIso(shipment.ppmShipment.approvedAt, 'YYYY-MM-DD')}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Pickup Postal Code:</dt>
-            <dd>{shipment.ppmShipment.pickupPostalCode}</dd>
+            <dt>Pickup Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.pickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Secondary Pickup Postal Code:</dt>
-            <dd>{shipment.ppmShipment.secondaryPickupPostalCode}</dd>
+            <dt>Secondary Pickup Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryPickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Destination Postal Code:</dt>
-            <dd>{shipment.ppmShipment.destinationPostalCode}</dd>
+            <dt>Destination Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.destinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Secondary Destination Postal Code:</dt>
-            <dd>{shipment.ppmShipment.secondaryDestinationPostalCode}</dd>
+            <dt>Secondary Destination Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryDestinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM SIT Expected:</dt>

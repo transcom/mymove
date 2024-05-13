@@ -17,7 +17,7 @@ import {
 } from './HomeHelpers';
 
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -82,7 +82,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
-  const [showDownloadPPMPaperworkErrorAlert, setShowDownloadPPMPaperworkErrorAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -192,6 +192,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking to see if prime is counseling this move, return true
   const isPrimeCounseled = () => {
     return !orders.providesServicesCounseling;
+  };
+
+  // checking to see if prime has completed counseling, return true
+  const isPrimeCounselingComplete = () => {
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   };
 
   // logic that handles deleting a shipment
@@ -376,8 +381,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const togglePPMPacketErrorModal = () => {
-    setShowDownloadPPMPaperworkErrorAlert(!showDownloadPPMPaperworkErrorAlert);
+    setShowErrorAlert(!showErrorAlert);
   };
+
+  const errorModalMessage =
+    "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
 
   // early return if loading user/service member
   if (!serviceMember) {
@@ -422,7 +430,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <DownloadPacketErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
+      <ErrorModal isOpen={showErrorAlert} closeModal={togglePPMPacketErrorModal} errorMessage={errorModalMessage} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -644,7 +652,46 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                           <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                           incentive ends up being less than your advance, you will be required to pay back the
                           difference.
+                          <br />
+                          <br />
                         </Description>
+                      )}
+                      {isPrimeCounselingComplete() && (
+                        <>
+                          {ppmShipments.map((shipment) => {
+                            const { shipmentType } = shipment;
+                            if (shipmentNumbersByType[shipmentType]) {
+                              shipmentNumbersByType[shipmentType] += 1;
+                            } else {
+                              shipmentNumbersByType[shipmentType] = 1;
+                            }
+                            const shipmentNumber = shipmentNumbersByType[shipmentType];
+                            return (
+                              <>
+                                <strong>
+                                  {shipmentTypes[shipment.shipmentType]}
+                                  {` ${shipmentNumber} `}
+                                </strong>
+                                {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                  <p className={styles.downloadLink}>
+                                    <AsyncPacketDownloadLink
+                                      id={shipment?.ppmShipment?.id}
+                                      label="Download AOA Paperwork (PDF)"
+                                      asyncRetrieval={downloadPPMAOAPacket}
+                                      onFailure={togglePPMPacketErrorModal}
+                                    />
+                                  </p>
+                                )}
+                                {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                  <>
+                                    <br />
+                                    <br />
+                                  </>
+                                )}
+                              </>
+                            );
+                          })}
+                        </>
                       )}
                     </SectionWrapper>
                   </Step>

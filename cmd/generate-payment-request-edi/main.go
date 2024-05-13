@@ -113,7 +113,14 @@ func main() {
 
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
-	edi858c, err := generator.Generate(appCtx, paymentRequest, false)
+
+	isProd := false
+	envFlag := v.GetString(cli.EnvironmentFlag)
+	if envFlag == "production" || envFlag == "prod" || envFlag == "prd" {
+		isProd = true
+	}
+
+	edi858c, err := generator.Generate(appCtx, paymentRequest, isProd)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}

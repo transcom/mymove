@@ -98,8 +98,13 @@ CustomerContactInfoForm.propTypes = {
     email: PropTypes.string,
     customerAddress: ResidentialAddressShape,
   }).isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func,
+  onBack: PropTypes.func,
+};
+
+CustomerContactInfoForm.defaultProps = {
+  onSubmit: () => {},
+  onBack: () => {},
 };
 
 export default CustomerContactInfoForm;
