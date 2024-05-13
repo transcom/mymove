@@ -172,8 +172,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     return createCustomerWithOktaOption({ body })
       .then((res) => {
         const customerId = Object.keys(res.createdCustomer)[0];
+        const isSafetyMoveSelected = values.is_safety_move === 'true';
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
-        navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, { customerId }));
+        navigate(
+          generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
+            customerId,
+            isSafetyMoveSelected,
+          }),
+        );
       })
       .catch((e) => {
         const { response } = e;

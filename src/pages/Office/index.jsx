@@ -289,7 +289,7 @@ export class OfficeApp extends Component {
                       path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingAddOrders />
+                          <ServicesCounselingAddOrders userPrivileges={userPrivileges} />
                         </PrivateRoute>
                       }
                     />

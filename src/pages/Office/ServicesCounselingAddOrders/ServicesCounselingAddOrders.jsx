@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
@@ -14,9 +15,11 @@ import { formatDateForSwagger } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import Alert from 'types/alert';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
-const ServicesCounselingAddOrders = () => {
-  const { customerId } = useParams();
+const ServicesCounselingAddOrders = ({ userPrivileges }) => {
+  const { customerId, isSafetyMoveSelected } = useParams();
   const navigate = useNavigate();
   const handleBack = () => {
     navigate(-1);
@@ -47,21 +50,25 @@ const ServicesCounselingAddOrders = () => {
     },
   });
 
-  const [safetyMove, setSafetyMove] = useState(false);
+  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
 
   useEffect(() => {
     isBooleanFlagEnabled('safety_move').then((enabled) => {
-      setSafetyMove(enabled);
+      setSafetyMoveFF(enabled);
     });
   }, []);
 
-  const allowedOrdersTypes = safetyMove
+  const isSafetyPrivileged = isSafetyMoveFF
+    ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
+    : false;
+
+  const allowedOrdersTypes = isSafetyPrivileged
     ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY_MOVE: SPECIAL_ORDERS_TYPES.SAFETY_MOVE } }
     : ORDERS_TYPE_OPTIONS;
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   const initialValues = {
-    ordersType: '',
+    ordersType: isSafetyMoveSelected ? 'SAFETY_MOVE' : '',
     issueDate: '',
     reportByDate: '',
     hasDependents: '',
@@ -89,6 +96,7 @@ const ServicesCounselingAddOrders = () => {
     <GridContainer data-testid="main-container">
       <Grid row className={styles.ordersFormContainer} data-testid="orders-form-container">
         <Grid col>
+          {isSafetyMoveSelected && <Alert>Safety Move is selected</Alert>}
           <AddOrdersForm
             onSubmit={handleSubmit}
             ordersTypeOptions={ordersTypeOptions}
