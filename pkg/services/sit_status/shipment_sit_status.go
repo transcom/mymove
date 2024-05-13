@@ -117,7 +117,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		daysInSIT := daysInSIT(*currentSIT, today)
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
-		sitAllowanceEndDate := CalculateSITAllowanceEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
+		sitAuthorizedEndDate := CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
 		var sitCustomerContacted, sitRequestedDelivery *time.Time
 		sitCustomerContacted = currentSIT.SITCustomerContacted
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
@@ -136,7 +136,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 			DaysInSIT:            daysInSIT,
 			SITEntryDate:         sitEntryDate,
 			SITDepartureDate:     sitDepartureDate,
-			SITAllowanceEndDate:  sitAllowanceEndDate,
+			SITAuthorizedEndDate: sitAuthorizedEndDate,
 			SITCustomerContacted: sitCustomerContacted,
 			SITRequestedDelivery: sitRequestedDelivery,
 		}
@@ -144,9 +144,9 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		// update the shipment's OriginSITAuthEndDate or DestinationSITAuthEndDate depending on what currentSIT location is
 		if shipmentSITStatus.CurrentSIT != nil {
 			if location == OriginSITLocation {
-				shipment.OriginSITAuthEndDate = &shipmentSITStatus.CurrentSIT.SITAllowanceEndDate
+				shipment.OriginSITAuthEndDate = &shipmentSITStatus.CurrentSIT.SITAuthorizedEndDate
 			} else {
-				shipment.DestinationSITAuthEndDate = &shipmentSITStatus.CurrentSIT.SITAllowanceEndDate
+				shipment.DestinationSITAuthEndDate = &shipmentSITStatus.CurrentSIT.SITAuthorizedEndDate
 			}
 		}
 		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -267,7 +267,7 @@ func CalculateTotalPastDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Tim
 	return totalDays
 }
 
-func CalculateSITAllowanceEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, calculatedTotalDaysInSIT int) time.Time {
+func CalculateSITAuthorizedEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, calculatedTotalDaysInSIT int) time.Time {
 	return sitEntryDate.AddDate(0, 0, (totalSITAllowance - (calculatedTotalDaysInSIT - currentDaysInSIT)))
 }
 

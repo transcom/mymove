@@ -174,9 +174,9 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 		suite.Len(sitStatus.PastSITs, 0)
-		suite.NotNil(sitStatus.CurrentSIT.SITAllowanceEndDate)
+		suite.NotNil(sitStatus.CurrentSIT.SITAuthorizedEndDate)
 		// check that shipment values impacted by current SIT get updated
-		suite.Equal(&sitStatus.CurrentSIT.SITAllowanceEndDate, shipment.OriginSITAuthEndDate)
+		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.OriginSITAuthEndDate)
 		suite.Nil(shipment.DestinationSITAuthEndDate)
 	})
 
@@ -253,7 +253,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 
 		// check that shipment values impacted by current SIT get updated
-		suite.Equal(&sitStatus.CurrentSIT.SITAllowanceEndDate, shipment.OriginSITAuthEndDate)
+		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.OriginSITAuthEndDate)
 		suite.Nil(shipment.DestinationSITAuthEndDate)
 	})
 
@@ -329,7 +329,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Len(sitStatus.PastSITs, 1)
 		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 		// check that shipment values impacted by current SIT get updated
-		suite.Equal(&sitStatus.CurrentSIT.SITAllowanceEndDate, shipment.DestinationSITAuthEndDate)
+		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.DestinationSITAuthEndDate)
 		suite.Nil(shipment.OriginSITAuthEndDate)
 	})
 
