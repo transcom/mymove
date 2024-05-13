@@ -69,7 +69,7 @@ func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, p
 		return err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		// All weightTicket documents are belongs_to relations, so will not be automatically
 		// deleted when we call SoftDestroy on the weight ticket
 		err = utilities.SoftDestroy(appCtx.DB(), &weightTicket.EmptyDocument)
