@@ -52,6 +52,10 @@ type UpdatePPMShipment struct {
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
 
+	// Indicates whether an advance was received for the PPM shipment.
+	//
+	HasReceivedAdvance *bool `json:"hasReceivedAdvance,omitempty"`
+
 	// Indicates whether an advance has been requested for the PPM shipment.
 	//
 	HasRequestedAdvance *bool `json:"hasRequestedAdvance,omitempty"`

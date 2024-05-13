@@ -212,7 +212,8 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					HasProGear:            models.BoolPointer(true),
 					ProGearWeight:         models.PoundPointer(unit.Pound(1900)),
 					SpouseProGearWeight:   models.PoundPointer(unit.Pound(300)),
-					AdvanceAmountReceived: models.CentPointer(unit.Cents(50000)),
+					AdvanceAmountReceived: nil,
+					HasReceivedAdvance:    models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -221,6 +222,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// set new field to update
 		shipment.PPMShipment.HasProGear = models.BoolPointer(false)
 		shipment.PPMShipment.AdvanceAmountReceived = models.CentPointer(unit.Cents(55000))
+		shipment.PPMShipment.HasReceivedAdvance = models.BoolPointer(true)
 
 		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
 
@@ -236,6 +238,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.NotEqual(&ppmShipment, mtoShipment.PPMShipment)
 		suite.False(*mtoShipment.PPMShipment.HasProGear)
 		suite.Equal(*mtoShipment.PPMShipment.AdvanceAmountReceived, *shipment.PPMShipment.AdvanceAmountReceived)
+		suite.True(*mtoShipment.PPMShipment.HasReceivedAdvance)
 	})
 
 	serviceObjectErrorTestCases := map[string]struct {

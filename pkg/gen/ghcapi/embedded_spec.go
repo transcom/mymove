@@ -10903,6 +10903,11 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "hasRequestedAdvance": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
@@ -23868,6 +23873,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },
