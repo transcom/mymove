@@ -149,6 +149,6 @@ type CurrentSIT struct {
 //go:generate mockery --name ShipmentSITStatus
 type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
-	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, error)
+	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, models.MTOShipment, error)
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
 }

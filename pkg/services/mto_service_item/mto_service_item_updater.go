@@ -86,7 +86,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	}
 
 	sitStatusService := sitstatus.NewShipmentSITStatus()
-	shipmentSITStatus, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus, _, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
 	if err != nil {
 		return nil, err
 	} else if shipmentSITStatus == nil {

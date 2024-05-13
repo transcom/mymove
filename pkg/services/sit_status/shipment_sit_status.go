@@ -76,9 +76,9 @@ func Clamp(input, min, max int) (int, error) {
 
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
 // multiple handlers in the `ghcapi` package for the MTOShipment handlers.
-func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
+func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, models.MTOShipment, error) {
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
-		return nil, nil
+		return nil, shipment, nil
 	}
 
 	var shipmentSITStatus services.SITStatus
@@ -92,17 +92,17 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	// There were no relevant SIT service items for this shipment
 	if currentSIT == nil && len(shipmentSITs.pastSITs) == 0 {
-		return nil, nil
+		return nil, shipment, nil
 	}
 
 	shipmentSITStatus.ShipmentID = shipment.ID
 	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
 	if err != nil {
-		return nil, err
+		return nil, shipment, err
 	}
 	totalSITDaysUsedClampedResult, totalDaysUsedErr := Clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, totalSITAllowance)
 	if totalDaysUsedErr != nil {
-		return nil, err
+		return nil, shipment, err
 	}
 	shipmentSITStatus.TotalSITDaysUsed = totalSITDaysUsedClampedResult
 	shipmentSITStatus.CalculatedTotalDaysInSIT = CalculateTotalDaysInSIT(shipmentSITs, today)
@@ -161,11 +161,11 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		})
 
 		if transactionError != nil {
-			return nil, transactionError
+			return nil, shipment, transactionError
 		}
 	}
 
-	return &shipmentSITStatus, nil
+	return &shipmentSITStatus, shipment, nil
 }
 
 /*
@@ -275,7 +275,7 @@ func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppCo
 	shipmentsSITStatuses := map[string]services.SITStatus{}
 
 	for _, shipment := range shipments {
-		shipmentSITStatus, _ := f.CalculateShipmentSITStatus(appCtx, shipment)
+		shipmentSITStatus, _, _ := f.CalculateShipmentSITStatus(appCtx, shipment)
 		if shipmentSITStatus != nil {
 			shipmentsSITStatuses[shipment.ID.String()] = *shipmentSITStatus
 		}
