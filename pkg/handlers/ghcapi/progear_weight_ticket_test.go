@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -152,5 +153,100 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&progearops.UpdateProGearWeightTicketInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteProGearWeightTicketHandler() {
+	// Reusable objects
+	progearDeleter := progear.NewProgearWeightTicketDeleter()
+
+	type progearDeleteSubtestData struct {
+		ppmShipment models.PPMShipment
+		progear     models.ProgearWeightTicket
+		params      progearops.DeleteProGearWeightTicketParams
+		handler     DeleteProgearWeightTicketHandler
+	}
+	makeDeleteSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearDeleteSubtestData) {
+		db := appCtx.DB()
+
+		// Use fake data:
+		subtestData.progear = factory.BuildProgearWeightTicket(db, nil, nil)
+		subtestData.ppmShipment = subtestData.progear.PPMShipment
+
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progear.ID.String())
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		req := httptest.NewRequest("DELETE", endpoint, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		subtestData.params = progearops.DeleteProGearWeightTicketParams{
+			HTTPRequest:           req,
+			PpmShipmentID:         *handlers.FmtUUID(subtestData.ppmShipment.ID),
+			ProGearWeightTicketID: *handlers.FmtUUID(subtestData.progear.ID),
+		}
+
+		subtestData.handler = DeleteProgearWeightTicketHandler{
+			suite.createS3HandlerConfig(),
+			progearDeleter,
+		}
+
+		return subtestData
+	}
+
+	suite.Run("Successfully Delete Progear Weight Ticket - Integration Test", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+
+		params := subtestData.params
+
+		factory.BuildUserUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    subtestData.progear.Document,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Validate incoming payload: no body to validate
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketNoContent{}, response)
+	})
+
+	suite.Run("DELETE failure - 404- not found", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+		params := subtestData.params
+		wrongUUIDString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("3ce0e367-a337-46e3-b4cf-f79aebc4f6c8"))
+		params.ProGearWeightTicketID = *wrongUUIDString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
+	})
+
+	suite.Run("DELETE failure - 500", func() {
+		mockDeleter := mocks.ProgearWeightTicketDeleter{}
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeDeleteSubtestData(appCtx, true)
+		params := subtestData.params
+
+		err := errors.New("ServerError")
+
+		mockDeleter.On("DeleteProgearWeightTicket",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(err)
+
+		handler := DeleteProgearWeightTicketHandler{
+			suite.HandlerConfig(),
+			&mockDeleter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&progearops.DeleteProGearWeightTicketInternalServerError{}, response)
 	})
 }

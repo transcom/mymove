@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movingexpenseservice "github.com/transcom/mymove/pkg/services/moving_expense"
@@ -227,6 +228,144 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerUnit() {
 				suite.Equal(string(*updatedMovingExpense.Status), string(*payload.Status))
 			}
 		}
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteMovingExpenseHandlerUnit() {
+	var ppmShipment models.PPMShipment
+
+	suite.PreloadData(func() {
+		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+
+		suite.FatalNoError(err)
+
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+
+		ppmShipment.MovingExpenses = append(
+			ppmShipment.MovingExpenses,
+			factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+					LinkOnly: true,
+				},
+				{
+					Model:    ppmShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{},
+					ExtendedParams: &factory.UserUploadExtendedParams{
+						UserUploader: userUploader,
+						AppContext:   suite.AppContextForTest(),
+					},
+				},
+			}, nil),
+		)
+	})
+
+	setUpRequestAndParams := func() movingexpenseops.DeleteMovingExpenseParams {
+		movingExpense := ppmShipment.MovingExpenses[0]
+
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense/%s", ppmShipment.ID.String(), movingExpense.ID.String())
+
+		req := httptest.NewRequest("DELETE", endpoint, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		return movingexpenseops.DeleteMovingExpenseParams{
+			HTTPRequest:     req,
+			PpmShipmentID:   handlers.FmtUUIDValue(ppmShipment.ID),
+			MovingExpenseID: handlers.FmtUUIDValue(movingExpense.ID),
+		}
+	}
+
+	setUpMockMovingExpenseDeleter := func(returnValues ...interface{}) services.MovingExpenseDeleter {
+		mockMovingExpenseDeleter := &mocks.MovingExpenseDeleter{}
+
+		mockMovingExpenseDeleter.On(
+			"DeleteMovingExpense",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(returnValues...)
+
+		return mockMovingExpenseDeleter
+	}
+
+	setUpHandler := func(movingExpenseDeleter services.MovingExpenseDeleter) DeleteMovingExpenseHandler {
+		return DeleteMovingExpenseHandler{
+			suite.createS3HandlerConfig(),
+			movingExpenseDeleter,
+		}
+	}
+
+	suite.Run("Returns an error if the request is not coming from the office app AND is not coming from the owning service member", func() {
+		params := setUpRequestAndParams()
+
+		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		params.HTTPRequest = suite.AuthenticateRequest(params.HTTPRequest, otherServiceMember)
+
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil)
+
+		handler := setUpHandler(movingExpenseDeleter)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
+	})
+
+	suite.Run("Returns a NotFound response if the Deleter returns a NotFoundError", func() {
+		params := setUpRequestAndParams()
+
+		updateError := apperror.NewNotFoundError(ppmShipment.MovingExpenses[0].ID, "moving expense not found")
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(updateError)
+
+		handler := setUpHandler(movingExpenseDeleter)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseNotFound{}, response)
+	})
+
+	suite.Run("Returns an InternalServerError response if the Deleter returns a QueryError", func() {
+		params := setUpRequestAndParams()
+
+		updateError := apperror.NewQueryError("MovingExpense", nil, "error getting moving expense")
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(updateError)
+
+		handler := setUpHandler(movingExpenseDeleter)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseInternalServerError{}, response)
+	})
+
+	suite.Run("Returns an InternalServerError response if the Deleter returns an unexpected error", func() {
+		params := setUpRequestAndParams()
+
+		updateError := apperror.NewNotImplementedError("Not implemented")
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(updateError)
+
+		handler := setUpHandler(movingExpenseDeleter)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseInternalServerError{}, response)
+	})
+
+	suite.Run("Returns a 204 No Content response if the Deleter succeeds", func() {
+		params := setUpRequestAndParams()
+
+		movingExpenseDeleter := setUpMockMovingExpenseDeleter(nil)
+
+		handler := setUpHandler(movingExpenseDeleter)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.DeleteMovingExpenseNoContent{}, response)
 	})
 }
 
