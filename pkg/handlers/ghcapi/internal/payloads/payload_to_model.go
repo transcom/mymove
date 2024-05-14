@@ -568,13 +568,17 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	if movingExpense == nil {
 		return nil
 	}
+
+	expenseType := models.MovingExpenseReceiptType(*movingExpense.MovingExpenseType.Pointer())
 	model := &models.MovingExpense{
-		Amount:       handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
-		SITStartDate: handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
-		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
-		Status:       (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
-		Reason:       handlers.FmtString(movingExpense.Reason),
-		WeightStored: handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
+		MovingExpenseType: &expenseType,
+		Description:       handlers.FmtString(string(*movingExpense.Description)),
+		Amount:            handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
+		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
+		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+		Status:            (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
+		Reason:            handlers.FmtString(movingExpense.Reason),
+		WeightStored:      handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
 	}
 
 	return model
