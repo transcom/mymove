@@ -313,7 +313,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 
 	suite.Equal("01 - PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
-	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
+	suite.Equal("4,000 lbs - FINAL", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
 
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
@@ -574,7 +574,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
 	ppm := models.PPMShipment{EstimatedWeight: &pounds}
 	noWtg := models.PPMShipment{EstimatedWeight: nil}
 
-	suite.Equal("1,000 lbs - Estimated", FormatPPMWeight(ppm))
+	suite.Equal("1,000 lbs - FINAL", FormatPPMWeight(ppm))
 	suite.Equal("", FormatPPMWeight(noWtg))
 }
 

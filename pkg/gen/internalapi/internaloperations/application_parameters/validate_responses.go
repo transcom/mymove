@@ -17,7 +17,7 @@ import (
 const ValidateOKCode int = 200
 
 /*
-ValidateOK Application Parameters
+ValidateOK Validation Code
 
 swagger:response validateOK
 */
@@ -26,7 +26,7 @@ type ValidateOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.ApplicationParameters `json:"body,omitempty"`
+	Payload *internalmessages.ValidationCode `json:"body,omitempty"`
 }
 
 // NewValidateOK creates ValidateOK with default headers values
@@ -36,13 +36,13 @@ func NewValidateOK() *ValidateOK {
 }
 
 // WithPayload adds the payload to the validate o k response
-func (o *ValidateOK) WithPayload(payload *internalmessages.ApplicationParameters) *ValidateOK {
+func (o *ValidateOK) WithPayload(payload *internalmessages.ValidationCode) *ValidateOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the validate o k response
-func (o *ValidateOK) SetPayload(payload *internalmessages.ApplicationParameters) {
+func (o *ValidateOK) SetPayload(payload *internalmessages.ValidationCode) {
 	o.Payload = payload
 }
 

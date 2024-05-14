@@ -1072,7 +1072,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/application_parameters"] = application_parameters.NewValidate(o.context, o.ApplicationParametersValidateHandler)
+	o.handlers["POST"]["/validation_code"] = application_parameters.NewValidate(o.context, o.ApplicationParametersValidateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

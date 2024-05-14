@@ -11,7 +11,7 @@ test.describe('Onboarding', () => {
     await customerPage.signInAsNewCustomer();
 
     // Input validation code
-    await customerPage.submitParameterValue();
+    await customerPage.submitValidationCode();
 
     // CONUS/OCONUS section
     await customerPage.waitForPage.onboardingConus();
@@ -76,7 +76,7 @@ test.describe('(MultiMove) Onboarding', () => {
     // if the user needs to input a validation code
     const validationCodeInput = page.locator('[name="code"]');
     if (await validationCodeInput.isVisible()) {
-      await customerPage.submitParameterValue();
+      await customerPage.submitValidationCode();
     }
 
     // CONUS/OCONUS section
@@ -88,6 +88,7 @@ test.describe('(MultiMove) Onboarding', () => {
     await customerPage.waitForPage.onboardingDodId();
     await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
     await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
+    await page.getByTestId('textInput').fill('1231231234');
     await customerPage.navigateForward();
 
     // Name secton

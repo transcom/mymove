@@ -126,9 +126,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
 }));
 
 describe('ServiceInfoForm', () => {
-  // loading edipi in initial values because the service member should have it
-  // after authenticating with okta
-  const testPropsWithEdipi = {
+  const testProps = {
     onSubmit: jest.fn(),
     onCancel: jest.fn(),
     initialValues: {
@@ -137,7 +135,7 @@ describe('ServiceInfoForm', () => {
       last_name: '',
       suffix: '',
       affiliation: '',
-      edipi: '1234567890',
+      edipi: '',
       grade: '',
       current_location: {},
     },
@@ -145,7 +143,7 @@ describe('ServiceInfoForm', () => {
   };
 
   it('renders the form inputs', async () => {
-    render(<ServiceInfoForm {...testPropsWithEdipi} />);
+    render(<ServiceInfoForm {...testProps} />);
 
     const firstNameInput = await screen.findByLabelText('First name');
     expect(firstNameInput).toBeInstanceOf(HTMLInputElement);
@@ -165,30 +163,42 @@ describe('ServiceInfoForm', () => {
 
     const dodInput = await screen.findByLabelText('DoD ID number');
     expect(dodInput).toBeInstanceOf(HTMLInputElement);
-    expect(dodInput).toBeDisabled();
+    expect(dodInput).toBeRequired();
+  });
+
+  it('validates the DOD ID number on blur', async () => {
+    render(<ServiceInfoForm {...testProps} />);
+
+    const dodInput = await screen.findByLabelText('DoD ID number');
+    await userEvent.type(dodInput, 'not a valid ID number');
+    await userEvent.tab();
+
+    expect(dodInput).not.toBeValid();
+    expect(await screen.findByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    render(<ServiceInfoForm {...testPropsWithEdipi} />);
+    render(<ServiceInfoForm {...testProps} />);
 
     // Touch required fields to show validation errors
     await userEvent.click(screen.getByLabelText('First name'));
     await userEvent.click(screen.getByLabelText('Last name'));
     await userEvent.click(screen.getByLabelText('Branch of service'));
+    await userEvent.click(screen.getByLabelText('DoD ID number'));
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Required').length).toBe(3);
+      expect(screen.getAllByText('Required').length).toBe(4);
     });
-    expect(testPropsWithEdipi.onSubmit).not.toHaveBeenCalled();
+    expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
 
   it('submits the form when its valid', async () => {
     render(
       <ServiceInfoForm
-        {...testPropsWithEdipi}
+        {...testProps}
         newDutyLocation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
       />,
     );
@@ -197,11 +207,12 @@ describe('ServiceInfoForm', () => {
     await userEvent.type(screen.getByLabelText('First name'), 'Leo');
     await userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
     await userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
+    await userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
 
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(testPropsWithEdipi.onSubmit).toHaveBeenCalledWith(
+      expect(testProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           first_name: 'Leo',
           last_name: 'Spaceman',
@@ -215,7 +226,7 @@ describe('ServiceInfoForm', () => {
 
   it('uses the onCancel handler when the cancel button is clicked', async () => {
     const onCancel = jest.fn();
-    render(<ServiceInfoForm {...testPropsWithEdipi} onCancel={onCancel} />);
+    render(<ServiceInfoForm {...testProps} onCancel={onCancel} />);
     const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
 
     await userEvent.click(cancelBtn);

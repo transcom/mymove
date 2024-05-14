@@ -41,21 +41,12 @@ tags:
   - name: okta_profile
   - name: application_parameters
 definitions:
-  ApplicationParameters:
+  ValidationCode:
     type: object
     properties:
       validationCode:
         type: string
         format: string
-        x-nullable: true
-      parameterName:
-        type: string
-        format: string
-        x-nullable: true
-      parameterValue:
-        type: string
-        format: string
-        x-nullable: true
   OktaUserProfileData:
     type: object
     properties:
@@ -3528,14 +3519,13 @@ paths:
           description: invalid request
         '500':
           description: server error
-  /application_parameters:
+  /validation_code:
     post:
-      summary: >-
-        Searches for an application parameter by name and value, returns nil if
-        not found
+      summary: Returns a value if the code provided is correct
       description: >-
-        Searches for an application parameter by name and value, returns nil if
-        not found
+        The customer will input a validation code given to them and if the code
+        provided is present in the database, then they will be allowed to
+        progress in setting up their profile and create a move
       operationId: validate
       tags:
         - application_parameters
@@ -3544,12 +3534,12 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ApplicationParameters'
+            $ref: '#/definitions/ValidationCode'
       responses:
         '200':
-          description: Application Parameters
+          description: Validation Code
           schema:
-            $ref: '#/definitions/ApplicationParameters'
+            $ref: '#/definitions/ValidationCode'
         '400':
           description: invalid request
         '401':

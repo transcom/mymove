@@ -26,14 +26,13 @@ export const ValidationCode = () => {
 
   const onSubmit = async (values) => {
     const body = {
-      parameterValue: values.code,
-      parameterName: 'validation_code',
+      validationCode: values.code,
     };
 
     await validateCode(body)
       .then((response) => {
-        const { parameterValue } = response.body;
-        if (parameterValue === body.parameterValue) {
+        const { validationCode } = response.body;
+        if (validationCode === body.validationCode) {
           navigate(customerRoutes.CONUS_OCONUS_PATH);
         } else {
           setValidationError('Please try again');

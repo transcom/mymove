@@ -38,9 +38,9 @@ describe('EditOktaInfoForm component', () => {
     expect(oktaLastName).toBeInstanceOf(HTMLInputElement);
     expect(oktaLastName).toHaveValue(testProps.initialValues.oktaLastName);
 
-    const oktaEdipi = await screen.findByLabelText('DoD ID number');
+    const oktaEdipi = await screen.findByLabelText('DoD ID number | EDIPI');
+    expect(oktaEdipi).toBeInstanceOf(HTMLInputElement);
     expect(oktaEdipi).toHaveValue(testProps.initialValues.oktaEdipi);
-    expect(oktaEdipi).toBeDisabled();
   });
 
   it('shows an error message if Okta Email is not in email format', async () => {

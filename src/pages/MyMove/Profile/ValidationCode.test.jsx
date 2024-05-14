@@ -36,8 +36,7 @@ describe('ValidationCode', () => {
     validateCode.mockImplementation(() =>
       Promise.resolve({
         body: {
-          parameterValue: 'TestCode123123',
-          parameterName: 'validation_code',
+          validationCode: 'TestCode123123',
         },
       }),
     );
@@ -61,8 +60,7 @@ describe('ValidationCode', () => {
     validateCode.mockImplementation(() =>
       Promise.resolve({
         body: {
-          parameterValue: '',
-          parameterName: 'validation_code',
+          validationCode: '',
         },
       }),
     );

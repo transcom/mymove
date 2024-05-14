@@ -11,14 +11,11 @@ import (
 func (suite *HandlerSuite) TestApplicationParametersValidateHandler() {
 	user := factory.BuildDefaultUser(suite.DB())
 
-	req := httptest.NewRequest("POST", "/application_parameters", nil)
+	req := httptest.NewRequest("POST", "/validation_code", nil)
 	req = suite.AuthenticateUserRequest(req, user)
 
-	validationCode := "validation_code"
-	testCode := "Testcode123123"
-	body := internalmessages.ApplicationParameters{
-		ParameterName:  &validationCode,
-		ParameterValue: &testCode,
+	body := internalmessages.ValidationCode{
+		ValidationCode: "TestCode123123",
 	}
 
 	params := application_parameters.ValidateParams{

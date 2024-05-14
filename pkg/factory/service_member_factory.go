@@ -73,7 +73,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 		PersonalEmail:        &email,
 		ResidentialAddressID: &resAddress.ID,
 		ResidentialAddress:   &resAddress,
-		CacValidated:         false,
 	}
 
 	backupAddressResult := findValidCustomization(customs, Addresses.BackupMailingAddress)

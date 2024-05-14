@@ -6,25 +6,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) Test_FetchParameterValue() {
-	param := "validation_code"
-	value := "Testcode123123"
-	parameterValue := models.ApplicationParameters{
+func (suite *ModelSuite) Test_FetchValidationCode() {
+	validationCode := models.ApplicationParameters{
 		ID:             uuid.Must(uuid.NewV4()),
-		ParameterName:  &param,
-		ParameterValue: &value,
+		ValidationCode: "TestCode123123",
 	}
-	suite.MustCreate(&parameterValue)
+	suite.MustCreate(&validationCode)
 
-	// if the value is found, it should return the same code provided
-	shouldHaveValue, err := models.FetchParameterValue(suite.DB(), param, value)
+	// if the code is found, it should return the same code provided
+	shouldHaveValue, err := models.FetchValidationCode(suite.DB(), "TestCode123123")
 	suite.NoError(err)
-	suite.Equal(parameterValue.ParameterValue, shouldHaveValue.ParameterValue)
+	suite.Equal(validationCode.ValidationCode, shouldHaveValue.ValidationCode)
 
-	// if the value is not found, it should return an empty string
-	wrongValue := "Testcode123456"
-	var nilString *string = nil
-	shouldNotHaveValue, err := models.FetchParameterValue(suite.DB(), param, wrongValue)
+	// if the code is not found, it should return an empty string
+	shouldNotHaveValue, err := models.FetchValidationCode(suite.DB(), "TestCode123456")
 	suite.NoError(err)
-	suite.Equal(nilString, shouldNotHaveValue.ParameterValue)
+	suite.Equal("", shouldNotHaveValue.ValidationCode)
 }

@@ -46,20 +46,20 @@ export class CustomerPage extends BaseTestPage {
    *
    * returns {Promise<void>}
    */
-  async submitParameterValue() {
+  async submitValidationCode() {
     const testCode = '123456';
     await this.page.locator('[name="code"]').type(testCode);
     await expect(this.page.getByTestId('wizardNextButton')).toBeVisible();
 
     // Regex for the path of the validation code api call
-    const pathRegex = /\/internal\/application_parameters$/;
+    const pathRegex = /\/internal\/validation_code$/;
 
     // Mock the api call and its response
     await this.page.route(pathRegex, async (route) => {
       await route.fulfill({
         status: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parameterValue: '123456', parameterName: 'validation_code' }),
+        body: JSON.stringify({ validationCode: '123456' }),
       });
     });
 
