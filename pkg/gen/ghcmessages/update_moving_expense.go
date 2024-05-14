@@ -22,6 +22,12 @@ type UpdateMovingExpense struct {
 	// The total amount of the expense as indicated on the receipt
 	Amount int64 `json:"amount,omitempty"`
 
+	// A brief description of the expense.
+	Description *string `json:"description"`
+
+	// moving expense type
+	MovingExpenseType *OmittableMovingExpenseType `json:"movingExpenseType"`
+
 	// The reason the services counselor has excluded or rejected the item.
 	Reason string `json:"reason,omitempty"`
 
@@ -41,6 +47,10 @@ type UpdateMovingExpense struct {
 func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateMovingExpenseType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitEndDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -56,6 +66,25 @@ func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateMovingExpense) validateMovingExpenseType(formats strfmt.Registry) error {
+	if swag.IsZero(m.MovingExpenseType) { // not required
+		return nil
+	}
+
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -104,6 +133,10 @@ func (m *UpdateMovingExpense) validateStatus(formats strfmt.Registry) error {
 func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -111,6 +144,27 @@ func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateMovingExpense) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MovingExpenseType != nil {
+
+		if swag.IsZero(m.MovingExpenseType) { // not required
+			return nil
+		}
+
+		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
