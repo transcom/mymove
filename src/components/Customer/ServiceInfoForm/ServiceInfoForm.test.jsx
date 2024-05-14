@@ -4,6 +4,13 @@ import userEvent from '@testing-library/user-event';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
@@ -145,6 +152,7 @@ describe('ServiceInfoForm', () => {
   };
 
   it('renders the form inputs', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(<ServiceInfoForm {...testPropsWithEdipi} />);
 
     const firstNameInput = await screen.findByLabelText('First name');
@@ -169,6 +177,7 @@ describe('ServiceInfoForm', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(<ServiceInfoForm {...testPropsWithEdipi} />);
 
     // Touch required fields to show validation errors
