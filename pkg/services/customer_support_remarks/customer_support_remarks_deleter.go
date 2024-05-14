@@ -45,7 +45,7 @@ func (o customerSupportRemarkDeleter) DeleteCustomerSupportRemark(appCtx appcont
 		return apperror.NewForbiddenError("Action not allowed")
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		err := utilities.SoftDestroy(appCtx.DB(), &remark)
 		if err != nil {
 			switch err.Error() {
