@@ -34,7 +34,7 @@ export default {
       <LabeledDetails historyRecord={formatChangedValues(historyRecord, formattedContext)} />
     ) : (
       <>
-        {s[formattedContext.shipment_type]} shipment #{formattedContext.shipment_id_display},{' '}
+        {s[formattedContext.shipment_type]} shipment #{formattedContext.shipment_locator},{' '}
         {formattedContext.service_item_name}
       </>
     );

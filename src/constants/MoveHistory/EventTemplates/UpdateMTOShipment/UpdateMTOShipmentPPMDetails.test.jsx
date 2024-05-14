@@ -26,6 +26,7 @@ describe('when given a PPM shipment update', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: '12992',
       },
     ],
@@ -44,6 +45,7 @@ describe('when given a PPM shipment update', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: '12992',
       },
     ],
@@ -61,6 +63,7 @@ describe('when given a PPM shipment update', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: '12992',
       },
     ],
@@ -76,6 +79,7 @@ describe('when given a PPM shipment update', () => {
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: '12992',
       },
     ],
@@ -96,6 +100,7 @@ describe('when given a PPM shipment update', () => {
     context: [
       {
         shipment_id_abbr: '125d1',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
         w2_address:
           '{"id":"6c1df26c-76bc-42c4-9c7f-c626a78739d3","street_address_1":"123 Dad St","street_address_2":null,"city":"Missoula","state":"MT","postal_code":"59801","created_at":"2024-02-15T08:39:41.692044","updated_at":"2024-02-16T03:36:51.388835","street_address_3":null,"country":null}',
@@ -110,7 +115,7 @@ describe('when given a PPM shipment update', () => {
   it('displays the correct label for shipment', () => {
     const result = getTemplate(historyRecord);
     render(result.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #12992')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
   });
   describe('it correctly renders the shipment details', () => {
     it.each([
