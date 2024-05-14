@@ -43,6 +43,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			} else if err == ErrWait {
 				time.Sleep(wait)
 				continue
+				//nolint:revive // False positive from revive
 			} else {
 				close(statements)
 				return
