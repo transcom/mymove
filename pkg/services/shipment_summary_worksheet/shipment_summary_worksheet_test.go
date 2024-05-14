@@ -90,13 +90,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
 	gradeWtgAllotment := models.GetWeightAllotment(grade)
-	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelfPlusDependents), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Equal(unit.Pound(500), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.Order.Grade)
 	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
 	// E_9 rank, no dependents, no spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
@@ -212,13 +212,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
 	gradeWtgAllotment := models.GetWeightAllotment(grade)
-	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelfPlusDependents), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Equal(unit.Pound(500), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.Order.Grade)
 	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
 	// E_9 rank, no dependents, no spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
