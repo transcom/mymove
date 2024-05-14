@@ -199,7 +199,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 		for name, tc := range testCases {
 			for status, canUpdate := range tc.tests {
-				appCtx := suite.AppContextWithSessionForTest(&tc.session)
+				appCtx := suite.AppContextWithSessionForTest(&tc.session) //#nosec G601
 
 				suite.Run(fmt.Sprintf("User:%v Shipment Status:%v", name, status), func() {
 					checker := checkUpdateAllowed()

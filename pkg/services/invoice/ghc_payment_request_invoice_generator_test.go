@@ -2284,7 +2284,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		}
 
 		for _, testCase := range gradeTestCases {
-			setupTestData(&testCase.grade)
+			setupTestData(&testCase.grade) //#nosec G601 new in 1.22.2
 			setupLoaTestData()
 
 			// Create invoice

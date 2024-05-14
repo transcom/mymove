@@ -31,7 +31,7 @@ func TestClientLogCollectorSuite(t *testing.T) {
 func (suite *ClientLogCollectorSuite) TestClientLogHandler() {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	// Create logger that writes to the buffer instead of stdout/stderr
-	logger := suite.Logger().WithOptions(zap.WrapCore(func(c zapcore.Core) zapcore.Core {
+	logger := suite.Logger().WithOptions(zap.WrapCore(func(_ zapcore.Core) zapcore.Core {
 		return zapcore.NewCore(
 			zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
 			zapcore.AddSync(buf),

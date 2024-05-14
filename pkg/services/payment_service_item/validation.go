@@ -46,7 +46,7 @@ func validatePaymentServiceItem(appCtx appcontext.AppContext, paymentServiceItem
 
 func checkETag() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, paymentServiceItem *models.PaymentServiceItem,
-		_ models.PaymentServiceItemStatus, rejectionReason *string, eTag string) error {
+		_ models.PaymentServiceItemStatus, _ *string, eTag string) error {
 		existingETag := etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		if existingETag != eTag {
 			return apperror.NewPreconditionFailedError(paymentServiceItem.ID,

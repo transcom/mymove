@@ -45,7 +45,7 @@ func (suite *ClientCertServiceSuite) TestFetchClientCertList() {
 	suite.Run("if the users are successfully fetched, they should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchMany := func(_ appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.ClientCert{ID: id})))
 			return nil

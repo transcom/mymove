@@ -118,7 +118,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := db.Transaction(func(_ *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {
