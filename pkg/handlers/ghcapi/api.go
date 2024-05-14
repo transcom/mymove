@@ -477,7 +477,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.QueuesListPrimeMovesHandler = ListPrimeMovesHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
-		movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
@@ -489,6 +488,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.TacTacValidationHandler = TacValidationHandler{

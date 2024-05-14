@@ -19,5 +19,5 @@ type MoveLocker interface {
 //go:generate mockery --name MoveUnlocker
 type MoveUnlocker interface {
 	UnlockMove(appCtx appcontext.AppContext, move *models.Move, officeUserID uuid.UUID) (*models.Move, error)
-	CheckForUnlockedMovesAndUnlock(appCtx appcontext.AppContext, officeUserID uuid.UUID) error
+	CheckForLockedMovesAndUnlock(appCtx appcontext.AppContext, officeUserID uuid.UUID) error
 }
