@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	order "github.com/transcom/mymove/pkg/services/order"
@@ -70,9 +71,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -107,9 +110,11 @@ func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := ListPrimeMovesHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -192,9 +197,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			HTTPRequest: request,
 		}
 		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetMovesQueueHandler{
 			handlerConfig,
 			&orderFetcher,
+			mockUnlocker,
 		}
 
 		// Validate incoming payload: no body to validate
@@ -263,9 +270,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		Branch:      models.StringPointer("AIR_FORCE"),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -348,9 +357,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -494,9 +505,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	suite.Run("loads results with all STATUSes selected", func() {
@@ -748,9 +761,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	suite.Run("returns unfiltered results", func() {
@@ -887,9 +902,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -915,9 +932,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -964,9 +983,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1010,9 +1031,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1083,9 +1106,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
+		mockUnlocker,
 	}
 	suite.Run("returns unfiltered results", func() {
 		params := queues.GetPaymentRequestsQueueParams{
@@ -1160,9 +1185,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1193,9 +1220,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		&paymentRequestListFetcher,
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1227,9 +1256,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		&paymentRequestListFetcher,
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
