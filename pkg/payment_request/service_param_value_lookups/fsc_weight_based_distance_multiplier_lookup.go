@@ -35,6 +35,7 @@ func (r FSCWeightBasedDistanceMultiplierLookup) lookup(appCtx appcontext.AppCont
 		return weightBasedDistanceMultiplierLevelTwo, nil
 	} else if weightBilled <= 24000 {
 		return weightBasedDistanceMultiplierLevelThree, nil
+		//nolint:revive
 	} else {
 		return weightBasedDistanceMultiplierLevelFour, nil
 	}

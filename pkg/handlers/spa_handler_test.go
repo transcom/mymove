@@ -131,7 +131,7 @@ func (suite *SpaHandlerSuite) TestSpaHandlerServeHttp() {
 	)
 
 	for _, testCase := range cases {
-		suite.T().Run(testCase.name, func(t *testing.T) {
+		suite.T().Run(testCase.name, func(_ *testing.T) {
 
 			req, err := http.NewRequest("GET", testCase.request, nil)
 			suite.NoError(err)
