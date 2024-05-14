@@ -234,8 +234,9 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
-    const oktaRadioButton = getByLabelText('Yes');
-    await userEvent.click(oktaRadioButton);
+    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
+
+    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
 
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
