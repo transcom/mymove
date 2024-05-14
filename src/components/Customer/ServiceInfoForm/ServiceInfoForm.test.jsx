@@ -138,6 +138,7 @@ describe('ServiceInfoForm', () => {
   const testPropsWithEdipi = {
     onSubmit: jest.fn(),
     onCancel: jest.fn(),
+    isEmplidEnabled: true,
     initialValues: {
       first_name: '',
       middle_name: '',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -13,19 +13,10 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
-    };
-    fetchData();
-  });
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),

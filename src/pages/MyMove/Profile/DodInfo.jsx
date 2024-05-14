@@ -25,7 +25,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
       setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
     };
     fetchData();
-  });
+  }, []);
 
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
@@ -82,7 +82,12 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} onBack={handleBack} />
+          <DodInfoForm
+            initialValues={initialValues}
+            onSubmit={handleSubmit}
+            onBack={handleBack}
+            isEmplidEnabled={isEmplidEnabled}
+          />
         </Grid>
       </Grid>
     </GridContainer>

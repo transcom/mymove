@@ -93,6 +93,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
         newDutyLocation={currentOrders?.new_duty_location}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
+        isEmplidEnabled={isEmplidEnabled}
       />
     </GridContainer>
   );
