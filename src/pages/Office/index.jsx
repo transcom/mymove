@@ -229,8 +229,7 @@ export class OfficeApp extends Component {
                   // Auth Routes
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-
-                    {/* TXO */}
+                    {/* TXO, HQ */}
                     <Route
                       path="/moves/queue"
                       end
