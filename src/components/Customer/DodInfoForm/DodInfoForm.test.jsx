@@ -16,6 +16,7 @@ describe('DodInfoForm component', () => {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
     initialValues: { affiliation: '', edipi: '' },
     onBack: jest.fn(),
+    isEmplidEnabled: true,
   };
 
   const coastGuardTestProps = {
