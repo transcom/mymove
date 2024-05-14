@@ -13,14 +13,6 @@
     @include u-border-bottom('base-lighter');
     @include u-padding(2);
 
-<<<<<<< HEAD
-  .typeLocator {
-    display: grid;
-    h3 {
-      font-weight: normal;
-      @include u-margin(0);
-      @include u-margin-x(1);
-=======
     .typeLocator {
       display: grid;
       h3 {
@@ -36,17 +28,7 @@
         @include u-text('gray-cool-50', 'normal');
         @include u-margin-top(0);
       }
->>>>>>> 618883554f4376cb377e8678d08ec60b5b28d771
     }
-
-    h5 {
-      font-weight: normal;
-      @include u-margin(0);
-      @include u-margin-x(1);
-      @include u-text('gray-cool-50', 'normal');
-      @include u-margin-top(0);
-    }
-  }
 
     .serviceCounselingShipments {
       h3 {
