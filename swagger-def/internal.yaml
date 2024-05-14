@@ -3881,6 +3881,11 @@ paths:
           type: file
           description: The file to upload.
           required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
       responses:
         "201":
           description: created upload

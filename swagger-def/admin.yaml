@@ -1222,7 +1222,7 @@ paths:
         $ref: paths/office-users/get/description.md
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested Office Users
+        - Requested office users
       parameters:
         - in: query
           name: filter
@@ -1264,7 +1264,7 @@ paths:
       description: Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.
       operationId: getRequestedOfficeUser
       tags:
-        - Requested Office Users
+        - Requested office users
       parameters:
         - in: path
           name: officeUserId
@@ -1291,7 +1291,7 @@ paths:
       description: Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.
       operationId: updateRequestedOfficeUser
       tags:
-        - Requested Office Users
+        - Requested office users
       parameters:
         - in: path
           name: officeUserId
