@@ -153,6 +153,7 @@ describe('ServiceInfoForm', () => {
   };
 
   it('renders the form inputs', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(<ServiceInfoForm {...testPropsWithEdipi} />);
 
     const firstNameInput = await screen.findByLabelText('First name');
@@ -177,6 +178,7 @@ describe('ServiceInfoForm', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(<ServiceInfoForm {...testPropsWithEdipi} />);
 
     // Touch required fields to show validation errors

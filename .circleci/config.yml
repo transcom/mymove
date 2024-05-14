@@ -870,6 +870,7 @@ commands:
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_COAST_GUARD_EMPLID=true
+            export FEATURE_FLAG_OKTA_DODID_INPUT=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -902,6 +903,7 @@ commands:
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_COAST_GUARD_EMPLID: 'true'
+            FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -1270,7 +1272,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v18-spectral-lint-
+            - v19-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1329,7 +1331,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v18-spectral-lint-{{ .BuildNum }}
+                key: v19-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
