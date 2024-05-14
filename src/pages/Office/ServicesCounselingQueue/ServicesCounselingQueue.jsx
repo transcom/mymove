@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -42,19 +41,7 @@ import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const counselingColumns = (moveLockFlag) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
+const counselingColumns = () => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -141,19 +128,7 @@ const counselingColumns = (moveLockFlag) => [
     isFilterable: true,
   }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div id={row.id}>
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
+const closeoutColumns = (ppmCloseoutGBLOC) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -243,7 +218,6 @@ const ServicesCounselingQueue = () => {
   const navigate = useNavigate();
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
 
   // Feature Flag
@@ -252,8 +226,6 @@ const ServicesCounselingQueue = () => {
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
         setisCounselorMoveCreateFFEnabled(isEnabled);
-        const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-        setMoveLockFlag(lockedMoveFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -415,7 +387,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC)}
+          columns={closeoutColumns(inPPMCloseoutGBLOC)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}
@@ -436,7 +408,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag)}
+          columns={counselingColumns()}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}

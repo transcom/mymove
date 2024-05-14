@@ -49,14 +49,6 @@ type SearchMove struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
-	// lock expires at
-	// Format: date-time
-	LockExpiresAt *strfmt.DateTime `json:"lockExpiresAt,omitempty"`
-
-	// locked by office user ID
-	// Format: uuid
-	LockedByOfficeUserID *strfmt.UUID `json:"lockedByOfficeUserID,omitempty"`
-
 	// order type
 	OrderType string `json:"orderType,omitempty"`
 
@@ -96,14 +88,6 @@ func (m *SearchMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateLockExpiresAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateLockedByOfficeUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -168,30 +152,6 @@ func (m *SearchMove) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *SearchMove) validateLockExpiresAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.LockExpiresAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("lockExpiresAt", "body", "date-time", m.LockExpiresAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *SearchMove) validateLockedByOfficeUserID(formats strfmt.Registry) error {
-	if swag.IsZero(m.LockedByOfficeUserID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("lockedByOfficeUserID", "body", "uuid", m.LockedByOfficeUserID.String(), formats); err != nil {
 		return err
 	}
 

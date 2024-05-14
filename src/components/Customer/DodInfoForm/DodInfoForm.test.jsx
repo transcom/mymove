@@ -4,13 +4,6 @@ import userEvent from '@testing-library/user-event';
 
 import DodInfoForm from './DodInfoForm';
 
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
-
 describe('DodInfoForm component', () => {
   const testProps = {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
@@ -19,7 +12,6 @@ describe('DodInfoForm component', () => {
   };
 
   it('renders the form inputs', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const { getByLabelText } = render(<DodInfoForm {...testProps} />);
 
     await waitFor(() => {
@@ -28,19 +20,6 @@ describe('DodInfoForm component', () => {
 
       expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('DOD ID number')).toBeDisabled();
-    });
-  });
-
-  it('renders the form inputs but enables editing of DOD ID when flag is on', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-    const { getByLabelText } = render(<DodInfoForm {...testProps} />);
-
-    await waitFor(() => {
-      expect(getByLabelText('Branch of service')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Branch of service')).toBeRequired();
-
-      expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('DOD ID number')).toBeEnabled();
     });
   });
 

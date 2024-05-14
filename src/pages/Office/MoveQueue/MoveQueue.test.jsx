@@ -2,14 +2,13 @@ import React from 'react';
 import Select from 'react-select';
 import { mount } from 'enzyme';
 import * as reactRouterDom from 'react-router-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import MoveQueue from './MoveQueue';
 
 import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS } from 'constants/queues';
 import { generalRoutes, tooRoutes } from 'constants/routes';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -17,11 +16,6 @@ jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(), // mock useNavigate if needed
 }));
 jest.setTimeout(60000);
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: () => {
@@ -58,8 +52,6 @@ jest.mock('hooks/queries', () => ({
             originGBLOC: 'EEEE',
             requestedMoveDate: '2023-02-10',
             appearedInTooAt: '2023-02-10T00:00:00.000Z',
-            lockExpiresAt: '2099-02-10T00:00:00.000Z',
-            lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
           },
           {
             id: 'move2',
@@ -85,7 +77,6 @@ jest.mock('hooks/queries', () => ({
     };
   },
 }));
-
 const GetMountedComponent = (queueTypeToMount) => {
   reactRouterDom.useParams.mockReturnValue({ queueType: queueTypeToMount });
   const wrapper = mount(
@@ -97,10 +88,6 @@ const GetMountedComponent = (queueTypeToMount) => {
 };
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
 describe('MoveQueue', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('should render the h1', () => {
     expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (2)');
   });
@@ -237,31 +224,5 @@ describe('MoveQueue', () => {
     );
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
-  });
-  it('renders a lock icon when move lock flag is on', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
-    render(
-      <reactRouterDom.BrowserRouter>
-        <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
-    );
-    await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
-      expect(lockIcon).toBeInTheDocument();
-    });
-  });
-  it('does NOT render a lock icon when move lock flag is off', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(false);
-    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
-    render(
-      <reactRouterDom.BrowserRouter>
-        <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
-    );
-    await await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
-      expect(lockIcon).not.toBeInTheDocument();
-    });
   });
 });

@@ -9,11 +9,15 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const ShipmentWeight = () => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
+  const [, , estimatedWeightHelper] = useField('estimatedWeight');
 
   const hasProGear = proGearInput.value === true;
 
   const handleProGear = (event) => {
     hasProGearHelper.setValue(event.target.value === 'yes');
+  };
+  const handleEstimatedWeight = (event) => {
+    estimatedWeightHelper.setValue(event.target.value);
   };
 
   return (
@@ -33,6 +37,7 @@ const ShipmentWeight = () => {
               thousandsSeparator=","
               lazy={false} // immediate masking evaluation
               suffix="lbs"
+              onChange={handleEstimatedWeight}
             />
             <Label className={styles.Label}>Pro-gear?</Label>
             <FormGroup>

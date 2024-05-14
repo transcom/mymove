@@ -8,12 +8,6 @@ import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 import { mockPage, ReactQueryWrapper } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
 
 const testMoveCode = '1A5PM3';
 const loggedInTIOState = {
@@ -37,9 +31,6 @@ jest.mock('hooks/queries', () => ({
   useTXOMoveInfoQueries: () => {
     return {
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-      move: {
-        lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
-      },
       order: {
         id: '4321',
         customerID: '2468',
@@ -168,25 +159,5 @@ describe('Services Counseling Move Info Container', () => {
         await expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
       },
     );
-  });
-  it('renders a lock icon when move lock flag is on', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    renderSCMoveInfo();
-
-    await waitFor(() => {
-      const lockIcon = screen.queryByTestId('locked-move-banner');
-      expect(lockIcon).toBeInTheDocument();
-    });
-  });
-  it('does NOT render a lock icon when move lock flag is off', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(false);
-
-    renderSCMoveInfo();
-
-    await waitFor(() => {
-      const lockIcon = screen.queryByTestId('locked-move-banner');
-      expect(lockIcon).not.toBeInTheDocument();
-    });
   });
 });

@@ -46,15 +46,14 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   const { moveId } = state;
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (state && state.needsToVerifyProfile) {
-        setNeedsToVerifyProfile(state.needsToVerifyProfile);
-      } else {
-        setNeedsToVerifyProfile(false);
-      }
-      setMultiMove(await isBooleanFlagEnabled('multi_move'));
-    };
-    fetchData();
+    if (state && state.needsToVerifyProfile) {
+      setNeedsToVerifyProfile(state.needsToVerifyProfile);
+    } else {
+      setNeedsToVerifyProfile(false);
+    }
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
   }, [state]);
 
   const handleCreateMoveClick = () => {

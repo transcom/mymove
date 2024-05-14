@@ -5,12 +5,6 @@ import userEvent from '@testing-library/user-event';
 import EditOktaInfoForm from './EditOktaInfoForm';
 
 import { renderWithRouter } from 'testUtils';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
 
 describe('EditOktaInfoForm component', () => {
   const testProps = {
@@ -26,8 +20,6 @@ describe('EditOktaInfoForm component', () => {
   };
 
   it('renders the form inputs', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-
     renderWithRouter(<EditOktaInfoForm {...testProps} />);
 
     const oktaUsername = await screen.findByLabelText('Okta Username');

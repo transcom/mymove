@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
-import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
+import { FormGroup, Label, Radio } from '@trussworks/react-uswds';
 
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
@@ -10,7 +10,6 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import Callout from 'components/Callout';
 
 const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
@@ -33,8 +32,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) =
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ values, isValid, isSubmitting, handleSubmit }) => {
-        const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
+      {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={`${formStyles.form}`}>
             <h1>Tell us about the orders</h1>
@@ -75,40 +73,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) =
                 id="originDutyLocation"
                 required
               />
-
-              {isRetirementOrSeparation ? (
-                <>
-                  <h3>Where are they entitled to move?</h3>
-                  <Callout>
-                    <span>The government will pay for their move to:</span>
-                    <ul>
-                      <li>Home of record (HOR)</li>
-                      <li>Place entered active duty (PLEAD)</li>
-                    </ul>
-                    <p>
-                      It might pay for a move to their Home of selection (HOS), anywhere in CONUS. Check their orders.
-                    </p>
-                    <p>
-                      Read more about where they are entitled to move when leaving the military on{' '}
-                      <USWDSLink
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://www.militaryonesource.mil/military-life-cycle/separation-transition/military-separation-retirement/deciding-where-to-live-when-you-leave-the-military/"
-                      >
-                        Military OneSource.
-                      </USWDSLink>
-                    </p>
-                  </Callout>
-                  <DutyLocationInput
-                    name="newDutyLocation"
-                    label="HOR, PLEAD or HOS"
-                    displayAddress={false}
-                    placeholder="Enter a city or ZIP"
-                  />
-                </>
-              ) : (
-                <DutyLocationInput name="newDutyLocation" label="New duty location" required />
-              )}
+              <DutyLocationInput name="newDutyLocation" label="New duty location" required />
               <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
             </SectionWrapper>
 

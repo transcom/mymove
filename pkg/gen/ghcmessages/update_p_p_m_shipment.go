@@ -23,10 +23,6 @@ type UpdatePPMShipment struct {
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actualMoveDate,omitempty"`
 
-	// The amount received for an advance, or null if no advance is received
-	//
-	AdvanceAmountReceived *int64 `json:"advanceAmountReceived,omitempty"`
-
 	// The amount request for an advance, or null if no advance is requested
 	//
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested,omitempty"`
@@ -51,10 +47,6 @@ type UpdatePPMShipment struct {
 	// Indicates whether PPM shipment has pro gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
-
-	// Indicates whether an advance was received for the PPM shipment.
-	//
-	HasReceivedAdvance *bool `json:"hasReceivedAdvance,omitempty"`
 
 	// Indicates whether an advance has been requested for the PPM shipment.
 	//

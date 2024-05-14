@@ -28,10 +28,16 @@ const getSectionTitle = (sectionInfo) => {
 
 // Returns the markup needed for a specific section
 const getSectionMarkup = (sectionInfo) => {
-  const aoaRequestedValue = sectionInfo.isAdvanceRequested
-    ? `$${formatCents(sectionInfo.advanceAmountRequested)}`
-    : 'No';
-  const aoaValue = sectionInfo.isAdvanceReceived ? `$${formatCents(sectionInfo.advanceAmountReceived)}` : 'No';
+  let aoaValue;
+  let aoaRequestedValue;
+  if (sectionInfo.isAdvanceRequested) {
+    aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
+    if (sectionInfo.isAdvanceReceived) {
+      aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
+    } else aoaValue = 'Not yet received';
+  } else {
+    aoaRequestedValue = 'Not requested';
+  }
 
   switch (sectionInfo.type) {
     case sectionTypes.shipmentInfo:
@@ -79,14 +85,18 @@ const getSectionMarkup = (sectionInfo) => {
             <Label>Gross Incentive</Label>
             <span className={styles.light}>${formatCents(sectionInfo.grossIncentive)}</span>
           </div>
-          <div>
-            <Label>Advance Requested</Label>
-            <span className={styles.light}>{aoaRequestedValue}</span>
-          </div>
-          <div>
-            <Label>Advance Received</Label>
-            <span className={styles.light}>{aoaValue}</span>
-          </div>
+          {sectionInfo.isAdvanceRequested && (
+            <>
+              <div>
+                <Label>Advance Requested</Label>
+                <span className={styles.light}>{aoaRequestedValue}</span>
+              </div>
+              <div>
+                <Label>Advance Received</Label>
+                <span className={styles.light}>{aoaValue}</span>
+              </div>
+            </>
+          )}
           <div>
             <Label>Remaining Incentive</Label>
             <span className={styles.light}>${formatCents(sectionInfo.remainingIncentive)}</span>

@@ -13,22 +13,22 @@
     @include u-border-bottom('base-lighter');
     @include u-padding(2);
 
-    .typeLocator {
-      display: grid;
-      h3 {
-        font-weight: normal;
-        @include u-margin(0);
-        @include u-margin-x(1);
-      }
-
-      h5 {
-        font-weight: normal;
-        @include u-margin(0);
-        @include u-margin-x(1);
-        @include u-text('gray-cool-50', 'normal');
-        @include u-margin-top(0);
-      }
+  .typeLocator {
+    display: grid;
+    h3 {
+      font-weight: normal;
+      @include u-margin(0);
+      @include u-margin-x(1);
     }
+
+    h5 {
+      font-weight: normal;
+      @include u-margin(0);
+      @include u-margin-x(1);
+      @include u-text('gray-cool-50', 'normal');
+      @include u-margin-top(0);
+    }
+  }
 
     .serviceCounselingShipments {
       h3 {

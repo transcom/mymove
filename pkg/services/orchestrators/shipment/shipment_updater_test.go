@@ -209,11 +209,9 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					HasProGear:            models.BoolPointer(true),
-					ProGearWeight:         models.PoundPointer(unit.Pound(1900)),
-					SpouseProGearWeight:   models.PoundPointer(unit.Pound(300)),
-					AdvanceAmountReceived: nil,
-					HasReceivedAdvance:    models.BoolPointer(false),
+					HasProGear:          models.BoolPointer(true),
+					ProGearWeight:       models.PoundPointer(unit.Pound(1900)),
+					SpouseProGearWeight: models.PoundPointer(unit.Pound(300)),
 				},
 			},
 		}, nil)
@@ -221,8 +219,6 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		// set new field to update
 		shipment.PPMShipment.HasProGear = models.BoolPointer(false)
-		shipment.PPMShipment.AdvanceAmountReceived = models.CentPointer(unit.Cents(55000))
-		shipment.PPMShipment.HasReceivedAdvance = models.BoolPointer(true)
 
 		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
 
@@ -237,8 +233,6 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// check we got the latest version back
 		suite.NotEqual(&ppmShipment, mtoShipment.PPMShipment)
 		suite.False(*mtoShipment.PPMShipment.HasProGear)
-		suite.Equal(*mtoShipment.PPMShipment.AdvanceAmountReceived, *shipment.PPMShipment.AdvanceAmountReceived)
-		suite.True(*mtoShipment.PPMShipment.HasReceivedAdvance)
 	})
 
 	serviceObjectErrorTestCases := map[string]struct {

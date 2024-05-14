@@ -1,14 +1,7 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import SearchResultsTable from './SearchResultsTable';
-
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
 
 const mockTableData = [
   {
@@ -26,8 +19,6 @@ const mockTableData = [
     requestedDeliveryDate: '2024-04-10',
     originGBLOC: 'KKFA',
     destinationGBLOC: 'CNNQ',
-    lockExpiresAt: '2099-10-15T23:48:35.420Z',
-    lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
   },
 ];
 
@@ -89,10 +80,6 @@ function mockErrorQuery() {
 }
 
 describe('SearchResultsTable', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('renders a move search', () => {
     render(<SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} />);
     const results = screen.queryByText('Results (1)');
@@ -129,26 +116,6 @@ describe('SearchResultsTable', () => {
     expect(email).toBeInTheDocument();
     const phone = screen.queryByText('212-123-4567');
     expect(phone).toBeInTheDocument();
-  });
-  it('renders a lock icon when move lock flag is on', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    render(<SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} searchType="move" />);
-
-    await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
-      expect(lockIcon).toBeInTheDocument();
-    });
-  });
-  it('does NOT render a lock icon when move lock flag is off', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(false);
-
-    render(<SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} searchType="move" />);
-
-    await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
-      expect(lockIcon).not.toBeInTheDocument();
-    });
   });
   it('renders create move button on customer search', () => {
     render(
