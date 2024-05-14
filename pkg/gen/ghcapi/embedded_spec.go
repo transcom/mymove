@@ -10821,6 +10821,15 @@ func init() {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -23851,6 +23860,15 @@ func init() {
         "amount": {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
+        },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
