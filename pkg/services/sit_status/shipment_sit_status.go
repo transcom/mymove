@@ -199,12 +199,10 @@ func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipme
 		return nil
 	}
 
-	// we want to return the correct add'l SIT service item
+	// we want to return the correct add'l SIT service item based on location
 	for _, serviceItem := range shipmentSITs.currentSITs {
-		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOASIT && location == OriginSITLocation {
-			return &serviceItem
-		}
-		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDDASIT && location == DestinationSITLocation {
+		if (serviceItem.ReService.Code == models.ReServiceCodeDOASIT && location == OriginSITLocation) ||
+			(serviceItem.ReService.Code == models.ReServiceCodeDDASIT && location == DestinationSITLocation) {
 			return &serviceItem
 		}
 	}
