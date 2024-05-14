@@ -154,10 +154,26 @@ const fullShipmentProps = {
         state: 'VA',
         postalCode: '20005',
       },
+      thirdPickupAddress: {
+        streetAddress1: '234 Any St',
+        streetAddress2: '',
+        city: 'Richmond',
+        state: 'VA',
+        postalCode: '20006',
+      },
+      thirdDestinationAddress: {
+        streetAddress1: '234 Any St',
+        streetAddress2: '',
+        city: 'Richmond',
+        state: 'VA',
+        postalCode: '20007',
+      },
       pickupPostalCode: '20002',
-      secondaryPickupPostalCode: '20003',
-      destinationPostalCode: '20004',
+      secondaryPickupPostalCode: '20004',
+      thirdPickupPostalCode: '20006',
+      destinationPostalCode: '20003',
       secondaryDestinationPostalCode: '20005',
+      thirdDestinationPostalCode: '20007',
       sitExpected: true,
       expectedDepartureDate: '2022-12-31',
     },
@@ -833,13 +849,19 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation(fullShipmentProps);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
-      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
+      const YesButtonSelectors = screen.getAllByLabelText('Yes');
 
-      await userEvent.click(inputHasSecondaryZIP[0]);
-      await userEvent.click(inputHasSecondaryZIP[1]);
+      await userEvent.click(YesButtonSelectors[0]);
+      await userEvent.click(YesButtonSelectors[1]);
+      await userEvent.click(YesButtonSelectors[2]);
+      await userEvent.click(YesButtonSelectors[3]);
 
-      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
       const postalCodes = screen.getAllByLabelText('ZIP');
+
+      expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
 
       await waitFor(() => {
         expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
@@ -847,8 +869,10 @@ describe('DateAndLocation component', () => {
 
       expect(postalCodes[0]).toHaveValue('20002');
       expect(postalCodes[1]).toHaveValue('20004');
-      expect(postalCodes[2]).toHaveValue('20003');
-      expect(postalCodes[3]).toHaveValue('20005');
+      expect(postalCodes[2]).toHaveValue('20006');
+      expect(postalCodes[3]).toHaveValue('20003');
+      expect(postalCodes[4]).toHaveValue('20005');
+      expect(postalCodes[5]).toHaveValue('20007');
     });
 
     it('routes back to the home page screen when back is clicked', async () => {
