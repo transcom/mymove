@@ -16,6 +16,7 @@ describe('When given a deleted pro-gear weight ticket upload', () => {
         filename: 'pgWeight.jpg',
         moving_expense_type: '',
         shipment_id_abbr: '125d1',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
         upload_type: 'spouseProGearWeightTicket',
       },
@@ -35,7 +36,7 @@ describe('When given a deleted pro-gear weight ticket upload', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #125D1, Spouse pro-gear')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01, Spouse pro-gear')).toBeInTheDocument();
   });
 
   it('displays details the deleted document', () => {

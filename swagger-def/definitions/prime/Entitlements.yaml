@@ -13,6 +13,9 @@ properties:
     example: true
     type: boolean
     x-nullable: true
+  gunSafe:
+    type: boolean
+    example: false
   nonTemporaryStorage:
     example: false
     type: boolean
