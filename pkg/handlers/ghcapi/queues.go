@@ -20,6 +20,7 @@ import (
 type GetMovesQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
+	services.MoveUnlocker
 }
 
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -76,6 +77,22 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
+			// if this user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
+			}
+
 			queueMoves := payloads.QueueMoves(moves)
 
 			result := &ghcmessages.QueueMovesResult{
@@ -93,6 +110,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 type ListPrimeMovesHandler struct {
 	handlers.HandlerConfig
 	services.MoveTaskOrderFetcher
+	services.MoveUnlocker
 }
 
 // Handle fetches all moves with the option to filter since a particular date. Optimized version.
@@ -126,6 +144,22 @@ func (h ListPrimeMovesHandler) Handle(params queues.ListPrimeMovesParams) middle
 				return queues.NewListPrimeMovesInternalServerError(), err
 			}
 
+			// if this user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range mtos {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						mtos[i] = *unlockedMove
+					}
+				}
+			}
+
 			queueMoves := payloads.ListMoves(&mtos)
 
 			result := ghcmessages.ListPrimeMovesResult{
@@ -144,6 +178,7 @@ func (h ListPrimeMovesHandler) Handle(params queues.ListPrimeMovesParams) middle
 type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerConfig
 	services.PaymentRequestListFetcher
+	services.MoveUnlocker
 }
 
 // Handle returns the paginated list of payment requests for the TIO user
@@ -195,6 +230,22 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				appCtx.Logger().
 					Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
 				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
+			}
+
+			// if this user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, pr := range *paymentRequests {
+					move := pr.MoveTaskOrder
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						unlockedMove, err := h.UnlockMove(appCtx, &move, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						(*paymentRequests)[i].MoveTaskOrder = *unlockedMove
+					}
+				}
 			}
 
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
