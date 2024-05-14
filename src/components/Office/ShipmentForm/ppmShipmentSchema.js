@@ -66,6 +66,7 @@ const ppmShipmentSchema = ({
     estimatedWeight: Yup.number()
       .min(1, 'Enter a weight greater than 0 lbs')
       .max(estimatedWeightLimit, "Note: This weight exceeds the customer's weight allowance.")
+      .typeError('Please enter a valid number')
       .required('Required'),
     hasProGear: Yup.boolean().required('Required'),
     proGearWeight: Yup.number()
