@@ -1259,6 +1259,29 @@ definitions:
           - item
           - crate
           - description
+  MTOServiceItemDomesticStandaloneCrating: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a standalone crating service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service codes allowed for this model type.
+            enum:
+              - DCRTSA # Domestic Standalone Crating
+          item:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: A motorcycle to be crated.
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   MTOServiceItemModelType:
     description: |
       Describes all model sub-types for a MTOServiceItem model.
@@ -1268,6 +1291,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * DCRTSA- MTOServiceItemDomesticStandaloneCrating
 
       The documentation will then update with the supported fields.
 
@@ -1278,6 +1302,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemDomesticStandaloneCrating
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
