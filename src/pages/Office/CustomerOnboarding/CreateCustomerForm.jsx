@@ -177,8 +177,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
         navigate(
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
             customerId,
-            isSafetyMoveSelected,
           }),
+          { state: { isSafetyMoveSelected } },
         );
       })
       .catch((e) => {

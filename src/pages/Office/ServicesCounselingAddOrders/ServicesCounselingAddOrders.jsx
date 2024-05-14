@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingAddOrders.module.scss';
 
@@ -15,11 +14,12 @@ import { formatDateForSwagger } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import Alert from 'types/alert';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 const ServicesCounselingAddOrders = ({ userPrivileges }) => {
-  const { customerId, isSafetyMoveSelected } = useParams();
+  const { customerId } = useParams();
+  const { state } = useLocation();
+  const isSafetyMoveSelected = state?.isSafetyMoveSelected;
   const navigate = useNavigate();
   const handleBack = () => {
     navigate(-1);
@@ -96,12 +96,12 @@ const ServicesCounselingAddOrders = ({ userPrivileges }) => {
     <GridContainer data-testid="main-container">
       <Grid row className={styles.ordersFormContainer} data-testid="orders-form-container">
         <Grid col>
-          {isSafetyMoveSelected && <Alert>Safety Move is selected</Alert>}
           <AddOrdersForm
             onSubmit={handleSubmit}
             ordersTypeOptions={ordersTypeOptions}
             initialValues={initialValues}
             onBack={handleBack}
+            isSafetyMoveSelected={isSafetyMoveSelected}
           />
         </Grid>
       </Grid>
