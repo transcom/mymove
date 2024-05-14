@@ -6568,8 +6568,7 @@ func init() {
         "description",
         "paidWithGTCC",
         "amount",
-        "missingReceipt",
-        "weightStored"
+        "missingReceipt"
       ],
       "properties": {
         "amount": {
@@ -14376,8 +14375,7 @@ func init() {
         "description",
         "paidWithGTCC",
         "amount",
-        "missingReceipt",
-        "weightStored"
+        "missingReceipt"
       ],
       "properties": {
         "amount": {

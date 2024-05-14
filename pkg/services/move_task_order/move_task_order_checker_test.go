@@ -6,11 +6,11 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	. "github.com/transcom/mymove/pkg/services/move_task_order"
+	m "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
-	mtoChecker := NewMoveTaskOrderChecker()
+	mtoChecker := m.NewMoveTaskOrderChecker()
 
 	suite.Run("MTO is available and visible - success", func() {
 		availableMTO := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)

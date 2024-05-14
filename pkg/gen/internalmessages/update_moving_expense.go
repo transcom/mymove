@@ -48,8 +48,7 @@ type UpdateMovingExpense struct {
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
 
 	// The total weight stored in PPM SIT
-	// Required: true
-	WeightStored *int64 `json:"weightStored"`
+	WeightStored int64 `json:"weightStored,omitempty"`
 }
 
 // Validate validates this update moving expense
@@ -81,10 +80,6 @@ func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitStartDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateWeightStored(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -172,15 +167,6 @@ func (m *UpdateMovingExpense) validateSitStartDate(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("sitStartDate", "body", "date", m.SitStartDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMovingExpense) validateWeightStored(formats strfmt.Registry) error {
-
-	if err := validate.Required("weightStored", "body", m.WeightStored); err != nil {
 		return err
 	}
 

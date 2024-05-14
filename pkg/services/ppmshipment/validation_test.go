@@ -234,7 +234,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				DestinationPostalCode: "",
 				SITExpected:           nil,
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 			},
@@ -254,7 +254,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				DestinationPostalCode: "79912",
 				SITExpected:           models.BoolPointer(true),
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, _ models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields were changed
 				suite.Equal(newShipment.ExpectedDepartureDate, mergedShipment.ExpectedDepartureDate)
 				suite.Equal(newShipment.PickupPostalCode, mergedShipment.PickupPostalCode)
@@ -298,7 +298,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				SecondaryPickupPostalCode:      models.StringPointer(""),
 				SecondaryDestinationPostalCode: models.StringPointer(""),
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
 				checkSITDidntChange(mergedShipment, oldShipment)
@@ -665,7 +665,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			newShipment: models.PPMShipment{
 				//hasSecondaryPickupAddress and hasSecondaryDestinationAddress not provided, assumes no deletes
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
 				checkPickupAddressDidntChange(mergedShipment, oldShipment)
 				checkDestinationAddressDidntChange(mergedShipment, oldShipment)
 				checkSecondaryPickupAddressDidntChange(mergedShipment, oldShipment)
@@ -681,7 +681,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			newShipment: models.PPMShipment{
 				HasSecondaryPickupAddress: models.BoolPointer(false),
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
 				checkPickupAddressDidntChange(mergedShipment, oldShipment)
 				checkDestinationAddressDidntChange(mergedShipment, oldShipment)
 				checkSecondaryDestinationAddressDidntChange(mergedShipment, oldShipment)
@@ -700,7 +700,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			newShipment: models.PPMShipment{
 				HasSecondaryDestinationAddress: models.BoolPointer(false),
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkPickupAddressDidntChange(mergedShipment, oldShipment)
 				checkDestinationAddressDidntChange(mergedShipment, oldShipment)
@@ -785,7 +785,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 					PostalCode:     "11111",
 				},
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkPickupAddressDidntChange(mergedShipment, oldShipment)
 				checkDestinationAddressDidntChange(mergedShipment, oldShipment)
@@ -812,7 +812,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 					PostalCode:     "11111",
 				},
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
 				// ensure existing fields weren't changed
 				checkPickupAddressDidntChange(mergedShipment, oldShipment)
 				checkDestinationAddressDidntChange(mergedShipment, oldShipment)
@@ -830,7 +830,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			newShipment: models.PPMShipment{
 				ActualMoveDate: &futureDate,
 			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
+			runChecks: func(_ models.PPMShipment, _ models.PPMShipment, _ models.PPMShipment) {
 			},
 		},
 	}
