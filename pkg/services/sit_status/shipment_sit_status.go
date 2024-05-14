@@ -148,23 +148,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 			} else {
 				shipment.DestinationSITAuthEndDate = &shipmentSITStatus.CurrentSIT.SITAuthorizedEndDate
 			}
-			transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-				verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating the shipment sit auth date")
-				} else if err != nil {
-					return apperror.NewQueryError("shipment", err, "")
-				}
-
-				return nil
-			})
-
-			if transactionError != nil {
-				return nil, shipment, transactionError
-			}
 		}
 	}
-
 	return &shipmentSITStatus, shipment, nil
 }
 
