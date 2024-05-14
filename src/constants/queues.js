@@ -4,12 +4,6 @@ import { roleTypes } from './userRoles';
 
 import MOVE_STATUSES from 'constants/moves';
 
-export const MOVE_STATUS_OPTIONS = [
-  { value: MOVE_STATUSES.SUBMITTED, label: 'New move' },
-  { value: MOVE_STATUSES.APPROVALS_REQUESTED, label: 'Approvals requested' },
-  { value: MOVE_STATUSES.APPROVED, label: 'Move approved' },
-];
-
 // Both moves that progressed straight from customer submission to the TOO
 // queue as well as those that completed services counseling should have the
 // status label of New move
@@ -21,6 +15,25 @@ export const MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.APPROVALS_REQUESTED]: 'Approvals requested',
   [MOVE_STATUSES.APPROVED]: 'Move approved',
 };
+
+export const MOVE_STATUS_OPTIONS = [
+  {
+    value: MOVE_STATUSES.SUBMITTED,
+    label: MOVE_STATUS_LABELS[MOVE_STATUSES.SUBMITTED],
+  },
+  {
+    value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+    label: MOVE_STATUS_LABELS[MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED],
+  },
+  {
+    value: MOVE_STATUSES.APPROVALS_REQUESTED,
+    label: MOVE_STATUSES[MOVE_STATUSES.APPROVALS_REQUESTED],
+  },
+  {
+    value: MOVE_STATUSES.APPROVED,
+    label: MOVE_STATUSES[MOVE_STATUSES.APPROVED],
+  },
+];
 
 export const SEARCH_QUEUE_STATUS_FILTER_OPTIONS = [
   { value: MOVE_STATUSES.DRAFT, label: 'Draft' },
