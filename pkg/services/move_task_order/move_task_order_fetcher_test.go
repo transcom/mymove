@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	. "github.com/transcom/mymove/pkg/services/move_task_order"
+	m "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -61,7 +61,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		return expectedMTO, primeShipment
 	}
 
-	mtoFetcher := NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher()
 
 	suite.Run("Success with fetching a MTO that has a shipment address update", func() {
 		traits := []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved}
@@ -316,7 +316,7 @@ func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {
 		return expectedMTO
 	}
 
-	mtoFetcher := NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher()
 
 	suite.Run("success getting a move using GetMove for Prime user", func() {
 		expectedMTO := setupTestData()
@@ -482,7 +482,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		return hiddenMTO, mto, primeShipment
 	}
 
-	mtoFetcher := NewMoveTaskOrderFetcher()
+	mtoFetcher := m.NewMoveTaskOrderFetcher()
 
 	suite.Run("all move task orders", func() {
 		hiddenMTO, mto, _ := setupTestData()
@@ -618,7 +618,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
 		now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
-	fetcher := NewMoveTaskOrderFetcher()
+	fetcher := m.NewMoveTaskOrderFetcher()
 	page := int64(1)
 	perPage := int64(20)
 	// filling out search params to allow for pagination
@@ -708,7 +708,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 				hasAmendmentsMap[pm.ID] = false
 			}
 
-			suite.MustSave(&pm.Orders)
+			suite.MustSave(&pm.Orders) // #nosec G601 new in 1.22.2
 			upload := models.Upload{
 				Filename:    "test.pdf",
 				Bytes:       1048576,
@@ -734,7 +734,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Require().NoError(suite.DB().RawQuery("UPDATE mto_shipments SET updated_at=$1 WHERE id=$2;",
 			now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
-		fetcher := NewMoveTaskOrderFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher()
 		page := int64(1)
 		perPage := int64(20)
 		// filling out search params to allow for pagination
@@ -811,7 +811,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",
 			now.Add(-10*time.Second), primeMove1.ID, primeMove2.ID).Exec())
 
-		fetcher := NewMoveTaskOrderFetcher()
+		fetcher := m.NewMoveTaskOrderFetcher()
 		page := int64(1)
 		perPage := int64(20)
 		// filling out search params to allow for pagination
