@@ -230,22 +230,12 @@ export class OfficeApp extends Component {
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
-                    {/* HQ */}
-                    <Route
-                      path="/moves/queue"
-                      end
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.HQ]}>
-                          <MoveQueue />
-                        </PrivateRoute>
-                      }
-                    />
                     {/* TXO */}
                     <Route
                       path="/moves/queue"
                       end
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.HQ]}>
                           <MoveQueue />
                         </PrivateRoute>
                       }

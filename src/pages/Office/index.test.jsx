@@ -220,7 +220,7 @@ describe('Office App', () => {
 
     it.each([
       ['Move Queue', '/moves/queue', roleTypes.TOO],
-      ['Move Queue', '/hq-moves/queue', roleTypes.HQ],
+      ['Move Queue', '/moves/queue', roleTypes.HQ],
       ['Payment Request Queue', '/invoicing/queue', roleTypes.TIO],
       ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.SERVICES_COUNSELOR],
       ['Services Counseling Queue', '/counseling', roleTypes.SERVICES_COUNSELOR],
