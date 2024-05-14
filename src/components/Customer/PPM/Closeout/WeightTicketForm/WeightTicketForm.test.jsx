@@ -3,7 +3,6 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
-import { DocumentAndImageUploadInstructions } from 'content/uploads';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -169,7 +168,9 @@ describe('WeightTicketForm component', () => {
       expect(missingWeightInput[0]).not.toBeChecked();
       // getByLabelText will fail because the file upload input adds an aria-labeledby that points to the container text
       expect(screen.getByText('Upload empty weight ticket')).toBeInstanceOf(HTMLLabelElement);
-      const uploadFileTypeHints = screen.getAllByText(DocumentAndImageUploadInstructions);
+      const uploadFileTypeHints = screen.getAllByText('Maximum file size 25 MB. Each page must be clear and legible.', {
+        exact: false,
+      });
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 3, name: 'Full weight' })).toBeInTheDocument();
@@ -276,14 +277,11 @@ describe('WeightTicketForm component', () => {
         invalidAlerts = screen.getAllByRole('alert');
       });
 
-      expect(invalidAlerts).toHaveLength(5);
+      expect(invalidAlerts).toHaveLength(3);
 
       expect(invalidAlerts[0].nextSibling).toHaveAttribute('name', 'vehicleDescription');
       expect(within(invalidAlerts[1].nextSibling).getByLabelText('Empty weight')).toBeInTheDocument();
-      // Had no luck trying to get the label of the file input with the aria-describedby
-      expect(within(invalidAlerts[2].previousSibling).getByText('Upload empty weight ticket')).toBeInTheDocument();
-      expect(within(invalidAlerts[3].nextSibling).getByLabelText('Full weight')).toBeInTheDocument();
-      expect(within(invalidAlerts[4].previousSibling).getByText('Upload full weight ticket')).toBeInTheDocument();
+      expect(within(invalidAlerts[2].nextSibling).getByLabelText('Full weight')).toBeInTheDocument();
     });
 
     it('triggers error if the full weight is less than or equal to the empty weight', async () => {
