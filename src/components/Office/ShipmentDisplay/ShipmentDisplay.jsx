@@ -86,9 +86,12 @@ const ShipmentDisplay = ({
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
           <div className={classnames(styles.headingTagWrapper, styles.serviceCounselingShipments)}>
-            <h3>
-              <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-            </h3>
+            <div className={styles.typeLocator}>
+              <h3>
+                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+              </h3>
+              <h5>#{displayInfo.shipmentLocator}</h5>
+            </div>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
@@ -186,6 +189,7 @@ ShipmentDisplay.propTypes = {
       tacType: PropTypes.string,
       sacType: PropTypes.string,
       ntsRecordedWeight: PropTypes.number,
+      shipmentLocator: PropTypes.string,
     }),
     PropTypes.shape({
       heading: PropTypes.string.isRequired,
