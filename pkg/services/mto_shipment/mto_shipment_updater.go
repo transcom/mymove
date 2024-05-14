@@ -629,14 +629,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			// excess weight risk depending on the weight allowance and other shipment estimated weights
 			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
 				// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
-				move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
-				if verrs != nil && verrs.HasAny() {
-					return errors.New(verrs.Error())
-				}
-				if err != nil {
-					return err
-				}
-				// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
 
 				existingMoveStatus := move.Status
 				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
