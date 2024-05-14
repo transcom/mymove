@@ -101,7 +101,7 @@ func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
 	})
 
 	suite.Run("Returns an error if one of the files fails to convert", func() {
-		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
+		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 		})
 
@@ -179,7 +179,7 @@ func (suite *PaperworkServiceSuite) TestUserUploadToPDFConverter() {
 
 		timesGotenbergServerCalled := 0
 
-		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, r *http.Request) {
+		mockGotenbergServer := suite.setUpMockGotenbergServer(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusOK)
 
 			_, err := io.Copy(w, expectedFiles[timesGotenbergServerCalled].pdf)

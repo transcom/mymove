@@ -77,6 +77,7 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 		PhoneIsPreferred:     &payload.PhoneIsPreferred,
 		EmailIsPreferred:     &payload.EmailIsPreferred,
 		BackupMailingAddress: backupAddress,
+		CacValidated:         payload.CacValidated,
 	}
 }
 
@@ -450,6 +451,8 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
+		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)

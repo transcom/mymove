@@ -182,6 +182,7 @@ func (p *herePlanner) LatLongTransitDistance(appCtx appcontext.AppContext, sourc
 			return 0, NewUnroutableRouteError(resp.StatusCode, source, dest)
 		}
 		return 0, NewUnknownRoutingError(resp.StatusCode, source, dest)
+		//nolint:revive // revive complains about the else block being unnecessary but it is needed here for clarity
 	} else {
 		distanceMiles, err := getDistanceMiles(resp.Body)
 		if err != nil {

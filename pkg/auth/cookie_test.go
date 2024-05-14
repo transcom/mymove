@@ -43,7 +43,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
 	milSession := sessionManagers.Mil
 
 	var resultingSession *Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
 	appnames := ApplicationTestServername()
@@ -66,7 +66,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := MaskedCSRFMiddleware(false)(handler)
 	middleware.ServeHTTP(rr, req)
 
@@ -93,7 +93,7 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesNewToken() {
 	}
 	req.AddCookie(&cookie)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := MaskedCSRFMiddleware(false)(handler)
 
 	middleware.ServeHTTP(rr, req)
@@ -117,7 +117,7 @@ func (suite *authSuite) TestMiddlewareMilApp() {
 	rr := httptest.NewRecorder()
 
 	appnames := ApplicationTestServername()
-	milMoveTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	milMoveTestHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		session := SessionFromRequestContext(r)
 		suite.True(session.IsMilApp(), "first should be milmove app")
 		suite.False(session.IsOfficeApp(), "first should not be office app")
@@ -142,7 +142,7 @@ func (suite *authSuite) TestMiddlwareOfficeApp() {
 	rr := httptest.NewRecorder()
 
 	appnames := ApplicationTestServername()
-	officeTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	officeTestHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		session := SessionFromRequestContext(r)
 		suite.False(session.IsMilApp(), "should not be milmove app")
 		suite.True(session.IsOfficeApp(), "should be office app")
@@ -167,7 +167,7 @@ func (suite *authSuite) TestMiddlwareAdminApp() {
 	rr := httptest.NewRecorder()
 
 	appnames := ApplicationTestServername()
-	adminTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	adminTestHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		session := SessionFromRequestContext(r)
 		suite.False(session.IsMilApp(), "should not be milmove app")
 		suite.False(session.IsOfficeApp(), "should not be office app")
@@ -191,7 +191,7 @@ func (suite *authSuite) TestMiddlwareAdminApp() {
 func (suite *authSuite) TestMiddlewareBadApp() {
 	rr := httptest.NewRecorder()
 
-	noAppTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	noAppTestHandler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		suite.Fail("Should not be called")
 	})
 	appnames := ApplicationTestServername()
