@@ -82,6 +82,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				MilesLower:            2001,
 				MilesUpper:            2500,
 				PriceMillicents:       unit.Millicents(412400),
+				IsPeakPeriod:          true,
 			},
 		})
 
@@ -95,7 +96,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Service:               dopService,
 				DomesticServiceAreaID: originDomesticServiceArea.ID,
 				DomesticServiceArea:   originDomesticServiceArea,
-				IsPeakPeriod:          false,
+				IsPeakPeriod:          true,
 				PriceCents:            unit.Cents(404),
 			},
 		})
@@ -127,7 +128,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Service:               ddpService,
 				DomesticServiceAreaID: destDomesticServiceArea.ID,
 				DomesticServiceArea:   destDomesticServiceArea,
-				IsPeakPeriod:          false,
+				IsPeakPeriod:          true,
 				PriceCents:            unit.Cents(832),
 			},
 		})
@@ -140,7 +141,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Contract:     originDomesticServiceArea.Contract,
 				ServiceID:    dpkService.ID,
 				Service:      dpkService,
-				IsPeakPeriod: false,
+				IsPeakPeriod: true,
 				Schedule:     3,
 				PriceCents:   7395,
 			},
@@ -154,7 +155,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Contract:     destDomesticServiceArea.Contract,
 				ServiceID:    dupkService.ID,
 				Service:      dupkService,
-				IsPeakPeriod: false,
+				IsPeakPeriod: true,
 				Schedule:     2,
 				PriceCents:   597,
 			},
@@ -170,7 +171,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Service:               dofsitService,
 				DomesticServiceAreaID: originDomesticServiceArea.ID,
 				DomesticServiceArea:   originDomesticServiceArea,
-				IsPeakPeriod:          false,
+				IsPeakPeriod:          true,
 				PriceCents:            1153,
 			},
 		})
@@ -185,7 +186,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Service:               doasitService,
 				DomesticServiceAreaID: originDomesticServiceArea.ID,
 				DomesticServiceArea:   originDomesticServiceArea,
-				IsPeakPeriod:          false,
+				IsPeakPeriod:          true,
 				PriceCents:            46,
 			},
 		})
@@ -200,7 +201,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Service:               ddfsitService,
 				DomesticServiceAreaID: destDomesticServiceArea.ID,
 				DomesticServiceArea:   destDomesticServiceArea,
-				IsPeakPeriod:          false,
+				IsPeakPeriod:          true,
 				PriceCents:            1612,
 			},
 		})
@@ -215,7 +216,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				Service:               ddasitService,
 				DomesticServiceAreaID: destDomesticServiceArea.ID,
 				DomesticServiceArea:   destDomesticServiceArea,
-				IsPeakPeriod:          false,
+				IsPeakPeriod:          true,
 				PriceCents:            55,
 			},
 		})
