@@ -441,10 +441,22 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ListFetcher:   fetch.NewListFetcher(queryBuilder),
 	}
 
+	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(queryBuilder,
+		fetch.NewFetcher(queryBuilder),
+		handlerConfig.HHGPlanner(),
+		moveRouter,
+		move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
+		handlerConfig.NotificationSender(),
+		paymentRequestShipmentRecalculator,
+		addressUpdater,
+		addressCreator)
+	sitExtensionShipmentUpdater := shipment.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+
 	ghcAPI.ShipmentApproveSITExtensionHandler = ApproveSITExtensionHandler{
 		handlerConfig,
 		sitextension.NewSITExtensionApprover(moveRouter),
 		shipmentSITStatus,
+		sitExtensionShipmentUpdater,
 	}
 
 	ghcAPI.ShipmentDenySITExtensionHandler = DenySITExtensionHandler{
@@ -464,6 +476,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		sitextension.NewApprovedSITDurationUpdateCreator(),
 		shipmentSITStatus,
+		sitExtensionShipmentUpdater,
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{handlerConfig}
