@@ -3,7 +3,7 @@ package movetaskorder_test
 import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	. "github.com/transcom/mymove/pkg/services/move_task_order"
+	m "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -11,7 +11,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 	builder := query.NewQueryBuilder()
-	mtoCreator := NewMoveTaskOrderCreator(builder)
+	mtoCreator := m.NewMoveTaskOrderCreator(builder)
 
 	order := factory.BuildOrder(suite.DB(), nil, nil)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)

@@ -227,6 +227,7 @@ func (e InvalidInputError) Error() string {
 		return fmt.Sprintf("Invalid input received. %s", e.ValidationErrors)
 	} else if e.ValidationErrors != nil {
 		return fmt.Sprintf("Invalid input for ID: %s. %s", e.id.String(), e.ValidationErrors)
+		//nolint:revive
 	} else {
 		return ("Invalid Input.")
 	}

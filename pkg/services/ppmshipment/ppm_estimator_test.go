@@ -1546,7 +1546,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}
 
 			for _, testCase := range shipmentTestCases {
-				_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), testCase.oldShipment, &testCase.newShipment)
+				_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), testCase.oldShipment, &testCase.newShipment) //#nosec G601
 				suite.NoError(err, fmt.Sprintf("unexpected error running test %q", testCase.name))
 				suite.Nil(estimatedSITCost, fmt.Sprintf("SIT cost was calculated when it shouldnt't have been during test %q", testCase.name))
 			}
