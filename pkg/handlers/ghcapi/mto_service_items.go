@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -19,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -140,6 +142,9 @@ type UpdateMTOServiceItemStatusHandler struct {
 	handlers.HandlerConfig
 	services.MTOServiceItemUpdater
 	services.Fetcher
+	services.ShipmentSITStatus
+	services.MTOShipmentFetcher
+	services.ShipmentUpdater
 }
 
 // Handle handler that handles the handling for updating service item status
@@ -208,6 +213,34 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 					appCtx.Logger().Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
 					return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError(), err
 				}
+			}
+
+			// on service item update, update the shipment SIT auth end date
+			mtoshipmentID := existingMTOServiceItem.MTOShipment.ID
+			eagerAssociations := []string{"MTOServiceItems",
+				"MTOServiceItems.SITDepartureDate",
+				"MTOServiceItems.SITEntryDate",
+				"MTOServiceItems.ReService",
+				"SITDurationUpdates",
+			}
+			shipment, err := mtoshipment.FindShipment(appCtx, mtoshipmentID, eagerAssociations...)
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Could not find a shipment for the service item with ID: %s: %s", mtoServiceItemID, err))
+				return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError(), err
+			}
+
+			_, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", shipment.ID, err))
+				return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError(), err
+			}
+
+			existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+
+			shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
+				return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError(), err
 			}
 
 			// trigger webhook event for Prime
