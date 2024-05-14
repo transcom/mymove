@@ -477,10 +477,10 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if appCtx.Session() != nil {
 		// if the user is an office user, we need to unlock any moves that they have locked
-		if appCtx.Session().IsOfficeApp() {
+		if appCtx.Session().IsOfficeApp() && appCtx.Session().OfficeUserID != uuid.Nil {
 			moveUnlocker := movelocker.NewMoveUnlocker()
 			officeUserID := appCtx.Session().OfficeUserID
-			err := moveUnlocker.CheckForUnlockedMovesAndUnlock(appCtx, officeUserID)
+			err := moveUnlocker.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
 			if err != nil {
 				appCtx.Logger().Error("failed to unlock moves for office user")
 			}

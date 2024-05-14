@@ -110,11 +110,9 @@ func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
-	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := ListPrimeMovesHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
-		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1461,9 +1459,11 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	request := httptest.NewRequest("GET", "/queues/counseling", nil)
 	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	return subtestData

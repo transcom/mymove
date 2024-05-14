@@ -65,12 +65,13 @@ func (m moveUnlocker) UnlockMove(appCtx appcontext.AppContext, move *models.Move
 
 // CheckForUnlockedMovesAndUnlock finds moves with the officeUserID in the locked_by column for the move
 // this service object is called when a user logs out
-func (m moveUnlocker) CheckForUnlockedMovesAndUnlock(appCtx appcontext.AppContext, officeUserID uuid.UUID) error {
+func (m moveUnlocker) CheckForLockedMovesAndUnlock(appCtx appcontext.AppContext, officeUserID uuid.UUID) error {
 
 	if officeUserID == uuid.Nil {
 		return apperror.NewQueryError("OfficeUserID", nil, "No office user provided in request to unlock move")
 	}
 
+	// get all moves where locked_by matches officeUserID
 	var moves []models.Move
 	query := appCtx.DB().Where("locked_by = ?", officeUserID)
 	err := query.Eager(
@@ -81,7 +82,7 @@ func (m moveUnlocker) CheckForUnlockedMovesAndUnlock(appCtx appcontext.AppContex
 		return err
 	}
 
-	// iterate through each move and clear the values by using our existing function above
+	// iterate through each move and clear the values by using our existing service object above
 	if appCtx.Session().IsOfficeUser() {
 		for _, move := range moves {
 			lockedOfficeUserID := move.LockedByOfficeUserID
