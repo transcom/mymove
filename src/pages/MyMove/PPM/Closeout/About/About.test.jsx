@@ -139,17 +139,32 @@ const fillOutBasicForm = async (form) => {
   within(form).getByLabelText('When did you leave your origin?').focus();
   await userEvent.paste('31 May 2022');
 
-  within(form).getByLabelText('Starting ZIP').focus();
-  await userEvent.paste('10001', {
-    initialSelectionStart: 0,
-    initialSelectionEnd: 5,
-  });
+  within(form).getAllByLabelText('Address 1')[0].focus();
+  await userEvent.paste('812 S 129th St');
 
-  within(form).getByLabelText('Ending ZIP').focus();
-  await userEvent.paste('10002', {
-    initialSelectionStart: 0,
-    initialSelectionEnd: 5,
-  });
+  within(form)
+    .getAllByLabelText(/Address 2/)[0]
+    .focus();
+  await userEvent.paste('#123');
+
+  within(form).getAllByLabelText('City')[0].focus();
+  await userEvent.paste('San Antonio');
+
+  await userEvent.selectOptions(within(form).getByLabelText('State')[0], 'TX');
+
+  within(form).getAllByLabelText('ZIP')[0].focus();
+  await userEvent.paste('78232');
+
+  within(form).getAllByLabelText('Address 1')[2].focus();
+  await userEvent.paste('441 SW Rio de la Plata Drive');
+
+  within(form).getAllByLabelText('City')[2].focus();
+  await userEvent.paste('Tacoma');
+
+  await userEvent.selectOptions(within(form).getByLabelText('State')[2], 'WA');
+
+  within(form).getAllByLabelText('ZIP')[2].focus();
+  await userEvent.paste('98421');
 
   within(form).getByLabelText('Address 1').focus();
   await userEvent.paste('10642 N Second Ave');
