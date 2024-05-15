@@ -23,7 +23,7 @@ func (suite *ModelSuite) Test_FetchParameterValue() {
 
 	// if the value is not found, it should return an empty string
 	wrongValue := "Testcode123456"
-	var nilString *string = nil
+	var nilString *string
 	shouldNotHaveValue, err := models.FetchParameterValue(suite.DB(), param, wrongValue)
 	suite.NoError(err)
 	suite.Equal(nilString, shouldNotHaveValue.ParameterValue)
