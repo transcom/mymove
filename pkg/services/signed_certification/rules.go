@@ -113,7 +113,7 @@ func checkCertificationType() signedCertificationValidator {
 
 // checkCertificationText check that the CertificationText is not empty
 func checkCertificationText() signedCertificationValidator {
-	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, originalSignedCertification *models.SignedCertification) error {
+	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, _ *models.SignedCertification) error {
 		verrs := validate.NewErrors()
 
 		if newSignedCertification.CertificationText == "" {
@@ -126,7 +126,7 @@ func checkCertificationText() signedCertificationValidator {
 
 // checkSignature check that the Signature is not empty
 func checkSignature() signedCertificationValidator {
-	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, originalSignedCertification *models.SignedCertification) error {
+	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, _ *models.SignedCertification) error {
 		verrs := validate.NewErrors()
 
 		if newSignedCertification.Signature == "" {
@@ -139,7 +139,7 @@ func checkSignature() signedCertificationValidator {
 
 // checkDate checks that the Date is valid
 func checkDate() signedCertificationValidator {
-	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, originalSignedCertification *models.SignedCertification) error {
+	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, _ *models.SignedCertification) error {
 		verrs := validate.NewErrors()
 
 		if newSignedCertification.Date.IsZero() {

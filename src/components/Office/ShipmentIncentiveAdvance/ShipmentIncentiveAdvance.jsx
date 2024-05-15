@@ -15,7 +15,8 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [statusInput, , statusHelper] = useField('advanceStatus');
 
   const advanceRequested = String(advanceInput.value) === 'true';
-  const advanceRequestStatus = statusInput.value === ADVANCE_STATUSES.APPROVED.apiValue;
+  const advanceRequestStatus =
+    statusInput.value === ADVANCE_STATUSES.APPROVED.apiValue || statusInput.value === ADVANCE_STATUSES.EDITED.apiValue;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);

@@ -5639,6 +5639,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -6031,6 +6034,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -6109,6 +6115,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -6834,6 +6843,24 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -7639,6 +7666,20 @@ func init() {
           "type": "string",
           "example": "1K43AR"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orders": {
           "$ref": "#/definitions/Order"
         },
@@ -8078,6 +8119,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -8172,6 +8219,9 @@ func init() {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "transportationOfficeId": {
           "type": "string",
@@ -9477,6 +9527,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -9556,6 +9620,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "moveID": {
           "type": "string",
@@ -10056,6 +10130,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"
@@ -10645,6 +10729,9 @@ func init() {
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cac_validated": {
+          "type": "boolean"
+        },
         "current_address": {
           "allOf": [
             {
@@ -10756,6 +10843,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -10852,6 +10943,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
@@ -10882,6 +10979,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -18531,6 +18633,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -18923,6 +19028,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -19001,6 +19109,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -19726,6 +19837,24 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -20531,6 +20660,20 @@ func init() {
           "type": "string",
           "example": "1K43AR"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orders": {
           "$ref": "#/definitions/Order"
         },
@@ -20970,6 +21113,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -21064,6 +21213,9 @@ func init() {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "transportationOfficeId": {
           "type": "string",
@@ -22371,6 +22523,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -22450,6 +22616,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "moveID": {
           "type": "string",
@@ -23000,6 +23176,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"
@@ -23595,6 +23781,9 @@ func init() {
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cac_validated": {
+          "type": "boolean"
+        },
         "current_address": {
           "allOf": [
             {
@@ -23706,6 +23895,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -23802,6 +23995,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
@@ -23832,6 +24031,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },

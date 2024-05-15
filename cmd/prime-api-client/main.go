@@ -532,7 +532,7 @@ func main() {
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
 		Long:  "To install completion scripts run:\n\nprime-api-client completion > /usr/local/etc/bash_completion.d/prime-api-client",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			return root.GenBashCompletion(os.Stdout)
 		},
 	}

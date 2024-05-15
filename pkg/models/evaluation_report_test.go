@@ -124,6 +124,7 @@ func (suite *ModelSuite) TestReport() {
 	}
 	for name, test := range testCases {
 		suite.Run(name, func() {
+			//nolint:gosec //G601
 			suite.verifyValidationErrors(&test.report, test.expectedErrors)
 		})
 	}
