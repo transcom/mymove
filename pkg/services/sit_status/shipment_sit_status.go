@@ -122,12 +122,14 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		sitCustomerContacted = currentSIT.SITCustomerContacted
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
 
-		doaSIT := getAdditionalSIT(shipmentSITs, shipment, today)
+		// we need to grab the add'l day SIT service item because the departure date, requested delivery, and customer contacted values
+		// are the ones we care about when displaying them in the SIT dashboard for office users
+		additionalDaysSIT := getAdditionalSIT(shipmentSITs, shipment, today, location)
 
-		if doaSIT != nil {
-			sitCustomerContacted = doaSIT.SITCustomerContacted
-			sitRequestedDelivery = doaSIT.SITRequestedDelivery
-			sitDepartureDate = doaSIT.SITDepartureDate
+		if additionalDaysSIT != nil {
+			sitCustomerContacted = additionalDaysSIT.SITCustomerContacted
+			sitRequestedDelivery = additionalDaysSIT.SITRequestedDelivery
+			sitDepartureDate = additionalDaysSIT.SITDepartureDate
 		}
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
@@ -186,7 +188,7 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
 
 // Private function getAdditionalSIT is used to return the current SIT
 // service item with the reServiceCode of DOASIT or DDASIT
-func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipment, today time.Time) *models.MTOServiceItem {
+func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipment, today time.Time, location string) *models.MTOServiceItem {
 	for _, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
 		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
@@ -205,8 +207,10 @@ func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipme
 		return nil
 	}
 
+	// we want to return the correct add'l SIT service item based on location
 	for _, serviceItem := range shipmentSITs.currentSITs {
-		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT {
+		if (serviceItem.ReService.Code == models.ReServiceCodeDOASIT && location == OriginSITLocation) ||
+			(serviceItem.ReService.Code == models.ReServiceCodeDDASIT && location == DestinationSITLocation) {
 			return &serviceItem
 		}
 	}
