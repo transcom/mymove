@@ -20,11 +20,12 @@ export const OktaInfoFields = ({ legend, className, render }) => {
           <TextField label="First Name" name={firstNameFieldName} id="oktaFirstName" required />
           <TextField label="Last Name" name={lastNameFieldName} id="oktaLastName" required />
           <TextField
-            label="DoD ID number | EDIPI"
+            label="DoD ID number"
             name={edipiFieldName}
             id="oktaEdipi"
             maxLength="10"
             inputMode="numeric"
+            isDisabled
           />
         </>,
       )}

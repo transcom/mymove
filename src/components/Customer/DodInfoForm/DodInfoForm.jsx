@@ -17,9 +17,6 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string()
-      .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
-      .required('Required'),
   });
 
   return (
@@ -45,6 +42,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 maxLength="10"
                 inputMode="numeric"
                 pattern="[0-9]{10}"
+                isDisabled
               />
             </SectionWrapper>
 
