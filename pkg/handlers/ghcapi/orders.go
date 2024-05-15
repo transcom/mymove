@@ -301,6 +301,24 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 			newOrder.Moves = append(newOrder.Moves, *newMove)
 
+			// if creating a Safety Move, clear out the DoDID and Okta ID for the customer
+			if newOrder.OrdersType == "SAFETY_MOVE" {
+				err = models.UpdateUserOktaID(appCtx.DB(), &newOrder.ServiceMember.User, "")
+
+				if err != nil {
+					appCtx.Logger().Error("Authorization error updating user", zap.Error(err))
+					return orderop.NewUpdateOrderInternalServerError(), err
+					// ***figure out error above to return, do we do a roleback if this doesn't work?
+				}
+
+				err = models.UpdateServiceMemberDoDID(appCtx.DB(), &newOrder.ServiceMember, nil)
+
+				if err != nil {
+					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
+					return orderop.NewUpdateOrderInternalServerError(), err
+					// ***figure out error above to return, do we do a roleback if this doesn't work?
+				}
+			}
 			order := (models.Order)(newOrder)
 
 			orderPayload := payloads.Order(&order)
