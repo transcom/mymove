@@ -270,7 +270,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	// Creating the OktaUserPayload struct
 	oktaPayload := models.OktaUserPayload{
 		Profile:  profile,
-		GroupIDs: []string{customerGroupID},
+		GroupIds: []string{customerGroupID},
 	}
 
 	// getting okta domain url for request
