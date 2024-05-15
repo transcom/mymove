@@ -2331,9 +2331,9 @@ definitions:
             type: string
             example: Storage items need to be picked up
             description: >
-              The contractor's explanation for why an item needed to be crated or
-              uncrated. Used by the TOO while deciding to approve or reject the
-              service item.
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
             x-nullable: true
             x-omitempty: false
         required:
