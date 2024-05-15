@@ -597,7 +597,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		AmendedOrdersAcknowledgedAt:    handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
 		MoveCode:                       moveCode,
 		MoveTaskOrderID:                moveTaskOrderID,
-		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(*order.OriginDutyLocationGBLOC),
+		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
 	}
 
 	return &payload
@@ -1735,21 +1735,19 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
-		var gbloc ghcmessages.GBLOC
+		var gbloc string
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
-		} else if len(move.ShipmentGBLOC) > 0 {
+			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+		} else if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
 			// though there can never be more than one GBLOC for a move.
-			if move.ShipmentGBLOC[0].GBLOC != nil {
-				gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
-			}
+			gbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
-			gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
 		var closeoutLocation string
 		if move.CloseoutOffice != nil {
@@ -1776,7 +1774,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
-			OriginGBLOC:             gbloc,
+			OriginGBLOC:             ghcmessages.GBLOC(gbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
@@ -1947,21 +1945,19 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			deliveryDate = nil
 		}
 
-		var originGBLOC ghcmessages.GBLOC
+		var originGBLOC string
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
-		} else if len(move.ShipmentGBLOC) > 0 {
+			originGBLOC = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+		} else if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
 			// though there can never be more than one GBLOC for a move.
-			if move.ShipmentGBLOC[0].GBLOC != nil {
-				originGBLOC = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
-			}
+			originGBLOC = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
-			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+			originGBLOC = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
 
 		var destinationGBLOC ghcmessages.GBLOC
@@ -1994,7 +1990,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			OrderType:                         string(move.Orders.OrdersType),
 			RequestedPickupDate:               pickupDate,
 			RequestedDeliveryDate:             deliveryDate,
-			OriginGBLOC:                       originGBLOC,
+			OriginGBLOC:                       ghcmessages.GBLOC(originGBLOC),
 			DestinationGBLOC:                  destinationGBLOC,
 			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockExpiresAt:                     handlers.FmtDateTimePtr(move.LockExpiresAt),
