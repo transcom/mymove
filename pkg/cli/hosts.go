@@ -20,7 +20,7 @@ const (
 	HTTPOrdersServerNameFlag string = "http-orders-server-name"
 	// HTTPPrimeServerNameFlag is the HTTP GHC Prime Server Name Flag
 	HTTPPrimeServerNameFlag string = "http-prime-server-name"
-	// HTTPPPTASServerNameFlag is the HTTP GHC Prime Server Name Flag
+	// HTTPPPTASServerNameFlag is the HTTP PPTAS Prime Server Name Flag
 	HTTPPPTASServerNameFlag string = "http-pptas-server-name"
 	// HTTPMyServerNameLocal is the HTTP My Server Name for Local
 	HTTPMyServerNameLocal string = "milmovelocal"
