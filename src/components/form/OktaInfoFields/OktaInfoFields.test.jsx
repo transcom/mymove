@@ -12,10 +12,12 @@ describe('OktaInfoFields component', () => {
       </Formik>,
     );
     expect(screen.getByLabelText('Okta Username')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('Okta Username')).toBeDisabled();
     expect(screen.getByLabelText('Okta Email')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByLabelText('First Name')).toBeInstanceOf(HTMLInputElement);
     expect(screen.getByLabelText('Last Name')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('DoD ID number | EDIPI')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('DoD ID number')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByLabelText('DoD ID number')).toBeDisabled();
   });
 
   describe('with pre-filled values', () => {
@@ -34,10 +36,12 @@ describe('OktaInfoFields component', () => {
         </Formik>,
       );
       expect(await screen.findByLabelText('Okta Username')).toHaveValue(initialValues.oktaUsername);
+      expect(screen.getByLabelText('Okta Username')).toBeDisabled();
       expect(screen.getByLabelText('Okta Email')).toHaveValue(initialValues.oktaEmail);
       expect(screen.getByLabelText('First Name')).toHaveValue(initialValues.oktaFirstName);
       expect(screen.getByLabelText('Last Name')).toHaveValue(initialValues.oktaLastName);
-      expect(screen.getByLabelText('DoD ID number | EDIPI')).toHaveValue(initialValues.oktaEdipi);
+      expect(screen.getByLabelText('DoD ID number')).toHaveValue(initialValues.oktaEdipi);
+      expect(screen.getByLabelText('DoD ID number')).toBeDisabled();
     });
   });
 });
