@@ -70,6 +70,10 @@ class MtoShipmentForm extends Component {
     secondaryPickup,
     hasSecondaryDelivery,
     secondaryDelivery,
+    hasThirdDelivery,
+    hasThirdPickup,
+    thirdDelivery,
+    thirdPickup,
   }) => {
     const {
       router: { navigate, params },
@@ -96,6 +100,10 @@ class MtoShipmentForm extends Component {
       secondaryPickup: hasSecondaryPickup === 'yes' ? secondaryPickup : {},
       hasSecondaryDelivery: hasSecondaryDelivery === 'yes',
       secondaryDelivery: hasSecondaryDelivery === 'yes' ? secondaryDelivery : {},
+      hasThirdPickup: hasThirdPickup === 'yes',
+      thirdPickup: hasThirdPickup === 'yes' ? thirdPickup : {},
+      hasThirdDelivery: hasThirdDelivery === 'yes',
+      thirdDelivery: hasThirdDelivery === 'yes' ? thirdDelivery : {},
     };
 
     const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);
@@ -175,7 +183,8 @@ class MtoShipmentForm extends Component {
         onSubmit={this.submitMTOShipment}
       >
         {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
-          const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
+          const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery, hasThirdPickup, hasThirdDelivery } =
+            values;
 
           const handleUseCurrentResidenceChange = (e) => {
             const { checked } = e.target;
@@ -292,6 +301,41 @@ class MtoShipmentForm extends Component {
                                   </div>
                                 </FormGroup>
                                 {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
+                                {hasSecondaryPickup === 'yes' && (
+                                  <div>
+                                    <FormGroup>
+                                      <p>Do you want movers to pick up any belongings from a third address?</p>
+                                      <div className={formStyles.radioGroup}>
+                                        <Field
+                                          as={Radio}
+                                          id="has-third-pickup"
+                                          data-testid="has-third-pickup"
+                                          label="Yes"
+                                          name="hasThirdPickup"
+                                          value="yes"
+                                          title="Yes, I have a third pickup location"
+                                          checked={hasThirdPickup === 'yes'}
+                                        />
+                                        <Field
+                                          as={Radio}
+                                          id="no-third-pickup"
+                                          data-testid="no-third-pickup"
+                                          label="No"
+                                          name="hasThirdPickup"
+                                          value="no"
+                                          title="No, I do not have a third pickup location"
+                                          checked={hasThirdPickup !== 'yes'}
+                                        />
+                                      </div>
+                                    </FormGroup>
+                                  </div>
+                                )}
+                                {hasThirdPickup === 'yes' && hasSecondaryPickup === 'yes' && (
+                                  <>
+                                    <h3>Third pickup location</h3>
+                                    <AddressFields name="thirdPickup.address" />
+                                  </>
+                                )}
                               </>
                             )}
                           />
@@ -388,6 +432,41 @@ class MtoShipmentForm extends Component {
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'yes' && (
                                       <AddressFields name="secondaryDelivery.address" />
+                                    )}
+                                    {hasSecondaryDelivery === 'yes' && (
+                                      <div>
+                                        <FormGroup>
+                                          <p>Do you want movers to deliver any belongings to a third address?</p>
+                                          <div className={formStyles.radioGroup}>
+                                            <Field
+                                              as={Radio}
+                                              id="has-third-delivery"
+                                              data-testid="has-third-delivery"
+                                              label="Yes"
+                                              name="hasThirdDelivery"
+                                              value="yes"
+                                              title="Yes, I have a third delivery location"
+                                              checked={hasThirdDelivery === 'yes'}
+                                            />
+                                            <Field
+                                              as={Radio}
+                                              id="no-third-delivery"
+                                              data-testid="no-third-delivery"
+                                              label="No"
+                                              name="hasThirdDelivery"
+                                              value="no"
+                                              title="No, I do not have a third delivery location"
+                                              checked={hasThirdDelivery !== 'yes'}
+                                            />
+                                          </div>
+                                        </FormGroup>
+                                      </div>
+                                    )}
+                                    {hasThirdDelivery === 'yes' && hasSecondaryDelivery === 'yes' && (
+                                      <>
+                                        <h3>Third delivery location</h3>
+                                        <AddressFields name="thirdDelivery.address" />
+                                      </>
                                     )}
                                   </>
                                 )}
