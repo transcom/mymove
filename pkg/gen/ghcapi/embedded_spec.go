@@ -5554,6 +5554,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -5945,6 +5948,9 @@ func init() {
         },
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "edipi": {
           "type": "string",
@@ -18293,6 +18299,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -18684,6 +18693,9 @@ func init() {
         },
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "edipi": {
           "type": "string",

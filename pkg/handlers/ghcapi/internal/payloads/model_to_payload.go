@@ -501,6 +501,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
 		BackupContact:      bc,
+		CacValidated:       swag.BoolValue(&sm.CacValidated),
 	}
 	return &payload
 }
