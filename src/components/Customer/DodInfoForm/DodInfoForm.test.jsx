@@ -7,7 +7,7 @@ import DodInfoForm from './DodInfoForm';
 describe('DodInfoForm component', () => {
   const testProps = {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-    initialValues: { affiliation: '', edipi: '1234567890' },
+    initialValues: { affiliation: '', edipi: '' },
     onBack: jest.fn(),
   };
 
@@ -19,7 +19,19 @@ describe('DodInfoForm component', () => {
       expect(getByLabelText('Branch of service')).toBeRequired();
 
       expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('DOD ID number')).toBeDisabled();
+      expect(getByLabelText('DOD ID number')).toBeRequired();
+    });
+  });
+
+  it('validates the DOD ID number on blur', async () => {
+    const { getByLabelText, getByText } = render(<DodInfoForm {...testProps} />);
+
+    await userEvent.type(getByLabelText('DOD ID number'), 'not a valid ID number');
+    await userEvent.tab();
+
+    await waitFor(() => {
+      expect(getByLabelText('DOD ID number')).not.toBeValid();
+      expect(getByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
     });
   });
 
@@ -32,7 +44,7 @@ describe('DodInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(1);
+      expect(getAllByText('Required').length).toBe(2);
       expect(submitBtn).toBeDisabled();
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();

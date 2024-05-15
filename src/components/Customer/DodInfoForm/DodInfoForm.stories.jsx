@@ -12,7 +12,7 @@ export default {
 };
 
 export const DefaultState = (argTypes) => (
-  <DodInfoForm initialValues={{ edipi: '9999999999' }} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  <DodInfoForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
 );
 
 export const WithInitialValues = (argTypes) => (

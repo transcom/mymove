@@ -33,13 +33,12 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 			// if the "Local Sign In" is clicked we are going to send back dummy values
 			sess := appCtx.Session()
 			if sess.IDToken == "devlocal" {
-				dummyEdipi := "1234567890"
 				oktaUserPayload := internalmessages.OktaUserProfileData{
-					Login:     "devlocal@mail.com",
-					Email:     "devlocal@mail.com",
-					FirstName: "dev",
-					LastName:  "local",
-					CacEdipi:  &dummyEdipi,
+					Login:     "devlocal",
+					Email:     "devlocal",
+					FirstName: "devlocal",
+					LastName:  "devlocal",
+					CacEdipi:  nil,
 					Sub:       "devlocal",
 				}
 				return oktaop.NewShowOktaInfoOK().WithPayload(&oktaUserPayload), nil

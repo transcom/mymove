@@ -19,7 +19,7 @@ export const DefaultState = (argTypes) => (
       last_name: '',
       suffix: '',
       affiliation: '',
-      edipi: '9999999999',
+      edipi: '',
       grade: '',
       current_location: {},
     }}
