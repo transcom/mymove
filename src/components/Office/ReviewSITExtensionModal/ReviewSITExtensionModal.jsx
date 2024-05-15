@@ -216,7 +216,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAllowanceEndDate, swaggerDateFormat)),
+    sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAuthorizedEndDate, swaggerDateFormat)),
   };
   const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
