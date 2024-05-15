@@ -208,6 +208,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                     <Field
                       as={Radio}
                       id="yes-has-received-advance"
+                      data-testid="yes-has-received-advance"
                       label="Yes"
                       name="hasReceivedAdvance"
                       value="true"
@@ -216,6 +217,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                     <Field
                       as={Radio}
                       id="no-has-received-advance"
+                      data-testid="no-has-received-advance"
                       label="No"
                       name="hasReceivedAdvance"
                       value="false"

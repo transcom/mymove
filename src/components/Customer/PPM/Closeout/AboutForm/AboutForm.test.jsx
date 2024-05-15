@@ -85,9 +85,9 @@ describe('AboutForm component', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('No')).toBeChecked(); // Has advance received is set to No by default
+      expect(screen.getByTestId('yes-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('no-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('no-has-received-advance')).toBeChecked(); // Has advance received is set to No by default
 
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -132,8 +132,8 @@ describe('AboutForm component', () => {
         expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('19 May 2022');
       });
 
-      expect(screen.getByLabelText('Yes')).toBeChecked();
-      expect(screen.getByLabelText('No')).not.toBeChecked();
+      expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
+      expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
       expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,234');
 
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
@@ -210,7 +210,7 @@ describe('AboutForm component', () => {
       expect(requiredAlerts[9]).toHaveTextContent('Required');
       expect(requiredAlerts[9].nextElementSibling).toHaveAttribute('name', 'actualDestinationPostalCode');
 
-      await userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByTestId('yes-has-received-advance'));
 
       await waitFor(() => {
         expect(screen.getByLabelText('How much did you receive?')).toBeInTheDocument();
@@ -243,7 +243,7 @@ describe('AboutForm component', () => {
     it('displays error when advance received is below 1 dollar minimum', async () => {
       render(<AboutForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByLabelText('Yes'));
+      await userEvent.click(screen.getByTestId('yes-has-received-advance'));
 
       await userEvent.type(screen.getByLabelText('How much did you receive?'), '0');
 
