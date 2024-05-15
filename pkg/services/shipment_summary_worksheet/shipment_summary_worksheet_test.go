@@ -474,13 +474,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNo
 	spouseHasProGear := false
 	hasDependants := false
 	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
-	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
+	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight + allotment.ProGearWeightSpouse
 	sswEntitlement := SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
-	suite.Equal(unit.Pound(0), sswEntitlement.SpouseProGear)
+	suite.Equal(unit.Pound(500), sswEntitlement.SpouseProGear)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatLocation() {
