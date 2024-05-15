@@ -95,6 +95,9 @@ func (h GetMTOServiceItemHandler) Handle(params mtoserviceitemop.GetMTOServiceIt
 type UpdateServiceItemSitEntryDateHandler struct {
 	handlers.HandlerConfig
 	sitEntryDateUpdater services.SitEntryDateUpdater
+	services.ShipmentSITStatus
+	services.MTOShipmentFetcher
+	services.ShipmentUpdater
 }
 
 func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.UpdateServiceItemSitEntryDateParams) middleware.Responder {
@@ -129,6 +132,35 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 					validate.NewErrors())
 
 				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateUnprocessableEntity().WithPayload(payload), err
+			}
+
+			// on service item sit entry date update, update the shipment SIT auth end date
+			mtoshipmentID := *serviceItem.MTOShipmentID
+			if mtoshipmentID != uuid.Nil {
+				eagerAssociations := []string{"MTOServiceItems",
+					"MTOServiceItems.SITDepartureDate",
+					"MTOServiceItems.SITEntryDate",
+					"MTOServiceItems.ReService",
+					"SITDurationUpdates",
+				}
+				shipment, err := mtoshipment.FindShipment(appCtx, mtoshipmentID, eagerAssociations...)
+				if shipment != nil {
+					_, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+					if err != nil {
+						appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", shipment.ID, err))
+					}
+
+					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+					if err != nil {
+						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
+					}
+
+				}
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Could not find a shipment for the service item with ID: %s: %s", mtoServiceItemID, err))
+				}
 			}
 
 			payload := payloads.MTOServiceItemSingleModel(serviceItem)

@@ -742,6 +742,32 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		return params
 	}
 
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+	mockSender := suite.TestNotificationSender()
+	addressUpdater := address.NewAddressUpdater()
+	addressCreator := address.NewAddressCreator()
+	moveRouter := moveservices.NewMoveRouter()
+
+	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
+	ppmEstimator := mocks.PPMEstimator{}
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+
 	suite.Run("200 - success response", func() {
 		// setting up test data
 		params := setupTestData()
@@ -768,6 +794,9 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		handler := UpdateServiceItemSitEntryDateHandler{
 			HandlerConfig:       suite.HandlerConfig(),
 			sitEntryDateUpdater: &sitEntryDateUpdater,
+			ShipmentSITStatus:   sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:  shipmentFetcher,
+			ShipmentUpdater:     shipmentUpdater,
 		}
 
 		response := handler.Handle(params)
@@ -791,6 +820,9 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		handler := UpdateServiceItemSitEntryDateHandler{
 			HandlerConfig:       suite.HandlerConfig(),
 			sitEntryDateUpdater: &sitEntryDateUpdater,
+			ShipmentSITStatus:   sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:  shipmentFetcher,
+			ShipmentUpdater:     shipmentUpdater,
 		}
 
 		response := handler.Handle(params)
