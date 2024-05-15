@@ -3550,8 +3550,9 @@ paths:
         Searches for an application parameter by name and value, returns nil if
         not found
       description: >-
-        Searches for an application parameter by name and value, returns nil if
-        not found
+        The system will provide a parameter name given to them and if the name
+        provided is present in the database, then it will return the value
+        associated with that name
       operationId: validate
       tags:
         - application_parameters
