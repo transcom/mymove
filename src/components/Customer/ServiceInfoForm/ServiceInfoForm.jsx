@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -13,9 +13,20 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
+  const [isDodidDisabled, setIsDodidDisabled] = useState(false);
+
+  useEffect(() => {
+    // checking feature flag to see if DODID input should be disabled
+    // this data pulls from Okta and doens't let the customer update it
+    const fetchData = async () => {
+      setIsDodidDisabled(await isBooleanFlagEnabled('okta_dodid_input'));
+    };
+    fetchData();
+  }, []);
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),
@@ -23,9 +34,11 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     last_name: Yup.string().required('Required'),
     suffix: Yup.string(),
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string()
-      .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
-      .required('Required'),
+    edipi: isDodidDisabled
+      ? Yup.string().notRequired()
+      : Yup.string()
+          .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
+          .required('Required'),
   });
 
   return (
@@ -75,6 +88,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                     maxLength="10"
                     inputMode="numeric"
                     pattern="[0-9]{10}"
+                    isDisabled={isDodidDisabled}
                   />
                 </Grid>
               </Grid>
