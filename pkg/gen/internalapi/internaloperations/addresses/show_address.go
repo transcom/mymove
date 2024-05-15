@@ -34,7 +34,7 @@ func NewShowAddress(ctx *middleware.Context, handler ShowAddressHandler) *ShowAd
 
 # Returns an address
 
-FInd by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.
+Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.
 */
 type ShowAddress struct {
 	Context *middleware.Context
