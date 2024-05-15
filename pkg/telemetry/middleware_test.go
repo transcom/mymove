@@ -37,7 +37,7 @@ func (suite *TelemetrySuite) runOtelHTTPMiddleware(samplingFraction float64) (tr
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", fakeURL, nil)
 
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		routePattern := RoutePatternFromContext(r.Context())
 		if routePattern != nil {
 			*routePattern = fakeRoutePattern

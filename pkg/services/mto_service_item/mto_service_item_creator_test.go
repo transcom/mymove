@@ -337,10 +337,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		verrs := validate.NewErrors()
 		verrs.Add("test", expectedError)
 
-		fakeCreateOne := func(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(_ appcontext.AppContext, _ interface{}) (*validate.Errors, error) {
 			return verrs, errors.New(expectedError)
 		}
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+		fakeFetchOne := func(_ appcontext.AppContext, _ interface{}, _ []services.QueryFilter) error {
 			return nil
 		}
 		fakeTx := func(appCtx appcontext.AppContext, fn func(txnAppCtx appcontext.AppContext) error) error {

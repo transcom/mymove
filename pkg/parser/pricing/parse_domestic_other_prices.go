@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var parseDomesticOtherPricesPack processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticOtherPricesPack processXlsxSheet = func(_ appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 8 // 2c) Domestic Other Prices
 	const rowIndexStart int = 12
