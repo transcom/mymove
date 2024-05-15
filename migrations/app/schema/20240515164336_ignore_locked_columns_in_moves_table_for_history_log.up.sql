@@ -10,7 +10,6 @@ SELECT add_audit_history_table(
         'orders_id',
         'contractor_id',
         'excess_weight_upload_id',
-		'selected_move_type',
         'locked_by',
         'lock_expires_at'
     ]
