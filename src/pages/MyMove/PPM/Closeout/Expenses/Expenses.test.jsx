@@ -286,6 +286,7 @@ describe('Expenses page', () => {
           SITEndDate: undefined,
           SITStartDate: undefined,
           paidWithGTCC: true,
+          WeightStored: 0,
         },
         mockExpense.eTag,
       );
@@ -324,6 +325,7 @@ describe('Expenses page', () => {
           SITEndDate: undefined,
           SITStartDate: undefined,
           paidWithGTCC: false,
+          WeightStored: 0,
         },
         mockExpense.eTag,
       );
@@ -363,6 +365,7 @@ describe('Expenses page', () => {
           SITEndDate: '2022-10-11',
           SITStartDate: '2022-10-10',
           paidWithGTCC: false,
+          WeightStored: 0,
         },
         mockExpense.eTag,
       );
