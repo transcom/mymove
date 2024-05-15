@@ -556,6 +556,30 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
 			})
 		})
+		site.Route("/prime/v3", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.PrimeV3SwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("Prime Simulator API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+
+			// Mux for prime simulator API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
+				rAuth.Use(middleware.NoCache())
+				api := primeapiv3.NewPrimeAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
 		site.Route("/prime/pptas", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
