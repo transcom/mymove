@@ -166,15 +166,15 @@ const fillOutBasicForm = async (form) => {
   within(form).getAllByLabelText('ZIP')[2].focus();
   await userEvent.paste('98421');
 
-  within(form).getByLabelText('Address 1').focus();
+  within(form).getAllByLabelText('Address 1')[4].focus();
   await userEvent.paste('10642 N Second Ave');
 
-  within(form).getByLabelText('City').focus();
+  within(form).getAllByLabelText('City')[4].focus();
   await userEvent.paste('Goldsboro');
 
-  await userEvent.selectOptions(within(form).getAllByLabelText('State'), 'NC');
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[4], 'NC');
 
-  within(form).getByLabelText('ZIP').focus();
+  within(form).getAllByLabelText('ZIP')[4].focus();
   await userEvent.paste('27534');
 };
 
