@@ -20,11 +20,17 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
@@ -292,6 +298,33 @@ func (suite *HandlerSuite) createServiceItem() (models.MTOServiceItem, models.Mo
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
+
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+	// Get shipment payment request recalculator service
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+	mockSender := suite.TestNotificationSender()
+	addressUpdater := address.NewAddressUpdater()
+	addressCreator := address.NewAddressCreator()
+	moveRouter := moveservices.NewMoveRouter()
+
+	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
+	ppmEstimator := mocks.PPMEstimator{}
+	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+
 	moveTaskOrderID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
 	var requestUser models.User
@@ -328,6 +361,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
+			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:    shipmentFetcher,
+			ShipmentUpdater:       shipmentUpdater,
 		}
 
 		// Validate incoming payload
@@ -363,6 +399,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
+			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:    shipmentFetcher,
+			ShipmentUpdater:       shipmentUpdater,
 		}
 
 		// Validate incoming payload
@@ -399,6 +438,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
+			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:    shipmentFetcher,
+			ShipmentUpdater:       shipmentUpdater,
 		}
 
 		// Validate incoming payload
@@ -435,6 +477,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
+			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:    shipmentFetcher,
+			ShipmentUpdater:       shipmentUpdater,
 		}
 
 		// Validate incoming payload
@@ -464,6 +509,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: &serviceItemStatusUpdater,
 			Fetcher:               &fetcher,
+			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:    shipmentFetcher,
+			ShipmentUpdater:       shipmentUpdater,
 		}
 
 		// Validate incoming payload
@@ -514,6 +562,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
+			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:    shipmentFetcher,
+			ShipmentUpdater:       shipmentUpdater,
 		}
 
 		// Validate incoming payload
@@ -571,6 +622,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HandlerConfig:         suite.HandlerConfig(),
 			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
 			Fetcher:               fetcher,
+			ShipmentSITStatus:     sitstatus.NewShipmentSITStatus(),
+			MTOShipmentFetcher:    shipmentFetcher,
+			ShipmentUpdater:       shipmentUpdater,
 		}
 
 		// Validate incoming payload
