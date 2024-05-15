@@ -1271,7 +1271,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v19-spectral-lint-
+            - v20-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1330,7 +1330,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v19-spectral-lint-{{ .BuildNum }}
+                key: v20-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
