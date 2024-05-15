@@ -29,8 +29,8 @@ type FilterOption func(*pop.Query)
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if !appCtx.Session().IsOfficeUser() &&
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) || !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TOO office role",
 				)
