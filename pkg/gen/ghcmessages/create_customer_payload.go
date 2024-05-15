@@ -30,6 +30,9 @@ type CreateCustomerPayload struct {
 		Address
 	} `json:"backupMailingAddress,omitempty"`
 
+	// cac user
+	CacUser bool `json:"cacUser,omitempty"`
+
 	// create okta account
 	CreateOktaAccount bool `json:"createOktaAccount,omitempty"`
 
