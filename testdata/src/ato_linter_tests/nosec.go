@@ -14,7 +14,7 @@ package ato_linter_tests
 // RA Validator Status:  {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
 // RA Modified Severity: CAT III
 // #nosec G402
-func nosecAnnotationNotApprovedTemplate() {}
+//func nosecAnnotationNotApprovedTemplate() {}
 
 // RA Summary: gosec - G501 - Weak cryptographic hash  // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Security-Workflow"
 // RA: This line was flagged because of the use of MD5 hashing
@@ -26,7 +26,7 @@ func nosecAnnotationNotApprovedTemplate() {}
 // RA Validator Status:
 // RA Modified Severity: CAT III
 // #nosec G501
-func nosecAnnotationNotApprovedEmpty() {}
+//func nosecAnnotationNotApprovedEmpty() {}
 
 // RA Summary: gosec - errcheck - Unchecked return value
 // RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -37,4 +37,4 @@ func nosecAnnotationNotApprovedEmpty() {}
 // RA Validator: jneuner@mitre.org
 // RA Modified Severity: N/A
 // #nosec G307
-func nosecAnnotationApproved() {}
+// func nosecAnnotationApproved() {}

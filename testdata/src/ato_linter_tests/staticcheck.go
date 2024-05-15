@@ -60,7 +60,7 @@ package ato_linter_tests
 // RA Validator Status:
 // RA Modified Severity: CAT III
 // lint:ignore SA2002
-func staticcheckAnnotationNotApprovedEmpty() {}
+// func staticcheckAnnotationNotApprovedEmpty() {}
 
 // RA Summary: staticcheck - ST1021 - Unchecked return value
 // RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -71,4 +71,4 @@ func staticcheckAnnotationNotApprovedEmpty() {}
 // RA Validator: jneuner@mitre.org
 // RA Modified Severity: N/A
 // lint:ignore ST1021
-func staticcheckAnnotationApproved() {}
+// func staticcheckAnnotationApproved() {}

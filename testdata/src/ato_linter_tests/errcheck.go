@@ -22,7 +22,7 @@ package ato_linter_tests
 // RA Validator Status:
 // RA Modified Severity: N/A
 // nolint:errcheck
-func errcheckAnnotationNotApprovedEmpty() {}
+// func errcheckAnnotationNotApprovedEmpty() {}
 
 // RA Summary: gosec - errcheck - Unchecked return value
 // RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -33,4 +33,4 @@ func errcheckAnnotationNotApprovedEmpty() {}
 // RA Validator: jneuner@mitre.org
 // RA Modified Severity: N/A
 // nolint:errcheck
-func errcheckAnnotationApproved() {}
+// func errcheckAnnotationApproved() {}
