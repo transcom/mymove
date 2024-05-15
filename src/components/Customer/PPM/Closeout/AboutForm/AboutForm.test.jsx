@@ -49,8 +49,8 @@ const mtoShipmentProps = {
         state: 'WA',
         postalCode: '98421',
       },
-      hasSecondaryPickupAddress: 'true',
-      hasSecondaryDestinationAddress: 'true',
+      hasSecondaryPickupAddress: 'false',
+      hasSecondaryDestinationAddress: 'false',
       hasReceivedAdvance: true,
       advanceAmountReceived: 123456,
       w2Address: {
