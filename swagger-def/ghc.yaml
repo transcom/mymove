@@ -3809,6 +3809,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: 'definitions/Address.yaml'
+      cacValidated:
+        type: boolean
   CreatedCustomer:
     type: object
     properties:
@@ -3868,6 +3870,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: 'definitions/Address.yaml'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3912,6 +3916,8 @@ definitions:
       backupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
@@ -3963,6 +3969,8 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
       createOktaAccount:
+        type: boolean
+      cacUser:
         type: boolean
   SearchCustomersResult:
     type: object
