@@ -2571,7 +2571,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "The customer's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false,
@@ -7773,7 +7773,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "The customer's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false,

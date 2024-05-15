@@ -58,7 +58,7 @@ type MTOServiceItemDomesticStandaloneCrating struct {
 	// Enum: [DCRTSA]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// The customer's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+	// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
 	//
 	// Example: Storage items need to be picked up
 	Reason *string `json:"reason"`
@@ -179,7 +179,7 @@ func (m *MTOServiceItemDomesticStandaloneCrating) UnmarshalJSON(raw []byte) erro
 		// Enum: [DCRTSA]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// The customer's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
 		//
 		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
@@ -282,7 +282,7 @@ func (m MTOServiceItemDomesticStandaloneCrating) MarshalJSON() ([]byte, error) {
 		// Enum: [DCRTSA]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// The customer's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
 		//
 		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
