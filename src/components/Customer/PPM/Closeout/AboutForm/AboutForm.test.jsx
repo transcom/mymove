@@ -64,15 +64,6 @@ const mtoShipmentProps = {
   },
 };
 
-const mtoShipmentWithZips = {
-  mtoShipment: {
-    ppmShipment: {
-      pickupPostalCode: '78234',
-      destinationPostalCode: '98421',
-    },
-  },
-};
-
 const fillOutBasicForm = async () => {
   let form;
   await waitFor(() => {
@@ -106,7 +97,7 @@ const fillOutBasicForm = async () => {
 
   await userEvent.selectOptions(within(form).getAllByLabelText('State')[1], 'WA');
 
-  within(form).getAllBy('ZIP')[1].focus();
+  within(form).getAllByLabelText('ZIP')[1].focus();
   await userEvent.paste('98421');
 
   within(form).getAllByLabelText('Address 1')[2].focus();
@@ -124,7 +115,7 @@ const fillOutBasicForm = async () => {
 describe('AboutForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
-      render(<AboutForm {...defaultProps} {...mtoShipmentWithZips} />);
+      render(<AboutForm {...defaultProps} {...mtoShipmentProps} />);
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
@@ -143,17 +134,11 @@ describe('AboutForm component', () => {
       expect(screen.getAllByLabelText('State')[0]).toHaveValue('');
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('');
 
-      expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
-      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[2]).toHaveValue('');
-      expect(screen.getAllByLabelText('State')[2]).toHaveValue('');
-      expect(screen.getAllByLabelText('ZIP')[2]).toHaveValue('');
-
-      expect(screen.getAllByLabelText('Address 1')[4]).toHaveDisplayValue('');
-      expect(screen.getAllByLabelText(/Address 2/)[4]).toHaveDisplayValue('');
-      expect(screen.getAllByLabelText('City')[4]).toHaveDisplayValue('');
-      expect(screen.getAllByLabelText('State')[4]).toHaveValue('');
-      expect(screen.getAllByLabelText('ZIP')[4]).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('State')[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('');
 
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
@@ -170,11 +155,11 @@ describe('AboutForm component', () => {
       expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
       expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,234');
 
-      expect(screen.getAllByLabelText('Address 1')[4]).toHaveDisplayValue('11 NE Elm Road');
-      expect(screen.getAllByLabelText(/Address 2/)[4]).toHaveDisplayValue('');
-      expect(screen.getAllByLabelText('City')[4]).toHaveDisplayValue('Jacksonville');
-      expect(screen.getAllByLabelText('State')[4]).toHaveDisplayValue('FL');
-      expect(screen.getAllByLabelText('ZIP')[4]).toHaveDisplayValue('32217');
+      expect(screen.getAllByLabelText('Address 1')[2]).toHaveDisplayValue('11 NE Elm Road');
+      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText('City')[2]).toHaveDisplayValue('Jacksonville');
+      expect(screen.getAllByLabelText('State')[2]).toHaveDisplayValue('FL');
+      expect(screen.getAllByLabelText('ZIP')[2]).toHaveDisplayValue('32217');
 
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });

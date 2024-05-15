@@ -52,8 +52,45 @@ const mockMTOShipment = {
     id: mockPPMShipmentId,
     shipmentId: mockMTOShipmentId,
     status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
-    pickupPostalCode: '10001',
-    destinationPostalCode: '10002',
+    actualPickupPostalCode: '78234',
+    actualDestinationPostalCode: '98421',
+    pickupAddress: {
+      streetAddress1: '812 S 129th St',
+      streetAddress2: '#123',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '812 S 129th St',
+      streetAddress2: '#124',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
+    destinationAddress: {
+      streetAddress1: '441 SW Rio de la Plata Drive',
+      city: 'Tacoma',
+      state: 'WA',
+      postalCode: '98421',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '442 SW Rio de la Plata Drive',
+      city: 'Tacoma',
+      state: 'WA',
+      postalCode: '98421',
+    },
+    hasSecondaryPickupAddress: 'true',
+    hasSecondaryDestinationAddress: 'true',
+    hasReceivedAdvance: true,
+    advanceAmountReceived: 123456,
+    w2Address: {
+      streetAddress1: '11 NE Elm Road',
+      streetAddress2: '',
+      city: 'Jacksonville',
+      state: 'FL',
+      postalCode: '32217',
+    },
     expectedDepartureDate: '2022-04-30',
     hasRequestedAdvance: true,
     advanceAmountRequested: 598700,
@@ -64,10 +101,6 @@ const mockMTOShipment = {
     proGearWeight: null,
     spouseProGearWeight: null,
     actualMoveDate: null,
-    actualPickupPostalCode: null,
-    actualDestinationPostalCode: null,
-    hasReceivedAdvance: null,
-    advanceAmountReceived: null,
     weightTickets: [],
     createdAt: ppmShipmentCreatedDate.toISOString(),
     updatedAt: approvedDate.toISOString(),
@@ -80,16 +113,31 @@ const mockMTOShipment = {
 
 const partialPayload = {
   actualMoveDate: '2022-05-31',
-  actualPickupPostalCode: '10001',
-  actualDestinationPostalCode: '10002',
+  actualPickupPostalCode: '78234',
+  actualDestinationPostalCode: '98421',
+  pickupAddress: {
+    streetAddress1: '812 S 129th St',
+    streetAddress2: '#123',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
+  destinationAddress: {
+    streetAddress1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postalCode: '98421',
+  },
+  hasSecondaryPickupAddress: 'false',
+  hasSecondaryDestinationAddress: 'false',
   hasReceivedAdvance: true,
-  advanceAmountReceived: 750000,
+  advanceAmountReceived: 123456,
   w2Address: {
-    streetAddress1: '10642 N Second Ave',
+    streetAddress1: '11 NE Elm Road',
     streetAddress2: '',
-    city: 'Goldsboro',
-    state: 'NC',
-    postalCode: '27534',
+    city: 'Jacksonville',
+    state: 'FL',
+    postalCode: '32217',
   },
 };
 
@@ -179,7 +227,7 @@ const fillOutBasicForm = async (form) => {
 };
 
 const fillOutAdvanceSections = async (form) => {
-  await userEvent.click(within(form).getByLabelText('Yes'));
+  await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
 
   within(form).getByLabelText('How much did you receive?').focus();
   await userEvent.paste('7500');
