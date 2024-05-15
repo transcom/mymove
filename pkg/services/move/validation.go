@@ -96,7 +96,7 @@ func checkPrimeAvailability() validator {
 // remarksNeededForFinancialFlag checks to make sure that the FinancialReviewRemarks field is properly populated when the
 // FinancialReviewFlag is set to true.
 func remarksNeededForFinancialFlag() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, move models.Move, delta *models.Move) error {
+	return validatorFunc(func(_ appcontext.AppContext, move models.Move, delta *models.Move) error {
 		verrs := validate.NewErrors()
 		// We don't want nil remarks if we're setting the flag to true.
 		if delta != nil && delta.FinancialReviewFlag && delta.FinancialReviewRemarks == nil {
@@ -118,7 +118,7 @@ func remarksNeededForFinancialFlag() validator {
 // checkFinancialFlagRemoval checks to make sure that the FinancialReviewFlagSetAt and FinancialReviewRemarks fields are set to
 // nil when the FinancialReviewFlag is being set to false.
 func checkFinancialFlagRemoval() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, move models.Move, delta *models.Move) error {
+	return validatorFunc(func(_ appcontext.AppContext, move models.Move, delta *models.Move) error {
 		verrs := validate.NewErrors()
 		// If the flag is set to false, then the time stamp and remarks fields should be nil-ed out.
 		if delta != nil && !delta.FinancialReviewFlag {

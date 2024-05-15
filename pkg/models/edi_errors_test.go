@@ -71,7 +71,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 
 	for name, test := range testCases {
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&test.ediError, test.expectedErrs) // #nosec G402
+			// nolint:gosec //G402
+			suite.verifyValidationErrors(&test.ediError, test.expectedErrs)
 
 		})
 	}

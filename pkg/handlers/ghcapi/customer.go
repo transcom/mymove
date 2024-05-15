@@ -154,7 +154,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				cacValidated = true
 			}
 
-			transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 				var verrs *validate.Errors
 				// creating a user and populating okta values (for now these can be null)
 				user, userErr := models.CreateUser(appCtx.DB(), oktaSub, email)
@@ -270,7 +270,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	// Creating the OktaUserPayload struct
 	oktaPayload := models.OktaUserPayload{
 		Profile:  profile,
-		GroupIds: []string{customerGroupID},
+		GroupIDs: []string{customerGroupID},
 	}
 
 	// getting okta domain url for request

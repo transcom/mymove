@@ -25,5 +25,5 @@ type OktaBodyProfile struct {
 // Okta account POST Req body
 type OktaAccountCreationBody struct {
 	Profile  OktaBodyProfile `json:"profile"`
-	GroupIds []string        `json:"groupIds"`
+	GroupIDs []string        `json:"groupIds"`
 }
