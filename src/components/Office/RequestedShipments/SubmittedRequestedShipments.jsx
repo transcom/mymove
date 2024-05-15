@@ -48,6 +48,7 @@ const SubmittedRequestedShipments = ({
   errorIfMissing,
   displayDestinationType,
   mtoServiceItems,
+  isMoveLocked,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -221,6 +222,7 @@ const SubmittedRequestedShipments = ({
                   editURL={editUrl}
                   /* eslint-disable-next-line react/jsx-props-no-spreading */
                   {...formik.getFieldProps(`shipments`)}
+                  isMoveLocked={isMoveLocked}
                 />
               );
             })}
