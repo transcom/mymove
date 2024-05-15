@@ -467,6 +467,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
+		CacValidated:       swag.BoolValue(&customer.CacValidated),
 	}
 	return &payload
 }
@@ -501,6 +502,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
 		BackupContact:      bc,
+		CacValidated:       swag.BoolValue(&sm.CacValidated),
 	}
 	return &payload
 }
@@ -616,6 +618,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
+	gunSafe := entitlement.GunSafe
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -629,7 +632,8 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		ETag: etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe: gunSafe,
+		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

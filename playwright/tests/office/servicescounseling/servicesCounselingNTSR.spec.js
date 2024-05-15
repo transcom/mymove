@@ -15,7 +15,7 @@ test.describe('Services counselor user', () => {
     await expect(page.getByTestId('ShipmentContainer')).toHaveCount(2);
 
     // Find the card for the NTS shipment, then click the edit button
-    const container = await scPage.getShipmentContainerByType('NTS-release');
+    const container = await scPage.getShipmentContainerByType('NTS');
     await container.getByRole('button', { name: 'Edit Shipment' }).click();
     await scPage.waitForPage.editNTSReleaseShipment();
 
