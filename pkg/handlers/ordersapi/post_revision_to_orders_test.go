@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 	}
 
 	handler := PostRevisionToOrdersHandler{suite.HandlerConfig()}
-	suite.T().Run("Success", func(t *testing.T) {
+	suite.T().Run("Success", func(_ *testing.T) {
 		response := handler.Handle(params)
 
 		suite.IsType(&ordersoperations.PostRevisionToOrdersCreated{}, response)
@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 		suite.Equal(rev.LosingUnit.PostalCode, storedRev.LosingUnitPostalCode)
 	})
 
-	suite.T().Run("SeqNumConflict", func(t *testing.T) {
+	suite.T().Run("SeqNumConflict", func(_ *testing.T) {
 		// Sending the amendment again should result in a conflict because the SeqNum will be taken
 		response := handler.Handle(params)
 		suite.IsType(&handlers.ErrResponse{}, response)
@@ -177,7 +177,7 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 	testCases["AirForce"].cert.AllowAirForceOrdersWrite = false
 
 	for name, testCase := range testCases {
-		suite.T().Run(name, func(t *testing.T) {
+		suite.T().Run(name, func(_ *testing.T) {
 			// prime the DB with an order with 1 revision
 			assertions := testdatagen.Assertions{
 				ElectronicOrder: models.ElectronicOrder{

@@ -14,7 +14,7 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -277,13 +277,13 @@ commands:
       - create_dot_go_version
       - restore_cache:
           keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
 
   save_cache_for_go:
     steps:
       - create_dot_go_version
       - save_cache:
-          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          key: go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
             - '~/transcom/mymove/bin/swagger'
