@@ -5,6 +5,8 @@ import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { connect } from 'react-redux';
 
+import { statesList } from '../../../constants/states';
+
 import styles from './CreateCustomerForm.module.scss';
 
 import { Form } from 'components/form/Form';
@@ -28,59 +30,6 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const statesList = [
-    { value: 'AL', key: 'AL' },
-    { value: 'AK', key: 'AK' },
-    { value: 'AR', key: 'AR' },
-    { value: 'AZ', key: 'AZ' },
-    { value: 'CA', key: 'CA' },
-    { value: 'CO', key: 'CO' },
-    { value: 'CT', key: 'CT' },
-    { value: 'DC', key: 'DC' },
-    { value: 'DE', key: 'DE' },
-    { value: 'FL', key: 'FL' },
-    { value: 'GA', key: 'GA' },
-    { value: 'HI', key: 'HI' },
-    { value: 'IA', key: 'IA' },
-    { value: 'ID', key: 'ID' },
-    { value: 'IL', key: 'IL' },
-    { value: 'IN', key: 'IN' },
-    { value: 'KS', key: 'KS' },
-    { value: 'KY', key: 'KY' },
-    { value: 'LA', key: 'LA' },
-    { value: 'MA', key: 'MA' },
-    { value: 'MD', key: 'MD' },
-    { value: 'ME', key: 'ME' },
-    { value: 'MI', key: 'MI' },
-    { value: 'MN', key: 'MN' },
-    { value: 'MO', key: 'MO' },
-    { value: 'MS', key: 'MS' },
-    { value: 'MT', key: 'MT' },
-    { value: 'NC', key: 'NC' },
-    { value: 'ND', key: 'ND' },
-    { value: 'NE', key: 'NE' },
-    { value: 'NH', key: 'NH' },
-    { value: 'NJ', key: 'NJ' },
-    { value: 'NM', key: 'NM' },
-    { value: 'NV', key: 'NV' },
-    { value: 'NY', key: 'NY' },
-    { value: 'OH', key: 'OH' },
-    { value: 'OK', key: 'OK' },
-    { value: 'OR', key: 'OR' },
-    { value: 'PA', key: 'PA' },
-    { value: 'RI', key: 'RI' },
-    { value: 'SC', key: 'SC' },
-    { value: 'SD', key: 'SD' },
-    { value: 'TN', key: 'TN' },
-    { value: 'TX', key: 'TX' },
-    { value: 'UT', key: 'UT' },
-    { value: 'VA', key: 'VA' },
-    { value: 'VT', key: 'VT' },
-    { value: 'WA', key: 'WA' },
-    { value: 'WI', key: 'WI' },
-    { value: 'WV', key: 'WV' },
-    { value: 'WY', key: 'WY' },
-  ];
 
   const residentialAddressName = 'residential_address';
   const backupAddressName = 'backup_mailing_address';
@@ -120,6 +69,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
+    cac_user: true,
   };
 
   const handleBack = () => {
@@ -129,6 +79,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
     const createOktaAccount = values.create_okta_account === 'true';
+    const cacUser = values.cac_user === 'true';
 
     const body = {
       affiliation: values.affiliation,
@@ -150,6 +101,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
         phone: values[backupContactName].telephone,
       },
       createOktaAccount,
+      cacUser,
     };
 
     return createCustomerWithOktaOption({ body })
@@ -187,6 +139,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
     [backupAddressName]: requiredAddressSchema.required(),
     [backupContactName]: backupContactInfoSchema.required(),
     create_okta_account: Yup.boolean().required('Required'),
+    cac_user: Yup.boolean().required('Required'),
   });
 
   return (
@@ -375,6 +328,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                           label="Yes"
                           name="create_okta_account"
                           value="true"
+                          data-testid="create-okta-account-yes"
                         />
                         <Field
                           as={Radio}
@@ -382,6 +336,31 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                           label="No"
                           name="create_okta_account"
                           value="false"
+                          data-testid="create-okta-account-no"
+                        />
+                      </div>
+                    </Fieldset>
+                  </SectionWrapper>
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h3>Non-CAC Users</h3>
+                    <Fieldset className={styles.trailerOwnershipFieldset}>
+                      <legend className="usa-label">Does the customer have a CAC?</legend>
+                      <div className="grid-row grid-gap">
+                        <Field
+                          as={Radio}
+                          id="yesCacUser"
+                          label="Yes"
+                          name="cac_user"
+                          value="true"
+                          data-testid="cac-user-yes"
+                        />
+                        <Field
+                          as={Radio}
+                          id="NonCacUser"
+                          label="No"
+                          name="cac_user"
+                          value="false"
+                          data-testid="cac-user-no"
                         />
                       </div>
                     </Fieldset>
