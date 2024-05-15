@@ -150,7 +150,7 @@ const fillOutBasicForm = async (form) => {
   within(form).getAllByLabelText('City')[0].focus();
   await userEvent.paste('San Antonio');
 
-  await userEvent.selectOptions(within(form).getByLabelText('State')[0], 'TX');
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[0], 'TX');
 
   within(form).getAllByLabelText('ZIP')[0].focus();
   await userEvent.paste('78232');
@@ -161,7 +161,7 @@ const fillOutBasicForm = async (form) => {
   within(form).getAllByLabelText('City')[2].focus();
   await userEvent.paste('Tacoma');
 
-  await userEvent.selectOptions(within(form).getByLabelText('State')[2], 'WA');
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[2], 'WA');
 
   within(form).getAllByLabelText('ZIP')[2].focus();
   await userEvent.paste('98421');
@@ -172,7 +172,7 @@ const fillOutBasicForm = async (form) => {
   within(form).getByLabelText('City').focus();
   await userEvent.paste('Goldsboro');
 
-  await userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
+  await userEvent.selectOptions(within(form).getAllByLabelText('State'), 'NC');
 
   within(form).getByLabelText('ZIP').focus();
   await userEvent.paste('27534');

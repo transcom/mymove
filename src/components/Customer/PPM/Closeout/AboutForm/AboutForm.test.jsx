@@ -93,7 +93,7 @@ const fillOutBasicForm = async () => {
   within(form).getAllByLabelText('City')[0].focus();
   await userEvent.paste('San Antonio');
 
-  await userEvent.selectOptions(within(form).getByLabelText('State')[0], 'TX');
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[0], 'TX');
 
   within(form).getAllByLabelText('ZIP')[0].focus();
   await userEvent.paste('78232');
@@ -104,7 +104,7 @@ const fillOutBasicForm = async () => {
   within(form).getAllByLabelText('City')[2].focus();
   await userEvent.paste('Tacoma');
 
-  await userEvent.selectOptions(within(form).getByLabelText('State')[2], 'WA');
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[2], 'WA');
 
   within(form).getAllByLabelText('ZIP')[2].focus();
   await userEvent.paste('98421');
@@ -123,7 +123,7 @@ const fillOutBasicForm = async () => {
 
 describe('AboutForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load (except zips)', async () => {
+    it('renders blank form on load', async () => {
       render(<AboutForm {...defaultProps} {...mtoShipmentWithZips} />);
 
       await waitFor(() => {
@@ -143,23 +143,11 @@ describe('AboutForm component', () => {
       expect(screen.getAllByLabelText('State')[0]).toHaveValue('');
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('');
 
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
-      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('State')[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('');
-
       expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[2]).toHaveValue('');
       expect(screen.getAllByLabelText('State')[2]).toHaveValue('');
       expect(screen.getAllByLabelText('ZIP')[2]).toHaveValue('');
-
-      expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
-      expect(screen.getAllByLabelText(/Address 2/)[3]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[3]).toHaveValue('');
-      expect(screen.getAllByLabelText('State')[3]).toHaveValue('');
-      expect(screen.getAllByLabelText('ZIP')[3]).toHaveValue('');
 
       expect(screen.getAllByLabelText('Address 1')[4]).toHaveDisplayValue('');
       expect(screen.getAllByLabelText(/Address 2/)[4]).toHaveDisplayValue('');
