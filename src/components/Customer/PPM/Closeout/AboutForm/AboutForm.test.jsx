@@ -84,14 +84,6 @@ describe('AboutForm component', () => {
       expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
 
-      const startingZip = screen.getByLabelText('Starting ZIP');
-      expect(startingZip).toBeInstanceOf(HTMLInputElement);
-      expect(startingZip).toHaveDisplayValue('42442');
-
-      const endingZip = screen.getByLabelText('Ending ZIP');
-      expect(endingZip).toBeInstanceOf(HTMLInputElement);
-      expect(endingZip).toHaveDisplayValue('42444');
-
       expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
