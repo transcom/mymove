@@ -165,7 +165,10 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       is: false,
       then: (schema) => schema.required('Required'),
     }),
-    cac_user: Yup.boolean().required('Required'),
+    cac_user: Yup.boolean().when('is_safety_move', {
+      is: false,
+      then: (schema) => schema.required('Required'),
+    }),
     is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
@@ -190,11 +193,12 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
               const handleIsSafetyMove = (e) => {
                 const { checked } = e.target;
                 if (checked) {
-                  // clear out DoDID and OKTA fields
+                  // clear out DoDID, OKTA and CAC fields
                   setValues({
                     ...values,
                     edipi: '',
                     create_okta_account: '',
+                    cac_user: 'true',
                     is_safety_move: 'true',
                   });
                 }
@@ -388,7 +392,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                   </SectionWrapper>
                   {values.is_safety_move !== 'true' && (
-                    <SectionWrapper className={formStyles.formSection} disabled={values.is_safety_move === 'true'}>
+                    <SectionWrapper className={formStyles.formSection}>
                       <h3>Okta Account</h3>
                       <Fieldset className={styles.trailerOwnershipFieldset}>
                         <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>
@@ -412,30 +416,32 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                         </div>
                       </Fieldset>
                     </SectionWrapper>
+                  )}
+                  {values.is_safety_move !== 'true' && (
                     <SectionWrapper className={formStyles.formSection}>
-                    <h3>Non-CAC Users</h3>
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Does the customer have a CAC?</legend>
-                      <div className="grid-row grid-gap">
-                        <Field
-                          as={Radio}
-                          id="yesCacUser"
-                          label="Yes"
-                          name="cac_user"
-                          value="true"
-                          data-testid="cac-user-yes"
-                        />
-                        <Field
-                          as={Radio}
-                          id="NonCacUser"
-                          label="No"
-                          name="cac_user"
-                          value="false"
-                          data-testid="cac-user-no"
-                        />
-                      </div>
-                    </Fieldset>
-                  </SectionWrapper>
+                      <h3>Non-CAC Users</h3>
+                      <Fieldset className={styles.trailerOwnershipFieldset}>
+                        <legend className="usa-label">Does the customer have a CAC?</legend>
+                        <div className="grid-row grid-gap">
+                          <Field
+                            as={Radio}
+                            id="yesCacUser"
+                            label="Yes"
+                            name="cac_user"
+                            value="true"
+                            data-testid="cac-user-yes"
+                          />
+                          <Field
+                            as={Radio}
+                            id="NonCacUser"
+                            label="No"
+                            name="cac_user"
+                            value="false"
+                            data-testid="cac-user-no"
+                          />
+                        </div>
+                      </Fieldset>
+                    </SectionWrapper>
                   )}
                   <div className={formStyles.formActions}>
                     <WizardNavigation
