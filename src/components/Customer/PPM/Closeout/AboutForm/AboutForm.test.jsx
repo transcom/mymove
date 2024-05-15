@@ -3,7 +3,6 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
-import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -22,8 +21,36 @@ const mtoShipmentProps = {
   mtoShipment: {
     ppmShipment: {
       actualMoveDate: '2022-05-19',
-      actualPickupPostalCode: '10001',
-      actualDestinationPostalCode: '60652',
+      actualPickupPostalCode: '78234',
+      actualDestinationPostalCode: '98421',
+      pickupAddress: {
+        streetAddress1: '812 S 129th St',
+        streetAddress2: '#123',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '78234',
+      },
+      secondaryPickupAddress: {
+        streetAddress1: '812 S 129th St',
+        streetAddress2: '#124',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '78234',
+      },
+      destinationAddress: {
+        streetAddress1: '441 SW Rio de la Plata Drive',
+        city: 'Tacoma',
+        state: 'WA',
+        postalCode: '98421',
+      },
+      secondaryDestinationAddress: {
+        streetAddress1: '442 SW Rio de la Plata Drive',
+        city: 'Tacoma',
+        state: 'WA',
+        postalCode: '98421',
+      },
+      hasSecondaryPickupAddress: 'true',
+      hasSecondaryDestinationAddress: 'true',
       hasReceivedAdvance: true,
       advanceAmountReceived: 123456,
       w2Address: {
@@ -40,8 +67,8 @@ const mtoShipmentProps = {
 const mtoShipmentWithZips = {
   mtoShipment: {
     ppmShipment: {
-      pickupPostalCode: '42442',
-      destinationPostalCode: '42444',
+      pickupPostalCode: '78234',
+      destinationPostalCode: '98421',
     },
   },
 };
@@ -70,11 +97,37 @@ describe('AboutForm component', () => {
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeChecked(); // Has advance received is set to No by default
 
-      expect(screen.getByLabelText('Address 1')).toHaveDisplayValue('');
-      expect(screen.getByLabelText(/Address 2/)).toHaveDisplayValue('');
-      expect(screen.getByLabelText('City')).toHaveDisplayValue('');
-      expect(screen.getByLabelText('State')).toHaveValue('');
-      expect(screen.getByLabelText('ZIP')).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('');
+
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('State')[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('');
+
+      expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[2]).toHaveValue('');
+      expect(screen.getAllByLabelText('State')[2]).toHaveValue('');
+      expect(screen.getAllByLabelText('ZIP')[2]).toHaveValue('');
+
+      expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[3]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[3]).toHaveValue('');
+      expect(screen.getAllByLabelText('State')[3]).toHaveValue('');
+      expect(screen.getAllByLabelText('ZIP')[3]).toHaveValue('');
+
+      expect(screen.getAllByLabelText('Address 1')[4]).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[4]).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText('City')[4]).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText('State')[4]).toHaveValue('');
+      expect(screen.getAllByLabelText('ZIP')[4]).toHaveDisplayValue('');
 
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
@@ -86,17 +139,42 @@ describe('AboutForm component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('19 May 2022');
       });
-      expect(screen.getByLabelText('Starting ZIP')).toHaveDisplayValue('10001');
-      expect(screen.getByLabelText('Ending ZIP')).toHaveDisplayValue('60652');
+
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.getByLabelText('No')).not.toBeChecked();
       expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,234');
 
-      expect(screen.getByLabelText('Address 1')).toHaveDisplayValue('11 NE Elm Road');
-      expect(screen.getByLabelText(/Address 2/)).toHaveDisplayValue('');
-      expect(screen.getByLabelText('City')).toHaveDisplayValue('Jacksonville');
-      expect(screen.getByLabelText('State')).toHaveDisplayValue('FL');
-      expect(screen.getByLabelText('ZIP')).toHaveDisplayValue('32217');
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[1]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[1]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('78234');
+
+      expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[2]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText('State')[2]).toHaveValue('WA');
+      expect(screen.getAllByLabelText('ZIP')[2]).toHaveValue('98421');
+
+      expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 2/)[3]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[3]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText('State')[3]).toHaveValue('WA');
+      expect(screen.getAllByLabelText('ZIP')[3]).toHaveValue('98421');
+
+      expect(screen.getAllByLabelText('Address 1')[4]).toHaveDisplayValue('11 NE Elm Road');
+      expect(screen.getAllByLabelText(/Address 2/)[4]).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText('City')[4]).toHaveDisplayValue('Jacksonville');
+      expect(screen.getAllByLabelText('State')[4]).toHaveDisplayValue('FL');
+      expect(screen.getAllByLabelText('ZIP')[4]).toHaveDisplayValue('32217');
 
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
@@ -120,10 +198,25 @@ describe('AboutForm component', () => {
       ).toBeInTheDocument();
 
       expect(requiredAlerts[1]).toHaveTextContent('Required');
-      expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'actualPickupPostalCode');
-
+      expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'pickupAddress.streetAddress1');
       expect(requiredAlerts[2]).toHaveTextContent('Required');
-      expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'actualDestinationPostalCode');
+      expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'pickupAddress.city');
+      expect(requiredAlerts[3]).toHaveTextContent('Required');
+      expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'pickupAddress.state');
+      expect(requiredAlerts[4]).toHaveTextContent('Required');
+      expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'pickupAddress.postalCode');
+
+      expect(requiredAlerts[5]).toHaveTextContent('Required');
+      expect(requiredAlerts[5].nextElementSibling).toHaveAttribute('name', 'destinationAddress.streetAddress1');
+      expect(requiredAlerts[6]).toHaveTextContent('Required');
+      expect(requiredAlerts[6].nextElementSibling).toHaveAttribute('name', 'destinationAddress.city');
+      expect(requiredAlerts[7]).toHaveTextContent('Required');
+      expect(requiredAlerts[7].nextElementSibling).toHaveAttribute('name', 'destinationAddress.state');
+      expect(requiredAlerts[8]).toHaveTextContent('Required');
+      expect(requiredAlerts[8].nextElementSibling).toHaveAttribute('name', 'destinationAddress.postalCode');
+
+      expect(requiredAlerts[9]).toHaveTextContent('Required');
+      expect(requiredAlerts[9].nextElementSibling).toHaveAttribute('name', 'actualDestinationPostalCode');
 
       await userEvent.click(screen.getByLabelText('Yes'));
 
@@ -133,19 +226,19 @@ describe('AboutForm component', () => {
 
       requiredAlerts = screen.getAllByRole('alert');
 
-      expect(requiredAlerts[3]).toHaveTextContent('Required');
+      expect(requiredAlerts[10]).toHaveTextContent('Required');
       expect(
-        within(requiredAlerts[3].nextElementSibling).getByLabelText('How much did you receive?'),
+        within(requiredAlerts[19].nextElementSibling).getByLabelText('How much did you receive?'),
       ).toBeInTheDocument();
 
-      expect(requiredAlerts[4]).toHaveTextContent('Required');
-      expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
-      expect(requiredAlerts[5]).toHaveTextContent('Required');
-      expect(requiredAlerts[5].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
-      expect(requiredAlerts[6]).toHaveTextContent('Required');
-      expect(requiredAlerts[6].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
-      expect(requiredAlerts[7]).toHaveTextContent('Required');
-      expect(requiredAlerts[7].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
+      expect(requiredAlerts[11]).toHaveTextContent('Required');
+      expect(requiredAlerts[11].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
+      expect(requiredAlerts[12]).toHaveTextContent('Required');
+      expect(requiredAlerts[12].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
+      expect(requiredAlerts[13]).toHaveTextContent('Required');
+      expect(requiredAlerts[13].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
+      expect(requiredAlerts[14]).toHaveTextContent('Required');
+      expect(requiredAlerts[14].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
     });
 
     it('displays type error messages for invalid input', async () => {
@@ -153,26 +246,6 @@ describe('AboutForm component', () => {
 
       await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
       await userEvent.tab();
-
-      await userEvent.type(screen.getByLabelText('Starting ZIP'), '1');
-      await userEvent.tab();
-
-      await waitFor(() => {
-        expect(screen.getAllByRole('alert')[0]).toHaveTextContent(
-          'Enter a complete date in DD MMM YYYY format (day, month, year).',
-        );
-      });
-
-      await waitFor(() => {
-        expect(screen.getAllByRole('alert')[1]).toHaveTextContent('Enter a 5-digit ZIP code');
-      });
-
-      await userEvent.type(screen.getByLabelText('Ending ZIP'), '2');
-      await userEvent.tab();
-
-      await waitFor(() => {
-        expect(screen.getAllByRole('alert')[2]).toHaveTextContent('Enter a 5-digit ZIP code');
-      });
     });
 
     it('displays error when advance received is below 1 dollar minimum', async () => {
@@ -185,33 +258,6 @@ describe('AboutForm component', () => {
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent(
           "The minimum advance request is $1. If you don't want an advance, select No.",
-        );
-      });
-    });
-
-    it('calls the postal code validator for starting and ending ZIP inputs', async () => {
-      const postalCodeValidatorProps = {
-        postalCodeValidator: jest.fn().mockReturnValue(UnsupportedZipCodePPMErrorMsg),
-      };
-      render(<AboutForm {...defaultProps} {...postalCodeValidatorProps} />);
-
-      await userEvent.type(screen.getByLabelText('Starting ZIP'), '10000');
-
-      await waitFor(() => {
-        expect(postalCodeValidatorProps.postalCodeValidator).toHaveBeenCalledWith(
-          '10000',
-          'origin',
-          UnsupportedZipCodePPMErrorMsg,
-        );
-      });
-
-      await userEvent.type(screen.getByLabelText('Ending ZIP'), '20000');
-
-      await waitFor(() => {
-        expect(postalCodeValidatorProps.postalCodeValidator).toHaveBeenCalledWith(
-          '20000',
-          'destination',
-          UnsupportedZipCodePPMErrorMsg,
         );
       });
     });
@@ -237,8 +283,36 @@ describe('AboutForm component', () => {
         expect(defaultProps.onSubmit).toHaveBeenCalledWith(
           {
             actualMoveDate: '2022-05-19',
-            actualPickupPostalCode: '10001',
-            actualDestinationPostalCode: '60652',
+            actualPickupPostalCode: '78234',
+            actualDestinationPostalCode: '98421',
+            pickupAddress: {
+              streetAddress1: '812 S 129th St',
+              streetAddress2: '#123',
+              city: 'San Antonio',
+              state: 'TX',
+              postalCode: '78234',
+            },
+            secondaryPickupAddress: {
+              streetAddress1: '812 S 129th St',
+              streetAddress2: '#124',
+              city: 'San Antonio',
+              state: 'TX',
+              postalCode: '78234',
+            },
+            destinationAddress: {
+              streetAddress1: '441 SW Rio de la Plata Drive',
+              city: 'Tacoma',
+              state: 'WA',
+              postalCode: '98421',
+            },
+            secondaryDestinationAddress: {
+              streetAddress1: '442 SW Rio de la Plata Drive',
+              city: 'Tacoma',
+              state: 'WA',
+              postalCode: '98421',
+            },
+            hasSecondaryPickupAddress: 'true',
+            hasSecondaryDestinationAddress: 'true',
             hasReceivedAdvance: 'true',
             advanceAmountReceived: '1234',
             w2Address: {
