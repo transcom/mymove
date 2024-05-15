@@ -5554,6 +5554,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -5946,6 +5949,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -6024,6 +6030,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -10497,6 +10506,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "current_address": {
           "allOf": [
@@ -18302,6 +18314,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -18694,6 +18709,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -18772,6 +18790,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -23303,6 +23324,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "current_address": {
           "allOf": [
