@@ -167,14 +167,13 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	entitlements := models.GetWeightAllotment(grade)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
+	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
 		return services.SSWMaxWeightEntitlement(sswEntitlements)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
-	if spouseHasProGear {
-		sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
-	}
+
 	return services.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
@@ -714,7 +713,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"W2Address",
 		"SignedCertification",
 		"MovingExpenses",
-		"SpouseProGearWeight",
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
@@ -727,11 +725,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 	if ppmShipment.Shipment.MoveTaskOrder.Orders.Grade == nil {
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
-	}
-
-	if ppmShipment.SpouseProGearWeight != nil {
-		ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear = true
-		ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents = true
 	}
 
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
