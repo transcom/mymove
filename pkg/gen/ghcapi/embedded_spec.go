@@ -8119,6 +8119,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -10846,6 +10852,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -21112,6 +21122,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -23897,6 +23913,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
