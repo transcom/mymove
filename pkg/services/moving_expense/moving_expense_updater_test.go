@@ -268,6 +268,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		storageExpenseType := models.MovingExpenseReceiptTypeStorage
 		storageStart := time.Now()
 		storageEnd := storageStart.Add(7 * time.Hour * 24)
+		weightStored := 2000
 
 		expectedMovingExpense := &models.MovingExpense{
 			ID:                originalMovingExpense.ID,
@@ -278,6 +279,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			Amount:            models.CentPointer(unit.Cents(67899)),
 			SITStartDate:      &storageStart,
 			SITEndDate:        &storageEnd,
+			WeightStored:      (*unit.Pound)(&weightStored),
 		}
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
@@ -292,6 +294,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.MissingReceipt, *updatedMovingExpense.MissingReceipt)
 		suite.Equal(*expectedMovingExpense.SITStartDate, *updatedMovingExpense.SITStartDate)
 		suite.Equal(*expectedMovingExpense.SITEndDate, *updatedMovingExpense.SITEndDate)
+		suite.Equal(*expectedMovingExpense.WeightStored, *updatedMovingExpense.WeightStored)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
 	})
@@ -300,10 +303,12 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		storageReceiptType := models.MovingExpenseReceiptTypeStorage
+		weightStored := 2000
 		originalMovingExpense := setupForTest(appCtx, &models.MovingExpense{
 			MovingExpenseType: &storageReceiptType,
 			SITStartDate:      models.TimePointer(time.Now()),
 			SITEndDate:        models.TimePointer(time.Now()),
+			WeightStored:      (*unit.Pound)(&weightStored),
 		}, true)
 
 		updater := NewCustomerMovingExpenseUpdater()
@@ -330,6 +335,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.MissingReceipt, *updatedMovingExpense.MissingReceipt)
 		suite.Nil(updatedMovingExpense.SITStartDate)
 		suite.Nil(updatedMovingExpense.SITEndDate)
+		suite.Nil(updatedMovingExpense.WeightStored)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
 	})
