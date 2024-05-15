@@ -4150,7 +4150,6 @@ definitions:
         x-nullable: true
       dodID:
         type: string
-        example: 1234567890
         x-nullable: true
       branch:
         type: string

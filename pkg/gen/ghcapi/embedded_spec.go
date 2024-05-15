@@ -9974,8 +9974,7 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true,
-          "example": 1234567890
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -22930,8 +22929,7 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true,
-          "example": 1234567890
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",

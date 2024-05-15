@@ -23,7 +23,6 @@ type SearchCustomer struct {
 	Branch string `json:"branch,omitempty"`
 
 	// dod ID
-	// Example: 1234567890
 	DodID *string `json:"dodID,omitempty"`
 
 	// first name

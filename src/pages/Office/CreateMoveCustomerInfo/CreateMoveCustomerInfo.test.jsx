@@ -130,7 +130,7 @@ describe('CreateMoveCustomerInfo', () => {
     const saveBtn = screen.getByRole('button', { name: 'Save' });
     await userEvent.click(saveBtn);
 
-    await waitFor(async () => {
+    await waitFor(() => {
       expect(updateCustomerInfo).toHaveBeenCalled();
     });
   });
