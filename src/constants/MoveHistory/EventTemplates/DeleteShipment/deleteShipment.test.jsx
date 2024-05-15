@@ -7,7 +7,7 @@ describe('When a service counselor deletes a shipment', () => {
   const historyRecord = {
     action: 'UPDATE',
     eventName: 'deleteShipment',
-    context: [{ shipment_id_abbr: '3a771', shipment_type: 'HHG' }],
+    context: [{ shipment_id_abbr: '3a771', shipment_type: 'HHG', shipment_locator: 'ABC123-01' }],
     tableName: 'mto_shipments',
   };
 
@@ -20,6 +20,6 @@ describe('When a service counselor deletes a shipment', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #3A771 deleted')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #ABC123-01 deleted')).toBeInTheDocument();
   });
 });
