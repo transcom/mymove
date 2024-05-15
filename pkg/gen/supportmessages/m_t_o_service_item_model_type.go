@@ -21,7 +21,7 @@ import (
 //   - DDFSIT, DDASIT - MTOServiceItemDestSIT
 //   - DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   - DCRT, DUCRT - MTOServiceItemDomesticCrating
-//   - DCRTSA- MTOServiceItemDomesticStandaloneCrating
+//   - DCRTSA - MTOServiceItemDomesticStandaloneCrating
 //
 // The documentation will then update with the supported fields.
 //
