@@ -173,12 +173,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		HandlerConfig:         handlerConfig,
 		mtoServiceItemFetcher: mtoserviceitem.NewMTOServiceItemFetcher(),
 	}
-
-	ghcAPI.MtoServiceItemUpdateServiceItemSitEntryDateHandler = UpdateServiceItemSitEntryDateHandler{
-		HandlerConfig:       handlerConfig,
-		sitEntryDateUpdater: sitentrydateupdate.NewSitEntryDateUpdater(),
-	}
-
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
 			handlerConfig.HHGPlanner(),
@@ -186,7 +180,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		),
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 	)
-
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 	addressUpdater := address.NewAddressUpdater()
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
@@ -202,6 +195,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		addressUpdater,
 		addressCreator)
 	sitExtensionShipmentUpdater := shipment.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+
+	ghcAPI.MtoServiceItemUpdateServiceItemSitEntryDateHandler = UpdateServiceItemSitEntryDateHandler{
+		HandlerConfig:       handlerConfig,
+		sitEntryDateUpdater: sitentrydateupdate.NewSitEntryDateUpdater(),
+		ShipmentSITStatus:   sitstatus.NewShipmentSITStatus(),
+		MTOShipmentFetcher:  mtoshipment.NewMTOShipmentFetcher(),
+		ShipmentUpdater:     sitExtensionShipmentUpdater,
+	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
 		HandlerConfig:         handlerConfig,
