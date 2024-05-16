@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingAddOrders.module.scss';
 
@@ -14,7 +14,8 @@ import { formatDateForSwagger } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { milmoveLogger } from 'utils/milmoveLog';
 
-const ServicesCounselingAddOrders = ({ customer }) => {
+const ServicesCounselingAddOrders = () => {
+  const { customerId } = useParams();
   const navigate = useNavigate();
   const handleBack = () => {
     navigate(-1);
@@ -59,7 +60,7 @@ const ServicesCounselingAddOrders = ({ customer }) => {
   const handleSubmit = (values) => {
     const body = {
       ...values,
-      serviceMemberId: customer.id,
+      serviceMemberId: customerId,
       newDutyLocationId: values.newDutyLocation.id,
       hasDependents: formatYesNoAPIValue(values.hasDependents),
       reportByDate: formatDateForSwagger(values.reportByDate),

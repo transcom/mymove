@@ -49,6 +49,7 @@ const (
 // shutdown function, and also the span and metric exporters. The
 // latter two are useful in testing, but would almost certainly be
 // ignored in production
+// nolint:staticcheck
 func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sdkmetric.Exporter) {
 	ctx := context.Background()
 	var shutdown = func() {}

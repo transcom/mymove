@@ -21,7 +21,7 @@ func (t *testElectronicOrderCategoricalCountQueryBuilder) FetchCategoricalCounts
 func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderCategoricalCounts() {
 	suite.Run("If we get a match on the category we should get a map with the count", func() {
 
-		fakeFetchCategoricalCountsFromOneModel := func(appCtx appcontext.AppContext, model interface{}) (map[interface{}]int, error) {
+		fakeFetchCategoricalCountsFromOneModel := func(_ appcontext.AppContext, _ interface{}) (map[interface{}]int, error) {
 			value := map[interface{}]int{
 				models.IssuerArmy: 3,
 			}
@@ -43,7 +43,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderCategoricalCou
 	})
 
 	suite.Run("If there's an error, we get it without counts", func() {
-		fakeFetchCategoricalCountsFromOneModel := func(appCtx appcontext.AppContext, model interface{}) (map[interface{}]int, error) {
+		fakeFetchCategoricalCountsFromOneModel := func(_ appcontext.AppContext, _ interface{}) (map[interface{}]int, error) {
 			return nil, errors.New("Fetch error")
 		}
 
