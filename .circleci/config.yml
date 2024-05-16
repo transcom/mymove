@@ -14,7 +14,7 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -40,30 +40,30 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch placeholder_branch_name
+  dp3-branch: &dp3-branch B-20155-AWS-SDK-Update
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env placeholder_env
+  dp3-env: &dp3-env demo
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+  integration-ignore-branch: &integration-ignore-branch B-20155-AWS-SDK-Update
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch B-20155-AWS-SDK-Update
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+  client-ignore-branch: &client-ignore-branch B-20155-AWS-SDK-Update
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+  server-ignore-branch: &server-ignore-branch B-20155-AWS-SDK-Update
 
 executors:
   base_small:
@@ -277,13 +277,13 @@ commands:
       - create_dot_go_version
       - restore_cache:
           keys:
-            - go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
 
   save_cache_for_go:
     steps:
       - create_dot_go_version
       - save_cache:
-          key: go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
             - '~/transcom/mymove/bin/swagger'
@@ -867,8 +867,6 @@ commands:
             export FEATURE_FLAG_NTSR=true
             export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
-            export FEATURE_FLAG_MOVE_LOCK=false
-            export FEATURE_FLAG_OKTA_DODID_INPUT=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -899,8 +897,6 @@ commands:
             FEATURE_FLAG_NTSR: 'true'
             FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
-            FEATURE_FLAG_MOVE_LOCK: 'false'
-            FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -1271,7 +1267,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v20-spectral-lint-
+            - v18-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1330,7 +1326,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v20-spectral-lint-{{ .BuildNum }}
+                key: v18-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
