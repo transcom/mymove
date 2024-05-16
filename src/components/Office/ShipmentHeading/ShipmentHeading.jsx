@@ -20,7 +20,7 @@ function formatDestinationAddress(address) {
   return `${address.postalCode}`;
 }
 
-function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
+function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLocked }) {
   const { shipmentStatus } = shipmentInfo;
   // cancelation modal is visible if shipment is not already canceled, AND if shipment cancellation hasn't already been requested
   const isCancelModalVisible = shipmentStatus !== shipmentStatuses.CANCELED || shipmentStatuses.CANCELLATION_REQUESTED;
@@ -47,7 +47,12 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
         {isCancelModalVisible && (
           <Restricted to={permissionTypes.createShipmentCancellation}>
             <Restricted to={permissionTypes.updateMTOPage}>
-              <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
+              <Button
+                type="button"
+                onClick={() => handleShowCancellationModal(shipmentInfo)}
+                unstyled
+                disabled={isMoveLocked}
+              >
                 Request Cancellation
               </Button>
             </Restricted>

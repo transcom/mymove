@@ -78,7 +78,7 @@ const ShipmentDisplay = ({
                 label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
-                disabled={disableApproval}
+                disabled={disableApproval || isMoveLocked}
               />
             )}
           </Restricted>
@@ -141,6 +141,7 @@ const ShipmentDisplay = ({
               data-testid={reviewURL}
               label="Review documents"
               secondary
+              disabled={isMoveLocked}
             />
           )}
         </Restricted>

@@ -21,7 +21,7 @@ import FinancialReviewButton from 'components/Office/FinancialReviewButton/Finan
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
-import { useMoveDetailsQueries, useUserQueries } from 'hooks/queries';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -34,7 +34,6 @@ import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { shipmentGroupKeys, calculateEstimatedWeight, groupShipmentTypes } from 'hooks/custom';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -56,6 +55,7 @@ const MoveDetails = ({
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
+  isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
@@ -66,7 +66,6 @@ const MoveDetails = ({
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [isAtExcessWeightRisk, setIsAtExcessWeightRisk] = useState(false);
   /* ------------------ Flags ------------------------- */
-  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const navigate = useNavigate();
 
@@ -74,10 +73,6 @@ const MoveDetails = ({
     useMoveDetailsQueries(moveCode);
 
   const { [shipmentGroupKeys.keyNonPPM]: nonPPMShipments } = groupShipmentTypes(mtoShipments);
-
-  // fetching officeUserID to determine if buttons should be disabled for read-only mode
-  const userData = useUserQueries();
-  const officeUserID = userData?.data?.office_user?.id;
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -134,19 +129,6 @@ const MoveDetails = ({
   useEffect(() => {
     setIsAtExcessWeightRisk(hasRiskOfExcess(estimatedWeightTotal, order?.entitlement?.authorizedWeight));
   }, [estimatedWeightTotal, order?.entitlement?.authorizedWeight]);
-
-  // fetching the move_lock FF and assessing move to see if it is NOT locked by the user
-  // if it is not locked by the user, we want to disable form submissions and pass that prop to
-  // components containing forms
-  useEffect(() => {
-    const fetchData = async () => {
-      const moveLockFlag = await isBooleanFlagEnabled('move_lock');
-      if (officeUserID === move?.lockedByOfficeUserID && moveLockFlag) {
-        setIsMoveLocked(true);
-      }
-    };
-    fetchData();
-  }, [move, officeUserID]);
 
   const handleExcessWeightRiskCountCheck = useCallback(() => {
     setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
@@ -441,9 +423,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
-                    Edit orders
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
+                      Edit orders
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -463,9 +447,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
-                    Edit allowances
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
+                      Edit allowances
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -478,13 +464,15 @@ const MoveDetails = ({
               title="Customer info"
               editButton={
                 <Restricted to={permissionTypes.updateCustomer}>
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    data-testid="edit-customer-info"
-                    to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
-                  >
-                    Edit customer info
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link
+                      className="usa-button usa-button--secondary"
+                      data-testid="edit-customer-info"
+                      to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                    >
+                      Edit customer info
+                    </Link>
+                  )}
                 </Restricted>
               }
             >
