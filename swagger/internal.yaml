@@ -643,6 +643,14 @@ definitions:
         maxLength: 10
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: ^\d{7}$
+        minLength: 7
+        maxLength: 7
+        example: '5789345'
+        x-nullable: true
+        title: USCG EMPLID
       orders:
         type: array
         items:
@@ -821,6 +829,14 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: ^\d{7}$
+        minLength: 7
+        maxLength: 7
+        example: '5789345'
+        x-nullable: true
+        title: USCG EMPLID
       affiliation:
         $ref: '#/definitions/Affiliation'
       first_name:

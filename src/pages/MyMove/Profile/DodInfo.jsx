@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
@@ -13,14 +13,24 @@ import requireCustomerState from 'containers/requireCustomerState/requireCustome
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
+    };
+    fetchData();
+  }, []);
 
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
     edipi: oktaUser?.cac_edipi || '',
+    emplid: serviceMember?.emplid || '',
   };
 
   const handleBack = () => {
@@ -36,6 +46,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
       id: serviceMember.id,
       affiliation: values.affiliation,
       edipi: values.edipi,
+      emplid: values.affiliation === 'COAST_GUARD' && isEmplidEnabled ? values.emplid : null,
     };
 
     return patchServiceMember(payload)
@@ -44,7 +55,13 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        let errorMessage;
+        if (e.response.body.message === 'Unhandled data error encountered') {
+          errorMessage = 'This EMPLID is already in use';
+        } else {
+          errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        }
+
         setServerError(errorMessage);
       });
   };
@@ -65,7 +82,12 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} onBack={handleBack} />
+          <DodInfoForm
+            initialValues={initialValues}
+            onSubmit={handleSubmit}
+            onBack={handleBack}
+            isEmplidEnabled={isEmplidEnabled}
+          />
         </Grid>
       </Grid>
     </GridContainer>
