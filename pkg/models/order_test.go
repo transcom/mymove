@@ -8,17 +8,17 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicOrderInstantiation() {
-	order := &Order{
-		TAC:    StringPointer(""),
-		SAC:    StringPointer(""),
-		NtsTAC: StringPointer(""),
-		NtsSAC: StringPointer(""),
+	order := &m.Order{
+		TAC:    m.StringPointer(""),
+		SAC:    m.StringPointer(""),
+		NtsTAC: m.StringPointer(""),
+		NtsSAC: m.StringPointer(""),
 	}
 
 	expErrors := map[string][]string{
@@ -43,7 +43,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 }
 
 func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
-	move := factory.BuildStubbedMoveWithStatus(MoveStatusSUBMITTED)
+	move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
 	order := move.Orders
 	order.Moves = append(order.Moves, move)
 
@@ -70,10 +70,10 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
 	validStatuses := []struct {
 		desc  string
-		value MoveStatus
+		value m.MoveStatus
 	}{
-		{"Draft", MoveStatusDRAFT},
-		{"NeedsServiceCounseling", MoveStatusNeedsServiceCounseling},
+		{"Draft", m.MoveStatusDRAFT},
+		{"NeedsServiceCounseling", m.MoveStatusNeedsServiceCounseling},
 	}
 	for _, validStatus := range validStatuses {
 		move := factory.BuildStubbedMoveWithStatus(validStatus.value)
@@ -99,8 +99,9 @@ func (suite *ModelSuite) TestTacFormat() {
 		{"TestNonAlphaNumChars", "AB-C"},
 	}
 	for _, invalidCase := range invalidCases {
-		move := factory.BuildStubbedMoveWithStatus(MoveStatusSUBMITTED)
+		move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
 		order := move.Orders
+		//nolint:gosec //G601
 		order.TAC = &invalidCase.tac
 		order.Moves = append(order.Moves, move)
 
@@ -123,7 +124,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 			UserID:          order.ServiceMember.UserID,
 			ServiceMemberID: order.ServiceMemberID,
 		}
-		goodOrder, err := FetchOrderForUser(suite.DB(), session, order.ID)
+		goodOrder, err := m.FetchOrderForUser(suite.DB(), session, order.ID)
 
 		suite.NoError(err)
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
@@ -156,7 +157,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 			ServiceMemberID: orders.ServiceMemberID,
 		}
 
-		goodOrder, err := FetchOrderForUser(suite.DB(), session, orders.ID)
+		goodOrder, err := m.FetchOrderForUser(suite.DB(), session, orders.ID)
 
 		suite.NoError(err)
 		suite.Equal(orders.Moves[0].CloseoutOffice.ID, goodOrder.Moves[0].CloseoutOffice.ID)
@@ -175,10 +176,10 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		}
 		// Wrong Order ID
 		wrongID, _ := uuid.NewV4()
-		_, err := FetchOrderForUser(suite.DB(), session, wrongID)
+		_, err := m.FetchOrderForUser(suite.DB(), session, wrongID)
 
 		suite.Error(err)
-		suite.Equal(ErrFetchNotFound, err)
+		suite.Equal(m.ErrFetchNotFound, err)
 	})
 
 	suite.Run("forbidden user cannot fetch order", func() {
@@ -190,10 +191,10 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 			UserID:          serviceMember2.UserID,
 			ServiceMemberID: serviceMember2.ID,
 		}
-		_, err := FetchOrderForUser(suite.DB(), session, order.ID)
+		_, err := m.FetchOrderForUser(suite.DB(), session, order.ID)
 
 		suite.Error(err)
-		suite.Equal(ErrFetchForbidden, err)
+		suite.Equal(m.ErrFetchForbidden, err)
 	})
 
 	suite.Run("successfully excludes deleted orders uploads", func() {
@@ -204,15 +205,15 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 				LinkOnly: true,
 			},
 			{
-				Model: UserUpload{
-					DeletedAt: TimePointer(time.Now()),
+				Model: m.UserUpload{
+					DeletedAt: m.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
 
 		nonDeletedAmendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
 			{
-				Model: UserUpload{
+				Model: m.UserUpload{
 					UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
 				},
 			},
@@ -223,8 +224,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 				LinkOnly: true,
 			},
 			{
-				Model: UserUpload{
-					DeletedAt: TimePointer(time.Now()),
+				Model: m.UserUpload{
+					DeletedAt: m.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
@@ -251,7 +252,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 			ServiceMemberID: expectedOrder.ServiceMemberID,
 		}
 
-		actualOrder, err := FetchOrderForUser(suite.DB(), &userSession, expectedOrder.ID)
+		actualOrder, err := m.FetchOrderForUser(suite.DB(), &userSession, expectedOrder.ID)
 
 		suite.NoError(err)
 		suite.Len(actualOrder.UploadedOrders.UserUploads, 1)
@@ -270,7 +271,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hasDependents := true
 	spouseHasProGear := true
-	uploadedOrder := Document{
+	uploadedOrder := m.Document{
 		ServiceMember:   serviceMember1,
 		ServiceMemberID: serviceMember1.ID,
 	}
@@ -278,8 +279,8 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	TAC := testdatagen.DefaultTransportationAccountingCode
 	suite.MustSave(&uploadedOrder)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
-	order := Order{
+	packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
+	order := m.Order{
 		ServiceMemberID:                serviceMember1.ID,
 		ServiceMember:                  serviceMember1,
 		IssueDate:                      issueDate,
@@ -291,18 +292,18 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		NewDutyLocation:                dutyLocation,
 		UploadedOrdersID:               uploadedOrder.ID,
 		UploadedOrders:                 uploadedOrder,
-		Status:                         OrderStatusSUBMITTED,
+		Status:                         m.OrderStatusSUBMITTED,
 		TAC:                            &TAC,
 		DepartmentIndicator:            &deptIndicator,
-		SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
-		MethodOfPayment:                MethodOfPayment,
-		NAICS:                          NAICS,
+		SupplyAndServicesCostEstimate:  m.SupplyAndServicesCostEstimate,
+		MethodOfPayment:                m.MethodOfPayment,
+		NAICS:                          m.NAICS,
 		PackingAndShippingInstructions: packingAndShippingInstructions,
 	}
 	suite.MustSave(&order)
 
 	// No session
-	goodOrder, err := FetchOrder(suite.DB(), order.ID)
+	goodOrder, err := m.FetchOrder(suite.DB(), order.ID)
 	suite.NoError(err)
 	suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 	suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -321,16 +322,16 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hasDependents := true
 	spouseHasProGear := true
-	uploadedOrder := Document{
+	uploadedOrder := m.Document{
 		ServiceMember:   serviceMember1,
 		ServiceMemberID: serviceMember1.ID,
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
+	packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
 	suite.MustSave(&uploadedOrder)
-	order := Order{
+	order := m.Order{
 		ServiceMemberID:                serviceMember1.ID,
 		ServiceMember:                  serviceMember1,
 		IssueDate:                      issueDate,
@@ -342,12 +343,12 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 		NewDutyLocation:                dutyLocation,
 		UploadedOrdersID:               uploadedOrder.ID,
 		UploadedOrders:                 uploadedOrder,
-		Status:                         OrderStatusDRAFT,
+		Status:                         m.OrderStatusDRAFT,
 		TAC:                            &TAC,
 		DepartmentIndicator:            &deptIndicator,
-		SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
-		MethodOfPayment:                MethodOfPayment,
-		NAICS:                          NAICS,
+		SupplyAndServicesCostEstimate:  m.SupplyAndServicesCostEstimate,
+		MethodOfPayment:                m.MethodOfPayment,
+		NAICS:                          m.NAICS,
 		PackingAndShippingInstructions: packingAndShippingInstructions,
 	}
 	suite.MustSave(&order)
@@ -355,12 +356,12 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	// Submit Orders
 	err := order.Submit()
 	suite.NoError(err)
-	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
+	suite.Equal(m.OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
 	// Can cancel orders
 	err = order.Cancel()
 	suite.NoError(err)
-	suite.Equal(OrderStatusCANCELED, order.Status, "expected Canceled")
+	suite.Equal(m.OrderStatusCANCELED, order.Status, "expected Canceled")
 }
 
 func (suite *ModelSuite) TestSaveOrder() {
@@ -369,12 +370,12 @@ func (suite *ModelSuite) TestSaveOrder() {
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
-			Model: Move{
+			Model: m.Move{
 				ID: moveID,
 			},
 		},
 		{
-			Model: Order{
+			Model: m.Order{
 				ID: orderID,
 			},
 		},
@@ -386,7 +387,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	newPostalCode := "12345"
 	addressCreator := address.NewAddressCreator()
 
-	newAddress := &Address{
+	newAddress := &m.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
@@ -396,7 +397,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.NoError(err)
 
 	dutyLocationName := "New Duty Location"
-	location := DutyLocation{
+	location := m.DutyLocation{
 		Name:      dutyLocationName,
 		AddressID: newAddress.ID,
 		Address:   *newAddress,
@@ -406,11 +407,11 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
-	verrs, err := SaveOrder(suite.DB(), &order)
+	verrs, err := m.SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	orderUpdated, err := FetchOrder(suite.DB(), orderID)
+	orderUpdated, err := m.FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
 	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
 	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
@@ -423,12 +424,12 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
-			Model: Move{
+			Model: m.Move{
 				ID: moveID,
 			},
 		},
 		{
-			Model: Order{
+			Model: m.Order{
 				ID: orderID,
 			},
 		},
@@ -439,7 +440,7 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	postalCode := "30813"
 	newPostalCode := "12345"
 	addressCreator := address.NewAddressCreator()
-	newAddress := &Address{
+	newAddress := &m.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
@@ -449,7 +450,7 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	suite.NoError(err)
 
 	dutyLocationName := "New Duty Location"
-	location := DutyLocation{
+	location := m.DutyLocation{
 		Name:      dutyLocationName,
 		AddressID: newAddress.ID,
 		Address:   *newAddress,
@@ -461,11 +462,11 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
 
-	verrs, err := SaveOrder(suite.DB(), &order)
+	verrs, err := m.SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	orderUpdated, err := FetchOrder(suite.DB(), orderID)
+	orderUpdated, err := m.FetchOrder(suite.DB(), orderID)
 	suite.NoError(err)
 	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
 	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")

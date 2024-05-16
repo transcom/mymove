@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/react-uswds';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { connect } from 'react-redux';
@@ -12,7 +12,7 @@ import styles from './CreateCustomerForm.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { generalRoutes } from 'constants/routes';
+import { servicesCounselingRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
@@ -69,15 +69,17 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
+    cac_user: true,
   };
 
   const handleBack = () => {
-    navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
+    navigate(servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH);
   };
 
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
     const createOktaAccount = values.create_okta_account === 'true';
+    const cacUser = values.cac_user === 'true';
 
     const body = {
       affiliation: values.affiliation,
@@ -99,12 +101,14 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
         phone: values[backupContactName].telephone,
       },
       createOktaAccount,
+      cacUser,
     };
 
     return createCustomerWithOktaOption({ body })
-      .then(() => {
+      .then((res) => {
+        const customerId = Object.keys(res.createdCustomer)[0];
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
-        navigate(generalRoutes.BASE_QUEUE_SEARCH_PATH);
+        navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, { customerId }));
       })
       .catch((e) => {
         const { response } = e;
@@ -135,6 +139,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
     [backupAddressName]: requiredAddressSchema.required(),
     [backupContactName]: backupContactInfoSchema.required(),
     create_okta_account: Yup.boolean().required('Required'),
+    cac_user: Yup.boolean().required('Required'),
   });
 
   return (
@@ -323,6 +328,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                           label="Yes"
                           name="create_okta_account"
                           value="true"
+                          data-testid="create-okta-account-yes"
                         />
                         <Field
                           as={Radio}
@@ -330,6 +336,31 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                           label="No"
                           name="create_okta_account"
                           value="false"
+                          data-testid="create-okta-account-no"
+                        />
+                      </div>
+                    </Fieldset>
+                  </SectionWrapper>
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h3>Non-CAC Users</h3>
+                    <Fieldset className={styles.trailerOwnershipFieldset}>
+                      <legend className="usa-label">Does the customer have a CAC?</legend>
+                      <div className="grid-row grid-gap">
+                        <Field
+                          as={Radio}
+                          id="yesCacUser"
+                          label="Yes"
+                          name="cac_user"
+                          value="true"
+                          data-testid="cac-user-yes"
+                        />
+                        <Field
+                          as={Radio}
+                          id="NonCacUser"
+                          label="No"
+                          name="cac_user"
+                          value="false"
+                          data-testid="cac-user-no"
                         />
                       </div>
                     </Fieldset>

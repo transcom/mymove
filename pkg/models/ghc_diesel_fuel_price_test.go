@@ -3,11 +3,11 @@ package models_test
 import (
 	"time"
 
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestGHCDieselFuelPriceInstantiation() {
-	ghcDieselFuelPrice := &GHCDieselFuelPrice{}
+	ghcDieselFuelPrice := &m.GHCDieselFuelPrice{}
 
 	expectedErrors := map[string][]string{
 		"fuel_price_in_millicents": {"FuelPriceInMillicents can not be blank."},
@@ -19,7 +19,7 @@ func (suite *ModelSuite) TestGHCDieselFuelPriceInstantiation() {
 
 func (suite *ModelSuite) TestGHCDieselFuelPriceUniqueness() {
 	t := suite.T()
-	ghcDieselFuelPrice := &GHCDieselFuelPrice{
+	ghcDieselFuelPrice := &m.GHCDieselFuelPrice{
 		FuelPriceInMillicents: 500000,
 		PublicationDate:       time.Now(),
 	}
@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestGHCDieselFuelPriceUniqueness() {
 		t.Errorf("Didn't create GHC Diesel Fuel Price: %s", err)
 	}
 
-	anotherGHCDieselFuelPrice := &GHCDieselFuelPrice{
+	anotherGHCDieselFuelPrice := &m.GHCDieselFuelPrice{
 		FuelPriceInMillicents: 100,
 		PublicationDate:       time.Now(),
 	}
