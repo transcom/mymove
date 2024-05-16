@@ -16,6 +16,57 @@ const defaultProps = {
   },
 };
 
+const shipmentProps = {
+  onSubmit: jest.fn(),
+  onBack: jest.fn(),
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '31 May 2022',
+      actualPickupPostalCode: '',
+      actualDestinationPostalCode: '',
+      pickupAddress: {
+        streetAddress1: '812 S 129th St',
+        streetAddress2: '#123',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '78234',
+      },
+      destinationAddress: {
+        streetAddress1: '441 SW Rio de la Plata Drive',
+        streetAddress2: '',
+        city: 'Tacoma',
+        state: 'WA',
+        postalCode: '98421',
+      },
+      secondaryPickupAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+      secondaryDestinationAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+      hasSecondaryPickupAddress: 'false',
+      hasSecondaryDestinationAddress: 'false',
+      hasReceivedAdvance: 'true',
+      advanceAmountReceived: '100000',
+      w2Address: {
+        streetAddress1: '11 NE Elm Road',
+        streetAddress2: '',
+        city: 'Jacksonville',
+        state: 'FL',
+        postalCode: '32217',
+      },
+    },
+  },
+};
+
 const fillOutBasicForm = async () => {
   let form;
   await waitFor(() => {
@@ -66,7 +117,7 @@ const fillOutBasicForm = async () => {
   await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
 
   within(form).getByLabelText('How much did you receive?').focus();
-  await userEvent.paste('1234');
+  await userEvent.paste('1000');
 };
 
 describe('AboutForm component', () => {
@@ -151,26 +202,26 @@ describe('AboutForm component', () => {
         expect(requiredAlerts[12]).toHaveTextContent('Required');
         expect(requiredAlerts[12].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
       });
+    });
 
-      it('populates appropriate field values', async () => {
-        render(<AboutForm {...defaultProps} />);
+    it('populates appropriate field values', async () => {
+      render(<AboutForm {...shipmentProps} />);
 
-        await waitFor(() => {
-          expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('31 May 2022');
-        });
-
-        expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
-        expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
-        expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,234');
-
-        expect(screen.getAllByLabelText('Address 1')[2]).toHaveDisplayValue('11 NE Elm Road');
-        expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
-        expect(screen.getAllByLabelText('City')[2]).toHaveDisplayValue('Jacksonville');
-        expect(screen.getAllByLabelText('State')[2]).toHaveDisplayValue('FL');
-        expect(screen.getAllByLabelText('ZIP')[2]).toHaveDisplayValue('32217');
-
-        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      await waitFor(() => {
+        expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('31 May 2022');
       });
+
+      expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
+      expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
+      expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,000');
+
+      expect(screen.getAllByLabelText('Address 1')[2]).toHaveDisplayValue('11 NE Elm Road');
+      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
+      expect(screen.getAllByLabelText('City')[2]).toHaveDisplayValue('Jacksonville');
+      expect(screen.getAllByLabelText('State')[2]).toHaveDisplayValue('FL');
+      expect(screen.getAllByLabelText('ZIP')[2]).toHaveDisplayValue('32217');
+
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
     });
 
     it('displays type error messages for invalid input', async () => {
@@ -249,7 +300,7 @@ describe('AboutForm component', () => {
               hasSecondaryPickupAddress: 'false',
               hasSecondaryDestinationAddress: 'false',
               hasReceivedAdvance: 'true',
-              advanceAmountReceived: '1234',
+              advanceAmountReceived: '1000',
               w2Address: {
                 streetAddress1: '11 NE Elm Road',
                 streetAddress2: '',
