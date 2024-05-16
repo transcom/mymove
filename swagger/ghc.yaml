@@ -191,6 +191,70 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.customer
+  /customer/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search customers by DOD ID or customer name
+      description: >
+        Search customers by DOD ID or customer name. Used by services counselors
+        to locate profiles to update, find attached moves, and to create new
+        moves.
+      operationId: searchCustomers
+      tags:
+        - customer
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+              branch:
+                description: Branch
+                type: string
+                minLength: 1
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  - customerName
+                  - dodID
+                  - branch
+                  - personalEmail
+                  - telephone
+              order:
+                type: string
+                x-nullable: true
+                enum:
+                  - asc
+                  - desc
+          description: field that results should be sorted by
+      responses:
+        '200':
+          description: Successfully returned all customers matching the criteria
+          schema:
+            $ref: '#/definitions/SearchCustomersResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /move/{locator}:
     parameters:
       - description: Code used to identify a move in the system
@@ -3892,6 +3956,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   CreatedCustomer:
     type: object
     properties:
@@ -3951,6 +4017,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3995,6 +4063,8 @@ definitions:
       backupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
@@ -4047,6 +4117,52 @@ definitions:
           - $ref: '#/definitions/Address'
       createOktaAccount:
         type: boolean
+      cacUser:
+        type: boolean
+  SearchCustomersResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchCustomers:
+        $ref: '#/definitions/SearchCustomers'
+  SearchCustomers:
+    type: array
+    items:
+      $ref: '#/definitions/SearchCustomer'
+  SearchCustomer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        x-nullable: true
+      branch:
+        type: string
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
   Entitlements:
     properties:
       id:
@@ -4062,6 +4178,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -4837,6 +4956,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4908,6 +5033,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:

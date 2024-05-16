@@ -11,6 +11,7 @@ describe('when given an approved service item history record', () => {
       {
         name: 'Domestic origin price',
         shipment_type: 'HHG',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'a1b2c',
       },
     ],
@@ -29,7 +30,7 @@ describe('when given an approved service item history record', () => {
     render(template.getEventNameDisplay(historyRecord));
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Approved service item')).toBeInTheDocument();
-    expect(screen.getByText('HHG shipment #A1B2C, Domestic origin price')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01, Domestic origin price')).toBeInTheDocument();
   });
 });
 
@@ -41,6 +42,7 @@ describe('when given rejected service item history record', () => {
       {
         name: 'Domestic origin price',
         shipment_type: 'HHG',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'a1b2c',
       },
     ],
@@ -59,7 +61,7 @@ describe('when given rejected service item history record', () => {
     render(template.getEventNameDisplay(historyRecord));
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Rejected service item')).toBeInTheDocument();
-    expect(screen.getByText('HHG shipment #A1B2C, Domestic origin price')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01, Domestic origin price')).toBeInTheDocument();
   });
 
   describe('When given a specific set of details for a rejected service item', () => {

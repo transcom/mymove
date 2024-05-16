@@ -99,6 +99,7 @@ playwright-results.xml
 !pkg/parser/pricing/fixtures/8_2c_domestic_other_prices_sit_golden.csv
 !pkg/parser/pricing/fixtures/pricing_template_2019-09-19_fake-data.xlsx
 !pkg/parser/transittime/fixtures/Appendix_C(i)_-_Transit_Time_Tables_Fake_Data.xlsx
+!pkg/testdatagen/testdata/Weight Estimator Full.xlsx
 !pkg/testdatagen/testdata/Weight Estimator.xlsx
 !pkg/testdatagen/testdata/Weight Estimator.xls
 !pkg/testdatagen/testdata/test.xls

@@ -265,7 +265,7 @@ func (suite *PaperworkSuite) TestCleanup() {
 		suite.Failf("expected %s to not be a directory, but it was", generator.workDir)
 
 		var paths []string
-		walkErr := fs.Walk(generator.workDir, func(path string, info os.FileInfo, err error) error {
+		walkErr := fs.Walk(generator.workDir, func(path string, _ os.FileInfo, _ error) error {
 			if path != generator.workDir { // Walk starts off with the directory passed to it
 				paths = append(paths, path)
 			}

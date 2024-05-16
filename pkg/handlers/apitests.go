@@ -77,7 +77,7 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 	// create a mock feature flag fetcher that always returns enabled
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-	mockGetFlagFunc := func(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string, mockVariant string) (services.FeatureFlag, error) {
+	mockGetFlagFunc := func(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string) (services.FeatureFlag, error) {
 		return services.FeatureFlag{
 			Entity:    entityID,
 			Key:       key,
