@@ -61,27 +61,12 @@ const mockMTOShipment = {
       state: 'TX',
       postalCode: '78234',
     },
-    secondaryPickupAddress: {
-      streetAddress1: '812 S 129th St',
-      streetAddress2: '#124',
-      city: 'San Antonio',
-      state: 'TX',
-      postalCode: '78234',
-    },
     destinationAddress: {
       streetAddress1: '441 SW Rio de la Plata Drive',
       city: 'Tacoma',
       state: 'WA',
       postalCode: '98421',
     },
-    secondaryDestinationAddress: {
-      streetAddress1: '442 SW Rio de la Plata Drive',
-      city: 'Tacoma',
-      state: 'WA',
-      postalCode: '98421',
-    },
-    hasSecondaryPickupAddress: 'true',
-    hasSecondaryDestinationAddress: 'true',
     hasReceivedAdvance: true,
     advanceAmountReceived: 123456,
     w2Address: {
@@ -112,9 +97,9 @@ const mockMTOShipment = {
 };
 
 const partialPayload = {
-  actualMoveDate: '2022-05-31',
-  actualPickupPostalCode: '78234',
-  actualDestinationPostalCode: '98421',
+  actualMoveDate: '31 May 2022',
+  actualPickupPostalCode: '',
+  actualDestinationPostalCode: '',
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     streetAddress2: '#123',
@@ -124,14 +109,29 @@ const partialPayload = {
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
+    streetAddress2: '',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
   },
+  secondaryPickupAddress: {
+    streetAddress1: '',
+    streetAddress2: '',
+    city: '',
+    state: '',
+    postalCode: '',
+  },
+  secondaryDestinationAddress: {
+    streetAddress1: '',
+    streetAddress2: '',
+    city: '',
+    state: '',
+    postalCode: '',
+  },
   hasSecondaryPickupAddress: 'false',
   hasSecondaryDestinationAddress: 'false',
-  hasReceivedAdvance: true,
-  advanceAmountReceived: 123456,
+  hasReceivedAdvance: 'true',
+  advanceAmountReceived: '1234',
   w2Address: {
     streetAddress1: '11 NE Elm Road',
     streetAddress2: '',
@@ -215,15 +215,15 @@ const fillOutBasicForm = async (form) => {
   await userEvent.paste('98421');
 
   within(form).getAllByLabelText('Address 1')[2].focus();
-  await userEvent.paste('10642 N Second Ave');
+  await userEvent.paste('11 NE Elm Road');
 
   within(form).getAllByLabelText('City')[2].focus();
-  await userEvent.paste('Goldsboro');
+  await userEvent.paste('Jacksonville');
 
-  await userEvent.selectOptions(within(form).getAllByLabelText('State')[2], 'NC');
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[2], 'FL');
 
   within(form).getAllByLabelText('ZIP')[2].focus();
-  await userEvent.paste('27534');
+  await userEvent.paste('32217');
 };
 
 const fillOutAdvanceSections = async (form) => {
@@ -294,6 +294,7 @@ describe('About page', () => {
     await fillOutBasicForm(form);
     await fillOutAdvanceSections(form);
 
+    expect(within(form).getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     await waitFor(() => {
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, mockPayload, mockMTOShipment.eTag);
