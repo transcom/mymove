@@ -442,7 +442,7 @@ export const MoveTaskOrder = (props) => {
     setIsWeightModalVisible(true);
   };
 
-  // To-do: Combine handle Acknowldge Weights and hadnle Weight alert into one one mutation function
+  // To-do: Combine handle Acknowldge Weights and handle Weight alert into one one mutation function
   const handleAcknowledgeExcessWeightRisk = () => {
     mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
@@ -537,7 +537,7 @@ export const MoveTaskOrder = (props) => {
   };
 
   /* istanbul ignore next */
-  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator) => {
+  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator, diversionReason) => {
     mutateMTOShipmentStatus(
       {
         shipmentID: mtoShipmentID,
@@ -545,6 +545,7 @@ export const MoveTaskOrder = (props) => {
         ifMatchETag: eTag,
         onSuccessFlashMsg: `Diversion successfully requested for Shipment #${shipmentLocator}`,
         shipmentLocator,
+        diversionReason,
       },
       {
         onSuccess: (data, variables) => {
