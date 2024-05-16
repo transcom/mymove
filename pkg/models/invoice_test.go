@@ -46,6 +46,7 @@ func (suite *ModelSuite) TestInvoiceValidation() {
 
 	for name, test := range testCases {
 		suite.Run(name, func() {
+			//nolint:gosec // G601
 			suite.verifyValidationErrors(&test.invoice, test.expectedErrs)
 		})
 	}

@@ -89,7 +89,7 @@ func RegisterDBStatsObserver(appCtx appcontext.AppContext, config *Config) error
 
 	lastStats := time.Now()
 	_, err = dbMeter.RegisterCallback(
-		func(ctx context.Context, observer metric.Observer) error {
+		func(_ context.Context, observer metric.Observer) error {
 			lock.Lock()
 			defer lock.Unlock()
 

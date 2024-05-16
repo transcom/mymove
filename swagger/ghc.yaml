@@ -191,6 +191,70 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.customer
+  /customer/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search customers by DOD ID or customer name
+      description: >
+        Search customers by DOD ID or customer name. Used by services counselors
+        to locate profiles to update, find attached moves, and to create new
+        moves.
+      operationId: searchCustomers
+      tags:
+        - customer
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+              branch:
+                description: Branch
+                type: string
+                minLength: 1
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  - customerName
+                  - dodID
+                  - branch
+                  - personalEmail
+                  - telephone
+              order:
+                type: string
+                x-nullable: true
+                enum:
+                  - asc
+                  - desc
+          description: field that results should be sorted by
+      responses:
+        '200':
+          description: Successfully returned all customers matching the criteria
+          schema:
+            $ref: '#/definitions/SearchCustomersResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /move/{locator}:
     parameters:
       - description: Code used to identify a move in the system
@@ -3726,6 +3790,8 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
       active:
         type: boolean
       roles:
@@ -3768,6 +3834,18 @@ definitions:
       - status
       - createdAt
       - updatedAt
+  LockedOfficeUser:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
   OfficeUserCreate:
     type: object
     properties:
@@ -3892,6 +3970,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   CreatedCustomer:
     type: object
     properties:
@@ -3951,6 +4031,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3995,6 +4077,8 @@ definitions:
       backupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
@@ -4047,6 +4131,52 @@ definitions:
           - $ref: '#/definitions/Address'
       createOktaAccount:
         type: boolean
+      cacUser:
+        type: boolean
+  SearchCustomersResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchCustomers:
+        $ref: '#/definitions/SearchCustomers'
+  SearchCustomers:
+    type: array
+    items:
+      $ref: '#/definitions/SearchCustomer'
+  SearchCustomer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        x-nullable: true
+      branch:
+        type: string
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
   Entitlements:
     properties:
       id:
@@ -4062,6 +4192,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -4270,6 +4403,17 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -4837,6 +4981,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4908,6 +5058,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -5751,6 +5907,17 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5855,6 +6022,14 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5924,6 +6099,8 @@ definitions:
         type: string
         format: date
         x-nullable: true
+      orderType:
+        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -5932,8 +6109,14 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
-      orderType:
+      lockedByOfficeUserID:
         type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:
@@ -6422,41 +6605,6 @@ definitions:
       - city
       - state
       - postalCode
-  DutyLocation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - LOCAL_MOVE
-      - RETIREMENT
-      - SEPARATION
-      - WOUNDED_WARRIOR
-      - BLUEBARK
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      LOCAL_MOVE: Local Move
-      RETIREMENT: Retirement
-      SEPARATION: Separation
-      WOUNDED_WARRIOR: Wounded Warrior
-      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:
@@ -6500,6 +6648,41 @@ definitions:
       - address
       - created_at
       - updated_at
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
+      - RETIREMENT
+      - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      LOCAL_MOVE: Local Move
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   NullableString:
     type: string
     x-go-type:

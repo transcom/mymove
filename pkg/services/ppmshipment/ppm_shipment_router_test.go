@@ -244,7 +244,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(
 			mtoShipmentRouterMethodToMock,
-			func(_ appcontext.AppContext, mtoShipment *models.MTOShipment) error {
+			func(_ appcontext.AppContext, _ *models.MTOShipment) error {
 				return fakeMTOShipmentRouterErr
 			},
 		)

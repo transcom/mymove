@@ -133,7 +133,7 @@ func main() {
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
 		Long:  "To install completion scripts run:\n\nmilmove completion > /usr/local/etc/bash_completion.d/milmove",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			return root.GenBashCompletion(os.Stdout)
 		},
 	}

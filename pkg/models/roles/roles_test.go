@@ -7,7 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	. "github.com/transcom/mymove/pkg/models/roles"
+	m "github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -32,9 +32,9 @@ func (suite *RolesSuite) TestFetchRolesForUser() {
 		},
 		{
 			Model: models.User{
-				Roles: []Role{
+				Roles: []m.Role{
 					{
-						RoleType: RoleTypePrime,
+						RoleType: m.RoleTypePrime,
 					},
 				},
 			},
@@ -49,20 +49,20 @@ func (suite *RolesSuite) TestFetchRolesForUser() {
 		},
 		{
 			Model: models.User{
-				Roles: []Role{
+				Roles: []m.Role{
 					{
-						RoleType: RoleTypeTIO,
+						RoleType: m.RoleTypeTIO,
 					},
 				},
 			},
 		},
 	}, nil)
 
-	userRoles, err := FetchRolesForUser(suite.DB(), *officeUserOne.UserID)
+	userRoles, err := m.FetchRolesForUser(suite.DB(), *officeUserOne.UserID)
 	suite.NoError(err)
 	suite.Equal(1, len(userRoles), userRoles)
 
-	userRoles, err = FetchRolesForUser(suite.DB(), *officeUserTwo.UserID)
+	userRoles, err = m.FetchRolesForUser(suite.DB(), *officeUserTwo.UserID)
 	suite.NoError(err)
 	suite.Equal(1, len(userRoles), userRoles)
 }

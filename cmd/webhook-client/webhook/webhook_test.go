@@ -91,7 +91,7 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 	// listed in the subscription. On success or failure, it should update the
 	// notification.Status with SENT or FAILED accordingly
 
-	suite.T().Run("Successful post to staging", func(t *testing.T) {
+	suite.T().Run("Successful post to staging", func(_ *testing.T) {
 
 		// Under test: sendOneNotification function
 		// Set up:     We provide a PENDING webhook notification, and point the
@@ -161,7 +161,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 	// listed in the subscription. On success or failure, it should update the
 	// notification.Status with SENT or FAILED accordingly
 
-	suite.T().Run("Successful post, updated notification", func(t *testing.T) {
+	suite.T().Run("Successful post, updated notification", func(_ *testing.T) {
 
 		// Under test: sendOneNotification function
 		// Mocked:     Client
@@ -196,7 +196,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 
 	})
 
-	suite.T().Run("Failed post, updated notification", func(t *testing.T) {
+	suite.T().Run("Failed post, updated notification", func(_ *testing.T) {
 
 		// Under test: sendOneNotification function
 		// Mocked:     Client
@@ -235,7 +235,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		suite.False(notif.FirstAttemptedAt.IsZero())
 	})
 
-	suite.T().Run("Failed post due to send error, updated notification", func(t *testing.T) {
+	suite.T().Run("Failed post due to send error, updated notification", func(_ *testing.T) {
 
 		// Under test: sendOneNotification function
 		// Mocked:     Client
@@ -273,7 +273,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		suite.False(notif.FirstAttemptedAt.IsZero())
 	})
 
-	suite.T().Run("Failed post twice, then success, updated notification", func(t *testing.T) {
+	suite.T().Run("Failed post twice, then success, updated notification", func(_ *testing.T) {
 
 		// Under test: sendOneNotification function
 		// Mocked:     Client
@@ -578,7 +578,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 	}
 	numExpectedPosts := 0
 
-	suite.T().Run("Severity 3 failure", func(t *testing.T) {
+	suite.T().Run("Severity 3 failure", func(_ *testing.T) {
 		// Set up:     We provide a PENDING webhook notification with an ACTIVE subscription.
 		//             Client returns failure repeatedly
 		// Expected outcome:
@@ -612,7 +612,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 	})
 
-	suite.T().Run("Severity 3 failure, no raised severity", func(t *testing.T) {
+	suite.T().Run("Severity 3 failure, no raised severity", func(_ *testing.T) {
 
 		// Set up:     Notification has failed once, marked as FAILING
 		// Expected outcome:
@@ -648,7 +648,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 	})
 
-	suite.T().Run("Severity 2 failure", func(t *testing.T) {
+	suite.T().Run("Severity 2 failure", func(_ *testing.T) {
 
 		// Set up:     Notification has failed once, marked as FAILING
 		//			   We update the firstAttemptedAt time to mimic a notification that's been failing
@@ -687,7 +687,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 	})
 
-	suite.T().Run("Severity 1 failure - deactivation", func(t *testing.T) {
+	suite.T().Run("Severity 1 failure - deactivation", func(_ *testing.T) {
 
 		// Set up:     Notification is FAILING already
 		//			   We update the firstAttemptedAt time to mimic a notification that's been failing
@@ -726,7 +726,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 	})
 
-	suite.T().Run("Notification not tried again", func(t *testing.T) {
+	suite.T().Run("Notification not tried again", func(_ *testing.T) {
 
 		// Set up:     Notification has FAILED, subscription has been DISABLED
 		// Expected outcome:
@@ -783,7 +783,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingRecovery() {
 		StatusCode: 400,
 	}
 
-	suite.T().Run("Severity 3 failure", func(t *testing.T) {
+	suite.T().Run("Severity 3 failure", func(_ *testing.T) {
 
 		// Set up:     We provide 3 PENDING webhook notifications with active subscriptions.
 		//             Client returns failure repeatedly
@@ -816,7 +816,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingRecovery() {
 
 	})
 
-	suite.T().Run("Successful recovery", func(t *testing.T) {
+	suite.T().Run("Successful recovery", func(_ *testing.T) {
 		// Set up:     We provide 3 PENDING webhook notifications with active subscriptions.
 		//             One notification and subscription is marked as FAILING
 		//             Client succeeds this time
@@ -883,7 +883,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunNoThresholds() {
 		StatusCode: 400,
 	}
 
-	suite.T().Run("Any failure is Severity 1", func(t *testing.T) {
+	suite.T().Run("Any failure is Severity 1", func(_ *testing.T) {
 
 		// Set up:     We provide 3 PENDING webhook notifications with active subscriptions.
 		//             No thresholds are set, empty array
@@ -1076,7 +1076,7 @@ func (suite *WebhookClientTestingSuite) Test_GetSeverity() {
 		{attempt: -7201 * time.Second, expectedLevel: 1},
 	}
 	for _, data := range testData {
-		suite.T().Run(fmt.Sprintf("Returns severity level %d", data.expectedLevel), func(t *testing.T) {
+		suite.T().Run(fmt.Sprintf("Returns severity level %d", data.expectedLevel), func(_ *testing.T) {
 			currentTime := time.Now()
 			attempt := currentTime.Add(data.attempt)
 			severity := engine.GetSeverity(currentTime, attempt)

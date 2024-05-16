@@ -24,7 +24,7 @@ func checkID() progearWeightTicketValidator {
 }
 
 func checkBaseRequiredFields() progearWeightTicketValidator {
-	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, oldProgearWeightTicket *models.ProgearWeightTicket) error {
+	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, _ *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
 		if newProgearWeightTicket == nil {
@@ -93,7 +93,7 @@ func verifyReasonAndStatusAreConstant() progearWeightTicketValidator {
 }
 
 func verifyReasonAndStatusAreValid() progearWeightTicketValidator {
-	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, originalProgearWeightTicket *models.ProgearWeightTicket) error {
+	return progearWeightTicketValidatorFunc(func(_ appcontext.AppContext, newProgearWeightTicket *models.ProgearWeightTicket, _ *models.ProgearWeightTicket) error {
 		verrs := validate.NewErrors()
 
 		if newProgearWeightTicket.Status != nil {
