@@ -184,9 +184,7 @@ export default function ReviewExpense({
                   </div>
                 </>
               )}
-              <h3 className={styles.reviewHeader}>
-                {`Review ${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
-              </h3>
+              <h3 className={styles.reviewHeader}>{`Review ${allCase(selectedExpenseType)} #${categoryIndex}`}</h3>
               <p>Add a review for this {allCase(expenseName)}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
