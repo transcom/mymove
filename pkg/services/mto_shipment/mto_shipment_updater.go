@@ -777,7 +777,7 @@ type mtoShipmentStatusUpdater struct {
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string) (*models.MTOShipment, error) {
 	shipment, err := fetchShipment(appCtx, shipmentID, o.builder)
 	if err != nil {
 		return nil, err
@@ -799,7 +799,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 	case models.MTOShipmentStatusCanceled:
 		err = shipmentRouter.Cancel(appCtx, shipment)
 	case models.MTOShipmentStatusDiversionRequested:
-		err = shipmentRouter.RequestDiversion(appCtx, shipment)
+		err = shipmentRouter.RequestDiversion(appCtx, shipment, diversionReason)
 	case models.MTOShipmentStatusRejected:
 		err = shipmentRouter.Reject(appCtx, shipment, rejectionReason)
 	default:
