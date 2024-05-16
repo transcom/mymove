@@ -1,11 +1,13 @@
 import React from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { generatePath } from 'react-router';
 
 import { CreateCustomerForm } from './CreateCustomerForm';
 
 import { MockProviders } from 'testUtils';
 import { createCustomerWithOktaOption } from 'services/ghcApi';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -63,53 +65,61 @@ const fakePayload = {
 };
 
 const fakeResponse = {
-  affiliation: 'string',
-  firstName: 'John',
-  lastName: 'Doe',
-  telephone: '216-421-1392',
-  personalEmail: '73sGJ6jq7cS%6@PqElR.WUzkqFNvtduyyA',
-  suffix: 'Jr.',
-  middleName: 'David',
-  residentialAddress: {
-    id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
-    streetAddress1: '123 Main Ave',
-    streetAddress2: 'Apartment 9000',
-    streetAddress3: 'Montmârtre',
-    city: 'Anytown',
-    eTag: 'string',
-    state: 'AL',
-    postalCode: '90210',
-    country: 'USA',
-  },
-  backupContact: {
-    name: 'string',
-    email: 'backupContact@mail.com',
-    phone: '381-100-5880',
-  },
-  id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
-  edipi: 'string',
-  userID: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
-  oktaID: 'string',
-  oktaEmail: 'string',
-  phoneIsPreferred: true,
-  emailIsPreferred: true,
-  secondaryTelephone: '499-793-2722',
-  backupAddress: {
-    id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
-    streetAddress1: '123 Main Ave',
-    streetAddress2: 'Apartment 9000',
-    streetAddress3: 'Montmârtre',
-    city: 'Anytown',
-    eTag: 'string',
-    state: 'AL',
-    postalCode: '90210',
-    country: 'USA',
+  createdCustomer: {
+    '7575b55a-0e14-4f11-8e42-10232d22b135': {
+      affiliation: 'string',
+      firstName: 'John',
+      lastName: 'Doe',
+      telephone: '216-421-1392',
+      personalEmail: '73sGJ6jq7cS%6@PqElR.WUzkqFNvtduyyA',
+      suffix: 'Jr.',
+      middleName: 'David',
+      residentialAddress: {
+        id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+        streetAddress1: '123 Main Ave',
+        streetAddress2: 'Apartment 9000',
+        streetAddress3: 'Montmârtre',
+        city: 'Anytown',
+        eTag: 'string',
+        state: 'AL',
+        postalCode: '90210',
+        country: 'USA',
+      },
+      backupContact: {
+        name: 'string',
+        email: 'backupContact@mail.com',
+        phone: '381-100-5880',
+      },
+      id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+      edipi: 'string',
+      userID: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+      oktaID: 'string',
+      oktaEmail: 'string',
+      phoneIsPreferred: true,
+      emailIsPreferred: true,
+      secondaryTelephone: '499-793-2722',
+      backupAddress: {
+        id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+        streetAddress1: '123 Main Ave',
+        streetAddress2: 'Apartment 9000',
+        streetAddress3: 'Montmârtre',
+        city: 'Anytown',
+        eTag: 'string',
+        state: 'AL',
+        postalCode: '90210',
+        country: 'USA',
+      },
+    },
   },
 };
 
 const testProps = {
   setFlashMessage: jest.fn(),
 };
+
+const ordersPath = generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
+  customerId: '7575b55a-0e14-4f11-8e42-10232d22b135',
+});
 
 describe('CreateCustomerForm', () => {
   it('renders without crashing', async () => {
@@ -194,8 +204,10 @@ describe('CreateCustomerForm', () => {
     });
     await userEvent.click(saveBtn);
 
-    expect(createCustomerWithOktaOption).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath);
+    });
   }, 10000);
 
   it('submits the form and tests for unsupported state validation', async () => {
