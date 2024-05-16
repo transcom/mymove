@@ -26,12 +26,12 @@ type GetMovesQueueHandler struct {
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
 type FilterOption func(*pop.Query)
 
-// Handle returns the paginated list of moves for the TOO user
+// Handle returns the paginated list of moves for the TOO or HQ user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) || !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TOO office role",
 				)
