@@ -96,11 +96,6 @@ type SearchMovesParams struct {
 	MoveCreatedDate       *time.Time
 }
 
-type SearchMovesSinceParams struct {
-	SinceCreatedDate *time.Time
-	CountToReturn    int64
-}
-
 type MoveCloseoutOfficeUpdater interface {
 	UpdateCloseoutOffice(appCtx appcontext.AppContext, moveLocator string, closeoutOfficeID uuid.UUID, eTag string) (*models.Move, error)
 }

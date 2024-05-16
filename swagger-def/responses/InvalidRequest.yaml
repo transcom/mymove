@@ -1,4 +1,0 @@
-description: The request was invalid as called.
-schema:
-  $ref: '../definitions/ClientError.yaml'
-
