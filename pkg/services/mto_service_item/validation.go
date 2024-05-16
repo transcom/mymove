@@ -46,7 +46,7 @@ func validateServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOSe
 }
 
 func checkMoveStatus() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, _ string) error {
+	return validatorFunc(func(_ appcontext.AppContext, serviceItem *models.MTOServiceItem, _ string) error {
 		verrs := validate.NewErrors()
 		move := serviceItem.MoveTaskOrder
 
@@ -60,7 +60,7 @@ func checkMoveStatus() validator {
 }
 
 func checkETag() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) error {
+	return validatorFunc(func(_ appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) error {
 		existingETag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		if existingETag != eTag {
 			return apperror.NewPreconditionFailedError(serviceItem.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
