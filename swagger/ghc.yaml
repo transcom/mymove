@@ -5510,6 +5510,13 @@ definitions:
   UpdateMovingExpense:
     type: object
     properties:
+      movingExpenseType:
+        $ref: '#/definitions/OmittableMovingExpenseType'
+      description:
+        description: A brief description of the expense.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
         type: integer
@@ -5530,6 +5537,9 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7298,7 +7308,7 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAllowanceEndDate:
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
@@ -7654,6 +7664,11 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
@@ -8383,6 +8398,12 @@ definitions:
         x-nullable: true
         readOnly: true
         example: 1K43AR-01
+      originSitAuthEndDate:
+        format: date-time
+        type: string
+      destinationSitAuthEndDate:
+        format: date-time
+        type: string
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
