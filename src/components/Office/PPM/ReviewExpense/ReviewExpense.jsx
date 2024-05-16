@@ -80,10 +80,12 @@ export default function ReviewExpense({
     reason: reason || '',
   };
 
+  const [selectedExpenseType, setSelectedExpenseType] = React.useState(expenseTypeLabels[movingExpenseType]);
   const handleSubmit = (values) => {
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
-      description: expense.description,
+      movingExpenseType: ppmExpenseTypes.find((expenseType) => expenseType.value === selectedExpenseType).key,
+      description: values.description,
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
       sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
@@ -91,6 +93,7 @@ export default function ReviewExpense({
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
     };
+
     patchExpenseMutation({
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseId: expense.id,
@@ -128,7 +131,6 @@ export default function ReviewExpense({
                   .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
               : '##';
 
-          const initialExpenseType = expenseTypeLabels[movingExpenseType];
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
@@ -143,7 +145,8 @@ export default function ReviewExpense({
                 id="movingExpenseType"
                 required
                 className={classnames('usa-select')}
-                defaultValue={initialExpenseType}
+                value={selectedExpenseType}
+                onChange={(e) => setSelectedExpenseType(e.target.value)}
               >
                 {ppmExpenseTypes.map((x) => (
                   <option key={x.key}>{x.value}</option>
