@@ -48,6 +48,7 @@ func NewWebhookRuntime(contentType string, insecure bool, debug bool) *WebhookRu
 }
 
 // SetupClient sets up either CAC or cert, key client
+// #nosec G402
 func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, error) {
 
 	// Set up the httpClient with tls certificate
@@ -61,9 +62,9 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: CAT III
-	// #nosec G402
 	tlsConfig := tls.Config{
-		Certificates:       []tls.Certificate{*cert},
+		Certificates: []tls.Certificate{*cert},
+		//nolint:gosec //G402
 		InsecureSkipVerify: wr.Insecure,
 		MinVersion:         tls.VersionTLS12,
 		MaxVersion:         tls.VersionTLS12,

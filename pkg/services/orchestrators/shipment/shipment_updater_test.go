@@ -94,7 +94,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 						return &updatedShip
 					},
-					func(_ appcontext.AppContext, ship *models.PPMShipment, _ uuid.UUID) error {
+					func(_ appcontext.AppContext, _ *models.PPMShipment, _ uuid.UUID) error {
 						return nil
 					},
 				)

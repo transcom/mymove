@@ -26,3 +26,4 @@ export const REPORT_VIOLATIONS = 'reportViolations';
 export const DOCUMENTS = 'documents';
 export const PPMCLOSEOUT = 'ppmCloseout';
 export const PPMACTUALWEIGHT = 'ppmActualWeight';
+export const SC_CUSTOMER_SEARCH = 'scCustomerSearch';

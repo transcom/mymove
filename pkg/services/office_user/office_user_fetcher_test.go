@@ -40,10 +40,10 @@ func (t *testOfficeUserQueryBuilder) QueryForAssociations(_ appcontext.AppContex
 }
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
-	suite.Run("if the user is fetched, it should be returned", func() {
+	suite.Run("if the user is fetched, it should be re turned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(_ appcontext.AppContext, model interface{}) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
 			return nil
 		}
@@ -67,7 +67,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	})
 
 	suite.Run("if there is an error, we get it with zero office user", func() {
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(_ appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testOfficeUserQueryBuilder{
