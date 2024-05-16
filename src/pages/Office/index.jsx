@@ -94,7 +94,6 @@ const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustome
 const ServicesCounselingAddOrders = lazy(() =>
   import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
 );
-
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);

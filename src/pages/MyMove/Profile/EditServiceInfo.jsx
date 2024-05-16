@@ -15,13 +15,19 @@ import {
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMember, moveIsInDraft }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
   const { state } = useLocation();
 
   useEffect(() => {
+    const fetchData = async () => {
+      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
+    };
+    fetchData();
     if (!moveIsInDraft) {
       // Redirect to the home page
       navigate(generalRoutes.HOME_PATH);
@@ -37,6 +43,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
     edipi: serviceMember?.edipi || '',
     orders_type: currentOrders?.orders_type || '',
     departmentIndicator: currentOrders?.department_indicator,
+    emplid: serviceMember?.emplid || '',
   };
 
   const handleSubmit = (values) => {
@@ -48,6 +55,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
       suffix: values.suffix,
       affiliation: values.affiliation,
       edipi: values.edipi,
+      emplid: values.affiliation === 'COAST_GUARD' && isEmplidEnabled ? values.emplid : null,
     };
 
     patchServiceMember(payload)
@@ -58,7 +66,12 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        let errorMessage;
+        if (e.response.body.message === 'Unhandled data error encountered') {
+          errorMessage = 'This EMPLID is already in use';
+        } else {
+          errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        }
         setServerError(errorMessage);
       });
   };
@@ -80,6 +93,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
         newDutyLocation={currentOrders?.new_duty_location}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
+        isEmplidEnabled={isEmplidEnabled}
       />
     </GridContainer>
   );
