@@ -251,7 +251,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev2messages.MTOAgents {
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primev2messages.ProofOfServiceDoc {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
 	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
-		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
+		for i, primeUpload := range proofOfServiceDoc.PrimeUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&primeUpload.Upload)
 		}
 	}
@@ -381,7 +381,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primev2messages.ServiceRequestDocument {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
 	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
-		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
+		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
 		}
 	}
@@ -468,6 +468,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
+		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
+		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 	}
 
 	// Set up address payloads

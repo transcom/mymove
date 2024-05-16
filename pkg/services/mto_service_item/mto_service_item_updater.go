@@ -86,7 +86,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	}
 
 	sitStatusService := sitstatus.NewShipmentSITStatus()
-	shipmentSITStatus, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
+	shipmentSITStatus, _, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
 	if err != nil {
 		return nil, err
 	} else if shipmentSITStatus == nil {
@@ -283,7 +283,7 @@ func (p *mtoServiceItemUpdater) convertItemToCustomerExpense(
 		return nil, verr
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		serviceItem.CustomerExpense = convertToCustomerExpense
 		serviceItem.CustomerExpenseReason = customerExpenseReason
 		verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)

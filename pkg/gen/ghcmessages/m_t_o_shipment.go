@@ -78,6 +78,10 @@ type MTOShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// destination sit auth end date
+	// Format: date-time
+	DestinationSitAuthEndDate strfmt.DateTime `json:"destinationSitAuthEndDate,omitempty"`
+
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
@@ -121,6 +125,10 @@ type MTOShipment struct {
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
 	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
+	// origin sit auth end date
+	// Format: date-time
+	OriginSitAuthEndDate strfmt.DateTime `json:"originSitAuthEndDate,omitempty"`
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
@@ -242,6 +250,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationSitAuthEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -259,6 +271,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoServiceItems(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginSitAuthEndDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -438,6 +454,18 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 	return nil
 }
 
+func (m *MTOShipment) validateDestinationSitAuthEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationSitAuthEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("destinationSitAuthEndDate", "body", "date-time", m.DestinationSitAuthEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateDestinationType(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationType) { // not required
 		return nil
@@ -509,6 +537,18 @@ func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("mtoServiceItems")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateOriginSitAuthEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginSitAuthEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("originSitAuthEndDate", "body", "date-time", m.OriginSitAuthEndDate.String(), formats); err != nil {
 		return err
 	}
 

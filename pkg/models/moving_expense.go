@@ -45,23 +45,27 @@ var AllowedExpenseTypes = []string{
 }
 
 type MovingExpense struct {
-	ID                uuid.UUID                 `json:"id" db:"id"`
-	PPMShipmentID     uuid.UUID                 `json:"ppm_shipment_id" db:"ppm_shipment_id"`
-	PPMShipment       PPMShipment               `belongs_to:"ppm_shipments" fk_id:"ppm_shipment_id"`
-	DocumentID        uuid.UUID                 `json:"document_id" db:"document_id"`
-	Document          Document                  `belongs_to:"documents" fk_id:"document_id"`
-	CreatedAt         time.Time                 `json:"created_at" db:"created_at"`
-	UpdatedAt         time.Time                 `json:"updated_at" db:"updated_at"`
-	DeletedAt         *time.Time                `json:"deleted_at" db:"deleted_at"`
-	MovingExpenseType *MovingExpenseReceiptType `json:"moving_expense_type" db:"moving_expense_type"`
-	Description       *string                   `json:"description" db:"description"`
-	PaidWithGTCC      *bool                     `json:"paid_with_gtcc" db:"paid_with_gtcc"`
-	Amount            *unit.Cents               `json:"amount" db:"amount"`
-	MissingReceipt    *bool                     `json:"missing_receipt" db:"missing_receipt"`
-	Status            *PPMDocumentStatus        `json:"status" db:"status"`
-	Reason            *string                   `json:"reason" db:"reason"`
-	SITStartDate      *time.Time                `json:"sit_start_date" db:"sit_start_date"`
-	SITEndDate        *time.Time                `json:"sit_end_date" db:"sit_end_date"`
+	ID                    uuid.UUID                 `json:"id" db:"id"`
+	PPMShipmentID         uuid.UUID                 `json:"ppm_shipment_id" db:"ppm_shipment_id"`
+	PPMShipment           PPMShipment               `belongs_to:"ppm_shipments" fk_id:"ppm_shipment_id"`
+	DocumentID            uuid.UUID                 `json:"document_id" db:"document_id"`
+	Document              Document                  `belongs_to:"documents" fk_id:"document_id"`
+	CreatedAt             time.Time                 `json:"created_at" db:"created_at"`
+	UpdatedAt             time.Time                 `json:"updated_at" db:"updated_at"`
+	DeletedAt             *time.Time                `json:"deleted_at" db:"deleted_at"`
+	MovingExpenseType     *MovingExpenseReceiptType `json:"moving_expense_type" db:"moving_expense_type"`
+	Description           *string                   `json:"description" db:"description"`
+	PaidWithGTCC          *bool                     `json:"paid_with_gtcc" db:"paid_with_gtcc"`
+	Amount                *unit.Cents               `json:"amount" db:"amount"`
+	SubmittedAmount       *unit.Cents               `json:"submitted_amount" db:"submitted_amount"`
+	MissingReceipt        *bool                     `json:"missing_receipt" db:"missing_receipt"`
+	Status                *PPMDocumentStatus        `json:"status" db:"status"`
+	Reason                *string                   `json:"reason" db:"reason"`
+	SITStartDate          *time.Time                `json:"sit_start_date" db:"sit_start_date"`
+	SubmittedSITStartDate *time.Time                `json:"submitted_sit_start_date" db:"submitted_sit_start_date"`
+	SITEndDate            *time.Time                `json:"sit_end_date" db:"sit_end_date"`
+	SubmittedSITEndDate   *time.Time                `json:"submitted_sit_end_date" db:"submitted_sit_end_date"`
+	WeightStored          *unit.Pound               `json:"weight_stored" db:"weight_stored"`
 }
 
 // TableName overrides the table name used by Pop.

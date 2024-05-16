@@ -76,9 +76,9 @@ func Clamp(input, min, max int) (int, error) {
 
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
 // multiple handlers in the `ghcapi` package for the MTOShipment handlers.
-func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
+func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, models.MTOShipment, error) {
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
-		return nil, nil
+		return nil, shipment, nil
 	}
 
 	var shipmentSITStatus services.SITStatus
@@ -92,17 +92,17 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	// There were no relevant SIT service items for this shipment
 	if currentSIT == nil && len(shipmentSITs.pastSITs) == 0 {
-		return nil, nil
+		return nil, shipment, nil
 	}
 
 	shipmentSITStatus.ShipmentID = shipment.ID
 	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
 	if err != nil {
-		return nil, err
+		return nil, shipment, err
 	}
 	totalSITDaysUsedClampedResult, totalDaysUsedErr := Clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, totalSITAllowance)
 	if totalDaysUsedErr != nil {
-		return nil, err
+		return nil, shipment, err
 	}
 	shipmentSITStatus.TotalSITDaysUsed = totalSITDaysUsedClampedResult
 	shipmentSITStatus.CalculatedTotalDaysInSIT = CalculateTotalDaysInSIT(shipmentSITs, today)
@@ -117,17 +117,19 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		daysInSIT := daysInSIT(*currentSIT, today)
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
-		sitAllowanceEndDate := CalculateSITAllowanceEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
+		sitAuthorizedEndDate := CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
 		var sitCustomerContacted, sitRequestedDelivery *time.Time
 		sitCustomerContacted = currentSIT.SITCustomerContacted
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
 
-		doaSIT := getAdditionalSIT(shipmentSITs, shipment, today)
+		// we need to grab the add'l day SIT service item because the departure date, requested delivery, and customer contacted values
+		// are the ones we care about when displaying them in the SIT dashboard for office users
+		additionalDaysSIT := getAdditionalSIT(shipmentSITs, shipment, today, location)
 
-		if doaSIT != nil {
-			sitCustomerContacted = doaSIT.SITCustomerContacted
-			sitRequestedDelivery = doaSIT.SITRequestedDelivery
-			sitDepartureDate = doaSIT.SITDepartureDate
+		if additionalDaysSIT != nil {
+			sitCustomerContacted = additionalDaysSIT.SITCustomerContacted
+			sitRequestedDelivery = additionalDaysSIT.SITRequestedDelivery
+			sitDepartureDate = additionalDaysSIT.SITDepartureDate
 		}
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
@@ -136,13 +138,21 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 			DaysInSIT:            daysInSIT,
 			SITEntryDate:         sitEntryDate,
 			SITDepartureDate:     sitDepartureDate,
-			SITAllowanceEndDate:  sitAllowanceEndDate,
+			SITAuthorizedEndDate: sitAuthorizedEndDate,
 			SITCustomerContacted: sitCustomerContacted,
 			SITRequestedDelivery: sitRequestedDelivery,
 		}
-	}
 
-	return &shipmentSITStatus, nil
+		// update the shipment's OriginSITAuthEndDate or DestinationSITAuthEndDate depending on what currentSIT location is
+		if shipmentSITStatus.CurrentSIT != nil {
+			if location == OriginSITLocation {
+				shipment.OriginSITAuthEndDate = &shipmentSITStatus.CurrentSIT.SITAuthorizedEndDate
+			} else {
+				shipment.DestinationSITAuthEndDate = &shipmentSITStatus.CurrentSIT.SITAuthorizedEndDate
+			}
+		}
+	}
+	return &shipmentSITStatus, shipment, nil
 }
 
 /*
@@ -178,7 +188,7 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
 
 // Private function getAdditionalSIT is used to return the current SIT
 // service item with the reServiceCode of DOASIT or DDASIT
-func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipment, today time.Time) *models.MTOServiceItem {
+func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipment, today time.Time, location string) *models.MTOServiceItem {
 	for _, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
 		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
@@ -197,8 +207,10 @@ func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipme
 		return nil
 	}
 
+	// we want to return the correct add'l SIT service item based on location
 	for _, serviceItem := range shipmentSITs.currentSITs {
-		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT {
+		if (serviceItem.ReService.Code == models.ReServiceCodeDOASIT && location == OriginSITLocation) ||
+			(serviceItem.ReService.Code == models.ReServiceCodeDDASIT && location == DestinationSITLocation) {
 			return &serviceItem
 		}
 	}
@@ -244,7 +256,7 @@ func CalculateTotalPastDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Tim
 	return totalDays
 }
 
-func CalculateSITAllowanceEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, calculatedTotalDaysInSIT int) time.Time {
+func CalculateSITAuthorizedEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, calculatedTotalDaysInSIT int) time.Time {
 	return sitEntryDate.AddDate(0, 0, (totalSITAllowance - (calculatedTotalDaysInSIT - currentDaysInSIT)))
 }
 
@@ -252,7 +264,7 @@ func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppCo
 	shipmentsSITStatuses := map[string]services.SITStatus{}
 
 	for _, shipment := range shipments {
-		shipmentSITStatus, _ := f.CalculateShipmentSITStatus(appCtx, shipment)
+		shipmentSITStatus, _, _ := f.CalculateShipmentSITStatus(appCtx, shipment)
 		if shipmentSITStatus != nil {
 			shipmentsSITStatuses[shipment.ID.String()] = *shipmentSITStatus
 		}
