@@ -30,7 +30,7 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {
 	suite.Run("if the requested office user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(_ appcontext.AppContext, model interface{}) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
 			return nil
 		}
@@ -49,7 +49,7 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {
 	})
 
 	suite.Run("if there is an error, we get it with zero admin user", func() {
-		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(_ appcontext.AppContext, _ interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testRequestedOfficeUsersQueryBuilder{

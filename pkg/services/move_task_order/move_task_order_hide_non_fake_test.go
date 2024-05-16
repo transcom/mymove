@@ -6,7 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	. "github.com/transcom/mymove/pkg/services/move_task_order"
+	m "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
@@ -50,7 +50,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		return serviceMember
 	}
 
-	mtoHider := NewMoveTaskOrderHider()
+	mtoHider := m.NewMoveTaskOrderHider()
 
 	suite.Run("valid MTO, none to hide", func() {
 		// Under test:       Hide function hides moves that aren't using fake data
@@ -157,7 +157,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 				Type:     &factory.Addresses.BackupMailingAddress,
 				LinkOnly: true,
 			}}, nil)
-		result, reasons, err := IsValidFakeModelServiceMember(sm)
+		result, reasons, err := m.IsValidFakeModelServiceMember(sm)
 		suite.NoError(err)
 		suite.Equal(true, result)
 		toJSONString, _ := json.Marshal(reasons)
@@ -259,7 +259,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 		suite.Run(fmt.Sprintf("invalid fake Service Member %s", invalidFields[idx][0]), func() {
 			// Get the invalid service member and expected error
 			sm, expectedReason := setupInvalidTestData(idx)
-			result, reasons, err := IsValidFakeModelServiceMember(sm)
+			result, reasons, err := m.IsValidFakeModelServiceMember(sm)
 
 			// Expect no error, false result and the expected reason to match.
 			suite.NoError(err)
@@ -295,7 +295,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				},
 			},
 		}, nil)
-		result, err := IsValidFakeModelMTOAgent(agent)
+		result, err := m.IsValidFakeModelMTOAgent(agent)
 		suite.NoError(err)
 		suite.Equal(true, result)
 	})
@@ -308,7 +308,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	for idx, badData := range badFakeData {
 		suite.Run(fmt.Sprintf("invalid fake MTOAgent data %d", idx), func() {
 			agent := factory.BuildMTOAgent(suite.DB(), []factory.Customization{badData}, nil)
-			result, err := IsValidFakeModelMTOAgent(agent)
+			result, err := m.IsValidFakeModelMTOAgent(agent)
 			suite.NoError(err)
 			suite.Equal(false, result)
 		})
@@ -340,7 +340,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 				},
 			},
 		}, nil)
-		result, err := IsValidFakeModelBackupContact(validBackupContact)
+		result, err := m.IsValidFakeModelBackupContact(validBackupContact)
 		suite.NoError(err)
 		suite.Equal(true, result)
 	})
@@ -358,7 +358,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelB
 					Model: invalidData,
 				},
 			}, nil)
-			result, err := IsValidFakeModelBackupContact(bc)
+			result, err := m.IsValidFakeModelBackupContact(bc)
 			suite.NoError(err)
 			suite.Equal(false, result)
 		})
@@ -379,7 +379,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelA
 				},
 			},
 		}, nil)
-		result, err := IsValidFakeModelAddress(&address)
+		result, err := m.IsValidFakeModelAddress(&address)
 		suite.NoError(err)
 		suite.Equal(true, result)
 	})
@@ -398,7 +398,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelA
 				},
 			},
 		}, nil)
-		result, err := IsValidFakeModelAddress(&address)
+		result, err := m.IsValidFakeModelAddress(&address)
 		suite.NoError(err)
 		suite.Equal(false, result)
 	})
@@ -472,7 +472,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		// Expected outcome: Returns true, no error
 
 		validShipment := setupTestData()
-		result, reasons, err := IsValidFakeModelMTOShipment(validShipment)
+		result, reasons, err := m.IsValidFakeModelMTOShipment(validShipment)
 		suite.NoError(err)
 		suite.Equal(true, result)
 		toJSONString, _ := json.Marshal(reasons)
@@ -585,7 +585,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	for idx := 0; idx < 4; idx++ {
 		suite.Run(fmt.Sprintf("invalid fake MTOShipment %s", hideReasons[idx][0]), func() {
 			shipment, expectedReason := setupInvalidTestData(idx)
-			result, reasons, err := IsValidFakeModelMTOShipment(shipment)
+			result, reasons, err := m.IsValidFakeModelMTOShipment(shipment)
 			suite.NoError(err)
 			suite.Equal(false, result)
 			toJSONString, _ := json.Marshal(reasons)

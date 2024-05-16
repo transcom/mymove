@@ -20,6 +20,7 @@ import (
 type GetMovesQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
+	services.MoveUnlocker
 }
 
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -74,6 +75,22 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))
 				return queues.NewGetMovesQueueInternalServerError(), err
+			}
+
+			// if the TOO/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
@@ -144,6 +161,7 @@ func (h ListPrimeMovesHandler) Handle(params queues.ListPrimeMovesParams) middle
 type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerConfig
 	services.PaymentRequestListFetcher
+	services.MoveUnlocker
 }
 
 // Handle returns the paginated list of payment requests for the TIO user
@@ -197,6 +215,22 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
+			// if this TIO/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, pr := range *paymentRequests {
+					move := pr.MoveTaskOrder
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						unlockedMove, err := h.UnlockMove(appCtx, &move, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						(*paymentRequests)[i].MoveTaskOrder = *unlockedMove
+					}
+				}
+			}
+
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
@@ -214,6 +248,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 type GetServicesCounselingQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
+	services.MoveUnlocker
 }
 
 // Handle returns the paginated list of moves for the services counselor
@@ -279,6 +314,22 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
