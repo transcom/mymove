@@ -467,6 +467,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
+		CacValidated:       swag.BoolValue(&customer.CacValidated),
 	}
 	return &payload
 }
@@ -501,6 +502,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
 		BackupContact:      bc,
+		CacValidated:       swag.BoolValue(&sm.CacValidated),
 	}
 	return &payload
 }
@@ -1753,7 +1755,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
+			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
 			OriginGBLOC:             gbloc,
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
@@ -2009,4 +2011,20 @@ func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSI
 	}
 
 	return payload
+}
+
+func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustomers {
+	searchCustomers := make(ghcmessages.SearchCustomers, len(customers))
+	for i, customer := range customers {
+		searchCustomers[i] = &ghcmessages.SearchCustomer{
+			FirstName:     customer.FirstName,
+			LastName:      customer.LastName,
+			DodID:         customer.Edipi,
+			Branch:        customer.Affiliation.String(),
+			ID:            *handlers.FmtUUID(customer.ID),
+			PersonalEmail: *customer.PersonalEmail,
+			Telephone:     customer.Telephone,
+		}
+	}
+	return &searchCustomers
 }

@@ -24,7 +24,7 @@ func checkID() movingExpenseValidator {
 }
 
 func checkBaseRequiredFields() movingExpenseValidator {
-	return movingExpenseValidatorFunc(func(_ appcontext.AppContext, newMovingExpense *models.MovingExpense, originalMovingExpense *models.MovingExpense) error {
+	return movingExpenseValidatorFunc(func(_ appcontext.AppContext, newMovingExpense *models.MovingExpense, _ *models.MovingExpense) error {
 		verrs := validate.NewErrors()
 
 		if newMovingExpense.PPMShipmentID.IsNil() {

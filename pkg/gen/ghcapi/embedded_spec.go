@@ -314,6 +314,91 @@ func init() {
         }
       ]
     },
+    "/customer/search": {
+      "post": {
+        "description": "Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Search customers by DOD ID or customer name",
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "description": "field that results should be sorted by",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "branch": {
+                  "description": "Branch",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all customers matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchCustomersResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -5554,6 +5639,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -5946,6 +6034,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -6024,6 +6115,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -9872,6 +9966,67 @@ func init() {
         }
       }
     },
+    "SearchCustomer": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchCustomers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchCustomer"
+      }
+    },
+    "SearchCustomersResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchCustomers": {
+          "$ref": "#/definitions/SearchCustomers"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "SearchMove": {
       "type": "object",
       "properties": {
@@ -10497,6 +10652,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "current_address": {
           "allOf": [
@@ -11808,6 +11966,97 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/customer/search": {
+      "post": {
+        "description": "Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Search customers by DOD ID or customer name",
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "description": "field that results should be sorted by",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "branch": {
+                  "description": "Branch",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all customers matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchCustomersResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/customer/{customerID}": {
       "get": {
@@ -18293,6 +18542,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -18685,6 +18937,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -18763,6 +19018,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -22663,6 +22921,67 @@ func init() {
         }
       }
     },
+    "SearchCustomer": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchCustomers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchCustomer"
+      }
+    },
+    "SearchCustomersResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchCustomers": {
+          "$ref": "#/definitions/SearchCustomers"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "SearchMove": {
       "type": "object",
       "properties": {
@@ -23294,6 +23613,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cac_validated": {
+          "type": "boolean"
         },
         "current_address": {
           "allOf": [
