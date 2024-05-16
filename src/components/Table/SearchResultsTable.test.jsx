@@ -3,8 +3,6 @@ import { render, screen } from '@testing-library/react';
 
 import SearchResultsTable from './SearchResultsTable';
 
-import { roleTypes } from 'constants/userRoles';
-
 const mockTableData = [
   {
     branch: 'ARMY',
@@ -24,11 +22,34 @@ const mockTableData = [
   },
 ];
 
+const mockCustomerTableData = [
+  {
+    branch: 'MARINES',
+    dodID: '6585626513',
+    firstName: 'Ted',
+    id: '8604447b-cbfc-4d59-a9a1-dec219eb2046',
+    lastName: 'Marine',
+    personalEmail: 'leo_spaceman_sm@example.com',
+    telephone: '212-123-4567',
+  },
+];
+
 function mockQueries() {
   return {
     searchResult: {
       data: mockTableData,
       totalCount: mockTableData.length,
+    },
+    isLoading: false,
+    isError: false,
+    isSuccess: true,
+  };
+}
+function mockCustomerQueries() {
+  return {
+    searchResult: {
+      data: mockCustomerTableData,
+      totalCount: mockCustomerTableData.length,
     },
     isLoading: false,
     isError: false,
@@ -59,7 +80,7 @@ function mockErrorQuery() {
 }
 
 describe('SearchResultsTable', () => {
-  it('renders', () => {
+  it('renders a move search', () => {
     render(<SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} />);
     const results = screen.queryByText('Results (1)');
     expect(results).toBeInTheDocument();
@@ -74,19 +95,41 @@ describe('SearchResultsTable', () => {
     const destinationGBLOC = screen.queryByText('CNNQ');
     expect(destinationGBLOC).toBeInTheDocument();
   });
-  it('renders create move button when logged in as SC and FF is enabled', () => {
+  it('renders a customer search', () => {
     render(
       <SearchResultsTable
         handleClick={() => {}}
         title="Results"
-        useQueries={mockQueries}
-        roleType={roleTypes.SERVICES_COUNSELOR}
-        isCounselorMoveCreateFFEnabled
+        useQueries={mockCustomerQueries}
+        searchType="customer"
       />,
+    );
+    const results = screen.queryByText('Results (1)');
+    expect(results).toBeInTheDocument();
+    const branch = screen.queryByText('Marine Corps');
+    expect(branch).toBeInTheDocument();
+    const dodID = screen.queryByText('6585626513');
+    expect(dodID).toBeInTheDocument();
+    const name = screen.queryByText('Marine, Ted');
+    expect(name).toBeInTheDocument();
+    const email = screen.queryByText('leo_spaceman_sm@example.com');
+    expect(email).toBeInTheDocument();
+    const phone = screen.queryByText('212-123-4567');
+    expect(phone).toBeInTheDocument();
+  });
+  it('renders create move button on customer search', () => {
+    render(
+      <SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} searchType="customer" />,
     );
 
     const createMoveButton = screen.queryByTestId('searchCreateMoveButton');
     expect(createMoveButton).toBeInTheDocument();
+  });
+  it('does not render create move button on move search', () => {
+    render(<SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} searchType="move" />);
+
+    const createMoveButton = screen.queryByTestId('searchCreateMoveButton');
+    expect(createMoveButton).not.toBeInTheDocument();
   });
   it('loading', () => {
     render(
