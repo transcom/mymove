@@ -40,21 +40,26 @@ const TXOMoveInfo = () => {
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
   const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
+  const officeUser = data?.office_user;
 
   useEffect(() => {
     const fetchData = async () => {
       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
       setMoveLockFlag(lockedMoveFlag);
+      if (officeUser?.id !== move?.lockedByOfficeUserID && moveLockFlag) {
+        setIsMoveLocked(true);
+      }
     };
 
     fetchData();
-  }, []);
+  }, [move, officeUser, moveLockFlag]);
 
   const hideNav =
     matchPath(
@@ -99,7 +104,6 @@ const TXOMoveInfo = () => {
   // this locked move banner will display if the current user is not the one who has it locked
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
-    const officeUser = data?.office_user;
     if (move?.lockedByOfficeUserID && moveLockFlag) {
       if (move?.lockedByOfficeUserID !== officeUser?.id) {
         return (
@@ -157,6 +161,7 @@ const TXOMoveInfo = () => {
                 }
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -172,6 +177,7 @@ const TXOMoveInfo = () => {
                 setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -184,6 +190,7 @@ const TXOMoveInfo = () => {
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
                 setPendingPaymentRequestCount={setPendingPaymentRequestCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />

@@ -256,6 +256,7 @@ const SubmittedRequestedShipments = ({
                       name="counselingFee"
                       onChange={formik.handleChange}
                       data-testid="counselingFee"
+                      disabled={isMoveLocked}
                     />
                   )}
                 </Fieldset>
@@ -266,7 +267,7 @@ const SubmittedRequestedShipments = ({
               className={styles.approveButton}
               onClick={handleReviewClick}
               type="button"
-              disabled={!isButtonEnabled}
+              disabled={!isButtonEnabled || isMoveLocked}
             >
               <span>Approve selected</span>
             </Button>

@@ -45,6 +45,7 @@ const ShipmentDetailsMain = ({
   handleReviewSITExtension,
   handleSubmitSITExtension,
   handleUpdateSITServiceItemCustomerExpense,
+  isMoveLocked,
 }) => {
   const {
     requestedPickupDate,
@@ -247,6 +248,7 @@ const ShipmentDetailsMain = ({
           shipmentLocator: shipment.shipmentLocator,
         }}
         handleDivertShipment={handleDivertShipment}
+        isMoveLocked={isMoveLocked}
       />
       <ShipmentWeightDetails
         estimatedWeight={weightResult}
@@ -261,6 +263,7 @@ const ShipmentDetailsMain = ({
           shipmentActualSpouseProGearWeight: shipment.actualSpouseProGearWeight,
         }}
         handleRequestReweighModal={handleRequestReweighModal}
+        isMoveLocked={isMoveLocked}
       />
       {counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={counselorRemarks} />}
       {customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={customerRemarks} />}
