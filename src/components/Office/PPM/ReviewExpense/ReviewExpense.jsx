@@ -23,6 +23,7 @@ import { expenseTypeLabels, expenseTypes, ppmExpenseTypes } from 'constants/ppmE
 import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
+import TextField from 'components/form/fields/TextField/TextField';
 
 const validationSchema = Yup.object().shape({
   amount: Yup.string()
@@ -70,7 +71,6 @@ export default function ReviewExpense({
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
-    expense_type: 'Oil',
     description: description || '',
     amount: amount ? `${formatCents(amount)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
@@ -135,12 +135,12 @@ export default function ReviewExpense({
               <hr />
               <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
               <div className="labelWrapper">
-                <Label htmlFor="expense_type">Expense Type</Label>
+                <Label htmlFor="movingExpenseType">Expense Type</Label>
               </div>
               <select
                 label="Expense Type"
-                name="expense_type"
-                id="expense_type"
+                name="movingExpenseType"
+                id="movingExpenseType"
                 required
                 className={classnames('usa-select')}
                 defaultValue={initialExpenseType}
@@ -149,8 +149,13 @@ export default function ReviewExpense({
                   <option key={x.key}>{x.value}</option>
                 ))}
               </select>
-              <legend className={classnames('usa-label', styles.label)}>Description</legend>
-              <div className={styles.displayValue}>{description}</div>
+              <TextField
+                defaultValue={description}
+                name="description"
+                label="Description"
+                id="description"
+                className={styles.displayValue}
+              />
               <MaskedTextField
                 defaultValue="0"
                 name="amount"
