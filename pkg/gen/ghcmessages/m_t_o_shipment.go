@@ -89,6 +89,10 @@ type MTOShipment struct {
 	// Example: true
 	Diversion bool `json:"diversion,omitempty"`
 
+	// diversion reason
+	// Example: MTO Shipment needs rerouted
+	DiversionReason *string `json:"diversionReason,omitempty"`
+
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 

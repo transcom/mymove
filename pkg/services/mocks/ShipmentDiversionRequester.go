@@ -16,25 +16,29 @@ type ShipmentDiversionRequester struct {
 	mock.Mock
 }
 
-// RequestShipmentDiversion provides a mock function with given fields: appCtx, shipmentID, eTag
-func (_m *ShipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, shipmentID, eTag)
+// RequestShipmentDiversion provides a mock function with given fields: appCtx, shipmentID, eTag, diversionReason
+func (_m *ShipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, diversionReason *string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipmentID, eTag, diversionReason)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RequestShipmentDiversion")
+	}
 
 	var r0 *models.MTOShipment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.MTOShipment, error)); ok {
-		return rf(appCtx, shipmentID, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, *string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, eTag, diversionReason)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.MTOShipment); ok {
-		r0 = rf(appCtx, shipmentID, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, *string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipmentID, eTag, diversionReason)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
-		r1 = rf(appCtx, shipmentID, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, *string) error); ok {
+		r1 = rf(appCtx, shipmentID, eTag, diversionReason)
 	} else {
 		r1 = ret.Error(1)
 	}
