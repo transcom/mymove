@@ -19,7 +19,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
-import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
+import { expenseTypeLabels, expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
@@ -70,6 +70,7 @@ export default function ReviewExpense({
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
+    expense_type: 'Oil',
     description: description || '',
     amount: amount ? `${formatCents(amount)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
@@ -126,15 +127,28 @@ export default function ReviewExpense({
                   .add(1, 'days')
                   .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
               : '##';
+
+          const initialExpenseType = expenseTypeLabels[movingExpenseType];
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
-              <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
-              <div className={styles.displayValue}>
-                {`${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
+              <div className="labelWrapper">
+                <Label htmlFor="expense_type">Expense Type</Label>
               </div>
+              <select
+                label="Expense Type"
+                name="expense_type"
+                id="expense_type"
+                required
+                className={classnames('usa-select')}
+                defaultValue={initialExpenseType}
+              >
+                {ppmExpenseTypes.map((x) => (
+                  <option key={x.key}>{x.value}</option>
+                ))}
+              </select>
               <legend className={classnames('usa-label', styles.label)}>Description</legend>
               <div className={styles.displayValue}>{description}</div>
               <MaskedTextField
