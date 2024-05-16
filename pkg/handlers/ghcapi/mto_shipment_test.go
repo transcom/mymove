@@ -1467,7 +1467,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 }
 
 func (suite *HandlerSuite) TestRejectShipmentHandler() {
-	diversionReason := "Test Reason"
+	reason := "reason"
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1503,7 +1503,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 			Body: &ghcmessages.RejectShipment{
-				RejectionReason: &diversionReason,
+				RejectionReason: &reason,
 			},
 		}
 
@@ -1540,7 +1540,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(uuid),
 			IfMatch:     etag.GenerateEtag(time.Now()),
 			Body: &ghcmessages.RejectShipment{
-				RejectionReason: &diversionReason,
+				RejectionReason: &reason,
 			},
 		}
 
@@ -1567,7 +1567,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, apperror.NotFoundError{})
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, apperror.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1582,7 +1582,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 			Body: &ghcmessages.RejectShipment{
-				RejectionReason: &diversionReason,
+				RejectionReason: &reason,
 			},
 		}
 
@@ -1609,7 +1609,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, mtoshipment.ConflictStatusError{})
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, mtoshipment.ConflictStatusError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1624,7 +1624,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 			Body: &ghcmessages.RejectShipment{
-				RejectionReason: &diversionReason,
+				RejectionReason: &reason,
 			},
 		}
 
@@ -1651,7 +1651,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, apperror.PreconditionFailedError{})
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, apperror.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1666,7 +1666,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 			Body: &ghcmessages.RejectShipment{
-				RejectionReason: &diversionReason,
+				RejectionReason: &reason,
 			},
 		}
 
@@ -1693,7 +1693,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1708,7 +1708,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 			Body: &ghcmessages.RejectShipment{
-				RejectionReason: &diversionReason,
+				RejectionReason: &reason,
 			},
 		}
 
@@ -1735,7 +1735,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		rejecter := &mocks.ShipmentRejecter{}
 
-		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, errors.New("UnexpectedError"))
+		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, errors.New("UnexpectedError"))
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1750,7 +1750,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 			Body: &ghcmessages.RejectShipment{
-				RejectionReason: &diversionReason,
+				RejectionReason: &reason,
 			},
 		}
 
