@@ -98,7 +98,6 @@ describe('CreateMoveCustomerInfo', () => {
 
     renderWithProviders(<CreateMoveCustomerInfo />, mockRoutingConfig);
     const { customerData } = useCustomerQueryReturnValue;
-
     await waitFor(() => {
       expect(screen.getByLabelText('First name').value).toEqual(customerData.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(customerData.middle_name);
