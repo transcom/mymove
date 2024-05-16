@@ -47,19 +47,19 @@ const TXOMoveInfo = () => {
   const { pathname } = useLocation();
   const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
-  const officeUser = data?.office_user;
+  const officeUserID = data?.office_user?.id;
 
   useEffect(() => {
     const fetchData = async () => {
       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      const now = new Date();
       setMoveLockFlag(lockedMoveFlag);
-      if (officeUser?.id !== move?.lockedByOfficeUserID && moveLockFlag) {
+      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt) && moveLockFlag) {
         setIsMoveLocked(true);
       }
     };
-
     fetchData();
-  }, [move, officeUser, moveLockFlag]);
+  }, [move, officeUserID, moveLockFlag]);
 
   const hideNav =
     matchPath(
@@ -104,8 +104,9 @@ const TXOMoveInfo = () => {
   // this locked move banner will display if the current user is not the one who has it locked
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
-    if (move?.lockedByOfficeUserID && moveLockFlag) {
-      if (move?.lockedByOfficeUserID !== officeUser?.id) {
+    const now = new Date();
+    if (move?.lockedByOfficeUserID && move?.lockExpiresAt && moveLockFlag) {
+      if (move?.lockedByOfficeUserID !== officeUserID && now < new Date(move?.lockExpiresAt)) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
             This move is locked by {move.lockedByOfficeUser?.firstName} {move.lockedByOfficeUser?.lastName} at{' '}
@@ -195,7 +196,11 @@ const TXOMoveInfo = () => {
             }
           />
           <Route path="billable-weight" end element={<ReviewBillableWeight />} />
-          <Route path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} end element={<CustomerSupportRemarks />} />
+          <Route
+            path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
+            end
+            element={<CustomerSupportRemarks isMoveLocked={isMoveLocked} />}
+          />
 
           {/* WARN: MB-15562 captured this as a potential bug. An error was reported */}
           {/* that `order` was returned from `useTXOMoveInfoQueries` as a null value and */}
@@ -211,6 +216,7 @@ const TXOMoveInfo = () => {
                   customerInfo={customerData}
                   grade={order.grade}
                   destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  isMoveLocked={isMoveLocked}
                 />
               }
             />
