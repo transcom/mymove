@@ -53,6 +53,7 @@ const ShipmentDetails = ({
         handleEditFacilityInfo={handleEditFacilityInfo}
         handleEditServiceOrderNumber={handleEditServiceOrderNumber}
         handleEditAccountingCodes={handleEditAccountingCodes}
+        isMoveLocked={isMoveLocked}
       />
     </div>
   );
