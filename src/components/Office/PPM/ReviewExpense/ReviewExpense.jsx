@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
 import { Formik } from 'formik';
@@ -81,6 +81,10 @@ export default function ReviewExpense({
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(expenseTypeLabels[movingExpenseType]);
+  useEffect(() => {
+    setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
+  }, [movingExpenseType]);
+
   const handleSubmit = (values) => {
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
