@@ -5885,6 +5885,8 @@ definitions:
         type: string
         format: date
         x-nullable: true
+      orderType:
+        type: string
       requestedDeliveryDate:
         type: string
         format: date
