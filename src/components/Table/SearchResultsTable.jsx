@@ -17,11 +17,10 @@ import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { roleTypes } from 'constants/userRoles';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
-const columns = () => [
+const moveSearchColumns = () => [
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -155,7 +154,7 @@ const columns = () => [
   ),
 ];
 
-const columnsWithCreateMove = () => [
+const customerSearchColumns = () => [
   createHeader(
     'Create Move',
     (row) => {
@@ -172,16 +171,18 @@ const columnsWithCreateMove = () => [
         </Button>
       );
     },
-    { isFilterable: false },
+    { isFilterable: false, disableSortBy: true },
   ),
-  createHeader('Move code', 'locator', {
-    id: 'locator',
-    isFilterable: false,
-  }),
-  createHeader('DOD ID', 'dodID', {
-    id: 'dodID',
-    isFilterable: false,
-  }),
+  createHeader(
+    'id',
+    (row) => {
+      return row.id;
+    },
+    {
+      id: 'customerID',
+      isFilterable: false,
+    },
+  ),
   createHeader(
     'Customer name',
     (row) => {
@@ -200,111 +201,27 @@ const columnsWithCreateMove = () => [
     },
   ),
   createHeader(
-    'Status',
-    (row) => {
-      return MOVE_STATUS_LABELS[`${row.status}`];
-    },
-    {
-      id: 'status',
-      isFilterable: true,
-      Filter: (props) => {
-        return (
-          <MultiSelectCheckBoxFilter
-            options={SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...props}
-          />
-        );
-      },
-    },
-  ),
-  createHeader(
     'Branch',
     (row) => {
       return serviceMemberAgencyLabel(row.branch);
     },
     {
       id: 'branch',
-      isFilterable: true,
-      Filter: (props) => (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={BRANCH_OPTIONS} {...props} />
-      ),
+      isFilterable: false,
     },
   ),
-  createHeader(
-    'Number of Shipments',
-    (row) => {
-      return Number(row.shipmentsCount || 0);
-    },
-    { id: 'shipmentsCount', isFilterable: true },
-  ),
-  createHeader(
-    'Scheduled Pickup Date',
-    (row) => {
-      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
-    },
-    {
-      id: 'pickupDate',
-      disableSortBy: true,
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter dateTime {...props} />,
-    },
-  ),
-  createHeader(
-    'Origin ZIP',
-    (row) => {
-      return row.originDutyLocationPostalCode;
-    },
-    {
-      id: 'originPostalCode',
-      isFilterable: true,
-    },
-  ),
-  createHeader(
-    'Origin GBLOC',
-    (row) => {
-      return row.originGBLOC;
-    },
-    {
-      id: 'originGBLOC',
-      disableSortBy: true,
-    },
-  ),
-  createHeader(
-    'Scheduled Delivery Date',
-    (row) => {
-      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
-    },
-    {
-      id: 'deliveryDate',
-      disableSortBy: true,
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter dateTime {...props} />,
-    },
-  ),
-  createHeader(
-    'Destination ZIP',
-    (row) => {
-      return row.destinationDutyLocationPostalCode;
-    },
-    {
-      id: 'destinationPostalCode',
-      isFilterable: true,
-    },
-  ),
-  createHeader(
-    'Destination GBLOC',
-    (row) => {
-      return row.destinationGBLOC;
-    },
-    {
-      id: 'destinationGBLOC',
-      disableSortBy: true,
-    },
-  ),
+  createHeader('DOD ID', 'dodID', {
+    id: 'dodID',
+    isFilterable: false,
+  }),
+  createHeader('Email', 'personalEmail', {
+    id: 'personalEmail',
+    isFilterable: false,
+  }),
+  createHeader('Phone', 'telephone', {
+    id: 'telephone',
+    isFilterable: false,
+  }),
 ];
 
 // SearchResultsTable is a react-table that uses react-hooks to fetch, filter, sort and page data
@@ -323,8 +240,7 @@ const SearchResultsTable = (props) => {
     dodID,
     moveCode,
     customerName,
-    roleType,
-    isCounselorMoveCreateFFEnabled,
+    searchType,
   } = props;
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
@@ -361,10 +277,9 @@ const SearchResultsTable = (props) => {
   );
 
   const tableData = useMemo(() => data, [data]);
-  const tableColumns = useMemo(
-    () => (isCounselorMoveCreateFFEnabled ? columnsWithCreateMove(roleType) : columns(roleType)),
-    [roleType, isCounselorMoveCreateFFEnabled],
-  );
+  const tableColumns = useMemo(() => {
+    return searchType === 'customer' ? customerSearchColumns() : moveSearchColumns();
+  }, [searchType]);
 
   const {
     getTableProps,
@@ -495,8 +410,7 @@ SearchResultsTable.propTypes = {
   moveCode: PropTypes.string,
   // customerName is the customer name search text
   customerName: PropTypes.string,
-  roleType: PropTypes.string,
-  isCounselorMoveCreateFFEnabled: PropTypes.bool,
+  searchType: PropTypes.string,
 };
 
 SearchResultsTable.defaultProps = {
@@ -510,8 +424,7 @@ SearchResultsTable.defaultProps = {
   dodID: null,
   moveCode: null,
   customerName: null,
-  roleType: roleTypes.QAE_CSR,
-  isCounselorMoveCreateFFEnabled: false,
+  searchType: 'move',
 };
 
 export default SearchResultsTable;
