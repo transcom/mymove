@@ -216,6 +216,15 @@ func GenerateLocator() string {
 	return string(locatorRunes)
 }
 
+// GenerateSafetyMoveLocator constructs a record locator - a unique 6 character alphanumeric string starting with SM
+func GenerateSafetyMoveLocator() string {
+	var sm = "SM"
+
+	// check DB for highest SM value, then increment by 1
+
+	return sm
+}
+
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
 // retry with a new record locator.
 func createNewMove(db *pop.Connection,
@@ -243,10 +252,17 @@ func createNewMove(db *pop.Connection,
 	}
 
 	for i := 0; i < maxLocatorAttempts; i++ {
+		var newLocator string
+		if orders.OrdersType == "SAFETY_MOVE" {
+			newLocator = GenerateSafetyMoveLocator()
+		} else {
+			newLocator = GenerateLocator()
+		}
+
 		move := Move{
 			Orders:       orders,
 			OrdersID:     orders.ID,
-			Locator:      GenerateLocator(),
+			Locator:      newLocator,
 			Status:       status,
 			Show:         show,
 			ContractorID: &contractor.ID,

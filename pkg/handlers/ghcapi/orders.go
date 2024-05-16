@@ -301,7 +301,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 			newOrder.Moves = append(newOrder.Moves, *newMove)
 
-			// if creating a Safety Move, clear out the DoDID, OktaID and CAC for the customer
+			// if creating a Safety Move, clear out the DoDID and OktaID for the customer
 			if newOrder.OrdersType == "SAFETY_MOVE" {
 				err = models.UpdateUserOktaID(appCtx.DB(), &newOrder.ServiceMember.User, "")
 
