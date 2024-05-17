@@ -16,7 +16,7 @@ const useAdvanceAmountField = () => {
   const [{ id = 'advanceAmountRequested', ...rest }, ...remaining] = useField({
     name: 'advance',
     type: 'text',
-    label: 'Amount Requested',
+    label: 'Amount requested',
   });
   return [{ id, ...rest }, ...remaining];
 };
