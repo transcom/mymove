@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
 import { Formik } from 'formik';
@@ -19,10 +19,11 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
-import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
+import { expenseTypeLabels, expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
+import TextField from 'components/form/fields/TextField/TextField';
 
 const validationSchema = Yup.object().shape({
   amount: Yup.string()
@@ -53,6 +54,8 @@ const validationSchema = Yup.object().shape({
 export default function ReviewExpense({
   ppmShipmentInfo,
   expense,
+  documentSets,
+  documentSetIndex,
   categoryIndex,
   tripNumber,
   ppmNumber,
@@ -60,6 +63,7 @@ export default function ReviewExpense({
   onSuccess,
   formRef,
 }) {
+  const convertLabelToKey = (label) => label.toUpperCase().replace(' ', '_');
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
 
@@ -79,10 +83,47 @@ export default function ReviewExpense({
     reason: reason || '',
   };
 
+  const [selectedExpenseType, setSelectedExpenseType] = React.useState(expenseTypeLabels[movingExpenseType]); // Set initial expense type via value received from backend
+  const [currentCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
+  const [samePage, setSamePage] = React.useState(false); // Helps track if back button was used or not
+
+  /**
+   * Gets the current index for the receipt type, i.e. if we've already reviewed two "Oil" expense receipts, and user chooses "Oil" for expense type,
+   * then this will display "Oil #3" at bottom of page.
+   * * */
+  const computeCurrentCategoryIndex = useCallback(
+    (expenseType) => {
+      const expenseTypeKey = convertLabelToKey(expenseType);
+      let count = 0;
+      const expenseDocs = documentSets.filter((docSet) => docSet.documentSetType === 'MOVING_EXPENSE'); // documentSets includes Trip weight tickets, progear, etc. that we don't need
+      const docsFiltered = documentSets.length - expenseDocs.length; // Reduce count/index by number of docs filtered out
+      for (let i = 0; i < documentSetIndex - docsFiltered; i += 1) {
+        if (expenseDocs[i].documentSet.movingExpenseType === expenseTypeKey) count += 1;
+      }
+      return count + 1;
+    },
+    [documentSetIndex, documentSets],
+  );
+
+  useEffect(() => {
+    // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button.
+    if (!samePage) setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
+
+    const selectedExpenseTypeKey = convertLabelToKey(selectedExpenseType); // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
+    const index = computeCurrentCategoryIndex(selectedExpenseTypeKey); // Get index for number at bottom of page (e.x. "Contracted Expense #2")
+    setCurrentCategoryIndex(index);
+  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage]);
+
+  // If parent state updates to show that we've moved onto another document, then user must've used back or submit button
+  useEffect(() => {
+    setSamePage(false);
+  }, [documentSetIndex]);
+
   const handleSubmit = (values) => {
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
-      description: expense.description,
+      movingExpenseType: ppmExpenseTypes.find((expenseType) => expenseType.value === selectedExpenseType).key,
+      description: values.description,
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
       sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
@@ -90,6 +131,7 @@ export default function ReviewExpense({
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
     };
+
     patchExpenseMutation({
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseId: expense.id,
@@ -100,8 +142,6 @@ export default function ReviewExpense({
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
-  const formatMovingType = (input) => allCase(input?.trim().toLowerCase().replace('_', ' '));
-  const expenseName = formatMovingType(initialValues.movingExpenseType);
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -126,17 +166,40 @@ export default function ReviewExpense({
                   .add(1, 'days')
                   .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
               : '##';
+
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
-              <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
-              <div className={styles.displayValue}>
-                {`${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
+              <div className="labelWrapper">
+                <Label htmlFor="movingExpenseType">Expense Type</Label>
               </div>
-              <legend className={classnames('usa-label', styles.label)}>Description</legend>
-              <div className={styles.displayValue}>{description}</div>
+              <select
+                label="Expense Type"
+                name="movingExpenseType"
+                id="movingExpenseType"
+                required
+                className={classnames('usa-select')}
+                value={selectedExpenseType}
+                onChange={(e) => {
+                  setSelectedExpenseType(e.target.value);
+                  setSamePage(true);
+                  const count = computeCurrentCategoryIndex(e.target.value);
+                  setCurrentCategoryIndex(count + 1);
+                }}
+              >
+                {ppmExpenseTypes.map((x) => (
+                  <option key={x.key}>{x.value}</option>
+                ))}
+              </select>
+              <TextField
+                defaultValue={description}
+                name="description"
+                label="Description"
+                id="description"
+                className={styles.displayValue}
+              />
               <MaskedTextField
                 defaultValue="0"
                 name="amount"
@@ -162,10 +225,10 @@ export default function ReviewExpense({
                   </div>
                 </>
               )}
-              <h3 className={styles.reviewHeader}>
-                {`Review ${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
-              </h3>
-              <p>Add a review for this {allCase(expenseName)}</p>
+              <h3 className={styles.reviewHeader}>{`Review ${allCase(
+                selectedExpenseType,
+              )} #${currentCategoryIndex}`}</h3>
+              <p>Add a review for this {allCase(selectedExpenseType)}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
                 <div
