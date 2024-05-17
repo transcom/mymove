@@ -29,11 +29,11 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
 
   // Current '0' for scale value indicate zero decimal places.
   // Input must be an integer.
-  const advanceAmountRequestedMaskedTextFieldScale = 0;
+  const advanceAmountRequestedMaskTextFieldScale = 0;
 
   // Denominator calculation to convert raw advanceAmountRequested value to mask value. (base ^ exponent)
   // ie..takes 10100 to 101 for display with a scale of 0.
-  const advanceAmountRequestedMaskTaskFieldValueDenominator = 10 ** (2 - advanceAmountRequestedMaskedTextFieldScale);
+  const advanceAmountRequestedMaskTaskFieldValueDenominator = 10 ** (2 - advanceAmountRequestedMaskTextFieldScale);
 
   const handleAdvanceRequestStatusChange = (event) => {
     const selected = event.target.value;
@@ -89,7 +89,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     label="Amount requested"
                     id="advanceAmountRequested"
                     mask={Number}
-                    scale={advanceAmountRequestedMaskedTextFieldScale} // digits after point, 0 for integers
+                    scale={advanceAmountRequestedMaskTextFieldScale} // digits after point, 0 for integers
                     signed={false} // disallow negative
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
