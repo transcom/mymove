@@ -5454,9 +5454,20 @@ definitions:
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+      hasReceivedAdvance:
+        description: |
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
       advanceAmountRequested:
         description: |
           The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceAmountReceived:
+        description: |
+          The amount received for an advance, or null if no advance is received
         type: integer
         format: cents
         x-nullable: true
