@@ -19,12 +19,61 @@ const useAdvanceAmountField = () => {
   return [{ id: 'advanceAmountRequested', type: 'text', label: 'Amount requested', ...componentProps }, ...remaining];
 };
 
+const useAdvanceRequestedField = () => {
+  const [componentProps, ...remaining] = useField({
+    name: 'advanceRequested',
+  });
+  return [
+    {
+      requested: { id: 'hasRequestedAdvanceYes', label: 'Yes', value: 'Yes', title: 'Yes' },
+      notRequested: { id: 'hasRequestedAdvanceNo', label: 'No', value: 'No', title: 'No' },
+      ...componentProps,
+    },
+    ...remaining,
+  ];
+};
+
+const useAdvanceStatusField = () => {
+  const [componentProps, ...remaining] = useField({
+    name: 'advanceStatus',
+  });
+  return [
+    {
+      approved: {
+        id: 'approveAdvanceRequest',
+        type: 'checkbox',
+        label: 'Approve',
+        title: 'Approve',
+        value: ADVANCE_STATUSES.APPROVED.apiValue,
+      },
+      rejected: {
+        id: 'rejectAdvanceRequest',
+        type: 'checkbox',
+        label: 'Reject',
+        title: 'Reject',
+        value: ADVANCE_STATUSES.REJECTED.apiValue,
+      },
+      ...componentProps,
+    },
+    ...remaining,
+  ];
+};
+
 const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceAmountProps, { initialValue: initialAdvanceAmount }, amountHelper] = useAdvanceAmountField();
-  const [, { initialValue: initialHasRequestedAdvance }, advanceHelper] = useField('advanceRequested');
-  const [statusInput, , statusHelper] = useField('advanceStatus');
+
+  const [
+    { requested: yesAdvanceRequestedProps, notRequested: noAdvanceRequestedProps },
+    { initialValue: initialHasRequestedAdvance },
+    advanceHelper,
+  ] = useAdvanceRequestedField();
+
+  const [{ approved: approvedStatusProps, rejected: rejectedStatusProps, ...statusInput }, , statusHelper] =
+    useAdvanceStatusField();
+
   const [, , remarksHelper] = useField('customerRemarks');
   const [advanceRequested, setDidRequestAnAdvance] = useState(initialHasRequestedAdvance);
+
   const setAdvanceValueCallback = useCallback(
     (advanceAmountValue) => {
       advanceHelper.setValue(advanceRequested);
@@ -46,6 +95,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const handleHasRequestedAdvanceChange = (event) => setDidRequestAnAdvance(() => event.target?.value === 'Yes');
   const handleAdvanceRequestStatusChange = (event) => statusHelper.setValue(event.target.value);
   const statusCheckedYes = statusInput.value !== ADVANCE_STATUSES.REJECTED.apiValue;
+
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
@@ -57,25 +107,16 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
             <FormGroup>
               <Label className={styles.Label}>Advance (AOA) requested?</Label>
               <Radio
-                id="hasRequestedAdvanceYes"
-                label="Yes"
-                name="advanceRequested"
-                value="Yes"
-                title="Yes"
+                {...yesAdvanceRequestedProps}
                 checked={advanceRequested}
                 onChange={handleHasRequestedAdvanceChange}
               />
               <Radio
-                id="hasRequestedAdvanceNo"
-                label="No"
-                name="advanceRequested"
-                value="No"
-                title="No"
+                {...noAdvanceRequestedProps}
                 checked={!advanceRequested}
                 onChange={handleHasRequestedAdvanceChange}
               />
             </FormGroup>
-
             {advanceRequested && (
               <>
                 <FormGroup>
@@ -90,34 +131,23 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                     prefix="$"
                   />
                 </FormGroup>
-
                 <FormGroup>
                   <div className={styles.AdvanceText}>Maximum advance: ${formattedMaxAdvance}</div>
                 </FormGroup>
-                {
-                  <FormGroup>
-                    <h3 className={styles.NoSpacing}>Review the advance (AOA) request:</h3>
-                    <Label className={styles.Label}>Advance request status:</Label>
-                    <Radio
-                      id="approveAdvanceRequest"
-                      label="Approve"
-                      name="advanceStatus"
-                      value={ADVANCE_STATUSES.APPROVED.apiValue}
-                      title="Approve"
-                      checked={statusCheckedYes} // defaults to false if advanceStatus has a null value
-                      onChange={handleAdvanceRequestStatusChange}
-                    />
-                    <Radio
-                      id="rejectAdvanceRequest"
-                      label="Reject"
-                      name="advanceStatus"
-                      value={ADVANCE_STATUSES.REJECTED.apiValue}
-                      title="Reject"
-                      checked={!statusCheckedYes} // defaults to false if advanceStatus has a null value
-                      onChange={handleAdvanceRequestStatusChange}
-                    />
-                  </FormGroup>
-                }
+                <FormGroup>
+                  <h3 className={styles.NoSpacing}>Review the advance (AOA) request:</h3>
+                  <Label className={styles.Label}>Advance request status:</Label>
+                  <Radio
+                    {...approvedStatusProps}
+                    checked={statusCheckedYes} // defaults to false if advanceStatus has a null value
+                    onChange={handleAdvanceRequestStatusChange}
+                  />
+                  <Radio
+                    {...rejectedStatusProps}
+                    checked={!statusCheckedYes} // defaults to false if advanceStatus has a null value
+                    onChange={handleAdvanceRequestStatusChange}
+                  />
+                </FormGroup>
               </>
             )}
           </Grid>
