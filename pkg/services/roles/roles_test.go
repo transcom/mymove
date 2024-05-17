@@ -34,7 +34,7 @@ func (suite *RolesServiceSuite) TestFetchRoles() {
 	suite.NoError(err)
 	// Fetch roles
 	rf := NewRolesFetcher()
-	frs, err := rf.FetchRoles(suite.AppContextForTest(), *officeUser.UserID)
+	frs, err := rf.FetchRolesForUser(suite.AppContextForTest(), *officeUser.UserID)
 	suite.NoError(err)
 	suite.Len(frs, 2)
 }
