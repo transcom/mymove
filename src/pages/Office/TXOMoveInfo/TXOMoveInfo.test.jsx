@@ -64,6 +64,7 @@ const basicUseTXOMoveInfoQueriesValue = {
   customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
   move: {
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+    lockExpiresAt: '2099-10-15T23:48:35.420Z',
   },
   order: {
     id: '4321',
