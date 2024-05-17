@@ -92,11 +92,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	gradeWtgAllotment := models.GetWeightAllotment(grade)
 	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Equal(unit.Pound(500), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.Order.Grade)
 	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
-	// E_9 rank, no dependents, no spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	// E_9 rank, no dependents, with spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
@@ -214,11 +214,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	gradeWtgAllotment := models.GetWeightAllotment(grade)
 	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Equal(unit.Pound(500), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.Order.Grade)
 	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
-	// E_9 rank, no dependents, no spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	// E_9 rank, no dependents, with spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
@@ -474,13 +474,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNo
 	spouseHasProGear := false
 	hasDependants := false
 	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
-	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
+	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight + allotment.ProGearWeightSpouse
 	sswEntitlement := SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
-	suite.Equal(unit.Pound(0), sswEntitlement.SpouseProGear)
+	suite.Equal(unit.Pound(500), sswEntitlement.SpouseProGear)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatLocation() {
