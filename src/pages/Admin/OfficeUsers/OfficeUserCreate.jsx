@@ -8,32 +8,33 @@ const OfficeUserCreate = () => {
   const validateForm = (values) => {
     const errors = {};
     if (!values.firstName) {
-      errors.firstName = 'First name is required';
+      errors.firstName = 'You must enter a first name.';
     }
     if (!values.lastName) {
-      errors.lastName = 'Last name is required';
+      errors.lastName = 'You must enter a last name.';
     }
     if (!values.email) {
-      errors.email = 'Email is required';
+      errors.email = 'You must enter an email.';
     }
 
     if (!values.telephone) {
-      errors.telephone = 'Telephone is required.';
+      errors.telephone = 'You must enter a telephone number.';
     } else if (!values.telephone.match(/^[2-9]\d{2}-\d{3}-\d{4}$/)) {
       errors.telephone = 'Invalid phone number, should be 000-000-0000.';
     }
 
     if (!values.roles?.length) {
-      errors.roles = 'Role(s) are required.';
+      errors.roles = 'You must select at least one role.';
     } else if (
       values.roles.find((role) => role.roleType === roleTypes.TIO) &&
       values.roles.find((role) => role.roleType === roleTypes.TOO)
     ) {
-      errors.roles = 'A user must not have both TOO and TIO role.';
+      errors.roles =
+        'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.';
     }
 
     if (!values.transportationOfficeId) {
-      errors.transportationOfficeId = 'Transportation Office is required';
+      errors.transportationOfficeId = 'You must select a transportation office.';
     }
 
     return errors;
