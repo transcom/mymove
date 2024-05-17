@@ -14,12 +14,44 @@ function closeoutOfficeSchema(showCloseoutOffice, isAdvancePage) {
   return Yup.object().notRequired();
 }
 
+const yupAdvancedPageSchemaGroup = (isOnAdvancedPage, theSchema, schemaWrapperFn) =>
+  theSchema.when(['advanceRequested'], (_, schema) => {
+    return isOnAdvancedPage ? schemaWrapperFn(schema) : schema;
+  });
+
+const applyNestedAdvanceValidator =
+  ({ advanceAmountRequested, oldAdvanceStatus, hasRequestedAdvance }) =>
+  (theSchema) =>
+    theSchema
+      .when(['advance', 'advanceStatus', 'advanceRequested'], {
+        is: (advance, advanceStatus, advanceRequest) => {
+          const amountsUnchanged = Number(advance) === advanceAmountRequested / 100;
+          const statusUnchanged = advanceStatus === oldAdvanceStatus;
+          const nonEditedInitialStatus = ADVANCE_STATUSES[advanceStatus] !== ADVANCE_STATUSES.EDITED;
+          const requestUnchanged = advanceRequest === hasRequestedAdvance;
+          const shouldShowError = amountsUnchanged && requestUnchanged && (statusUnchanged || !nonEditedInitialStatus);
+          return !shouldShowError;
+        },
+        then: (schema) => {
+          // console.log('logging for the advance request YES condition');
+          return schema.required('Required');
+        },
+      })
+      .when(['advanceRequested'], {
+        is: (advanceRequest) => advanceRequest === false && advanceRequest !== hasRequestedAdvance,
+        then: (schema) => {
+          // console.log('logging for the advance request NO condition');
+          return schema.required('Required');
+        },
+      });
+
 const ppmShipmentSchema = ({
   estimatedIncentive = 0,
   weightAllotment = {},
   advanceAmountRequested = 0,
   hasRequestedAdvance,
   isAdvancePage,
+  oldAdvanceStatus = '',
   showCloseoutOffice,
 }) => {
   const estimatedWeightLimit = weightAllotment.totalWeightSelf || 0;
@@ -86,26 +118,35 @@ const ppmShipmentSchema = ({
     spouseProGearWeight: Yup.number()
       .min(0, 'Enter a weight 0 lbs or greater')
       .max(proGearSpouseWeightLimit, `Enter a weight ${proGearSpouseWeightLimit.toLocaleString()} lbs or less`),
-
-    advance: Yup.number()
-      .max(
-        (estimatedIncentive * 0.6) / 100,
-        `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
-      )
-      .min(1, 'Enter an amount $1 or more.')
-      .when('advanceRequested', {
-        is: true,
-        then: (schema) => schema.required('Required'),
-      }),
-
     closeoutOffice: closeoutOfficeSchema(showCloseoutOffice, isAdvancePage),
-    counselorRemarks: Yup.string().when(['advance', 'advanceRequested', 'advanceStatus'], {
-      is: (advance, advanceRequested, advanceStatus) =>
-        (isAdvancePage &&
-          (Number(advance) !== advanceAmountRequested / 100 || advanceRequested !== hasRequestedAdvance)) ||
-        (isAdvancePage && ADVANCE_STATUSES[advanceStatus] === ADVANCE_STATUSES.REJECTED),
-      then: (schema) => schema.required('Required'),
-    }),
+
+    advance: yupAdvancedPageSchemaGroup(isAdvancePage, Yup.number(), (theSchema) =>
+      theSchema
+        .max(
+          (estimatedIncentive * 0.6) / 100,
+          `Enter an amount that is less than or equal to the maximum advance (${getFormattedMaxAdvancePercentage()} of estimated incentive)`,
+        )
+        .min(1, 'Enter an amount $1 or more.')
+        .when('advanceRequested', {
+          is: true,
+          then: (schema) => schema.required('Required'),
+        }),
+    ),
+    counselorRemarks: yupAdvancedPageSchemaGroup(
+      isAdvancePage,
+      Yup.string(),
+      applyNestedAdvanceValidator({ advanceAmountRequested, oldAdvanceStatus, hasRequestedAdvance }),
+    ),
+    // is: (advanceRequested) => {
+    //   console.log(advanceRequested, hasRequestedAdvance);
+    //   const unchangedRequestChoice = advanceRequested === hasRequestedAdvance;
+    //   const shouldShowError = advanceRequested && unchangedRequestChoice;
+    //   return isAdvancePage && !shouldShowError;
+    // },
+    // then: (schema) => {
+    //   console.log(`requested schema valid ${schema.isValidSync({ recursive: true })}`);
+    //   return schema.required('Required');
+    // },
   });
 
   return formSchema;

@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+import React, { useCallback, useEffect, useState } from 'react';
 import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
 import { useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -10,26 +11,46 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 
-const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
-  const [advanceInput, , advanceHelper] = useField('advanceRequested');
-  const [statusInput, , statusHelper] = useField('advanceStatus');
+// first classing the field, and giving it an id
+const useAdvanceAmountField = () => {
+  const [{ id = 'advanceAmountRequested', ...rest }, ...remaining] = useField({
+    name: 'advance',
+    type: 'text',
+    label: 'Amount Requested',
+  });
+  return [{ id, ...rest }, ...remaining];
+};
 
-  const advanceRequested = String(advanceInput.value) === 'true';
-  const advanceRequestStatus =
-    statusInput.value === ADVANCE_STATUSES.APPROVED.apiValue || statusInput.value === ADVANCE_STATUSES.EDITED.apiValue;
+const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
+  const [advanceAmountProps, { initialValue: initialAdvanceAmount }, amountHelper] = useAdvanceAmountField();
+  const [, { initialValue: initialHasRequestedAdvance }, advanceHelper] = useField('advanceRequested');
+  const [statusInput, , statusHelper] = useField('advanceStatus');
+  const [advanceRequested, setDidRequestAnAdvance] = useState(initialHasRequestedAdvance);
+  // console.log('here', remarksInput, theError, remarksHelper);
+  // memoize the function so its dependencies trigger a newly constructed function callback, for useEffect to utilize as a dependency.
+  const setAdvanceValueCallback = useCallback(
+    (advanceAmountValue) => {
+      // console.log('theError', theError, advanceRequested);
+      advanceHelper.setValue(advanceRequested);
+      if (!advanceRequested) {
+        amountHelper.setValue(advanceAmountValue);
+      }
+    },
+    [advanceRequested, advanceHelper, amountHelper],
+  );
+
+  // useEffect has advanceRequested as a dependency, so if the user clicks this button, it triggers a re-render and batches
+  useEffect(() => {
+    setAdvanceValueCallback(initialAdvanceAmount);
+  }, [setAdvanceValueCallback, initialAdvanceAmount]);
+
+  const advanceRequestStatus = statusInput.value === ADVANCE_STATUSES.APPROVED.apiValue;
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
 
-  const handleHasRequestedAdvanceChange = (event) => {
-    const selected = event.target.value;
-    advanceHelper.setValue(selected === 'Yes');
-  };
-
-  const handleAdvanceRequestStatusChange = (event) => {
-    const selected = event.target.value;
-    statusHelper.setValue(selected);
-  };
+  const handleHasRequestedAdvanceChange = (event) => setDidRequestAnAdvance(() => event.target?.value === 'Yes');
+  const handleAdvanceRequestStatusChange = (event) => statusHelper.setValue(event.target.value);
 
   return (
     <SectionWrapper className={formStyles.formSection}>
@@ -66,9 +87,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                 <FormGroup>
                   <MaskedTextField
                     defaultValue="0"
-                    name="advance"
-                    label="Amount requested"
-                    id="advanceAmountRequested"
+                    {...advanceAmountProps}
                     mask={Number}
                     scale={0} // digits after point, 0 for integers
                     signed={false} // disallow negative
