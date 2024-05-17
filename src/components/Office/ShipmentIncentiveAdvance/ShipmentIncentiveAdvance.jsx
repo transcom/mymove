@@ -1,5 +1,5 @@
 import React from 'react';
-import { Fieldset, FormGroup, Grid, Label } from '@trussworks/react-uswds';
+import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
 import { useField } from 'formik';
 import PropTypes from 'prop-types';
 
@@ -41,7 +41,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
           <Grid col={12}>
             <FormGroup>
               <Label className={styles.Label}>Advance (AOA) requested?</Label>
-              <RadioField
+              <Radio
                 id="hasRequestedAdvanceYes"
                 label="Yes"
                 name="advanceRequested"
@@ -50,7 +50,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
                 checked={advanceRequested}
                 onChange={handleHasRequestedAdvanceChange}
               />
-              <RadioField
+              <Radio
                 id="hasRequestedAdvanceNo"
                 label="No"
                 name="advanceRequested"
