@@ -91,9 +91,6 @@ describe('RequestAccount page', () => {
     const tooCheckbox = screen.getByTestId('transportationOrderingOfficerCheckBox');
     await userEvent.click(tooCheckbox);
 
-    const tioCheckbox = screen.getByTestId('transportationInvoicingOfficerCheckBox');
-    await userEvent.click(tioCheckbox);
-
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(saveBtn);
 
