@@ -3643,6 +3643,8 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
+      transportationOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
       active:
         type: boolean
       roles:
@@ -3685,6 +3687,18 @@ definitions:
       - status
       - createdAt
       - updatedAt
+  LockedOfficeUser:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
   OfficeUserCreate:
     type: object
     properties:
@@ -4232,6 +4246,17 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -5237,9 +5262,20 @@ definitions:
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+      hasReceivedAdvance:
+        description: >
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
       advanceAmountRequested:
         description: >
           The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceAmountReceived:
+        description: >
+          The amount received for an advance, or null if no advance is received
         type: integer
         format: cents
         x-nullable: true
@@ -5654,6 +5690,17 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5755,6 +5802,14 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5824,6 +5879,8 @@ definitions:
         type: string
         format: date
         x-nullable: true
+      orderType:
+        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -5832,8 +5889,14 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
-      orderType:
+      lockedByOfficeUserID:
         type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:

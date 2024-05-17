@@ -30,11 +30,11 @@ func NewValidate(ctx *middleware.Context, handler ValidateHandler) *Validate {
 }
 
 /*
-	Validate swagger:route POST /validation_code application_parameters validate
+	Validate swagger:route POST /application_parameters application_parameters validate
 
-# Returns a value if the code provided is correct
+# Searches for an application parameter by name and value, returns nil if not found
 
-The customer will input a validation code given to them and if the code provided is present in the database, then they will be allowed to progress in setting up their profile and create a move
+Searches for an application parameter by name and value, returns nil if not found
 */
 type Validate struct {
 	Context *middleware.Context
