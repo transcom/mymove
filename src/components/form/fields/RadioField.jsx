@@ -29,7 +29,7 @@ export const RadioField = ({
   ...inputProps
 }) => {
   const [fieldProps, metaProps, helperProps] = useField({ name, validate, type });
-  const showError = true;
+  const showError = !!metaProps.error || error;
   const showWarning = !showError && warning;
 
   const formGroupClasses = classnames({
