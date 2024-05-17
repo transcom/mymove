@@ -6,7 +6,7 @@ import { generatePath, useLocation, useNavigate, useParams } from 'react-router-
 import styles from './ServicesCounselingAddOrders.module.scss';
 
 import { dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import AddOrdersForm from 'components/Office/AddOrdersForm/AddOrdersForm';
 import { counselingCreateOrder } from 'services/ghcApi';
 import { ORDERS } from 'constants/queryKeys';
@@ -63,7 +63,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges }) => {
     : false;
 
   const allowedOrdersTypes = isSafetyPrivileged
-    ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY_MOVE: SPECIAL_ORDERS_TYPES.SAFETY_MOVE } }
+    ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY_MOVE: 'Safety Move' } }
     : ORDERS_TYPE_OPTIONS;
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 

@@ -83,7 +83,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
-    cac_user: true,
+    cac_user: '',
     is_safety_move: false,
   };
 
@@ -165,7 +165,10 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       is: false,
       then: (schema) => schema.required('Required'),
     }),
-    cac_user: Yup.boolean().required('Required'),
+    cac_user: Yup.boolean().when('is_safety_move', {
+      is: false,
+      then: (schema) => schema.required('Required'),
+    }),
     is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
@@ -195,6 +198,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     ...values,
                     edipi: '',
                     create_okta_account: '',
+                    cac_user: 'true',
                     is_safety_move: 'true',
                   });
                 }
@@ -413,30 +417,32 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       </Fieldset>
                     </SectionWrapper>
                   )}
-                  <SectionWrapper className={formStyles.formSection}>
-                    <h3>Non-CAC Users</h3>
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Does the customer have a CAC?</legend>
-                      <div className="grid-row grid-gap">
-                        <Field
-                          as={Radio}
-                          id="yesCacUser"
-                          label="Yes"
-                          name="cac_user"
-                          value="true"
-                          data-testid="cac-user-yes"
-                        />
-                        <Field
-                          as={Radio}
-                          id="NonCacUser"
-                          label="No"
-                          name="cac_user"
-                          value="false"
-                          data-testid="cac-user-no"
-                        />
-                      </div>
-                    </Fieldset>
-                  </SectionWrapper>
+                  {values.is_safety_move !== 'true' && (
+                    <SectionWrapper className={formStyles.formSection}>
+                      <h3>Non-CAC Users</h3>
+                      <Fieldset className={styles.trailerOwnershipFieldset}>
+                        <legend className="usa-label">Does the customer have a CAC?</legend>
+                        <div className="grid-row grid-gap">
+                          <Field
+                            as={Radio}
+                            id="yesCacUser"
+                            label="Yes"
+                            name="cac_user"
+                            value="true"
+                            data-testid="cac-user-yes"
+                          />
+                          <Field
+                            as={Radio}
+                            id="NonCacUser"
+                            label="No"
+                            name="cac_user"
+                            value="false"
+                            data-testid="cac-user-no"
+                          />
+                        </div>
+                      </Fieldset>
+                    </SectionWrapper>
+                  )}
                   <div className={formStyles.formActions}>
                     <WizardNavigation
                       editMode

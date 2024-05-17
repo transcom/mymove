@@ -3,6 +3,7 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -251,22 +252,20 @@ func createNewMove(db *pop.Connection,
 		return nil, nil, fmt.Errorf("could not generate a unique ReferenceID: %w", err)
 	}
 
+	// if orders.OrdersType != "SAFETY_MOVE" {
 	for i := 0; i < maxLocatorAttempts; i++ {
-		var newLocator string
-		if orders.OrdersType == "SAFETY_MOVE" {
-			newLocator = GenerateSafetyMoveLocator()
-		} else {
-			newLocator = GenerateLocator()
-		}
-
 		move := Move{
 			Orders:       orders,
 			OrdersID:     orders.ID,
-			Locator:      newLocator,
+			Locator:      GenerateLocator(),
 			Status:       status,
 			Show:         show,
 			ContractorID: &contractor.ID,
 			ReferenceID:  &referenceID,
+		}
+		// only want safety moves move locators to start with SM, so try again
+		if strings.HasPrefix(move.Locator, "SM") {
+			continue
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
@@ -282,6 +281,27 @@ func createNewMove(db *pop.Connection,
 
 		return &move, verrs, nil
 	}
+	// } else {
+	// 	move := Move{
+	// 		Orders:       orders,
+	// 		OrdersID:     orders.ID,
+	// 		Locator:      GenerateSafetyMoveLocator(),
+	// 		Status:       status,
+	// 		Show:         show,
+	// 		ContractorID: &contractor.ID,
+	// 		ReferenceID:  &referenceID,
+	// 	}
+
+	// 	verrs, err := db.ValidateAndCreate(&move)
+	// 	if verrs.HasAny() {
+	// 		return nil, verrs, nil
+	// 	}
+	// 	if err != nil {
+	// 		return nil, verrs, err
+	// 	}
+
+	// 	return &move, verrs, nil
+	// }
 	// the only way we get here is if we got a unique constraint error maxLocatorAttempts times.
 	verrs := validate.NewErrors()
 	return nil, verrs, ErrLocatorGeneration

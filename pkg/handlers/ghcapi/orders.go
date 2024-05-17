@@ -295,30 +295,27 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				Status: &status,
 			}
 
+			if newOrder.OrdersType == "SAFETY_MOVE" {
+				// if creating a Safety Move, clear out the DoDID and OktaID for the customer
+				err = models.UpdateUserOktaID(appCtx.DB(), &newOrder.ServiceMember.User, "")
+				if err != nil {
+					appCtx.Logger().Error("Authorization error updating user", zap.Error(err))
+					return orderop.NewUpdateOrderInternalServerError(), err
+				}
+
+				err = models.UpdateServiceMemberDoDID(appCtx.DB(), &newOrder.ServiceMember, nil)
+				if err != nil {
+					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
+					return orderop.NewUpdateOrderInternalServerError(), err
+				}
+			}
+
 			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 			newOrder.Moves = append(newOrder.Moves, *newMove)
 
-			// if creating a Safety Move, clear out the DoDID and OktaID for the customer
-			if newOrder.OrdersType == "SAFETY_MOVE" {
-				err = models.UpdateUserOktaID(appCtx.DB(), &newOrder.ServiceMember.User, "")
-
-				if err != nil {
-					appCtx.Logger().Error("Authorization error updating user", zap.Error(err))
-					return orderop.NewUpdateOrderInternalServerError(), err
-					// ***figure out error above to return, do we do a roleback if this doesn't work?
-				}
-
-				err = models.UpdateServiceMemberDoDID(appCtx.DB(), &newOrder.ServiceMember, nil)
-
-				if err != nil {
-					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
-					return orderop.NewUpdateOrderInternalServerError(), err
-					// ***figure out error above to return, do we do a roleback if this doesn't work?
-				}
-			}
 			order := (models.Order)(newOrder)
 
 			orderPayload := payloads.Order(&order)

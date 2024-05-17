@@ -1707,7 +1707,6 @@ definitions:
       - NTS
       - WOUNDED_WARRIOR
       - BLUEBARK
-      - SAFETY_MOVE
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1717,7 +1716,6 @@ definitions:
       NTS: NTS
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
-      SAFETY_MOVE: Safety Move
   OrdersTypeDetail:
     type: string
     title: Orders type detail
