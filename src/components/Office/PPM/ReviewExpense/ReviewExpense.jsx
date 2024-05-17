@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
 import { Formik } from 'formik';
@@ -54,6 +54,8 @@ const validationSchema = Yup.object().shape({
 export default function ReviewExpense({
   ppmShipmentInfo,
   expense,
+  documentSets,
+  documentSetIndex,
   categoryIndex,
   tripNumber,
   ppmNumber,
@@ -61,6 +63,7 @@ export default function ReviewExpense({
   onSuccess,
   formRef,
 }) {
+  const convertLabelToKey = (label) => label.toUpperCase().replace(' ', '_');
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
 
@@ -81,10 +84,34 @@ export default function ReviewExpense({
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(expenseTypeLabels[movingExpenseType]);
-  useEffect(() => {
-    setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
-  }, [movingExpenseType]);
+  const [currCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
+  const [samePage, setSamePage] = React.useState(false);
 
+  const computeCurrentCategoryIndex = useCallback(
+    (expenseType) => {
+      const expenseTypeKey = convertLabelToKey(expenseType);
+      let count = 0;
+      const expenseDocs = documentSets.filter((docSet) => docSet.documentSetType === 'MOVING_EXPENSE');
+      const docsFiltered = documentSets.length - expenseDocs.length;
+      for (let i = 0; i < documentSetIndex - docsFiltered; i += 1) {
+        if (expenseDocs[i].documentSet.movingExpenseType === expenseTypeKey) count += 1;
+      }
+      return count + 1;
+    },
+    [documentSetIndex, documentSets],
+  );
+
+  useEffect(() => {
+    if (!samePage) setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
+
+    const selectedExpenseTypeKey = convertLabelToKey(selectedExpenseType);
+    const index = computeCurrentCategoryIndex(selectedExpenseTypeKey);
+    setCurrentCategoryIndex(index);
+  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage]);
+
+  useEffect(() => {
+    setSamePage(false);
+  }, [documentSetIndex]);
   const handleSubmit = (values) => {
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
@@ -148,7 +175,12 @@ export default function ReviewExpense({
                 required
                 className={classnames('usa-select')}
                 value={selectedExpenseType}
-                onChange={(e) => setSelectedExpenseType(e.target.value)}
+                onChange={(e) => {
+                  setSelectedExpenseType(e.target.value);
+                  setSamePage(true);
+                  const count = computeCurrentCategoryIndex(e.target.value);
+                  setCurrentCategoryIndex(count + 1);
+                }}
               >
                 {ppmExpenseTypes.map((x) => (
                   <option key={x.key}>{x.value}</option>
@@ -186,7 +218,7 @@ export default function ReviewExpense({
                   </div>
                 </>
               )}
-              <h3 className={styles.reviewHeader}>{`Review ${allCase(selectedExpenseType)} #${categoryIndex}`}</h3>
+              <h3 className={styles.reviewHeader}>{`Review ${allCase(selectedExpenseType)} #${currCategoryIndex}`}</h3>
               <p>Add a review for this {allCase(selectedExpenseType)}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
