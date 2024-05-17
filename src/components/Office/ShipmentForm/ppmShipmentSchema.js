@@ -99,7 +99,7 @@ const ppmShipmentSchema = ({
       }),
 
     advanceStatus: Yup.string().when('advanceRequested', {
-      is: true,
+      is: (advanceRequested) => (isAdvancePage && advanceRequested) === true,
       then: (schema) => schema.required('Required'),
     }),
 
