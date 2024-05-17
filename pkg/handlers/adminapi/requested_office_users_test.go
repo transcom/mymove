@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			},
 		}
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			},
 		}
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			},
 		}
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -252,7 +252,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 		).Return(nil, nil).Once()
 
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -359,7 +359,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		).Return(nil, nil).Once()
 
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -466,7 +466,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		).Return(nil, nil).Once()
 
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
