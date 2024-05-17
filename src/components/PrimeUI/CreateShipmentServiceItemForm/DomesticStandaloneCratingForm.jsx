@@ -8,10 +8,10 @@ import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { ShipmentShape } from 'types/shipment';
-import { domesticCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
+import { domesticStandaloneCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
-const domesticShippingValidationSchema = Yup.object().shape({
+const standaloneShippingValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),
   itemLength: Yup.string().required('Required'),
   itemWidth: Yup.string().required('Required'),
@@ -23,11 +23,11 @@ const domesticShippingValidationSchema = Yup.object().shape({
   reason: Yup.string().required('Required'),
 });
 
-const DomesticCratingForm = ({ shipment, submission }) => {
+const DomesticStandaloneCratingForm = ({ shipment, submission }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
-    modelType: createServiceItemModelTypes.MTOServiceItemDomesticCrating,
+    modelType: createServiceItemModelTypes.MTOServiceItemDomesticStandaloneCrating,
     itemLength: '',
     itemWidth: '',
     itemHeight: '',
@@ -58,14 +58,14 @@ const DomesticCratingForm = ({ shipment, submission }) => {
   };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={domesticShippingValidationSchema} onSubmit={onSubmit}>
-      <Form data-testid="domesticCratingForm">
+    <Formik initialValues={initialValues} validationSchema={standaloneShippingValidationSchema} onSubmit={onSubmit}>
+      <Form data-testid="domesticStandaloneCratingForm">
         <DropdownInput
           label="Service item code"
           name="reServiceCode"
           id="reServiceCode"
           required
-          options={domesticCratingServiceItemCodeOptions}
+          options={domesticStandaloneCratingServiceItemCodeOptions}
         />
         <MaskedTextField
           data-testid="itemLength"
@@ -135,9 +135,9 @@ const DomesticCratingForm = ({ shipment, submission }) => {
   );
 };
 
-DomesticCratingForm.propTypes = {
+DomesticStandaloneCratingForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
 };
 
-export default DomesticCratingForm;
+export default DomesticStandaloneCratingForm;
