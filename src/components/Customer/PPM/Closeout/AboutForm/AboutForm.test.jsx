@@ -128,28 +128,28 @@ describe('AboutForm component', () => {
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
       });
-      expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
+      await expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
+      await expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
 
-      expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
-      expect(screen.getByTestId('yes-has-received-advance')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTestId('no-has-received-advance')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTestId('no-has-received-advance')).toBeChecked();
+      await expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
+      await expect(screen.getByTestId('yes-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      await expect(screen.getByTestId('no-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      await expect(screen.getByTestId('no-has-received-advance')).toBeChecked();
 
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('State')[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText('City')[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText('State')[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('');
 
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
-      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('State')[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText('City')[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText('State')[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('');
 
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      await expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
     describe('validates form fields and displays error messages', () => {
@@ -164,28 +164,28 @@ describe('AboutForm component', () => {
 
         const requiredAlerts = screen.getAllByRole('alert');
 
-        expect(requiredAlerts[0]).toHaveTextContent('Required');
-        expect(
+        await expect(requiredAlerts[0]).toHaveTextContent('Required');
+        await expect(
           within(requiredAlerts[0].nextElementSibling).getByLabelText('When did you leave your origin?'),
         ).toBeInTheDocument();
 
-        expect(requiredAlerts[1]).toHaveTextContent('Required');
-        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'pickupAddress.streetAddress1');
-        expect(requiredAlerts[2]).toHaveTextContent('Required');
-        expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'pickupAddress.city');
-        expect(requiredAlerts[3]).toHaveTextContent('Required');
-        expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'pickupAddress.state');
-        expect(requiredAlerts[4]).toHaveTextContent('Required');
-        expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'pickupAddress.postalCode');
+        await expect(requiredAlerts[1]).toHaveTextContent('Required');
+        await expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'pickupAddress.streetAddress1');
+        await expect(requiredAlerts[2]).toHaveTextContent('Required');
+        await expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'pickupAddress.city');
+        await expect(requiredAlerts[3]).toHaveTextContent('Required');
+        await expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'pickupAddress.state');
+        await expect(requiredAlerts[4]).toHaveTextContent('Required');
+        await expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'pickupAddress.postalCode');
 
-        expect(requiredAlerts[5]).toHaveTextContent('Required');
-        expect(requiredAlerts[5].nextElementSibling).toHaveAttribute('name', 'destinationAddress.streetAddress1');
-        expect(requiredAlerts[6]).toHaveTextContent('Required');
-        expect(requiredAlerts[6].nextElementSibling).toHaveAttribute('name', 'destinationAddress.city');
-        expect(requiredAlerts[7]).toHaveTextContent('Required');
-        expect(requiredAlerts[7].nextElementSibling).toHaveAttribute('name', 'destinationAddress.state');
-        expect(requiredAlerts[8]).toHaveTextContent('Required');
-        expect(requiredAlerts[8].nextElementSibling).toHaveAttribute('name', 'destinationAddress.postalCode');
+        await expect(requiredAlerts[5]).toHaveTextContent('Required');
+        await expect(requiredAlerts[5].nextElementSibling).toHaveAttribute('name', 'destinationAddress.streetAddress1');
+        await expect(requiredAlerts[6]).toHaveTextContent('Required');
+        await expect(requiredAlerts[6].nextElementSibling).toHaveAttribute('name', 'destinationAddress.city');
+        await expect(requiredAlerts[7]).toHaveTextContent('Required');
+        await expect(requiredAlerts[7].nextElementSibling).toHaveAttribute('name', 'destinationAddress.state');
+        await expect(requiredAlerts[8]).toHaveTextContent('Required');
+        await expect(requiredAlerts[8].nextElementSibling).toHaveAttribute('name', 'destinationAddress.postalCode');
 
         await userEvent.click(screen.getByTestId('yes-has-received-advance'));
 
@@ -193,14 +193,14 @@ describe('AboutForm component', () => {
           expect(screen.getByLabelText('How much did you receive?')).toBeInTheDocument();
         });
 
-        expect(requiredAlerts[9]).toHaveTextContent('Required');
-        expect(requiredAlerts[9].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
-        expect(requiredAlerts[10]).toHaveTextContent('Required');
-        expect(requiredAlerts[10].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
-        expect(requiredAlerts[11]).toHaveTextContent('Required');
-        expect(requiredAlerts[11].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
-        expect(requiredAlerts[12]).toHaveTextContent('Required');
-        expect(requiredAlerts[12].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
+        await expect(requiredAlerts[9]).toHaveTextContent('Required');
+        await expect(requiredAlerts[9].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
+        await expect(requiredAlerts[10]).toHaveTextContent('Required');
+        await expect(requiredAlerts[10].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
+        await expect(requiredAlerts[11]).toHaveTextContent('Required');
+        await expect(requiredAlerts[11].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
+        await expect(requiredAlerts[12]).toHaveTextContent('Required');
+        await expect(requiredAlerts[12].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
       });
     });
 
@@ -211,17 +211,17 @@ describe('AboutForm component', () => {
         expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('31 May 2022');
       });
 
-      expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
-      expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
-      expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,000');
+      await expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
+      await expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
+      await expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,000');
 
-      expect(screen.getAllByLabelText('Address 1')[2]).toHaveDisplayValue('11 NE Elm Road');
-      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
-      expect(screen.getAllByLabelText('City')[2]).toHaveDisplayValue('Jacksonville');
-      expect(screen.getAllByLabelText('State')[2]).toHaveDisplayValue('FL');
-      expect(screen.getAllByLabelText('ZIP')[2]).toHaveDisplayValue('32217');
+      await expect(screen.getAllByLabelText('Address 1')[2]).toHaveDisplayValue('11 NE Elm Road');
+      await expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
+      await expect(screen.getAllByLabelText('City')[2]).toHaveDisplayValue('Jacksonville');
+      await expect(screen.getAllByLabelText('State')[2]).toHaveDisplayValue('FL');
+      await expect(screen.getAllByLabelText('ZIP')[2]).toHaveDisplayValue('32217');
 
-      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
     });
 
     it('displays type error messages for invalid input', async () => {
@@ -232,7 +232,7 @@ describe('AboutForm component', () => {
     });
 
     it('displays error when advance received is below 1 dollar minimum', async () => {
-      render(<AboutForm {...defaultProps} />);
+      await render(<AboutForm {...defaultProps} />);
 
       await userEvent.click(screen.getByTestId('yes-has-received-advance'));
 
@@ -247,7 +247,7 @@ describe('AboutForm component', () => {
 
     describe('calls button event handlers', () => {
       it('calls onBack handler when "Return To Homepage" is pressed', async () => {
-        render(<AboutForm {...defaultProps} />);
+        await render(<AboutForm {...defaultProps} />);
 
         await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
@@ -257,7 +257,7 @@ describe('AboutForm component', () => {
       });
 
       it('calls onSubmit handler when "Save & Continue" is pressed', async () => {
-        render(<AboutForm {...defaultProps} />);
+        await render(<AboutForm {...defaultProps} />);
 
         await fillOutBasicForm();
 

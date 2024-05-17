@@ -70,10 +70,11 @@ const About = () => {
         actualMoveDate: formatDateForSwagger(values.actualMoveDate),
         pickupAddress: values.pickupAddress,
         hasSecondaryPickupAddress: values.hasSecondaryPickupAddress === 'true',
-        secondaryPickupAddress: values.hasSecondaryPickupAddress ? values.pickupAddress : null,
+        secondaryPickupAddress: values.hasSecondaryPickupAddress === 'true' ? values.secondaryPickupAddress : null,
         destinationAddress: values.destinationAddress,
         hasSecondaryDestinationAddress: values.hasSecondaryDestinationAddress === 'true',
-        secondaryDestinationAddress: values.hasSecondaryDestinationAddress ? values.destinationAddress : null,
+        secondaryDestinationAddress:
+          values.hasSecondaryDestinationAddress === 'true' ? values.secondaryDestinationAddress : null,
         actualPickupPostalCode: values.pickupAddress.postalCode,
         actualDestinationPostalCode: values.destinationAddress.postalCode,
         hasReceivedAdvance,
