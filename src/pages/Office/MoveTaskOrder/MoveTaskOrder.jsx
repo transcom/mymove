@@ -965,7 +965,7 @@ export const MoveTaskOrder = (props) => {
               </Grid>
             )}
           </Grid>
-          {!isWeightAlertVisible && (
+          {isWeightAlertVisible && (
             <Alert
               headingLevel="h4"
               slim

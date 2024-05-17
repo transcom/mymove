@@ -49,11 +49,12 @@ const TXOMoveInfo = () => {
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
+  // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
   useEffect(() => {
     const fetchData = async () => {
       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-      const now = new Date();
       setMoveLockFlag(lockedMoveFlag);
+      const now = new Date();
       if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt) && moveLockFlag) {
         setIsMoveLocked(true);
       }
