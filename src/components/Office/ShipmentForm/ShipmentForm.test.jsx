@@ -1496,11 +1496,25 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
       expect(screen.getByLabelText('Approve')).toBeChecked();
       expect(screen.getByLabelText('Reject')).not.toBeChecked();
+
+      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      expect(advanceAmountInput).toHaveValue('4,875');
+
+      // Edit a requested advance amount to different number to
+      // test REVERT to save on REJECT
+      await userEvent.clear(advanceAmountInput);
+      await userEvent.type(advanceAmountInput, '2,000');
+
       // Rejecting advance request
       await userEvent.click(screen.getByLabelText('Reject'));
       await waitFor(() => {
         expect(screen.getByLabelText('Approve')).not.toBeChecked();
         expect(screen.getByLabelText('Reject')).toBeChecked();
+
+        // Verify original value was reset back 2000 to 4875. This only
+        // happens when REJECT is selected.
+        const advanceAmountInput2 = screen.getByLabelText('Amount requested');
+        expect(advanceAmountInput2).toHaveValue('4,875');
       });
       const requiredAlert = screen.getAllByRole('alert');
       expect(requiredAlert[0]).toHaveTextContent('Required');
