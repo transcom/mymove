@@ -11,11 +11,16 @@ import (
 )
 
 type usersRolesCreator struct {
+	checks []usersRolesValidator
 }
 
 // NewUsersRolesCreator creates a new struct with the service dependencies
 func NewUsersRolesCreator() services.UserRoleAssociator {
-	return usersRolesCreator{}
+	return usersRolesCreator{
+		checks: []usersRolesValidator{
+			checkTransportationOfficerPolicyViolation(),
+		},
+	}
 }
 
 // UpdateUserRoles associates a given user with a set of roles
@@ -61,7 +66,12 @@ func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uui
 
 		}
 	}
-	err := appCtx.DB().Create(userRolesToAdd)
+	err := validateUsersRoles(appCtx, &userRolesToAdd, nil, u.checks...)
+	if err != nil {
+		return nil, err
+	}
+
+	err = appCtx.DB().Create(userRolesToAdd)
 	if err != nil {
 		return []models.UsersRoles{}, err
 
