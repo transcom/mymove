@@ -39,10 +39,14 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
     const selected = event.target.value;
     statusHelper.setValue(selected);
     if (selected === ADVANCE_STATUSES.REJECTED.apiValue) {
-      // Programmatically undo unsaved input to persisted value
-      advanceAmountRequestedProps.setValue(
-        `${advanceAmountRequested / advanceAmountRequestedMaskTaskFieldValueDenominator}`,
-      );
+      // Wrap in timout callback due to racing condition with state changes
+      // with respect to form validator. Doing this ensures setValue uses correct AdvanceStatus.
+      setTimeout(() => {
+        // Programmatically undo unsaved input to persisted value
+        advanceAmountRequestedProps.setValue(
+          `${advanceAmountRequested / advanceAmountRequestedMaskTaskFieldValueDenominator}`,
+        );
+      }, 100);
     }
   };
 
