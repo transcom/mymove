@@ -40,7 +40,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
           .required('Required')
           .min(1, "The minimum advance request is $1. If you don't want an advance, select No."),
     }),
-    [formFieldsName]: requiredW2AddressSchema.required(),
+    w2Address: requiredW2AddressSchema.required(),
   });
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
