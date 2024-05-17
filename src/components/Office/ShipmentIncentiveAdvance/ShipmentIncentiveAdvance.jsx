@@ -27,20 +27,18 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive }) => {
   const [advanceRequested, setDidRequestAnAdvance] = useState(initialHasRequestedAdvance);
   const setAdvanceValueCallback = useCallback(
     (advanceAmountValue) => {
-      // console.log('theError', theError, advanceRequested);
       advanceHelper.setValue(advanceRequested);
       if (!advanceRequested) {
         amountHelper.setValue(advanceAmountValue);
-        setTimeout(() => remarksHelper.setTouched(false, true));
+        remarksHelper.setTouched(false, true);
       }
     },
     [advanceRequested, advanceHelper, amountHelper, remarksHelper],
   );
 
-  // useEffect has advanceRequested as a dependency, so if the user clicks this button, it triggers a re-render and batches
   useEffect(() => {
-    setAdvanceValueCallback(initialAdvanceAmount);
-  }, [setAdvanceValueCallback, initialAdvanceAmount]);
+    setTimeout(() => setAdvanceValueCallback(initialAdvanceAmount));
+  }, [setAdvanceValueCallback, initialAdvanceAmount, advanceRequested]);
 
   const { formattedMaxAdvance, formattedIncentive } =
     calculateMaxAdvanceAndFormatAdvanceAndIncentive(estimatedIncentive);
