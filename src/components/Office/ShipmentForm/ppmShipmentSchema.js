@@ -27,7 +27,7 @@ const applyNestedAdvanceValidator =
         is: (advance, advanceStatus, advanceRequest) => {
           const amountsUnchanged = Number(advance) === advanceAmountRequested / 100;
           const statusUnchanged = advanceStatus === oldAdvanceStatus;
-          const nonEditedInitialStatus = ADVANCE_STATUSES[advanceStatus] !== ADVANCE_STATUSES.EDITED;
+          const nonEditedInitialStatus = ADVANCE_STATUSES[advanceStatus] === ADVANCE_STATUSES.REJECTED;
           const requestUnchanged = advanceRequest === hasRequestedAdvance;
           const shouldShowError = amountsUnchanged && requestUnchanged && (statusUnchanged || !nonEditedInitialStatus);
           return !shouldShowError;

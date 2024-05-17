@@ -219,7 +219,6 @@ const ShipmentForm = (props) => {
 
   if (isPPM) {
     schema = ppmShipmentSchema({
-      oldAdvanceStatus: initialValues.advanceStatus,
       estimatedIncentive: initialValues.estimatedIncentive || 0,
       weightAllotment: serviceMember.weightAllotment,
       advanceAmountRequested: mtoShipment.ppmShipment?.advanceAmountRequested,
