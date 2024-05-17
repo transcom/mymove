@@ -83,16 +83,20 @@ export default function ReviewExpense({
     reason: reason || '',
   };
 
-  const [selectedExpenseType, setSelectedExpenseType] = React.useState(expenseTypeLabels[movingExpenseType]);
-  const [currCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
-  const [samePage, setSamePage] = React.useState(false);
+  const [selectedExpenseType, setSelectedExpenseType] = React.useState(expenseTypeLabels[movingExpenseType]); // Set initial expense type via value received from backend
+  const [currentCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
+  const [samePage, setSamePage] = React.useState(false); // Helps track if back button was used or not
 
+  /**
+   * Gets the current index for the receipt type, i.e. if we've already reviewed two "Oil" expense receipts, and user chooses "Oil" for expense type,
+   * then this will display "Oil #3" at bottom of page.
+   * * */
   const computeCurrentCategoryIndex = useCallback(
     (expenseType) => {
       const expenseTypeKey = convertLabelToKey(expenseType);
       let count = 0;
-      const expenseDocs = documentSets.filter((docSet) => docSet.documentSetType === 'MOVING_EXPENSE');
-      const docsFiltered = documentSets.length - expenseDocs.length;
+      const expenseDocs = documentSets.filter((docSet) => docSet.documentSetType === 'MOVING_EXPENSE'); // documentSets includes Trip weight tickets, progear, etc. that we don't need
+      const docsFiltered = documentSets.length - expenseDocs.length; // Reduce count/index by number of docs filtered out
       for (let i = 0; i < documentSetIndex - docsFiltered; i += 1) {
         if (expenseDocs[i].documentSet.movingExpenseType === expenseTypeKey) count += 1;
       }
@@ -102,16 +106,19 @@ export default function ReviewExpense({
   );
 
   useEffect(() => {
+    // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button.
     if (!samePage) setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
 
-    const selectedExpenseTypeKey = convertLabelToKey(selectedExpenseType);
-    const index = computeCurrentCategoryIndex(selectedExpenseTypeKey);
+    const selectedExpenseTypeKey = convertLabelToKey(selectedExpenseType); // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
+    const index = computeCurrentCategoryIndex(selectedExpenseTypeKey); // Get index for number at bottom of page (e.x. "Contracted Expense #2")
     setCurrentCategoryIndex(index);
   }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage]);
 
+  // If parent state updates to show that we've moved onto another document, then user must've used back or submit button
   useEffect(() => {
     setSamePage(false);
   }, [documentSetIndex]);
+
   const handleSubmit = (values) => {
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
@@ -218,7 +225,9 @@ export default function ReviewExpense({
                   </div>
                 </>
               )}
-              <h3 className={styles.reviewHeader}>{`Review ${allCase(selectedExpenseType)} #${currCategoryIndex}`}</h3>
+              <h3 className={styles.reviewHeader}>{`Review ${allCase(
+                selectedExpenseType,
+              )} #${currentCategoryIndex}`}</h3>
               <p>Add a review for this {allCase(selectedExpenseType)}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
