@@ -18,8 +18,8 @@ import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const moveSearchColumns = (moveLockFlag) => [
@@ -292,7 +292,6 @@ const SearchResultsTable = (props) => {
   );
 
   const tableData = useMemo(() => data, [data]);
-
   const tableColumns = useMemo(() => {
     return searchType === 'customer' ? customerSearchColumns() : moveSearchColumns(moveLockFlag);
   }, [searchType, moveLockFlag]);
