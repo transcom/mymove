@@ -65,6 +65,7 @@ const partialPayload = {
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     streetAddress2: '#123',
+    streetAddress3: '',
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
@@ -72,6 +73,7 @@ const partialPayload = {
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     streetAddress2: '',
+    streetAddress3: '',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
@@ -85,6 +87,7 @@ const partialPayload = {
   w2Address: {
     streetAddress1: '11 NE Elm Road',
     streetAddress2: '',
+    streetAddress3: '',
     city: 'Jacksonville',
     state: 'FL',
     postalCode: '32217',

@@ -27,6 +27,7 @@ const shipmentProps = {
       pickupAddress: {
         streetAddress1: '812 S 129th St',
         streetAddress2: '#123',
+        streetAddress3: '',
         city: 'San Antonio',
         state: 'TX',
         postalCode: '78234',
@@ -34,6 +35,7 @@ const shipmentProps = {
       destinationAddress: {
         streetAddress1: '441 SW Rio de la Plata Drive',
         streetAddress2: '',
+        streetAddress3: '',
         city: 'Tacoma',
         state: 'WA',
         postalCode: '98421',
@@ -41,6 +43,7 @@ const shipmentProps = {
       secondaryPickupAddress: {
         streetAddress1: '',
         streetAddress2: '',
+        streetAddress3: '',
         city: '',
         state: '',
         postalCode: '',
@@ -48,6 +51,7 @@ const shipmentProps = {
       secondaryDestinationAddress: {
         streetAddress1: '',
         streetAddress2: '',
+        streetAddress3: '',
         city: '',
         state: '',
         postalCode: '',
@@ -59,6 +63,7 @@ const shipmentProps = {
       w2Address: {
         streetAddress1: '11 NE Elm Road',
         streetAddress2: '',
+        streetAddress3: '',
         city: 'Jacksonville',
         state: 'FL',
         postalCode: '32217',
@@ -272,6 +277,7 @@ describe('AboutForm component', () => {
               pickupAddress: {
                 streetAddress1: '812 S 129th St',
                 streetAddress2: '#123',
+                streetAddress3: '',
                 city: 'San Antonio',
                 state: 'TX',
                 postalCode: '78234',
@@ -279,6 +285,7 @@ describe('AboutForm component', () => {
               destinationAddress: {
                 streetAddress1: '441 SW Rio de la Plata Drive',
                 streetAddress2: '',
+                streetAddress3: '',
                 city: 'Tacoma',
                 state: 'WA',
                 postalCode: '98421',
@@ -286,6 +293,7 @@ describe('AboutForm component', () => {
               secondaryPickupAddress: {
                 streetAddress1: '',
                 streetAddress2: '',
+                streetAddress3: '',
                 city: '',
                 state: '',
                 postalCode: '',
@@ -293,6 +301,7 @@ describe('AboutForm component', () => {
               secondaryDestinationAddress: {
                 streetAddress1: '',
                 streetAddress2: '',
+                streetAddress3: '',
                 city: '',
                 state: '',
                 postalCode: '',
@@ -304,6 +313,7 @@ describe('AboutForm component', () => {
               w2Address: {
                 streetAddress1: '11 NE Elm Road',
                 streetAddress2: '',
+                streetAddress3: '',
                 city: 'Jacksonville',
                 state: 'FL',
                 postalCode: '32217',
