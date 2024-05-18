@@ -53,6 +53,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
     pickupAddress: {
       streetAddress1: '',
       streetAddress2: '',
+      streetAddress3: '',
       city: '',
       state: '',
       postalCode: '',
@@ -60,6 +61,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
     secondaryPickupAddress: {
       streetAddress1: '',
       streetAddress2: '',
+      streetAddress3: '',
       city: '',
       state: '',
       postalCode: '',
@@ -67,6 +69,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
     destinationAddress: {
       streetAddress1: '',
       streetAddress2: '',
+      streetAddress3: '',
       city: '',
       state: '',
       postalCode: '',
@@ -74,6 +77,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
     secondaryDestinationAddress: {
       streetAddress1: '',
       streetAddress2: '',
+      streetAddress3: '',
       city: '',
       state: '',
       postalCode: '',
@@ -85,6 +89,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
     [formFieldsName]: {
       streetAddress1: mtoShipment?.ppmShipment?.w2Address?.streetAddress1 || '',
       streetAddress2: mtoShipment?.ppmShipment?.w2Address?.streetAddress2 || '',
+      streetAddress3: mtoShipment?.ppmShipment?.w2Address?.streetAddress3 || '',
       city: mtoShipment?.ppmShipment?.w2Address?.city || '',
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
@@ -114,6 +119,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <AddressFields
                   name="pickupAddress"
                   legend="Pickup Address"
+                  className={styles.AddressFieldSet}
                   formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
                     <>
@@ -159,6 +165,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <AddressFields
                   name="destinationAddress"
                   legend="Destination Address"
+                  className={styles.AddressFieldSet}
                   formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
                     <>
