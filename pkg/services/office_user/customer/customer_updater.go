@@ -131,10 +131,6 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			}
 		}
 
-		if customer.CacValidated != existingCustomer.CacValidated {
-			existingCustomer.CacValidated = customer.CacValidated
-		}
-
 		// optimistic locking handled before transaction block
 		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(existingCustomer)
 

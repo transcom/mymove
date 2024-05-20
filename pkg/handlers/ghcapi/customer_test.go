@@ -173,8 +173,6 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Address: backupAddress,
 		},
 		CreateOktaAccount: true,
-		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
-		CacUser: false,
 	}
 
 	defer goth.ClearProviders()
@@ -208,8 +206,6 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 	suite.Equal(body.BackupContact.Name, createdCustomerPayload.BackupContact.Name)
 	suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
 	suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
-	// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
-	suite.Equal(true, createdCustomerPayload.CacValidated)
 }
 
 // Generate and activate Okta endpoints that will be using during the auth handlers.

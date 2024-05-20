@@ -28,9 +28,6 @@ type CreatedCustomer struct {
 	// backup contact
 	BackupContact *BackupContact `json:"backupContact,omitempty"`
 
-	// cac validated
-	CacValidated bool `json:"cacValidated,omitempty"`
-
 	// edipi
 	Edipi *string `json:"edipi,omitempty"`
 

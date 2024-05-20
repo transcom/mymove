@@ -131,7 +131,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), badDataError
 			}
 
-			// declaring okta values outside of if statements so we can use them later
+			// delcaring okta values outside of if statements so we can use them later
 			var oktaSub string
 			oktaUser := &models.CreatedOktaUser{}
 
@@ -145,13 +145,6 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 					return customercodeop.NewCreateCustomerWithOktaOptionBadRequest(), oktaErr
 				}
 				oktaSub = oktaUser.ID
-			}
-
-			// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
-			// to true so that the customer can log in without having to authenticate with a CAC
-			var cacValidated = false
-			if !payload.CacUser {
-				cacValidated = true
 			}
 
 			transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -190,7 +183,6 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 					EmailIsPreferred:     &payload.EmailIsPreferred,
 					ResidentialAddress:   residentialAddress,
 					BackupMailingAddress: backupMailingAddress,
-					CacValidated:         cacValidated,
 				}
 
 				// create the service member and save to the db

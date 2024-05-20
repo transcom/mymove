@@ -2,9 +2,9 @@ package notifications
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	html "html/template"
+	"strings"
 	text "text/template"
 
 	"github.com/gofrs/uuid"
@@ -59,15 +59,20 @@ func (m ReweighRequested) emails(appCtx appcontext.AppContext) ([]emailContent, 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
-	shipmentLocator := *m.shipment.ShipmentLocator
-	if len(shipmentLocator) <= 0 {
-		appCtx.Logger().Error("error getting ShipmentLocator, nil string received")
-		return nil, errors.New("error getting ShipmentLocator, nil string received")
+	shipmentID := m.shipment.ID.String()
+	var shipmentNumber string
+
+	// Shipment # is the first 8 characters of shipmentId
+	if len(shipmentID) >= 8 {
+		firstEight := shipmentID[:8]
+		shipmentNumber = strings.ToUpper(firstEight)
+	} else {
+		shipmentNumber = ""
 	}
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentLocator),
+		subject:        fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentNumber),
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}

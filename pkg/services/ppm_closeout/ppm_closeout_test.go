@@ -82,21 +82,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				MilesLower:            2001,
 				MilesUpper:            2500,
 				PriceMillicents:       unit.Millicents(412400),
-				IsPeakPeriod:          false,
-			},
-		})
-		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-				Contract:              originDomesticServiceArea.Contract,
-				ContractID:            originDomesticServiceArea.ContractID,
-				DomesticServiceArea:   originDomesticServiceArea,
-				DomesticServiceAreaID: originDomesticServiceArea.ID,
-				WeightLower:           unit.Pound(500),
-				WeightUpper:           unit.Pound(4999),
-				MilesLower:            2001,
-				MilesUpper:            2500,
-				PriceMillicents:       unit.Millicents(412400),
-				IsPeakPeriod:          true,
 			},
 		})
 
@@ -111,18 +96,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				DomesticServiceAreaID: originDomesticServiceArea.ID,
 				DomesticServiceArea:   originDomesticServiceArea,
 				IsPeakPeriod:          false,
-				PriceCents:            unit.Cents(404),
-			},
-		})
-		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				ContractID:            originDomesticServiceArea.ContractID,
-				Contract:              originDomesticServiceArea.Contract,
-				ServiceID:             dopService.ID,
-				Service:               dopService,
-				DomesticServiceAreaID: originDomesticServiceArea.ID,
-				DomesticServiceArea:   originDomesticServiceArea,
-				IsPeakPeriod:          true,
 				PriceCents:            unit.Cents(404),
 			},
 		})
@@ -158,18 +131,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				PriceCents:            unit.Cents(832),
 			},
 		})
-		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				ContractID:            destDomesticServiceArea.ContractID,
-				Contract:              destDomesticServiceArea.Contract,
-				ServiceID:             ddpService.ID,
-				Service:               ddpService,
-				DomesticServiceAreaID: destDomesticServiceArea.ID,
-				DomesticServiceArea:   destDomesticServiceArea,
-				IsPeakPeriod:          true,
-				PriceCents:            unit.Cents(832),
-			},
-		})
 
 		dpkService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDPK)
 
@@ -184,17 +145,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				PriceCents:   7395,
 			},
 		})
-		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-				ContractID:   originDomesticServiceArea.ContractID,
-				Contract:     originDomesticServiceArea.Contract,
-				ServiceID:    dpkService.ID,
-				Service:      dpkService,
-				IsPeakPeriod: true,
-				Schedule:     3,
-				PriceCents:   7395,
-			},
-		})
 
 		dupkService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDUPK)
 
@@ -205,17 +155,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				ServiceID:    dupkService.ID,
 				Service:      dupkService,
 				IsPeakPeriod: false,
-				Schedule:     2,
-				PriceCents:   597,
-			},
-		})
-		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
-				ContractID:   destDomesticServiceArea.ContractID,
-				Contract:     destDomesticServiceArea.Contract,
-				ServiceID:    dupkService.ID,
-				Service:      dupkService,
-				IsPeakPeriod: true,
 				Schedule:     2,
 				PriceCents:   597,
 			},
@@ -235,18 +174,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				PriceCents:            1153,
 			},
 		})
-		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				ContractID:            originDomesticServiceArea.ContractID,
-				Contract:              originDomesticServiceArea.Contract,
-				ServiceID:             dofsitService.ID,
-				Service:               dofsitService,
-				DomesticServiceAreaID: originDomesticServiceArea.ID,
-				DomesticServiceArea:   originDomesticServiceArea,
-				IsPeakPeriod:          true,
-				PriceCents:            1153,
-			},
-		})
 
 		doasitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOASIT)
 
@@ -259,18 +186,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				DomesticServiceAreaID: originDomesticServiceArea.ID,
 				DomesticServiceArea:   originDomesticServiceArea,
 				IsPeakPeriod:          false,
-				PriceCents:            46,
-			},
-		})
-		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				ContractID:            originDomesticServiceArea.ContractID,
-				Contract:              originDomesticServiceArea.Contract,
-				ServiceID:             doasitService.ID,
-				Service:               doasitService,
-				DomesticServiceAreaID: originDomesticServiceArea.ID,
-				DomesticServiceArea:   originDomesticServiceArea,
-				IsPeakPeriod:          true,
 				PriceCents:            46,
 			},
 		})
@@ -289,18 +204,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				PriceCents:            1612,
 			},
 		})
-		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				ContractID:            destDomesticServiceArea.ContractID,
-				Contract:              destDomesticServiceArea.Contract,
-				ServiceID:             ddfsitService.ID,
-				Service:               ddfsitService,
-				DomesticServiceAreaID: destDomesticServiceArea.ID,
-				DomesticServiceArea:   destDomesticServiceArea,
-				IsPeakPeriod:          true,
-				PriceCents:            1612,
-			},
-		})
 
 		ddasitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDASIT)
 
@@ -313,18 +216,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 				DomesticServiceAreaID: destDomesticServiceArea.ID,
 				DomesticServiceArea:   destDomesticServiceArea,
 				IsPeakPeriod:          false,
-				PriceCents:            55,
-			},
-		})
-		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
-			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
-				ContractID:            destDomesticServiceArea.ContractID,
-				Contract:              destDomesticServiceArea.Contract,
-				ServiceID:             ddasitService.ID,
-				Service:               ddasitService,
-				DomesticServiceAreaID: destDomesticServiceArea.ID,
-				DomesticServiceArea:   destDomesticServiceArea,
-				IsPeakPeriod:          true,
 				PriceCents:            55,
 			},
 		})

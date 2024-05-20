@@ -925,4 +925,3 @@
 20240412201837_edit_gun_safe_entitlement_not_null.up.sql
 20240416145256_update_safety_privilege_label.up.sql
 20240503123556_add_diversion_reason_to_mto_shipments.up.sql
-20240507133524_add_locked_moves_column_to_moves_table.up.sql

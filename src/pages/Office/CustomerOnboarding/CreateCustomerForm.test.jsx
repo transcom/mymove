@@ -59,7 +59,6 @@ const fakePayload = {
     email: 'allOverDaPlace@mail.com',
   },
   create_okta_account: 'true',
-  cac_user: 'false',
 };
 
 const fakeResponse = {
@@ -128,7 +127,6 @@ describe('CreateCustomerForm', () => {
     expect(screen.getByText('Backup Address')).toBeInTheDocument();
     expect(screen.getByText('Backup Contact')).toBeInTheDocument();
     expect(screen.getByText('Okta Account')).toBeInTheDocument();
-    expect(screen.getByText('Non-CAC Users')).toBeInTheDocument();
 
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
@@ -185,9 +183,8 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
-    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
-
-    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
+    const oktaRadioButton = getByLabelText('Yes');
+    await userEvent.click(oktaRadioButton);
 
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
@@ -234,9 +231,8 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
-    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
-
-    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
+    const oktaRadioButton = getByLabelText('Yes');
+    await userEvent.click(oktaRadioButton);
 
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();

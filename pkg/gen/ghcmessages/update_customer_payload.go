@@ -27,9 +27,6 @@ type UpdateCustomerPayload struct {
 	// backup contact
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
 
-	// cac validated
-	CacValidated bool `json:"cac_validated,omitempty"`
-
 	// current address
 	CurrentAddress struct {
 		Address
