@@ -28,11 +28,13 @@ func (u usersRolesCreator) UpdateUserRoles(appCtx appcontext.AppContext, userID 
 	var usersRoles []models.UsersRoles
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		_, err := u.addUserRoles(appCtx, userID, rs)
+		// Remove prior to adding. This allows "rules" / checks to validate
+		// properly against incoming logic.
+		_, err := u.removeUserRoles(appCtx, userID, rs)
 		if err != nil {
 			return err
 		}
-		_, err = u.removeUserRoles(appCtx, userID, rs)
+		_, err = u.addUserRoles(appCtx, userID, rs)
 		if err != nil {
 			return err
 		}
