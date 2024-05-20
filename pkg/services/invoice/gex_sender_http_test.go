@@ -29,7 +29,7 @@ func TestGexSuite(t *testing.T) {
 
 func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	bodyString := ""
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
@@ -38,7 +38,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
 
-	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	resp, err = NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
@@ -51,7 +51,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 
 func (suite *GexSuite) TestSendToGexHTTP_QueryParams() {
 	bodyString := ""
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
@@ -67,7 +67,7 @@ func (suite *GexSuite) TestSendToGexHTTP_QueryParams() {
 
 func (suite *GexSuite) TestSendToGexHTTP_InvalidChannel() {
 	bodyString := ""
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	var invalidChannel services.GEXChannel = "INVALID-CHANNEL"

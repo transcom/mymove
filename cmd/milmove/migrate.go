@@ -176,6 +176,8 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	migrationPaths := expandPaths(strings.Split(trimmedMigrationPaths, ";"))
 	logger.Info(fmt.Sprintf("using migration paths %q", migrationPaths))
 
+	logger.Info("migration Path from s3")
+
 	s3Migrations := false
 	for _, p := range migrationPaths {
 		if strings.HasPrefix(p, "s3://") {
@@ -189,6 +191,8 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	retryCount := 0
 	retryMax := v.GetInt(cli.DbRetryMaxFlag)
 	retryInterval := v.GetDuration(cli.DbRetryIntervalFlag)
+
+	logger.Info("get db config")
 
 	dbConnection, err = cli.InitDatabase(v, logger)
 	if err != nil {

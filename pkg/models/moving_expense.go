@@ -62,6 +62,7 @@ type MovingExpense struct {
 	Reason            *string                   `json:"reason" db:"reason"`
 	SITStartDate      *time.Time                `json:"sit_start_date" db:"sit_start_date"`
 	SITEndDate        *time.Time                `json:"sit_end_date" db:"sit_end_date"`
+	WeightStored      *unit.Pound               `json:"weight_stored" db:"weight_stored"`
 }
 
 // TableName overrides the table name used by Pop.

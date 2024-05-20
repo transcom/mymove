@@ -49,32 +49,32 @@ func (suite *MTOAgentServiceSuite) TestValidateMTOAgent() {
 	sh := models.MTOShipment{ID: uuid.Must(uuid.NewV4())}
 
 	// these checks just ensure the parameters are being passed as expected
-	checkNew := mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkNew := mtoAgentValidatorFunc(func(_ appcontext.AppContext, newAgent models.MTOAgent, _ *models.MTOAgent, _ *models.MTOShipment) error {
 		suite.Equal(newAgent.ID, na.ID)
 		return nil
 	})
-	checkOld := mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkOld := mtoAgentValidatorFunc(func(_ appcontext.AppContext, _ models.MTOAgent, oldAgent *models.MTOAgent, _ *models.MTOShipment) error {
 		suite.Equal(oldAgent.ID, oa.ID)
 		return nil
 	})
-	checkShip := mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkShip := mtoAgentValidatorFunc(func(_ appcontext.AppContext, _ models.MTOAgent, _ *models.MTOAgent, shipment *models.MTOShipment) error {
 		suite.Equal(shipment.ID, sh.ID)
 		return nil
 	})
 
-	checkEmpty := mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkEmpty := mtoAgentValidatorFunc(func(_ appcontext.AppContext, _ models.MTOAgent, _ *models.MTOAgent, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		return verrs
 	})
-	checkVerr := mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkVerr := mtoAgentValidatorFunc(func(_ appcontext.AppContext, _ models.MTOAgent, _ *models.MTOAgent, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		verrs.Add("forceVERR", "forced")
 		return verrs
 	})
-	checkErr := mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkErr := mtoAgentValidatorFunc(func(_ appcontext.AppContext, _ models.MTOAgent, _ *models.MTOAgent, _ *models.MTOShipment) error {
 		return fmt.Errorf("forced error, not of type *validate.Errors")
 	})
-	checkSkip := mtoAgentValidatorFunc(func(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkSkip := mtoAgentValidatorFunc(func(_ appcontext.AppContext, _ models.MTOAgent, _ *models.MTOAgent, _ *models.MTOShipment) error {
 		suite.Fail("should not have been called after a non-verr short-circuit")
 		return nil
 	})

@@ -68,6 +68,41 @@ func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) midd
 		})
 }
 
+type SearchCustomersHandler struct {
+	handlers.HandlerConfig
+	services.CustomerSearcher
+}
+
+func (h SearchCustomersHandler) Handle(params customercodeop.SearchCustomersParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			searchCustomersParams := services.SearchCustomersParams{
+				DodID:        params.Body.DodID,
+				CustomerName: params.Body.CustomerName,
+				Page:         params.Body.Page,
+				PerPage:      params.Body.PerPage,
+				Sort:         params.Body.Sort,
+				Order:        params.Body.Order,
+			}
+
+			customers, totalCount, err := h.CustomerSearcher.SearchCustomers(appCtx, &searchCustomersParams)
+
+			if err != nil {
+				appCtx.Logger().Error("Error searching for customer", zap.Error(err))
+				return customercodeop.NewSearchCustomersInternalServerError(), err
+			}
+
+			searchCustomers := payloads.SearchCustomers(customers)
+			payload := &ghcmessages.SearchCustomersResult{
+				Page:            1,
+				PerPage:         20,
+				TotalCount:      int64(totalCount),
+				SearchCustomers: *searchCustomers,
+			}
+			return customercodeop.NewSearchCustomersOK().WithPayload(payload), nil
+		})
+}
+
 // UpdateCustomerHandler updates a customer via PATCH /customer/{customerId}
 type UpdateCustomerHandler struct {
 	handlers.HandlerConfig
@@ -147,7 +182,14 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				oktaSub = oktaUser.ID
 			}
 
-			transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
+			// to true so that the customer can log in without having to authenticate with a CAC
+			var cacValidated = false
+			if !payload.CacUser {
+				cacValidated = true
+			}
+
+			transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 				var verrs *validate.Errors
 				// creating a user and populating okta values (for now these can be null)
 				user, userErr := models.CreateUser(appCtx.DB(), oktaSub, email)
@@ -183,6 +225,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 					EmailIsPreferred:     &payload.EmailIsPreferred,
 					ResidentialAddress:   residentialAddress,
 					BackupMailingAddress: backupMailingAddress,
+					CacValidated:         cacValidated,
 				}
 
 				// create the service member and save to the db
