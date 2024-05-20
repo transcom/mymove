@@ -31,6 +31,9 @@ export const expenseTypeLabels = {
   OTHER: 'Other',
 };
 
+// Converts a display value to an enum key (i.e. 'Contracted Expense' -> CONTRACTED_EXPENSE)
+export const convertLabelToKey = (label) => label.toUpperCase().replace(' ', '_');
+
 export const ppmExpenseTypes = [
   { value: 'Contracted expense', key: 'CONTRACTED_EXPENSE' },
   { value: 'Oil', key: 'OIL' },

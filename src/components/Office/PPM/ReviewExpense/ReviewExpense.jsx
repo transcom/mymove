@@ -19,7 +19,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
-import { expenseTypeLabels, expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
+import { expenseTypeLabels, expenseTypes, ppmExpenseTypes, convertLabelToKey } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
@@ -63,7 +63,6 @@ export default function ReviewExpense({
   onSuccess,
   formRef,
 }) {
-  const convertLabelToKey = (label) => label.toUpperCase().replace(' ', '_');
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
 
