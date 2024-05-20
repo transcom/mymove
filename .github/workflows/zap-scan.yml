@@ -9,7 +9,7 @@ jobs:
         - name: ZAP Scan
           uses: zaproxy/action-baseline@v0.12.0
           with:
-            target: 'https://github.com/transcom/mymove'
+            target: 'https://office.loadtest.dp3.us/devlocal-auth/login'
         - name: Upload ZAP Report
           uses: actions/upload-artifact@v2
           with:
