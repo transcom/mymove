@@ -22,7 +22,9 @@ import (
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/upload"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -33,6 +35,8 @@ const FixtureJPG = "test.jpg"
 const FixtureTXT = "test.txt"
 const FixtureXLS = "Weight Estimator.xls"
 const FixtureXLSX = "Weight Estimator.xlsx"
+const WeightEstimatorFullXLSX = "Weight Estimator Full.xlsx"
+const WeightEstimatorPrefix = "Weight Estimator Full"
 const FixtureEmpty = "empty.pdf"
 
 func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreateUploadParams) {
@@ -45,7 +49,7 @@ func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, up
 	return document, params
 }
 
-func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, ppmop.CreatePPMUploadParams) {
+func createPPMPrereqs(suite *HandlerSuite, fixtureFile string, weightReceipt bool) (models.Document, ppmop.CreatePPMUploadParams) {
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 	weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
@@ -59,6 +63,7 @@ func createPPMPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document,
 	params.DocumentID = strfmt.UUID(weightTicket.EmptyDocumentID.String())
 	params.PpmShipmentID = strfmt.UUID(ppmShipment.ID.String())
 	params.File = suite.Fixture(fixtureFile)
+	params.WeightReceipt = weightReceipt
 
 	return weightTicket.EmptyDocument, params
 }
@@ -121,7 +126,17 @@ func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, ser
 
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	handler := CreatePPMUploadHandler{handlerConfig}
+	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	suite.FatalNoError(err)
+
+	pdfGenerator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNoError(err)
+
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
+	suite.FatalNoError(err)
+
+	handler := CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
 	response := handler.Handle(params)
 
 	return response
@@ -432,7 +447,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	suite.Run("uploads .xls file", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLS)
+		document, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
 
@@ -456,7 +471,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 
 	suite.Run("uploads .xlsx file", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLSX)
+		document, params := createPPMPrereqs(suite, FixtureXLSX, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
 
@@ -476,6 +491,30 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
 		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
 		suite.Contains(createdResponse.Payload.URL, uploader.FileTypeExcelXLSX)
+	})
+
+	suite.Run("uploads weight estimator .xlsx file (full weight)", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMPrereqs(suite, WeightEstimatorFullXLSX, true)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		suite.NoError(err)
+
+		// uploaded xlsx document should now be converted to a pdf so we check for pdf instead of xlsx
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Contains(createdResponse.Payload.Filename, WeightEstimatorPrefix)
+		suite.Equal(uploader.FileTypePDF, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
+		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
+		suite.Contains(createdResponse.Payload.URL, uploader.FileTypePDF)
 	})
 
 	suite.Run("uploads file for a progear document", func() {
@@ -530,7 +569,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 	suite.Run("documentId does not exist", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLS)
+		document, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 
@@ -544,7 +583,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 	suite.Run("documentId is not associated with the PPM shipment", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		_, params := createPPMPrereqs(suite, FixtureXLS)
+		_, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		document := factory.BuildDocument(suite.DB(), nil, nil)
 		params.DocumentID = strfmt.UUID(document.ID.String())
@@ -559,7 +598,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 	suite.Run("service member session does not match document creator", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		_, params := createPPMPrereqs(suite, FixtureXLS)
+		_, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -573,7 +612,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 	suite.Run("ppmShipmentId does not exist", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureXLS)
+		document, params := createPPMPrereqs(suite, FixtureXLS, false)
 
 		params.PpmShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
@@ -586,7 +625,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 	suite.Run("unsupported content type upload", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureTXT)
+		document, params := createPPMPrereqs(suite, FixtureTXT, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
 
@@ -599,7 +638,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 	suite.Run("empty file upload", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		document, params := createPPMPrereqs(suite, FixtureEmpty)
+		document, params := createPPMPrereqs(suite, FixtureEmpty, false)
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
 
