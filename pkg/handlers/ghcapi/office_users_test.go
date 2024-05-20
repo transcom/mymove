@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 		// Mock successful role return
 		mockRoleFetcher.On(
 			"FetchRolesForUser",
