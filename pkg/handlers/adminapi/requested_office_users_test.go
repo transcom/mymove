@@ -249,7 +249,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 
 		mockRoleAssociator.On(
 			"FetchRolesForUser",
@@ -356,7 +356,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 
 		mockRoleAssociator.On(
 			"FetchRolesForUser",
@@ -463,7 +463,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 
 		mockRoleAssociator.On(
 			"FetchRolesForUser",
