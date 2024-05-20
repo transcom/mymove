@@ -44,44 +44,26 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
   });
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
-  const { actualMoveDate, hasReceivedAdvance, advanceAmountReceived } = ppmShipment;
+  const {
+    pickupAddress,
+    secondaryPickupAddress,
+    destinationAddress,
+    secondaryDestinationAddress,
+    hasSecondaryPickupAddress,
+    hasSecondaryDestinationAddress,
+    actualMoveDate,
+    hasReceivedAdvance,
+    advanceAmountReceived,
+  } = ppmShipment;
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
     actualPickupPostalCode: '',
     actualDestinationPostalCode: '',
-    pickupAddress: {
-      streetAddress1: '',
-      streetAddress2: '',
-      streetAddress3: '',
-      city: '',
-      state: '',
-      postalCode: '',
-    },
-    secondaryPickupAddress: {
-      streetAddress1: '',
-      streetAddress2: '',
-      streetAddress3: '',
-      city: '',
-      state: '',
-      postalCode: '',
-    },
-    destinationAddress: {
-      streetAddress1: '',
-      streetAddress2: '',
-      streetAddress3: '',
-      city: '',
-      state: '',
-      postalCode: '',
-    },
-    secondaryDestinationAddress: {
-      streetAddress1: '',
-      streetAddress2: '',
-      streetAddress3: '',
-      city: '',
-      state: '',
-      postalCode: '',
-    },
+    pickupAddress,
+    secondaryPickupAddress: hasSecondaryPickupAddress ? secondaryPickupAddress : {},
+    destinationAddress,
+    secondaryDestinationAddress: hasSecondaryDestinationAddress ? secondaryDestinationAddress : {},
     hasSecondaryPickupAddress: 'false',
     hasSecondaryDestinationAddress: 'false',
     hasReceivedAdvance: hasReceivedAdvance ? 'true' : 'false',
