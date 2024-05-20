@@ -25,20 +25,29 @@ func NewUsersRolesCreator() services.UserRoleAssociator {
 
 // UpdateUserRoles associates a given user with a set of roles
 func (u usersRolesCreator) UpdateUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
-	_, err := u.addUserRoles(appCtx, userID, rs)
-	if err != nil {
-		return []models.UsersRoles{}, err
-	}
-	_, err = u.removeUserRoles(appCtx, userID, rs)
-	if err != nil {
-		return []models.UsersRoles{}, err
-	}
 	var usersRoles []models.UsersRoles
-	// fetch + return updated roles
-	err = appCtx.DB().Where("user_id = ?", userID).All(&usersRoles)
-	if err != nil {
-		return []models.UsersRoles{}, err
+
+	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		_, err := u.addUserRoles(appCtx, userID, rs)
+		if err != nil {
+			return err
+		}
+		_, err = u.removeUserRoles(appCtx, userID, rs)
+		if err != nil {
+			return err
+		}
+		// fetch + return updated roles
+		err = appCtx.DB().Where("user_id = ?", userID).All(&usersRoles)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if txErr != nil {
+		return []models.UsersRoles{}, txErr
 	}
+
 	return usersRoles, nil
 }
 
