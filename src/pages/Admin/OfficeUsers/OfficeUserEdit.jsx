@@ -13,6 +13,7 @@ import {
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
+import { roleTypes } from 'constants/userRoles';
 
 const OfficeUserEditToolbar = (props) => {
   return (
@@ -20,6 +21,40 @@ const OfficeUserEditToolbar = (props) => {
       <SaveButton />
     </Toolbar>
   );
+};
+const validateForm = (values) => {
+  const errors = {};
+  if (!values.firstName) {
+    errors.firstName = 'You must enter a first name.';
+  }
+  if (!values.lastName) {
+    errors.lastName = 'You must enter a last name.';
+  }
+  if (!values.email) {
+    errors.email = 'You must enter an email.';
+  }
+
+  if (!values.telephone) {
+    errors.telephone = 'You must enter a telephone number.';
+  } else if (!values.telephone.match(/^[2-9]\d{2}-\d{3}-\d{4}$/)) {
+    errors.telephone = 'Invalid phone number, should be 000-000-0000.';
+  }
+
+  if (!values.roles?.length) {
+    errors.roles = 'You must select at least one role.';
+  } else if (
+    values.roles.find((role) => role.roleType === roleTypes.TIO) &&
+    values.roles.find((role) => role.roleType === roleTypes.TOO)
+  ) {
+    errors.roles =
+      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.';
+  }
+
+  if (!values.transportationOfficeId) {
+    errors.transportationOfficeId = 'You must select a transportation office.';
+  }
+
+  return errors;
 };
 
 const OfficeUserEdit = () => (
@@ -29,6 +64,7 @@ const OfficeUserEdit = () => (
       sx={{ '& .MuiInputBase-input': { width: 232 } }}
       mode="onBlur"
       reValidateMode="onBlur"
+      validate={validateForm}
     >
       <TextInput source="id" disabled />
       <TextInput source="userId" label="User Id" disabled />
