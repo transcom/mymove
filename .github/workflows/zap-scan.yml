@@ -10,8 +10,3 @@ jobs:
           uses: zaproxy/action-baseline@v0.12.0
           with:
             target: 'https://office.loadtest.dp3.us/devlocal-auth/login'
-        - name: Upload ZAP Report
-          uses: actions/upload-artifact@v2
-          with:
-            name: zap-scan-report
-            path: ${{ inputs.report_path }}
