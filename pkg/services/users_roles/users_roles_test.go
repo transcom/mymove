@@ -105,10 +105,10 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemove() {
 	suite.NoError(err)
 
 	ur := []models.UsersRoles{}
-	getAllErr := suite.DB().All(&ur)
+	getAllErr := suite.AppContextForTest().DB().All(&ur)
 	suite.NoError(getAllErr)
-	suite.NotNil(ur[1].DeletedAt)
-	suite.Nil(ur[0].DeletedAt)
+	suite.NotNil(ur[0].DeletedAt)
+	suite.Nil(ur[1].DeletedAt)
 }
 
 func (suite *UsersRolesServiceSuite) TestAssociateUserRolesMultiple() {
