@@ -192,7 +192,13 @@ export default function ReviewExpense({
                 }}
               >
                 {ppmExpenseTypes.map((x) => (
-                  <option key={x.key}>{x.value}</option>
+                  <option key={x.key}>
+                    {x.value
+                      .toLowerCase()
+                      .split(' ')
+                      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+                      .join(' ')}
+                  </option>
                 ))}
               </select>
               <TextField
