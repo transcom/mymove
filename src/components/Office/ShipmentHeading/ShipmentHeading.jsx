@@ -48,6 +48,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
           <Restricted to={permissionTypes.createShipmentCancellation}>
             <Restricted to={permissionTypes.updateMTOPage}>
               <Button
+                data-testid="requestCancellationBtn"
                 type="button"
                 onClick={() => handleShowCancellationModal(shipmentInfo)}
                 unstyled

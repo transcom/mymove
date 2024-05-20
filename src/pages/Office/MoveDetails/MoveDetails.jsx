@@ -65,7 +65,6 @@ const MoveDetails = ({
   /* ------------------ Miscellaneous ------------------------- */
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [isAtExcessWeightRisk, setIsAtExcessWeightRisk] = useState(false);
-  /* ------------------ Flags ------------------------- */
 
   const navigate = useNavigate();
 

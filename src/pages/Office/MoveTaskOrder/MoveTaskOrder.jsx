@@ -920,7 +920,13 @@ export const MoveTaskOrder = (props) => {
   }
 
   const excessWeightAlertControl = (
-    <Button type="button" onClick={handleHideWeightAlert} unstyled disabled={isMoveLocked}>
+    <Button
+      data-testid="excessWeightAlertButton"
+      type="button"
+      onClick={handleHideWeightAlert}
+      unstyled
+      disabled={isMoveLocked}
+    >
       <FontAwesomeIcon icon="times" />
     </Button>
   );
@@ -986,7 +992,13 @@ export const MoveTaskOrder = (props) => {
                 <Restricted to={permissionTypes.updateBillableWeight}>
                   <Restricted to={permissionTypes.updateMTOPage}>
                     <span className={styles.rightAlignButtonWrapper}>
-                      <Button type="button" onClick={handleShowWeightModal} unstyled disabled={isMoveLocked}>
+                      <Button
+                        data-testid="reviewBillableWeightBtn"
+                        type="button"
+                        onClick={handleShowWeightModal}
+                        unstyled
+                        disabled={isMoveLocked}
+                      >
                         Review billable weight
                       </Button>
                     </span>
