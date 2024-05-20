@@ -9,11 +9,29 @@ import (
 )
 
 func checkTransportationOfficerPolicyViolation() usersRolesValidator {
-	return usersRolesValidatorFunc(func(appCtx appcontext.AppContext, newUsersRoles, _ *[]models.UsersRoles) error {
+	return usersRolesValidatorFunc(func(appCtx appcontext.AppContext, newUsersRoles, existingUserRoles *[]models.UsersRoles) error {
 		verrs := validate.NewErrors()
 
 		hasTOO := false
 		hasTIO := false
+
+		// Check the existing roles
+		if existingUserRoles != nil {
+			for _, existingRole := range *existingUserRoles {
+				var role roles.Role
+				err := appCtx.DB().Find(&role, existingRole.RoleID)
+				if err != nil {
+					return err
+				}
+				// Save if the existing role found was a TOO or TIO
+				if role.RoleType == roles.RoleTypeTOO {
+					hasTOO = true
+				}
+				if role.RoleType == roles.RoleTypeTIO {
+					hasTIO = true
+				}
+			}
+		}
 
 		// Check the new roles being added
 		if newUsersRoles != nil {
@@ -24,18 +42,18 @@ func checkTransportationOfficerPolicyViolation() usersRolesValidator {
 					return err
 				}
 				if role.RoleType == roles.RoleTypeTOO {
-					hasTOO = true
 					if hasTIO {
 						verrs.Add("role", "a user cannot have both the TOO and TIO roles")
 						break
 					}
+					hasTOO = true
 				}
 				if role.RoleType == roles.RoleTypeTIO {
-					hasTIO = true
 					if hasTOO {
 						verrs.Add("role", "a user cannot have both the TOO and TIO roles")
 						break
 					}
+					hasTIO = true
 				}
 			}
 		}

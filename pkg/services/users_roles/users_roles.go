@@ -55,6 +55,19 @@ func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uui
 	//	AND ur.user_id = '3b9360a3-3304-4c60-90f4-83d687884079'
 	//WHERE role_type IN ('transportation_ordering_officer', 'contracting_officer', 'customer')
 	//	AND ur.user_id ISNULL;
+
+	// Retrieve existing active roles for the user
+	var existingUserRoles []models.UsersRoles
+	err := appCtx.DB().
+		Select("users_roles.*").
+		RightJoin("roles r", "r.id = users_roles.role_id").
+		Where("users_roles.user_id = ? AND users_roles.deleted_at IS NULL", userID).
+		All(&existingUserRoles)
+	if err != nil {
+		return []models.UsersRoles{}, err
+	}
+
+	// Identify which roles need to be added
 	var userRolesToAdd []models.UsersRoles
 	if len(rs) > 0 {
 		err := appCtx.DB().Select("r.id as role_id, ? as user_id").
@@ -66,7 +79,7 @@ func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uui
 
 		}
 	}
-	err := validateUsersRoles(appCtx, &userRolesToAdd, nil, u.checks...)
+	err = validateUsersRoles(appCtx, &userRolesToAdd, &existingUserRoles, u.checks...)
 	if err != nil {
 		return nil, err
 	}
