@@ -43,14 +43,14 @@ func checkTransportationOfficerPolicyViolation() usersRolesValidator {
 				}
 				if role.RoleType == roles.RoleTypeTOO {
 					if hasTIO {
-						verrs.Add("role", "a user cannot have both the TOO and TIO roles")
+						verrs.Add("roles", "a user cannot have both the TOO and TIO roles")
 						break
 					}
 					hasTOO = true
 				}
 				if role.RoleType == roles.RoleTypeTIO {
 					if hasTOO {
-						verrs.Add("role", "a user cannot have both the TOO and TIO roles")
+						verrs.Add("roles", "a user cannot have both the TOO and TIO roles")
 						break
 					}
 					hasTIO = true
