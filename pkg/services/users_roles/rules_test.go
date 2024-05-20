@@ -34,35 +34,35 @@ func (suite *UsersRolesServiceSuite) TestCheckTransportationOfficerPolicyViolati
 	}
 	suite.Run("Cannot add both TOO and TIO at the same time", func() {
 		officeUser := setupTestData()
-		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+		_, _, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
 		suite.Error(err)
 	})
 	suite.Run("Cannot add TOO to a user that already is a TIO", func() {
 		officeUser := setupTestData()
 		// Add TIO first
-		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
+		_, _, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
 		suite.NoError(err)
 		// Add TOO second
-		_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
+		_, _, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
 		suite.Error(err)
 	})
 	suite.Run("Cannot add TIO to a user that already is a TOO", func() {
 		officeUser := setupTestData()
 		// Add TOO first
-		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
+		_, _, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
 		suite.NoError(err)
 		// Add TIO second
-		_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
+		_, _, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
 		suite.Error(err)
 	})
 	suite.Run("Can add a single TOO", func() {
 		officeUser := setupTestData()
-		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
+		_, _, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
 		suite.NoError(err)
 	})
 	suite.Run("Can add a single TIO", func() {
 		officeUser := setupTestData()
-		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
+		_, _, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
 		suite.NoError(err)
 	})
 }
