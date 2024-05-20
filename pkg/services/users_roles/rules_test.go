@@ -4,41 +4,65 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *UsersRolesServiceSuite) TestCheckTransportationOfficerPolicyViolation() {
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-	id1, _ := uuid.NewV4()
-	role1 := roles.Role{
-		ID:       id1,
-		RoleType: roles.RoleTypeTIO,
-	}
-	id2, _ := uuid.NewV4()
-	role2 := roles.Role{
-		ID:       id2,
-		RoleType: roles.RoleTypeTOO,
-	}
-	// Add TOO and TIO to db
-	rs := roles.Roles{role1, role2}
-	err := suite.DB().Create(rs)
-	suite.NoError(err)
-	// Attempt updating office user with roleTypes array containing TOO and TIO, it should error as it violates the check
+	// Global user role creator
 	urc := NewUsersRolesCreator()
-	_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
-	suite.Error(err)
-	// Change the order for code coverage
-	_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO, roles.RoleTypeTOO})
-	suite.Error(err)
-	// Try again but with just one of those two and it should work fine
-	// Code coverage
-	// Original was nil, create
-	_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
-	suite.NoError(err)
-	// Original was TOO, update
-	_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
-	suite.NoError(err)
-	// Original was TIO, update
-	_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
-	suite.NoError(err)
+
+	// Return office user
+	setupTestData := func() models.OfficeUser {
+		// Setup
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+		tioID, _ := uuid.NewV4()
+		tio := roles.Role{
+			ID:       tioID,
+			RoleType: roles.RoleTypeTIO,
+		}
+		tooID, _ := uuid.NewV4()
+		too := roles.Role{
+			ID:       tooID,
+			RoleType: roles.RoleTypeTOO,
+		}
+		// Insert TIO and TOO into db
+		rs := roles.Roles{tio, too}
+		err := suite.DB().Create(rs)
+		suite.NoError(err)
+		return officeUser
+	}
+	suite.Run("Cannot add both TOO and TIO at the same time", func() {
+		officeUser := setupTestData()
+		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO})
+		suite.Error(err)
+	})
+	suite.Run("Cannot add TOO to a user that already is a TIO", func() {
+		officeUser := setupTestData()
+		// Add TIO first
+		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
+		suite.NoError(err)
+		// Add TOO second
+		_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
+		suite.Error(err)
+	})
+	suite.Run("Cannot add TIO to a user that already is a TOO", func() {
+		officeUser := setupTestData()
+		// Add TOO first
+		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
+		suite.NoError(err)
+		// Add TIO second
+		_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
+		suite.Error(err)
+	})
+	suite.Run("Can add a single TOO", func() {
+		officeUser := setupTestData()
+		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTOO})
+		suite.NoError(err)
+	})
+	suite.Run("Can add a single TIO", func() {
+		officeUser := setupTestData()
+		_, err := urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, []roles.RoleType{roles.RoleTypeTIO})
+		suite.NoError(err)
+	})
 }
