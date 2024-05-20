@@ -218,12 +218,17 @@ func GenerateLocator() string {
 }
 
 // GenerateSafetyMoveLocator constructs a record locator - a unique 6 character alphanumeric string starting with SM
-func GenerateSafetyMoveLocator() string {
-	var sm = "SM"
+func GenerateSafetyMoveLocator(db *pop.Connection) string {
+	// check DB for count of locators starting with SM, then increment by 1
+	var moves Moves
+	query := db.Where("locator like ('SM%')")
+	smCount, err := query.Count(&moves)
 
-	// check DB for highest SM value, then increment by 1
+	if err != nil {
+		return ""
+	}
 
-	return sm
+	return fmt.Sprintf("SM%04d", smCount+1)
 }
 
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
@@ -252,56 +257,62 @@ func createNewMove(db *pop.Connection,
 		return nil, nil, fmt.Errorf("could not generate a unique ReferenceID: %w", err)
 	}
 
-	// if orders.OrdersType != "SAFETY_MOVE" {
-	for i := 0; i < maxLocatorAttempts; i++ {
-		move := Move{
-			Orders:       orders,
-			OrdersID:     orders.ID,
-			Locator:      GenerateLocator(),
-			Status:       status,
-			Show:         show,
-			ContractorID: &contractor.ID,
-			ReferenceID:  &referenceID,
-		}
-		// only want safety moves move locators to start with SM, so try again
-		if strings.HasPrefix(move.Locator, "SM") {
-			continue
-		}
-		verrs, err := db.ValidateAndCreate(&move)
-		if verrs.HasAny() {
-			return nil, verrs, nil
-		}
-		if err != nil {
-			if dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "moves_locator_idx") {
-				// If we have a collision, try again for maxLocatorAttempts
+	if orders.OrdersType != "SAFETY_MOVE" {
+		for i := 0; i < maxLocatorAttempts; i++ {
+			move := Move{
+				Orders:       orders,
+				OrdersID:     orders.ID,
+				Locator:      GenerateLocator(),
+				Status:       status,
+				Show:         show,
+				ContractorID: &contractor.ID,
+				ReferenceID:  &referenceID,
+			}
+			// only want safety moves move locators to start with SM, so try again
+			if strings.HasPrefix(move.Locator, "SM") {
 				continue
 			}
-			return nil, verrs, err
+			verrs, err := db.ValidateAndCreate(&move)
+			if verrs.HasAny() {
+				return nil, verrs, nil
+			}
+			if err != nil {
+				if dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "moves_locator_idx") {
+					// If we have a collision, try again for maxLocatorAttempts
+					continue
+				}
+				return nil, verrs, err
+			}
+
+			return &move, verrs, nil
 		}
+	} else {
+		for i := 0; i < maxLocatorAttempts; i++ {
+			move := Move{
+				Orders:       orders,
+				OrdersID:     orders.ID,
+				Locator:      GenerateSafetyMoveLocator(db),
+				Status:       status,
+				Show:         show,
+				ContractorID: &contractor.ID,
+				ReferenceID:  &referenceID,
+			}
 
-		return &move, verrs, nil
+			verrs, err := db.ValidateAndCreate(&move)
+			if verrs.HasAny() {
+				return nil, verrs, nil
+			}
+			if err != nil {
+				if dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "moves_locator_idx") {
+					// If we have a collision, try again for maxLocatorAttempts
+					continue
+				}
+				return nil, verrs, err
+			}
+
+			return &move, verrs, nil
+		}
 	}
-	// } else {
-	// 	move := Move{
-	// 		Orders:       orders,
-	// 		OrdersID:     orders.ID,
-	// 		Locator:      GenerateSafetyMoveLocator(),
-	// 		Status:       status,
-	// 		Show:         show,
-	// 		ContractorID: &contractor.ID,
-	// 		ReferenceID:  &referenceID,
-	// 	}
-
-	// 	verrs, err := db.ValidateAndCreate(&move)
-	// 	if verrs.HasAny() {
-	// 		return nil, verrs, nil
-	// 	}
-	// 	if err != nil {
-	// 		return nil, verrs, err
-	// 	}
-
-	// 	return &move, verrs, nil
-	// }
 	// the only way we get here is if we got a unique constraint error maxLocatorAttempts times.
 	verrs := validate.NewErrors()
 	return nil, verrs, ErrLocatorGeneration
