@@ -51,7 +51,7 @@ func updatePrimeRoleForUser(appCtx appcontext.AppContext, userID uuid.UUID, clie
 			if role.RoleType != roles.RoleTypePrime {
 				newRoles = append(newRoles, role.RoleType)
 			}
-			_, err = associator.UpdateUserRoles(appCtx, userID, newRoles)
+			_, _, err = associator.UpdateUserRoles(appCtx, userID, newRoles)
 			if err != nil {
 				return err
 			}
@@ -65,7 +65,7 @@ func updatePrimeRoleForUser(appCtx appcontext.AppContext, userID uuid.UUID, clie
 			newRoles = append(newRoles, role.RoleType)
 		}
 		newRoles = append(newRoles, roles.RoleTypePrime)
-		_, err = associator.UpdateUserRoles(appCtx, userID, newRoles)
+		_, _, err = associator.UpdateUserRoles(appCtx, userID, newRoles)
 		if err != nil {
 			return err
 		}

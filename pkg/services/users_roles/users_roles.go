@@ -1,6 +1,7 @@
 package usersroles
 
 import (
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -24,8 +25,9 @@ func NewUsersRolesCreator() services.UserRoleAssociator {
 }
 
 // UpdateUserRoles associates a given user with a set of roles
-func (u usersRolesCreator) UpdateUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
+func (u usersRolesCreator) UpdateUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, *validate.Errors, error) {
 	var usersRoles []models.UsersRoles
+	verrs := validate.NewErrors()
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// Remove prior to adding. This allows "rules" / checks to validate
@@ -34,10 +36,14 @@ func (u usersRolesCreator) UpdateUserRoles(appCtx appcontext.AppContext, userID 
 		if err != nil {
 			return err
 		}
-		_, err = u.addUserRoles(appCtx, userID, rs)
+		_, txnVerrs, err := u.addUserRoles(appCtx, userID, rs)
+		if txnVerrs.HasAny() {
+			verrs.Append(txnVerrs)
+		}
 		if err != nil {
 			return err
 		}
+
 		// fetch + return updated roles
 		err = appCtx.DB().Where("user_id = ?", userID).All(&usersRoles)
 		if err != nil {
@@ -46,14 +52,14 @@ func (u usersRolesCreator) UpdateUserRoles(appCtx appcontext.AppContext, userID 
 		return nil
 	})
 
-	if txErr != nil {
-		return []models.UsersRoles{}, txErr
+	if txErr != nil || verrs.HasAny() {
+		return []models.UsersRoles{}, verrs, txErr
 	}
 
-	return usersRoles, nil
+	return usersRoles, nil, nil
 }
 
-func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
+func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, *validate.Errors, error) {
 	//Having to use somewhat convoluted right join syntax b/c FROM clause in pop is derived from the model
 	//and for the RawQuery was having trouble passing in array into the in clause with additional params
 	//ideally would just be the query below
@@ -75,7 +81,7 @@ func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uui
 		Where("users_roles.user_id = ? AND users_roles.deleted_at IS NULL", userID).
 		All(&existingUserRoles)
 	if err != nil {
-		return []models.UsersRoles{}, err
+		return []models.UsersRoles{}, nil, err
 	}
 
 	// Identify which roles need to be added
@@ -86,21 +92,21 @@ func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uui
 			Where("role_type IN (?) AND (users_roles.user_id IS NULL)", rs).
 			All(&userRolesToAdd)
 		if err != nil {
-			return []models.UsersRoles{}, err
+			return []models.UsersRoles{}, nil, err
 
 		}
 	}
-	err = validateUsersRoles(appCtx, &userRolesToAdd, &existingUserRoles, u.checks...)
-	if err != nil {
-		return nil, err
+	verrs, err := validateUsersRoles(appCtx, &userRolesToAdd, &existingUserRoles, u.checks...)
+	if err != nil || verrs != nil {
+		return nil, verrs, err
 	}
 
 	err = appCtx.DB().Create(userRolesToAdd)
 	if err != nil {
-		return []models.UsersRoles{}, err
+		return []models.UsersRoles{}, nil, err
 
 	}
-	return userRolesToAdd, nil
+	return userRolesToAdd, nil, nil
 }
 
 func (u usersRolesCreator) removeUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {

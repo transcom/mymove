@@ -316,7 +316,18 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 			}
 
 			if requestedOfficeUser.UserID != nil && body.Roles != nil {
-				_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *requestedOfficeUser.UserID, updatedRoles)
+				_, verrs, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *requestedOfficeUser.UserID, updatedRoles)
+				if verrs.HasAny() {
+					validationError := &adminmessages.ValidationError{
+						InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+					}
+
+					validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
+					validationError.Detail = handlers.FmtString("The information you provided is invalid.")
+					validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
+
+					return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+				}
 				if err != nil {
 					appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 					return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
