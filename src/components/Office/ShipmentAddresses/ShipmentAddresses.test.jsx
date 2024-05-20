@@ -41,6 +41,7 @@ const testProps = {
     shipmentType: SHIPMENT_OPTIONS.HHG,
     shipmentLocator: 'ABCDEF-01',
   },
+  diversionReason: '',
 };
 
 const ppmShipment = {
@@ -121,6 +122,7 @@ describe('ShipmentAddresses', () => {
         testProps.shipmentInfo.id,
         testProps.shipmentInfo.eTag,
         testProps.shipmentInfo.shipmentLocator,
+        testProps.diversionReason,
       );
     });
   });

@@ -58,7 +58,7 @@ const ShipmentAddresses = ({
                   <Button
                     type="button"
                     onClick={() =>
-                      handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag, shipmentInfo.shipmentLocator)
+                      handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag, shipmentInfo.shipmentLocator, '')
                     }
                     unstyled
                     disabled={isMoveLocked}
