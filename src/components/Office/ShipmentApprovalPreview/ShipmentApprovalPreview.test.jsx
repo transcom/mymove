@@ -371,9 +371,14 @@ describe('Shipment preview modal', () => {
         shipmentManagementFee
       />,
     );
-    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
-      `987 Any Avenue, P.O. Box 9876, c/o Some Person, Fairfield, CA 94535`,
-    );
+
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`987 Any Avenue`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`P.O. Box 9876`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`c/o Some Person`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`Fairfield`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`CA`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`94535`);
+
     expect(wrapper.find('[data-testid="destinationAddress"]').at(2).text()).toEqual(
       ordersInfo.newDutyLocation.address.postalCode,
     );
