@@ -11,26 +11,57 @@ import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
 
-const validationSchema = Yup.object().shape({
+const baseSchema = Yup.object().shape({
   searchType: Yup.string().required('searchtype error'),
-  searchText: Yup.string().when('searchType', {
-    is: 'moveCode',
-    then: (schema) => schema.length(6, 'Move Code must be exactly 6 characters'),
-    otherwise: (schema) =>
-      schema.when('searchType', {
-        is: 'dodID',
-        then: (s) => s.length(10, 'DOD ID must be exactly 10 characters'),
-        otherwise: (s) => s.min(1, 'Search must contain at least one character'),
-      }),
-  }),
 });
+const moveCodeSchema = baseSchema.concat(
+  Yup.object().shape({
+    searchText: Yup.string().trim().length(6, 'Move Code must be exactly 6 characters'),
+  }),
+);
+const dodIDSchema = baseSchema.concat(
+  Yup.object().shape({
+    searchText: Yup.string().trim().length(10, 'DOD ID must be exactly 10 characters'),
+  }),
+);
+const customerNameSchema = baseSchema.concat(
+  Yup.object().shape({
+    searchText: Yup.string().trim().min(1, 'Customer search must contain a value'),
+  }),
+);
 
 const MoveSearchForm = ({ onSubmit }) => {
+  const getValidationSchema = (values) => {
+    switch (values.searchType) {
+      case 'moveCode':
+        return moveCodeSchema;
+      case 'dodID':
+        return dodIDSchema;
+      case 'customerName':
+        return customerNameSchema;
+      default:
+        return Yup.object().shape({
+          searchType: Yup.string().required('Search option must be selected'),
+          searchText: Yup.string().required('Required'),
+        });
+    }
+  };
   return (
     <Formik
       initialValues={{ searchType: 'moveCode', searchText: '' }}
       onSubmit={onSubmit}
-      validationSchema={validationSchema}
+      validateOnChange
+      // adding a return will break the validation
+      // RA Validator Status: RA Accepted
+      // eslint-disable-next-line consistent-return
+      validate={(values) => {
+        const schema = getValidationSchema(values);
+        try {
+          schema.validateSync(values, { abortEarly: false });
+        } catch (error) {
+          return error.inner.reduce((acc, { path, message }) => ({ ...acc, [path]: message }), {});
+        }
+      }}
     >
       {(formik) => {
         return (
@@ -44,40 +75,64 @@ const MoveSearchForm = ({ onSubmit }) => {
               <Field
                 as={Radio}
                 id="radio-picked-movecode"
+                data-testid="moveCode"
                 type="radio"
                 name="searchType"
                 value="moveCode"
                 title="Move Code"
                 label="Move Code"
+                onChange={(e) => {
+                  formik.setFieldValue('searchType', e.target.value);
+                  formik.setFieldValue('searchText', '', false); // Clear TextField
+                  formik.setFieldTouched('searchText', false, false);
+                }}
               />
               <Field
                 as={Radio}
                 id="radio-picked-dodid"
+                data-testid="dodID"
                 type="radio"
                 name="searchType"
                 value="dodID"
                 title="DOD ID"
                 label="DOD ID"
+                onChange={(e) => {
+                  formik.setFieldValue('searchType', e.target.value);
+                  formik.setFieldValue('searchText', '', false); // Clear TextField
+                  formik.setFieldTouched('searchText', false, false);
+                }}
               />
               <Field
                 as={Radio}
                 id="radio-picked-customername"
+                data-testid="customerName"
                 type="radio"
                 name="searchType"
                 value="customerName"
                 title="Customer Name"
                 label="Customer Name"
+                onChange={(e) => {
+                  formik.setFieldValue('searchType', e.target.value);
+                  formik.setFieldValue('searchText', '', false); // Clear TextField
+                  formik.setFieldTouched('searchText', false, false);
+                }}
               />
             </div>
             <div className={styles.searchBar}>
               <TextField
                 id="searchText"
+                data-testid="searchText"
                 className="usa-search__input"
                 label={<legend className="usa-label">Search</legend>}
                 name="searchText"
                 type="search"
                 button={
-                  <Button className={styles.searchButton} type="submit" disabled={!formik.isValid}>
+                  <Button
+                    data-testid="searchTextSubmit"
+                    className={styles.searchButton}
+                    type="submit"
+                    disabled={!formik.isValid}
+                  >
                     Search
                   </Button>
                 }

@@ -65,6 +65,41 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /open/requested-office-users:
+      post:
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        summary: Create an Office User
+        description: >
+          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+
+          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+          An identification method must be present. The following 2 fields have an "OR" requirement.
+          - edipi
+          - other_unique_id
+          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+        operationId: createRequestedOfficeUser
+        tags:
+          - officeUsers
+        parameters:
+          - in: body
+            name: officeUser
+            description: Office User information
+            schema:
+              $ref: '#/definitions/OfficeUserCreate'
+        responses:
+          '201':
+            description: successfully requested the creation of provided office user
+            schema:
+              $ref: '#/definitions/OfficeUser'
+          '422':
+            description: validation error
+            schema:
+              $ref: '#/definitions/ValidationError'
+          '500':
+            description: internal server error
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -138,6 +173,68 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.customer
+  /customer/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search customers by DOD ID or customer name
+      description: >
+        Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.
+      operationId: searchCustomers
+      tags:
+        - customer
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+              branch:
+                description: Branch
+                type: string
+                minLength: 1
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  [
+                    customerName,
+                    dodID,
+                    branch,
+                    personalEmail,
+                    telephone,
+                  ]
+              order:
+                type: string
+                x-nullable: true
+                enum: [asc, desc]
+          description: field that results should be sorted by
+      responses:
+        '200':
+          description: Successfully returned all customers matching the criteria
+          schema:
+            $ref: '#/definitions/SearchCustomersResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system
@@ -1676,7 +1773,7 @@ paths:
           $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/actual-weight:
     parameters:
-      - $ref: "parameters/ppmShipmentId.yaml"
+      - $ref: 'parameters/ppmShipmentId.yaml'
     get:
       summary: Get the actual weight for a PPM shipment
       description: |
@@ -1687,20 +1784,20 @@ paths:
       produces:
         - application/json
       responses:
-        "200":
+        '200':
           description: Returns actual weight for the specified PPM shipment.
           schema:
-            $ref: "definitions/PPMActualWeight.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: 'definitions/PPMActualWeight.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
@@ -3190,12 +3287,12 @@ paths:
           items:
             type: string
             enum:
-              - Payment requested
-              - Reviewed
-              - Rejected
-              - Paid
-              - Deprecated
-              - Error
+              - PENDING
+              - REVIEWED
+              - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+              - PAID
+              - DEPRECATED
+              - EDI_ERROR
         - in: query
           name: orderType
           type: string
@@ -3492,6 +3589,183 @@ definitions:
         type: string
       type:
         type: string
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      roleName:
+        type: string
+        example: Transportation Ordering Officer
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - roleType
+      - roleName
+      - createdAt
+      - updatedAt
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+      middleInitials:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
+      active:
+        type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - firstName
+      - middleInitials
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - active
+      - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
+      - createdAt
+      - updatedAt
+  LockedOfficeUser:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
+  OfficeUserCreate:
+    type: object
+    properties:
+      email:
+        type: string
+        example: 'user@userdomain.com'
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        example: '1234567890'
+        maxLength: 10
+        title: EDIPI
+        x-nullable: true
+      otherUniqueId:
+        type: string
+        title: Office user identifier when EDIPI is not available
+        x-nullable: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: false
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+        x-nullable: false
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+        x-nullable: false
+    required:
+      - firstName
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - roles
+  OfficeUserRole:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Transportation Ordering Officer'
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: 'transportation_ordering_officer'
+        x-nullable: true
+        title: roleType
   Customer:
     type: object
     properties:
@@ -3549,6 +3823,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: 'definitions/Address.yaml'
+      cacValidated:
+        type: boolean
   CreatedCustomer:
     type: object
     properties:
@@ -3608,6 +3884,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: 'definitions/Address.yaml'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3652,6 +3930,8 @@ definitions:
       backupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
@@ -3704,6 +3984,52 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       createOktaAccount:
         type: boolean
+      cacUser:
+        type: boolean
+  SearchCustomersResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchCustomers:
+        $ref: '#/definitions/SearchCustomers'
+  SearchCustomers:
+    type: array
+    items:
+      $ref: '#/definitions/SearchCustomer'
+  SearchCustomer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        x-nullable: true
+      branch:
+        type: string
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
   Entitlements:
     properties:
       id:
@@ -3719,6 +4045,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -3917,6 +4246,17 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -4468,6 +4808,10 @@ definitions:
         description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4537,6 +4881,10 @@ definitions:
         description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -4852,35 +5200,26 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      destinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
@@ -4923,9 +5262,20 @@ definitions:
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+      hasReceivedAdvance:
+        description: >
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
       advanceAmountRequested:
         description: >
           The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceAmountReceived:
+        description: >
+          The amount received for an advance, or null if no advance is received
         type: integer
         format: cents
         x-nullable: true
@@ -5102,33 +5452,26 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      destinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       sitLocation:
@@ -5162,8 +5505,8 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
+      - pickupAddress
+      - destinationAddress
       - sitExpected
       - estimatedWeight
       - hasProGear
@@ -5347,6 +5690,17 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5448,6 +5802,14 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5517,6 +5879,8 @@ definitions:
         type: string
         format: date
         x-nullable: true
+      orderType:
+        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -5525,8 +5889,14 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
-      orderType:
+      lockedByOfficeUserID:
         type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:

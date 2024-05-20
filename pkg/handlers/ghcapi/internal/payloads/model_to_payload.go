@@ -38,6 +38,19 @@ func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
 	return payload
 }
 
+func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
+	if officeUser != nil {
+		payload := ghcmessages.LockedOfficeUser{
+			FirstName:              officeUser.FirstName,
+			LastName:               officeUser.LastName,
+			TransportationOfficeID: *handlers.FmtUUID(officeUser.TransportationOfficeID),
+			TransportationOffice:   TransportationOffice(&officeUser.TransportationOffice),
+		}
+		return &payload
+	}
+	return nil
+}
+
 // Move payload
 func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
@@ -76,6 +89,9 @@ func Move(move *models.Move) *ghcmessages.Move {
 		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
 		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
 		ShipmentGBLOC:                gbloc,
+		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
+		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 	}
 
 	return payload
@@ -467,6 +483,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
+		CacValidated:       swag.BoolValue(&customer.CacValidated),
 	}
 	return &payload
 }
@@ -501,6 +518,7 @@ func CreatedCustomer(sm *models.ServiceMember, oktaUser *models.CreatedOktaUser,
 		PhoneIsPreferred:   swag.BoolValue(sm.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(sm.EmailIsPreferred),
 		BackupContact:      bc,
+		CacValidated:       swag.BoolValue(&sm.CacValidated),
 	}
 	return &payload
 }
@@ -616,6 +634,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
+	gunSafe := entitlement.GunSafe
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -629,7 +648,8 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		ETag: etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe: gunSafe,
+		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -827,6 +847,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitExpected:                    ppmShipment.SITExpected,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -855,6 +877,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.W2Address != nil {
 		payloadPPMShipment.W2Address = Address(ppmShipment.W2Address)
+	}
+
+	if ppmShipment.SecondaryPickupAddress != nil {
+		payloadPPMShipment.SecondaryPickupAddress = Address(ppmShipment.SecondaryPickupAddress)
+	}
+
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
 	}
 
 	return payloadPPMShipment
@@ -1741,12 +1771,15 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
+			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
 			OriginGBLOC:             gbloc,
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
 			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
+			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
+			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 		}
 	}
 	return &queueMoves
@@ -1842,16 +1875,18 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 		}
 
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
-			ID:                 *handlers.FmtUUID(paymentRequest.ID),
-			MoveID:             *handlers.FmtUUID(moveTaskOrder.ID),
-			Customer:           Customer(&orders.ServiceMember),
-			Status:             ghcmessages.QueuePaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
-			Age:                math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
-			SubmittedAt:        *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
-			Locator:            moveTaskOrder.Locator,
-			OriginGBLOC:        gbloc,
-			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
-			OrderType:          (*string)(orders.OrdersType.Pointer()),
+			ID:                   *handlers.FmtUUID(paymentRequest.ID),
+			MoveID:               *handlers.FmtUUID(moveTaskOrder.ID),
+			Customer:             Customer(&orders.ServiceMember),
+			Status:               ghcmessages.QueuePaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
+			Age:                  math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
+			SubmittedAt:          *handlers.FmtDateTime(paymentRequest.CreatedAt),
+			Locator:              moveTaskOrder.Locator,
+			OriginGBLOC:          gbloc,
+			OriginDutyLocation:   DutyLocation(orders.OriginDutyLocation),
+			OrderType:            (*string)(orders.OrdersType.Pointer()),
+			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
+			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
 		}
 
 		if orders.DepartmentIndicator != nil {
@@ -1888,6 +1923,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
+
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++
@@ -1957,6 +1993,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			RequestedDeliveryDate:             deliveryDate,
 			OriginGBLOC:                       originGBLOC,
 			DestinationGBLOC:                  destinationGBLOC,
+			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockExpiresAt:                     handlers.FmtDateTimePtr(move.LockExpiresAt),
 		}
 	}
 	return &searchMoves
@@ -1996,4 +2034,20 @@ func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSI
 	}
 
 	return payload
+}
+
+func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustomers {
+	searchCustomers := make(ghcmessages.SearchCustomers, len(customers))
+	for i, customer := range customers {
+		searchCustomers[i] = &ghcmessages.SearchCustomer{
+			FirstName:     customer.FirstName,
+			LastName:      customer.LastName,
+			DodID:         customer.Edipi,
+			Branch:        customer.Affiliation.String(),
+			ID:            *handlers.FmtUUID(customer.ID),
+			PersonalEmail: *customer.PersonalEmail,
+			Telephone:     customer.Telephone,
+		}
+	}
+	return &searchCustomers
 }

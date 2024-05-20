@@ -41,12 +41,21 @@ tags:
   - name: okta_profile
   - name: application_parameters
 definitions:
-  ValidationCode:
+  ApplicationParameters:
     type: object
     properties:
       validationCode:
         type: string
         format: string
+        x-nullable: true
+      parameterName:
+        type: string
+        format: string
+        x-nullable: true
+      parameterValue:
+        type: string
+        format: string
+        x-nullable: true
   OktaUserProfileData:
     type: object
     properties:
@@ -3519,13 +3528,15 @@ paths:
           description: invalid request
         '500':
           description: server error
-  /validation_code:
+  /application_parameters:
     post:
-      summary: Returns a value if the code provided is correct
+      summary: >-
+        Searches for an application parameter by name and value, returns nil if
+        not found
       description: >-
-        The customer will input a validation code given to them and if the code
-        provided is present in the database, then they will be allowed to
-        progress in setting up their profile and create a move
+        The system will provide a parameter name given to them and if the name
+        provided is present in the database, then it will return the value
+        associated with that name
       operationId: validate
       tags:
         - application_parameters
@@ -3534,12 +3545,12 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ValidationCode'
+            $ref: '#/definitions/ApplicationParameters'
       responses:
         '200':
-          description: Validation Code
+          description: Application Parameters
           schema:
-            $ref: '#/definitions/ValidationCode'
+            $ref: '#/definitions/ApplicationParameters'
         '400':
           description: invalid request
         '401':
@@ -5172,6 +5183,11 @@ paths:
           name: file
           type: file
           description: The file to upload.
+          required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
           required: true
       responses:
         '201':

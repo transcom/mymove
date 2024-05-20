@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
@@ -56,6 +57,11 @@ type CreatePPMUploadParams struct {
 	  In: path
 	*/
 	PpmShipmentID strfmt.UUID
+	/*If the upload is a Weight Receipt
+	  Required: true
+	  In: query
+	*/
+	WeightReceipt bool
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -94,6 +100,11 @@ func (o *CreatePPMUploadParams) BindRequest(r *http.Request, route *middleware.M
 
 	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
 	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qWeightReceipt, qhkWeightReceipt, _ := qs.GetOK("weightReceipt")
+	if err := o.bindWeightReceipt(qWeightReceipt, qhkWeightReceipt, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -179,5 +190,31 @@ func (o *CreatePPMUploadParams) validatePpmShipmentID(formats strfmt.Registry) e
 	if err := validate.FormatOf("ppmShipmentId", "path", "uuid", o.PpmShipmentID.String(), formats); err != nil {
 		return err
 	}
+	return nil
+}
+
+// bindWeightReceipt binds and validates parameter WeightReceipt from query.
+func (o *CreatePPMUploadParams) bindWeightReceipt(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("weightReceipt", "query", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+
+	if err := validate.RequiredString("weightReceipt", "query", raw); err != nil {
+		return err
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("weightReceipt", "query", "bool", raw)
+	}
+	o.WeightReceipt = value
+
 	return nil
 }

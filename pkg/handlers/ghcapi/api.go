@@ -15,12 +15,14 @@ import (
 	evaluationreport "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/move"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	officeusercreator "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	order "github.com/transcom/mymove/pkg/services/order"
@@ -33,12 +35,14 @@ import (
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
+	"github.com/transcom/mymove/pkg/services/roles"
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	sitentrydateupdate "github.com/transcom/mymove/pkg/services/sit_entry_date_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -52,8 +56,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
+	moveLocker := movelocker.NewMoveLocker()
 	addressCreator := address.NewAddressCreator()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	officerUserCreator := officeusercreator.NewOfficeUserCreator(
+		queryBuilder,
+		handlerConfig.NotificationSender(),
+	)
+	newQueryFilter := query.NewQueryFilter
+	newUserRolesCreator := usersroles.NewUsersRolesCreator()
+	newRolesFetcher := roles.NewRolesFetcher()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter),
@@ -86,6 +98,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerConfig: handlerConfig,
 		MoveFetcher:   move.NewMoveFetcher(),
+		MoveLocker:    moveLocker,
 	}
 
 	ghcAPI.MoveGetMoveHistoryHandler = GetMoveHistoryHandler{
@@ -317,7 +330,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{
 		handlerConfig,
-		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater),
+		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater, moveRouter),
 	}
 
 	ghcAPI.ShipmentApproveShipmentHandler = ApproveShipmentHandler{
@@ -342,6 +355,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewShipmentDiversionApprover(
 			mtoshipment.NewShipmentRouter(),
+			moveRouter,
 		),
 		shipmentSITStatus,
 	}
@@ -357,6 +371,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewShipmentCancellationRequester(
 			mtoshipment.NewShipmentRouter(),
+			moveRouter,
 		),
 		shipmentSITStatus,
 	}
@@ -456,6 +471,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.QueuesListPrimeMovesHandler = ListPrimeMovesHandler{
@@ -466,11 +482,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
+		movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.TacTacValidationHandler = TacValidationHandler{
@@ -556,11 +574,23 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		closeoutOfficeUpdater,
 	}
 
+	ghcAPI.OfficeUsersCreateRequestedOfficeUserHandler = RequestOfficeUserHandler{
+		handlerConfig,
+		officerUserCreator,
+		newQueryFilter,
+		newUserRolesCreator,
+		newRolesFetcher,
+	}
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
 	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
+
+	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
+		HandlerConfig:    handlerConfig,
+		CustomerSearcher: customer.NewCustomerSearcher(),
+	}
 
 	return ghcAPI
 }

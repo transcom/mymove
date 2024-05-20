@@ -1,25 +1,27 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { generatePath, useNavigate, useParams } from 'react-router';
 import { GridContainer } from '@trussworks/react-uswds';
 
 import CustomerContactInfoForm from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
-import { CUSTOMER, ORDERS } from 'constants/queryKeys';
+import { CUSTOMER } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { updateCustomerInfo } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { CustomerShape } from 'types';
+import { useCustomerQuery } from 'hooks/queries';
+import { milmoveLogger } from 'utils/milmoveLog';
 
-const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
+const CreateMoveCustomerInfo = () => {
+  const { customerId } = useParams();
+  const { customerData, isLoading, isError } = useCustomerQuery(customerId);
   const navigate = useNavigate();
 
   const handleBack = () => {
     navigate('/');
   };
   const handleClose = () => {
-    navigate(`../${servicesCounselingRoutes.ORDERS_ADD_PATH}`);
+    navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, { customerId }));
   };
   const queryClient = useQueryClient();
   const { mutate: mutateCustomerInfo } = useMutation(updateCustomerInfo, {
@@ -31,12 +33,11 @@ const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpda
         },
       });
       queryClient.invalidateQueries([CUSTOMER, variables.customerId]);
-      queryClient.invalidateQueries([ORDERS, ordersId]);
-      onUpdate('success');
       handleClose();
     },
-    onError: () => {
-      onUpdate('error');
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -79,23 +80,23 @@ const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpda
       emailIsPreferred,
       secondaryTelephone: secondaryPhone || null,
     };
-    mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
+    mutateCustomerInfo({ customerId: customerData.id, ifMatchETag: customerData.eTag, body });
   };
   const initialValues = {
-    firstName: customer.first_name || '',
-    lastName: customer.last_name || '',
-    middleName: customer.middle_name || '',
-    suffix: customer.suffix || '',
-    customerTelephone: customer.phone || '',
-    customerEmail: customer.email || '',
-    name: customer.backup_contact.name || '',
-    telephone: customer.backup_contact.phone || '',
-    secondaryPhone: customer.secondaryTelephone || '',
-    email: customer.backup_contact.email || '',
-    customerAddress: customer.current_address || '',
-    backupAddress: customer.backupAddress || '',
-    emailIsPreferred: customer.emailIsPreferred || false,
-    phoneIsPreferred: customer.phoneIsPreferred || false,
+    firstName: customerData?.first_name || '',
+    lastName: customerData?.last_name || '',
+    middleName: customerData?.middle_name || '',
+    suffix: customerData?.suffix || '',
+    customerTelephone: customerData?.phone || '',
+    customerEmail: customerData?.email || '',
+    name: customerData?.backup_contact.name || '',
+    telephone: customerData?.backup_contact.phone || '',
+    secondaryPhone: customerData?.secondaryTelephone || '',
+    email: customerData?.backup_contact.email || '',
+    customerAddress: customerData?.current_address || '',
+    backupAddress: customerData?.backupAddress || '',
+    emailIsPreferred: customerData?.emailIsPreferred || false,
+    phoneIsPreferred: customerData?.phoneIsPreferred || false,
   };
 
   return (
@@ -106,14 +107,6 @@ const CreateMoveCustomerInfo = ({ customer, isLoading, isError, ordersId, onUpda
       </GridContainer>
     </div>
   );
-};
-
-CreateMoveCustomerInfo.propTypes = {
-  customer: CustomerShape.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  isError: PropTypes.bool.isRequired,
-  ordersId: PropTypes.string.isRequired,
-  onUpdate: PropTypes.func.isRequired,
 };
 
 export default CreateMoveCustomerInfo;

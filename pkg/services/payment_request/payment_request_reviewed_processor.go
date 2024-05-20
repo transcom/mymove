@@ -3,13 +3,16 @@ package paymentrequest
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -95,9 +98,17 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 			zap.String("paymentRequestID", pr.ID.String()),
 			zap.String("moveTaskOrderID", pr.MoveTaskOrderID.String()))
 
+		isProd := false
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+		envFlag := v.GetString(cli.EnvironmentFlag)
+		if envFlag == "production" || envFlag == "prod" || envFlag == "prd" {
+			isProd = true
+		}
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
-		edi858c, err = p.ediGenerator.Generate(txnAppCtx, lockedPR, false)
+		edi858c, err = p.ediGenerator.Generate(txnAppCtx, lockedPR, isProd)
 		icn := edi858c.ISA.InterchangeControlNumber
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)

@@ -12,13 +12,15 @@ import (
 	"strings"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // CreatePPMUploadURL generates an URL for the create p p m upload operation
 type CreatePPMUploadURL struct {
 	PpmShipmentID strfmt.UUID
 
-	DocumentID strfmt.UUID
+	DocumentID    strfmt.UUID
+	WeightReceipt bool
 
 	_basePath string
 	// avoid unkeyed usage
@@ -64,6 +66,11 @@ func (o *CreatePPMUploadURL) Build() (*url.URL, error) {
 	documentIDQ := o.DocumentID.String()
 	if documentIDQ != "" {
 		qs.Set("documentId", documentIDQ)
+	}
+
+	weightReceiptQ := swag.FormatBool(o.WeightReceipt)
+	if weightReceiptQ != "" {
+		qs.Set("weightReceipt", weightReceiptQ)
 	}
 
 	_result.RawQuery = qs.Encode()
