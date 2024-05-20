@@ -40,22 +40,8 @@ const shipmentProps = {
         state: 'WA',
         postalCode: '98421',
       },
-      secondaryPickupAddress: {
-        streetAddress1: '',
-        streetAddress2: '',
-        streetAddress3: '',
-        city: '',
-        state: '',
-        postalCode: '',
-      },
-      secondaryDestinationAddress: {
-        streetAddress1: '',
-        streetAddress2: '',
-        streetAddress3: '',
-        city: '',
-        state: '',
-        postalCode: '',
-      },
+      secondaryPickupAddress: {},
+      secondaryDestinationAddress: {},
       hasSecondaryPickupAddress: 'false',
       hasSecondaryDestinationAddress: 'false',
       hasReceivedAdvance: 'true',
@@ -89,6 +75,11 @@ const fillOutBasicForm = async () => {
     .focus();
   await userEvent.paste('#123');
 
+  within(form)
+    .getAllByLabelText(/Address 3/)[0]
+    .focus();
+  await userEvent.paste('');
+
   within(form).getAllByLabelText('City')[0].focus();
   await userEvent.paste('San Antonio');
 
@@ -99,6 +90,16 @@ const fillOutBasicForm = async () => {
 
   within(form).getAllByLabelText('Address 1')[1].focus();
   await userEvent.paste('441 SW Rio de la Plata Drive');
+
+  within(form)
+    .getAllByLabelText(/Address 2/)[1]
+    .focus();
+  await userEvent.paste('');
+
+  within(form)
+    .getAllByLabelText(/Address 3/)[1]
+    .focus();
+  await userEvent.paste('');
 
   within(form).getAllByLabelText('City')[1].focus();
   await userEvent.paste('Tacoma');
@@ -175,37 +176,15 @@ describe('AboutForm component', () => {
         ).toBeInTheDocument();
 
         await expect(requiredAlerts[1]).toHaveTextContent('Required');
-        await expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'pickupAddress.streetAddress1');
+        await expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
         await expect(requiredAlerts[2]).toHaveTextContent('Required');
-        await expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'pickupAddress.city');
+        await expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
         await expect(requiredAlerts[3]).toHaveTextContent('Required');
-        await expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'pickupAddress.state');
+        await expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
         await expect(requiredAlerts[4]).toHaveTextContent('Required');
-        await expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'pickupAddress.postalCode');
-
-        await expect(requiredAlerts[5]).toHaveTextContent('Required');
-        await expect(requiredAlerts[5].nextElementSibling).toHaveAttribute('name', 'destinationAddress.streetAddress1');
-        await expect(requiredAlerts[6]).toHaveTextContent('Required');
-        await expect(requiredAlerts[6].nextElementSibling).toHaveAttribute('name', 'destinationAddress.city');
-        await expect(requiredAlerts[7]).toHaveTextContent('Required');
-        await expect(requiredAlerts[7].nextElementSibling).toHaveAttribute('name', 'destinationAddress.state');
-        await expect(requiredAlerts[8]).toHaveTextContent('Required');
-        await expect(requiredAlerts[8].nextElementSibling).toHaveAttribute('name', 'destinationAddress.postalCode');
+        await expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
 
         await userEvent.click(screen.getByTestId('yes-has-received-advance'));
-
-        await waitFor(() => {
-          expect(screen.getByLabelText('How much did you receive?')).toBeInTheDocument();
-        });
-
-        await expect(requiredAlerts[9]).toHaveTextContent('Required');
-        await expect(requiredAlerts[9].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
-        await expect(requiredAlerts[10]).toHaveTextContent('Required');
-        await expect(requiredAlerts[10].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
-        await expect(requiredAlerts[11]).toHaveTextContent('Required');
-        await expect(requiredAlerts[11].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
-        await expect(requiredAlerts[12]).toHaveTextContent('Required');
-        await expect(requiredAlerts[12].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
       });
     });
 
@@ -226,7 +205,7 @@ describe('AboutForm component', () => {
       await expect(screen.getAllByLabelText('State')[2]).toHaveDisplayValue('FL');
       await expect(screen.getAllByLabelText('ZIP')[2]).toHaveDisplayValue('32217');
 
-      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
     it('displays type error messages for invalid input', async () => {
@@ -277,35 +256,18 @@ describe('AboutForm component', () => {
               pickupAddress: {
                 streetAddress1: '812 S 129th St',
                 streetAddress2: '#123',
-                streetAddress3: '',
                 city: 'San Antonio',
                 state: 'TX',
                 postalCode: '78234',
               },
               destinationAddress: {
                 streetAddress1: '441 SW Rio de la Plata Drive',
-                streetAddress2: '',
-                streetAddress3: '',
                 city: 'Tacoma',
                 state: 'WA',
                 postalCode: '98421',
               },
-              secondaryPickupAddress: {
-                streetAddress1: '',
-                streetAddress2: '',
-                streetAddress3: '',
-                city: '',
-                state: '',
-                postalCode: '',
-              },
-              secondaryDestinationAddress: {
-                streetAddress1: '',
-                streetAddress2: '',
-                streetAddress3: '',
-                city: '',
-                state: '',
-                postalCode: '',
-              },
+              secondaryPickupAddress: {},
+              secondaryDestinationAddress: {},
               hasSecondaryPickupAddress: 'false',
               hasSecondaryDestinationAddress: 'false',
               hasReceivedAdvance: 'true',

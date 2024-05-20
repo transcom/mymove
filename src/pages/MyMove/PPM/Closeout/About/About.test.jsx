@@ -65,15 +65,15 @@ const partialPayload = {
   pickupAddress: {
     streetAddress1: '812 S 129th St',
     streetAddress2: '#123',
-    streetAddress3: '',
+    streetAddress3: 'Some Person',
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
-    streetAddress2: '',
-    streetAddress3: '',
+    streetAddress2: '#124',
+    streetAddress3: 'Some Person',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
@@ -143,6 +143,11 @@ const fillOutBasicForm = async (form) => {
     .focus();
   await userEvent.paste('#123');
 
+  within(form)
+    .getAllByLabelText(/Address 3/)[0]
+    .focus();
+  await userEvent.paste('Some Person');
+
   within(form).getAllByLabelText('City')[0].focus();
   await userEvent.paste('San Antonio');
 
@@ -154,6 +159,16 @@ const fillOutBasicForm = async (form) => {
 
   within(form).getAllByLabelText('Address 1')[1].focus();
   await userEvent.paste('441 SW Rio de la Plata Drive');
+
+  within(form)
+    .getAllByLabelText(/Address 2/)[1]
+    .focus();
+  await userEvent.paste('#124');
+
+  within(form)
+    .getAllByLabelText(/Address 3/)[1]
+    .focus();
+  await userEvent.paste('Some Person');
 
   within(form).getAllByLabelText('City')[1].focus();
   await userEvent.paste('Tacoma');
