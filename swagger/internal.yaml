@@ -4957,6 +4957,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{moveId}/upload_additional_documents:
+    patch:
+      summary: Patch the amended orders for a given order
+      description: Patch the amended orders for a given order
+      operationId: uploadAdditionalDocuments
+      tags:
+        - moves
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document

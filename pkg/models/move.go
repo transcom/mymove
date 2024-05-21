@@ -89,6 +89,8 @@ type Move struct {
 	LockedByOfficeUserID         *uuid.UUID            `json:"locked_by" db:"locked_by"`
 	LockedByOfficeUser           *OfficeUser           `belongs_to:"office_users" fk_id:"locked_by"`
 	LockExpiresAt                *time.Time            `json:"lock_expires_at" db:"lock_expires_at"`
+	AdditionalDocumentsID        *uuid.UUID            `json:"additional_documents_id" db:"additional_documents_id"`
+	AdditionalDocuments          *Document             `belongs_to:"documents" fk_id:"additional_documents_id"`
 }
 
 // TableName overrides the table name used by Pop.

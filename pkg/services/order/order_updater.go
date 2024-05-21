@@ -100,6 +100,7 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, 
 
 // UploadAmendedOrdersAsCustomer add amended order documents to an existing order
 func (f *orderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	// DAD
 	orderToUpdate, findErr := f.findOrderWithAmendedOrders(appCtx, orderID)
 	if findErr != nil {
 		return models.Upload{}, "", nil, findErr
@@ -245,7 +246,7 @@ func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, pa
 }
 
 func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
-
+	// DAD
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error
 	savedAmendedOrdersDoc := order.UploadedAmendedOrders
@@ -490,7 +491,7 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 }
 
 func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
-
+	// DAD
 	var docID uuid.UUID
 	if doc != nil {
 		docID = doc.ID
@@ -511,6 +512,8 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext,
 }
 
 func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
+	//dad
+
 	var returnedOrder *models.Order
 	var err error
 

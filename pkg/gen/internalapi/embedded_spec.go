@@ -1183,6 +1183,62 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/upload_additional_documents": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveId}/weight_ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -8550,6 +8606,62 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MovePayload"
             }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/moves/{moveId}/upload_additional_documents": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"

@@ -220,6 +220,20 @@ export async function createUploadForAmendedOrdersDocument(file, ordersId) {
   );
 }
 
+export async function createUploadForAdditionalDocuments(file, moveId) {
+  debugger;
+  return makeInternalRequest(
+    'moves.uploadAdditionalDocuments',
+    {
+      moveId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeInternalRequest(
     'uploads.createUpload',

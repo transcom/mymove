@@ -458,6 +458,26 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
               {renderAlert()}
               {renderHelper()}
               <SectionWrapper>
+                {hasSubmittedMove() && (
+                  <div className={styles['upload-additional-documents-button']}>
+                    <Button
+                      data-testid="upload-additional-documents-button"
+                      className={styles['edit-btn']}
+                      onClick={() => {
+                        const uploadAdditionalDocumentsPath = generatePath(
+                          customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_PATH,
+                          {
+                            moveLocator: move.moveCode,
+                          },
+                        );
+                        navigate(uploadAdditionalDocumentsPath, { state, moveId });
+                      }}
+                      type="button"
+                    >
+                      Upload Additional Documents
+                    </Button>
+                  </div>
+                )}
                 <Step
                   complete={serviceMember.is_profile_complete}
                   completedHeaderText="Profile complete"
