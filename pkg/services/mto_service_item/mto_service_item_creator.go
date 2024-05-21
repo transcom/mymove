@@ -343,13 +343,33 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
 			isPPM = true
 		}
-		var requestedPickupDate time.Time
-		if mtoShipment.RequestedPickupDate != nil {
-			requestedPickupDate = *mtoShipment.RequestedPickupDate
-		}
+		requestedPickupDate := *mtoShipment.RequestedPickupDate
+		currTime := time.Now()
 		// origin
+		if serviceItem.ReService.Code == models.ReServiceCodeDOP {
+			contractCode, err := FetchContractCode(appCtx, currTime)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			// find the service area by querying for the service area associated with the zip3
+			pickupZip := mtoShipment.PickupAddress.PostalCode
+			zip := pickupZip
+			zip3 := zip[0:3]
+
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, zip3)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			price, _, err := o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			serviceItem.PricingEstimate = &price
+		}
 		if serviceItem.ReService.Code == models.ReServiceCodeDPK {
-			currTime := time.Now()
 			contractCode, err := FetchContractCode(appCtx, currTime)
 			if err != nil {
 				return nil, nil, err
@@ -375,8 +395,30 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			serviceItem.PricingEstimate = &price
 		}
 		// destination
+		if serviceItem.ReService.Code == models.ReServiceCodeDDP {
+			contractCode, err := FetchContractCode(appCtx, currTime)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			// find the service area by querying for the service area associated with the zip3
+			destZip := mtoShipment.DestinationAddress.PostalCode
+			zip := destZip
+			zip3 := zip[0:3]
+
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, zip3)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			price, _, err := o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			serviceItem.PricingEstimate = &price
+		}
 		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
-			currTime := time.Now()
 			contractCode, err := FetchContractCode(appCtx, currTime)
 			if err != nil {
 				return nil, nil, err
