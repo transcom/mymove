@@ -19,7 +19,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
-import { expenseTypeLabels, expenseTypes, ppmExpenseTypes, convertLabelToKey } from 'constants/ppmExpenseTypes';
+import { expenseTypes, ppmExpenseTypes, getExpenseTypeValue, llvmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
@@ -82,7 +82,7 @@ export default function ReviewExpense({
     reason: reason || '',
   };
 
-  const [selectedExpenseType, setSelectedExpenseType] = React.useState(expenseTypeLabels[movingExpenseType]); // Set initial expense type via value received from backend
+  const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
   const [currentCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
   const [samePage, setSamePage] = React.useState(false); // Helps track if back button was used or not
 
@@ -92,12 +92,11 @@ export default function ReviewExpense({
    * * */
   const computeCurrentCategoryIndex = useCallback(
     (expenseType) => {
-      const expenseTypeKey = convertLabelToKey(expenseType);
       let count = 0;
       const expenseDocs = documentSets.filter((docSet) => docSet.documentSetType === 'MOVING_EXPENSE'); // documentSets includes Trip weight tickets, progear, etc. that we don't need
       const docsFiltered = documentSets.length - expenseDocs.length; // Reduce count/index by number of docs filtered out
       for (let i = 0; i < documentSetIndex - docsFiltered; i += 1) {
-        if (expenseDocs[i].documentSet.movingExpenseType === expenseTypeKey) count += 1;
+        if (expenseDocs[i].documentSet.movingExpenseType === expenseType) count += 1;
       }
       return count + 1;
     },
@@ -105,10 +104,10 @@ export default function ReviewExpense({
   );
 
   useEffect(() => {
-    // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button.
-    if (!samePage) setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
+    // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button
+    if (!samePage) setSelectedExpenseType(getExpenseTypeValue(movingExpenseType));
 
-    const selectedExpenseTypeKey = convertLabelToKey(selectedExpenseType); // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
+    const selectedExpenseTypeKey = llvmExpenseTypes[selectedExpenseType]; // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
     const index = computeCurrentCategoryIndex(selectedExpenseTypeKey); // Get index for number at bottom of page (e.x. "Contracted Expense #2")
     setCurrentCategoryIndex(index);
   }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage]);
@@ -121,7 +120,7 @@ export default function ReviewExpense({
   const handleSubmit = (values) => {
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
-      movingExpenseType: ppmExpenseTypes.find((expenseType) => expenseType.value === selectedExpenseType).key,
+      movingExpenseType: llvmExpenseTypes[selectedExpenseType],
       description: values.description,
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
@@ -189,13 +188,7 @@ export default function ReviewExpense({
                 }}
               >
                 {ppmExpenseTypes.map((x) => (
-                  <option key={x.key}>
-                    {x.value
-                      .toLowerCase()
-                      .split(' ')
-                      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-                      .join(' ')}
-                  </option>
+                  <option key={x.key}>{x.value}</option>
                 ))}
               </select>
               <TextField
@@ -220,7 +213,7 @@ export default function ReviewExpense({
                 lazy={false} // immediate masking evaluation
                 prefix="$"
               />
-              {movingExpenseType === expenseTypes.STORAGE && (
+              {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                 <>
                   <DatePickerInput name="sitStartDate" label="Start date" />
                   <DatePickerInput name="sitEndDate" label="End date" />
