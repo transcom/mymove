@@ -8119,6 +8119,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -10820,6 +10826,15 @@ func init() {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -10836,6 +10851,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -21102,6 +21121,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -23861,6 +23886,15 @@ func init() {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -23877,6 +23911,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
