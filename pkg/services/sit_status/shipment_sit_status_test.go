@@ -22,7 +22,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 	suite.Run("returns nil when the shipment has no service items", func() {
 		submittedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
+		sitStatus, _, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), submittedShipment)
 		suite.NoError(err)
 		suite.Nil(sitStatus)
 	})
@@ -38,7 +38,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 			},
 		}, nil)
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, _, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 		suite.Nil(sitStatus)
 	})
@@ -73,7 +73,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{futureSIT}
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, _, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 	})
@@ -113,7 +113,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, shipment, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 		suite.Len(sitStatus.PastSITs, 1)
@@ -123,6 +123,9 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(15, sitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(75, sitStatus.TotalDaysRemaining)
 		suite.Nil(sitStatus.CurrentSIT) // No current SIT since all SIT items have departed status
+		// check that shipment values impacted by current SIT do not get updated since current SIT is nil
+		suite.Nil(shipment.DestinationSITAuthEndDate)
+		suite.Nil(shipment.OriginSITAuthEndDate)
 	})
 
 	suite.Run("calculates status for a shipment currently in SIT", func() {
@@ -158,7 +161,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, shipment, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 
@@ -171,6 +174,10 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 		suite.Len(sitStatus.PastSITs, 0)
+		suite.NotNil(sitStatus.CurrentSIT.SITAuthorizedEndDate)
+		// check that shipment values impacted by current SIT get updated
+		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.OriginSITAuthEndDate)
+		suite.Nil(shipment.DestinationSITAuthEndDate)
 	})
 
 	suite.Run("combines SIT days sum for shipment with past and current SIT", func() {
@@ -228,7 +235,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDOFSIT}
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, shipment, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 
 		suite.NotNil(sitStatus)
@@ -244,6 +251,10 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		suite.Len(sitStatus.PastSITs, 1)
 		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
+
+		// check that shipment values impacted by current SIT get updated
+		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.OriginSITAuthEndDate)
+		suite.Nil(shipment.DestinationSITAuthEndDate)
 	})
 
 	suite.Run("combines SIT days sum for shipment with past origin and current destination SIT", func() {
@@ -301,7 +312,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDDFSIT}
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, shipment, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 
 		suite.NotNil(sitStatus)
@@ -317,6 +328,9 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		suite.Len(sitStatus.PastSITs, 1)
 		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
+		// check that shipment values impacted by current SIT get updated
+		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.DestinationSITAuthEndDate)
+		suite.Nil(shipment.OriginSITAuthEndDate)
 	})
 
 	suite.Run("excludes SIT service items that have not been approved by the TOO", func() {
@@ -374,8 +388,11 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDDFSIT}
 
-		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		sitStatus, shipment, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 		suite.Nil(sitStatus)
+		// check that shipment values impacted by current SIT do not get updated since current SIT is nil
+		suite.Nil(shipment.DestinationSITAuthEndDate)
+		suite.Nil(shipment.OriginSITAuthEndDate)
 	})
 }

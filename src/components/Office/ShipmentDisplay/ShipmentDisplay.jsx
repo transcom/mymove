@@ -36,6 +36,7 @@ const ShipmentDisplay = ({
   errorIfMissing,
   showWhenCollapsed,
   neverShow,
+  isMoveLocked,
 }) => {
   const navigate = useNavigate();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
@@ -77,7 +78,7 @@ const ShipmentDisplay = ({
                 label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
-                disabled={disableApproval}
+                disabled={disableApproval || isMoveLocked}
               />
             )}
           </Restricted>
@@ -104,7 +105,6 @@ const ShipmentDisplay = ({
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
           </div>
-
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         <ShipmentInfoListSelector
@@ -129,6 +129,7 @@ const ShipmentDisplay = ({
               data-testid={editURL}
               label="Edit shipment"
               secondary
+              disabled={isMoveLocked}
             />
           )}
           {reviewURL && (
@@ -140,6 +141,7 @@ const ShipmentDisplay = ({
               data-testid={reviewURL}
               label="Review documents"
               secondary
+              disabled={isMoveLocked}
             />
           )}
         </Restricted>

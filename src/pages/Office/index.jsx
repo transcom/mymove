@@ -8,7 +8,6 @@ import styles from './Office.module.scss';
 
 import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
-
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
@@ -91,6 +90,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 const ServicesCounselingAddOrders = lazy(() =>
   import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
 );
@@ -277,6 +277,14 @@ export class OfficeApp extends Component {
                       />
                     )}
                     <Route
+                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateCustomerForm />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
                       path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
@@ -315,14 +323,6 @@ export class OfficeApp extends Component {
                       />
                     )}
                     <Route
-                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateCustomerForm />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
                       element={
@@ -333,6 +333,14 @@ export class OfficeApp extends Component {
                     />
 
                     {/* TOO */}
+                    <Route
+                      path={`${tooRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <CustomerInfo />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="tooEditShipmentDetailsRoute"
                       end

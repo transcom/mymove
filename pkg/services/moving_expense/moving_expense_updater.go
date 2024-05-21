@@ -48,6 +48,16 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 		return nil, err
 	}
 
+	if appCtx.Session().IsMilApp() {
+		mergedMovingExpense.SubmittedAmount = mergedMovingExpense.Amount
+		if mergedMovingExpense.SITStartDate != nil {
+			mergedMovingExpense.SubmittedSITStartDate = mergedMovingExpense.SITStartDate
+		}
+		if mergedMovingExpense.SITEndDate != nil {
+			mergedMovingExpense.SubmittedSITEndDate = mergedMovingExpense.SITEndDate
+		}
+	}
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndUpdate(&mergedMovingExpense)
 

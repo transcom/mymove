@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { generatePath, Link, useParams } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -53,6 +53,8 @@ import {
   calculateEstimatedWeight,
   calculateWeightRequested,
   includedStatusesForCalculatingWeights,
+  groupShipmentTypes,
+  shipmentGroupKeys,
 } from 'hooks/custom';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
@@ -120,7 +122,7 @@ export const MoveTaskOrder = (props) => {
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
-
+  const [isAtExcessWeightRisk, setIsAtExcessWeightRisk] = useState(false);
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
   }, []);
@@ -132,12 +134,14 @@ export const MoveTaskOrder = (props) => {
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
+    isMoveLocked,
   } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
   const order = Object.values(orders)?.[0];
-  const nonPPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
-  const onlyPPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType === 'PPM');
+
+  const { [shipmentGroupKeys.keyOnlyPPM]: onlyPPMShipments, [shipmentGroupKeys.keyNonPPM]: nonPPMShipments } =
+    groupShipmentTypes(mtoShipments);
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -388,6 +392,34 @@ export const MoveTaskOrder = (props) => {
       milmoveLogger.error(errorMsg);
     },
   });
+
+  useEffect(() => {
+    setIsAtExcessWeightRisk(hasRiskOfExcess(estimatedWeightTotal, order?.entitlement?.authorizedWeight));
+  }, [estimatedWeightTotal, order?.entitlement?.authorizedWeight]);
+
+  const handleExcessWeightRiskCountCheck = useCallback(() => {
+    setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
+    setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
+    let excessBillableWeightCount = 0;
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
+
+    if (isAtExcessWeightRisk && !riskOfExcessAcknowledged) {
+      excessBillableWeightCount = 1;
+      setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
+    }
+
+    const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
+    setIsWeightAlertVisible(showWeightAlert);
+  }, [
+    move?.excess_weight_acknowledged_at,
+    isAtExcessWeightRisk,
+    setExcessWeightRiskCount,
+    nonPPMShipments,
+    onlyPPMShipments,
+  ]);
+
   /*
     *
     -------------------------  Toggle Modals  -------------------------
@@ -410,15 +442,15 @@ export const MoveTaskOrder = (props) => {
   /* istanbul ignore next */
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
-    setSelectedServiceItem(serviceItem);
-    setIsModalVisible(true);
+    setSelectedServiceItem(() => serviceItem);
+    setIsModalVisible(() => true);
   };
 
   /* istanbul ignore next */
   const handleShowEditSitEntryDateModal = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
-    setSelectedServiceItem(serviceItem);
-    setIsEditSitEntryDateModalVisible(true);
+    setSelectedServiceItem(() => serviceItem);
+    setIsEditSitEntryDateModalVisible(() => true);
   };
 
   /* istanbul ignore next */
@@ -428,27 +460,27 @@ export const MoveTaskOrder = (props) => {
 
   /* istanbul ignore next */
   const handleShowCancellationModal = (mtoShipment) => {
-    setSelectedShipment(mtoShipment);
-    setIsCancelModalVisible(true);
+    setSelectedShipment(() => mtoShipment);
+    setIsCancelModalVisible(() => true);
   };
 
   /* istanbul ignore next */
   const handleRequestReweighModal = (mtoShipment) => {
-    setSelectedShipment(mtoShipment);
-    setIsReweighModalVisible(true);
+    setSelectedShipment(() => mtoShipment);
+    setIsReweighModalVisible(() => true);
   };
 
   const handleShowWeightModal = () => {
     setIsWeightModalVisible(true);
   };
 
-  // To-do: Combine handle Acknowldge Weights and hadnle Weight alert into one one mutation function
+  // To-do: Combine handle Acknowldge Weights and handle Weight alert into one one mutation function
   const handleAcknowledgeExcessWeightRisk = () => {
     mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
   const handleHideWeightAlert = () => {
     handleAcknowledgeExcessWeightRisk();
-    setIsWeightAlertVisible(false);
+    setIsWeightAlertVisible(() => false);
   };
   /*
   *
@@ -472,16 +504,16 @@ export const MoveTaskOrder = (props) => {
       {
         onSuccess: (data) => {
           if (data.financialReviewFlag) {
-            setAlertMessage('Move flagged for financial review.');
+            setAlertMessage(() => 'Move flagged for financial review.');
           } else {
-            setAlertMessage('Move unflagged for financial review.');
+            setAlertMessage(() => 'Move unflagged for financial review.');
           }
-          setAlertType('success');
-          setIsFinancialModalVisible(false);
+          setAlertType(() => 'success');
+          setIsFinancialModalVisible(() => false);
         },
         onError: () => {
-          setAlertMessage('There was a problem flagging the move for financial review. Please try again later.');
-          setAlertType('error');
+          setAlertMessage(() => 'There was a problem flagging the move for financial review. Please try again later.');
+          setAlertType(() => 'error');
         },
       },
     );
@@ -510,7 +542,7 @@ export const MoveTaskOrder = (props) => {
         },
       });
     }
-    setSubmittedChangeTime(Date.now());
+    setSubmittedChangeTime(() => Date.now());
   };
 
   /* istanbul ignore next */
@@ -529,15 +561,15 @@ export const MoveTaskOrder = (props) => {
       },
       {
         onSuccess: () => {
-          setIsSuccessAlertVisible(true);
-          setSubmittedChangeTime(Date.now());
+          setIsSuccessAlertVisible(() => true);
+          setSubmittedChangeTime(() => Date.now());
         },
       },
     );
   };
 
   /* istanbul ignore next */
-  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator) => {
+  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator, diversionReason) => {
     mutateMTOShipmentStatus(
       {
         shipmentID: mtoShipmentID,
@@ -545,10 +577,11 @@ export const MoveTaskOrder = (props) => {
         ifMatchETag: eTag,
         onSuccessFlashMsg: `Diversion successfully requested for Shipment #${shipmentLocator}`,
         shipmentLocator,
+        diversionReason,
       },
       {
         onSuccess: (data, variables) => {
-          setIsCancelModalVisible(false);
+          setIsCancelModalVisible(() => false);
           // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
           setMessage(
             `MSG_CANCEL_SUCCESS_${variables.shipmentLocator}`,
@@ -801,31 +834,8 @@ export const MoveTaskOrder = (props) => {
   }, [mtoShipments]);
 
   useEffect(() => {
-    setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
-    setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
-    let excessBillableWeightCount = 0;
-    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
-
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
-      excessBillableWeightCount = 1;
-      setExcessWeightRiskCount(1);
-    } else {
-      setExcessWeightRiskCount(0);
-    }
-
-    const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
-
-    setIsWeightAlertVisible(showWeightAlert);
-  }, [
-    estimatedWeightTotal,
-    move?.excess_weight_acknowledged_at,
-    nonPPMShipments,
-    onlyPPMShipments,
-    order?.entitlement.totalWeight,
-    setEstimatedWeightTotal,
-    setExcessWeightRiskCount,
-  ]);
-
+    handleExcessWeightRiskCountCheck();
+  }, [handleExcessWeightRiskCountCheck]);
   /* ------------------ Update SIT extension counts ------------------------- */
   useEffect(() => {
     const copyItemsFromTempArrayToSourceArray = (temp, target) => {
@@ -911,7 +921,13 @@ export const MoveTaskOrder = (props) => {
   }
 
   const excessWeightAlertControl = (
-    <Button type="button" onClick={handleHideWeightAlert} unstyled>
+    <Button
+      data-testid="excessWeightAlertButton"
+      type="button"
+      onClick={handleHideWeightAlert}
+      unstyled
+      disabled={isMoveLocked}
+    >
       <FontAwesomeIcon icon="times" />
     </Button>
   );
@@ -977,7 +993,13 @@ export const MoveTaskOrder = (props) => {
                 <Restricted to={permissionTypes.updateBillableWeight}>
                   <Restricted to={permissionTypes.updateMTOPage}>
                     <span className={styles.rightAlignButtonWrapper}>
-                      <Button type="button" onClick={handleShowWeightModal} unstyled>
+                      <Button
+                        data-testid="reviewBillableWeightBtn"
+                        type="button"
+                        onClick={handleShowWeightModal}
+                        unstyled
+                        disabled={isMoveLocked}
+                      >
                         Review billable weight
                       </Button>
                     </span>
@@ -1051,6 +1073,7 @@ export const MoveTaskOrder = (props) => {
                     <FinancialReviewButton
                       onClick={handleShowFinancialReviewModal}
                       reviewRequested={move.financialReviewFlag}
+                      isMoveLocked={isMoveLocked}
                     />
                   </div>
                 </Restricted>
@@ -1061,9 +1084,8 @@ export const MoveTaskOrder = (props) => {
           <div className={moveTaskOrderStyles.weightHeader} id="move-weights">
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
-              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
-              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) &&
-                externalVendorShipmentCount > 0 && <br />}
+              {isAtExcessWeightRisk && <Tag>Risk of excess</Tag>}
+              {isAtExcessWeightRisk && externalVendorShipmentCount > 0 && <br />}
               {externalVendorShipmentCount > 0 && (
                 <small>
                   {externalVendorShipmentCount} shipment{externalVendorShipmentCount > 1 && 's'} not moved by GHC prime.{' '}
@@ -1078,6 +1100,7 @@ export const MoveTaskOrder = (props) => {
               heading="Max billable weight"
               weightValue={maxBillableWeight}
               onEdit={displayMaxBillableWeight(nonPPMShipments) ? handleShowWeightModal : null}
+              isMoveLocked={isMoveLocked}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
@@ -1134,6 +1157,7 @@ export const MoveTaskOrder = (props) => {
                     shipmentLocator: mtoShipment.shipmentLocator,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
+                  isMoveLocked={isMoveLocked}
                 />
                 <ShipmentDetails
                   shipment={mtoShipment}
@@ -1146,6 +1170,7 @@ export const MoveTaskOrder = (props) => {
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}
+                  isMoveLocked={isMoveLocked}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
@@ -1156,6 +1181,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1167,6 +1193,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
@@ -1177,6 +1204,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
               </ShipmentContainer>

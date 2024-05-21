@@ -778,6 +778,37 @@ describe('MoveDetails page', () => {
         expect(await screen.findByRole('button', { name: 'Submit move details' })).not.toBeDisabled();
       });
 
+      it('buttons are disabled and links are not rendered when move is locked', async () => {
+        const deletedMtoShipments = mtoShipments.map((shipment, index) => {
+          if (index > 0) {
+            return { ...shipment, deletedAt: new Date() };
+          }
+          return shipment;
+        });
+        const isMoveLocked = true;
+        useMoveDetailsQueries.mockReturnValue({
+          ...newMoveDetailsQuery,
+          mtoShipments: deletedMtoShipments,
+        });
+
+        render(
+          <MockProviders
+            permissions={[permissionTypes.updateShipment, permissionTypes.updateCustomer]}
+            {...mockRoutingOptions}
+          >
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} isMoveLocked={isMoveLocked} />
+          </MockProviders>,
+        );
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument(); // Add a new shipment ButtonDropdown
+
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+      });
+
       it('submit move details button is disabled when a shipment has missing information', async () => {
         const moveDetailsQuery = {
           ...newMoveDetailsQuery,

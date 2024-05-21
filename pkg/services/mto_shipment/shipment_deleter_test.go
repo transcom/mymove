@@ -236,7 +236,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 		moveRouter,
 	)
 	suite.Run("Doesn't return an error when allowed to delete a shipment", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		now := time.Now()
 		shipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
@@ -260,7 +260,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when a shipment is not available to prime", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -279,7 +279,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when a shipment is not a PPM", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		now := time.Now()
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -303,7 +303,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when PPM status is WAITING_ON_CUSTOMER", func() {
-		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)
+		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		now := time.Now()
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{

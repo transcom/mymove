@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,8 +6,8 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import 'styles/office.scss';
 
+import 'styles/office.scss';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { tooRoutes } from 'constants/routes';
@@ -33,7 +33,7 @@ import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
-import { calculateEstimatedWeight } from 'hooks/custom';
+import { shipmentGroupKeys, calculateEstimatedWeight, groupShipmentTypes } from 'hooks/custom';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -55,16 +55,23 @@ const MoveDetails = ({
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
+  isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  /* ------------------ Miscellaneous ------------------------- */
+  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [isAtExcessWeightRisk, setIsAtExcessWeightRisk] = useState(false);
+
   const navigate = useNavigate();
 
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
+
+  const { [shipmentGroupKeys.keyNonPPM]: nonPPMShipments } = groupShipmentTypes(mtoShipments);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -118,6 +125,20 @@ const MoveDetails = ({
       setAlertType('error');
     },
   });
+  useEffect(() => {
+    setIsAtExcessWeightRisk(hasRiskOfExcess(estimatedWeightTotal, order?.entitlement?.authorizedWeight));
+  }, [estimatedWeightTotal, order?.entitlement?.authorizedWeight]);
+
+  const handleExcessWeightRiskCountCheck = useCallback(() => {
+    setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
+
+    if (isAtExcessWeightRisk && !riskOfExcessAcknowledged) {
+      setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
+    }
+  }, [move?.excess_weight_acknowledged_at, isAtExcessWeightRisk, setExcessWeightRiskCount, nonPPMShipments]);
 
   const handleShowFinancialReviewModal = () => {
     setIsFinancialModalVisible(true);
@@ -180,15 +201,8 @@ const MoveDetails = ({
   }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
-    const estimatedWeight = calculateEstimatedWeight(mtoShipments);
-    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
-
-    if (hasRiskOfExcess(estimatedWeight, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
-      setExcessWeightRiskCount(1);
-    } else {
-      setExcessWeightRiskCount(0);
-    }
-  }, [move?.excess_weight_acknowledged_at, mtoShipments, order?.entitlement.totalWeight, setExcessWeightRiskCount]);
+    handleExcessWeightRiskCountCheck();
+  }, [handleExcessWeightRiskCountCheck]);
 
   useEffect(() => {
     const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
@@ -339,6 +353,7 @@ const MoveDetails = ({
                 <FinancialReviewButton
                   onClick={handleShowFinancialReviewModal}
                   reviewRequested={move.financialReviewFlag}
+                  isMoveLocked={isMoveLocked}
                 />
               </div>
             </Restricted>
@@ -377,6 +392,7 @@ const MoveDetails = ({
                 errorIfMissing={errorIfMissing}
                 displayDestinationType={isRetirementOrSeparation}
                 mtoServiceItems={mtoServiceItems}
+                isMoveLocked={isMoveLocked}
               />
             </div>
           )}
@@ -389,6 +405,7 @@ const MoveDetails = ({
                 mtoServiceItems={mtoServiceItems}
                 moveCode={moveCode}
                 displayDestinationType={isRetirementOrSeparation}
+                isMoveLocked={isMoveLocked}
               />
             </div>
           )}
@@ -405,9 +422,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
-                    Edit orders
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
+                      Edit orders
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -427,9 +446,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
-                    Edit allowances
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
+                      Edit allowances
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -442,13 +463,15 @@ const MoveDetails = ({
               title="Customer info"
               editButton={
                 <Restricted to={permissionTypes.updateCustomer}>
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    data-testid="edit-customer-info"
-                    to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
-                  >
-                    Edit customer info
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link
+                      className="usa-button usa-button--secondary"
+                      data-testid="edit-customer-info"
+                      to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                    >
+                      Edit customer info
+                    </Link>
+                  )}
                 </Restricted>
               }
             >

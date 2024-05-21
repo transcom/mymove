@@ -29,10 +29,45 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
+  /open/requested-office-users:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+
+        Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+        An identification method must be present. The following 2 fields have an "OR" requirement.
+        - edipi
+        - other_unique_id
+        One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   '/customer':
     post:
       summary: Creates a customer with Okta option
-      description: Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
+      description: Creates a customer with option to create an Okta profile account
       operationId: createCustomerWithOktaOption
       tags:
         - customer
@@ -65,41 +100,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /open/requested-office-users:
-      post:
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        summary: Create an Office User
-        description: >
-          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
-
-          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
-          An identification method must be present. The following 2 fields have an "OR" requirement.
-          - edipi
-          - other_unique_id
-          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
-        operationId: createRequestedOfficeUser
-        tags:
-          - officeUsers
-        parameters:
-          - in: body
-            name: officeUser
-            description: Office User information
-            schema:
-              $ref: '#/definitions/OfficeUserCreate'
-        responses:
-          '201':
-            description: successfully requested the creation of provided office user
-            schema:
-              $ref: '#/definitions/OfficeUser'
-          '422':
-            description: validation error
-            schema:
-              $ref: '#/definitions/ValidationError'
-          '500':
-            description: internal server error
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -213,14 +213,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum:
-                  [
-                    customerName,
-                    dodID,
-                    branch,
-                    personalEmail,
-                    telephone,
-                  ]
+                enum: [customerName, dodID, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -1053,6 +1046,11 @@ paths:
           name: If-Match
           type: string
           required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestDiversion'
       responses:
         '200':
           description: Successfully requested the shipment diversion
@@ -4017,6 +4015,7 @@ definitions:
         x-nullable: true
       dodID:
         type: string
+        example: 1234567890
         x-nullable: true
       branch:
         type: string
@@ -5527,6 +5526,13 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
+  RequestDiversion:
+    properties:
+      diversionReason:
+        type: string
+        example: Shipment route needs to change
+    required:
+      - diversionReason
   ApproveSITExtension:
     properties:
       approvedDays:
@@ -5885,12 +5891,12 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
         x-nullable: true
-      orderType:
-        type: string
       requestedDeliveryDate:
         type: string
         format: date

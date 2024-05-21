@@ -83,7 +83,7 @@ func (m moveUnlocker) CheckForLockedMovesAndUnlock(appCtx appcontext.AppContext,
 	}
 
 	// iterate through each move and clear the values by using our existing service object above
-	if appCtx.Session().IsOfficeUser() {
+	if appCtx.Session().IsOfficeUser() && len(moves) > 0 {
 		for _, move := range moves {
 			lockedOfficeUserID := move.LockedByOfficeUserID
 			if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {

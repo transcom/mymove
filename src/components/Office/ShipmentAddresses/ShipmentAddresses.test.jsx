@@ -41,6 +41,7 @@ const testProps = {
     shipmentType: SHIPMENT_OPTIONS.HHG,
     shipmentLocator: 'ABCDEF-01',
   },
+  diversionReason: '',
 };
 
 const ppmShipment = {
@@ -121,6 +122,7 @@ describe('ShipmentAddresses', () => {
         testProps.shipmentInfo.id,
         testProps.shipmentInfo.eTag,
         testProps.shipmentInfo.shipmentLocator,
+        testProps.diversionReason,
       );
     });
   });
@@ -190,5 +192,16 @@ describe('ShipmentAddresses', () => {
 
     expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
     expect(screen.getByText('Authorized addresses')).toBeInTheDocument();
+  });
+
+  it('renders with disabled request diversion button', async () => {
+    const isMoveLocked = true;
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentAddresses {...testProps} isMoveLocked={isMoveLocked} />
+      </MockProviders>,
+    );
+    const requestDiversionBtn = screen.getByRole('button', { name: 'Request diversion' });
+    expect(requestDiversionBtn).toBeDisabled();
   });
 });
