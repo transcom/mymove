@@ -218,7 +218,7 @@ describe('ReviewExpenseForm component', () => {
       await waitFor(() => {
         expect(screen.getByText('Expense Type')).toBeInTheDocument();
       });
-      expect(screen.getByText('Packing Materials')).toBeInTheDocument();
+      expect(screen.getByText('Packing materials')).toBeInTheDocument();
       expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
       expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
     });
