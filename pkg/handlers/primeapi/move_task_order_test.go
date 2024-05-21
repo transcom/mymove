@@ -1827,7 +1827,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
@@ -1884,7 +1884,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			suite.HandlerConfig(),

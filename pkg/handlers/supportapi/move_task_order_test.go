@@ -174,7 +174,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{handlerConfig,
@@ -362,7 +362,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{

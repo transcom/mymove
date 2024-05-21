@@ -31,6 +31,7 @@ type mtoServiceItemCreator struct {
 	moveRouter       services.MoveRouter
 	pricer           services.ServiceItemPricer
 	unpackPricer     services.DomesticUnpackPricer
+	packPricer       services.DomesticPackPricer
 }
 
 func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (int, error) {
@@ -325,7 +326,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
 	}
 
-	// if estimated weight for shipment provided by the prime, calculate the estimate prices for
+	// if estimated weight for shipment provided by the prime, calculate the estimated prices for
 	// Linehaul            = DLH   = linehaul
 	// Packing             = DPK   = domestic packing
 	// Origin Price        = DOP   = domestic origin price
@@ -534,13 +535,13 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, pricer services.ServiceItemPricer, unpackPricer services.DomesticUnpackPricer) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, pricer services.ServiceItemPricer, unpackPricer services.DomesticUnpackPricer, packPricer services.DomesticPackPricer) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func() createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, pricer: pricer, unpackPricer: unpackPricer}
+	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, pricer: pricer, unpackPricer: unpackPricer, packPricer: packPricer}
 }
 
 func validateTimeMilitaryField(_ appcontext.AppContext, timeMilitary string) error {

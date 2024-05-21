@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,

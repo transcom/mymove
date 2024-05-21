@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(
 				builder,
-				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
+				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer()),
 				moveRouter,
 			),
 		}

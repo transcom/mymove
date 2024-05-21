@@ -449,7 +449,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
 		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator)
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
 
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
