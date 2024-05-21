@@ -2297,6 +2297,8 @@ definitions:
               the service item.
             x-nullable: true
             x-omitempty: false
+          standaloneCrate:
+            type: boolean
         required:
           - reServiceCode
           - item

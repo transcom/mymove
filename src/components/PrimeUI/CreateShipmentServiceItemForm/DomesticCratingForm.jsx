@@ -10,6 +10,7 @@ import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { ShipmentShape } from 'types/shipment';
 import { domesticCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { CheckboxField } from 'components/form/fields';
 
 const domesticShippingValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),
@@ -28,6 +29,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
     modelType: createServiceItemModelTypes.MTOServiceItemDomesticCrating,
+    standaloneCrate: false,
     itemLength: '',
     itemWidth: '',
     itemHeight: '',
@@ -67,10 +69,11 @@ const DomesticCratingForm = ({ shipment, submission }) => {
           required
           options={domesticCratingServiceItemCodeOptions}
         />
+        <CheckboxField id="standaloneCrate" name="standaloneCrate" label="Standalone Crate" />
         <MaskedTextField
           data-testid="itemLength"
           name="itemLength"
-          label="Item length (ft)"
+          label="Item length (thousandths of an inch)"
           id="itemLength"
           mask={Number}
           scale={0}
@@ -80,7 +83,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
         <MaskedTextField
           data-testid="itemWidth"
           name="itemWidth"
-          label="Item width (ft)"
+          label="Item width (thousandths of an inch)"
           id="itemWidth"
           mask={Number}
           scale={0}
@@ -90,7 +93,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
         <MaskedTextField
           data-testid="itemHeight"
           name="itemHeight"
-          label="Item height (ft)"
+          label="Item height (thousandths of an inch)"
           id="itemHeight"
           mask={Number}
           scale={0}
@@ -100,7 +103,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
         <MaskedTextField
           data-testid="crateLength"
           name="crateLength"
-          label="Crate length (ft)"
+          label="Crate length (thousandths of an inch)"
           id="crateLength"
           mask={Number}
           scale={0}
@@ -110,7 +113,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
         <MaskedTextField
           data-testid="crateWidth"
           name="crateWidth"
-          label="Crate width (ft)"
+          label="Crate width (thousandths of an inch)"
           id="crateWidth"
           mask={Number}
           scale={0}
@@ -120,7 +123,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
         <MaskedTextField
           data-testid="crateHeight"
           name="crateHeight"
-          label="Crate height (ft)"
+          label="Crate height (thousandths of an inch)"
           id="crateHeight"
           mask={Number}
           scale={0}

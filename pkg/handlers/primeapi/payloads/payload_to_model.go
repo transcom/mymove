@@ -530,6 +530,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
 			},
 		}
+		model.StandaloneCrate = domesticCrating.StandaloneCrate
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)

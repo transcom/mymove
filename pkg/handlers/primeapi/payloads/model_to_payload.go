@@ -656,9 +656,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		cratingSI := primemessages.MTOServiceItemDomesticCrating{
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Description:   mtoServiceItem.Description,
-			Reason:        mtoServiceItem.Reason,
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 		cratingSI.Item.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
 			ID:     strfmt.UUID(item.ID.String()),
