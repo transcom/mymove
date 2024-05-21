@@ -158,6 +158,7 @@ export class OfficeApp extends Component {
       },
       hasRecentError,
       traceId,
+      userPrivileges,
     } = this.props;
 
     // TODO - test login page?
@@ -296,7 +297,7 @@ export class OfficeApp extends Component {
                       path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingAddOrders />
+                          <ServicesCounselingAddOrders userPrivileges={userPrivileges} />
                         </PrivateRoute>
                       }
                     />
@@ -322,6 +323,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+                    <Route
+                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateCustomerForm userPrivileges={userPrivileges} />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
@@ -525,6 +534,7 @@ OfficeApp.propTypes = {
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
   router: RouterShape.isRequired,
+  userPrivileges: PropTypes.arrayOf(PropTypes.string),
 };
 
 OfficeApp.defaultProps = {
@@ -534,6 +544,7 @@ OfficeApp.defaultProps = {
   userPermissions: [],
   userRoles: [],
   activeRole: null,
+  userPrivileges: [],
 };
 
 const mapStateToProps = (state) => {
@@ -549,6 +560,7 @@ const mapStateToProps = (state) => {
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
+    userPrivileges: user?.privileges || [],
   };
 };
 

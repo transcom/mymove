@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingAddOrders.module.scss';
 
@@ -13,9 +13,13 @@ import { ORDERS } from 'constants/queryKeys';
 import { formatDateForSwagger } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
-const ServicesCounselingAddOrders = () => {
+const ServicesCounselingAddOrders = ({ userPrivileges }) => {
   const { customerId } = useParams();
+  const { state } = useLocation();
+  const isSafetyMoveSelected = state?.isSafetyMoveSelected;
   const navigate = useNavigate();
   const handleBack = () => {
     navigate(-1);
@@ -46,9 +50,25 @@ const ServicesCounselingAddOrders = () => {
     },
   });
 
-  const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
+  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('safety_move').then((enabled) => {
+      setSafetyMoveFF(enabled);
+    });
+  }, []);
+
+  const isSafetyPrivileged = isSafetyMoveFF
+    ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
+    : false;
+
+  const allowedOrdersTypes = isSafetyPrivileged
+    ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY_MOVE: 'Safety Move' } }
+    : ORDERS_TYPE_OPTIONS;
+  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+
   const initialValues = {
-    ordersType: '',
+    ordersType: isSafetyMoveSelected ? 'SAFETY_MOVE' : '',
     issueDate: '',
     reportByDate: '',
     hasDependents: '',
@@ -81,6 +101,7 @@ const ServicesCounselingAddOrders = () => {
             ordersTypeOptions={ordersTypeOptions}
             initialValues={initialValues}
             onBack={handleBack}
+            isSafetyMoveSelected={isSafetyMoveSelected}
           />
         </Grid>
       </Grid>
