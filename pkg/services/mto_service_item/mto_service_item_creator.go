@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type createMTOServiceItemQueryBuilder interface {
@@ -345,6 +346,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 		requestedPickupDate := *mtoShipment.RequestedPickupDate
 		currTime := time.Now()
+		var distance int
+
 		// origin
 		if serviceItem.ReService.Code == models.ReServiceCodeDOP {
 			contractCode, err := FetchContractCode(appCtx, currTime)
@@ -437,6 +440,37 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
 			price, _, err := o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, serviceScheduleDestination, isPPM)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			serviceItem.PricingEstimate = &price
+		}
+
+		// linehaul/shorthaul
+		if serviceItem.ReService.Code == models.ReServiceCodeDLH {
+			contractCode, err := FetchContractCode(appCtx, currTime)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			// find the service area by querying for the service area associated with the zip3
+			pickupZip := mtoShipment.PickupAddress.PostalCode
+			zip := pickupZip
+			zip3 := zip[0:3]
+
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, zip3)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return nil, nil, err
+				}
+			}
+			price, _, err := o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return nil, nil, err
 			}
