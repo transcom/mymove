@@ -334,7 +334,43 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// Unpacking           = DUPK  = domestic unpacking
 	// Fuel Surcharge      = FSC   = fuel surcharge
 
-	if mtoShipment.PrimeEstimatedWeight != nil {
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
+		isPPM := false
+		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+			isPPM = true
+		}
+		var requestedPickupDate time.Time
+		if mtoShipment.RequestedPickupDate != nil {
+			requestedPickupDate = *mtoShipment.RequestedPickupDate
+		}
+		// origin
+		if serviceItem.ReService.Code == models.ReServiceCodeDPK {
+			currTime := time.Now()
+			contractCode, err := FetchContractCode(appCtx, currTime)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			// find the service area by querying for the service area associated with the zip3
+			pickupZip := mtoShipment.PickupAddress.PostalCode
+			zip := pickupZip
+			zip3 := zip[0:3]
+
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, zip3)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
+
+			price, _, err := o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, servicesScheduleOrigin, isPPM)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			serviceItem.PricingEstimate = &price
+		}
+		// destination
 		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
 			currTime := time.Now()
 			contractCode, err := FetchContractCode(appCtx, currTime)
@@ -352,9 +388,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				return nil, nil, err
 			}
 
-			serviceSchedule := domesticServiceArea.ServicesSchedule
+			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err := o.unpackPricer.Price(appCtx, contractCode, currTime, *mtoShipment.PrimeEstimatedWeight, serviceSchedule, false)
+			price, _, err := o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, serviceScheduleDestination, isPPM)
 			if err != nil {
 				return nil, nil, err
 			}
