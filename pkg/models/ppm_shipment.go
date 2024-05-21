@@ -12,6 +12,14 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+type HaulType string
+
+const (
+	LINEHAUL  HaulType = "Linehaul"
+	SHORTHAUL HaulType = "Shorthaul"
+	OTHER     HaulType = "Other"
+)
+
 type PPMCloseout struct {
 	ID                    *uuid.UUID
 	PlannedMoveDate       *time.Time
@@ -27,6 +35,7 @@ type PPMCloseout struct {
 	RemainingIncentive    *unit.Cents
 	HaulPrice             *unit.Cents
 	HaulFSC               *unit.Cents
+	HaulType              HaulType
 	DOP                   *unit.Cents
 	DDP                   *unit.Cents
 	PackPrice             *unit.Cents

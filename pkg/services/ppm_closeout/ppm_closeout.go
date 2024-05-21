@@ -35,6 +35,7 @@ type serviceItemPrices struct {
 	storageReimbursementCosts *unit.Cents
 	haulPrice                 *unit.Cents
 	haulFSC                   *unit.Cents
+	haulType                  models.HaulType
 }
 
 func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator) services.PPMCloseoutFetcher {
@@ -115,6 +116,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.RemainingIncentive = &remainingIncentive
 	ppmCloseoutObj.HaulPrice = serviceItems.haulPrice
 	ppmCloseoutObj.HaulFSC = serviceItems.haulFSC
+	ppmCloseoutObj.HaulType = serviceItems.haulType
 	ppmCloseoutObj.DOP = serviceItems.dop
 	ppmCloseoutObj.DDP = serviceItems.ddp
 	ppmCloseoutObj.PackPrice = serviceItems.packPrice
@@ -458,6 +460,18 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			destinationPrice += centsValue
 		case models.ReServiceCodeDSH, models.ReServiceCodeDLH:
 			haulPrice += centsValue
+			_, linehaulOk := pricer.(services.DomesticLinehaulPricer)
+			if linehaulOk {
+				returnPriceObj.haulType = models.HaulType(models.LINEHAUL)
+			} else {
+				_, shorthaulOk := pricer.(services.DomesticShorthaulPricer)
+				if shorthaulOk {
+					returnPriceObj.haulType = models.HaulType(models.SHORTHAUL)
+				} else {
+					// Waiting on answer from Gary
+					returnPriceObj.haulType = models.HaulType(models.OTHER)
+				}
+			}
 		case models.ReServiceCodeFSC:
 			haulFSC += centsValue
 		}
