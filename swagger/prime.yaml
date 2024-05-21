@@ -3240,7 +3240,7 @@ definitions:
       - SEPARATION
       - WOUNDED_WARRIOR
       - BLUEBARK
-      - SAFETY_MOVE
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -3248,7 +3248,7 @@ definitions:
       SEPARATION: Separation
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
-      SAFETY_MOVE: Safety Move
+      SAFETY: Safety
   Order:
     type: object
     required:

@@ -63,12 +63,12 @@ const ServicesCounselingAddOrders = ({ userPrivileges }) => {
     : false;
 
   const allowedOrdersTypes = isSafetyPrivileged
-    ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY_MOVE: 'Safety Move' } }
+    ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY: 'Safety' } }
     : ORDERS_TYPE_OPTIONS;
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   const initialValues = {
-    ordersType: isSafetyMoveSelected ? 'SAFETY_MOVE' : '',
+    ordersType: isSafetyMoveSelected ? 'SAFETY' : '',
     issueDate: '',
     reportByDate: '',
     hasDependents: '',

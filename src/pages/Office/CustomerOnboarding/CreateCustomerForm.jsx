@@ -210,7 +210,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     <h3>Customer Affiliation</h3>
                     {isSafetyPrivileged && (
                       <Fieldset className={styles.trailerOwnershipFieldset}>
-                        <legend className="usa-label">Is this a Safety Move?</legend>
+                        <legend className="usa-label">Is this a Safety move?</legend>
                         <div className="grid-row grid-gap">
                           <Field
                             as={Radio}
