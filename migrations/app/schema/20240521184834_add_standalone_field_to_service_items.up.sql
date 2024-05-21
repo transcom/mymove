@@ -1,0 +1,1 @@
+ALTER TABLE mto_service_items ADD COLUMN standalone_crate boolean;

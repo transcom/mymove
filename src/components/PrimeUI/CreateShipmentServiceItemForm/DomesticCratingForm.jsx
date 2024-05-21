@@ -10,6 +10,7 @@ import { DropdownInput } from 'components/form/fields/DropdownInput';
 import { ShipmentShape } from 'types/shipment';
 import { domesticCratingServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import { CheckboxField } from 'components/form/fields';
 
 const domesticShippingValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),
@@ -28,6 +29,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
     modelType: createServiceItemModelTypes.MTOServiceItemDomesticCrating,
+    standaloneCrate: false,
     itemLength: '',
     itemWidth: '',
     itemHeight: '',
@@ -67,6 +69,7 @@ const DomesticCratingForm = ({ shipment, submission }) => {
           required
           options={domesticCratingServiceItemCodeOptions}
         />
+        <CheckboxField id="standaloneCrate" name="standaloneCrate" label="Standalone Crate" />
         <MaskedTextField
           data-testid="itemLength"
           name="itemLength"

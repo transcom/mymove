@@ -1272,6 +1272,9 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean"
             }
           }
         }
@@ -4826,6 +4829,9 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean"
             }
           }
         }
