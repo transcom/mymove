@@ -24,6 +24,13 @@ jest.mock('formik', () => ({
             onChange: jest.fn(),
             onBlur: jest.fn(),
           },
+          {
+            touched: false,
+          },
+          {
+            setValue: jest.fn(),
+            setTouched: jest.fn(),
+          },
         ];
       }
 

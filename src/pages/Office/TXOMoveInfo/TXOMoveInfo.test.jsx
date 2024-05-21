@@ -7,10 +7,11 @@ import { Provider } from 'react-redux';
 import TXOMoveInfo from './TXOMoveInfo';
 
 import { mockPage, MockProviders } from 'testUtils';
-import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import { tooRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 mockPage('pages/Office/MoveDetails/MoveDetails');
 mockPage('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper');
@@ -51,10 +52,19 @@ jest.mock('react-router-dom', () => ({
 jest.mock('hooks/queries', () => ({
   ...jest.requireActual('hooks/queries'),
   useTXOMoveInfoQueries: jest.fn(),
+  useUserQueries: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const basicUseTXOMoveInfoQueriesValue = {
   customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+  move: {
+    lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+  },
   order: {
     id: '4321',
     customerID: '2468',
@@ -90,6 +100,14 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
+const user = {
+  isLoading: false,
+  isError: false,
+  data: {
+    office_user: { id: '2744435d-7ba8-4cc5-bae5-f302c72c9632' },
+  },
+};
+
 // Render the TXO Move Info page with redux and routing setup.
 // Nestes the TXOMoveInfo under /moves/:moveCode/* as done in the app since the TXOMoveInfo component uses nested pathing.
 const renderTXOMoveInfo = (nestedPath = 'details', state = {}) => {
@@ -111,6 +129,7 @@ const renderTXOMoveInfo = (nestedPath = 'details', state = {}) => {
 
 beforeEach(() => {
   useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
+  useUserQueries.mockReturnValue(user);
 });
 
 describe('TXO Move Info Container', () => {
@@ -144,15 +163,11 @@ describe('TXO Move Info Container', () => {
 
   describe('Basic rendering', () => {
     it('should render the move tab container', () => {
-      const mockStore = configureStore(loggedInTIOState);
+      useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
       const wrapper = mount(
-        <MemoryRouter initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <Provider store={mockStore.store}>
-            <Routes>
-              <Route key="txoMoveInfoRoute" path="/moves/:moveCode/*" element={<TXOMoveInfo />} />
-            </Routes>
-          </Provider>
-        </MemoryRouter>,
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
+          <TXOMoveInfo />
+        </MockProviders>,
       );
 
       expect(wrapper.find('CustomerHeader').exists()).toBe(true);
@@ -196,6 +211,37 @@ describe('TXO Move Info Container', () => {
       renderTXOMoveInfo('', { interceptor: { hasRecentError: false, traceId: '' } });
 
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
+    });
+
+    it('renders a lock icon when move lock flag is on', async () => {
+      isBooleanFlagEnabled.mockResolvedValue(true);
+      useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
+
+      render(
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const banner = screen.queryByTestId('locked-move-banner');
+        expect(banner).toBeInTheDocument();
+      });
+    });
+    it('does NOT render a lock icon when move lock flag is off', async () => {
+      isBooleanFlagEnabled.mockResolvedValue(false);
+      useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
+
+      render(
+        <MockProviders path={tooRoutes.BASE_MOVE_VIEW_PATH} params={{ moveCode: testMoveCode }}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const banner = screen.queryByTestId('locked-move-banner');
+        expect(banner).not.toBeInTheDocument();
+      });
     });
   });
 
