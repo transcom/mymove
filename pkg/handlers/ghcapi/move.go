@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -46,6 +47,11 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				}
 			}
 
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
 			// if this user is accessing the move record, we need to lock it so others can't edit it
 			// to allow for locking a move, we need to look at these things
 			// 1. Is the user an office user?
@@ -66,8 +72,13 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				}
 			}
 
-			payload := payloads.Move(move)
-			return moveop.NewGetMoveOK().WithPayload(payload), nil
+			if move.Orders.OrdersType == "SAFETY" && !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+				appCtx.Logger().Error("Invalid permissions")
+				return moveop.NewGetMoveNotFound(), nil
+			} else {
+				payload := payloads.Move(move)
+				return moveop.NewGetMoveOK().WithPayload(payload), nil
+			}
 		})
 }
 
