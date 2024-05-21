@@ -477,6 +477,35 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 			serviceItem.PricingEstimate = &price
 		}
+		if serviceItem.ReService.Code == models.ReServiceCodeDSH {
+			contractCode, err := FetchContractCode(appCtx, currTime)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			// find the service area by querying for the service area associated with the zip3
+			pickupZip := mtoShipment.PickupAddress.PostalCode
+			zip := pickupZip
+			zip3 := zip[0:3]
+
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, zip3)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return nil, nil, err
+				}
+			}
+			price, _, err := o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			serviceItem.PricingEstimate = &price
+		}
 	}
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
