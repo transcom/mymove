@@ -2,6 +2,7 @@ package officeuser
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/gobuffalo/validate/v3"
@@ -42,6 +43,13 @@ func (o *officeUserCreator) CreateOfficeUser(
 		user = models.User{
 			OktaEmail: strings.ToLower(officeUser.Email),
 			Active:    true,
+		}
+
+		sess := appCtx.Session()
+
+		if sess.IDToken == "devlocal" {
+			// in devlocal we generate a random okta_id for accounts to use
+			user.OktaID = generateFakeOktaID()
 		}
 	}
 
@@ -118,6 +126,18 @@ func (o *officeUserCreator) CreateOfficeUser(
 	}
 
 	return officeUser, nil, nil
+}
+
+func generateFakeOktaID() string {
+	const ID_LEN = 20
+	const CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	fakeOktaID := ""
+
+	for _ = range [ID_LEN]int{} {
+		fakeOktaID += string(CHARSET[rand.Intn(len(CHARSET))])
+	}
+
+	return fakeOktaID
 }
 
 // NewOfficeUserCreator returns a new office user creator
