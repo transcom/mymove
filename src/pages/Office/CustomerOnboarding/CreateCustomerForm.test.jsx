@@ -212,7 +212,11 @@ describe('CreateCustomerForm', () => {
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(ordersPath);
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: false,
+        },
+      });
     });
   }, 10000);
 
