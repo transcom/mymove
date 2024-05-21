@@ -197,7 +197,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer()),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter,
 		),
 	}

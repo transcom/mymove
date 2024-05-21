@@ -89,7 +89,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
 
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)

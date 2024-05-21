@@ -549,7 +549,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dimension := models.MTOServiceItemDimension{
 			Type:      models.DimensionTypeItem,
@@ -622,7 +622,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
