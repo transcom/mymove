@@ -19,6 +19,7 @@ const RequestedServiceItemsTable = ({
   serviceItemAddressUpdateAlert,
   shipment,
   sitStatus,
+  isMoveLocked,
 }) => {
   const chooseTitleText = (status) => {
     switch (status) {
@@ -58,6 +59,7 @@ const RequestedServiceItemsTable = ({
         serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
         shipment={shipment}
         sitStatus={sitStatus}
+        isMoveLocked={isMoveLocked}
       />
     </div>
   );
