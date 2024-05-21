@@ -19,6 +19,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -49,7 +50,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)

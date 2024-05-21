@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -92,7 +93,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -150,7 +151,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -288,7 +289,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -332,7 +333,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -483,7 +484,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -520,7 +521,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -643,7 +644,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -689,7 +690,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -758,7 +759,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -842,7 +843,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -952,7 +953,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1125,7 +1126,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1199,7 +1200,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1232,7 +1233,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1288,7 +1289,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1352,7 +1353,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1383,7 +1384,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,

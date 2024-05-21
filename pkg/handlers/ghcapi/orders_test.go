@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -317,7 +318,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 

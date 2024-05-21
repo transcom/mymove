@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -97,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,

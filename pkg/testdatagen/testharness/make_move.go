@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -2876,7 +2877,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2980,7 +2981,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))

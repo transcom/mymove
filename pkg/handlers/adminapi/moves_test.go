@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -87,6 +88,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		builder := query.NewQueryBuilder()
 		moveRouter := move.NewMoveRouter()
 		planner := &routemocks.Planner{}
+
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -96,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(
 				builder,
-				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
+				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 				moveRouter,
 			),
 		}

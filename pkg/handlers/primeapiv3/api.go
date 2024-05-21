@@ -47,7 +47,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})

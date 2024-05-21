@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mt "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -31,7 +32,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	).Return(400, nil)
 	mtoUpdater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 
@@ -230,7 +231,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	).Return(400, nil)
 	mtoUpdater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 
@@ -369,7 +370,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	).Return(400, nil)
 	updater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 
@@ -521,7 +522,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -558,7 +559,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -587,7 +588,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		mtoUpdater := mt.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -755,7 +756,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePPMType()
 	).Return(400, nil)
 	updater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 

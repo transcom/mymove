@@ -22,6 +22,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -1698,7 +1699,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
@@ -1755,7 +1756,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			suite.HandlerConfig(),

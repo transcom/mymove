@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -28,6 +29,8 @@ type mtoServiceItemCreator struct {
 	builder          createMTOServiceItemQueryBuilder
 	createNewBuilder func() createMTOServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
+	pricer           services.ServiceItemPricer
+	unpackPricer     services.DomesticUnpackPricer
 }
 
 func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (int, error) {
@@ -57,6 +60,24 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 	}
 
 	return distance, err
+}
+
+func FetchContractCode(appCtx appcontext.AppContext, date time.Time) (string, error) {
+	currentDay := time.Now()
+	var contractYear models.ReContractYear
+	err := appCtx.DB().EagerPreload("Contract").Where("? between start_date and end_date", currentDay).
+		First(&contractYear)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("no contract year found for %s", date.String()))
+		}
+		return "", err
+	}
+
+	contract := contractYear.Contract
+
+	contractCode := contract.Code
+	return contractCode, nil
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
@@ -461,13 +482,13 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, pricer services.ServiceItemPricer, unpackPricer services.DomesticUnpackPricer) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func() createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter}
+	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, pricer: pricer, unpackPricer: unpackPricer}
 }
 
 func validateTimeMilitaryField(_ appcontext.AppContext, timeMilitary string) error {

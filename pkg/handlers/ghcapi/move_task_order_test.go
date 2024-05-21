@@ -29,6 +29,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -120,7 +121,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 
 		// setup the handler
 		handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig,
@@ -242,7 +243,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig,
@@ -278,7 +279,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 			handlerConfig,
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
@@ -496,7 +497,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer())
 		handler := UpdateMoveTIORemarksHandlerFunc{
 			handlerConfig,
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),

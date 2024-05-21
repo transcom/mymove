@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewServiceItemPricer(), ghcrateengine.NewDomesticUnpackPricer()),
 		moveRouter,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
