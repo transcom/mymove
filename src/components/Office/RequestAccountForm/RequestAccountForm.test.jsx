@@ -193,6 +193,31 @@ describe('RequestAccountForm component', () => {
 
     expect(testProps.onSubmit).toHaveBeenCalled();
   });
+  
+  it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
+    renderWithRouter(<RequestAccountForm {...testProps} />);
+
+    const tooCheckbox = screen.getByTestId('transportationOrderingOfficerCheckBox');
+    const tioCheckbox = screen.getByTestId('transportationInvoicingOfficerCheckBox');
+
+    // Click both the TOO and TIO role checkboxes
+    await userEvent.click(tooCheckbox);
+    await userEvent.click(tioCheckbox);
+
+    // Check that the validation error appears
+    const policyVerrs = await screen.findAllByText(
+      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+    );
+    expect(policyVerrs.length).toBeGreaterThan(0);
+
+    // Check that it goes away after unselecting either TIO or TOO checkbox
+    await userEvent.click(tioCheckbox);
+    expect(
+      screen.queryByText(
+        'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      ),
+    ).not.toBeInTheDocument();
+  });
 
   afterEach(jest.resetAllMocks);
 });

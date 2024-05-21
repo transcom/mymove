@@ -206,7 +206,15 @@ const validateEdipi = (value, testContext) => {
   return false;
 };
 
-// checking request office account form
+// It is TRANSCOM policy that an individual person may only be either a TIO or TOO, never both.
+const validateOnlyOneTransportationOfficerRole = (value, testContext) => {
+  const { transportationOrderingOfficerCheckBox, transportationInvoicingOfficerCheckBox } = testContext.parent;
+  if (transportationOrderingOfficerCheckBox && transportationInvoicingOfficerCheckBox) {
+    return false;
+  }
+  return true;
+};
+
 export const officeAccountRequestSchema = Yup.object().shape({
   officeAccountRequestFirstName: Yup.string()
     .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
@@ -228,16 +236,20 @@ export const officeAccountRequestSchema = Yup.object().shape({
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: emailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
-  transportationOrderingOfficerCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
-  transportationInvoicingOfficerCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
+  transportationOrderingOfficerCheckBox: Yup.bool()
+    .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
+    .test(
+      'onlyOneTransportationOfficerRole',
+      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      validateOnlyOneTransportationOfficerRole,
+    ),
+  transportationInvoicingOfficerCheckBox: Yup.bool()
+    .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
+    .test(
+      'onlyOneTransportationOfficerRole',
+      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      validateOnlyOneTransportationOfficerRole,
+    ),
   servicesCounselorCheckBox: Yup.bool().test(
     'roleRequestedRequired',
     'You must select at least one role.',
