@@ -142,11 +142,12 @@ func main() {
 
 	statusCode := 0
 
+	//nolint:staticcheck
 	if resp == nil {
 		log.Fatal("Gex Sender had no response")
 	}
 
-	statusCode = resp.StatusCode
+	statusCode = resp.StatusCode //nolint:staticcheck
 
 	fmt.Printf("status code: %v, error: %v \n", statusCode, err)
 }
