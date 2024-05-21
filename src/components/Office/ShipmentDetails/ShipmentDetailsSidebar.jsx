@@ -23,6 +23,7 @@ const ShipmentDetailsSidebar = ({
   handleEditFacilityInfo,
   handleEditServiceOrderNumber,
   handleEditAccountingCodes,
+  isMoveLocked,
 }) => {
   const { mtoAgents, secondaryAddresses, serviceOrderNumber, storageFacility, sacType, tacType } = shipment;
   const tac = retrieveTAC(shipment.tacType, ordersLOA);
@@ -121,6 +122,7 @@ const ShipmentDetailsSidebar = ({
                   className="float-right usa-link modal-link"
                   data-testid="edit-facility-info-modal-open"
                   unstyled
+                  disabled={isMoveLocked}
                 >
                   Edit
                 </Button>
@@ -150,6 +152,7 @@ const ShipmentDetailsSidebar = ({
                   className="float-right usa-link modal-link"
                   data-testid="service-order-number-modal-open"
                   unstyled
+                  disabled={isMoveLocked}
                 >
                   Edit
                 </Button>
@@ -176,6 +179,7 @@ const ShipmentDetailsSidebar = ({
                   className="float-right usa-link modal-link"
                   data-testid="edit-accounting-codes-modal-open"
                   unstyled
+                  disabled={isMoveLocked}
                 >
                   Edit
                 </Button>
