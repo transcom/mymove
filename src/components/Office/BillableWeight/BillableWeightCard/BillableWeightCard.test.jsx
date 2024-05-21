@@ -106,6 +106,26 @@ describe('BillableWeightCard', () => {
     expect(reviewWeights).toBeDisabled();
   });
 
+  it('should disable review weights button if the move is locked', async () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+    ];
+    const isMoveLocked = true;
+    renderWithPermission({ shipments, isMoveLocked });
+
+    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+
+    expect(reviewWeights).toHaveAttribute('disabled');
+    expect(reviewWeights).toBeDisabled();
+  });
+
   it('displays secondary styling button when flag is set', async () => {
     const shipments = [
       {
