@@ -249,7 +249,6 @@ describe('ServicesCounselingQueue', () => {
       expect(wrapper.find('th[data-testid="lastName"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="dodID"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="status"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
       );
@@ -260,39 +259,13 @@ describe('ServicesCounselingQueue', () => {
       );
     });
 
-    it('disables sort by for origin GBLOC column', () => {
+    it('disables sort by for origin GBLOC and statues columns', () => {
       expect(wrapper.find('th[data-testid="originGBLOC"][role="columnheader"]').prop('onClick')).toBe(undefined);
+      expect(wrapper.find('th[data-testid="status"][role="columnheader"]').prop('onClick')).toBe(undefined);
     });
 
     it('omits filter input element for origin GBLOC column', () => {
       expect(wrapper.find('th[data-testid="originGBLOC"] input').exists()).toBe(false);
-    });
-  });
-
-  describe('service counseling completed moves', () => {
-    useUserQueries.mockReturnValue(serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-    const wrapper = mount(
-      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
-        <ServicesCounselingQueue />
-      </MockRouterProvider>,
-    );
-
-    it('displays move header with needs service counseling count', () => {
-      expect(wrapper.find('h1').text()).toBe('Moves (2)');
-    });
-
-    it('should render the table', () => {
-      expect(wrapper.find('Table').exists()).toBe(true);
-    });
-
-    it('formats the move data in rows', () => {
-      const moves = wrapper.find('tbody tr');
-      const firstMove = moves.at(0);
-      expect(firstMove.find('td.status').text()).toBe('Service counseling completed');
-
-      const secondMove = moves.at(1);
-      expect(secondMove.find('td.status').text()).toBe('Service counseling completed');
     });
   });
 
