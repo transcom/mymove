@@ -28,7 +28,6 @@ test.describe('Services counselor user', () => {
       await page.locator('th[data-testid="locator"] > div > input').blur();
 
       await page.locator('th[data-testid="ppmType"] > div > select').selectOption({ label: 'Partial' });
-      await page.locator('th[data-testid="ppmType"] > div > select').blur();
 
       await expect(page.locator('td').getByText(moveLocator)).toBeVisible();
 
@@ -73,7 +72,6 @@ test.describe('Services counselor user', () => {
 
       // first test with bogus date and no moves are found
       await page.locator('th[data-testid="closeoutInitiated"] > div > div > input').type('11 Dec 2020');
-      await page.locator('th[data-testid="closeoutInitiated"] > div > div > input').blur();
       await expect(page.locator('h1')).toContainText('Moves (0)');
 
       // test with the closeout date of the created move and that our
