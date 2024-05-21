@@ -182,18 +182,18 @@ describe('RequestAccountForm component', () => {
     await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
 
     const transportationOfficeInput = screen.getByLabelText('Transportation Office');
-    await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
+    fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
-    const tooCheckbox = screen.getByTestId('transportationOrderingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('headquartersCheckBox');
     await userEvent.click(tooCheckbox);
 
-    const submitButton = await screen.getByTestId('headquartersCheckBox');
+    const submitButton = await screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(submitButton);
 
     expect(testProps.onSubmit).toHaveBeenCalled();
   });
-  
+
   it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
