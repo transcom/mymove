@@ -295,8 +295,8 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				Status: &status,
 			}
 
-			if newOrder.OrdersType == "SAFETY_MOVE" {
-				// if creating a Safety Move, clear out the DoDID and OktaID for the customer
+			if newOrder.OrdersType == "SAFETY" {
+				// if creating a Safety move, clear out the DoDID and OktaID for the customer
 				err = models.UpdateUserOktaID(appCtx.DB(), &newOrder.ServiceMember.User, "")
 				if err != nil {
 					appCtx.Logger().Error("Authorization error updating user", zap.Error(err))

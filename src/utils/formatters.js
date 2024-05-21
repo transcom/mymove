@@ -145,8 +145,8 @@ export const ordersTypeReadable = (ordersType, missingText) => {
   if (!ordersType) {
     return missingText;
   }
-  if (ordersType === 'SAFETY_MOVE') {
-    return 'Safety Move';
+  if (ordersType === 'SAFETY') {
+    return 'Safety';
   }
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };

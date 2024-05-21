@@ -258,7 +258,7 @@ func createNewMove(db *pop.Connection,
 		return nil, nil, fmt.Errorf("could not generate a unique ReferenceID: %w", err)
 	}
 
-	if orders.OrdersType != "SAFETY_MOVE" {
+	if orders.OrdersType != "SAFETY" {
 		for i := 0; i < maxLocatorAttempts; i++ {
 			move := Move{
 				Orders:       orders,
