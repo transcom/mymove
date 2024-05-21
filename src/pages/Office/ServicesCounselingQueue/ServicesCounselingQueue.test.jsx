@@ -259,7 +259,7 @@ describe('ServicesCounselingQueue', () => {
       );
     });
 
-    it('disables sort by for origin GBLOC and statues columns', () => {
+    it('disables sort by for origin GBLOC and status columns', () => {
       expect(wrapper.find('th[data-testid="originGBLOC"][role="columnheader"]').prop('onClick')).toBe(undefined);
       expect(wrapper.find('th[data-testid="status"][role="columnheader"]').prop('onClick')).toBe(undefined);
     });
