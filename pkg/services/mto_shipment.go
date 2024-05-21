@@ -27,7 +27,7 @@ type MTOShipmentUpdater interface {
 	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error)
 }
 
-// BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated
+// BillableWeightInputs is a type for capturing what should be returned when a shipment's billable weight is calculated
 type BillableWeightInputs struct {
 	CalculatedBillableWeight *unit.Pound
 	OriginalWeight           *unit.Pound
@@ -35,7 +35,7 @@ type BillableWeightInputs struct {
 	HadManualOverride        *bool
 }
 
-// ShipmentBillableWeightCalculator is the service object interface for approving a shipment diversion
+// ShipmentBillableWeightCalculator is the service object interface for calculating a shipment's billable weight
 //
 //go:generate mockery --name ShipmentBillableWeightCalculator
 type ShipmentBillableWeightCalculator interface {
@@ -56,11 +56,11 @@ type ShipmentApprover interface {
 	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
-// ShipmentDiversionRequester is the service object interface for approving a shipment diversion
+// ShipmentDiversionRequester is the service object interface for requesting a shipment diversion
 //
 //go:generate mockery --name ShipmentDiversionRequester
 type ShipmentDiversionRequester interface {
-	RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+	RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, diversionReason *string) (*models.MTOShipment, error)
 }
 
 // ShipmentDiversionApprover is the service object interface for approving a shipment diversion
@@ -70,7 +70,7 @@ type ShipmentDiversionApprover interface {
 	ApproveShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
-// ShipmentRejecter is the service object interface for approving a shipment
+// ShipmentRejecter is the service object interface for rejecting a shipment
 //
 //go:generate mockery --name ShipmentRejecter
 type ShipmentRejecter interface {
@@ -95,7 +95,7 @@ type ShipmentReweighRequester interface {
 //
 //go:generate mockery --name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
-	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string) (*models.MTOShipment, error)
 }
 
 // MTOShipmentCreator is the exported interface for creating a shipment
@@ -119,7 +119,7 @@ type ShipmentRouter interface {
 	RequestCancellation(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 	Cancel(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 	Reject(appCtx appcontext.AppContext, shipment *models.MTOShipment, rejectionReason *string) error
-	RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+	RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment, diversionReason *string) error
 	ApproveDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 }
 
