@@ -8,11 +8,11 @@ export const ORDERS_TYPE = {
 export const SPECIAL_ORDERS_TYPES = {
   WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
-  SAFETY: 'SAFETY',
+  SAFETY: 'Safety Move',
 };
 
 export const CHECK_SPECIAL_ORDERS_TYPES = (ordersType) => {
-  return ['BLUEBARK', 'WOUNDED_WARRIOR', 'SAFETY'].includes(ordersType);
+  return ['BLUEBARK', 'WOUNDED_WARRIOR', 'Safety Move'].includes(ordersType);
 };
 
 export const ORDERS_TYPE_OPTIONS = {
@@ -22,7 +22,6 @@ export const ORDERS_TYPE_OPTIONS = {
   SEPARATION: 'Separation',
   WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
-  SAFETY: 'SAFETY',
 };
 
 export const ORDERS_TYPE_DETAILS = {
