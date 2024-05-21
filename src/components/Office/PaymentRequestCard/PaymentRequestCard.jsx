@@ -34,7 +34,13 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIssues, onEditAccountingCodes }) => {
+const PaymentRequestCard = ({
+  paymentRequest,
+  shipmentsInfo,
+  hasBillableWeightIssues,
+  onEditAccountingCodes,
+  isMoveLocked,
+}) => {
   const navigate = useNavigate();
   // show details by default if in pending/needs review
   const defaultShowDetails = paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING;
@@ -141,7 +147,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
           <Button
             style={{ maxWidth: '225px' }}
             onClick={handleClick}
-            disabled={hasBillableWeightIssues}
+            disabled={hasBillableWeightIssues || isMoveLocked}
             data-testid="reviewBtn"
           >
             <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
@@ -215,13 +221,14 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
             <dt>Contract number:</dt>
             <dd>{contractNumber}</dd>
           </dl>
-          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING ? (
-            <Link to="../orders" state={{ from: 'paymentRequestDetails' }}>
-              View orders
-            </Link>
-          ) : (
-            ViewDocuments
-          )}
+          {!isMoveLocked &&
+            (paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING ? (
+              <Link to="../orders" state={{ from: 'paymentRequestDetails' }}>
+                View orders
+              </Link>
+            ) : (
+              ViewDocuments
+            ))}
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (
               <Button
@@ -230,6 +237,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
                 type="button"
                 unstyled
                 onClick={handleToggleDetails}
+                disabled={isMoveLocked}
               >
                 <FontAwesomeIcon icon={showDetailsChevron} /> {showDetailsText}
               </Button>

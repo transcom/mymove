@@ -48,6 +48,7 @@ const serviceItemCodes = {
   MS: 'Move management',
   NSTH: 'Nonstandard HHG',
   NSTUB: 'Nonstandard UB',
+  DCRTSA: 'Domestic  Standalone Crating',
 };
 
 export default serviceItemCodes;
