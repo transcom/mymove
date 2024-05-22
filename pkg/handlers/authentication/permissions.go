@@ -90,10 +90,7 @@ var QAECSR = RolePermissions{
 var CustomerServiceRepresentative = RolePermissions{
 	RoleType: roles.RoleTypeCustomerServiceRepresentative,
 	Permissions: []string{
-		"create.reportViolation",
 		"read.paymentRequest",
-		"update.evaluationReport",
-		"delete.evaluationReport",
 		"view.closeoutOffice",
 	},
 }
