@@ -36,6 +36,11 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
   // ie..takes 10100 to 101 for display with a scale of 0.
   const advanceAmountRequestedMaskTaskFieldValueDenominator = 10 ** (2 - advanceAmountRequestedMaskTextFieldScale);
 
+  // Display mask value using scale defined by advanceAmountRequestedMaskTextFieldScale
+  const savedAdvanceAmountRequestedDisplayValue = `${
+    advanceAmountRequested / advanceAmountRequestedMaskTaskFieldValueDenominator
+  }`;
+
   const handleAdvanceRequestStatusChange = (event) => {
     const selected = event.target.value;
     statusHelper.setValue(selected);
@@ -44,10 +49,19 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
       // with respect to form validator. Doing this ensures setValue uses correct AdvanceStatus.
       setTimeout(() => {
         // Programmatically undo unsaved input to persisted value
-        advanceAmountRequestedProps.setValue(
-          `${advanceAmountRequested / advanceAmountRequestedMaskTaskFieldValueDenominator}`,
-        );
+        advanceAmountRequestedProps.setValue(savedAdvanceAmountRequestedDisplayValue);
       }, 100);
+    }
+  };
+
+  const handleAdvanceChange = (event) => {
+    const { value } = event.target;
+    // If advance number input is different than saved value, assume
+    // ACCEPT state and select radio button.
+    if (value !== savedAdvanceAmountRequestedDisplayValue) {
+      if (statusInput.value === ADVANCE_STATUSES.REJECTED.apiValue) {
+        statusHelper.setValue(ADVANCE_STATUSES.APPROVED.apiValue);
+      }
     }
   };
 
@@ -95,6 +109,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
+                    onChange={handleAdvanceChange}
                   />
                 </FormGroup>
 
