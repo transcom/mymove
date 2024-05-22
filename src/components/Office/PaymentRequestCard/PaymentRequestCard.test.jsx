@@ -580,5 +580,26 @@ describe('PaymentRequestCard', () => {
 
       expect(screen.queryByRole('button', { name: 'Review service items' })).not.toBeInTheDocument();
     });
+
+    it('does not render buttons and disables buttons when the move is locked', () => {
+      const isMoveLocked = true;
+      render(
+        <MockProviders
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
+          permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            isMoveLocked={isMoveLocked}
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByRole('button', { name: 'View orders' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'View documents' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Review service items' })).toBeDisabled();
+    });
   });
 });
