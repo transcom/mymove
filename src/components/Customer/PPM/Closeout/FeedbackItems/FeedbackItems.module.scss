@@ -1,0 +1,44 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.FeedbackItems {
+  .contentsContainer {
+    .headingWrapper {
+      @include u-border(1px, solid);
+      @include u-radius(3px);
+      border-color: $border-color;
+      @include u-margin-top(2);
+      @include u-padding(3);
+    }
+
+    .subheadingWrapper {
+      @include u-margin-top(0);
+
+      h1, h2, h3, h4, h5, h6, dl {
+        @include u-margin-top(0);
+      }
+    }
+
+    .subheading {
+      @include u-margin-right(2);
+    }
+
+    @include at-media-max(mobile-lg) {
+      .subheadingWrapper {
+        flex-wrap: wrap;
+
+        .subheading {
+          @include u-margin-right(0);
+          flex-basis: 50%;
+          flex-shrink: 0;
+          order: 1;
+        }
+      }
+    }
+  }
+}
+
+.redText {
+  color: red;
+}

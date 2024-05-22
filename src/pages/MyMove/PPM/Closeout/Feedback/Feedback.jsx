@@ -1,0 +1,190 @@
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
+import classnames from 'classnames';
+
+import styles from './Feedback.module.scss';
+
+import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
+import { selectMTOShipmentById } from 'store/entities/selectors';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
+import { shipmentTypes } from 'constants/shipments';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
+import { calculateTotalMovingExpensesAmount, getW2Address } from 'utils/ppmCloseout';
+import { FEEDBACK_DOCUMENT_TYPES, getFeedbackTemplate } from 'constants/ppmFeedback';
+import FeedbackItems from 'components/Customer/PPM/Closeout/FeedbackItems/FeedbackItems';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import {
+  calculateTotalNetWeightForProGearWeightTickets,
+  getTotalNetWeightForWeightTickets,
+} from 'utils/shipmentWeights';
+
+const Feedback = () => {
+  const { mtoShipmentId } = useParams();
+  const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const navigate = useNavigate();
+
+  const ppmShipment = mtoShipment?.ppmShipment;
+  const weightTickets = ppmShipment?.weightTickets;
+  const proGearWeightTickets = ppmShipment?.proGearWeightTickets;
+  const movingExpenses = ppmShipment?.movingExpenses;
+
+  // track if a document was adjusted
+  let docWasAdjusted = false;
+
+  const getTripWeight = (doc) => {
+    return doc.fullWeight - doc.emptyWeight;
+  };
+
+  const formatRow = (row) => {
+    const formattedRow = { ...row };
+    // format the values
+    if (formattedRow.format) {
+      formattedRow.value = formattedRow.format(row.value);
+      if (row.secondaryValue) {
+        formattedRow.secondaryValue = formattedRow.format(row.secondaryValue);
+      }
+    }
+
+    return formattedRow;
+  };
+
+  // key into the passed in document and set the value of the new row
+  const setRowValues = (doc, templateRow) => {
+    const row = { ...templateRow };
+
+    row.value = doc[row.key];
+    if (row.key === 'tripWeight') row.value = getTripWeight(doc);
+
+    // set the secondary value/customer submitted value if
+    // it differs from the final value, and note that the doc was adjusted
+    if (row.secondaryKey && doc[row.secondaryKey] !== row.value) {
+      docWasAdjusted = true;
+      row.secondaryValue = doc[row.secondaryKey];
+    }
+
+    // display the
+    if (row.key === 'status') {
+      if (docWasAdjusted && row.value === 'APPROVED') row.value = 'EDITED';
+      if (row.value === 'REJECTED' || row.value === 'EXCLUDED') {
+        row.label = `${row.value}: `;
+        row.value = doc.reason;
+      }
+    }
+
+    return row;
+  };
+
+  // format a single document
+  const formatSingleDocForFeedbackItem = (doc, docType) => {
+    docWasAdjusted = false;
+
+    // return a formatted row based off the template
+    return getFeedbackTemplate(docType).map((templateRow) => {
+      const row = setRowValues(doc, templateRow);
+      return formatRow(row);
+    });
+  };
+
+  // format an array of documents
+  const formatDocuments = (documentSet, type) => {
+    if (!documentSet) return [];
+    return documentSet?.map((doc) => {
+      return formatSingleDocForFeedbackItem(doc, type);
+    });
+  };
+
+  const formattedWeightTickets = formatDocuments(weightTickets, FEEDBACK_DOCUMENT_TYPES.WEIGHT);
+  const formattedProGearWeightTickets = formatDocuments(proGearWeightTickets, FEEDBACK_DOCUMENT_TYPES.PRO_GEAR);
+  const formattedMovingExpenses = formatDocuments(movingExpenses, FEEDBACK_DOCUMENT_TYPES.MOVING_EXPENSE);
+
+  const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
+  const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGearWeightTickets);
+  const expensesTotal = calculateTotalMovingExpensesAmount(movingExpenses);
+
+  if (!mtoShipment) return <LoadingPlaceholder />;
+
+  const ppmDetails = (
+    <>
+      <h2>About Your PPM</h2>
+      <div>Departure Date: {formatCustomerDate(ppmShipment?.actualMoveDate)}</div>
+      <div>Starting ZIP: {ppmShipment?.actualPickupPostalCode}</div>
+      <div>Ending ZIP: {ppmShipment?.actualDestinationPostalCode}</div>
+      <div>
+        Advance:
+        {ppmShipment?.hasReceivedAdvance
+          ? ` Yes, $${formatCentsTruncateWhole(ppmShipment?.advanceAmountReceived)}`
+          : ' No'}
+      </div>
+      <br />
+      <div data-testid="w-2Address">W-2 address: {getW2Address(ppmShipment?.w2Address)}</div>
+    </>
+  );
+
+  return (
+    <div className={classnames(ppmPageStyles.ppmPageStyle, styles.PPMFeedback)}>
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <ShipmentTag shipmentType={shipmentTypes.PPM} />
+            <h1>Closeout Feedback</h1>
+            <SectionWrapper className={styles.aboutSection}>{ppmDetails}</SectionWrapper>
+            <SectionWrapper>
+              <h2>Documents</h2>
+              <div className={styles.headingContainer}>
+                <div className={styles.headingContent}>
+                  <h3>Weight Moved</h3>
+                  <span>({formatWeight(weightTicketsTotal)})</span>
+                </div>
+              </div>
+              <FeedbackItems
+                className={styles.feedbackItems}
+                documents={formattedWeightTickets}
+                docType={FEEDBACK_DOCUMENT_TYPES.WEIGHT}
+              />
+              {proGearWeightTickets.length > 0 && (
+                <>
+                  <div className={styles.headingContainer} data-testid="pro-gear-items">
+                    <div className={styles.headingContent}>
+                      <h3>Pro-gear</h3>
+                      <span>({formatWeight(proGearTotal)})</span>
+                    </div>
+                  </div>
+                  <FeedbackItems
+                    className={styles.feedbackItems}
+                    documents={formattedProGearWeightTickets}
+                    docType={FEEDBACK_DOCUMENT_TYPES.PRO_GEAR}
+                  />
+                </>
+              )}
+              {movingExpenses.length > 0 && (
+                <>
+                  <div className={styles.headingContainer} data-testid="expenses-items">
+                    <div className={styles.headingContent}>
+                      <h3>Expenses</h3>
+                      <span>(${expensesTotal ? formatCents(expensesTotal) : 0})</span>
+                    </div>
+                  </div>
+                  <FeedbackItems
+                    className={styles.feedbackItems}
+                    documents={formattedMovingExpenses}
+                    docType={FEEDBACK_DOCUMENT_TYPES.MOVING_EXPENSE}
+                  />
+                </>
+              )}
+            </SectionWrapper>
+            <div className={classnames(ppmPageStyles.buttonContainer, styles.navigationButtons)}>
+              <Button onClick={() => navigate(-1)} type="button">
+                Back
+              </Button>
+            </div>
+          </Grid>
+        </Grid>
+      </GridContainer>
+    </div>
+  );
+};
+
+export default Feedback;

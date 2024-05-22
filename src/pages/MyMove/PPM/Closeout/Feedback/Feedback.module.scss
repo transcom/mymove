@@ -1,0 +1,75 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.PPMFeedback {
+  @include at-media-max(mobile-lg) {
+    .aboutSection {
+      @include u-padding-bottom(4);
+      @include u-margin-bottom(4);
+      @include u-border-bottom(1px, solid);
+      border-color: $base-lighter;
+    }
+
+    .headingContainer {
+      @include u-display(block);
+
+      .headingContent {
+        @include u-display(block);
+
+        h1,h2,h3,h4,h5,h6 {
+          @include u-display(inline);
+          @include u-margin-right(1);
+        }
+      }
+    }
+  }
+  .reviewItems:first-of-type {
+    @include u-margin-top(2);
+  }
+
+  @include at-media(mobile-lg) {
+    .reviewItems {
+      @include u-margin-top(3);
+    }
+
+    .headingContainer {
+      @include u-display(flex);
+      @include u-align-items(align-end);
+
+      .headingContent {
+        @include u-flex(1);
+
+        h1, h2, h3, h4, h5, h6 {
+          @include u-display(inline);
+          @include u-margin-right(1);
+        }
+      }
+    }
+  }
+
+  @include at-media-max(mobile-lg) {
+    .reviewItems {
+      @include u-margin-top(4);
+    }
+
+    .navigationButtons {
+      @include u-margin-top(4);
+    }
+  }
+
+  :global(.usa-button.usa-button--secondary) {
+    &:visited {
+      color: $primary;
+    }
+
+    &:hover {
+      color: $primary-dark;
+    }
+  }
+
+  :global(.usa-button--disabled) {
+    pointer-events: none;
+    background-color: $disabled;
+  }
+}
