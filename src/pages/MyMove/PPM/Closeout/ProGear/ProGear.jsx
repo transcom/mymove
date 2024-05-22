@@ -15,6 +15,8 @@ import {
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
+  getResponseError,
+  patchMTOShipment,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -114,6 +116,14 @@ const ProGear = () => {
     setErrors({});
     const hasWeightTickets = !values.missingWeightTicket;
     const belongsToSelf = values.belongsToSelf === 'true';
+    let test;
+    let test2;
+    if (belongsToSelf) {
+      test = values.weight;
+    }
+    if (!belongsToSelf) {
+      test2 = values.weight;
+    }
     const payload = {
       ppmShipmentId: mtoShipment.ppmShipment.id,
       proGearWeightTicketId: currentProGearWeightTicket.id,
@@ -121,7 +131,26 @@ const ProGear = () => {
       weight: parseInt(values.weight, 10),
       belongsToSelf,
       hasWeightTickets,
+      ppmShipment: {
+        id: mtoShipment.ppmShipment.id,
+      },
+      shipmentType: mtoShipment.shipmentType,
+      actualProGearWeight: parseInt(test, 10),
+      actualSpouseProGearWeight: parseInt(test2, 10),
+      shipmentLocator: values.shipmentLocator,
+      eTag: mtoShipment.eTag,
     };
+
+    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
+      .then((resp) => {
+        setSubmitting(false);
+        dispatch(updateMTOShipment(resp));
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+      })
+      .catch((err) => {
+        setSubmitting(false);
+        setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
+      });
 
     patchProGearWeightTicket(
       mtoShipment?.ppmShipment?.id,
