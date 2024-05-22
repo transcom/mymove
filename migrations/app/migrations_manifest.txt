@@ -933,3 +933,4 @@
 20240513161626_updating_initial_value_for_validation_code.up.sql
 20240515164336_ignore_locked_columns_in_moves_table_for_history_log.up.sql
 20240516184021_import_pricing_data_ghc.up.sql
+20240522124339_add_csr_to_roles.up.sql
