@@ -69,7 +69,7 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
-    cac_user: true,
+    cac_user: '',
   };
 
   const handleBack = () => {
