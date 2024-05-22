@@ -40,7 +40,7 @@ const ShipmentDetailsMain = ({
   className,
   shipment,
   dutyLocationAddresses,
-  handleDivertShipment,
+  handleShowDiversionModal,
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
@@ -246,7 +246,7 @@ const ShipmentDetailsMain = ({
           shipmentType: shipment.shipmentType,
           shipmentLocator: shipment.shipmentLocator,
         }}
-        handleDivertShipment={handleDivertShipment}
+        handleShowDiversionModal={handleShowDiversionModal}
       />
       <ShipmentWeightDetails
         estimatedWeight={weightResult}
@@ -275,7 +275,7 @@ ShipmentDetailsMain.propTypes = {
     originDutyLocationAddress: AddressShape,
     destinationDutyLocationAddress: AddressShape,
   }).isRequired,
-  handleDivertShipment: PropTypes.func.isRequired,
+  handleShowDiversionModal: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,
