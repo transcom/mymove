@@ -3972,6 +3972,7 @@ definitions:
         $ref: '#/definitions/Address'
       cacValidated:
         type: boolean
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:

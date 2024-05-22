@@ -1,8 +1,8 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { Checkbox } from '@trussworks/react-uswds';
+import { Checkbox, Fieldset, Radio } from '@trussworks/react-uswds';
 
 import styles from './CustomerContactInfoForm.module.scss';
 
@@ -39,7 +39,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     phoneIsPreferred: Yup.boolean(),
     emailIsPreferred: Yup.boolean(),
   });
-
+  console.log('initialValues: ', initialValues);
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
       {({ isValid, isSubmitting, handleSubmit }) => {
@@ -70,13 +70,25 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
               <BackupContactInfoFields />
             </SectionWrapper>
+            <SectionWrapper className={formStyles.formSection}>
+              <h3>Non-CAC Users</h3>
+              <Fieldset className={styles.trailerOwnershipFieldset}>
+                <legend className="usa-label">Does the customer have a CAC?</legend>
+                <div className="grid-row grid-gap">
+                  <Field
+                    as={Radio}
+                    id="yesCacUser"
+                    label="Yes"
+                    name="cacUser"
+                    value="true"
+                    data-testid="cac-user-yes"
+                  />
+                  <Field as={Radio} id="NonCacUser" label="No" name="cacUser" value="false" data-testid="cac-user-no" />
+                </div>
+              </Fieldset>
+            </SectionWrapper>
             <div className={formStyles.formActions}>
-              <WizardNavigation
-                editMode
-                disableNext={!isValid || isSubmitting}
-                onCancelClick={onBack}
-                onNextClick={handleSubmit}
-              />
+              <WizardNavigation editMode disableNext={!isValid} onCancelClick={onBack} onNextClick={handleSubmit} />
             </div>
           </Form>
         );
