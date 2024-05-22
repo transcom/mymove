@@ -47,9 +47,9 @@ func (o *officeUserCreator) CreateOfficeUser(
 
 		sess := appCtx.Session()
 
-		if sess.IDToken == "devlocal" {
+		if sess.IDToken == "devlocal" || appCtx.Session().Hostname == "officelocal" {
 			// in devlocal we generate a random okta_id for accounts to use
-			user.OktaID = generateFakeOktaID()
+			user.OktaID = GenerateFakeOktaID()
 		}
 	}
 
@@ -128,12 +128,12 @@ func (o *officeUserCreator) CreateOfficeUser(
 	return officeUser, nil, nil
 }
 
-func generateFakeOktaID() string {
+func GenerateFakeOktaID() string {
 	const ID_LEN = 20
 	const CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	fakeOktaID := ""
 
-	for _ = range [ID_LEN]int{} {
+	for range [ID_LEN]int{} {
 		fakeOktaID += string(CHARSET[rand.Intn(len(CHARSET))])
 	}
 
