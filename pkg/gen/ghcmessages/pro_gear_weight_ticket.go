@@ -68,6 +68,10 @@ type ProGearWeightTicket struct {
 	// status
 	Status *OmittablePPMDocumentStatus `json:"status"`
 
+	// Customer submitted weight of the pro-gear.
+	// Minimum: 0
+	SubmittedWeight *int64 `json:"submittedWeight"`
+
 	// updated at
 	// Required: true
 	// Read Only: true
@@ -108,6 +112,10 @@ func (m *ProGearWeightTicket) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -229,6 +237,18 @@ func (m *ProGearWeightTicket) validateStatus(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *ProGearWeightTicket) validateSubmittedWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.SubmittedWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("submittedWeight", "body", *m.SubmittedWeight, 0, false); err != nil {
+		return err
 	}
 
 	return nil

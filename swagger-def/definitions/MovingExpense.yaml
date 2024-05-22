@@ -40,6 +40,11 @@ properties:
     type: integer
     x-nullable: true
     x-omitempty: false
+  submittedAmount:
+    description: Customer submitted total amount of the expense as indicated on the receipt
+    type: integer
+    x-nullable: true
+    x-omitempty: false
   missingReceipt:
     description: Indicates if the service member is missing the receipt with the proof of expense amount
     type: boolean
@@ -56,8 +61,22 @@ properties:
     format: date
     x-nullable: true
     x-omitempty: false
+  submittedSitStartDate:
+    description: Customer submitted date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
+    type: string
+    example: '2022-04-26'
+    format: date
+    x-nullable: true
+    x-omitempty: false
   sitEndDate:
     description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
+    type: string
+    example: '2018-05-26'
+    format: date
+    x-nullable: true
+    x-omitempty: false
+  submittedSitEndDate:
+    description: Customer submitted date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
     type: string
     example: '2018-05-26'
     format: date

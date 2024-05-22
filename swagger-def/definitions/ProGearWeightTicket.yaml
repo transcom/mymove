@@ -42,6 +42,12 @@ properties:
     minimum: 0
     x-nullable: true
     x-omitempty: false
+  submittedWeight:
+    description: Customer submitted weight of the pro-gear.
+    type: integer
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
   documentId:
     description: The ID of the document that is associated with the user uploads containing the pro-gear weight.
     type: string

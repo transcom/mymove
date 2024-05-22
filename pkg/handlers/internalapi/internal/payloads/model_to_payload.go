@@ -320,17 +320,18 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &internalmessages.MovingExpense{
-		ID:             *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
-		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
-		Document:       document,
-		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
-		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
-		Description:    movingExpense.Description,
-		PaidWithGtcc:   movingExpense.PaidWithGTCC,
-		Amount:         handlers.FmtCost(movingExpense.Amount),
-		MissingReceipt: movingExpense.MissingReceipt,
-		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
+		ID:              *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:   *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:      *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:        document,
+		CreatedAt:       strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:       strfmt.DateTime(movingExpense.UpdatedAt),
+		Description:     movingExpense.Description,
+		PaidWithGtcc:    movingExpense.PaidWithGTCC,
+		Amount:          handlers.FmtCost(movingExpense.Amount),
+		SubmittedAmount: handlers.FmtCost(movingExpense.SubmittedAmount),
+		MissingReceipt:  movingExpense.MissingReceipt,
+		ETag:            etag.GenerateEtag(movingExpense.UpdatedAt),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
@@ -351,8 +352,16 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		payload.SitStartDate = handlers.FmtDatePtr(movingExpense.SITStartDate)
 	}
 
+	if movingExpense.SubmittedSITStartDate != nil {
+		payload.SubmittedSitStartDate = handlers.FmtDatePtr(movingExpense.SubmittedSITStartDate)
+	}
+
 	if movingExpense.SITEndDate != nil {
 		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
+	}
+
+	if movingExpense.SubmittedSITEndDate != nil {
+		payload.SubmittedSitEndDate = handlers.FmtDatePtr(movingExpense.SubmittedSITEndDate)
 	}
 
 	if movingExpense.WeightStored != nil {
@@ -407,10 +416,12 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		UpdatedAt:                         *handlers.FmtDateTime(weightTicket.UpdatedAt),
 		VehicleDescription:                weightTicket.VehicleDescription,
 		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
+		SubmittedEmptyWeight:              handlers.FmtPoundPtr(weightTicket.SubmittedEmptyWeight),
 		MissingEmptyWeightTicket:          weightTicket.MissingEmptyWeightTicket,
 		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
 		EmptyDocument:                     emptyDocument,
 		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
+		SubmittedFullWeight:               handlers.FmtPoundPtr(weightTicket.SubmittedFullWeight),
 		MissingFullWeightTicket:           weightTicket.MissingFullWeightTicket,
 		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
 		FullDocument:                      fullDocument,
@@ -464,6 +475,7 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 		DocumentID:       *handlers.FmtUUID(progear.DocumentID),
 		Document:         document,
 		Weight:           handlers.FmtPoundPtr(progear.Weight),
+		SubmittedWeight:  handlers.FmtPoundPtr(progear.SubmittedWeight),
 		BelongsToSelf:    progear.BelongsToSelf,
 		HasWeightTickets: progear.HasWeightTickets,
 		Description:      progear.Description,

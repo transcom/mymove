@@ -108,6 +108,14 @@ type WeightTicket struct {
 	// status
 	Status *OmittablePPMDocumentStatus `json:"status"`
 
+	// Customer submitted weight of the vehicle when empty.
+	// Minimum: 0
+	SubmittedEmptyWeight *int64 `json:"submittedEmptyWeight"`
+
+	// Customer submitted weight of the vehicle when full.
+	// Minimum: 0
+	SubmittedFullWeight *int64 `json:"submittedFullWeight"`
+
 	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria"`
 
@@ -182,6 +190,14 @@ func (m *WeightTicket) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedEmptyWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedFullWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -413,6 +429,30 @@ func (m *WeightTicket) validateStatus(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *WeightTicket) validateSubmittedEmptyWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.SubmittedEmptyWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("submittedEmptyWeight", "body", *m.SubmittedEmptyWeight, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WeightTicket) validateSubmittedFullWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.SubmittedFullWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("submittedFullWeight", "body", *m.SubmittedFullWeight, 0, false); err != nil {
+		return err
 	}
 
 	return nil

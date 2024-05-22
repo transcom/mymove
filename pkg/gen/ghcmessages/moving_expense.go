@@ -85,6 +85,19 @@ type MovingExpense struct {
 	// status
 	Status *OmittablePPMDocumentStatus `json:"status"`
 
+	// Customer submitted total amount of the expense as indicated on the receipt
+	SubmittedAmount *int64 `json:"submittedAmount"`
+
+	// Customer submitted date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
+	// Example: 2018-05-26
+	// Format: date
+	SubmittedSitEndDate *strfmt.Date `json:"submittedSitEndDate"`
+
+	// Customer submitted date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
+	// Example: 2022-04-26
+	// Format: date
+	SubmittedSitStartDate *strfmt.Date `json:"submittedSitStartDate"`
+
 	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
 	// Read Only: true
@@ -136,6 +149,14 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedSitEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedSitStartDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -297,6 +318,30 @@ func (m *MovingExpense) validateStatus(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateSubmittedSitEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SubmittedSitEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submittedSitEndDate", "body", "date", m.SubmittedSitEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) validateSubmittedSitStartDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SubmittedSitStartDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submittedSitStartDate", "body", "date", m.SubmittedSitStartDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
