@@ -1608,7 +1608,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentDifferentPickup.PickupAddress.PostalCode = "90211"
 
 			shipmentDifferentDestination := originalShipment
-			shipmentDifferentDestination.DestinationAddress.PostalCode = "30813"
+			shipmentDifferentDestination.DestinationAddress.PostalCode = "30814"
 
 			shipmentDifferentDeparture := originalShipment
 			// original date was Mar 15th so adding 3 months should affect the date peak period pricing
