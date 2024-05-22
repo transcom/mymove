@@ -1217,6 +1217,16 @@ paths:
         [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
 
 
+        * SIT Service Items: Take note that when updating
+        `sitCustomerContacted`, `sitDepartureDate`, or `sitRequestedDelivery`,
+        we want
+
+        those to be updated on `DOASIT` (for origin SIT) and `DDASIT` (for
+        destination SIT). If updating those values in other service
+
+        items, the office users will not have as much attention to those values.
+
+
         To create a service item, please use
         [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
       operationId: updateMTOServiceItem
@@ -2557,6 +2567,7 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DDDSIT
+              - DDASIT
               - DOPSIT
               - DOASIT
               - DOFSIT
