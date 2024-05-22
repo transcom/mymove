@@ -129,10 +129,10 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MultiRoleOfficeUserType:         MultiRoleOfficeUserType,
 		IsAdminApp:                      auth.AdminApp == appCtx.Session().ApplicationName,
 		AdminUserType:                   AdminUserType,
+		HQOfficeUserType:                HQOfficeUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
-		CsrfToken:        csrf.Token(r),
-		QueryLimit:       limit,
-		HQOfficeUserType: HQOfficeUserType,
+		CsrfToken:  csrf.Token(r),
+		QueryLimit: limit,
 	}
 
 	gblocSelectHTML := `
