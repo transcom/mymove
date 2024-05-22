@@ -40,7 +40,7 @@ func (suite *ClientCertServiceSuite) TestFetchClientCert() {
 	suite.Run("if the user is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+		fakeFetchOne := func(_ appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
 			return nil
 		}

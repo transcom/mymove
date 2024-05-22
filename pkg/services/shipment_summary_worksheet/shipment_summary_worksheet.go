@@ -586,7 +586,7 @@ func FormatSITNumberAndType(i int) string {
 func FormatPPMWeight(ppm models.PPMShipment) string {
 	if ppm.EstimatedWeight != nil {
 		wtg := FormatWeights(unit.Pound(*ppm.EstimatedWeight))
-		return fmt.Sprintf("%s lbs - FINAL", wtg)
+		return fmt.Sprintf("%s lbs - Estimated", wtg)
 	}
 	return ""
 }
@@ -620,7 +620,7 @@ func FormatSITDaysInStorage(ppm models.PPMShipment) string {
 	firstDate := ppm.SITEstimatedDepartureDate
 	secondDate := *ppm.SITEstimatedEntryDate
 	difference := firstDate.Sub(secondDate)
-	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24))
+	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24)+1)
 	return formattedDifference
 }
 

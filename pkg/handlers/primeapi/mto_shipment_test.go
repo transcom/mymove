@@ -2015,7 +2015,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			params := mtoshipmentops.UpdateMTOShipmentParams{
 				HTTPRequest:   req,
 				MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-				Body:          &testCase.payload,
+				Body:          &testCase.payload, //#nosec G601
 				IfMatch:       eTag,
 			}
 

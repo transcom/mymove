@@ -1,5 +1,7 @@
 import * as Yup from 'yup';
 
+import { unSupportedStates } from '../constants/states';
+
 import { ValidateZipRateData } from 'shared/api';
 
 const INVALID_DATE = 'Invalid date';
@@ -49,13 +51,29 @@ export const validatePostalCode = async (value, postalCodeType, errMsg = Unsuppo
   return responseBody.valid ? undefined : errMsg;
 };
 
+export const UnsupportedStateErrorMsg = 'Moves to this state are not supported at this time.';
+export const IsSupportedState = async (value) => {
+  const selectedState = value;
+
+  const found = unSupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
+
+  if (found) {
+    return false;
+  }
+
+  return true;
+};
+
 /** Yup validation schemas */
 
 export const requiredAddressSchema = Yup.object().shape({
   streetAddress1: Yup.string().trim().required('Required'),
   streetAddress2: Yup.string(),
   city: Yup.string().trim().required('Required'),
-  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
+  state: Yup.string()
+    .test('', UnsupportedStateErrorMsg, IsSupportedState)
+    .length(2, 'Must use state abbreviation')
+    .required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
@@ -187,7 +205,15 @@ const validateEdipi = (value, testContext) => {
   return false;
 };
 
-// checking request office account form
+// It is TRANSCOM policy that an individual person may only be either a TIO or TOO, never both.
+const validateOnlyOneTransportationOfficerRole = (value, testContext) => {
+  const { transportationOrderingOfficerCheckBox, transportationInvoicingOfficerCheckBox } = testContext.parent;
+  if (transportationOrderingOfficerCheckBox && transportationInvoicingOfficerCheckBox) {
+    return false;
+  }
+  return true;
+};
+
 export const officeAccountRequestSchema = Yup.object().shape({
   officeAccountRequestFirstName: Yup.string()
     .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
@@ -209,16 +235,20 @@ export const officeAccountRequestSchema = Yup.object().shape({
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: emailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
-  transportationOrderingOfficerCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
-  transportationInvoicingOfficerCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
+  transportationOrderingOfficerCheckBox: Yup.bool()
+    .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
+    .test(
+      'onlyOneTransportationOfficerRole',
+      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      validateOnlyOneTransportationOfficerRole,
+    ),
+  transportationInvoicingOfficerCheckBox: Yup.bool()
+    .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
+    .test(
+      'onlyOneTransportationOfficerRole',
+      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      validateOnlyOneTransportationOfficerRole,
+    ),
   servicesCounselorCheckBox: Yup.bool().test(
     'roleRequestedRequired',
     'You must select at least one role.',

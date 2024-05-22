@@ -43,7 +43,7 @@ func TestSuite(t *testing.T) {
 
 	ts := &testSuite{
 		logger: logger,
-		ok: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ok: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}),
 		reflect: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +55,7 @@ func TestSuite(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(body))
 		}),
-		panic: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic: http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 			panic(errors.New("foobar"))
 		}),
 		trace: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

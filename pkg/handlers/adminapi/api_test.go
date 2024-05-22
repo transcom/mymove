@@ -45,7 +45,7 @@ func TestHandlerSuite(t *testing.T) {
 }
 
 func newMockQueryFilterBuilder(filter *mocks.QueryFilter) services.NewQueryFilter {
-	return func(column string, comparator string, value interface{}) services.QueryFilter {
+	return func(_ string, _ string, _ interface{}) services.QueryFilter {
 		return filter
 	}
 }
