@@ -24,6 +24,7 @@ import { shipmentSectionLabels } from 'content/shipments';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import RequestShipmentDiversionModal from 'components/Office/RequestShipmentDiversionModal/RequestShipmentDiversionModal';
 import RequestReweighModal from 'components/Office/RequestReweighModal/RequestReweighModal';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
@@ -98,6 +99,8 @@ export const MoveTaskOrder = (props) => {
   /* ------------------ Modals ------------------------- */
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  // Diversion
+  const [isDiversionModalVisible, setIsDiversionModalVisible] = useState(false);
   // Weights
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
@@ -465,6 +468,11 @@ export const MoveTaskOrder = (props) => {
   };
 
   /* istanbul ignore next */
+  const handleShowDiversionModal = (mtoShipment) => {
+    setSelectedShipment(mtoShipment);
+    setIsDiversionModalVisible(true);
+  };
+  /* istanbul ignore next */
   const handleRequestReweighModal = (mtoShipment) => {
     setSelectedShipment(() => mtoShipment);
     setIsReweighModalVisible(() => true);
@@ -581,7 +589,7 @@ export const MoveTaskOrder = (props) => {
       },
       {
         onSuccess: (data, variables) => {
-          setIsCancelModalVisible(() => false);
+          setIsDiversionModalVisible(false);
           // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
           setMessage(
             `MSG_CANCEL_SUCCESS_${variables.shipmentLocator}`,
@@ -1028,6 +1036,13 @@ export const MoveTaskOrder = (props) => {
               onSubmit={handleUpdateMTOShipmentStatus}
             />
           )}
+          {isDiversionModalVisible && (
+            <RequestShipmentDiversionModal
+              shipmentInfo={selectedShipment}
+              onClose={setIsDiversionModalVisible}
+              onSubmit={handleDivertShipment}
+            />
+          )}
           {isReweighModalVisible && (
             <RequestReweighModal
               shipmentInfo={selectedShipment}
@@ -1162,8 +1177,8 @@ export const MoveTaskOrder = (props) => {
                 <ShipmentDetails
                   shipment={mtoShipment}
                   order={order}
-                  handleDivertShipment={handleDivertShipment}
                   handleRequestReweighModal={handleRequestReweighModal}
+                  handleShowDiversionModal={handleShowDiversionModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
                   handleUpdateSITServiceItemCustomerExpense={handleUpdateSITServiceItemCustomerExpense}
