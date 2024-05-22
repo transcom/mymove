@@ -33,6 +33,17 @@ const getSectionMarkup = (sectionInfo) => {
     : 'No';
   const aoaValue = sectionInfo.isAdvanceReceived ? `$${formatCents(sectionInfo.advanceAmountReceived)}` : 'No';
 
+  const renderHaulTypeSwitch = (haulType) => {
+    switch (haulType) {
+      case 'Linehaul':
+        return 'Linehaul Price';
+      case 'Shorthaul':
+        return 'Shorthaul Price';
+      default:
+        return <Alert>Received unknown value for haul type!</Alert>;
+    }
+  };
+
   switch (sectionInfo.type) {
     case sectionTypes.shipmentInfo:
       return (
@@ -98,7 +109,7 @@ const getSectionMarkup = (sectionInfo) => {
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Haul Price</Label>
+            <Label>{renderHaulTypeSwitch(sectionInfo.haulType)}</Label>
             <span className={styles.light}>${formatCents(sectionInfo.haulPrice)}</span>
           </div>
           <div>

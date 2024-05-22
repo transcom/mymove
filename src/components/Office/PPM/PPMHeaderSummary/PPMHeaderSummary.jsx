@@ -23,7 +23,9 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
     gcc: ppmCloseout.gcc,
     remainingIncentive: ppmCloseout.remainingIncentive,
   };
+
   const incentiveFactors = {
+    haulType: ppmCloseout.haulType,
     haulPrice: ppmCloseout.haulPrice,
     haulFSC: ppmCloseout.haulFSC,
     fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
