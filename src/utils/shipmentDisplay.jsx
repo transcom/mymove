@@ -7,7 +7,7 @@ import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments
 import affiliations from 'content/serviceMemberAgencies';
 
 export function formatAddress(pickupAddress) {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = pickupAddress;
+  const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = pickupAddress;
 
   if (streetAddress1 === 'n/a') {
     return city ? `${city}, ${state} ${postalCode}` : postalCode;
@@ -16,18 +16,20 @@ export function formatAddress(pickupAddress) {
     <>
       {streetAddress1 && <>{streetAddress1},&nbsp;</>}
       {streetAddress2 && <>{streetAddress2},&nbsp;</>}
+      {streetAddress3 && <>{streetAddress3},&nbsp;</>}
       {city ? `${city}, ${state} ${postalCode}` : postalCode}
     </>
   );
 }
 
 export function formatTwoLineAddress(address) {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+  const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = address;
 
   return (
     <address data-testid="two-line-address">
       {streetAddress1 && `${streetAddress1},`}
       {streetAddress2 && ` ${streetAddress2}`}
+      {streetAddress3 && ` ${streetAddress3}`}
       <br />
       {city ? `${city}, ${state} ${postalCode}` : postalCode}
     </address>
@@ -42,11 +44,12 @@ export function formatTwoLineAddress(address) {
  * @see ServiceItemUpdateModal / EditSITAddressChangeForm
  * */
 export function formatAddressForSitAddressChangeForm(address) {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+  const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = address;
   return (
     <address data-testid="SitAddressChangeDisplay">
       {streetAddress1 && <span data-testid="AddressLine">{streetAddress1},</span>}
       {streetAddress2 && <span data-testid="AddressLine">{streetAddress2},</span>}
+      {streetAddress3 && <span data-testid="AddressLine">{streetAddress3},</span>}
       <span data-testid="AddressLine">{city ? `${city}, ${state} ${postalCode}` : postalCode}</span>
     </address>
   );
@@ -85,6 +88,7 @@ export function formatPrimeAPIShipmentAddress(address) {
     <>
       {address.streetAddress1 && <>{address.streetAddress1},&nbsp;</>}
       {address.streetAddress2 && <>{address.streetAddress2},&nbsp;</>}
+      {address.streetAddress3 && <>{address.streetAddress3},&nbsp;</>}
       {address.city ? `${address.city}, ${address.state} ${address.postalCode}` : address.postalCode}
     </>
   ) : (
@@ -108,7 +112,7 @@ export function formatAgent(agent) {
 export function formatCustomerDestination(destinationLocation, destinationZIP) {
   return destinationLocation ? (
     <>
-      {destinationLocation.streetAddress1} {destinationLocation.streetAddress2}
+      {destinationLocation.streetAddress1} {destinationLocation.streetAddress2} {destinationLocation.streetAddress3}
       <br />
       {destinationLocation.city}, {destinationLocation.state} {destinationLocation.postalCode}
     </>
