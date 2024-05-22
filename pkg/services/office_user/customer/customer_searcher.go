@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -41,11 +42,21 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		return nil, 0, err
 	}
 
+	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+	}
+
 	var query *pop.Query
 
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query = appCtx.DB().Q().
-			Join("users", "users.id = service_members.user_id")
+		query = appCtx.DB().Q().EagerPreload("Orders").
+			Join("users", "users.id = service_members.user_id").
+			LeftJoin("orders", "orders.service_member_id = users.id")
+	}
+
+	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		query.Where("orders.orders_type != (?)", "SAFETY")
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
