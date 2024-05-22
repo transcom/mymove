@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 )
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
@@ -107,6 +108,22 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 			if err != nil {
 				return handleError(err)
 			}
+
+			ppmEagerAssociations := []string{"Shipment",
+				"PickupAddress",
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDestinationAddress",
+			}
+
+			ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
+
+			ppmShipment, err := ppmShipmentFetcher.GetPPMShipment(appCtx, mtoShipment.PPMShipment.ID, ppmEagerAssociations, nil)
+			if err != nil {
+				return handleError(err)
+			}
+
+			mtoShipment.PPMShipment = ppmShipment
 
 			var agents []models.MTOAgent
 			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
