@@ -12,6 +12,7 @@ describe('when a shipment diversion is requested', () => {
       {
         shipment_id_abbr: '2fa5c',
         shipment_type: 'HHG',
+        shipment_locator: 'ABC123-01',
       },
     ],
     tableName: 'mto_shipments',
@@ -26,6 +27,6 @@ describe('when a shipment diversion is requested', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('Requested diversion for HHG shipment #2FA5C')).toBeInTheDocument();
+    expect(screen.getByText('Requested diversion for HHG shipment #ABC123-01')).toBeInTheDocument();
   });
 });

@@ -13,6 +13,7 @@ describe('when given an Approved shipment diversion history record', () => {
       {
         shipment_id_abbr: '2fa5c',
         shipment_type: 'HHG',
+        shipment_locator: 'ABC123-01',
       },
     ],
   };
@@ -26,7 +27,7 @@ describe('when given an Approved shipment diversion history record', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #2FA5C')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #ABC123-01')).toBeInTheDocument();
   });
   it('displays the proper name in the event name display column', () => {
     const template = getTemplate(historyRecord);

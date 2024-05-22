@@ -1,9 +1,9 @@
 package models_test
 
-import . "github.com/transcom/mymove/pkg/models"
+import m "github.com/transcom/mymove/pkg/models"
 
 func (suite *ModelSuite) Test_OfficePhoneLineInstantiation() {
-	phoneLine := &OfficePhoneLine{}
+	phoneLine := &m.OfficePhoneLine{}
 	expErrors := map[string][]string{
 		"number":                   {"Number can not be blank."},
 		"type":                     {"Type is not in the list [voice, fax]."},
@@ -14,27 +14,27 @@ func (suite *ModelSuite) Test_OfficePhoneLineInstantiation() {
 
 func (suite *ModelSuite) Test_BasicOfficePhoneLine() {
 	office := CreateTestShippingOffice(suite)
-	infoLine := OfficePhoneLine{
+	infoLine := m.OfficePhoneLine{
 		TransportationOfficeID: office.ID,
 		Number:                 "(907) 555-1212",
-		Label:                  StringPointer("Information Only"),
+		Label:                  m.StringPointer("Information Only"),
 		Type:                   "voice",
 	}
 
 	suite.MustSave(&infoLine)
 	suite.False(infoLine.IsDsnNumber)
 
-	faxLine := OfficePhoneLine{
+	faxLine := m.OfficePhoneLine{
 		TransportationOfficeID: office.ID,
 		Number:                 "555 12345",
-		Label:                  StringPointer("Secure Fax"),
+		Label:                  m.StringPointer("Secure Fax"),
 		Type:                   "fax",
 		IsDsnNumber:            true,
 	}
 
 	suite.MustSave(&faxLine)
 	suite.True(faxLine.IsDsnNumber)
-	var loadedOffice TransportationOffice
+	var loadedOffice m.TransportationOffice
 	err := suite.DB().Eager().Find(&loadedOffice, office.ID)
 	suite.Nil(err, "loading office with phone lines")
 	suite.Equal(2, len(loadedOffice.PhoneLines))

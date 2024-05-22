@@ -119,6 +119,43 @@ func init() {
         }
       }
     },
+    "/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -2261,6 +2298,13 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -3099,43 +3143,6 @@ func init() {
           }
         }
       }
-    },
-    "/validation_code": {
-      "post": {
-        "description": "The customer will input a validation code given to them and if the code provided is present in the database, then they will be allowed to progress in setting up their profile and create a move",
-        "tags": [
-          "application_parameters"
-        ],
-        "summary": "Returns a value if the code provided is correct",
-        "operationId": "validate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ValidationCode"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Validation Code",
-            "schema": {
-              "$ref": "#/definitions/ValidationCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -3335,6 +3342,26 @@ func init() {
         "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
+    },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
     },
     "AvailableMoveDates": {
       "type": "object",
@@ -4957,6 +4984,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -6560,14 +6593,16 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -6946,15 +6981,6 @@ func init() {
           "format": "uri",
           "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "ValidationCode": {
-      "type": "object",
-      "properties": {
-        "validationCode": {
-          "type": "string",
-          "format": "string"
         }
       }
     },
@@ -7459,6 +7485,43 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -9926,6 +9989,13 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -10875,43 +10945,6 @@ func init() {
           }
         }
       }
-    },
-    "/validation_code": {
-      "post": {
-        "description": "The customer will input a validation code given to them and if the code provided is present in the database, then they will be allowed to progress in setting up their profile and create a move",
-        "tags": [
-          "application_parameters"
-        ],
-        "summary": "Returns a value if the code provided is correct",
-        "operationId": "validate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ValidationCode"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Validation Code",
-            "schema": {
-              "$ref": "#/definitions/ValidationCode"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -11111,6 +11144,26 @@ func init() {
         "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
+    },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
     },
     "AvailableMoveDates": {
       "type": "object",
@@ -12737,6 +12790,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -14341,14 +14400,16 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -14732,15 +14793,6 @@ func init() {
           "format": "uri",
           "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "ValidationCode": {
-      "type": "object",
-      "properties": {
-        "validationCode": {
-          "type": "string",
-          "format": "string"
         }
       }
     },
