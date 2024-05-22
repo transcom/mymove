@@ -33,6 +33,8 @@ const (
 	PrimeSimulatorOfficeUserType string = "Prime Simulator office"
 	// QaeCsrOfficeUserType is a type of user for an Office user
 	QaeCsrOfficeUserType string = "QAE/CSR office"
+	// QaeCsrOfficeUserType is the Customer Service Representative type of user for an Office user
+	CsrOfficeUserType string = "CSR office"
 	// MultiRoleOfficeUserType has all the Office user roles
 	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
@@ -104,6 +106,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ServicesCounselorOfficeUserType string
 		PrimeSimulatorOfficeUserType    string
 		QaeCsrOfficeUserType            string
+		CsrOfficeUserType               string
 		MultiRoleOfficeUserType         string
 		IsAdminApp                      bool
 		AdminUserType                   string
@@ -123,6 +126,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ServicesCounselorOfficeUserType: ServicesCounselorOfficeUserType,
 		PrimeSimulatorOfficeUserType:    PrimeSimulatorOfficeUserType,
 		QaeCsrOfficeUserType:            QaeCsrOfficeUserType,
+		CsrOfficeUserType:               CsrOfficeUserType,
 		MultiRoleOfficeUserType:         MultiRoleOfficeUserType,
 		IsAdminApp:                      auth.AdminApp == appCtx.Session().ApplicationName,
 		AdminUserType:                   AdminUserType,
@@ -252,6 +256,15 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					  <button type="submit" data-hook="new-user-login-{{.QaeCsrOfficeUserType}}">Create a New {{.QaeCsrOfficeUserType}} User</button>
 					</p>
 				  </form>
+
+				<form method="post" action="/devlocal-auth/new">
+				  <p>
+					<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+					<input type="hidden" name="userType" value="{{.CsrOfficeUserType}}">
+					` + gblocSelectHTML + `
+					<button type="submit" data-hook="new-user-login-{{.CsrOfficeUserType}}">Create a New {{.CsrOfficeUserType}} User</button>
+				  </p>
+				</form>
 
 				<form method="post" action="/devlocal-auth/new">
 					<p>
