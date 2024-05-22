@@ -240,6 +240,11 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	logger := appCtx.Logger()
 
 	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
+	actualPickupPostal := *ppmShipment.ActualPickupPostalCode
+	actualDestPostal := *ppmShipment.ActualDestinationPostalCode
+	if actualPickupPostal[0:3] == actualDestPostal[0:3] {
+		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+	}
 
 	// Get a list of all the pricing params needed to calculate the price for each service item
 	paramsForServiceItems, err := f.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)

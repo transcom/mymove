@@ -17,7 +17,6 @@ type HaulType string
 const (
 	LINEHAUL  HaulType = "Linehaul"
 	SHORTHAUL HaulType = "Shorthaul"
-	OTHER     HaulType = "Other"
 )
 
 type PPMCloseout struct {
