@@ -1362,11 +1362,10 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 
-			destinationAddress := models.Address{PostalCode: "30813"}
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationAddress:        &destinationAddress,
+						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &originLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1444,11 +1443,10 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				},
 			}, nil)
 
-			destinationAddress := models.Address{PostalCode: "30813"}
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationAddress:        &destinationAddress,
+						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &destinationLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1619,7 +1617,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentDifferentDeparture.ExpectedDepartureDate = originalShipment.ExpectedDepartureDate.Add(time.Hour * 24 * 70)
 
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "30813").Return(2294, nil)
+				"90211", "30813").Return(2294, nil)
 
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "30814").Return(2290, nil)
