@@ -24,8 +24,6 @@
 
   div {
     display: block;
-    grid-template-columns: 300px 200px;
-    align-items: center;
     @include u-margin-y(1);
 
     span {
