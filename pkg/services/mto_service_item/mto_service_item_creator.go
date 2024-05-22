@@ -101,6 +101,44 @@ func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string,
 	return domesticServiceArea, nil
 }
 
+const weightBasedDistanceMultiplierLevelOne = "0.000417"
+const weightBasedDistanceMultiplierLevelTwo = "0.0006255"
+const weightBasedDistanceMultiplierLevelThree = "0.000834"
+const weightBasedDistanceMultiplierLevelFour = "0.00139"
+
+func LookupFSCWeightBasedDistanceMultiplier(appCtx appcontext.AppContext, primeEstimatedWeight unit.Pound) (string, error) {
+	weight := primeEstimatedWeight.Int()
+
+	if weight <= 5000 {
+		return weightBasedDistanceMultiplierLevelOne, nil
+	} else if weight <= 10000 {
+		return weightBasedDistanceMultiplierLevelTwo, nil
+	} else if weight <= 24000 {
+		return weightBasedDistanceMultiplierLevelThree, nil
+		//nolint:revive
+	} else {
+		return weightBasedDistanceMultiplierLevelFour, nil
+	}
+}
+
+func LookupEIAFuelPrice(appCtx appcontext.AppContext, pickupDate time.Time) (unit.Millicents, error) {
+	db := appCtx.DB()
+
+	// Find the GHCDieselFuelPrice object with the closest prior PublicationDate to the ActualPickupDate of the MTOShipment in question
+	var ghcDieselFuelPrice models.GHCDieselFuelPrice
+	err := db.Where("publication_date <= ?", pickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return 0, apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
+		default:
+			return 0, apperror.NewQueryError("GHCDieselFuelPrice", err, "")
+		}
+	}
+
+	return ghcDieselFuelPrice.FuelPriceInMillicents, nil
+}
+
 // CreateMTOServiceItem creates a MTO Service Item
 func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
@@ -347,6 +385,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		requestedPickupDate := *mtoShipment.RequestedPickupDate
 		currTime := time.Now()
 		var distance int
+		primeEstimatedWeight := *mtoShipment.PrimeEstimatedWeight
 
 		// origin
 		if serviceItem.ReService.Code == models.ReServiceCodeDOP {
@@ -500,6 +539,44 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				}
 			}
 			price, _, err := o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			serviceItem.PricingEstimate = &price
+		}
+		// fuel surcharge
+		if serviceItem.ReService.Code == models.ReServiceCodeFSC {
+			var pickupDateForFSC time.Time
+
+			// actual pickup date likely won't exist at the time of service item creation, but it could
+			// use requested pickup date if no actual date exists
+			if mtoShipment.ActualPickupDate != nil {
+				pickupDateForFSC = *mtoShipment.ActualPickupDate
+			} else {
+				pickupDateForFSC = requestedPickupDate
+			}
+
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return nil, nil, err
+				}
+			}
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, primeEstimatedWeight)
+			if err != nil {
+				return nil, nil, err
+			}
+			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+			if err != nil {
+				return nil, nil, err
+			}
+			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, pickupDateForFSC)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			price, _, err := o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return nil, nil, err
 			}
