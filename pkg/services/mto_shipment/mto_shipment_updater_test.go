@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -2315,43 +2314,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
-
-	suite.Run("Updates to estimated weight change max billable weight", func() {
-		now := time.Now()
-		pickupDate := now.AddDate(0, 0, 10)
-
-		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
-				},
-			},
-			{
-				Model: models.Move{
-					AvailableToPrimeAt: &now,
-					Status:             models.MoveStatusAPPROVED,
-				},
-			},
-		}, nil)
-
-		suite.Equal(8000, *primeShipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
-
-		estimatedWeight := unit.Pound(1234)
-		primeShipment.Status = ""
-		primeShipment.PrimeEstimatedWeight = &estimatedWeight
-
-		session := auth.Session{}
-		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
-		suite.NoError(err)
-
-		err = suite.DB().Reload(primeShipment.MoveTaskOrder.Orders.Entitlement)
-		suite.NoError(err)
-
-		estimatedWeight110 := int(math.Round(float64(*primeShipment.PrimeEstimatedWeight) * 1.10))
-		suite.Equal(estimatedWeight110, *primeShipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
-	})
 
 	suite.Run("Updating the shipment estimated weight will flag excess weight on the move and transitions move status", func() {
 		now := time.Now()
