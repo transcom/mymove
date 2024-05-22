@@ -168,21 +168,3 @@ export function isCounselorMoveCreateEnabled() {
       return false;
     });
 }
-
-export function isSafetyMoveEnabled() {
-  const flagKey = 'safety_move';
-  return getBooleanFeatureFlagForUser(flagKey, {})
-    .then((result) => {
-      if (result && typeof result.match !== 'undefined') {
-        // Found feature flag, "match" is its boolean value
-        return result.match;
-      }
-      throw new Error('safety move creation feature flag is undefined');
-    })
-    .catch((error) => {
-      // On error, log it and then just return false setting it to be disabled.
-      // No need to return it for extra handling.
-      milmoveLogger.error(error);
-      return false;
-    });
-}
