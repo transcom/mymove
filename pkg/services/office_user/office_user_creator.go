@@ -2,7 +2,6 @@ package officeuser
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 
 	"github.com/gobuffalo/validate/v3"
@@ -11,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/random"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -134,7 +134,13 @@ func GenerateFakeOktaID() string {
 	fakeOktaID := ""
 
 	for range [ID_LEN]int{} {
-		fakeOktaID += string(CHARSET[rand.Intn(len(CHARSET))])
+		index, err := random.GetRandomInt(len(CHARSET))
+
+		if err != nil {
+			return ""
+		}
+
+		fakeOktaID += string(CHARSET[index])
 	}
 
 	return fakeOktaID
