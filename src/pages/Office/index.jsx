@@ -560,7 +560,7 @@ const mapStateToProps = (state) => {
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
-    userPrivileges: user?.privileges || [],
+    userPrivileges: user?.privileges || null,
   };
 };
 
