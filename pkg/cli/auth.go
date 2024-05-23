@@ -86,7 +86,9 @@ const (
 	// RA Validator: leodis.f.scott.civ@mail.mil
 	// RA Modified Severity: CAT III
 	// #nosec G101
-	OktaAdminSecretKeyFlag string = "okta-admin-secret-key"
+	OktaAdminSecretKeyFlag  string = "okta-admin-secret-key"
+	OktaOfficeGroupIDFlag   string = "okta-office-group-id"
+	OktaCustomerGroupIDFlag string = "okta-customer-group-id"
 )
 
 // InitAuthFlags initializes Auth command line flags
@@ -106,6 +108,8 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(OktaAdminClientIDFlag, "", "The client ID for the military Admin app, aka 'my'.")
 	flag.String(OktaAdminCallbackURL, "", "The callback URL from logging in to the admin Okta app back to MilMove.")
 	flag.String(OktaAdminSecretKeyFlag, "", "The secret key for the miltiary Admin app, aka 'my'.")
+	flag.String(OktaOfficeGroupIDFlag, "", "The office group id for the Office app, aka 'office'.")
+	flag.String(OktaCustomerGroupIDFlag, "", "The customer group id for the Customer app.")
 }
 
 // CheckAuth validates Auth command line flags
@@ -132,6 +136,11 @@ func CheckAuth(v *viper.Viper) error {
 		OktaAdminSecretKeyFlag,
 	}
 
+	groupIDVars := []string{
+		OktaOfficeGroupIDFlag,
+		OktaCustomerGroupIDFlag,
+	}
+
 	for _, c := range clientIDVars {
 		clientID := v.GetString(c)
 		{
@@ -144,6 +153,13 @@ func CheckAuth(v *viper.Viper) error {
 	for _, s := range secretKeyVars {
 		privateKey := v.GetString(s)
 		if len(privateKey) == 0 {
+			return errors.Errorf("%s is missing", s)
+		}
+	}
+
+	for _, s := range groupIDVars {
+		groupID := v.GetString(s)
+		if len(groupID) == 0 {
 			return errors.Errorf("%s is missing", s)
 		}
 	}

@@ -29,6 +29,10 @@ type Address struct {
 	// Example: USA
 	Country *string `json:"country,omitempty"`
 
+	// County
+	// Example: LOS ANGELES
+	County *string `json:"county,omitempty"`
+
 	// ZIP
 	//
 	// zip code, international allowed

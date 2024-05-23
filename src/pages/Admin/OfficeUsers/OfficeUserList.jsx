@@ -18,16 +18,18 @@ import * as jsonexport from 'jsonexport/dist';
 import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-// Custom exporter to flatten out role types
+// Custom exporter to flatten out role and privilege types
 const exporter = (data) => {
   const usersForExport = data.map((rowData) => {
-    const { roles, ...otherRowData } = rowData;
+    const { roles, privileges, ...otherRowData } = rowData;
 
     const flattenedRoles = roles ? roles.map((role) => role.roleType).join(',') : '';
+    const flattenedPrivileges = privileges ? privileges.map((privilege) => privilege.privilegeType).join(',') : '';
 
     return {
       ...otherRowData,
       roles: flattenedRoles,
+      privileges: flattenedPrivileges,
     };
   });
 

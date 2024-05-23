@@ -25,6 +25,10 @@ type OfficeUser struct {
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 	Active                 bool                 `json:"active" db:"active"`
+	Status                 *string              `json:"status" db:"status"`
+	EDIPI                  *string              `json:"edipi" db:"edipi"`
+	OtherUniqueID          *string              `json:"other_unique_id" db:"other_unique_id"`
+	RejectionReason        *string              `json:"rejection_reason" db:"rejection_reason"`
 }
 
 // TableName overrides the table name used by Pop.

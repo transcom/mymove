@@ -31,6 +31,7 @@ func Address(address *models.Address) *internalmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 	}
 }
 
@@ -87,10 +88,16 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
+		SecondaryPickupAddress:         Address(ppmShipment.SecondaryPickupAddress),
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
+		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
@@ -129,11 +136,14 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
 	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
 		payload.SecondaryPickupAddress = nil
@@ -343,6 +353,10 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.SITEndDate != nil {
 		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
+	}
+
+	if movingExpense.WeightStored != nil {
+		payload.WeightStored = handlers.FmtPoundPtr(movingExpense.WeightStored)
 	}
 
 	return payload

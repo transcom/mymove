@@ -27,6 +27,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
 const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
   const formFieldsName = 'w2Address';
+  const today = new Date();
 
   const validationSchema = Yup.object().shape({
     actualMoveDate: Yup.date()
@@ -99,6 +100,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
                 <DatePickerInput
+                  disabledDays={{ after: today }}
                   className={classnames(styles.actualMoveDate, 'usa-input')}
                   name="actualMoveDate"
                   label="When did you leave your origin?"

@@ -17,6 +17,20 @@
       }
   }
 
+  .btnMinimal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    outline: none;
+    box-shadow: none;
+    span {
+      @include u-margin-right(.5em)
+    }
+    &:focus {
+      outline: none;
+    }
+}
+
   .dropdownContainer {
       position: relative;
   }
@@ -48,7 +62,8 @@
 
       button {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
+        align-items: center;
         background-color: white;
         font-size: 16px;
         padding: 15px 20px 15px 20px;

@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -11,17 +10,23 @@ import (
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 // mtoShipmentAddressUpdater handles the db connection
 type mtoShipmentAddressUpdater struct {
+	planner        route.Planner
+	addressCreator services.AddressCreator
+	addressUpdater services.AddressUpdater
 }
 
 // NewMTOShipmentAddressUpdater updates the address for an MTO Shipment
-func NewMTOShipmentAddressUpdater() services.MTOShipmentAddressUpdater {
-	return mtoShipmentAddressUpdater{}
+func NewMTOShipmentAddressUpdater(planner route.Planner, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.MTOShipmentAddressUpdater {
+	return mtoShipmentAddressUpdater{planner: planner,
+		addressCreator: addressCreator,
+		addressUpdater: addressUpdater}
 }
 
 // isAddressOnShipment returns true if address is associated with the shipment, false if not
@@ -41,6 +46,60 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 		}
 	}
 	return false
+}
+
+func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment *models.MTOShipment, newAddress *models.Address, oldAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
+	// Change the SITDeliveryMiles of origin SIT service items
+	var updatedMtoServiceItems models.MTOServiceItems
+
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems"}
+	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
+	if err != nil {
+		return &updatedMtoServiceItems, err
+	}
+
+	mtoServiceItems := mtoShipment.MTOServiceItems
+	for _, s := range mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		if reServiceCode == models.ReServiceCodeDOPSIT ||
+			reServiceCode == models.ReServiceCodeDOSFSC {
+
+			var milesCalculated int
+			var err error
+
+			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
+			if serviceItem.SITOriginHHGOriginalAddress != nil {
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+			} else {
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
+			}
+			if err != nil {
+				return nil, err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+
+			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
+		}
+	}
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		// update service item SITDeliveryMiles
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&updatedMtoServiceItems)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating SIT delivery miles for service items")
+		} else if err != nil {
+			return apperror.NewQueryError("Service items", err, "")
+		}
+
+		return nil
+	})
+
+	// if there was a transaction error, we'll return nothing but the error
+	if transactionError != nil {
+		return nil, transactionError
+	}
+
+	return &updatedMtoServiceItems, nil
 }
 
 func UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
@@ -95,7 +154,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	if mustBeAvailableToPrime {
 		query.Where("uses_external_vendor = FALSE")
 	}
-	err := query.Scope(utilities.ExcludeDeletedScope()).Eager("MTOServiceItems", "MTOServiceItems.ReService").Find(&mtoShipment, mtoShipmentID)
+	err := query.Scope(utilities.ExcludeDeletedScope()).Eager("MTOServiceItems", "MTOServiceItems.ReService", "PickupAddress").Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -137,13 +196,15 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	}
 
 	// Make the update and create a InvalidInput Error if there were validation issues
-	verrs, err := appCtx.DB().ValidateAndSave(newAddress)
-
-	// If there were validation errors create an InvalidInputError type
-	if verrs != nil && verrs.HasAny() {
-		return nil, apperror.NewInvalidInputError(newAddress.ID, err, verrs, "")
-	} else if err != nil {
-		// If the error is something else (this is unexpected), we create a QueryError
+	var address *models.Address
+	if newAddress.ID == uuid.Nil {
+		// New address doesn't have an ID yet, it should be created
+		address, err = f.addressCreator.CreateAddress(appCtx, newAddress)
+	} else {
+		// It has an ID, it should be updated
+		address, err = f.addressUpdater.UpdateAddress(appCtx, newAddress, etag.GenerateEtag(oldAddress.UpdatedAt))
+	}
+	if err != nil {
 		return nil, apperror.NewQueryError("Address", err, "")
 	}
 
@@ -152,16 +213,10 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}
 
-	// Get the updated address and return
-	updatedAddress := models.Address{}
-	err = appCtx.DB().Find(&updatedAddress, newAddress.ID)
+	_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment, newAddress, &oldAddress, appCtx)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(newAddress.ID, "looking for Address")
-		default:
-			return nil, apperror.NewQueryError("Address", err, fmt.Sprintf("Unexpected error after saving: %v", err))
-		}
+		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}
-	return &updatedAddress, nil
+
+	return address, nil
 }

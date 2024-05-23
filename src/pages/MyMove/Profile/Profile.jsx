@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, generatePath } from 'react-router-dom';
+
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import styles from './Profile.module.scss';
 
@@ -37,25 +39,34 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   };
   const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
   const [profileValidated, setProfileValidated] = useState(false);
+  const [multiMove, setMultiMove] = useState(false);
 
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { moveId } = state;
 
   useEffect(() => {
-    if (state && state.needsToVerifyProfile) {
-      setNeedsToVerifyProfile(state.needsToVerifyProfile);
-    } else {
-      setNeedsToVerifyProfile(false);
-    }
+    const fetchData = async () => {
+      if (state && state.needsToVerifyProfile) {
+        setNeedsToVerifyProfile(state.needsToVerifyProfile);
+      } else {
+        setNeedsToVerifyProfile(false);
+      }
+      setMultiMove(await isBooleanFlagEnabled('multi_move'));
+    };
+    fetchData();
   }, [state]);
 
   const handleCreateMoveClick = () => {
-    navigate(customerRoutes.MOVE_HOME_PAGE);
+    navigate(customerRoutes.ORDERS_ADD_PATH);
   };
 
   const handleValidateProfileClick = () => {
     setProfileValidated(true);
   };
+
+  const returnToMovePath =
+    multiMove && moveId ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }) : generalRoutes.HOME_PATH;
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
@@ -69,16 +80,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           {needsToVerifyProfile ? (
             <Link to={generalRoutes.HOME_PATH}>Return to Dashboard</Link>
           ) : (
-            <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
+            <Link to={returnToMovePath}>Return to Move</Link>
           )}
           <div className={styles.profileHeader}>
             <h1>Profile</h1>
           </div>
-          {showMessages && (
-            <Alert headingLevel="h4" type="info">
-              You can change these details later by talking to a move counselor or customer care representative.
-            </Alert>
-          )}
           {needsToVerifyProfile && (
             <Alert type="info" className={styles.verifyProfileAlert} data-testid="profileConfirmAlert">
               <strong>
@@ -101,6 +107,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
+          {showMessages && (
+            <Alert headingLevel="h4" type="info">
+              You can change these details later by talking to a move counselor or customer care representative.
+            </Alert>
+          )}
           <SectionWrapper className={formStyles.formSection}>
             <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}

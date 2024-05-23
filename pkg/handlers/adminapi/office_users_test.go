@@ -21,14 +21,16 @@ import (
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	rolesservice "github.com/transcom/mymove/pkg/services/roles"
+	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	setupTestData := func() models.OfficeUsers {
 		return models.OfficeUsers{
-			factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr}),
-			factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr}),
 		}
 	}
 
@@ -141,6 +143,9 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	tioRoleName := "Transportation Invoicing Officer"
 	tioRoleType := string(roles.RoleTypeTIO)
 
+	supervisorPrivilegeName := "Supervisor"
+	supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+
 	suite.Run("200 - Successfully create Office User", func() {
 		// Test:				CreateOfficeUserHandler, Fetcher
 		// Set up:				Create a new Office User, save new user to the DB
@@ -164,6 +169,12 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						RoleType: &tioRoleType,
 					},
 				},
+				Privileges: []*adminmessages.OfficeUserPrivilege{
+					{
+						Name:          &supervisorPrivilegeName,
+						PrivilegeType: &supervisorPrivilegeType,
+					},
+				},
 				TransportationOfficeID: strfmt.UUID(transportationOfficeID.String()),
 			},
 		}
@@ -173,6 +184,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
+			rolesservice.NewRolesFetcher(),
+			usersprivileges.NewUsersPrivilegesCreator(),
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 		response := handler.Handle(params)
@@ -204,6 +217,12 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						RoleType: &tioRoleType,
 					},
 				},
+				Privileges: []*adminmessages.OfficeUserPrivilege{
+					{
+						Name:          &supervisorPrivilegeName,
+						PrivilegeType: &supervisorPrivilegeType,
+					},
+				},
 				TransportationOfficeID: strfmt.UUID(fakeTransportationOfficeID),
 			},
 		}
@@ -214,6 +233,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
+			rolesservice.NewRolesFetcher(),
+			usersprivileges.NewUsersPrivilegesCreator(),
 		}
 
 		response := handler.Handle(params)
@@ -229,6 +250,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			updater,
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(), // a special can of worms, TODO mocked tests
+			usersprivileges.NewUsersPrivilegesCreator(),
 			revoker,
 		}
 	}

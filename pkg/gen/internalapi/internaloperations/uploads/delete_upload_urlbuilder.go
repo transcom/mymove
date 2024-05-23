@@ -18,6 +18,8 @@ import (
 type DeleteUploadURL struct {
 	UploadID strfmt.UUID
 
+	OrderID *strfmt.UUID
+
 	_basePath string
 	// avoid unkeyed usage
 	_ struct{}
@@ -56,6 +58,18 @@ func (o *DeleteUploadURL) Build() (*url.URL, error) {
 		_basePath = "/internal"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var orderIDQ string
+	if o.OrderID != nil {
+		orderIDQ = o.OrderID.String()
+	}
+	if orderIDQ != "" {
+		qs.Set("orderId", orderIDQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

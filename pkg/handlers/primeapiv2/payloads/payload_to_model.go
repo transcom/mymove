@@ -272,6 +272,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev2messages.UpdateMTOShipment, 
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
 		Diversion:                  mtoShipment.Diversion,
 		CounselorRemarks:           mtoShipment.CounselorRemarks,
+		ActualProGearWeight:        handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:  handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {

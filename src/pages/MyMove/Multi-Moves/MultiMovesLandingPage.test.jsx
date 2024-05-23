@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { v4 } from 'uuid';
 
 import '@testing-library/jest-dom/extend-expect';
@@ -7,6 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import MultiMovesLandingPage from './MultiMovesLandingPage';
 
 import { MockProviders } from 'testUtils';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 // Mock external dependencies
 jest.mock('containers/FlashMessage/FlashMessage', () => {
@@ -43,6 +44,17 @@ jest.mock('store/onboarding/actions', () => ({
 
 jest.mock('shared/Swagger/ducks', () => ({
   loadInternalSchema: jest.fn(),
+}));
+
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectAllMoves: jest.fn(),
+  selectServiceMemberFromLoggedInUser: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const defaultProps = {
@@ -745,7 +757,7 @@ describe('MultiMovesLandingPage', () => {
 
     // Check for specific elements
     expect(screen.getByTestId('customerHeader')).toBeInTheDocument();
-    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeaderPrevMoves')).toBeInTheDocument();
     expect(screen.getByText('Welcome to MilMove!')).toBeInTheDocument();
     expect(screen.getByText('Create a Move')).toBeInTheDocument();
 
@@ -763,7 +775,7 @@ describe('MultiMovesLandingPage', () => {
 
     expect(screen.getByText('Jim Bean')).toBeInTheDocument();
     expect(screen.getByText('#YJ9M34')).toBeInTheDocument();
-    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeaderPrevMoves')).toBeInTheDocument();
     expect(screen.getByTestId('createMoveBtn')).toBeInTheDocument();
     expect(screen.getByTestId('currentMoveHeader')).toBeInTheDocument();
     expect(screen.getByTestId('currentMoveContainer')).toBeInTheDocument();
@@ -787,6 +799,19 @@ describe('MultiMovesLandingPage', () => {
     expect(screen.getByTestId('prevMovesHeader')).toBeInTheDocument();
     expect(screen.getByText('#ABC123')).toBeInTheDocument();
     expect(screen.getByText('#DEF456')).toBeInTheDocument();
+  });
+
+  it('navigates the user when create move button is clicked', () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => defaultPropsMultipleMove.serviceMember);
+    render(
+      <MockProviders>
+        <MultiMovesLandingPage {...defaultPropsMultipleMove} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByTestId('createMoveBtn')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('createMoveBtn'));
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
   it('renders move data correctly if no moves', () => {

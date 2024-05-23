@@ -19,6 +19,9 @@ import (
 // swagger:model InternalMove
 type InternalMove struct {
 
+	// closeout office
+	CloseoutOffice *TransportationOffice `json:"closeoutOffice,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -49,6 +52,11 @@ type InternalMove struct {
 	// orders
 	Orders interface{} `json:"orders,omitempty"`
 
+	// prime counseling completed at
+	// Read Only: true
+	// Format: date-time
+	PrimeCounselingCompletedAt strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
+
 	// status
 	// Read Only: true
 	Status string `json:"status,omitempty"`
@@ -56,7 +64,7 @@ type InternalMove struct {
 	// submitted at
 	// Read Only: true
 	// Format: date-time
-	SubmittedAt strfmt.DateTime `json:"submittedAt,omitempty"`
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
 	// updated at
 	// Read Only: true
@@ -67,6 +75,10 @@ type InternalMove struct {
 // Validate validates this internal move
 func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCloseoutOffice(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
@@ -84,6 +96,10 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePrimeCounselingCompletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSubmittedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -95,6 +111,25 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *InternalMove) validateCloseoutOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.CloseoutOffice) { // not required
+		return nil
+	}
+
+	if m.CloseoutOffice != nil {
+		if err := m.CloseoutOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("closeoutOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("closeoutOffice")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -151,6 +186,18 @@ func (m *InternalMove) validateOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *InternalMove) validatePrimeCounselingCompletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeCounselingCompletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeCounselingCompletedAt", "body", "date-time", m.PrimeCounselingCompletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *InternalMove) validateSubmittedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.SubmittedAt) { // not required
 		return nil
@@ -179,6 +226,10 @@ func (m *InternalMove) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCloseoutOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -192,6 +243,10 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePrimeCounselingCompletedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -210,6 +265,27 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *InternalMove) contextValidateCloseoutOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CloseoutOffice != nil {
+
+		if swag.IsZero(m.CloseoutOffice) { // not required
+			return nil
+		}
+
+		if err := m.CloseoutOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("closeoutOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("closeoutOffice")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -254,6 +330,15 @@ func (m *InternalMove) contextValidateMtoShipments(ctx context.Context, formats 
 	return nil
 }
 
+func (m *InternalMove) contextValidatePrimeCounselingCompletedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "primeCounselingCompletedAt", "body", strfmt.DateTime(m.PrimeCounselingCompletedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *InternalMove) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
@@ -265,7 +350,7 @@ func (m *InternalMove) contextValidateStatus(ctx context.Context, formats strfmt
 
 func (m *InternalMove) contextValidateSubmittedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "submittedAt", "body", strfmt.DateTime(m.SubmittedAt)); err != nil {
+	if err := validate.ReadOnly(ctx, "submittedAt", "body", m.SubmittedAt); err != nil {
 		return err
 	}
 

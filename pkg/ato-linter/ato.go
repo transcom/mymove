@@ -84,15 +84,6 @@ func containsDisableWithoutRule(linter string, rulePattern string, comments []*a
 	return false
 }
 
-func containsDisabledLinterWithoutAnnotation(comments []*ast.Comment) bool {
-	for _, comment := range comments {
-		if strings.Contains(comment.Text, validatorStatusLabel) {
-			return false
-		}
-	}
-	return true
-}
-
 func containsAnnotationNotApproved(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, validatorStatusLabel) {
@@ -139,12 +130,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					pass.Reportf(commentGroup.Pos(), "Please provide the rule that is being disabled")
 					continue
 				}
-			}
-
-			containsDisabledLinterWithoutAnnotation := containsDisabledLinterWithoutAnnotation(commentGroup.List)
-			if containsDisabledLinterWithoutAnnotation {
-				pass.Reportf(commentGroup.Pos(), "Disabling of linter must have an annotation associated with it. Please visit https://transcom.github.io/mymove-docs/docs/dev/contributing/code-analysis/Guide-to-Static-Analysis-Annotations-for-Disabled-Linters")
-				continue
 			}
 
 			containsAnnotationNotApproved := containsAnnotationNotApproved(commentGroup.List)

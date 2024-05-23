@@ -79,6 +79,17 @@ type Move struct {
 	// Example: 1K43AR
 	Locator string `json:"locator,omitempty"`
 
+	// lock expires at
+	// Format: date-time
+	LockExpiresAt *strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+
+	// locked by office user
+	LockedByOfficeUser *LockedOfficeUser `json:"lockedByOfficeUser,omitempty"`
+
+	// locked by office user ID
+	// Format: uuid
+	LockedByOfficeUserID *strfmt.UUID `json:"lockedByOfficeUserID,omitempty"`
+
 	// orders
 	Orders *Order `json:"orders,omitempty"`
 
@@ -94,6 +105,9 @@ type Move struct {
 	// service counseling completed at
 	// Format: date-time
 	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
+
+	// shipment g b l o c
+	ShipmentGBLOC GBLOC `json:"shipmentGBLOC,omitempty"`
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`
@@ -159,6 +173,18 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateLockExpiresAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockedByOfficeUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockedByOfficeUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOrders(formats); err != nil {
 		res = append(res, err)
 	}
@@ -168,6 +194,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateServiceCounselingCompletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateShipmentGBLOC(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -335,6 +365,49 @@ func (m *Move) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Move) validateLockExpiresAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockExpiresAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockExpiresAt", "body", "date-time", m.LockExpiresAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateLockedByOfficeUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockedByOfficeUser) { // not required
+		return nil
+	}
+
+	if m.LockedByOfficeUser != nil {
+		if err := m.LockedByOfficeUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("lockedByOfficeUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("lockedByOfficeUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateLockedByOfficeUserID(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockedByOfficeUserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockedByOfficeUserID", "body", "uuid", m.LockedByOfficeUserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Move) validateOrders(formats strfmt.Registry) error {
 	if swag.IsZero(m.Orders) { // not required
 		return nil
@@ -372,6 +445,23 @@ func (m *Move) validateServiceCounselingCompletedAt(formats strfmt.Registry) err
 	}
 
 	if err := validate.FormatOf("serviceCounselingCompletedAt", "body", "date-time", m.ServiceCounselingCompletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateShipmentGBLOC(formats strfmt.Registry) error {
+	if swag.IsZero(m.ShipmentGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.ShipmentGBLOC.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentGBLOC")
+		}
 		return err
 	}
 
@@ -439,7 +529,15 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateLockedByOfficeUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOrders(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentGBLOC(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -513,6 +611,27 @@ func (m *Move) contextValidateFinancialReviewRemarks(ctx context.Context, format
 	return nil
 }
 
+func (m *Move) contextValidateLockedByOfficeUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.LockedByOfficeUser != nil {
+
+		if swag.IsZero(m.LockedByOfficeUser) { // not required
+			return nil
+		}
+
+		if err := m.LockedByOfficeUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("lockedByOfficeUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("lockedByOfficeUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Orders != nil {
@@ -529,6 +648,24 @@ func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registr
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateShipmentGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ShipmentGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.ShipmentGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("shipmentGBLOC")
+		}
+		return err
 	}
 
 	return nil

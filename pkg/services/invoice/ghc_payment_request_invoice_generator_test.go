@@ -1684,8 +1684,11 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -1744,16 +1747,178 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		}
 	})
 
+	suite.Run("shipment with complete long line of accounting for HHG Officer with 5 TACs - B-19139 I-12630", func() {
+		// The TAC makes it for an HHG officer
+
+		// Create standalone LOA
+		loa := factory.BuildFullLineOfAccounting(suite.DB(), []factory.Customization{
+			{
+				Model: models.LineOfAccounting{
+					LoaDptID:           models.StringPointer(factory.MakeRandomString(2)),
+					LoaBafID:           models.StringPointer(factory.MakeRandomString(4)),
+					LoaTrsySfxTx:       models.StringPointer(factory.MakeRandomString(4)),
+					LoaOpAgncyID:       models.StringPointer(factory.MakeRandomString(2)),
+					LoaAlltSnID:        models.StringPointer(factory.MakeRandomString(4)),
+					LoaPgmElmntID:      models.StringPointer(factory.MakeRandomString(8)),
+					LoaObjClsID:        models.StringPointer(factory.MakeRandomString(4)),
+					LoaBdgtAcntClsNm:   models.StringPointer(factory.MakeRandomString(6)),
+					LoaDocID:           models.StringPointer(factory.MakeRandomString(10)),
+					LoaInstlAcntgActID: models.StringPointer(factory.MakeRandomString(6)),
+					LoaDscTx:           models.StringPointer(factory.MakeRandomString(100)),
+					LoaBgnDt:           &sixMonthsBefore,
+					LoaEndDt:           &sixMonthsAfter,
+					LoaFnctPrsNm:       models.StringPointer(factory.MakeRandomString(100)),
+					LoaStatCd:          models.StringPointer(factory.MakeRandomString(1)),
+					LoaHsGdsCd:         models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+					OrgGrpDfasCd:       models.StringPointer(factory.MakeRandomString(2)),
+					LoaTrnsnID:         models.StringPointer(factory.MakeRandomString(2)),
+					LoaBgFyTx:          &begYear,
+					LoaEndFyTx:         &endYear,
+				},
+			},
+		}, nil)
+		// Create 5 standalone TACs
+		fbmcs := []string{
+			"1",
+			"3",
+			"5",
+			"M",
+			"P",
+		}
+		for _, fbmc := range fbmcs {
+			newPointerFbmc := fbmc
+			factory.BuildTransportationAccountingCodeWithoutAttachedLoa(suite.DB(), []factory.Customization{
+				{
+					Model: models.TransportationAccountingCode{
+						TAC:               *models.StringPointer("CACI"),
+						TacFnBlModCd:      &newPointerFbmc,
+						TrnsprtnAcntBgnDt: &sixMonthsBefore,
+						TrnsprtnAcntEndDt: &sixMonthsAfter,
+						LoaSysID:          loa.LoaSysID,
+					},
+				},
+			}, nil)
+		}
+		// Setup move and payment data
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					TAC:       models.StringPointer("CACI"),
+					IssueDate: currentTime,
+				},
+			},
+		}, nil)
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					IsFinal: false,
+					Status:  models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
+
+		mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildPaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDNPK,
+			basicPaymentServiceItemParams,
+			[]factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    paymentRequest,
+					LinkOnly: true,
+				},
+				{
+					Model: models.PaymentServiceItem{
+						Status: models.PaymentServiceItemStatusApproved,
+					},
+				},
+			}, nil,
+		)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		concatDate := fmt.Sprintf("%d%d", begYear, endYear)
+		accountingInstallationNumber := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
+
+		fa2Assertions := []struct {
+			expectedDetailCode edisegment.FA2DetailCode
+			expectedInfoCode   *string
+		}{
+			{edisegment.FA2DetailCodeTA, move.Orders.TAC},
+			{edisegment.FA2DetailCodeA1, loa.LoaDptID},
+			{edisegment.FA2DetailCodeA2, loa.LoaTnsfrDptNm},
+			{edisegment.FA2DetailCodeA3, &concatDate},
+			{edisegment.FA2DetailCodeA4, loa.LoaBafID},
+			{edisegment.FA2DetailCodeA5, loa.LoaTrsySfxTx},
+			{edisegment.FA2DetailCodeA6, loa.LoaMajClmNm},
+			{edisegment.FA2DetailCodeB1, loa.LoaOpAgncyID},
+			{edisegment.FA2DetailCodeB2, loa.LoaAlltSnID},
+			{edisegment.FA2DetailCodeB3, loa.LoaUic},
+			{edisegment.FA2DetailCodeC1, loa.LoaPgmElmntID},
+			{edisegment.FA2DetailCodeC2, loa.LoaTskBdgtSblnTx},
+			{edisegment.FA2DetailCodeD1, loa.LoaDfAgncyAlctnRcpntID},
+			{edisegment.FA2DetailCodeD4, loa.LoaJbOrdNm},
+			{edisegment.FA2DetailCodeD6, loa.LoaSbaltmtRcpntID},
+			{edisegment.FA2DetailCodeD7, loa.LoaWkCntrRcpntNm},
+			{edisegment.FA2DetailCodeE1, loa.LoaMajRmbsmtSrcID},
+			{edisegment.FA2DetailCodeE2, loa.LoaDtlRmbsmtSrcID},
+			{edisegment.FA2DetailCodeE3, loa.LoaCustNm},
+			{edisegment.FA2DetailCodeF1, loa.LoaObjClsID},
+			{edisegment.FA2DetailCodeF3, loa.LoaSrvSrcID},
+			{edisegment.FA2DetailCodeG2, loa.LoaSpclIntrID},
+			{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
+			{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
+			{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
+			{edisegment.FA2DetailCodeL1, &accountingInstallationNumber},
+			{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
+			{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
+			{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},
+		}
+
+		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		// L1 segment must be padded to a length of 6 to meet the specification
+		suite.Len(result.ServiceItems[0].FA2s[25].FinancialInformationCode, 6)
+		for i, fa2Assertion := range fa2Assertions {
+			fa2Segment := result.ServiceItems[0].FA2s[i]
+			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
+			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
+		}
+	})
+
 	suite.Run("shipment with nil/blank long line of accounting (except fiscal year)", func() {
 		setupTestData()
 
 		// Add TAC/LOA records, with an LOA containing empty strings and nils
 		emptyString := ""
+		loaSysID := factory.MakeRandomString(20)
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
@@ -1764,6 +1929,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaEndDt:      &sixMonthsAfter,
 					LoaBgFyTx:     &begYear, // A3 (first part)
 					LoaEndFyTx:    &endYear, // A3 (second part)
+					LoaSysID:      &loaSysID,
 					LoaHsGdsCd:    models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
@@ -1794,16 +1960,20 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
+		loaSysID := factory.MakeRandomString(20)
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.StringPointer("123456"),
+					LoaSysID:               &loaSysID,
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
@@ -1866,16 +2036,20 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
+		loaSysID := factory.MakeRandomString(20)
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.StringPointer("123456"),
+					LoaSysID:               &loaSysID,
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
@@ -1986,8 +2160,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 				{
 					Model: models.TransportationAccountingCode{
-						TAC:          *move.Orders.TAC,
-						TacFnBlModCd: models.StringPointer("W"),
+						TAC:               *move.Orders.TAC,
+						TacFnBlModCd:      models.StringPointer("W"),
+						TrnsprtnAcntBgnDt: &sixMonthsBefore,
+						TrnsprtnAcntEndDt: &sixMonthsAfter,
+						LoaSysID:          loa.LoaSysID,
 					},
 				},
 				{
@@ -2107,7 +2284,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		}
 
 		for _, testCase := range gradeTestCases {
-			setupTestData(&testCase.grade)
+			setupTestData(&testCase.grade) //#nosec G601 new in 1.22.2
 			setupLoaTestData()
 
 			// Create invoice
@@ -2137,8 +2314,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -2174,8 +2354,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          lowestLoa.LoaSysID,
 				},
 			},
 			{
@@ -2188,8 +2371,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("2"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("2"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          higherLoa.LoaSysID,
 				},
 			},
 			{
@@ -2232,8 +2418,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          oldLoa.LoaSysID,
 				},
 			},
 			{
@@ -2246,8 +2435,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          newLoa.LoaSysID,
 				},
 			},
 			{
@@ -2281,8 +2473,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -2323,8 +2518,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{

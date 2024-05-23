@@ -1,25 +1,33 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import { Radio } from '@trussworks/react-uswds';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { ConusOrNot } from 'pages/MyMove/ConusOrNot';
-import { CONUS_STATUS } from 'shared/constants';
+import ConusOrNot from './ConusOrNot';
+
+import { renderWithProviders } from 'testUtils';
+import { customerRoutes } from 'constants/routes';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 describe('ConusOrNot', () => {
-  const minProps = {
-    conusStatus: CONUS_STATUS.CONUS,
-    setLocation: () => {},
-  };
-  it('should render radio buttons', () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<ConusOrNot {...minProps} />);
-    expect(wrapper.find(Radio).length).toBe(2);
+  test('it should render all text for the component', async () => {
+    renderWithProviders(<ConusOrNot />);
 
-    // PPM button should be checked on page load
-    expect(wrapper.find(Radio).at(0).text()).toContain('CONUS');
-    expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('checked');
+    expect(screen.getByText('Where are you moving?')).toBeInTheDocument();
+    expect(screen.getByText('CONUS')).toBeInTheDocument();
+    expect(screen.getByText('OCONUS')).toBeInTheDocument();
+  });
 
-    // HHG button should be disabled
-    expect(wrapper.find(Radio).at(1).text()).toContain('OCONUS');
+  test('it selects an option and navigates the user', async () => {
+    renderWithProviders(<ConusOrNot />);
+
+    userEvent.click(screen.getByText('CONUS'));
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    await userEvent.click(nextBtn);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.DOD_INFO_PATH);
   });
 });

@@ -1217,6 +1217,16 @@ paths:
         [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
 
 
+        * SIT Service Items: Take note that when updating
+        `sitCustomerContacted`, `sitDepartureDate`, or `sitRequestedDelivery`,
+        we want
+
+        those to be updated on `DOASIT` (for origin SIT) and `DDASIT` (for
+        destination SIT). If updating those values in other service
+
+        items, the office users will not have as much attention to those values.
+
+
         To create a service item, please use
         [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
       operationId: updateMTOServiceItem
@@ -1772,6 +1782,20 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
+  Amendments:
+    description: |
+      Metadata outlining number of amendments for given order.
+    type: object
+    properties:
+      total:
+        description: The total count of amendments.
+        type: integer
+      availableSince:
+        description: The total count of amendments available since specified time.
+        type: integer
+    required:
+      - total
+      - availableSince
   CreateMTOShipment:
     type: object
     properties:
@@ -2060,6 +2084,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      amendments:
+        $ref: '#/definitions/Amendments'
   ListMoves:
     type: array
     items:
@@ -2541,6 +2567,7 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DDDSIT
+              - DDASIT
               - DOPSIT
               - DOASIT
               - DOFSIT
@@ -3045,6 +3072,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -3101,6 +3133,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -3164,11 +3199,15 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   Order:
     type: object
     required:
@@ -4310,6 +4349,18 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      actualProGearWeight:
+        description: |
+          The actual weight of any pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        description: |
+          The actual weight of any spouse pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:

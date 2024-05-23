@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
+	"github.com/transcom/mymove/pkg/handlers/primeapiv3"
 	"github.com/transcom/mymove/pkg/handlers/supportapi"
 	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
 	"github.com/transcom/mymove/pkg/logging"
@@ -70,6 +71,8 @@ type Config struct {
 	PrimeSwaggerPath string
 	// The path to the prime V2 api swagger definition
 	PrimeV2SwaggerPath string
+	// The path to the prime V3 api swagger definition
+	PrimeV3SwaggerPath string
 
 	// Should the support api be served? Mostly only used in dev environments
 	ServeSupport bool
@@ -332,6 +335,22 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 				tracingMiddleware := middleware.OpenAPITracing(api)
 				r.Mount("/", api.Serve(tracingMiddleware))
 			})
+			// Setup version specific info for v3
+			primeRouter.Route("/v3", func(r chi.Router) {
+				r.Method("GET", "/swagger.yaml",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						routingConfig.PrimeV3SwaggerPath))
+				if routingConfig.ServeSwaggerUI {
+					r.Method("GET", "/docs",
+						handlers.NewFileHandler(routingConfig.FileSystem,
+							path.Join(routingConfig.BuildRoot, "swagger-ui", "prime_v3.html")))
+				} else {
+					r.Method("GET", "/docs", http.NotFoundHandler())
+				}
+				api := primeapiv3.NewPrimeAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				r.Mount("/", api.Serve(tracingMiddleware))
+			})
 		})
 	}
 }
@@ -517,6 +536,30 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
 			})
 		})
+		site.Route("/prime/v3", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.PrimeV3SwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("Prime Simulator API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "prime.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+
+			// Mux for prime simulator API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
+				rAuth.Use(middleware.NoCache())
+				api := primeapiv3.NewPrimeAPI(routingConfig.HandlerConfig)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
 	}
 }
 
@@ -537,15 +580,20 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 				r.Method("GET", "/docs", http.NotFoundHandler())
 			}
 
+			api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
+			tracingMiddleware := middleware.OpenAPITracing(api)
+
+			// Mux for GHC API open routes
+			r.Route("/open", func(rOpen chi.Router) {
+				rOpen.Mount("/", api.Serve(tracingMiddleware))
+			})
 			// Mux for GHC API that enforces auth
 			r.Route("/", func(rAuth chi.Router) {
 				rAuth.Use(userAuthMiddleware)
 				rAuth.Use(addAuditUserToRequestContextMiddleware)
 				rAuth.Use(middleware.NoCache())
-				api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
 				permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
 				rAuth.Use(permissionsMiddleware)
-				tracingMiddleware := middleware.OpenAPITracing(api)
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
 			})
 		})

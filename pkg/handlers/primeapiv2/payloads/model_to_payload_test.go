@@ -47,7 +47,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		PaymentRequests:            models.PaymentRequests{},
 		SubmittedAt:                &submittedAt,
 		UpdatedAt:                  time.Now(),
-		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},
 		MTOServiceItems:            models.MTOServiceItems{},
@@ -358,6 +357,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdate() {
 		suite.Equal(*payload.NewAddress.State, sitAddressUpdate.NewAddress.State)
 		suite.Equal(*payload.NewAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
 		suite.Equal(*payload.NewAddress.Country, *sitAddressUpdate.NewAddress.Country)
+		suite.Equal(*payload.NewAddress.County, sitAddressUpdate.NewAddress.County)
 		suite.Equal(*payload.NewAddress.StreetAddress1, sitAddressUpdate.NewAddress.StreetAddress1)
 		suite.Equal(payload.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
 		suite.Equal(payload.OfficeRemarks, sitAddressUpdate.OfficeRemarks)

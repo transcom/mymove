@@ -303,7 +303,8 @@ func approvable(move models.Move) bool {
 		moveHasAcknowledgedOrdersAmendment(move.Orders) &&
 		moveHasAcknowledgedExcessWeightRisk(move) &&
 		allSITExtensionsAreReviewed(move) &&
-		allShipmentAddressUpdatesAreReviewed(move)
+		allShipmentAddressUpdatesAreReviewed(move) &&
+		allShipmentsAreApproved(move)
 }
 
 func statusSliceContains(statusSlice []models.MoveStatus, status models.MoveStatus) bool {
@@ -353,6 +354,16 @@ func allSITExtensionsAreReviewed(move models.Move) bool {
 			if sitDurationUpdate.Status == models.SITExtensionStatusPending {
 				return false
 			}
+		}
+	}
+
+	return true
+}
+
+func allShipmentsAreApproved(move models.Move) bool {
+	for _, shipment := range move.MTOShipments {
+		if shipment.Status == models.MTOShipmentStatusSubmitted {
+			return false
 		}
 	}
 
@@ -415,8 +426,8 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, mov
 
 	// This will work only if you use the PPM in question rather than a var representing it
 	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
-	for i := range move.PersonallyProcuredMoves {
-		err := move.PersonallyProcuredMoves[i].Cancel()
+	for i := range move.MTOShipments {
+		err := move.MTOShipments[i].PPMShipment.CancelShipment()
 		if err != nil {
 			return err
 		}

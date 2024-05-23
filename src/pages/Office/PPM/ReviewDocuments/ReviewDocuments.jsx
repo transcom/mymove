@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
-
-import { calculateWeightRequested } from '../../../../hooks/custom';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -21,6 +19,7 @@ import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
+import { calculateWeightRequested } from 'hooks/custom';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -33,16 +32,17 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
   const [currentAllowableWeight, setCurrentAllowableWeight] = useState(0);
+  const [currentMtoShipments, setCurrentMtoShipments] = useState([]);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
-  let documentSets = [];
+  let documentSets = useMemo(() => [], []);
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
@@ -50,14 +50,20 @@ export const ReviewDocuments = () => {
     setCurrentTotalWeight(newWeight);
   };
   useEffect(() => {
-    updateTotalWeight(calculateWeightRequested(mtoShipments));
-  }, [mtoShipments]);
+    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
+      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+    }
+  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
   useEffect(() => {
-    setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
-  }, [currentTotalWeight, order.entitlement.totalWeight]);
+    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
+    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
+  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
   useEffect(() => {
     setCurrentAllowableWeight(currentAllowableWeight);
   }, [currentAllowableWeight]);
+  useEffect(() => {
+    setCurrentMtoShipments(mtoShipments);
+  }, [mtoShipments]);
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
@@ -265,7 +271,8 @@ export const ReviewDocuments = () => {
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     order={order}
-                    mtoShipments={mtoShipments}
+                    currentMtoShipments={currentMtoShipments}
+                    setCurrentMtoShipments={setCurrentMtoShipments}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}

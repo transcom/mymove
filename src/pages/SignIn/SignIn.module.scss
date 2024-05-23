@@ -16,3 +16,8 @@ button.signInButton {
 :global(.usa-button-group) {
   justify-content: center;
 }
+.center {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}

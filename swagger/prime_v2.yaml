@@ -65,6 +65,15 @@ paths:
 
         It will provide information about the Customer and any associated
         MTOShipments, MTOServiceItems and PaymentRequests.
+
+
+        **NOTE**: New version in v3. Version will return PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
       operationId: getMoveTaskOrder
       tags:
         - moveTaskOrder
@@ -113,6 +122,15 @@ paths:
 
         the lowest weight possible in the chain to prevent overcharging as they
         are still separate shipments.
+
+
+        **NOTE**: New version in v3. Version will accept PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
 
 
         **WIP**: The Prime should be notified by a push notification whenever
@@ -233,6 +251,15 @@ paths:
         Note that some fields cannot be manually changed but will still be
         updated automatically, such as `primeEstimatedWeightRecordedDate` and
         `requiredDeliveryDate`.
+
+
+        **NOTE**: New version in v3. Version will accept PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -262,6 +289,8 @@ paths:
                   firstAvailableDeliveryDate: '2023-01-04'
                   primeEstimatedWeight: 4250
                   primeActualWeight: 4500
+                  actualProGearWeight: 1053
+                  actualSpouseProGearWeight: 253
                   destinationAddress:
                     streetAddress1: 6622 Airport Way S
                     streetAddress2: '#1430'
@@ -277,12 +306,16 @@ paths:
                   actualPickupDate: '2022-12-29'
                   estimatedWeight: 4250
                   actualWeight: 4500
+                  actualProGearWeight: 1053
+                  actualSpouseProGearWeight: 253
                   counselorRemarks: Beware of dogs on property
               nts-r:
                 summary: NTS Release
                 value:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
                   ntsRecordedWeight: 4500
+                  actualProGearWeight: 1053
+                  actualSpouseProGearWeight: 253
                   destinationAddress:
                     streetAddress1: 812 S 129th Street
                     city: San Antonio
@@ -1071,6 +1104,14 @@ definitions:
         type: string
         example: counselor approved
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
   UpdateMTOShipmentStatus:
@@ -1414,6 +1455,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -1470,6 +1516,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1533,11 +1582,15 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   Order:
     type: object
     required:
@@ -2691,6 +2744,18 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      actualProGearWeight:
+        description: |
+          The actual weight of any pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        description: |
+          The actual weight of any spouse pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:

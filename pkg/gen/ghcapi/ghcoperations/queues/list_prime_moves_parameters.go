@@ -41,6 +41,10 @@ type ListPrimeMovesParams struct {
 	  In: query
 	*/
 	MoveCode *string
+	/*order type
+	  In: query
+	*/
+	OrderType *string
 	/*requested page of results
 	  In: query
 	*/
@@ -73,6 +77,11 @@ func (o *ListPrimeMovesParams) BindRequest(r *http.Request, route *middleware.Ma
 
 	qMoveCode, qhkMoveCode, _ := qs.GetOK("moveCode")
 	if err := o.bindMoveCode(qMoveCode, qhkMoveCode, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOrderType, qhkOrderType, _ := qs.GetOK("orderType")
+	if err := o.bindOrderType(qOrderType, qhkOrderType, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -128,6 +137,24 @@ func (o *ListPrimeMovesParams) bindMoveCode(rawData []string, hasKey bool, forma
 		return nil
 	}
 	o.MoveCode = &raw
+
+	return nil
+}
+
+// bindOrderType binds and validates parameter OrderType from query.
+func (o *ListPrimeMovesParams) bindOrderType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OrderType = &raw
 
 	return nil
 }

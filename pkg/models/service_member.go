@@ -63,6 +63,7 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
+	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -145,6 +146,12 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.ResidentialAddress.County = county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -154,6 +161,12 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		}
 
 		if serviceMember.BackupMailingAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.BackupMailingAddress.County = county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -324,7 +337,6 @@ func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) 
 		"NewDutyLocation.Address",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
-		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
 		First(&order)

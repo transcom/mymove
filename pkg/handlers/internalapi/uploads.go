@@ -2,9 +2,13 @@ package internalapi
 
 import (
 	"fmt"
+	"io"
+	"path/filepath"
+	"strings"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -16,8 +20,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
+	"github.com/transcom/mymove/pkg/uploader"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
+
+const weightEstimatePages = 11
 
 // CreateUploadHandler creates a new upload via POST /uploads?documentId={documentId}
 type CreateUploadHandler struct {
@@ -26,13 +34,16 @@ type CreateUploadHandler struct {
 
 type CreatePPMUploadHandler struct {
 	handlers.HandlerConfig
+	services.WeightTicketGenerator
+	services.WeightTicketComputer
+	*uploader.UserUploader
 }
 
 // Handle creates a new UserUpload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			rollbackErr := fmt.Errorf("Error creating upload")
+			rollbackErr := fmt.Errorf("error creating upload")
 
 			file, ok := params.File.(*runtime.File)
 			if !ok {
@@ -111,6 +122,35 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			if params.OrderID != nil {
+				orderID, _ := uuid.FromString(params.OrderID.String())
+				move, e := models.FetchMoveByOrderID(appCtx.DB(), orderID)
+				if e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+				uploadInformation, e := h.FetchUploadInformationForDeletion(appCtx, uploadID, move.Locator)
+				if e != nil {
+					appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(e))
+				}
+
+				//If move status is not DRAFT, upload cannot be deleted
+				if *uploadInformation.MoveStatus != models.MoveStatusDRAFT {
+					return uploadop.NewDeleteUploadForbidden(), fmt.Errorf("deletion not permitted Move is not in 'DRAFT' status")
+				}
+
+				userUploader, e := uploaderpkg.NewUserUploader(
+					h.FileStorer(),
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				)
+				if e != nil {
+					appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(e))
+				}
+				if e = userUploader.DeleteUserUpload(appCtx, &userUpload); e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				return uploadop.NewDeleteUploadNoContent(), nil
+			}
 			//Fetch upload information so we can retrieve the move status
 			uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
 			if err != nil {
@@ -134,6 +174,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 			}
 
 			return uploadop.NewDeleteUploadNoContent(), nil
+
 		})
 }
 
@@ -173,7 +214,7 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			rollbackErr := fmt.Errorf("Error creating upload")
+			rollbackErr := fmt.Errorf("error creating upload")
 
 			file, ok := params.File.(*runtime.File)
 			if !ok {
@@ -206,30 +247,97 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				return ppmop.NewCreatePPMUploadNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, docNotFoundErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), docNotFoundErr
 			}
 
-			newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
-				appCtx,
-				appCtx.Session().UserID,
-				h.FileStorer(),
-				file,
-				file.Header.Filename,
-				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
-				uploaderpkg.AllowedTypesPPMDocuments,
-				&document.ID,
-			)
+			var newUserUpload *models.UserUpload
+			var verrs *validate.Errors
+			var url string
+			var createErr error
+			isWeightEstimatorFile := false
 
-			if verrs.HasAny() || createErr != nil {
-				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
-				switch createErr.(type) {
-				case uploaderpkg.ErrUnsupportedContentType:
-					return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloads.ValidationError(createErr.Error(), uuid.Nil, verrs)), createErr
-				case uploaderpkg.ErrTooLarge:
-					return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
-				case uploaderpkg.ErrFile:
+			uploadedFile := file
+
+			// check if this is an excel file and parse if it is
+			extension := filepath.Ext(file.Header.Filename)
+
+			if extension == ".xlsx" {
+				var err error
+
+				isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
+
+				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				case uploaderpkg.ErrFailedToInitUploader:
+				}
+
+				_, err = file.Data.Seek(0, io.SeekStart)
+
+				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				default:
-					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
+				}
+			}
+
+			if params.WeightReceipt && isWeightEstimatorFile {
+				pageValues, err := h.WeightTicketComputer.ParseWeightEstimatorExcelFile(appCtx, file)
+
+				if err != nil {
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
+
+				pdfFileName := strings.TrimSuffix(file.Header.Filename, filepath.Ext(file.Header.Filename)) + ".pdf"
+				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
+
+				// Ensure weight receipt PDF is not corrupted
+				if err != nil || pdfInfo.PageCount != weightEstimatePages {
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
+
+				// we already generated an afero file so we can skip that process the wrapper method does
+				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
+				if verrs.HasAny() || createErr != nil {
+					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+					switch createErr.(type) {
+					case uploaderpkg.ErrUnsupportedContentType:
+						return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloads.ValidationError(createErr.Error(), uuid.Nil, verrs)), createErr
+					case uploaderpkg.ErrTooLarge:
+						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
+					case uploaderpkg.ErrFile:
+						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+					case uploaderpkg.ErrFailedToInitUploader:
+						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+					default:
+						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
+					}
+				}
+
+				url, err = h.UserUploader.PresignedURL(appCtx, newUserUpload)
+
+				if err != nil {
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
+			} else {
+				newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
+					appCtx,
+					appCtx.Session().UserID,
+					h.FileStorer(),
+					uploadedFile,
+					uploadedFile.Header.Filename,
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+					uploaderpkg.AllowedTypesPPMDocuments,
+					&document.ID,
+				)
+
+				if verrs.HasAny() || createErr != nil {
+					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+					switch createErr.(type) {
+					case uploaderpkg.ErrUnsupportedContentType:
+						return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloads.ValidationError(createErr.Error(), uuid.Nil, verrs)), createErr
+					case uploaderpkg.ErrTooLarge:
+						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
+					case uploaderpkg.ErrFile:
+						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+					case uploaderpkg.ErrFailedToInitUploader:
+						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+					default:
+						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
+					}
 				}
 			}
 

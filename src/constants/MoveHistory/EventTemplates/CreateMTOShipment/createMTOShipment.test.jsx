@@ -17,6 +17,7 @@ describe('when given a Create mto shipment history record', () => {
     context: [
       {
         shipment_type: 'HHG',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'a1b2c',
       },
     ],
@@ -24,7 +25,7 @@ describe('when given a Create mto shipment history record', () => {
   it('correctly matches the Create basic service item event', () => {
     const result = getTemplate(historyRecord);
     expect(result).toMatchObject(e);
-    expect(result.getEventNameDisplay(result)).toEqual('Created shipment');
+    expect(result.getEventNameDisplay(historyRecord)).toEqual('Created shipment');
   });
   describe('it correctly renders the details component for Create MTO shipments', () => {
     it.each([
@@ -41,7 +42,7 @@ describe('when given a Create mto shipment history record', () => {
     it('displays the correct label for shipment', () => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));
-      expect(screen.getByText('HHG shipment #A1B2C')).toBeInTheDocument();
+      expect(screen.getByText('HHG shipment #RQ38D4-01')).toBeInTheDocument();
     });
   });
 });

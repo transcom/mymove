@@ -22,8 +22,14 @@ type Customer struct {
 	// Agency customer is affilated with
 	Agency string `json:"agency,omitempty"`
 
+	// backup address
+	BackupAddress *Address `json:"backupAddress,omitempty"`
+
 	// backup contact
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
+
+	// cac validated
+	CacValidated bool `json:"cacValidated,omitempty"`
 
 	// current address
 	CurrentAddress *Address `json:"current_address,omitempty"`
@@ -37,6 +43,9 @@ type Customer struct {
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email,omitempty"`
+
+	// email is preferred
+	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
 
 	// first name
 	// Example: John
@@ -59,6 +68,13 @@ type Customer struct {
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Phone *string `json:"phone,omitempty"`
 
+	// phone is preferred
+	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
+
+	// secondary telephone
+	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
+	SecondaryTelephone *string `json:"secondaryTelephone,omitempty"`
+
 	// suffix
 	// Example: Jr.
 	Suffix *string `json:"suffix,omitempty"`
@@ -72,6 +88,10 @@ type Customer struct {
 // Validate validates this customer
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateBackupAddress(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateBackupContact(formats); err != nil {
 		res = append(res, err)
@@ -93,6 +113,10 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSecondaryTelephone(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUserID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -100,6 +124,25 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) validateBackupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.BackupAddress) { // not required
+		return nil
+	}
+
+	if m.BackupAddress != nil {
+		if err := m.BackupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backupAddress")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -177,6 +220,18 @@ func (m *Customer) validatePhone(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Customer) validateSecondaryTelephone(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryTelephone) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$|^$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Customer) validateUserID(formats strfmt.Registry) error {
 	if swag.IsZero(m.UserID) { // not required
 		return nil
@@ -193,6 +248,10 @@ func (m *Customer) validateUserID(formats strfmt.Registry) error {
 func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateBackupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateBackupContact(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -204,6 +263,27 @@ func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry)
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) contextValidateBackupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BackupAddress != nil {
+
+		if swag.IsZero(m.BackupAddress) { // not required
+			return nil
+		}
+
+		if err := m.BackupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("backupAddress")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

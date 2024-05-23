@@ -148,16 +148,10 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
 }
 
 func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
-	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator()
-	suite.FatalNoError(err)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
-	downloadMoveUploadGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(userUploader)
-	suite.FatalNoError(err)
-	appCtx := suite.AppContextForTest()
-	order := factory.BuildOrder(suite.DB(), nil, nil)
+
 	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
 	suite.FatalNil(err)
 
@@ -167,6 +161,16 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 	if generator != nil {
 		suite.FatalNil(err)
 	}
+
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
+	suite.FatalNoError(err)
+
+	downloadMoveUploadGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(generator)
+	suite.FatalNoError(err)
+	appCtx := suite.AppContextForTest()
+	order := factory.BuildOrder(suite.DB(), nil, nil)
+
 	_, _, err = userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 

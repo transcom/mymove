@@ -20,6 +20,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 	city := "Elizabethtown"
 	state := "KY"
 	postalCode := "42701"
+	county := "HARDIN"
 
 	suite.Run("Successfully updates an address", func() {
 		originalAddress := createOriginalAddress()
@@ -47,6 +48,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
 		suite.Equal(originalAddress.Country, updatedAddress.Country)
+		suite.Equal(county, desiredAddress.County)
 	})
 
 	suite.Run("Fails to updates because of stale etag", func() {
@@ -76,7 +78,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 			StreetAddress1: " ",
 			City:           " ",
 			State:          " ",
-			PostalCode:     " ",
+			PostalCode:     postalCode, // Provide postal code here because it is not explicitly input error
 		}
 		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
 
@@ -85,11 +87,29 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Equal("invalid input while updating an address", err.Error())
 		errors := err.(apperror.InvalidInputError)
-		suite.Len(errors.ValidationErrors.Errors, 4)
+		suite.Len(errors.ValidationErrors.Errors, 3)
 		suite.Contains(errors.ValidationErrors.Keys(), "street_address1")
 		suite.Contains(errors.ValidationErrors.Keys(), "city")
 		suite.Contains(errors.ValidationErrors.Keys(), "state")
-		suite.Contains(errors.ValidationErrors.Keys(), "postal_code")
+	})
+
+	suite.Run("Fails to updates an address because of invalid county", func() {
+		originalAddress := createOriginalAddress()
+
+		addressUpdater := NewAddressUpdater()
+		// Street address, city, and state are not related to how a postal code gets its county at this time
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     " ",
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.Nil(updatedAddress)
+		suite.NotNil(err)
+		suite.Equal("No county found for provided zip code  ", err.Error())
 	})
 
 	suite.Run("Fails to update an address because of invalid ID", func() {

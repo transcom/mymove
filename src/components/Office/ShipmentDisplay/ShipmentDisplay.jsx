@@ -5,6 +5,7 @@ import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
@@ -41,6 +42,7 @@ const ShipmentDisplay = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -53,6 +55,13 @@ const ShipmentDisplay = ({
     'chevron-up': isExpanded,
     'chevron-down': !isExpanded,
   });
+
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
+
+  const errorModalMessage =
+    "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -77,9 +86,12 @@ const ShipmentDisplay = ({
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
           <div className={classnames(styles.headingTagWrapper, styles.serviceCounselingShipments)}>
-            <h3>
-              <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-            </h3>
+            <div className={styles.typeLocator}>
+              <h3>
+                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+              </h3>
+              <h5>#{displayInfo.shipmentLocator}</h5>
+            </div>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
@@ -104,7 +116,9 @@ const ShipmentDisplay = ({
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
+          onErrorModalToggle={toggleErrorModal}
         />
+        <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton
@@ -175,6 +189,7 @@ ShipmentDisplay.propTypes = {
       tacType: PropTypes.string,
       sacType: PropTypes.string,
       ntsRecordedWeight: PropTypes.number,
+      shipmentLocator: PropTypes.string,
     }),
     PropTypes.shape({
       heading: PropTypes.string.isRequired,

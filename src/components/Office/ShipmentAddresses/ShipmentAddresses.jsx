@@ -53,9 +53,17 @@ const ShipmentAddresses = ({
           <div className={styles.rightAlignButtonWrapper}>
             {shipmentInfo.status !== shipmentStatuses.CANCELED && (
               <Restricted to={permissionTypes.createShipmentDiversionRequest}>
-                <Button type="button" onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)} unstyled>
-                  Request diversion
-                </Button>
+                <Restricted to={permissionTypes.updateMTOPage}>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag, shipmentInfo.shipmentLocator)
+                    }
+                    unstyled
+                  >
+                    Request diversion
+                  </Button>
+                </Restricted>
               </Restricted>
             )}
           </div>,

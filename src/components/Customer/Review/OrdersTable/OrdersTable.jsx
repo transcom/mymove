@@ -18,9 +18,10 @@ const OrdersTable = ({
   uploads,
   originDutyLocationName,
   payGrade,
+  orderId,
 }) => {
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(orderType);
-  const editPath = `/moves/${moveId}/review/edit-orders`;
+  const editPath = `/move/${moveId}/review/edit-orders/${orderId}`;
 
   return (
     <div className={reviewStyles['review-container']}>

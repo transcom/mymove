@@ -173,6 +173,12 @@ const newMoveDetailsQuery = {
     first_name: 'Smith',
     dodID: '999999999',
     agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
   },
   order: {
     id: '1',
@@ -270,7 +276,6 @@ const ppmShipmentQuery = {
         advanceAmountRequested: 598700,
         approvedAt: null,
         createdAt: '2022-11-08T23:44:58.226Z',
-        destinationPostalCode: '30813',
         eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
         estimatedIncentive: 1000000,
         estimatedWeight: 4000,
@@ -281,12 +286,43 @@ const ppmShipmentQuery = {
         hasRequestedAdvance: true,
         id: '79b98a71-158d-4b04-9a6c-25543c52183d',
         movingExpenses: null,
-        pickupPostalCode: '90210',
         proGearWeight: 1987,
         proGearWeightTickets: null,
         reviewedAt: null,
-        secondaryDestinationPostalCode: '30814',
-        secondaryPickupPostalCode: '90211',
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
         shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
         sitEstimatedCost: null,
         sitEstimatedDepartureDate: null,
@@ -319,7 +355,6 @@ const ppmShipmentQuery = {
         advanceAmountRequested: 598700,
         approvedAt: null,
         createdAt: '2022-11-08T23:44:58.226Z',
-        destinationPostalCode: '30813',
         eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
         estimatedIncentive: 1000000,
         estimatedWeight: 4000,
@@ -330,12 +365,43 @@ const ppmShipmentQuery = {
         hasRequestedAdvance: true,
         id: '79b98a71-158d-4b04-9a6c-25543c52183d',
         movingExpenses: null,
-        pickupPostalCode: '11201',
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
         proGearWeight: 1987,
         proGearWeightTickets: null,
         reviewedAt: null,
-        secondaryDestinationPostalCode: '30814',
-        secondaryPickupPostalCode: '90211',
         shipmentId: 'e33a1a7b-530f-4df4-b947-d3d719786385',
         sitEstimatedCost: null,
         sitEstimatedDepartureDate: null,
@@ -395,7 +461,7 @@ const ppmShipmentQuery = {
   ],
 };
 
-const renderComponent = (props, permissions = [permissionTypes.updateShipment]) => {
+const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
   return render(
     <MockProviders permissions={permissions} {...mockRoutingOptions}>
       <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} {...props} />
@@ -874,7 +940,7 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
       });
     });
 
@@ -899,6 +965,16 @@ describe('MoveDetails page', () => {
         );
 
         expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+      });
+
+      it('does not show the edit customer info button if user does not have permission', () => {
+        render(
+          <MockProviders {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(screen.queryByText('Edit customer info')).not.toBeInTheDocument();
       });
     });
   });

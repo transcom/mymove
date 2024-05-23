@@ -53,6 +53,7 @@ func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
 // CustomerToServiceMember transforms UpdateCustomerPayload to ServiceMember model
 func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.ServiceMember {
 	address := AddressModel(&payload.CurrentAddress.Address)
+	backupAddress := AddressModel(&payload.BackupAddress.Address)
 
 	var backupContacts []models.BackupContact
 	if payload.BackupContact != nil {
@@ -64,14 +65,19 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	}
 
 	return models.ServiceMember{
-		ResidentialAddress: address,
-		BackupContacts:     backupContacts,
-		FirstName:          &payload.FirstName,
-		LastName:           &payload.LastName,
-		Suffix:             payload.Suffix,
-		MiddleName:         payload.MiddleName,
-		PersonalEmail:      payload.Email,
-		Telephone:          payload.Phone,
+		ResidentialAddress:   address,
+		BackupContacts:       backupContacts,
+		FirstName:            &payload.FirstName,
+		LastName:             &payload.LastName,
+		Suffix:               payload.Suffix,
+		MiddleName:           payload.MiddleName,
+		PersonalEmail:        payload.Email,
+		Telephone:            payload.Phone,
+		SecondaryTelephone:   payload.SecondaryTelephone,
+		PhoneIsPreferred:     &payload.PhoneIsPreferred,
+		EmailIsPreferred:     &payload.EmailIsPreferred,
+		BackupMailingAddress: backupAddress,
+		CacValidated:         payload.CacValidated,
 	}
 }
 
@@ -245,12 +251,10 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	}
 
 	model := &models.PPMShipment{
-		Status:                         models.PPMShipmentStatusSubmitted,
-		SITExpected:                    ppmShipment.SitExpected,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		HasProGear:                     ppmShipment.HasProGear,
+		Status:          models.PPMShipmentStatusSubmitted,
+		SITExpected:     ppmShipment.SitExpected,
+		EstimatedWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		HasProGear:      ppmShipment.HasProGear,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
@@ -258,11 +262,41 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.ExpectedDepartureDate = *expectedDepartureDate
 	}
 
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&ppmShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow. Eventually postalCode column will be dropped.
+		model.PickupPostalCode = addressModel.PostalCode
 	}
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+
+	addressModel = AddressModel(&ppmShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow. Eventually postalCode column will be dropped.
+		model.SecondaryPickupPostalCode = &addressModel.PostalCode
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow. Eventually postalCode column will be dropped.
+		model.DestinationPostalCode = addressModel.PostalCode
+	}
+
+	addressModel = AddressModel(&ppmShipment.SecondaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDestinationAddress = addressModel
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow. Eventually postalCode column will be dropped.
+		model.SecondaryDestinationPostalCode = &addressModel.PostalCode
+		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -357,6 +391,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
@@ -406,8 +442,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	}
 	model := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
@@ -415,6 +449,10 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
+		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
@@ -422,14 +460,44 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.ExpectedDepartureDate = *expectedDepartureDate
 	}
 
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&ppmShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
+		model.PickupPostalCode = addressModel.PostalCode
 	}
 
-	var addressModel *models.Address
+	addressModel = AddressModel(&ppmShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		secondaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.SecondaryPickupAddressID = &secondaryPickupAddressID
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
+		model.SecondaryPickupPostalCode = &addressModel.PostalCode
+	}
+
+	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
+		model.DestinationPostalCode = addressModel.PostalCode
+	}
+
+	addressModel = AddressModel(&ppmShipment.SecondaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDestinationAddress = addressModel
+		secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
+		// Set legacy postalCode using address. This is to make it backward compatiable with
+		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
+		model.SecondaryDestinationPostalCode = &addressModel.PostalCode
+	}
 
 	if ppmShipment.W2Address != nil {
 		addressModel = AddressModel(ppmShipment.W2Address)
@@ -497,23 +565,35 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 
 // MovingExpenseModelFromUpdate
 func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense) *models.MovingExpense {
+	var model models.MovingExpense
+
 	if movingExpense == nil {
 		return nil
 	}
-	model := &models.MovingExpense{
-		Amount:       handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
-		SITStartDate: handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
-		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
-		Status:       (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
-		Reason:       handlers.FmtString(movingExpense.Reason),
+
+	var expenseType models.MovingExpenseReceiptType
+	if movingExpense.MovingExpenseType != nil {
+		expenseType = models.MovingExpenseReceiptType(*movingExpense.MovingExpenseType.Pointer())
+		model.MovingExpenseType = &expenseType
 	}
 
-	return model
+	if movingExpense.Description != nil {
+		model.Description = movingExpense.Description
+	}
+
+	model.Amount = handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount)
+	model.SITStartDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate)
+	model.SITEndDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate)
+	model.Status = (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status)))
+	model.Reason = handlers.FmtString(movingExpense.Reason)
+	model.WeightStored = handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored)
+
+	return &model
 }
 
 func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) (*models.EvaluationReport, error) {
 	if evaluationReport == nil {
-		err := apperror.NewPreconditionFailedError(uuid.UUID{}, errors.New("Cannot update empty report"))
+		err := apperror.NewPreconditionFailedError(uuid.UUID{}, errors.New("cannot update empty report"))
 		return nil, err
 	}
 

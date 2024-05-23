@@ -30,6 +30,8 @@ import {
   getServicesCounselingPPMQueue,
   getPrimeSimulatorAvailableMoves,
   getPPMCloseout,
+  getPPMActualWeight,
+  searchCustomers,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -61,6 +63,8 @@ import {
   DOCUMENTS,
   PRIME_SIMULATOR_AVAILABLE_MOVES,
   PPMCLOSEOUT,
+  PPMACTUALWEIGHT,
+  SC_CUSTOMER_SEARCH,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -143,6 +147,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
+    move,
     order,
     customerData,
     isLoading,
@@ -258,10 +263,20 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  const ppmShipmentId = mtoShipment?.ppmShipment?.id;
+  const { data: ppmActualWeight, ...ppmActualWeightQuery } = useQuery(
+    [PPMACTUALWEIGHT, ppmShipmentId],
+    ({ queryKey }) => getPPMActualWeight(...queryKey),
+    {
+      enabled: !!ppmShipmentId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery, ppmActualWeightQuery]);
   return {
     mtoShipment,
     documents,
+    ppmActualWeight,
     isLoading,
     isError,
     isSuccess,
@@ -857,6 +872,49 @@ export const useMoveSearchQueries = ({
   const searchMovesResult = data.searchMoves;
   return {
     searchResult: { data: searchMovesResult, page: data.page, perPage: data.perPage, totalCount: data.totalCount },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerSearchQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const queryResult = useQuery(
+    [SC_CUSTOMER_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
+    ({ queryKey }) => searchCustomers(...queryKey),
+    {
+      enabled: filters.length > 0,
+    },
+  );
+  const { data = {}, ...customerSearchQuery } = queryResult;
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerSearchQuery]);
+  const searchCustomersResult = data.searchCustomers;
+  return {
+    searchResult: { data: searchCustomersResult, page: data.page, perPage: data.perPage, totalCount: data.totalCount },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerQuery = (customerId) => {
+  const { data: { customer } = {}, ...customerQuery } = useQuery(
+    [CUSTOMER, customerId],
+    ({ queryKey }) => getCustomer(...queryKey),
+    {
+      enabled: !!customerId,
+    },
+  );
+  const customerData = customer && Object.values(customer)[0];
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerQuery]);
+  return {
+    customerData,
     isLoading,
     isError,
     isSuccess,

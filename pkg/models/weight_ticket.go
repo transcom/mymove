@@ -81,3 +81,9 @@ func (w *WeightTicket) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: w.AllowableWeight},
 	), nil
 }
+func GetWeightTicketNetWeight(w WeightTicket) unit.Pound {
+	if w.FullWeight != nil && w.EmptyWeight != nil {
+		return *w.FullWeight - *w.EmptyWeight
+	}
+	return 0
+}

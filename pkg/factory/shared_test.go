@@ -509,7 +509,7 @@ func (suite *FactorySuite) TestValidateCustomizations() {
 		})
 		suite.Len(customs, 3)
 		err := isUnique(customs)
-		suite.ErrorContains(err, "Found more than one instance")
+		suite.ErrorContains(err, "found more than one instance")
 
 	})
 

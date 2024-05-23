@@ -26,9 +26,11 @@ describe('When given a created moving expense history record', () => {
       sit_start_date: null,
       status: null,
     },
+    oldValues: {},
     context: [
       {
         shipment_id_abbr: '125d1',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
       },
     ],
@@ -45,11 +47,11 @@ describe('When given a created moving expense history record', () => {
 
   describe('properly renders shipment labels for ', () => {
     it.each(expenseTypes)('%s receipts', (label, docType) => {
-      historyRecord.context[0].moving_expense_type = docType;
+      historyRecord.oldValues.moving_expense_type = docType;
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
-      expect(screen.getByText(`PPM shipment #125D1, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText(`PPM shipment #RQ38D4-01, ${label}`)).toBeInTheDocument();
     });
   });
 });

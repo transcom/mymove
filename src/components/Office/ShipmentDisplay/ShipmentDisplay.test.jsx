@@ -42,7 +42,8 @@ describe('Shipment Container', () => {
           isSubmitted={false}
         />,
       );
-      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent('HHG');
+      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(hhgInfo.shipmentLocator);
     });
 
     it('renders the container successfully with postal only address', () => {
@@ -90,10 +91,11 @@ describe('Shipment Container', () => {
           <ShipmentDisplay shipmentId="1" displayInfo={ntsInfo} onChange={jest.fn()} isSubmitted editURL="/" />
         </MockProviders>,
       );
-      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
-      expect(screen.queryByTestId('checkbox')).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+      expect(screen.queryByTestId('checkbox')).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
       expect(screen.getByTestId('shipment-display-checkbox')).not.toBeDisabled();
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent('NTS');
+      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ntsInfo.shipmentLocator);
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
       render(
@@ -138,9 +140,11 @@ describe('Shipment Container', () => {
         </MockProviders>,
       );
 
-      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
+      expect(screen.getByTestId('shipment-display')).toBeVisible();
       expect(screen.getByTestId('shipment-display-checkbox')).not.toBeDisabled();
-      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent('NTS-release');
+      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ntsReleaseInfo.shipmentLocator);
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
       render(
@@ -200,9 +204,9 @@ describe('Shipment Container', () => {
         </MockProviders>,
       );
 
-      expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
-      expect(screen.getByText('PPM')).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Review documents' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Review documents' })).toBeVisible();
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
+      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
     });
     it('renders aoa packet link when approved', () => {
       render(

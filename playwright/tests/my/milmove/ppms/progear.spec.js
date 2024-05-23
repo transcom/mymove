@@ -35,16 +35,16 @@ test.describe('Progear', () => {
 
 test.describe('(MultiMove) Progear', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateToProgearPage();
+      await customerPpmPage.clickOnGoToMoveButton();
+      await customerPpmPage.navigateToProgearPage();
     });
 
-    test.skip(`progear page loads`, async ({ customerPpmPage, page }) => {
+    test(`progear page loads`, async ({ customerPpmPage, page }) => {
       await customerPpmPage.submitProgearPage({ belongsToSelf: true });
 
       const set2Heading = page.getByRole('heading', { name: 'Set 2' });

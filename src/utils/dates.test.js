@@ -19,6 +19,12 @@ describe('selectDatePrefixByStatus', () => {
   it('should return "Date rejected" for a REJECTED status', () => {
     expect(selectDatePrefixByStatus('REJECTED')).toEqual('Date rejected');
   });
+  it('should return "Date approved" for a Move Task Order Approved status', () => {
+    expect(selectDatePrefixByStatus('Move Task Order Approved')).toEqual('Date approved');
+  });
+  it('should return "Date rejected" for a Move Task Order Rejected status', () => {
+    expect(selectDatePrefixByStatus('Move Task Order Rejected')).toEqual('Date rejected');
+  });
   it('should return "Date requested" as default', () => {
     expect(selectDatePrefixByStatus('noMatch')).toEqual('Date requested');
   });
@@ -33,6 +39,12 @@ describe('selectDateFieldByStatus', () => {
   });
   it('should return rejectedAt for a REJECTED status', () => {
     expect(selectDateFieldByStatus('REJECTED')).toEqual('rejectedAt');
+  });
+  it('should return approvedAt for a Move Task Order Approved status', () => {
+    expect(selectDateFieldByStatus('Move Task Order Approved')).toEqual('approvedAt');
+  });
+  it('should return rejectedAt for a Move Task Order Rejected status', () => {
+    expect(selectDateFieldByStatus('Move Task Order Rejected')).toEqual('rejectedAt');
   });
   it('should return createdAt as default', () => {
     expect(selectDateFieldByStatus('noMatch')).toEqual('createdAt');

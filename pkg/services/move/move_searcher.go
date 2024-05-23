@@ -3,6 +3,7 @@ package move
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
@@ -11,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -48,25 +48,22 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		return nil, 0, err
 	}
 
-	var query *pop.Query
-
-	if appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) || appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query = appCtx.DB().EagerPreload(
-			"MTOShipments",
-			"Orders.ServiceMember",
-			"Orders.NewDutyLocation.Address",
-			"Orders.OriginDutyLocation.Address",
-		).
-			Join("orders", "orders.id = moves.orders_id").
-			Join("service_members", "service_members.id = orders.service_member_id").
-			LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
-			Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
-			Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
-			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
-			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
-			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
-			Where("show = TRUE")
-	}
+	query := appCtx.DB().EagerPreload(
+		"MTOShipments",
+		"Orders.ServiceMember",
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
+		"LockedByOfficeUser",
+	).
+		Join("orders", "orders.id = moves.orders_id").
+		Join("service_members", "service_members.id = orders.service_member_id").
+		LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
+		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
+		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
+		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
+		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
+		Where("show = TRUE")
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	locatorQuery := locatorFilter(params.Locator)
@@ -76,9 +73,12 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	destinationPostalCodeQuery := destinationPostalCodeFilter(params.DestinationPostalCode)
 	statusQuery := moveStatusFilter(params.Status)
 	shipmentsCountQuery := shipmentsCountFilter(params.ShipmentsCount)
+	scheduledPickupDateQuery := scheduledPickupDateFilter(params.PickupDate)
+	scheduledDeliveryDateQuery := scheduledDeliveryDateFilter(params.DeliveryDate)
 	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
 
-	options := [10]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery, destinationPostalCodeQuery, statusQuery, shipmentsCountQuery}
+	options := [11]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
+		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -172,6 +172,26 @@ func shipmentsCountFilter(shipmentsCount *int64) QueryOption {
 	return func(query *pop.Query) {
 		if shipmentsCount != nil {
 			query.Having("COUNT(mto_shipments.id) = ?", *shipmentsCount)
+		}
+	}
+}
+
+func scheduledPickupDateFilter(pickupDate *time.Time) QueryOption {
+	return func(query *pop.Query) {
+		if pickupDate != nil {
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			pickupDateEnd := pickupDate.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			query.Where("mto_shipments.scheduled_pickup_date between ? and ?", pickupDate.Format(time.RFC3339), pickupDateEnd.Format(time.RFC3339))
+		}
+	}
+}
+
+func scheduledDeliveryDateFilter(deliveryDate *time.Time) QueryOption {
+	return func(query *pop.Query) {
+		if deliveryDate != nil {
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			deliveryDateEnd := deliveryDate.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			query.Where("mto_shipments.scheduled_delivery_date between ? and ?", deliveryDate.Format(time.RFC3339), deliveryDateEnd.Format(time.RFC3339))
 		}
 	}
 }

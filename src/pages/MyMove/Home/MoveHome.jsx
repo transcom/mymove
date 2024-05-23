@@ -3,7 +3,7 @@ import { node, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -16,6 +16,8 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -30,7 +32,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -74,11 +76,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // loading the moveId in params to select move details from serviceMemberMoves in state
   const { moveId } = useParams();
   const navigate = useNavigate();
-
+  let { state } = useLocation();
+  state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -185,11 +189,24 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     return move.status === MOVE_STATUSES.APPROVED;
   };
 
+  // checking to see if prime is counseling this move, return true
+  const isPrimeCounseled = () => {
+    return !orders.providesServicesCounseling;
+  };
+
+  // checking to see if prime has completed counseling, return true
+  const isPrimeCounselingComplete = () => {
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
+  };
+
   // logic that handles deleting a shipment
   // calls internal API and updates shipments
   const handleDeleteShipmentConfirmation = (shipmentId) => {
     deleteMTOShipment(shipmentId)
       .then(() => {
+        getAllMoves(serviceMember.id).then((response) => {
+          updateAllMoves(response);
+        });
         getMTOShipmentsForMove(move.id).then((response) => {
           updateMTOShipments(response);
           setShowDeleteErrorAlert(false);
@@ -306,7 +323,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const handleNewPathClick = (path) => {
-    navigate(path);
+    navigate(path, { state });
   };
 
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
@@ -363,6 +380,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   };
 
+  const togglePPMPacketErrorModal = () => {
+    setShowErrorAlert(!showErrorAlert);
+  };
+
+  const errorModalMessage =
+    "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
+
   // early return if loading user/service member
   if (!serviceMember) {
     return (
@@ -376,7 +400,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // eslint-disable-next-line camelcase
   const { current_location } = serviceMember;
-  const ordersPath = hasOrdersNoUpload() ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
+  const ordersPath = hasOrdersNoUpload() ? `/orders/upload/${orders.id}` : `/orders/upload/${orders.id}`;
 
   const shipmentSelectionPath =
     move?.id &&
@@ -385,16 +409,15 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
-  const profileEditPath = customerRoutes.PROFILE_PATH;
-  const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-  const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
+  const profileEditPath = generatePath(customerRoutes.PROFILE_PATH);
+  const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
+  const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
   const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
-
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -407,6 +430,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
+      <ErrorModal isOpen={showErrorAlert} closeModal={togglePPMPacketErrorModal} errorMessage={errorModalMessage} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -531,7 +555,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 >
                   {hasSubmittedMove() ? (
                     <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
-                      Move submitted {formatCustomerDate(move.submittedAt)}.<br />
+                      Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.<br />
                       <Button unstyled onClick={handlePrintLegalese} className={styles.printBtn}>
                         Print the legal agreement
                       </Button>
@@ -582,9 +606,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                 {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
                                   // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                   <p className={styles.downloadLink}>
-                                    <a href="">
-                                      <span>Download AOA Paperwork (PDF)</span>
-                                    </a>
+                                    <AsyncPacketDownloadLink
+                                      id={shipment?.ppmShipment?.id}
+                                      label="Download AOA Paperwork (PDF)"
+                                      asyncRetrieval={downloadPPMAOAPacket}
+                                      onFailure={togglePPMPacketErrorModal}
+                                    />
                                   </p>
                                 )}
                                 {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
@@ -605,7 +632,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                           usage authorization or ask any questions.
                         </Description>
                       )}
-                      {!hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                      {!isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
                         <Description>
                           Your service will review your request for an Advance Operating Allowance (AOA). If approved,
                           you will be able to download the paperwork for your request and submit it to your Finance
@@ -616,6 +643,56 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                           difference.
                         </Description>
                       )}
+                      {isPrimeCounseled() && !hasAdvanceApproved() && !hasAllAdvancesRejected() && (
+                        <Description>
+                          Once you have received counseling for your PPM you will receive emailed instructions on how to
+                          download your Advance Operating Allowance (AOA) packet. Please consult with your
+                          Transportation Office for review of your AOA packet.
+                          <br />
+                          <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                          incentive ends up being less than your advance, you will be required to pay back the
+                          difference.
+                          <br />
+                          <br />
+                        </Description>
+                      )}
+                      {isPrimeCounselingComplete() && (
+                        <>
+                          {ppmShipments.map((shipment) => {
+                            const { shipmentType } = shipment;
+                            if (shipmentNumbersByType[shipmentType]) {
+                              shipmentNumbersByType[shipmentType] += 1;
+                            } else {
+                              shipmentNumbersByType[shipmentType] = 1;
+                            }
+                            const shipmentNumber = shipmentNumbersByType[shipmentType];
+                            return (
+                              <>
+                                <strong>
+                                  {shipmentTypes[shipment.shipmentType]}
+                                  {` ${shipmentNumber} `}
+                                </strong>
+                                {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                  <p className={styles.downloadLink}>
+                                    <AsyncPacketDownloadLink
+                                      id={shipment?.ppmShipment?.id}
+                                      label="Download AOA Paperwork (PDF)"
+                                      asyncRetrieval={downloadPPMAOAPacket}
+                                      onFailure={togglePPMPacketErrorModal}
+                                    />
+                                  </p>
+                                )}
+                                {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                  <>
+                                    <br />
+                                    <br />
+                                  </>
+                                )}
+                              </>
+                            );
+                          })}
+                        </>
+                      )}
                     </SectionWrapper>
                   </Step>
                 )}
@@ -625,7 +702,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     completedHeaderText="Manage your PPM"
                     step={hasAdvanceRequested() ? '6' : '5'}
                   >
-                    <PPMSummaryList shipments={ppmShipments} onUploadClick={handlePPMUploadClick} />
+                    <PPMSummaryList
+                      shipments={ppmShipments}
+                      onUploadClick={handlePPMUploadClick}
+                      onDownloadError={togglePPMPacketErrorModal}
+                    />
                   </Step>
                 )}
               </SectionWrapper>

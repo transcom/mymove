@@ -1,20 +1,22 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Orders } from './Orders';
+import Orders from './Orders';
 
-import { createOrders, getOrdersForServiceMember, getServiceMember, patchOrders } from 'services/internalApi';
-import { MockRouterProvider, renderWithRouterProp } from 'testUtils';
+import { getOrders, patchOrders } from 'services/internalApi';
+import { renderWithProviders } from 'testUtils';
+import { customerRoutes } from 'constants/routes';
+import {
+  selectAllMoves,
+  selectOrdersForLoggedInUser,
+  selectServiceMemberFromLoggedInUser,
+} from 'store/entities/selectors';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
-  getOrdersForServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
-  getServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
-  createOrders: jest.fn().mockImplementation(() => Promise.resolve()),
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
-  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
+  getOrders: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -139,6 +141,13 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectServiceMemberFromLoggedInUser: jest.fn(),
+  selectOrdersForLoggedInUser: jest.fn(),
+  selectAllMoves: jest.fn(),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -149,231 +158,292 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-describe('Orders page', () => {
-  const ordersOptions = [
-    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
-    { key: 'LOCAL_MOVE', value: 'Local Move' },
-    { key: 'RETIREMENT', value: 'Retirement' },
-    { key: 'SEPARATION', value: 'Separation' },
-  ];
+const testPropsWithUploads = {
+  id: 'testOrderId',
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  issue_date: '2020-11-08',
+  report_by_date: '2020-11-26',
+  has_dependents: false,
+  grade: 'E_8',
+  new_duty_location: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
+  origin_duty_location: {
+    address: {
+      city: 'Altus AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
+      postalCode: '73523',
+      state: 'OK',
+      streetAddress1: 'n/a',
+    },
+    address_id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
+    affiliation: 'AIR_FORCE',
+    created_at: '2021-02-11T16:48:04.117Z',
+    id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+    name: 'Altus AFB',
+    updated_at: '2021-02-11T16:48:04.117Z',
+  },
+  uploaded_orders: {
+    id: 'testId',
+    uploads: [
+      {
+        bytes: 1578588,
+        contentType: 'image/png',
+        createdAt: '2024-02-23T16:51:45.504Z',
+        filename: 'Screenshot 2024-02-15 at 12.22.53 PM (2).png',
+        id: 'fd88b0e6-ff6d-4a99-be6f-49458a244209',
+        status: 'PROCESSING',
+        updatedAt: '2024-02-23T16:51:45.504Z',
+        url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/fd88b0e6-ff6d-4a99-be6f-49458a244209?contentType=image%2Fpng',
+      },
+    ],
+  },
+  moves: ['testMoveId'],
+};
 
+const testPropsNoUploads = {
+  id: 'testOrderId2',
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  issue_date: '2020-11-08',
+  report_by_date: '2020-11-26',
+  has_dependents: false,
+  new_duty_location: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
+  origin_duty_location: {
+    address: {
+      city: 'Altus AFB',
+      country: 'United States',
+      id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
+      postalCode: '73523',
+      state: 'OK',
+      streetAddress1: 'n/a',
+    },
+    address_id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
+    affiliation: 'AIR_FORCE',
+    created_at: '2021-02-11T16:48:04.117Z',
+    id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+    name: 'Altus AFB',
+    updated_at: '2021-02-11T16:48:04.117Z',
+  },
+  uploaded_orders: {
+    id: 'testId',
+    service_member_id: 'testId',
+    uploads: [],
+  },
+  moves: ['testMoveId'],
+};
+
+const testOrders = [testPropsWithUploads, testPropsNoUploads];
+
+const serviceMember = {
+  id: 'id123',
+};
+
+describe('Orders page', () => {
   const testProps = {
-    serviceMemberId: '123',
+    serviceMemberId: 'id123',
     context: { flags: { allOrdersTypes: true } },
+    orders: testOrders,
+    serviceMemberMoves: {
+      currentMove: [
+        {
+          createdAt: '2024-02-23T19:30:11.374Z',
+          eTag: 'MjAyNC0wMi0yM1QxOTozMDoxMS4zNzQxN1o=',
+          id: 'testMoveId',
+          moveCode: '44649B',
+          orders: {
+            authorizedWeight: 11000,
+            created_at: '2024-02-23T19:30:11.369Z',
+            entitlement: {
+              proGear: 2000,
+              proGearSpouse: 500,
+            },
+            grade: 'E_7',
+            has_dependents: false,
+            id: 'testOrders1',
+            issue_date: '2024-02-29',
+            new_duty_location: {
+              address: {
+                city: 'Fort Irwin',
+                country: 'United States',
+                id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+                postalCode: '92310',
+                state: 'CA',
+                streetAddress1: 'n/a',
+              },
+              address_id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+              affiliation: 'ARMY',
+              created_at: '2024-02-22T21:34:21.449Z',
+              id: '12421bcb-2ded-4165-b0ac-05f76301082a',
+              name: 'Fort Irwin, CA 92310',
+              transportation_office: {
+                address: {
+                  city: 'Fort Irwin',
+                  country: 'United States',
+                  id: '65a97b21-cf6a-47c1-a4b6-e3f885dacba5',
+                  postalCode: '92310',
+                  state: 'CA',
+                  streetAddress1: 'Langford Lake Rd',
+                  streetAddress2: 'Bldg 105',
+                },
+                created_at: '2018-05-28T14:27:37.312Z',
+                gbloc: 'LKNQ',
+                id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+                name: 'PPPO Fort Irwin - USA',
+                phone_lines: [],
+                updated_at: '2018-05-28T14:27:37.312Z',
+              },
+              transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+              updated_at: '2024-02-22T21:34:21.449Z',
+            },
+            orders_type: 'PERMANENT_CHANGE_OF_STATION',
+            originDutyLocationGbloc: 'BGAC',
+            origin_duty_location: {
+              address: {
+                city: 'Fort Gregg-Adams',
+                country: 'United States',
+                id: '12270b68-01cf-4416-8b19-125d11bc8340',
+                postalCode: '23801',
+                state: 'VA',
+                streetAddress1: 'n/a',
+              },
+              address_id: '12270b68-01cf-4416-8b19-125d11bc8340',
+              affiliation: 'ARMY',
+              created_at: '2024-02-22T21:34:26.430Z',
+              id: '9cf15b8d-985b-4ca3-9f27-4ba32a263908',
+              name: 'Fort Gregg-Adams, VA 23801',
+              transportation_office: {
+                address: {
+                  city: 'Fort Gregg-Adams',
+                  country: 'United States',
+                  id: '10dc88f5-d76a-427f-89a0-bf85587b0570',
+                  postalCode: '23801',
+                  state: 'VA',
+                  streetAddress1: '1401 B Ave',
+                  streetAddress2: 'Bldg 3400, Room 119',
+                },
+                created_at: '2018-05-28T14:27:42.125Z',
+                gbloc: 'BGAC',
+                id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+                name: 'PPPO Fort Gregg-Adams - USA',
+                phone_lines: [],
+                updated_at: '2018-05-28T14:27:42.125Z',
+              },
+              transportation_office_id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+              updated_at: '2024-02-22T21:34:26.430Z',
+            },
+            report_by_date: '2024-02-29',
+            service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
+            spouse_has_pro_gear: false,
+            status: 'DRAFT',
+            updated_at: '2024-02-23T19:30:11.369Z',
+            uploaded_orders: {
+              id: 'bd35c4c2-41c6-44a1-bf54-9098c68d87cc',
+              service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
+              uploads: [
+                {
+                  bytes: 92797,
+                  contentType: 'image/png',
+                  createdAt: '2024-02-26T18:43:58.515Z',
+                  filename: 'Screenshot 2024-02-08 at 12.57.43 PM.png',
+                  id: '786237dc-c240-449d-8859-3f37583b3406',
+                  status: 'PROCESSING',
+                  updatedAt: '2024-02-26T18:43:58.515Z',
+                  url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/786237dc-c240-449d-8859-3f37583b3406?contentType=image%2Fpng',
+                },
+              ],
+            },
+          },
+          status: 'DRAFT',
+          submittedAt: '0001-01-01T00:00:00.000Z',
+          updatedAt: '0001-01-01T00:00:00.000Z',
+        },
+      ],
+      previousMoves: [],
+    },
     updateOrders: jest.fn(),
-    updateServiceMember: jest.fn(),
   };
 
-  describe('if there are no current orders', () => {
-    it('next button creates the orders and goes to the Upload Orders step', async () => {
-      const testOrdersValues = {
-        id: 'newOrdersId',
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
-        issue_date: '2020-11-08',
-        report_by_date: '2020-11-26',
-        has_dependents: false,
-        new_duty_location: {
-          address: {
-            city: 'Des Moines',
-            country: 'US',
-            id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-            postalCode: '50309',
-            state: 'IA',
-            streetAddress1: '987 Other Avenue',
-            streetAddress2: 'P.O. Box 1234',
-            streetAddress3: 'c/o Another Person',
-          },
-          address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-          affiliation: 'AIR_FORCE',
-          created_at: '2020-10-19T17:01:16.114Z',
-          id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
-          name: 'Yuma AFB',
-          updated_at: '2020-10-19T17:01:16.114Z',
-        },
-        grade: 'E_1',
-      };
-
-      createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
-
-      renderWithRouterProp(<Orders {...testProps} />, { navigate: mockNavigate });
-
-      await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-      await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-      await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
-      await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
-
-      // Test Current Duty Location Search Box interaction
-      await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
-      const selectedOptionCurrent = await screen.findByText(/Altus/);
-      await userEvent.click(selectedOptionCurrent);
-
-      // Test New Duty Location Search Box interaction
-      await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
-      const selectedOptionNew = await screen.findByText(/Luke/);
-      await userEvent.click(selectedOptionNew);
-
-      await waitFor(() => {
-        expect(screen.getByRole('form')).toHaveFormValues({
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
-          issue_date: '08 Nov 2020',
-          report_by_date: '26 Nov 2020',
-          has_dependents: 'no',
-          new_duty_location: 'Luke AFB',
-          grade: 'E_5',
-          origin_duty_location: 'Altus AFB',
-        });
-      });
-
-      const submitButton = screen.getByRole('button', { name: 'Next' });
-      expect(submitButton).toBeEnabled();
-
-      expect(submitButton).toBeInTheDocument();
-      await userEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(createOrders).toHaveBeenCalled();
-      });
-
-      expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
-      expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMemberId);
-      expect(testProps.updateServiceMember).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/orders/upload');
+  it('renders all content of Orders component', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
+    selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
+    renderWithProviders(<Orders {...testProps} />, {
+      path: customerRoutes.ORDERS_INFO_PATH,
+      params: { orderId: 'testOrderId' },
     });
 
-    it('does not load orders on mount', async () => {
-      const { queryByRole } = renderWithRouterProp(<Orders {...testProps} />);
-      await waitFor(() => {
-        expect(queryByRole('heading', { name: 'Tell us about your move orders', level: 1 })).toBeInTheDocument();
-        expect(getOrdersForServiceMember).not.toHaveBeenCalled();
-      });
-    });
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+    expect(screen.getByTestId('main-container')).toBeInTheDocument();
+    expect(screen.getByTestId('orders-form-container')).toBeInTheDocument();
+    const saveBtn = await screen.findByRole('button', { name: 'Back' });
+    expect(saveBtn).toBeInTheDocument();
+    const cancelBtn = await screen.findByRole('button', { name: 'Next' });
+    expect(cancelBtn).toBeInTheDocument();
   });
 
-  describe('if there are current orders', () => {
-    it('loads orders on mount', async () => {
-      const testOrdersValues = {
-        id: 'testOrdersId',
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
-        issue_date: '2020-11-08',
-        report_by_date: '2020-11-26',
-        has_dependents: false,
-        new_duty_location: {
-          address: {
-            city: 'Des Moines',
-            country: 'US',
-            id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-            postalCode: '50309',
-            state: 'IA',
-            streetAddress1: '987 Other Avenue',
-            streetAddress2: 'P.O. Box 1234',
-            streetAddress3: 'c/o Another Person',
-          },
-          address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-          affiliation: 'AIR_FORCE',
-          created_at: '2020-10-19T17:01:16.114Z',
-          id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
-          name: 'Yuma AFB',
-          updated_at: '2020-10-19T17:01:16.114Z',
-        },
-        grade: 'E_1',
-        origin_duty_location: {
-          address: {
-            city: 'Altus AFB',
-            country: 'United States',
-            id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
-            postalCode: '73523',
-            state: 'OK',
-            streetAddress1: 'n/a',
-          },
-          address_id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
-          affiliation: 'AIR_FORCE',
-          created_at: '2021-02-11T16:48:04.117Z',
-          id: '93f0755f-6f35-478b-9a75-35a69211da1c',
-          name: 'Altus AFB',
-          updated_at: '2021-02-11T16:48:04.117Z',
-        },
-      };
-
-      getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
-
-      const { queryByText } = renderWithRouterProp(<Orders {...testProps} currentOrders={{ id: 'testOrders' }} />);
-
-      expect(queryByText('Loading, please wait...')).toBeInTheDocument();
-
-      await waitFor(() => {
-        expect(queryByText('Loading, please wait...')).not.toBeInTheDocument();
-        expect(getOrdersForServiceMember).toHaveBeenCalled();
-        expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
-      });
+  it('renders appropriate order data on load', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
+    selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
+    renderWithProviders(<Orders {...testProps} />, {
+      path: customerRoutes.ORDERS_INFO_PATH,
+      params: { orderId: 'testOrderId' },
     });
 
-    it('next button patches the orders and goes to the Upload Orders step', async () => {
-      const testOrdersValues = {
-        id: 'testOrdersId',
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
-        issue_date: '2020-11-08',
-        report_by_date: '2020-11-26',
-        has_dependents: false,
-        new_duty_location: {
-          address: {
-            city: 'Des Moines',
-            country: 'US',
-            id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-            postalCode: '50309',
-            state: 'IA',
-            streetAddress1: '987 Other Avenue',
-            streetAddress2: 'P.O. Box 1234',
-            streetAddress3: 'c/o Another Person',
-          },
-          address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-          affiliation: 'AIR_FORCE',
-          created_at: '2020-10-19T17:01:16.114Z',
-          id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
-          name: 'Yuma AFB',
-          updated_at: '2020-10-19T17:01:16.114Z',
-        },
-        grade: 'E_1',
-      };
-      getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
-      patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
-
-      // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-      const { queryByRole } = renderWithRouterProp(<Orders {...testProps} currentOrders={testOrdersValues} />, {
-        navigate: mockNavigate,
-      });
-
-      await waitFor(() => {
-        expect(queryByRole('button', { name: 'Next' })).toBeInTheDocument();
-      });
-      await userEvent.click(queryByRole('button', { name: 'Next' }));
-
-      expect(testProps.updateOrders).toHaveBeenNthCalledWith(1, testOrdersValues);
-      expect(getServiceMember).not.toHaveBeenCalled();
-      expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    });
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+    expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+    expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
+    expect(screen.getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
+    expect(screen.getByLabelText('Yes')).not.toBeChecked();
+    expect(screen.getByLabelText('No')).toBeChecked();
+    expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
+    expect(screen.getByLabelText('Pay grade')).toHaveValue('E_8');
+    expect(screen.queryByText('Altus AFB')).toBeInTheDocument();
   });
 
-  it('back button goes to the Home page', async () => {
-    const { queryByText } = renderWithRouterProp(<Orders {...testProps} />, { navigate: mockNavigate });
-
-    const backButton = queryByText('Back');
-    await waitFor(() => {
-      expect(backButton).toBeInTheDocument();
-    });
-
-    await userEvent.click(backButton);
-    expect(mockNavigate).toHaveBeenCalledWith('/');
-  });
-
-  it('shows an error if the API returns an error', async () => {
+  it('next button patches the orders updates state', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
+    selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
     const testOrdersValues = {
       id: 'testOrdersId',
       orders_type: 'PERMANENT_CHANGE_OF_STATION',
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: false,
-      grade: 'E_2',
       new_duty_location: {
         address: {
           city: 'Des Moines',
@@ -392,26 +462,31 @@ describe('Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      origin_duty_location: {
-        address: {
-          city: 'Altus AFB',
-          country: 'United States',
-          id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
-          postalCode: '73523',
-          state: 'OK',
-          streetAddress1: 'n/a',
-        },
-        address_id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
-        affiliation: 'AIR_FORCE',
-        created_at: '2021-02-11T16:48:04.117Z',
-        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
-        name: 'Altus AFB',
-        updated_at: '2021-02-11T16:48:04.117Z',
-      },
+      grade: 'E_1',
     };
+    patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
+    getOrders.mockImplementation(() => Promise.resolve());
 
-    getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
+    renderWithProviders(<Orders {...testProps} />, {
+      path: customerRoutes.ORDERS_INFO_PATH,
+      params: { orderId: 'testOrderId' },
+    });
 
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    expect(nextBtn).toBeInTheDocument();
+
+    await userEvent.click(nextBtn);
+
+    await waitFor(() => {
+      expect(patchOrders).toHaveBeenCalled();
+      expect(getOrders).toHaveBeenCalledWith('testOrderId');
+    });
+  });
+
+  it('shows an error if the API returns an error', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
+    selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
     patchOrders.mockImplementation(() =>
       // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
       // eslint-disable-next-line prefer-promise-reject-errors
@@ -425,43 +500,21 @@ describe('Orders page', () => {
       }),
     );
 
-    // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = renderWithRouterProp(<Orders {...testProps} currentOrders={testOrdersValues} />);
+    renderWithProviders(<Orders {...testProps} />, {
+      path: customerRoutes.ORDERS_INFO_PATH,
+      params: { orderId: 'testOrderId' },
+    });
 
     await waitFor(() => {
-      expect(queryByText('Next')).toBeInTheDocument();
+      expect(screen.queryByText('Next')).toBeInTheDocument();
     });
-    await userEvent.click(queryByText('Next'));
+    await userEvent.click(screen.queryByText('Next'));
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalled();
     });
 
-    expect(testProps.updateOrders).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
-  });
-
-  describe('with the allOrdersType feature flag set to true', () => {
-    it('passes all orders types into the form', async () => {
-      const wrapper = mount(
-        <Orders {...testProps} context={{ flags: { allOrdersTypes: true } }} router={{ navigate: mockNavigate }} />,
-      );
-      await waitFor(() => {
-        expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual(ordersOptions);
-      });
-    });
-  });
-
-  describe('with the allOrdersType feature flag set to false', () => {
-    it('passes only the PCS option into the form', async () => {
-      const wrapper = mount(
-        <MockRouterProvider>
-          <Orders {...testProps} context={{ flags: { allOrdersTypes: false } }} router={{ navigate: mockNavigate }} />
-        </MockRouterProvider>,
-      );
-      await waitFor(() => {
-        expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual([ordersOptions[0]]);
-      });
-    });
   });
 });

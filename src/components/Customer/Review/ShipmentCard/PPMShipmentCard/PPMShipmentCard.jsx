@@ -10,7 +10,7 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel, isArmyOrAirForce, getMoveCodeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, canChoosePPMLocation } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
 import { isPPMShipmentComplete } from 'utils/shipments';
@@ -25,7 +25,7 @@ const PPMShipmentCard = ({
   onDeleteClick,
   onIncompleteClick,
 }) => {
-  const { moveTaskOrderID, id, shipmentType } = shipment;
+  const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -47,14 +47,14 @@ const PPMShipmentCard = ({
   })}?shipmentNumber=${shipmentNumber}`;
 
   let closeoutOffice;
-  if (move?.closeout_office == null) {
+  if (move?.closeoutOffice == null) {
     closeoutOffice = '';
   } else {
-    closeoutOffice = move.closeout_office.name;
+    closeoutOffice = move.closeoutOffice.name;
   }
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
-  const moveCodeLabel = getMoveCodeLabel(shipment.id);
+  const moveCodeLabel = `${shipmentLocator}`;
   const shipmentIsIncomplete = !isPPMShipmentComplete(shipment);
 
   return (
@@ -111,7 +111,7 @@ const PPMShipmentCard = ({
               <dd>{secondaryDestinationPostalCode}</dd>
             </div>
           )}
-          {isArmyOrAirForce(affiliation) && closeoutOffice !== '' ? (
+          {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (
             <div className={styles.row}>
               <dt>Closeout office</dt>
               <dd>{closeoutOffice}</dd>

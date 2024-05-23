@@ -37,6 +37,6 @@ describe('SomethingWentWrong tests', () => {
 
     const email = screen.getByRole('link', { name: 'email us' });
     expect(email).toBeInTheDocument();
-    expect(email).toHaveAttribute('href', 'mailto:usarmy.scott.sddc.mbx.g6-src-dps-hd@mail.mil');
+    expect(email).toHaveAttribute('href', 'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil');
   });
 });

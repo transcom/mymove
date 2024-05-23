@@ -5,11 +5,22 @@ export const ORDERS_TYPE = {
   SEPARATION: 'SEPARATION',
 };
 
+export const SPECIAL_ORDERS_TYPES = {
+  WOUNDED_WARRIOR: 'Wounded Warrior',
+  BLUEBARK: 'BLUEBARK',
+};
+
+export const CHECK_SPECIAL_ORDERS_TYPES = (ordersType) => {
+  return ['BLUEBARK', 'WOUNDED_WARRIOR'].includes(ordersType);
+};
+
 export const ORDERS_TYPE_OPTIONS = {
   PERMANENT_CHANGE_OF_STATION: 'Permanent Change Of Station (PCS)',
   LOCAL_MOVE: 'Local Move',
   RETIREMENT: 'Retirement',
   SEPARATION: 'Separation',
+  WOUNDED_WARRIOR: 'Wounded Warrior',
+  BLUEBARK: 'BLUEBARK',
 };
 
 export const ORDERS_TYPE_DETAILS = {

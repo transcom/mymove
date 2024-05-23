@@ -24,6 +24,7 @@ test.describe('(MultiMove) Uploads', () => {
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
     const userId = move.Orders.ServiceMember.user_id;
     await customerPage.signInAsExistingCustomer(userId);
+    await customerPage.navigateFromMMDashboardToMove(move);
     await customerPage.waitForPage.home();
     await page.getByRole('button', { name: 'Review your request' }).click();
     await page.getByTestId('edit-orders-table').click();

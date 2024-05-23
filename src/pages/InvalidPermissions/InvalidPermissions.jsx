@@ -56,10 +56,10 @@ const InvalidPermissions = ({ context }) => {
               <br />
               <br />
               If that doesn&apos;t work, please contact the{' '}
-              <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">
+              <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
                 Technical Help Desk
               </a>{' '}
-              (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil) and give them this code: <strong>{traceId}</strong>
+              (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
             </Alert>
           )}
           <ButtonGroup type="default">

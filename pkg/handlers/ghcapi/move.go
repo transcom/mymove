@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"errors"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -21,6 +22,7 @@ import (
 type GetMoveHandler struct {
 	handlers.HandlerConfig
 	services.MoveFetcher
+	services.MoveLocker
 }
 
 // Handle handles the getMove by locator request
@@ -34,7 +36,6 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 			}
 
 			move, err := h.FetchMove(appCtx, locator, nil)
-
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move by locator", zap.Error(err))
 				switch err.(type) {
@@ -42,6 +43,26 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 					return moveop.NewGetMoveNotFound(), err
 				default:
 					return moveop.NewGetMoveInternalServerError(), err
+				}
+			}
+
+			// if this user is accessing the move record, we need to lock it so others can't edit it
+			// to allow for locking a move, we need to look at these things
+			// 1. Is the user an office user?
+			// 2. Are the columns empty (lock_expires_at & locked_by) in the db?
+			// 3. Is the lock_expires_at after right now?
+			// 4. Is the current user the one that locked it? This will reset the locked_at time.
+			// if all of those questions have the answer "yes", then we will proceed with locking the move by the current user
+			officeUserID := appCtx.Session().OfficeUserID
+			lockedOfficeUserID := move.LockedByOfficeUserID
+			lockExpiresAt := move.LockExpiresAt
+			now := time.Now()
+			if appCtx.Session().IsOfficeUser() {
+				if move.LockedByOfficeUserID == nil && move.LockExpiresAt == nil || (lockExpiresAt != nil && now.After(*lockExpiresAt)) || (*lockedOfficeUserID == officeUserID && lockedOfficeUserID != nil) {
+					move, err = h.LockMove(appCtx, move, officeUserID)
+					if err != nil {
+						return moveop.NewGetMoveInternalServerError(), err
+					}
 				}
 			}
 
@@ -71,15 +92,17 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				PerPage:               params.Body.PerPage,
 				Sort:                  params.Body.Sort,
 				Order:                 params.Body.Order,
+				PickupDate:            handlers.FmtDateTimePtrToPopPtr(params.Body.PickupDate),
+				DeliveryDate:          handlers.FmtDateTimePtrToPopPtr(params.Body.DeliveryDate),
 			}
+
 			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Error searching for move", zap.Error(err))
 				return moveop.NewSearchMovesInternalServerError(), err
 			}
-
-			searchMoves := payloads.SearchMoves(moves)
+			searchMoves := payloads.SearchMoves(appCtx, moves)
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        searchMovesParams.Page,
 				PerPage:     searchMovesParams.PerPage,

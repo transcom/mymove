@@ -63,7 +63,9 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGenerator() {
 }
 
 func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGeneratorUnprocessableEntityError() {
-	service, _ := NewMoveUserUploadToPDFDownloader(suite.userUploader)
+	pdfGenerator, err := paperwork.NewGenerator(suite.userUploader.Uploader())
+	suite.FatalNil(err)
+	service, _ := NewMoveUserUploadToPDFDownloader(pdfGenerator)
 
 	locator := "AAAA"
 
@@ -120,7 +122,9 @@ func (suite *PaperworkServiceSuite) setupOrdersDocument() (services.PrimeDownloa
 	order.UploadedOrdersID = document.ID
 	suite.MustSave(&order)
 
-	service, err := NewMoveUserUploadToPDFDownloader(suite.userUploader)
+	pdfGenerator, err := paperwork.NewGenerator(suite.userUploader.Uploader())
+	suite.FatalNil(err)
+	service, err := NewMoveUserUploadToPDFDownloader(pdfGenerator)
 	if err != nil {
 		suite.FatalNil(err)
 	}

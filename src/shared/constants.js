@@ -113,6 +113,12 @@ export const SERVICE_ITEM_STATUS = {
   REJECTED: 'REJECTED',
 };
 
+export const MTO_SERVICE_ITEM_STATUS = {
+  SUBMITTED: 'Move Task Order Requested',
+  APPROVED: 'Move Task Order Approved',
+  REJECTED: 'Move Task Order Rejected',
+};
+
 export const PAYMENT_REQUEST_STATUS = {
   PENDING: 'PENDING',
   REVIEWED: 'REVIEWED',
@@ -122,6 +128,7 @@ export const PAYMENT_REQUEST_STATUS = {
   REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED: 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED',
   EDI_ERROR: 'EDI_ERROR',
   DEPRECATED: 'DEPRECATED',
+  PAYMENT_REQUESTED: 'PAYMENT_REQUESTED',
 };
 
 export const PAYMENT_SERVICE_ITEM_STATUS = {
@@ -164,3 +171,9 @@ export const DATE_FORMAT_STRING = 'DD MMM YYYY';
 export const DATE_TIME_FORMAT_STRING = 'DD MMM YYYY, hh:mm a';
 
 export const DEFAULT_EMPTY_VALUE = '—'; // emdash
+
+export const FEATURE_FLAG_KEYS = {
+  PPM: 'ppm',
+  NTS: 'nts',
+  NTSR: 'ntsr',
+};

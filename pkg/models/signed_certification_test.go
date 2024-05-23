@@ -68,9 +68,10 @@ func (suite *ModelSuite) TestSignedCertificationValidations() {
 }
 
 func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+
+	sm := move.Orders.ServiceMember
 
 	session := &auth.Session{
 		UserID:          sm.UserID,
@@ -100,9 +101,9 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
 }
 
 func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	sm := ppm.Move.Orders.ServiceMember
-	otherPpm := testdatagen.MakeDefaultPPM(suite.DB())
+	ppmMove1 := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	sm := ppmMove1.Orders.ServiceMember
+	ppmMove2 := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
 
 	session := &auth.Session{
 		UserID:          sm.UserID,
@@ -113,7 +114,7 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 	certificationType := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    ppmMove1,
 			LinkOnly: true,
 		},
 		{
@@ -129,7 +130,7 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 	signedCertificationType := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    otherPpm.Move,
+			Model:    ppmMove2,
 			LinkOnly: true,
 		},
 		{
@@ -142,14 +143,13 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 		},
 	}, nil)
 
-	_, err := models.FetchSignedCertificationsPPMPayment(suite.DB(), session, otherPpm.MoveID)
+	_, err := models.FetchSignedCertificationsPPMPayment(suite.DB(), session, ppmMove2.ID)
 	suite.Equal(errors.Cause(err), models.ErrFetchForbidden)
 }
 
 func (suite *ModelSuite) TestFetchSignedCertifications() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	sm := move.Orders.ServiceMember
 
 	session := &auth.Session{
 		UserID:          sm.UserID,
@@ -160,7 +160,7 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
@@ -175,7 +175,7 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 	ppmCert := models.SignedCertificationTypeSHIPMENT
 	ppmSignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
@@ -190,7 +190,7 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 	hhgCert := models.SignedCertificationTypeSHIPMENT
 	hhgSignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{

@@ -23,6 +23,13 @@ const mockCustomer = {
     name: 'Jane Backup',
     phone: '555-555-1234',
   },
+  backupAddress: {
+    city: 'Great Falls',
+    country: 'US',
+    postalCode: '59402',
+    state: 'MT',
+    streetAddress1: '446 South Ave',
+  },
   current_address: {
     city: 'Beverly Hills',
     country: 'US',
@@ -35,7 +42,8 @@ const mockCustomer = {
   last_name: 'Doe',
   middle_name: 'Quincey',
   suffix: 'Jr.',
-  phone: '123-444-3434',
+  phone: '223-444-3434',
+  secondaryTelephone: '234-567-8901',
 };
 
 const loadingReturnValue = {
@@ -107,16 +115,17 @@ describe('CustomerInfo', () => {
       expect(screen.getByDisplayValue(mockCustomer.backup_contact.phone).value).toEqual(
         mockCustomer.backup_contact.phone,
       );
+      expect(screen.getByLabelText(/Alternate Phone/i).value).toEqual(mockCustomer.secondaryTelephone);
       // to get around the two inputs labeled "Email" on the screen
       expect(screen.getByDisplayValue(mockCustomer.email).value).toEqual(mockCustomer.email);
       expect(screen.getByDisplayValue(mockCustomer.backup_contact.email).value).toEqual(
         mockCustomer.backup_contact.email,
       );
-      expect(screen.getByLabelText('Address 1').value).toEqual(mockCustomer.current_address.streetAddress1);
-      expect(screen.getByLabelText('City').value).toEqual(mockCustomer.current_address.city);
-      expect(screen.getByLabelText('State').value).toEqual(mockCustomer.current_address.state);
-      expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postalCode);
-      expect(screen.getByLabelText('Name').value).toEqual(mockCustomer.backup_contact.name);
+      expect(screen.getByDisplayValue('123 Any Street').value).toEqual(mockCustomer.current_address.streetAddress1);
+      expect(screen.getByDisplayValue('Beverly Hills').value).toEqual(mockCustomer.current_address.city);
+      expect(screen.getByDisplayValue('CA').value).toEqual(mockCustomer.current_address.state);
+      expect(screen.getByDisplayValue('90210').value).toEqual(mockCustomer.current_address.postalCode);
+      expect(screen.getByDisplayValue('Jane Backup').value).toEqual(mockCustomer.backup_contact.name);
     });
   });
 

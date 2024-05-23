@@ -1,6 +1,8 @@
 package services
 
 import (
+	"io"
+
 	"github.com/gofrs/uuid"
 	"github.com/spf13/afero"
 
@@ -90,5 +92,6 @@ type AOAPacketCreator interface {
 //
 //go:generate mockery --name PaymentPacketCreator
 type PaymentPacketCreator interface {
-	CreatePaymentPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
+	Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (io.ReadCloser, error)
+	GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error)
 }

@@ -2,11 +2,13 @@
 import React from 'react';
 import { v4 } from 'uuid';
 import { mount } from 'enzyme';
+import { waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
+import { downloadPPMAOAPacket } from 'services/internalApi';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -29,6 +31,12 @@ jest.mock('services/internalApi', () => ({
   deleteMTOShipment: jest.fn(),
   getMTOShipmentsForMove: jest.fn(),
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
+  downloadPPMAOAPacket: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const props = {
@@ -794,6 +802,8 @@ const defaultPropsAmendedOrdersWithAdvanceRequested = {
   uploadedAmendedOrderDocuments: [],
 };
 
+const expectedPpmShipmentID = 'd18b865f-fd12-495d-91fa-65b53d72705a';
+
 const defaultPropsWithAdvanceAndPPMApproved = {
   ...props,
   serviceMemberMoves: {
@@ -829,7 +839,7 @@ const defaultPropsWithAdvanceAndPPMApproved = {
               hasProGear: false,
               hasReceivedAdvance: null,
               hasRequestedAdvance: true,
-              id: 'd18b865f-fd12-495d-91fa-65b53d72705a',
+              id: expectedPpmShipmentID,
               movingExpenses: [],
               pickupPostalCode: '74133',
               proGearWeight: null,
@@ -1247,6 +1257,38 @@ describe('Home component', () => {
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
+    });
+
+    it('Download AOA Paperwork - success', async () => {
+      const buttonId = `button[data-testid="asyncPacketDownloadLink${expectedPpmShipmentID}"]`;
+      expect(wrapper.find(buttonId).length).toBe(1);
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+      downloadPPMAOAPacket.mockImplementation(() => Promise.resolve(mockResponse));
+      await wrapper.find(buttonId).simulate('click');
+      await waitFor(() => {
+        expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('Download AOA Paperwork - failure', async () => {
+      const buttonId = `button[data-testid="asyncPacketDownloadLink${expectedPpmShipmentID}"]`;
+      expect(wrapper.find(buttonId).length).toBe(1);
+      downloadPPMAOAPacket.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+      await wrapper.find(buttonId).simulate('click');
+      await waitFor(() => {
+        // scrape text from error modal
+        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
+        expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

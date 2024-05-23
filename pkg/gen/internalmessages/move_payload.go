@@ -55,8 +55,10 @@ type MovePayload struct {
 	// Format: uuid
 	OrdersID *strfmt.UUID `json:"orders_id"`
 
-	// personally procured moves
-	PersonallyProcuredMoves IndexPersonallyProcuredMovePayload `json:"personally_procured_moves,omitempty"`
+	// prime counseling completed at
+	// Read Only: true
+	// Format: date-time
+	PrimeCounselingCompletedAt strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
 
 	// service member id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -109,7 +111,7 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validatePersonallyProcuredMoves(formats); err != nil {
+	if err := m.validatePrimeCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -228,17 +230,12 @@ func (m *MovePayload) validateOrdersID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MovePayload) validatePersonallyProcuredMoves(formats strfmt.Registry) error {
-	if swag.IsZero(m.PersonallyProcuredMoves) { // not required
+func (m *MovePayload) validatePrimeCounselingCompletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeCounselingCompletedAt) { // not required
 		return nil
 	}
 
-	if err := m.PersonallyProcuredMoves.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("personally_procured_moves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("personally_procured_moves")
-		}
+	if err := validate.FormatOf("primeCounselingCompletedAt", "body", "date-time", m.PrimeCounselingCompletedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -311,7 +308,7 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidatePersonallyProcuredMoves(ctx, formats); err != nil {
+	if err := m.contextValidatePrimeCounselingCompletedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -364,14 +361,9 @@ func (m *MovePayload) contextValidateMtoShipments(ctx context.Context, formats s
 	return nil
 }
 
-func (m *MovePayload) contextValidatePersonallyProcuredMoves(ctx context.Context, formats strfmt.Registry) error {
+func (m *MovePayload) contextValidatePrimeCounselingCompletedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.PersonallyProcuredMoves.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("personally_procured_moves")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("personally_procured_moves")
-		}
+	if err := validate.ReadOnly(ctx, "primeCounselingCompletedAt", "body", strfmt.DateTime(m.PrimeCounselingCompletedAt)); err != nil {
 		return err
 	}
 

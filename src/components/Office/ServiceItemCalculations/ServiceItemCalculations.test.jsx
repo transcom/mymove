@@ -34,13 +34,12 @@ const testServiceItemCalculation = (testData) => {
   describe(`item code ${serviceItemCodeToTest}`, () => {
     it('renders correct data', () => {
       const wrapper = additionalData
-        ? mountedComponentAdditionalData.find('[data-testid="column"]')
-        : mountedComponent.find('[data-testid="column"]');
+        ? mountedComponentAdditionalData.find('[data-testid="ServiceItemCalculations"]')
+        : mountedComponent.find('[data-testid="ServiceItemCalculations"]');
 
-      expectedOutput.forEach((obj, index) => {
-        expect(wrapper.at(index).find('[data-testid="value"]').text()).toBe(obj.value);
-        expect(wrapper.at(index).find('[data-testid="label"]').text()).toBe(obj.label);
-        expect(wrapper.at(index).find('[data-testid="details"]').text()).toBe(obj.details ? obj.details.join('') : '');
+      expectedOutput.forEach((obj) => {
+        expect(wrapper.text()).toContain(obj.label);
+        expect(wrapper.text()).toContain(obj.value);
       });
     });
   });
@@ -108,27 +107,22 @@ describe('ServiceItemCalculations DLH', () => {
     {
       value: '85 cwt',
       label: 'Billable weight (cwt)',
-      details: ['Original: 8,500 lbs', 'Estimated: 8,000 lbs'],
     },
     {
       value: '210',
       label: 'Mileage',
-      details: ['ZIP 32210 to ZIP 91910'],
     },
     {
       value: '1.71',
       label: 'Baseline linehaul price',
-      details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 09 Mar 2020'],
     },
     {
       value: '1.033',
       label: 'Price escalation factor',
-      details: ['Base year: 2'],
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
-      details: [],
+      label: 'Total:',
     },
   ];
   testServiceItemCalculation([SERVICE_ITEM_CODES.DLH, testParams.DomesticLongHaul, {}, expectedOutput]);
@@ -198,22 +192,18 @@ describe('ServiceItemCalculations DCRT', () => {
     {
       value: '4.00',
       label: 'Crating size (cu ft)',
-      details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
     },
     {
       value: '1.71',
       label: 'Crating price (per cu ft)',
-      details: ['Service schedule: 3', 'Crating date: 09 Mar 2020', 'Domestic'],
     },
     {
       value: '1.033',
       label: 'Price escalation factor',
-      details: [],
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
-      details: [''],
+      label: 'Total:',
     },
   ];
   testServiceItemCalculation([
@@ -288,22 +278,18 @@ describe('ServiceItemCalculations DUCRT', () => {
     {
       value: '4.00',
       label: 'Crating size (cu ft)',
-      details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
     },
     {
       value: '1.71',
       label: 'Uncrating price (per cu ft)',
-      details: ['Service schedule: 3', 'Uncrating date: 09 Mar 2020', 'Domestic'],
     },
     {
       value: '1.033',
       label: 'Price escalation factor',
-      details: [],
     },
     {
       value: '$10.00',
-      label: 'Total amount requested',
-      details: [''],
+      label: 'Total',
     },
   ];
   testServiceItemCalculation([

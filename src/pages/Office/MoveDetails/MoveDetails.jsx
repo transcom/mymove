@@ -10,6 +10,7 @@ import 'styles/office.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { tooRoutes } from 'constants/routes';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -31,6 +32,7 @@ import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 
 const errorIfMissing = {
@@ -61,7 +63,7 @@ const MoveDetails = ({
   const [alertType, setAlertType] = useState('success');
   const navigate = useNavigate();
 
-  const { move, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
+  const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
   // for now we are only showing dest type on retiree and separatee orders
@@ -260,13 +262,17 @@ const MoveDetails = ({
     dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
+    gunSafe: allowances.gunSafe,
   };
+
   const customerInfo = {
-    name: `${customer.last_name}, ${customer.first_name}`,
+    name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
-    phone: `+1 ${customer.phone}`,
+    phone: customer.phone,
+    altPhone: customer.secondaryTelephone,
     email: customer.email,
     currentAddress: customer.current_address,
+    backupAddress: customerData.backupAddress,
     backupContact: customer.backup_contact,
   };
 
@@ -432,7 +438,20 @@ const MoveDetails = ({
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
-            <DetailsPanel title="Customer info">
+            <DetailsPanel
+              title="Customer info"
+              editButton={
+                <Restricted to={permissionTypes.updateCustomer}>
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    data-testid="edit-customer-info"
+                    to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                  >
+                    Edit customer info
+                  </Link>
+                </Restricted>
+              }
+            >
               <CustomerInfoList customerInfo={customerInfo} />
             </DetailsPanel>
           </div>

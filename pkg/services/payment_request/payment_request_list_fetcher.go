@@ -141,7 +141,8 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"ProofOfServiceDocs.PrimeUploads.Upload",
 		"MoveTaskOrder.Contractor",
 		"MoveTaskOrder.Orders.ServiceMember",
-		"MoveTaskOrder.Orders.NewDutyLocation.Address").
+		"MoveTaskOrder.Orders.NewDutyLocation.Address",
+		"MoveTaskOrder.LockedByOfficeUser").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -149,6 +150,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
 		// Need to use left join because some duty locations do not have transportation offices
 		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		LeftJoin("office_users", "office_users.id = moves.locked_by").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		Where("moves.show = ?", models.BoolPointer(true))
@@ -282,7 +284,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 		var translatedStatuses []string
 		if len(statuses) > 0 {
 			for _, status := range statuses {
-				if strings.EqualFold(status, "Payment requested") {
+				if strings.EqualFold(status, "Pending") || strings.EqualFold(status, "Payment Requested") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
 
 				} else if strings.EqualFold(status, "Reviewed") {
@@ -290,14 +292,14 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
 						models.PaymentRequestStatusReceivedByGex.String())
-				} else if strings.EqualFold(status, "Rejected") {
+				} else if strings.EqualFold(status, "Rejected") || strings.EqualFold(status, "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED") {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewedAllRejected.String())
 				} else if strings.EqualFold(status, "Paid") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
 				} else if strings.EqualFold(status, "Deprecated") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusDeprecated.String())
-				} else if strings.EqualFold(status, "Error") {
+				} else if strings.EqualFold(status, "Error") || strings.EqualFold(status, "EDI_ERROR") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusEDIError.String())
 				}
 			}

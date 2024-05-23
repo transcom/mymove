@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -38,4 +40,19 @@ func (usprc *UsPostRegionCity) Validate(_ *pop.Connection) (*validate.Errors, er
 		&validators.StringIsPresent{Field: usprc.UsprcPrfdLstLineCtystNm, Name: "UsprcPrfdLstLineCtystNm"},
 		&validators.StringIsPresent{Field: usprc.UsprcCountyNm, Name: "UsprcCountyNm"},
 	), nil
+}
+
+// Find a corresponding county for a provided zip code from the USPRC table
+func FindCountyByZipCode(db *pop.Connection, zipCode string) (string, error) {
+	var usprc UsPostRegionCity
+	err := db.Where("uspr_zip_id = ?", zipCode).First(&usprc)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return "", fmt.Errorf("No county found for provided zip code %s", zipCode)
+		default:
+			return "", err
+		}
+	}
+	return usprc.UsprcCountyNm, nil
 }

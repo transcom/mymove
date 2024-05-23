@@ -82,13 +82,13 @@ const SubmittedRequestedShipments = ({
 
   const formik = useFormik({
     initialValues: {
-      shipmentManagementFee: false,
+      shipmentManagementFee: true,
       counselingFee: false,
       shipments: [],
     },
     onSubmit: (values, { setSubmitting }) => {
       const mtoApprovalServiceItemCodes = {
-        serviceCodeMS: values.shipmentManagementFee,
+        serviceCodeMS: values.shipmentManagementFee && !moveTaskOrder.availableToPrimeAt,
         serviceCodeCS: values.counselingFee,
       };
 
@@ -167,6 +167,12 @@ const SubmittedRequestedShipments = ({
   // Hide move management line item if it is already in the service items or for PPM only moves
   const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
 
+  // Disable move management checkbox
+  const moveManagementDisabled = true;
+
+  // Check the move management box
+  const moveManagementChecked = true;
+
   // If we are hiding both counseling and move management then hide the entire service item form
   const hideAddServiceItemsForm = hideCounselingCheckbox && hideMoveManagementCheckbox;
 
@@ -232,6 +238,8 @@ const SubmittedRequestedShipments = ({
                       label={serviceItemCodes.MS}
                       name="shipmentManagementFee"
                       onChange={formik.handleChange}
+                      checked={moveManagementChecked}
+                      disabled={moveManagementDisabled}
                       data-testid="shipmentManagementFee"
                     />
                   )}

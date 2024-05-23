@@ -1,6 +1,8 @@
 package ppmshipment
 
 import (
+	"time"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -55,14 +57,21 @@ func (fn ppmShipmentValidatorFunc) Validate(appCtx appcontext.AppContext, newer 
 	return fn(appCtx, newer, older, ship)
 }
 
-func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment) *models.PPMShipment {
+func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment) (*models.PPMShipment, error) {
+	var err error
+
 	if oldPPMShipment == nil {
-		return &newPPMShipment
+		return &newPPMShipment, nil
 	}
 
 	ppmShipment := *oldPPMShipment
 
-	ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
+	today := time.Now()
+	if newPPMShipment.ActualMoveDate != nil && today.Before(*newPPMShipment.ActualMoveDate) {
+		err = apperror.NewUpdateError(ppmShipment.ID, "Actual move date cannot be set to the future.")
+	} else {
+		ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
+	}
 
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
 	ppmShipment.ActualPickupPostalCode = services.SetOptionalStringField(newPPMShipment.ActualPickupPostalCode, ppmShipment.ActualPickupPostalCode)
@@ -101,6 +110,48 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		}
 	}
 
+	if newPPMShipment.PickupAddress != nil {
+		ppmShipment.PickupAddress = newPPMShipment.PickupAddress
+		if ppmShipment.PickupAddressID != nil {
+			ppmShipment.PickupAddress.ID = *ppmShipment.PickupAddressID
+		} else {
+			ppmShipment.PickupAddress.ID = uuid.Nil
+		}
+	}
+
+	// If HasSecondaryPickupAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if newPPMShipment.HasSecondaryPickupAddress != nil && !*newPPMShipment.HasSecondaryPickupAddress {
+		ppmShipment.HasSecondaryPickupAddress = newPPMShipment.HasSecondaryPickupAddress
+		ppmShipment.SecondaryPickupAddress = nil
+		ppmShipment.SecondaryPickupAddressID = nil
+		ppmShipment.SecondaryPickupPostalCode = nil
+	} else if newPPMShipment.SecondaryPickupAddress != nil {
+		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
+		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
+	}
+
+	if newPPMShipment.DestinationAddress != nil {
+		ppmShipment.DestinationAddress = newPPMShipment.DestinationAddress
+		if ppmShipment.DestinationAddressID != nil {
+			ppmShipment.DestinationAddress.ID = *ppmShipment.DestinationAddressID
+		} else {
+			ppmShipment.DestinationAddress.ID = uuid.Nil
+		}
+	}
+
+	// If HasSecondaryDestinationAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if newPPMShipment.HasSecondaryDestinationAddress != nil && !*newPPMShipment.HasSecondaryDestinationAddress {
+		ppmShipment.HasSecondaryDestinationAddress = newPPMShipment.HasSecondaryDestinationAddress
+		ppmShipment.SecondaryDestinationAddress = nil
+		ppmShipment.SecondaryDestinationAddressID = nil
+		ppmShipment.SecondaryDestinationPostalCode = nil
+	} else if newPPMShipment.SecondaryDestinationAddress != nil {
+		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
+		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
+	}
+
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {
 		ppmShipment.SITLocation = nil
 		ppmShipment.SITEstimatedWeight = nil
@@ -137,5 +188,5 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.WeightTickets = newPPMShipment.WeightTickets
 	}
 
-	return &ppmShipment
+	return &ppmShipment, err
 }

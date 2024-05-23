@@ -27,6 +27,9 @@ type SearchMove struct {
 	// Pattern: ^(\d{5})$
 	DestinationDutyLocationPostalCode string `json:"destinationDutyLocationPostalCode,omitempty"`
 
+	// destination g b l o c
+	DestinationGBLOC GBLOC `json:"destinationGBLOC,omitempty"`
+
 	// dod ID
 	// Example: 1234567890
 	DodID *string `json:"dodID,omitempty"`
@@ -46,10 +49,32 @@ type SearchMove struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
+	// lock expires at
+	// Format: date-time
+	LockExpiresAt *strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+
+	// locked by office user ID
+	// Format: uuid
+	LockedByOfficeUserID *strfmt.UUID `json:"lockedByOfficeUserID,omitempty"`
+
+	// order type
+	OrderType string `json:"orderType,omitempty"`
+
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$
 	OriginDutyLocationPostalCode string `json:"originDutyLocationPostalCode,omitempty"`
+
+	// origin g b l o c
+	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
+
+	// requested delivery date
+	// Format: date
+	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+
+	// requested pickup date
+	// Format: date
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
@@ -66,11 +91,35 @@ func (m *SearchMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationGBLOC(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
+	if err := m.validateLockExpiresAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockedByOfficeUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOriginDutyLocationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginGBLOC(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequestedDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequestedPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -96,6 +145,23 @@ func (m *SearchMove) validateDestinationDutyLocationPostalCode(formats strfmt.Re
 	return nil
 }
 
+func (m *SearchMove) validateDestinationGBLOC(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.DestinationGBLOC.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationGBLOC")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *SearchMove) validateID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -108,12 +174,77 @@ func (m *SearchMove) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *SearchMove) validateLockExpiresAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockExpiresAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockExpiresAt", "body", "date-time", m.LockExpiresAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SearchMove) validateLockedByOfficeUserID(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockedByOfficeUserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockedByOfficeUserID", "body", "uuid", m.LockedByOfficeUserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *SearchMove) validateOriginDutyLocationPostalCode(formats strfmt.Registry) error {
 	if swag.IsZero(m.OriginDutyLocationPostalCode) { // not required
 		return nil
 	}
 
 	if err := validate.Pattern("originDutyLocationPostalCode", "body", m.OriginDutyLocationPostalCode, `^(\d{5})$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SearchMove) validateOriginGBLOC(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.OriginGBLOC.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *SearchMove) validateRequestedDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.RequestedDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedDeliveryDate", "body", "date", m.RequestedDeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SearchMove) validateRequestedPickupDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.RequestedPickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -141,6 +272,14 @@ func (m *SearchMove) validateStatus(formats strfmt.Registry) error {
 func (m *SearchMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateDestinationGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -148,6 +287,42 @@ func (m *SearchMove) ContextValidate(ctx context.Context, formats strfmt.Registr
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SearchMove) contextValidateDestinationGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.DestinationGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationGBLOC")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *SearchMove) contextValidateOriginGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OriginGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.OriginGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("originGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("originGBLOC")
+		}
+		return err
+	}
+
 	return nil
 }
 

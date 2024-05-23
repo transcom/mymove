@@ -42,6 +42,7 @@ export const incentivesShape = shape({
 export const PPMShipmentShape = shape({
   id: string,
   shipmentId: string,
+  shipmentLocator: string,
   createdAt: string,
   status: PPMShipmentStatusOneOf,
   expectedDepartureDate: string,
@@ -120,6 +121,7 @@ export const ShipmentAddressUpdateShape = shape({
 export const ShipmentShape = shape({
   moveTaskOrderID: string,
   id: string,
+  shipmentLocator: string,
   createdAt: string,
   updatedAt: string,
   deletedAt: string,
@@ -223,7 +225,7 @@ export const StorageFacilityShape = shape({
 });
 
 export const ProGearTicketShape = shape({
-  selfProGear: bool,
+  belongsToSelf: bool,
   proGearWeight: number,
   description: string,
   missingWeightTicket: bool,

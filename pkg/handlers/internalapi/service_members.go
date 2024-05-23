@@ -52,6 +52,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupContacts:       contactPayloads,
 		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
 		WeightAllotment:      weightAllotment,
+		CacValidated:         serviceMember.CacValidated,
 	}
 	return &serviceMemberPayload
 }

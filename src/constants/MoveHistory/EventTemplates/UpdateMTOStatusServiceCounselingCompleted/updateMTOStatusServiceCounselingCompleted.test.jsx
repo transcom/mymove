@@ -24,6 +24,6 @@ describe('When given a completed services counseling for a move', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Updated shipment')).toBeInTheDocument();
+    expect(screen.getByText('Updated move')).toBeInTheDocument();
   });
 });
