@@ -621,11 +621,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				return err
 			}
 
-			// updates to prime estimated weight should change the authorized weight of the entitlement
-			// which can be manually adjusted by an office user if needed
-			err = updateAuthorizedWeight(appCtx, newShipment, move)
-			if err != nil {
-				return err
+			// we only want to update the authorized weight if the shipment is approved and the previous weight is nil
+			// otherwise, shipment_updater will handle updating authorized weight when a shipment is approved
+			if dbShipment.PrimeEstimatedWeight == nil && newShipment.Status == models.MTOShipmentStatusApproved {
+				// updates to prime estimated weight should change the authorized weight of the entitlement
+				// which can be manually adjusted by an office user if needed
+				err = updateAuthorizedWeight(appCtx, newShipment, move)
+				if err != nil {
+					return err
+				}
 			}
 
 			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
@@ -1220,7 +1224,7 @@ func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOSh
 	dBAuthorizedWeight := int(*shipment.PrimeEstimatedWeight)
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
-			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved {
+			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
 				dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
 			}
 		}

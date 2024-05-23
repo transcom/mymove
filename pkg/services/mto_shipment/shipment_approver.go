@@ -56,6 +56,8 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return nil, err
 	}
 
+	// if the shipment has an estimated weight at time of approval
+	// recalculate the authorized weight to include the newly authorized shipment
 	if shipment.PrimeEstimatedWeight != nil {
 		err = f.updateAuthorizedWeight(appCtx, shipment)
 		if err != nil {
@@ -195,7 +197,7 @@ func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, 
 	dBAuthorizedWeight := int(*shipment.PrimeEstimatedWeight)
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
-			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved {
+			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
 				dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
 			}
 		}
