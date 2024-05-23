@@ -2,7 +2,7 @@ import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { Checkbox, Fieldset, Radio, Grid } from '@trussworks/react-uswds';
+import { Checkbox, Radio, FormGroup, Grid } from '@trussworks/react-uswds';
 
 import styles from './CustomerContactInfoForm.module.scss';
 
@@ -15,6 +15,7 @@ import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { phoneSchema, requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
+import Hint from 'components/Hint';
 
 const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -38,15 +39,15 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       .required('Required'), // min 12 includes hyphens
     phoneIsPreferred: Yup.boolean(),
     emailIsPreferred: Yup.boolean(),
+    cacUser: Yup.boolean().required('Required'),
   });
-  console.log('initialValues: ', initialValues);
   return (
     <Grid row>
       <Grid col>
         <div className={styles.customerContactForm}>
           <h1 className={styles.title}>Customer Info</h1>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-            {({ isValid, isSubmitting, handleSubmit }) => {
+            {({ isValid, handleSubmit }) => {
               return (
                 <Form className={formStyles.form}>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -75,9 +76,12 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                     <BackupContactInfoFields />
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3>Non-CAC Users</h3>
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Does the customer have a CAC?</legend>
+                    <h3>CAC Validation</h3>
+                    <FormGroup className={styles.trailerOwnershipFieldset}>
+                      <legend className="usa-label">
+                        Is the customer a non-CAC user or do they need to bypass CAC validation?
+                      </legend>
+                      <Hint>If this is checked yes, then they have already validated with CAC</Hint>
                       <div className="grid-row grid-gap">
                         <Field
                           as={Radio}
@@ -86,6 +90,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                           name="cacUser"
                           value="true"
                           data-testid="cac-user-yes"
+                          type="radio"
                         />
                         <Field
                           as={Radio}
@@ -94,14 +99,15 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                           name="cacUser"
                           value="false"
                           data-testid="cac-user-no"
+                          type="radio"
                         />
                       </div>
-                    </Fieldset>
+                    </FormGroup>
                   </SectionWrapper>
                   <div className={formStyles.formActions}>
                     <WizardNavigation
                       editMode
-                      disableNext={!isValid || isSubmitting}
+                      disableNext={!isValid}
                       onCancelClick={onBack}
                       onNextClick={handleSubmit}
                     />
@@ -128,6 +134,7 @@ CustomerContactInfoForm.propTypes = {
     telephone: PropTypes.string,
     email: PropTypes.string,
     customerAddress: ResidentialAddressShape,
+    cacUser: PropTypes.bool,
   }).isRequired,
   onSubmit: PropTypes.func,
   onBack: PropTypes.func,
