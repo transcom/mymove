@@ -22,7 +22,7 @@ describe('CustomerContactInfoForm Component', () => {
     name: '',
     telephone: '',
     email: '',
-    cacUser: '',
+    cacUser: true,
   };
   const testProps = {
     initialValues,
@@ -47,7 +47,7 @@ describe('CustomerContactInfoForm Component', () => {
     name: 'joe bob',
     telephone: '855-222-1111',
     email: 'joebob@gmail.com',
-    cacUser: '',
+    cacUser: null,
   };
   const testPropsCacValidated = {
     initialValuesCacValidated,
