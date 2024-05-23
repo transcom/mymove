@@ -45,7 +45,7 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 	suite.Run("if the transportation office is fetched, it should be returned", func() {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchMany := func(_ appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.TransportationOffice{ID: id})))
 			return nil
@@ -66,7 +66,7 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 	})
 
 	suite.Run("if there is an error, we get it with no offices", func() {
-		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
+		fakeFetchMany := func(_ appcontext.AppContext, _ interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testOfficeListQueryBuilder{

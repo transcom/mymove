@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as reactRouterDom from 'react-router-dom';
 
@@ -10,11 +10,16 @@ import PaymentRequestQueue from './PaymentRequestQueue';
 import { MockProviders } from 'testUtils';
 import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 import { generalRoutes, tioRoutes } from 'constants/routes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
   useParams: jest.fn(),
   useNavigate: jest.fn(),
+}));
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 jest.setTimeout(60000);
 jest.mock('hooks/queries', () => ({
@@ -54,6 +59,8 @@ jest.mock('hooks/queries', () => ({
             originDutyLocation: {
               name: 'Scott AFB',
             },
+            lockExpiresAt: '2099-10-15T23:48:35.420Z',
+            lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
           },
         ],
         totalCount: 1,
@@ -319,5 +326,33 @@ describe('PaymentRequestQueue', () => {
     );
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
+  });
+  it('renders a lock icon when move lock flag is on', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await waitFor(() => {
+      const lockIcon = screen.queryByTestId('lock-icon');
+      expect(lockIcon).toBeInTheDocument();
+    });
+  });
+  it('does NOT render a lock icon when move lock flag is off', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+    isBooleanFlagEnabled.mockResolvedValue(false);
+
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await waitFor(() => {
+      const lockIcon = screen.queryByTestId('lock-icon');
+      expect(lockIcon).not.toBeInTheDocument();
+    });
   });
 });

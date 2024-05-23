@@ -117,43 +117,43 @@ type TestStruct4 struct{ Field1 string }
 type TestStruct5 struct{ Field1 string }
 type TestStruct6 struct{ Field1 string }
 
-var testVerifyFunc1 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc1 verifyXlsxSheet = func(_ ParamConfig, _ int) error {
 	return nil
 }
 
-var testVerifyFunc2 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc2 verifyXlsxSheet = func(_ ParamConfig, _ int) error {
 	return nil
 }
 
-var testVerifyFunc3 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc3 verifyXlsxSheet = func(_ ParamConfig, sheetIndex int) error {
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc4 verifyXlsxSheet = func(_ ParamConfig, _ int) error {
 	return nil
 }
 
-var testProcessFunc1 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc1 processXlsxSheet = func(_ appcontext.AppContext, _ ParamConfig, _ int) (interface{}, error) {
 	return []TestStruct1{}, nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc2 processXlsxSheet = func(_ appcontext.AppContext, _ ParamConfig, _ int) (interface{}, error) {
 	return []TestStruct2{}, nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc3 processXlsxSheet = func(_ appcontext.AppContext, _ ParamConfig, sheetIndex int) (interface{}, error) {
 	return nil, fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc4 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc4 processXlsxSheet = func(_ appcontext.AppContext, _ ParamConfig, _ int) (interface{}, error) {
 	return []TestStruct4{}, nil
 }
 
-var testProcessFunc5 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc5 processXlsxSheet = func(_ appcontext.AppContext, _ ParamConfig, _ int) (interface{}, error) {
 	return []TestStruct5{}, nil
 }
 
-var testProcessFunc6 processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc6 processXlsxSheet = func(_ appcontext.AppContext, _ ParamConfig, _ int) (interface{}, error) {
 	return []TestStruct6{}, nil
 }
 
