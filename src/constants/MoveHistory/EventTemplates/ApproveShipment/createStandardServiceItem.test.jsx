@@ -9,6 +9,7 @@ describe('when given a Create standard service item history record', () => {
       {
         shipment_type: 'HHG',
         shipment_id_abbr: 'a1b2c',
+        shipment_locator: 'ABC123-01',
         name: 'Domestic linehaul',
       },
     ],
@@ -19,7 +20,7 @@ describe('when given a Create standard service item history record', () => {
     const template = getTemplate(historyRecord);
     render(template.getDetails(historyRecord));
     expect(template.getEventNameDisplay(template)).toEqual('Approved service item');
-    expect(screen.getByText('HHG shipment #A1B2C', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #ABC123-01', { exact: false })).toBeInTheDocument();
     expect(screen.getByText('Domestic linehaul', { exact: false })).toBeInTheDocument();
   });
 });

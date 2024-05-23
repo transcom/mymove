@@ -26,7 +26,7 @@ func (suite *testSuite) TestTraceWithSpan() {
 	var traceID uuid.UUID
 	var xrayID string
 	var span oteltrace.Span
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		traceID = trace.FromContext(r.Context())
 		span = oteltrace.SpanFromContext(r.Context())
 		xrayID = trace.AwsXrayFromContext(r.Context())
@@ -60,7 +60,7 @@ func (suite *testSuite) TestTraceWithoutSpan() {
 	var traceID uuid.UUID
 	var xrayID string
 	var span oteltrace.Span
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		traceID = trace.FromContext(r.Context())
 		span = oteltrace.SpanFromContext(r.Context())
 		xrayID = trace.AwsXrayFromContext(r.Context())

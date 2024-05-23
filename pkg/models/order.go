@@ -118,7 +118,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := db.Transaction(func(_ *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {
@@ -205,6 +205,38 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		var amendedUserUploads UserUploads
 		err = db.Q().
 			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", order.UploadedAmendedOrdersID).
+			All(&amendedUserUploads)
+		if err != nil {
+			return Order{}, err
+		}
+		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
+	}
+
+	return order, nil
+}
+
+// Fetch order containing only base amendment information
+func FetchOrderAmendmentsInfo(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
+	var order Order
+	err := db.Q().EagerPreload("ServiceMember.User",
+		"UploadedAmendedOrders").
+		Find(&order, id)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
+	}
+
+	if session != nil && session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
+		return Order{}, ErrFetchForbidden
+	}
+
+	if order.UploadedAmendedOrders != nil {
+		var amendedUserUploads UserUploads
+		err = db.Q().
 			Where("document_id = ?", order.UploadedAmendedOrdersID).
 			All(&amendedUserUploads)
 		if err != nil {

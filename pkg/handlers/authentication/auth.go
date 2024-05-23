@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
+	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -475,6 +476,16 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if appCtx.Session() != nil {
+		// if the user is an office user, we need to unlock any moves that they have locked
+		if appCtx.Session().IsOfficeApp() && appCtx.Session().OfficeUserID != uuid.Nil {
+			moveUnlocker := movelocker.NewMoveUnlocker()
+			officeUserID := appCtx.Session().OfficeUserID
+			err := moveUnlocker.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
+			}
+		}
+
 		sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 		if sessionManager == nil {
 			appCtx.Logger().Error("Authenticating user, cannot get session manager from request")

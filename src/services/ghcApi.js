@@ -666,6 +666,11 @@ export async function searchTransportationOffices(search) {
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
 
+export async function searchTransportationOfficesOpen(search) {
+  const operationPath = 'transportationOffice.getTransportationOfficesOpen';
+  return makeGHCRequest(operationPath, { search }, { normalize: false });
+}
+
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
   const operationPath = 'shipment.reviewShipmentAddressUpdate';
   const schemaKey = 'ShipmentAddressUpdate';
@@ -690,6 +695,10 @@ export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
 
+export async function createOfficeAccountRequest({ body }) {
+  return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeGHCRequest(
     'uploads.createUpload',
@@ -700,5 +709,25 @@ export async function createUploadForDocument(file, documentId) {
     {
       normalize: false,
     },
+  );
+}
+
+export async function searchCustomers(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    'customer.searchCustomers',
+    {
+      body: {
+        sort,
+        order,
+        page: currentPage,
+        perPage: currentPageSize,
+        ...paramFilters,
+      },
+    },
+    { schemaKey: 'searchMovesResult', normalize: false },
   );
 }

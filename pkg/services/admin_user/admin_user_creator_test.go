@@ -61,7 +61,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	suite.Run("If the user is created successfully it should be returned", func() {
 		_, userInfo := setupTestData()
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
-		fakeFetchOne := func(appConfig appcontext.AppContext, model interface{}) error {
+		fakeFetchOne := func(_ appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(userInfo.Organization.ID))

@@ -19,6 +19,7 @@ describe('When given a deleted expense receipt upload', () => {
       {
         filename: 'expense.png',
         shipment_id_abbr: '7f559',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
         upload_type: 'expenseReceipt',
       },
@@ -40,7 +41,7 @@ describe('When given a deleted expense receipt upload', () => {
       const template = getTemplate(historyRecord);
 
       render(template.getDetails(historyRecord));
-      expect(screen.getByText(`PPM shipment #7F559, ${label}`)).toBeInTheDocument();
+      expect(screen.getByText(`PPM shipment #RQ38D4-01, ${label}`)).toBeInTheDocument();
     });
   });
 

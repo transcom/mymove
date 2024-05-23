@@ -20,7 +20,7 @@ export class ServiceCounselorPage extends OfficePage {
    * @param {string} moveLocator
    */
   async verifyMoveByLocatorCode(moveLocator) {
-    await expect(this.page.getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
+    await expect(this.page.getByTestId('nameBlock').getByText(`#${moveLocator}`)).toHaveClass(/usa-tag/);
   }
 
   /**
@@ -30,7 +30,7 @@ export class ServiceCounselorPage extends OfficePage {
    */
   async getShipmentContainerByType(shipmentType) {
     const header = await this.page.getByRole('heading', { level: 3, name: shipmentType });
-    const container = await header.locator('../../..');
+    const container = await header.locator('../../../..');
     return container;
   }
 

@@ -5,6 +5,12 @@ import userEvent from '@testing-library/user-event';
 import EditOktaInfoForm from './EditOktaInfoForm';
 
 import { renderWithRouter } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 describe('EditOktaInfoForm component', () => {
   const testProps = {
@@ -20,6 +26,8 @@ describe('EditOktaInfoForm component', () => {
   };
 
   it('renders the form inputs', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     renderWithRouter(<EditOktaInfoForm {...testProps} />);
 
     const oktaUsername = await screen.findByLabelText('Okta Username');
@@ -38,9 +46,9 @@ describe('EditOktaInfoForm component', () => {
     expect(oktaLastName).toBeInstanceOf(HTMLInputElement);
     expect(oktaLastName).toHaveValue(testProps.initialValues.oktaLastName);
 
-    const oktaEdipi = await screen.findByLabelText('DoD ID number | EDIPI');
-    expect(oktaEdipi).toBeInstanceOf(HTMLInputElement);
+    const oktaEdipi = await screen.findByLabelText('DoD ID number');
     expect(oktaEdipi).toHaveValue(testProps.initialValues.oktaEdipi);
+    expect(oktaEdipi).toBeDisabled();
   });
 
   it('shows an error message if Okta Email is not in email format', async () => {

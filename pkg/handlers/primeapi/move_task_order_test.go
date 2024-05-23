@@ -31,43 +31,120 @@ import (
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
-	now := time.Now()
-	lastFetch := now.Add(-time.Second)
+func (suite *HandlerSuite) TestListMovesHandler() {
+	suite.Run("Test returns updated with no amendments count", func() {
+		now := time.Now()
+		lastFetch := now.Add(-time.Second)
 
-	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-	// this move should not be returned
-	olderMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		// this move should not be returned
+		olderMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-	// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
-		now.Add(-2*time.Second), olderMove.ID).Exec())
-	suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id=$2;",
-		now.Add(-10*time.Second), olderMove.OrdersID).Exec())
+		// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
+			now.Add(-2*time.Second), olderMove.ID).Exec())
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id=$2;",
+			now.Add(-10*time.Second), olderMove.OrdersID).Exec())
 
-	since := handlers.FmtDateTime(lastFetch)
-	request := httptest.NewRequest("GET", fmt.Sprintf("/moves?since=%s", since.String()), nil)
-	params := movetaskorderops.ListMovesParams{HTTPRequest: request, Since: since}
-	handlerConfig := suite.HandlerConfig()
+		since := handlers.FmtDateTime(lastFetch)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves?since=%s", since.String()), nil)
+		params := movetaskorderops.ListMovesParams{HTTPRequest: request, Since: since}
+		handlerConfig := suite.HandlerConfig()
 
-	// Validate incoming payload: no body to validate
+		// Validate incoming payload: no body to validate
 
-	// make the request
-	handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
-	response := handler.Handle(params)
+		// make the request
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+		response := handler.Handle(params)
 
-	suite.IsNotErrResponse(response)
-	listMovesResponse := response.(*movetaskorderops.ListMovesOK)
-	movesList := listMovesResponse.Payload
+		suite.IsNotErrResponse(response)
+		listMovesResponse := response.(*movetaskorderops.ListMovesOK)
+		movesList := listMovesResponse.Payload
 
-	// Validate outgoing payload
-	suite.NoError(movesList.Validate(strfmt.Default))
+		// Validate outgoing payload
+		suite.NoError(movesList.Validate(strfmt.Default))
 
-	suite.Equal(1, len(movesList))
-	suite.Equal(move.ID.String(), movesList[0].ID.String())
+		suite.Equal(1, len(movesList))
+		suite.Equal(move.ID.String(), movesList[0].ID.String())
+		suite.Equal(0, int(*movesList[0].Amendments.Total))
+		suite.Equal(0, int(*movesList[0].Amendments.AvailableSince))
+	})
+
+	suite.Run("Test returns updated with amendment count", func() {
+		now := time.Now()
+		lastFetch := now.Add(-time.Second)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		// this move should not be returned
+		olderMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		// setup Order and Amendment for move
+		primeMoves := make([]models.Move, 0)
+		primeMoves = append(primeMoves, move)
+
+		for _, pm := range primeMoves {
+			document := factory.BuildDocumentLinkServiceMember(suite.DB(), move.Orders.ServiceMember)
+
+			suite.MustSave(&document)
+			suite.Nil(document.DeletedAt)
+			pm.Orders.UploadedOrders = document
+			pm.Orders.UploadedOrdersID = document.ID
+
+			pm.Orders.UploadedAmendedOrders = &document
+			pm.Orders.UploadedAmendedOrdersID = &document.ID
+			// nolint:gosec //G601
+			suite.MustSave(&pm.Orders)
+			upload := models.Upload{
+				Filename:    "test.pdf",
+				Bytes:       1048576,
+				ContentType: uploader.FileTypePDF,
+				Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+				UploadType:  models.UploadTypeUSER,
+			}
+			suite.MustSave(&upload)
+			userUpload := models.UserUpload{
+				DocumentID: &document.ID,
+				UploaderID: document.ServiceMember.UserID,
+				UploadID:   upload.ID,
+				Upload:     upload,
+			}
+			suite.MustSave(&userUpload)
+		}
+
+		// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
+			now.Add(-2*time.Second), olderMove.ID).Exec())
+		suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id=$2;",
+			now.Add(-10*time.Second), olderMove.OrdersID).Exec())
+
+		since := handlers.FmtDateTime(lastFetch)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves?since=%s", since.String()), nil)
+		params := movetaskorderops.ListMovesParams{HTTPRequest: request, Since: since}
+		handlerConfig := suite.HandlerConfig()
+
+		// Validate incoming payload: no body to validate
+
+		// make the request
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		listMovesResponse := response.(*movetaskorderops.ListMovesOK)
+		movesList := listMovesResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movesList.Validate(strfmt.Default))
+
+		suite.Equal(1, len(movesList))
+		suite.Equal(move.ID.String(), movesList[0].ID.String())
+		suite.Equal(1, int(*movesList[0].Amendments.Total))
+		suite.Equal(1, int(*movesList[0].Amendments.AvailableSince))
+	})
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
@@ -1880,7 +1957,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -1930,7 +2007,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2000,7 +2077,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 0, nil)
@@ -2041,7 +2118,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2075,7 +2152,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// mock returning error on move search
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(nil, 0, apperror.NewInternalServerError("mock"))
@@ -2115,7 +2192,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2161,7 +2238,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2208,7 +2285,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2255,7 +2332,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
@@ -2303,7 +2380,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		mockMoveSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+			mock.MatchedBy(func(_ *services.SearchMovesParams) bool {
 				return true
 			}),
 		).Return(moves, 1, nil)
