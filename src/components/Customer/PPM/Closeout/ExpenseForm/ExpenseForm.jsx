@@ -20,7 +20,7 @@ import Fieldset from 'shared/Fieldset';
 import FileUpload from 'components/FileUpload/FileUpload';
 import formStyles from 'styles/form.module.scss';
 import { uploadShape } from 'types/uploads';
-import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
+import { CheckboxField, DatePickerInput, DropdownInput, RadioField } from 'components/form/fields';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 
@@ -87,6 +87,44 @@ const ExpenseForm = ({
                       <h3>Description</h3>
                       <TextField label="What did you buy?" id="description" name="description" />
                       <Hint>Add a brief description of the expense.</Hint>
+                      {values.expenseType === 'STORAGE' && (
+                        <FormGroup>
+                          <Label className={styles.Label}>Where did you store your items?</Label>
+                          <RadioField
+                            id="approveAdvanceRequest"
+                            label="Origin"
+                            name="advanceStatus"
+                            // value={ADVANCE_STATUSES.APPROVED.apiValue}
+                            title="Approve"
+                            // checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
+                            // onChange={handleAdvanceRequestStatusChange}
+                          />
+                          <RadioField
+                            id="rejectAdvanceRequest"
+                            label="Destination"
+                            name="advanceStatus"
+                            // value={ADVANCE_STATUSES.REJECTED.apiValue}
+                            title="Reject"
+                            // checked={!!statusInput.value && !advanceRequestStatus} // defaults to false if advanceStatus has a null value
+                            // onChange={handleAdvanceRequestStatusChange}
+                          />
+                          <MaskedTextField
+                            data-testid="totalStorageWeightInput"
+                            defaultValue="0"
+                            name="totalStorageWeight"
+                            label="What was the total storage weight?"
+                            id="totalStorageWeightInput"
+                            mask={Number}
+                            scale={0} // digits after point, 0 for integers
+                            signed={false} // disallow negative
+                            thousandsSeparator=","
+                            lazy={false} // immediate masking evaluation
+                          >
+                            {'  '} lbs
+                          </MaskedTextField>
+                        </FormGroup>
+                      )}
+
                       <Fieldset>
                         <legend className="usa-label">
                           Did you pay with your GTCC (Government Travel Charge Card)?
