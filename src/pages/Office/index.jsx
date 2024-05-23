@@ -516,7 +516,9 @@ export class OfficeApp extends Component {
                     {activeRole === roleTypes.PRIME_SIMULATOR && (
                       <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                     )}
-                    {activeRole === roleTypes.QAE_CSR && <Route end path="/" element={<QAECSRMoveSearch />} />}
+                    {(activeRole === roleTypes.QAE_CSR || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
+                      <Route end path="/" element={<QAECSRMoveSearch />} />
+                    )}
 
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />
