@@ -249,6 +249,57 @@ const mockPPMShipment = {
   },
 };
 
+const mockRejectedPPMShipment = {
+  ...mockMtoShipment,
+  ppmShipment: {
+    id: 'ppmShipmentID',
+    shipmentId: 'shipment123',
+    status: ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL,
+    expectedDepartureDate: '2022-04-01',
+    hasSecondaryPickupAddress: true,
+    hasSecondaryDestinationAddress: true,
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '777 Test Street',
+      streetAddress2: '888 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42702',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42703',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '444 Test Street',
+      streetAddress2: '555 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    sitExpected: false,
+    estimatedWeight: 4999,
+    hasProGear: false,
+    estimatedIncentive: 1234500,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 487500,
+    advanceStatus: 'REJECTED',
+  },
+};
+
 const mockDeliveryAddressUpdate = {
   deliveryAddressUpdate: {
     contractorRemarks: 'Test Contractor Remark',
@@ -1544,6 +1595,40 @@ describe('ShipmentForm component', () => {
           }),
         );
       });
+    });
+
+    it('sets to ACCEPT from REJECT if advance number is changed', async () => {
+      const ppmShipment = {
+        ...mockRejectedPPMShipment,
+        counselorRemarks: 'test',
+      };
+
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={ppmShipment}
+        />,
+        { wrapper: MockProviders },
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      expect(screen.getByLabelText('Reject')).toBeChecked();
+      expect(screen.getByLabelText('Approve')).not.toBeChecked();
+
+      const advanceAmountInput = screen.getByLabelText('Amount requested');
+      expect(advanceAmountInput).toHaveValue('4,875');
+
+      // Edit a requested advance amount to different number to
+      // test REJECT is changed to ACCEPT
+      await userEvent.clear(advanceAmountInput);
+      await userEvent.type(advanceAmountInput, '2,000');
+
+      // test REJECT is changed to ACCEPT when advance number is changed
+      expect(screen.getByLabelText('Reject')).not.toBeChecked();
+      expect(screen.getByLabelText('Approve')).toBeChecked();
     });
   });
 
