@@ -1605,10 +1605,26 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, nil)
 			// PPM base shipment field changes will affect SIT pricing
 			shipmentDifferentPickup := originalShipment
-			shipmentDifferentPickup.PickupAddress.PostalCode = "90211"
+			pickupAddress := models.Address{
+				StreetAddress1: originalShipment.PickupAddress.StreetAddress1,
+				StreetAddress2: originalShipment.PickupAddress.StreetAddress2,
+				StreetAddress3: originalShipment.PickupAddress.StreetAddress3,
+				City:           originalShipment.PickupAddress.City,
+				State:          originalShipment.PickupAddress.State,
+				PostalCode:     "90211",
+			}
+			shipmentDifferentPickup.PickupAddress = &pickupAddress
 
 			shipmentDifferentDestination := originalShipment
-			shipmentDifferentDestination.DestinationAddress.PostalCode = "30814"
+			destinationAddress := models.Address{
+				StreetAddress1: originalShipment.PickupAddress.StreetAddress1,
+				StreetAddress2: originalShipment.PickupAddress.StreetAddress2,
+				StreetAddress3: originalShipment.PickupAddress.StreetAddress3,
+				City:           originalShipment.PickupAddress.City,
+				State:          originalShipment.PickupAddress.State,
+				PostalCode:     "30814",
+			}
+			shipmentDifferentDestination.DestinationAddress = &destinationAddress
 
 			shipmentDifferentDeparture := originalShipment
 			// original date was Mar 15th so adding 3 months should affect the date peak period pricing
