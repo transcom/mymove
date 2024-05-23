@@ -41,6 +41,16 @@ func decoratePayloadWithPermissions(s *auth.Session, p *internalmessages.LoggedI
 	p.Permissions = append(p.Permissions, s.Permissions...)
 }
 
+func decoratePayloadWithPrivileges(appCtx appcontext.AppContext, p *internalmessages.LoggedInUserPayload) {
+	privileges, _ := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+
+	for _, privilege := range privileges {
+		p.Privileges = append(p.Privileges, &internalmessages.Privilege{
+			PrivilegeType: *handlers.FmtString(string(privilege.PrivilegeType)),
+		})
+	}
+}
+
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
@@ -65,6 +75,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				}
 				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
 				decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
+				decoratePayloadWithPrivileges(appCtx, &userPayload)
 
 				return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil
 			}
@@ -117,6 +128,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			}
 			decoratePayloadWithRoles(appCtx.Session(), &userPayload)
 			decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
+			decoratePayloadWithPrivileges(appCtx, &userPayload)
 			return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil
 		})
 }
