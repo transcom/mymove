@@ -398,12 +398,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				return nil, nil, err
 			}
 
-			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return nil, nil, err
-				}
-			}
 			var price unit.Cents
 
 			// origin
@@ -463,7 +457,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				if err != nil {
 					return nil, nil, err
 				}
-
+				if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+					distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+					if err != nil {
+						return nil, nil, err
+					}
+				}
 				price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
 				if err != nil {
 					return nil, nil, err
@@ -474,7 +473,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				if err != nil {
 					return nil, nil, err
 				}
-
+				if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+					distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+					if err != nil {
+						return nil, nil, err
+					}
+				}
 				price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea)
 				if err != nil {
 					return nil, nil, err
@@ -492,6 +496,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					pickupDateForFSC = requestedPickupDate
 				}
 
+				if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+					distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+					if err != nil {
+						return nil, nil, err
+					}
+				}
+
 				fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, primeEstimatedWeight)
 				if err != nil {
 					return nil, nil, err
@@ -504,7 +515,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				if err != nil {
 					return nil, nil, err
 				}
-
 				price, _, err = o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 				if err != nil {
 					return nil, nil, err
