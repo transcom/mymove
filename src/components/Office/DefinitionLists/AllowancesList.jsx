@@ -22,7 +22,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Weight allowance</dt>
-          <dd data-testid="weightAllowance">{formatWeight(info.authorizedWeight)}</dd>
+          <dd data-testid="weightAllowance">{formatWeight(info.totalWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Storage in transit (SIT)</dt>

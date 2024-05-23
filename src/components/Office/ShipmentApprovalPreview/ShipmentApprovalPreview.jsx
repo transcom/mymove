@@ -139,8 +139,7 @@ ShipmentApprovalPreview.propTypes = {
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
     grade: PropTypes.string,
-    weightAllowance: PropTypes.number,
-    authorizedWeight: PropTypes.number,
+    totalWeight: PropTypes.string,
     progear: PropTypes.number,
     spouseProgear: PropTypes.number,
     storageInTransit: PropTypes.number,
