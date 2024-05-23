@@ -351,6 +351,13 @@ export const formatYesNoInputValue = (value) => {
   return null;
 };
 
+// Translate boolean (true/false) into "yes"/"no" string
+export const formatTrueFalseInputValue = (value) => {
+  if (value === true) return 'true';
+  if (value === false) return 'false';
+  return null;
+};
+
 // Translate "yes"/"no" string into boolean (true/false)
 export const formatYesNoAPIValue = (value) => {
   if (value === 'yes') return true;
