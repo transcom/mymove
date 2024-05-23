@@ -15,7 +15,6 @@ import {
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
-  getResponseError,
   patchMTOShipment,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -111,19 +110,40 @@ const ProGear = () => {
       });
   };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    setErrorMessage(null);
-    setErrors({});
-    const hasWeightTickets = !values.missingWeightTicket;
+  const updateMtoShipment = (values) => {
     const belongsToSelf = values.belongsToSelf === 'true';
-    let test;
-    let test2;
+    let proGear;
+    let spouseProGear;
     if (belongsToSelf) {
-      test = values.weight;
+      proGear = values.weight;
     }
     if (!belongsToSelf) {
-      test2 = values.weight;
+      spouseProGear = values.weight;
     }
+    const payload = {
+      belongsToSelf,
+      ppmShipment: {
+        id: mtoShipment.ppmShipment.id,
+      },
+      shipmentType: mtoShipment.shipmentType,
+      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
+      actualProGearWeight: parseInt(proGear, 10),
+      shipmentLocator: values.shipmentLocator,
+    };
+
+    patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
+      .then((resp) => {
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        dispatch(updateMTOShipment(resp));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to update MTO shipment due to server error.');
+      });
+  };
+
+  const updateProGearWeightTicket = (values) => {
+    const hasWeightTickets = !values.missingWeightTicket;
+    const belongsToSelf = values.belongsToSelf === 'true';
     const payload = {
       ppmShipmentId: mtoShipment.ppmShipment.id,
       proGearWeightTicketId: currentProGearWeightTicket.id,
@@ -131,26 +151,7 @@ const ProGear = () => {
       weight: parseInt(values.weight, 10),
       belongsToSelf,
       hasWeightTickets,
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-      },
-      shipmentType: mtoShipment.shipmentType,
-      actualProGearWeight: parseInt(test, 10),
-      actualSpouseProGearWeight: parseInt(test2, 10),
-      shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
     };
-
-    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
-      .then((resp) => {
-        setSubmitting(false);
-        dispatch(updateMTOShipment(resp));
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-      })
-      .catch((err) => {
-        setSubmitting(false);
-        setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
-      });
 
     patchProGearWeightTicket(
       mtoShipment?.ppmShipment?.id,
@@ -159,15 +160,21 @@ const ProGear = () => {
       currentProGearWeightTicket.eTag,
     )
       .then((resp) => {
-        setSubmitting(false);
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex] = resp;
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {
-        setSubmitting(false);
         setErrorMessage('Failed to save updated trip record');
       });
+  };
+
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    setErrorMessage(null);
+    setErrors({});
+    setSubmitting(false);
+    updateMtoShipment(values);
+    updateProGearWeightTicket(values);
   };
 
   const renderError = () => {
