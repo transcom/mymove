@@ -7,6 +7,7 @@ export const roleTypes = {
   SERVICES_COUNSELOR: 'services_counselor',
   PRIME_SIMULATOR: 'prime_simulator',
   QAE_CSR: 'qae_csr',
+  CUSTOMER_SERVICE_REPRESENTATIVE: 'customer_service_representative',
 };
 
 export const adminOfficeRoles = [
@@ -25,4 +26,5 @@ export const officeRoles = [
   roleTypes.SERVICES_COUNSELOR,
   roleTypes.PRIME_SIMULATOR,
   roleTypes.QAE_CSR,
+  roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
 ];
