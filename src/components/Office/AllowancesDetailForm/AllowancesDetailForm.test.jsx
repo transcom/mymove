@@ -24,6 +24,13 @@ jest.mock('formik', () => ({
             onChange: jest.fn(),
             onBlur: jest.fn(),
           },
+          {
+            touched: false,
+          },
+          {
+            setValue: jest.fn(),
+            setTouched: jest.fn(),
+          },
         ];
       }
 
@@ -46,18 +53,6 @@ jest.mock('formik', () => ({
 }));
 
 const { Formik } = jest.requireActual('formik');
-
-const rankOptions = [
-  { key: 'E_1', value: 'E-1' },
-  { key: 'E_2', value: 'E-2' },
-  { key: 'E_3', value: 'E-3' },
-  { key: 'E_4', value: 'E-4' },
-  { key: 'E_5', value: 'E-5' },
-  { key: 'E_6', value: 'E-6' },
-  { key: 'E_7', value: 'E-7' },
-  { key: 'E_8', value: 'E-8' },
-  { key: 'E_9', value: 'E-9' },
-];
 
 const branchOptions = [
   { key: 'Army', value: 'Army' },
@@ -83,7 +78,7 @@ describe('AllowancesDetailForm', () => {
   it('renders the form', async () => {
     render(
       <Formik initialValues={initialValues}>
-        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
       </Formik>,
     );
 
@@ -95,7 +90,7 @@ describe('AllowancesDetailForm', () => {
   it('renders the pro-gear hints', async () => {
     render(
       <Formik initialValues={initialValues}>
-        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
       </Formik>,
     );
 
@@ -106,12 +101,7 @@ describe('AllowancesDetailForm', () => {
   it('renders the title header', async () => {
     render(
       <Formik initialValues={initialValues}>
-        <AllowancesDetailForm
-          entitlements={entitlements}
-          rankOptions={rankOptions}
-          branchOptions={branchOptions}
-          header="Test Header"
-        />
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} header="Test Header" />
       </Formik>,
     );
 

@@ -63,7 +63,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
+	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), orders.OriginDutyLocationID)
 	if err != nil {
 		return emails, err
 	}
@@ -75,7 +75,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	}
 
-	totalEntitlement := models.GetWeightAllotment(*serviceMember.Rank)
+	totalEntitlement := models.GetWeightAllotment(*orders.Grade)
 
 	weight := totalEntitlement.TotalWeightSelf
 	if orders.HasDependents {
@@ -87,12 +87,13 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
-		OriginDutyLocation:           originDutyLocationName,
-		DestinationDutyLocation:      orders.NewDutyLocation.Name,
-		OriginDutyLocationPhoneLine:  originDutyLocationPhoneLine,
-		Locator:                      move.Locator,
-		WeightAllowance:              humanize.Comma(int64(weight)),
-		ProvidesGovernmentCounseling: providesGovernmentCounseling,
+		OriginDutyLocation:                originDutyLocationName,
+		DestinationDutyLocation:           orders.NewDutyLocation.Name,
+		OriginDutyLocationPhoneLine:       originDutyLocationPhoneLine,
+		Locator:                           move.Locator,
+		WeightAllowance:                   humanize.Comma(int64(weight)),
+		ProvidesGovernmentCounseling:      providesGovernmentCounseling,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	})
 
 	if err != nil {
@@ -126,12 +127,13 @@ func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSu
 }
 
 type moveSubmittedEmailData struct {
-	OriginDutyLocation           *string
-	DestinationDutyLocation      string
-	OriginDutyLocationPhoneLine  *string
-	Locator                      string
-	WeightAllowance              string
-	ProvidesGovernmentCounseling bool
+	OriginDutyLocation                *string
+	DestinationDutyLocation           string
+	OriginDutyLocationPhoneLine       *string
+	Locator                           string
+	WeightAllowance                   string
+	ProvidesGovernmentCounseling      bool
+	OneSourceTransportationOfficeLink string
 }
 
 // RenderHTML renders the html for the email

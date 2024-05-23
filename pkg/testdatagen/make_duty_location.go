@@ -97,24 +97,24 @@ func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocati
 //
 // Deprecated: use factory.fetchOrMakeDefaultNewOrdersDutyLocation
 func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
-	// Check if Fort Gordon exists, if not, create
-	// Move date picker for this test case only works with an address of street name "Fort Gordon"
-	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
+	// Check if Fort Eisenhower exists, if not, create
+	// Move date picker for this test case only works with an address of street name "Fort Eisenhower"
+	fortEisenhower, err := models.FetchDutyLocationByName(db, "Fort Eisenhower, GA 30813")
 	if err == nil {
-		fortGordon.TransportationOffice, err = models.FetchDutyLocationTransportationOffice(db, fortGordon.ID)
+		fortEisenhower.TransportationOffice, err = models.FetchDutyLocationTransportationOffice(db, fortEisenhower.ID)
 		if err == nil {
-			return fortGordon
+			return fortEisenhower
 		}
 	}
-	fortGordonAssertions := Assertions{
+	fortEisenhowerAssertions := Assertions{
 		Address: models.Address{
-			City:       "Augusta",
+			City:       "Fort Eisenhower",
 			State:      "GA",
 			PostalCode: "30813",
 		},
 		DutyLocation: models.DutyLocation{
-			Name: "Fort Gordon",
+			Name: "Fort Eisenhower, GA 30813",
 		},
 	}
-	return makeDutyLocation(db, fortGordonAssertions)
+	return makeDutyLocation(db, fortEisenhowerAssertions)
 }

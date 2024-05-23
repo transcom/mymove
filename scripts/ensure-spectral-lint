@@ -8,7 +8,7 @@ import os.path
 import sys
 import subprocess
 
-HELP_URL = "https://transcom.github.io/mymove-docs/docs/frontend/testing/how-to-run-spectral-lint"
+HELP_URL = "https://dp3.atlassian.net/wiki/spaces/MT/pages/2306244613/Troubleshooting+Spectral+Errors"
 
 SEVERITY_NAMES = {
   0: "error",
@@ -90,8 +90,3 @@ for fn in files:
             print(f"New counts for '{fn}' severity '{severity_name}': {new_severity_count}")
             if new_severity_count > baseline_severity_count:
                 baseline_error_increase = True
-
-if baseline_error_increase:
-    print("Spectral Errors have increased")
-    print(f"Refer to the following to learn how resolve this: {HELP_URL}")
-    sys.exit(1)

@@ -55,12 +55,15 @@ test.describe('Prime simulator user', () => {
 
     // wait for the the available moves page to load
     // select the move from the list
-    await page.getByText(moveLocator).click();
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
     await officePage.waitForLoading();
     await expect(page.getByText(moveLocator)).toBeVisible();
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
     // waits for the move details page to load
-    await page.getByText('Update Shipment').click();
+    await expect(page.getByText('SUBMITTED')).toHaveCount(1);
+    await page.getByRole('link', { name: 'Update Shipment', exact: true }).click();
 
     // waits for the update shipment page to load
     expect(page.url()).toContain(`/simulator/moves/${moveID}/shipments`);
@@ -141,5 +144,96 @@ test.describe('Prime simulator user', () => {
 
     await officePage.signInAsNewPrimeSimulatorUser();
     await officePage.primeSimulatorNavigateToMove(partialPpmCloseoutLocator);
+  });
+
+  test('is able to submit a SIT extension request', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildHHGMoveInSIT();
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    const moveLocator = move.locator;
+    const moveID = move.id;
+
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
+    await officePage.waitForLoading();
+    await expect(page.getByText(moveLocator)).toBeVisible();
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
+
+    // Go to Request SIT extension page
+    await page.getByText('Request SIT Extension').click();
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/shipments`);
+
+    // Check labels and fill out the form
+    await expect(page.getByText(`Request Reason`)).toBeVisible();
+    await page.locator('select[name="requestReason"]');
+
+    // Expected values for Request Reason
+    const expectedValues = [
+      'SERIOUS_ILLNESS_MEMBER',
+      'SERIOUS_ILLNESS_DEPENDENT',
+      'IMPENDING_ASSIGNEMENT',
+      'DIRECTED_TEMPORARY_DUTY',
+      'NONAVAILABILITY_OF_CIVILIAN_HOUSING',
+      'AWAITING_COMPLETION_OF_RESIDENCE',
+      'OTHER',
+    ];
+
+    // Check each option
+    for (const option of expectedValues) {
+      await page.locator('select[name="requestReason"]').selectOption({ value: option });
+    }
+
+    await expect(page.getByText(`Requested Days`)).toBeVisible();
+    await page.locator('input[name="requestedDays"]').type('12');
+    await expect(page.getByText(`Contractor Remarks`)).toBeVisible();
+    await page.locator('textarea[name="contractorRemarks"]').type('Testing contractor remarks');
+
+    // Submit the form
+    await page.getByText('Request SIT Extension').click();
+
+    // Get success message
+    await expect(page.getByText('Successfully created SIT extension request')).toBeVisible({ timeout: 10000 });
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
+  });
+
+  test('is able submit payment request on SIT without destination SIT Out Date', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationSITOutDate();
+    const moveLocator = move.locator;
+    const moveID = move.id;
+    const items = move.MTOServiceItems;
+    const weight = '500';
+    let serviceItemID;
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
+    await page.getByRole('link', { name: 'Create Payment Request' }).click();
+
+    const serviceItemCount = items.length;
+    expect(serviceItemCount).toBeGreaterThan(0);
+    for (let i = 0; i < serviceItemCount; i += 1) {
+      const dddsitIt = items.find((items) => items.ReService.code === 'DDDSIT');
+      serviceItemID = dddsitIt.ID;
+    }
+
+    await page.locator(`[id="${serviceItemID}-div"] > .usa-checkbox`).click();
+    await page.locator(`input[name="params\\.${serviceItemID}.WeightBilled"]`).fill(weight);
+    await page.getByText('Submit Payment Request').click();
+    await expect(page.getByText('Successfully created payment request')).toBeVisible({ timeout: 10000 });
+
+    await page.getByRole('link', { name: 'Create Payment Request' }).click();
+    for (let i = 0; i < serviceItemCount; i += 1) {
+      const ddsfsc = items.find((items) => items.ReService.code === 'DDSFSC');
+      serviceItemID = ddsfsc.ID;
+    }
+
+    await page.locator(`[id="${serviceItemID}-div"] > .usa-checkbox`).click();
+    await page.locator(`input[name="params\\.${serviceItemID}.WeightBilled"]`).fill(weight);
+    await page.getByText('Submit Payment Request').click();
+    await expect(page.getByText('Successfully created payment request')).toBeVisible({ timeout: 10000 });
+
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
   });
 });

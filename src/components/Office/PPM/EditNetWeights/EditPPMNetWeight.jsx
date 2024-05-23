@@ -210,7 +210,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   return (
     <div className={styles.main_wrapper}>
       <div>
-        <h4 className={styles.mainHeader}>Edit PPM net weight</h4>
+        <h4 className={styles.mainHeader}>PPM net weight</h4>
         {Boolean(showEditForm && hasExcessWeight) && (
           <WeightCalculationHint
             firstValue={moveWeightTotal}
@@ -238,9 +238,6 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
                   <p className={styles.remarks}>{weightTicket.netWeightRemarks}</p>
                 </>
               )}
-              <Button onClick={toggleEditForm} className={styles.editButton}>
-                Edit
-              </Button>
             </div>
           ) : (
             <EditPPMNetWeightForm

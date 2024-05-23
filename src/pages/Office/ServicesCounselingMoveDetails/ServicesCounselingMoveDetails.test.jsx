@@ -12,7 +12,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
@@ -173,6 +173,12 @@ const newMoveDetailsQuery = {
     first_name: 'Smith',
     dodID: '999999999',
     agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
   },
   order: {
     id: '1',
@@ -225,7 +231,7 @@ const newMoveDetailsQuery = {
       id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
       nonTemporaryStorage: true,
       privatelyOwnedVehicle: true,
-      proGearWeight: 2000,
+      proGearWeight: 1,
       proGearWeightSpouse: 500,
       storageInTransit: 2,
       totalDependents: 1,
@@ -270,7 +276,6 @@ const ppmShipmentQuery = {
         advanceAmountRequested: 598700,
         approvedAt: null,
         createdAt: '2022-11-08T23:44:58.226Z',
-        destinationPostalCode: '30813',
         eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
         estimatedIncentive: 1000000,
         estimatedWeight: 4000,
@@ -281,12 +286,43 @@ const ppmShipmentQuery = {
         hasRequestedAdvance: true,
         id: '79b98a71-158d-4b04-9a6c-25543c52183d',
         movingExpenses: null,
-        pickupPostalCode: '90210',
         proGearWeight: 1987,
         proGearWeightTickets: null,
         reviewedAt: null,
-        secondaryDestinationPostalCode: '30814',
-        secondaryPickupPostalCode: '90211',
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
         shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
         sitEstimatedCost: null,
         sitEstimatedDepartureDate: null,
@@ -319,7 +355,6 @@ const ppmShipmentQuery = {
         advanceAmountRequested: 598700,
         approvedAt: null,
         createdAt: '2022-11-08T23:44:58.226Z',
-        destinationPostalCode: '30813',
         eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
         estimatedIncentive: 1000000,
         estimatedWeight: 4000,
@@ -330,12 +365,43 @@ const ppmShipmentQuery = {
         hasRequestedAdvance: true,
         id: '79b98a71-158d-4b04-9a6c-25543c52183d',
         movingExpenses: null,
-        pickupPostalCode: '11201',
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
         proGearWeight: 1987,
         proGearWeightTickets: null,
         reviewedAt: null,
-        secondaryDestinationPostalCode: '30814',
-        secondaryPickupPostalCode: '90211',
         shipmentId: 'e33a1a7b-530f-4df4-b947-d3d719786385',
         sitEstimatedCost: null,
         sitEstimatedDepartureDate: null,
@@ -395,7 +461,7 @@ const ppmShipmentQuery = {
   ],
 };
 
-const renderComponent = (props, permissions = [permissionTypes.updateShipment]) => {
+const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
   return render(
     <MockProviders permissions={permissions} {...mockRoutingOptions}>
       <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} {...props} />
@@ -505,7 +571,7 @@ describe('MoveDetails page', () => {
 
       for (let i = 0; i < moveDateTerms.length; i += 1) {
         expect(moveDateTerms[i].nextElementSibling.textContent).toBe(
-          formatDate(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
+          formatDateWithUTC(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
         );
       }
 
@@ -588,6 +654,13 @@ describe('MoveDetails page', () => {
       // In this case, we would expect 6 shipment concerns since 3 shipments are missing counselor remarks,
       // 2 shipments are missing advance status, and the move has excess weight
       expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('6');
+    });
+
+    it('renders the allowances error message when allowances are less than moves values', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      renderComponent();
+      const allowanceError = screen.getByTestId('allowanceError');
+      expect(allowanceError).toBeInTheDocument();
     });
 
     it('renders shipments info even if destination address is missing', async () => {
@@ -733,7 +806,7 @@ describe('MoveDetails page', () => {
         renderComponent();
 
         expect(await screen.findByRole('heading', { name: 'Allowances', level: 2 })).toBeInTheDocument();
-        expect(screen.getByText('Branch, rank')).toBeInTheDocument();
+        expect(screen.getByText('Branch')).toBeInTheDocument();
       });
 
       it('allows the service counselor to use the modal as expected', async () => {
@@ -867,7 +940,7 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
       });
     });
 
@@ -892,6 +965,16 @@ describe('MoveDetails page', () => {
         );
 
         expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+      });
+
+      it('does not show the edit customer info button if user does not have permission', () => {
+        render(
+          <MockProviders {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(screen.queryByText('Edit customer info')).not.toBeInTheDocument();
       });
     });
   });

@@ -1,18 +1,20 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
 import { permissionTypes } from 'constants/permissions';
-import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
+import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
-import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -26,6 +28,7 @@ const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolation
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -36,11 +39,22 @@ const TXOMoveInfo = () => {
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { data } = useUserQueries();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   const hideNav =
     matchPath(
@@ -70,21 +84,47 @@ const TXOMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH,
+        end: true,
+      },
+      pathname,
     );
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  // this locked move banner will display if the current user is not the one who has it locked
+  // if the current user is the one who has it locked, it will not display
+  const renderLockedBanner = () => {
+    const officeUser = data?.office_user;
+    if (move?.lockedByOfficeUserID && moveLockFlag) {
+      if (move?.lockedByOfficeUserID !== officeUser?.id) {
+        return (
+          <LockedMoveBanner data-testid="locked-move-banner">
+            This move is locked by {move.lockedByOfficeUser?.firstName} {move.lockedByOfficeUser?.lastName} at{' '}
+            {move.lockedByOfficeUser?.transportationOffice?.name}
+          </LockedMoveBanner>
+        );
+      }
+      return null;
+    }
+    return null;
+  };
+
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+      {renderLockedBanner()}
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
           <br />
           If that doesn&apos;t fix it, contact the{' '}
-          <a href="https://move.mil/customer-service#technical-help-desk">Technical Help Desk</a> and give them this
-          code: <strong>{traceId}</strong>
+          <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">Technical Help Desk</a>{' '}
+          (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
         </SystemError>
       )}
       {!hideNav && (
@@ -198,7 +238,15 @@ const TXOMoveInfo = () => {
               }
             />
           )}
-
+          {order.grade && (
+            <Route
+              path={tooRoutes.CUSTOMER_INFO_EDIT_PATH}
+              end
+              element={
+                <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
+              }
+            />
+          )}
           <Route path="history" end element={<MoveHistory moveCode={moveCode} />} />
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />

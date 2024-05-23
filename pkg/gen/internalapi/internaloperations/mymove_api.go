@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -69,9 +70,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
 		}),
-		OfficeApprovePPMHandler: office.ApprovePPMHandlerFunc(func(params office.ApprovePPMParams) middleware.Responder {
-			return middleware.NotImplemented("operation office.ApprovePPM has not yet been implemented")
-		}),
 		OfficeApproveReimbursementHandler: office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
 		}),
@@ -96,14 +94,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersCreateOrdersHandler: orders.CreateOrdersHandlerFunc(func(params orders.CreateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		}),
-		PpmCreatePPMAttachmentsHandler: ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
-		}),
 		PpmCreatePPMUploadHandler: ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
-		}),
-		PpmCreatePersonallyProcuredMoveHandler: ppm.CreatePersonallyProcuredMoveHandlerFunc(func(params ppm.CreatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePersonallyProcuredMove has not yet been implemented")
 		}),
 		PpmCreateProGearWeightTicketHandler: ppm.CreateProGearWeightTicketHandlerFunc(func(params ppm.CreateProGearWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreateProGearWeightTicket has not yet been implemented")
@@ -147,6 +139,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmDeleteWeightTicketHandler: ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		}),
+		MovesGetAllMovesHandler: moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
+		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -155,9 +150,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveDocsIndexMoveDocumentsHandler: move_docs.IndexMoveDocumentsHandlerFunc(func(params move_docs.IndexMoveDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.IndexMoveDocuments has not yet been implemented")
-		}),
-		PpmIndexPersonallyProcuredMovesHandler: ppm.IndexPersonallyProcuredMovesHandlerFunc(func(params ppm.IndexPersonallyProcuredMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.IndexPersonallyProcuredMoves has not yet been implemented")
 		}),
 		BackupContactsIndexServiceMemberBackupContactsHandler: backup_contacts.IndexServiceMemberBackupContactsHandlerFunc(func(params backup_contacts.IndexServiceMemberBackupContactsParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.IndexServiceMemberBackupContacts has not yet been implemented")
@@ -174,23 +166,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesPatchMoveHandler: moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.PatchMove has not yet been implemented")
 		}),
-		PpmPatchPersonallyProcuredMoveHandler: ppm.PatchPersonallyProcuredMoveHandlerFunc(func(params ppm.PatchPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.PatchPersonallyProcuredMove has not yet been implemented")
-		}),
 		ServiceMembersPatchServiceMemberHandler: service_members.PatchServiceMemberHandlerFunc(func(params service_members.PatchServiceMemberParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_members.PatchServiceMember has not yet been implemented")
-		}),
-		PpmRequestPPMExpenseSummaryHandler: ppm.RequestPPMExpenseSummaryHandlerFunc(func(params ppm.RequestPPMExpenseSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.RequestPPMExpenseSummary has not yet been implemented")
-		}),
-		PpmRequestPPMPaymentHandler: ppm.RequestPPMPaymentHandlerFunc(func(params ppm.RequestPPMPaymentParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.RequestPPMPayment has not yet been implemented")
 		}),
 		PpmResubmitPPMShipmentDocumentationHandler: ppm.ResubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.ResubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ResubmitPPMShipmentDocumentation has not yet been implemented")
 		}),
 		DutyLocationsSearchDutyLocationsHandler: duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")
+		}),
+		PpmShowAOAPacketHandler: ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
 		}),
 		AddressesShowAddressHandler: addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
@@ -210,9 +196,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesShowMoveHandler: moves.ShowMoveHandlerFunc(func(params moves.ShowMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.ShowMove has not yet been implemented")
 		}),
-		MovesShowMoveDatesSummaryHandler: moves.ShowMoveDatesSummaryHandlerFunc(func(params moves.ShowMoveDatesSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowMoveDatesSummary has not yet been implemented")
-		}),
 		OfficeShowOfficeOrdersHandler: office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
 		}),
@@ -222,17 +205,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersShowOrdersHandler: orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		}),
-		PpmShowPPMEstimateHandler: ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
-		}),
-		PpmShowPPMIncentiveHandler: ppm.ShowPPMIncentiveHandlerFunc(func(params ppm.ShowPPMIncentiveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMIncentive has not yet been implemented")
-		}),
-		PpmShowPPMSitEstimateHandler: ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
-		}),
-		PpmShowPersonallyProcuredMoveHandler: ppm.ShowPersonallyProcuredMoveHandlerFunc(func(params ppm.ShowPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPersonallyProcuredMove has not yet been implemented")
+		PpmShowPaymentPacketHandler: ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
 		}),
 		QueuesShowQueueHandler: queues.ShowQueueHandlerFunc(func(params queues.ShowQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.ShowQueue has not yet been implemented")
@@ -246,9 +220,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ServiceMembersShowServiceMemberOrdersHandler: service_members.ShowServiceMemberOrdersHandlerFunc(func(params service_members.ShowServiceMemberOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_members.ShowServiceMemberOrders has not yet been implemented")
 		}),
-		MovesShowShipmentSummaryWorksheetHandler: moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
-		}),
 		MovesSubmitAmendedOrdersHandler: moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
 		}),
@@ -257,9 +228,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmSubmitPPMShipmentDocumentationHandler: ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
-		}),
-		PpmSubmitPersonallyProcuredMoveHandler: ppm.SubmitPersonallyProcuredMoveHandlerFunc(func(params ppm.SubmitPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.SubmitPersonallyProcuredMove has not yet been implemented")
 		}),
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
@@ -276,9 +244,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersUpdateOrdersHandler: orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
 		}),
-		PpmUpdatePersonallyProcuredMoveHandler: ppm.UpdatePersonallyProcuredMoveHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMove has not yet been implemented")
-		}),
 		PpmUpdateProGearWeightTicketHandler: ppm.UpdateProGearWeightTicketHandlerFunc(func(params ppm.UpdateProGearWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateProGearWeightTicket has not yet been implemented")
 		}),
@@ -290,6 +255,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrdersUploadAmendedOrdersHandler: orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
+		}),
+		ApplicationParametersValidateHandler: application_parameters.ValidateHandlerFunc(func(params application_parameters.ValidateParams) middleware.Responder {
+			return middleware.NotImplemented("operation application_parameters.Validate has not yet been implemented")
 		}),
 		PostalCodesValidatePostalCodeWithRateDataHandler: postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
@@ -346,8 +314,6 @@ type MymoveAPI struct {
 
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
-	// OfficeApprovePPMHandler sets the operation handler for the approve p p m operation
-	OfficeApprovePPMHandler office.ApprovePPMHandler
 	// OfficeApproveReimbursementHandler sets the operation handler for the approve reimbursement operation
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
 	// FeatureFlagsBooleanFeatureFlagForUserHandler sets the operation handler for the boolean feature flag for user operation
@@ -364,12 +330,8 @@ type MymoveAPI struct {
 	PpmCreateMovingExpenseHandler ppm.CreateMovingExpenseHandler
 	// OrdersCreateOrdersHandler sets the operation handler for the create orders operation
 	OrdersCreateOrdersHandler orders.CreateOrdersHandler
-	// PpmCreatePPMAttachmentsHandler sets the operation handler for the create p p m attachments operation
-	PpmCreatePPMAttachmentsHandler ppm.CreatePPMAttachmentsHandler
 	// PpmCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
 	PpmCreatePPMUploadHandler ppm.CreatePPMUploadHandler
-	// PpmCreatePersonallyProcuredMoveHandler sets the operation handler for the create personally procured move operation
-	PpmCreatePersonallyProcuredMoveHandler ppm.CreatePersonallyProcuredMoveHandler
 	// PpmCreateProGearWeightTicketHandler sets the operation handler for the create pro gear weight ticket operation
 	PpmCreateProGearWeightTicketHandler ppm.CreateProGearWeightTicketHandler
 	// ServiceMembersCreateServiceMemberHandler sets the operation handler for the create service member operation
@@ -398,14 +360,14 @@ type MymoveAPI struct {
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// PpmDeleteWeightTicketHandler sets the operation handler for the delete weight ticket operation
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
+	// MovesGetAllMovesHandler sets the operation handler for the get all moves operation
+	MovesGetAllMovesHandler moves.GetAllMovesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
 	MoveDocsIndexMoveDocumentsHandler move_docs.IndexMoveDocumentsHandler
-	// PpmIndexPersonallyProcuredMovesHandler sets the operation handler for the index personally procured moves operation
-	PpmIndexPersonallyProcuredMovesHandler ppm.IndexPersonallyProcuredMovesHandler
 	// BackupContactsIndexServiceMemberBackupContactsHandler sets the operation handler for the index service member backup contacts operation
 	BackupContactsIndexServiceMemberBackupContactsHandler backup_contacts.IndexServiceMemberBackupContactsHandler
 	// CertificationIndexSignedCertificationHandler sets the operation handler for the index signed certification operation
@@ -416,18 +378,14 @@ type MymoveAPI struct {
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// MovesPatchMoveHandler sets the operation handler for the patch move operation
 	MovesPatchMoveHandler moves.PatchMoveHandler
-	// PpmPatchPersonallyProcuredMoveHandler sets the operation handler for the patch personally procured move operation
-	PpmPatchPersonallyProcuredMoveHandler ppm.PatchPersonallyProcuredMoveHandler
 	// ServiceMembersPatchServiceMemberHandler sets the operation handler for the patch service member operation
 	ServiceMembersPatchServiceMemberHandler service_members.PatchServiceMemberHandler
-	// PpmRequestPPMExpenseSummaryHandler sets the operation handler for the request p p m expense summary operation
-	PpmRequestPPMExpenseSummaryHandler ppm.RequestPPMExpenseSummaryHandler
-	// PpmRequestPPMPaymentHandler sets the operation handler for the request p p m payment operation
-	PpmRequestPPMPaymentHandler ppm.RequestPPMPaymentHandler
 	// PpmResubmitPPMShipmentDocumentationHandler sets the operation handler for the resubmit p p m shipment documentation operation
 	PpmResubmitPPMShipmentDocumentationHandler ppm.ResubmitPPMShipmentDocumentationHandler
 	// DutyLocationsSearchDutyLocationsHandler sets the operation handler for the search duty locations operation
 	DutyLocationsSearchDutyLocationsHandler duty_locations.SearchDutyLocationsHandler
+	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
+	PpmShowAOAPacketHandler ppm.ShowAOAPacketHandler
 	// AddressesShowAddressHandler sets the operation handler for the show address operation
 	AddressesShowAddressHandler addresses.ShowAddressHandler
 	// CalendarShowAvailableMoveDatesHandler sets the operation handler for the show available move dates operation
@@ -440,22 +398,14 @@ type MymoveAPI struct {
 	UsersShowLoggedInUserHandler users.ShowLoggedInUserHandler
 	// MovesShowMoveHandler sets the operation handler for the show move operation
 	MovesShowMoveHandler moves.ShowMoveHandler
-	// MovesShowMoveDatesSummaryHandler sets the operation handler for the show move dates summary operation
-	MovesShowMoveDatesSummaryHandler moves.ShowMoveDatesSummaryHandler
 	// OfficeShowOfficeOrdersHandler sets the operation handler for the show office orders operation
 	OfficeShowOfficeOrdersHandler office.ShowOfficeOrdersHandler
 	// OktaProfileShowOktaInfoHandler sets the operation handler for the show okta info operation
 	OktaProfileShowOktaInfoHandler okta_profile.ShowOktaInfoHandler
 	// OrdersShowOrdersHandler sets the operation handler for the show orders operation
 	OrdersShowOrdersHandler orders.ShowOrdersHandler
-	// PpmShowPPMEstimateHandler sets the operation handler for the show p p m estimate operation
-	PpmShowPPMEstimateHandler ppm.ShowPPMEstimateHandler
-	// PpmShowPPMIncentiveHandler sets the operation handler for the show p p m incentive operation
-	PpmShowPPMIncentiveHandler ppm.ShowPPMIncentiveHandler
-	// PpmShowPPMSitEstimateHandler sets the operation handler for the show p p m sit estimate operation
-	PpmShowPPMSitEstimateHandler ppm.ShowPPMSitEstimateHandler
-	// PpmShowPersonallyProcuredMoveHandler sets the operation handler for the show personally procured move operation
-	PpmShowPersonallyProcuredMoveHandler ppm.ShowPersonallyProcuredMoveHandler
+	// PpmShowPaymentPacketHandler sets the operation handler for the show payment packet operation
+	PpmShowPaymentPacketHandler ppm.ShowPaymentPacketHandler
 	// QueuesShowQueueHandler sets the operation handler for the show queue operation
 	QueuesShowQueueHandler queues.ShowQueueHandler
 	// ServiceMembersShowServiceMemberHandler sets the operation handler for the show service member operation
@@ -464,16 +414,12 @@ type MymoveAPI struct {
 	BackupContactsShowServiceMemberBackupContactHandler backup_contacts.ShowServiceMemberBackupContactHandler
 	// ServiceMembersShowServiceMemberOrdersHandler sets the operation handler for the show service member orders operation
 	ServiceMembersShowServiceMemberOrdersHandler service_members.ShowServiceMemberOrdersHandler
-	// MovesShowShipmentSummaryWorksheetHandler sets the operation handler for the show shipment summary worksheet operation
-	MovesShowShipmentSummaryWorksheetHandler moves.ShowShipmentSummaryWorksheetHandler
 	// MovesSubmitAmendedOrdersHandler sets the operation handler for the submit amended orders operation
 	MovesSubmitAmendedOrdersHandler moves.SubmitAmendedOrdersHandler
 	// MovesSubmitMoveForApprovalHandler sets the operation handler for the submit move for approval operation
 	MovesSubmitMoveForApprovalHandler moves.SubmitMoveForApprovalHandler
 	// PpmSubmitPPMShipmentDocumentationHandler sets the operation handler for the submit p p m shipment documentation operation
 	PpmSubmitPPMShipmentDocumentationHandler ppm.SubmitPPMShipmentDocumentationHandler
-	// PpmSubmitPersonallyProcuredMoveHandler sets the operation handler for the submit personally procured move operation
-	PpmSubmitPersonallyProcuredMoveHandler ppm.SubmitPersonallyProcuredMoveHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveDocsUpdateMoveDocumentHandler sets the operation handler for the update move document operation
@@ -484,8 +430,6 @@ type MymoveAPI struct {
 	OktaProfileUpdateOktaInfoHandler okta_profile.UpdateOktaInfoHandler
 	// OrdersUpdateOrdersHandler sets the operation handler for the update orders operation
 	OrdersUpdateOrdersHandler orders.UpdateOrdersHandler
-	// PpmUpdatePersonallyProcuredMoveHandler sets the operation handler for the update personally procured move operation
-	PpmUpdatePersonallyProcuredMoveHandler ppm.UpdatePersonallyProcuredMoveHandler
 	// PpmUpdateProGearWeightTicketHandler sets the operation handler for the update pro gear weight ticket operation
 	PpmUpdateProGearWeightTicketHandler ppm.UpdateProGearWeightTicketHandler
 	// BackupContactsUpdateServiceMemberBackupContactHandler sets the operation handler for the update service member backup contact operation
@@ -494,6 +438,8 @@ type MymoveAPI struct {
 	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
 	// OrdersUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
 	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
+	// ApplicationParametersValidateHandler sets the operation handler for the validate operation
+	ApplicationParametersValidateHandler application_parameters.ValidateHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
 	// FeatureFlagsVariantFeatureFlagForUserHandler sets the operation handler for the variant feature flag for user operation
@@ -584,9 +530,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeApproveMoveHandler == nil {
 		unregistered = append(unregistered, "office.ApproveMoveHandler")
 	}
-	if o.OfficeApprovePPMHandler == nil {
-		unregistered = append(unregistered, "office.ApprovePPMHandler")
-	}
 	if o.OfficeApproveReimbursementHandler == nil {
 		unregistered = append(unregistered, "office.ApproveReimbursementHandler")
 	}
@@ -611,14 +554,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrdersCreateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.CreateOrdersHandler")
 	}
-	if o.PpmCreatePPMAttachmentsHandler == nil {
-		unregistered = append(unregistered, "ppm.CreatePPMAttachmentsHandler")
-	}
 	if o.PpmCreatePPMUploadHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePPMUploadHandler")
-	}
-	if o.PpmCreatePersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.CreatePersonallyProcuredMoveHandler")
 	}
 	if o.PpmCreateProGearWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.CreateProGearWeightTicketHandler")
@@ -662,6 +599,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmDeleteWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteWeightTicketHandler")
 	}
+	if o.MovesGetAllMovesHandler == nil {
+		unregistered = append(unregistered, "moves.GetAllMovesHandler")
+	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
 	}
@@ -670,9 +610,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveDocsIndexMoveDocumentsHandler == nil {
 		unregistered = append(unregistered, "move_docs.IndexMoveDocumentsHandler")
-	}
-	if o.PpmIndexPersonallyProcuredMovesHandler == nil {
-		unregistered = append(unregistered, "ppm.IndexPersonallyProcuredMovesHandler")
 	}
 	if o.BackupContactsIndexServiceMemberBackupContactsHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.IndexServiceMemberBackupContactsHandler")
@@ -689,23 +626,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.MovesPatchMoveHandler == nil {
 		unregistered = append(unregistered, "moves.PatchMoveHandler")
 	}
-	if o.PpmPatchPersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.PatchPersonallyProcuredMoveHandler")
-	}
 	if o.ServiceMembersPatchServiceMemberHandler == nil {
 		unregistered = append(unregistered, "service_members.PatchServiceMemberHandler")
-	}
-	if o.PpmRequestPPMExpenseSummaryHandler == nil {
-		unregistered = append(unregistered, "ppm.RequestPPMExpenseSummaryHandler")
-	}
-	if o.PpmRequestPPMPaymentHandler == nil {
-		unregistered = append(unregistered, "ppm.RequestPPMPaymentHandler")
 	}
 	if o.PpmResubmitPPMShipmentDocumentationHandler == nil {
 		unregistered = append(unregistered, "ppm.ResubmitPPMShipmentDocumentationHandler")
 	}
 	if o.DutyLocationsSearchDutyLocationsHandler == nil {
 		unregistered = append(unregistered, "duty_locations.SearchDutyLocationsHandler")
+	}
+	if o.PpmShowAOAPacketHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowAOAPacketHandler")
 	}
 	if o.AddressesShowAddressHandler == nil {
 		unregistered = append(unregistered, "addresses.ShowAddressHandler")
@@ -725,9 +656,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.MovesShowMoveHandler == nil {
 		unregistered = append(unregistered, "moves.ShowMoveHandler")
 	}
-	if o.MovesShowMoveDatesSummaryHandler == nil {
-		unregistered = append(unregistered, "moves.ShowMoveDatesSummaryHandler")
-	}
 	if o.OfficeShowOfficeOrdersHandler == nil {
 		unregistered = append(unregistered, "office.ShowOfficeOrdersHandler")
 	}
@@ -737,17 +665,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrdersShowOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.ShowOrdersHandler")
 	}
-	if o.PpmShowPPMEstimateHandler == nil {
-		unregistered = append(unregistered, "ppm.ShowPPMEstimateHandler")
-	}
-	if o.PpmShowPPMIncentiveHandler == nil {
-		unregistered = append(unregistered, "ppm.ShowPPMIncentiveHandler")
-	}
-	if o.PpmShowPPMSitEstimateHandler == nil {
-		unregistered = append(unregistered, "ppm.ShowPPMSitEstimateHandler")
-	}
-	if o.PpmShowPersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.ShowPersonallyProcuredMoveHandler")
+	if o.PpmShowPaymentPacketHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowPaymentPacketHandler")
 	}
 	if o.QueuesShowQueueHandler == nil {
 		unregistered = append(unregistered, "queues.ShowQueueHandler")
@@ -761,9 +680,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.ServiceMembersShowServiceMemberOrdersHandler == nil {
 		unregistered = append(unregistered, "service_members.ShowServiceMemberOrdersHandler")
 	}
-	if o.MovesShowShipmentSummaryWorksheetHandler == nil {
-		unregistered = append(unregistered, "moves.ShowShipmentSummaryWorksheetHandler")
-	}
 	if o.MovesSubmitAmendedOrdersHandler == nil {
 		unregistered = append(unregistered, "moves.SubmitAmendedOrdersHandler")
 	}
@@ -772,9 +688,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmSubmitPPMShipmentDocumentationHandler == nil {
 		unregistered = append(unregistered, "ppm.SubmitPPMShipmentDocumentationHandler")
-	}
-	if o.PpmSubmitPersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.SubmitPersonallyProcuredMoveHandler")
 	}
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
@@ -791,9 +704,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrdersUpdateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UpdateOrdersHandler")
 	}
-	if o.PpmUpdatePersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.UpdatePersonallyProcuredMoveHandler")
-	}
 	if o.PpmUpdateProGearWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateProGearWeightTicketHandler")
 	}
@@ -805,6 +715,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrdersUploadAmendedOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UploadAmendedOrdersHandler")
+	}
+	if o.ApplicationParametersValidateHandler == nil {
+		unregistered = append(unregistered, "application_parameters.ValidateHandler")
 	}
 	if o.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		unregistered = append(unregistered, "postal_codes.ValidatePostalCodeWithRateDataHandler")
@@ -911,10 +824,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/approve"] = office.NewApprovePPM(o.context, o.OfficeApprovePPMHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/reimbursement/{reimbursementId}/approve"] = office.NewApproveReimbursement(o.context, o.OfficeApproveReimbursementHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -947,15 +856,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments"] = ppm.NewCreatePPMAttachments(o.context, o.PpmCreatePPMAttachmentsHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/uploads"] = ppm.NewCreatePPMUpload(o.context, o.PpmCreatePPMUploadHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/moves/{moveId}/personally_procured_move"] = ppm.NewCreatePersonallyProcuredMove(o.context, o.PpmCreatePersonallyProcuredMoveHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1015,6 +916,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/allmoves/{serviceMemberId}"] = moves.NewGetAllMoves(o.context, o.MovesGetAllMovesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/transportation-offices"] = transportation_offices.NewGetTransportationOffices(o.context, o.TransportationOfficesGetTransportationOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1024,10 +929,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/move_documents"] = move_docs.NewIndexMoveDocuments(o.context, o.MoveDocsIndexMoveDocumentsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/moves/{moveId}/personally_procured_move"] = ppm.NewIndexPersonallyProcuredMoves(o.context, o.PpmIndexPersonallyProcuredMovesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1051,19 +952,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewPatchPersonallyProcuredMove(o.context, o.PpmPatchPersonallyProcuredMoveHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
 	o.handlers["PATCH"]["/service_members/{serviceMemberId}"] = service_members.NewPatchServiceMember(o.context, o.ServiceMembersPatchServiceMemberHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/personally_procured_move/{personallyProcuredMoveId}/expense_summary"] = ppm.NewRequestPPMExpenseSummary(o.context, o.PpmRequestPPMExpenseSummaryHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/personally_procured_move/{personallyProcuredMoveId}/request_payment"] = ppm.NewRequestPPMPayment(o.context, o.PpmRequestPPMPaymentHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
@@ -1072,6 +961,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/duty_locations"] = duty_locations.NewSearchDutyLocations(o.context, o.DutyLocationsSearchDutyLocationsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/aoa-packet"] = ppm.NewShowAOAPacket(o.context, o.PpmShowAOAPacketHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1099,10 +992,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves/{moveId}/move_dates_summary"] = moves.NewShowMoveDatesSummary(o.context, o.MovesShowMoveDatesSummaryHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
 	o.handlers["GET"]["/moves/{moveId}/orders"] = office.NewShowOfficeOrders(o.context, o.OfficeShowOfficeOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1115,19 +1004,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/estimates/ppm"] = ppm.NewShowPPMEstimate(o.context, o.PpmShowPPMEstimateHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/personally_procured_moves/incentive"] = ppm.NewShowPPMIncentive(o.context, o.PpmShowPPMIncentiveHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/estimates/ppm_sit"] = ppm.NewShowPPMSitEstimate(o.context, o.PpmShowPPMSitEstimateHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewShowPersonallyProcuredMove(o.context, o.PpmShowPersonallyProcuredMoveHandler)
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/payment-packet"] = ppm.NewShowPaymentPacket(o.context, o.PpmShowPaymentPacketHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1144,10 +1021,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/service_members/{serviceMemberId}/current_orders"] = service_members.NewShowServiceMemberOrders(o.context, o.ServiceMembersShowServiceMemberOrdersHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/moves/{moveId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1160,10 +1033,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation"] = ppm.NewSubmitPPMShipmentDocumentation(o.context, o.PpmSubmitPPMShipmentDocumentationHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/personally_procured_move/{personallyProcuredMoveId}/submit"] = ppm.NewSubmitPersonallyProcuredMove(o.context, o.PpmSubmitPersonallyProcuredMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -1184,10 +1053,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/orders/{ordersId}"] = orders.NewUpdateOrders(o.context, o.OrdersUpdateOrdersHandler)
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewUpdatePersonallyProcuredMove(o.context, o.PpmUpdatePersonallyProcuredMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -1204,6 +1069,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/orders/{ordersId}/upload_amended_orders"] = orders.NewUploadAmendedOrders(o.context, o.OrdersUploadAmendedOrdersHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/application_parameters"] = application_parameters.NewValidate(o.context, o.ApplicationParametersValidateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

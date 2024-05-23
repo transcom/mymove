@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -367,10 +368,13 @@ func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
 	setUpPPMShipment := func() models.PPMShipment {
 		ppmShipment = factory.BuildPPMShipmentWithApprovedDocuments(nil)
 
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
 		ppmShipment.UpdatedAt = ppmShipment.CreatedAt.AddDate(0, 0, 5)
 		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Must(uuid.NewV4())
+		ppmShipment.Shipment.MoveTaskOrderID = move.ID
 
 		return ppmShipment
 	}
@@ -562,5 +566,190 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
 			suite.Equal(string(models.PPMShipmentStatusWaitingOnCustomer), string(returnedPPMShipment.Status))
 		}
+	})
+}
+
+func (suite *HandlerSuite) TestShowAOAPacketHandler() {
+	suite.Run("Successful ShowAOAPacketHandler - 200", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), 25*uploader.MB)
+		suite.NoError(err)
+
+		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, nil)
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmshipment.ID
+		// ppmshipmentid := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/aoa-packet/", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmdocumentops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid.String(),
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmdocumentops.ShowAOAPacketOK)
+
+		suite.Assertions.IsType(&ppmdocumentops.ShowAOAPacketOK{}, showAOAPacketResponse)
+	})
+
+	suite.Run("Successful ShowAOAPacketHandler - error generating PDF - 500", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), 25*uploader.MB)
+		suite.NoError(err)
+
+		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmshipment.ID
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmdocumentops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid.String(),
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmdocumentops.ShowAOAPacketInternalServerError)
+
+		suite.Assertions.IsType(&ppmdocumentops.ShowAOAPacketInternalServerError{}, showAOAPacketResponse)
+	})
+
+	suite.Run("Successful ShowAOAPacketHandler - Missing/empty/incorrect PPMShipmentId - 400", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ""
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmdocumentops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid,
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmdocumentops.ShowAOAPacketBadRequest)
+
+		suite.Assertions.IsType(&ppmdocumentops.ShowAOAPacketBadRequest{}, showAOAPacketResponse)
+	})
+
+}
+
+func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
+	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
+	ppmShipment.ID = uuid.Must(uuid.NewV4())
+	suite.Run("Successful ShowAOAPacketHandler - 200", func() {
+
+		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
+		handler := ShowPaymentPacketHandler{
+			HandlerConfig:        suite.createS3HandlerConfig(),
+			PaymentPacketCreator: &mockPaymentPacketCreator,
+		}
+
+		mockPaymentPacketCreator.On("GenerateDefault",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID")).Return(nil, nil)
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmShipment.ID
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment-packet/", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmdocumentops.ShowPaymentPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
+		}
+		response := handler.Handle(params)
+		showPaymentPacketResponse := response.(*ppmdocumentops.ShowPaymentPacketOK)
+
+		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketOK{}, showPaymentPacketResponse)
+	})
+
+	suite.Run("Unsuccessful ShowPaymentPacketHandler - InternalServerError", func() {
+		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
+		handler := ShowPaymentPacketHandler{
+			HandlerConfig:        suite.createS3HandlerConfig(),
+			PaymentPacketCreator: &mockPaymentPacketCreator,
+		}
+
+		mockPaymentPacketCreator.On("GenerateDefault",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmShipment.ID
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment-packet/", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmdocumentops.ShowPaymentPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
+		}
+		response := handler.Handle(params)
+		showPaymentPacketResponse := response.(*ppmdocumentops.ShowPaymentPacketInternalServerError)
+
+		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketInternalServerError{}, showPaymentPacketResponse)
+	})
+
+	suite.Run("Unsuccessful ShowPaymentPacketHandler - NotFoundError", func() {
+		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
+		handler := ShowPaymentPacketHandler{
+			HandlerConfig:        suite.createS3HandlerConfig(),
+			PaymentPacketCreator: &mockPaymentPacketCreator,
+		}
+
+		mockPaymentPacketCreator.On("GenerateDefault",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NotFoundError{})
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmShipment.ID
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment-packet/", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmdocumentops.ShowPaymentPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
+		}
+		response := handler.Handle(params)
+		showPaymentPacketResponse := response.(*ppmdocumentops.ShowPaymentPacketNotFound)
+
+		suite.Assertions.IsType(&ppmdocumentops.ShowPaymentPacketNotFound{}, showPaymentPacketResponse)
 	})
 }

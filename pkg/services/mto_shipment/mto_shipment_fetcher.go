@@ -55,6 +55,10 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
 			"PPMShipment.ProgearWeightTickets",
+			"PPMShipment.PickupAddress",
+			"PPMShipment.SecondaryPickupAddress",
+			"PPMShipment.DestinationAddress",
+			"PPMShipment.SecondaryDestinationAddress",
 			"DeliveryAddressUpdate",
 			"DeliveryAddressUpdate.OriginalAddress",
 			"Reweigh",
@@ -124,7 +128,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		if shipments[i].DeliveryAddressUpdate != nil {
 			// Cannot EagerPreload the address update `NewAddress` due to POP bug
 			// See: https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#eager-vs-eagerpreload-inconsistency
-			loadErr := appCtx.DB().Load(shipments[i].DeliveryAddressUpdate, "NewAddress")
+			loadErr := appCtx.DB().Load(shipments[i].DeliveryAddressUpdate, "NewAddress", "SitOriginalAddress")
 			if loadErr != nil {
 				return nil, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
 			}
@@ -188,4 +192,62 @@ func (f mtoShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipmentID
 	}
 
 	return &shipment, nil
+}
+
+// This allows us to gather all possible parent and child shipments in the diverted shipment chain
+func (f mtoShipmentFetcher) GetDiversionChain(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*[]models.MTOShipment, error) {
+	var allShipmentsInChain []models.MTOShipment
+	var initialShipment models.MTOShipment
+
+	// Grab the initial shipment the reweight was requested for
+	err := appCtx.DB().Find(&initialShipment, shipmentID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
+		}
+		return nil, apperror.NewQueryError("MTOShipment", err, "")
+	}
+
+	allShipmentsInChain = append(allShipmentsInChain, initialShipment)
+
+	// Loop over the "parent" shipments by DivertedFromShipmentID until no more IDs are found (No more parent shipments are found)
+	currentShipmentID := initialShipment.DivertedFromShipmentID
+	for currentShipmentID != nil {
+		var parentShipment models.MTOShipment
+		err := appCtx.DB().Find(&parentShipment, *currentShipmentID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				// If sql ErrNoRows pops up we know there are no more parent shipments
+				break
+			}
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+		allShipmentsInChain = append(allShipmentsInChain, parentShipment)
+		currentShipmentID = parentShipment.DivertedFromShipmentID
+	}
+
+	// Loop over the "child" shipments by parent ID to child DivertedFromShipmentID until no more child shipments are found
+	// The loop will break when no more child shipments can be found
+	currentShipmentID = &initialShipment.ID
+	for {
+		var childShipment models.MTOShipment
+		err := appCtx.DB().Where("diverted_from_shipment_id = ?", *currentShipmentID).First(&childShipment)
+		if err != nil {
+			// If sql ErrNoRows pops up we know there are no more child shipments
+			if err == sql.ErrNoRows {
+				break
+			}
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+
+		if childShipment.DivertedFromShipmentID == nil || *childShipment.DivertedFromShipmentID != *currentShipmentID {
+			// No more child shipments
+			break
+		}
+
+		allShipmentsInChain = append(allShipmentsInChain, childShipment)
+		currentShipmentID = &childShipment.ID
+	}
+
+	return &allShipmentsInChain, nil
 }

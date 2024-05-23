@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.1.5
         with:
           fetch-depth: 0
         if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
@@ -25,9 +25,9 @@ jobs:
         run: git checkout "$(echo ${{ github.head_ref }})"
         if: github.head_ref != '' && (github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]')
       - name: setup go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.20.6'
+          go-version: '1.22.2'
       - name: Tidy
         run: |
           go version
@@ -55,7 +55,7 @@ jobs:
     needs: [tidy]
     steps:
       - name: approve
-        uses: hmarr/auto-approve-action@v3.2.1
+        uses: hmarr/auto-approve-action@v4.0.0
         if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'

@@ -5,12 +5,13 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './ShipmentDetails.module.scss';
 
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
 import SubmitSITExtensionModal from 'components/Office/SubmitSITExtensionModal/SubmitSITExtensionModal';
 import ReviewSITExtensionsModal from 'components/Office/ReviewSITExtensionModal/ReviewSITExtensionModal';
+import ConvertSITToCustomerExpenseModal from 'components/Office/ConvertSITToCustomerExpenseModal/ConvertSITToCustomerExpenseModal';
 import ShipmentSITDisplay from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplay';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
@@ -43,6 +44,7 @@ const ShipmentDetailsMain = ({
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
+  handleUpdateSITServiceItemCustomerExpense,
 }) => {
   const {
     requestedPickupDate,
@@ -54,6 +56,7 @@ const ShipmentDetailsMain = ({
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
+    ppmShipment,
     primeEstimatedWeight,
     primeActualWeight,
     counselorRemarks,
@@ -68,6 +71,7 @@ const ShipmentDetailsMain = ({
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
+  const [isConvertSITToCustomerExpenseModalVisible, setIsConvertSITToCustomerExpenseModalVisible] = useState(false);
   const [, setSubmittedChangeTime] = useState(Date.now());
 
   const reviewSITExtension = (sitExtensionID, formValues) => {
@@ -75,9 +79,16 @@ const ShipmentDetailsMain = ({
     handleReviewSITExtension(sitExtensionID, formValues, shipment);
     setSubmittedChangeTime(Date.now());
   };
+
   const submitSITExtension = (formValues) => {
     setIsSubmitITExtensionModalVisible(false);
     handleSubmitSITExtension(formValues, shipment);
+    setSubmittedChangeTime(Date.now());
+  };
+
+  const convertSITToCustomerExpense = (convertToCustomerExpense, remark) => {
+    setIsConvertSITToCustomerExpenseModalVisible(false);
+    handleUpdateSITServiceItemCustomerExpense(shipment.id, convertToCustomerExpense, remark, shipment.eTag);
     setSubmittedChangeTime(Date.now());
   };
 
@@ -101,25 +112,66 @@ const ShipmentDetailsMain = ({
     />
   );
 
+  /**
+   * Displays button to open the modal on the SIT Display component to open with Convert to customer expense modal.
+   */
+  const openConvertModalButton = (
+    <OpenModalButton
+      permission={permissionTypes.updateSITExtension}
+      onClick={setIsConvertSITToCustomerExpenseModalVisible}
+      title="Convert to customer expense"
+    />
+  );
+
   let displayedPickupAddress;
   let displayedDeliveryAddress;
+  let weightResult;
+  let pickupRequestedDate;
+  let pickupScheduledDate;
+  let pickupActualDate;
+  let plannedMoveDate;
+  let actualMoveDate;
 
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
+      pickupRequestedDate = requestedPickupDate;
+      pickupScheduledDate = scheduledPickupDate;
+      pickupActualDate = actualPickupDate;
+      weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     case SHIPMENT_OPTIONS.NTS:
+      pickupRequestedDate = requestedPickupDate;
+      pickupScheduledDate = scheduledPickupDate;
+      pickupActualDate = actualPickupDate;
+      weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = storageFacility ? storageFacility.address : null;
       break;
     case SHIPMENT_OPTIONS.NTSR:
+      pickupRequestedDate = requestedPickupDate;
+      pickupScheduledDate = scheduledPickupDate;
+      pickupActualDate = actualPickupDate;
+      weightResult = primeEstimatedWeight;
       displayedPickupAddress = storageFacility ? storageFacility.address : null;
       displayedDeliveryAddress = destinationAddress;
       break;
+    case SHIPMENT_OPTIONS.PPM:
+      plannedMoveDate = ppmShipment.expectedDepartureDate;
+      actualMoveDate = ppmShipment.actualMoveDate;
+      weightResult = ppmShipment.estimatedWeight;
+      displayedPickupAddress = ppmShipment.pickupAddress;
+      displayedDeliveryAddress = ppmShipment.destinationAddress || destinationDutyLocationAddress;
+      break;
     default:
+      pickupRequestedDate = requestedPickupDate;
+      pickupScheduledDate = scheduledPickupDate;
+      pickupActualDate = actualPickupDate;
+      weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      break;
   }
 
   return (
@@ -130,6 +182,14 @@ const ShipmentDetailsMain = ({
           onSubmit={reviewSITExtension}
           shipment={shipment}
           sitExtension={pendingSITExtension}
+          sitStatus={sitStatus}
+        />
+      )}
+      {isConvertSITToCustomerExpenseModalVisible && (
+        <ConvertSITToCustomerExpenseModal
+          onClose={() => setIsConvertSITToCustomerExpenseModalVisible(false)}
+          onSubmit={convertSITToCustomerExpense}
+          shipment={shipment}
           sitStatus={sitStatus}
         />
       )}
@@ -150,17 +210,30 @@ const ShipmentDetailsMain = ({
           shipment={shipment}
           className={styles.shipmentSITSummary}
           openModalButton={openModalButton}
+          openConvertModalButton={openConvertModalButton}
         />
       )}
-      <ImportantShipmentDates
-        requestedPickupDate={requestedPickupDate ? formatDate(requestedPickupDate) : null}
-        scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
-        actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
-        requestedDeliveryDate={requestedDeliveryDate ? formatDate(requestedDeliveryDate) : null}
-        scheduledDeliveryDate={scheduledDeliveryDate ? formatDate(scheduledDeliveryDate) : null}
-        actualDeliveryDate={actualDeliveryDate ? formatDate(actualDeliveryDate) : null}
-        requiredDeliveryDate={requiredDeliveryDate ? formatDate(requiredDeliveryDate) : null}
-      />
+      {shipmentType === SHIPMENT_OPTIONS.PPM && (
+        <ImportantShipmentDates
+          plannedMoveDate={plannedMoveDate ? formatDateWithUTC(plannedMoveDate) : null}
+          requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
+          scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
+          actualMoveDate={actualMoveDate ? formatDateWithUTC(actualMoveDate) : null}
+          isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
+        />
+      )}
+      {shipmentType !== SHIPMENT_OPTIONS.PPM && (
+        <ImportantShipmentDates
+          requestedPickupDate={requestedPickupDate ? formatDateWithUTC(pickupRequestedDate) : null}
+          scheduledPickupDate={scheduledPickupDate ? formatDateWithUTC(pickupScheduledDate) : null}
+          actualPickupDate={actualPickupDate ? formatDateWithUTC(pickupActualDate) : null}
+          requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
+          scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
+          actualDeliveryDate={actualDeliveryDate ? formatDateWithUTC(actualDeliveryDate) : null}
+          requiredDeliveryDate={requiredDeliveryDate ? formatDateWithUTC(requiredDeliveryDate) : null}
+          isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
+        />
+      )}
       <ShipmentAddresses
         pickupAddress={displayedPickupAddress}
         destinationAddress={displayedDeliveryAddress}
@@ -171,11 +244,12 @@ const ShipmentDetailsMain = ({
           eTag: shipment.eTag,
           status: shipment.status,
           shipmentType: shipment.shipmentType,
+          shipmentLocator: shipment.shipmentLocator,
         }}
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails
-        estimatedWeight={primeEstimatedWeight}
+        estimatedWeight={weightResult}
         initialWeight={primeActualWeight}
         shipmentInfo={{
           shipmentID: shipment.id,
@@ -183,6 +257,8 @@ const ShipmentDetailsMain = ({
           reweighID: shipment.reweigh?.id,
           reweighWeight: shipment.reweigh?.weight,
           shipmentType: shipment.shipmentType,
+          shipmentActualProGearWeight: shipment.actualProGearWeight,
+          shipmentActualSpouseProGearWeight: shipment.actualSpouseProGearWeight,
         }}
         handleRequestReweighModal={handleRequestReweighModal}
       />
@@ -203,6 +279,7 @@ ShipmentDetailsMain.propTypes = {
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,
+  handleUpdateSITServiceItemCustomerExpense: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsMain.defaultProps = {

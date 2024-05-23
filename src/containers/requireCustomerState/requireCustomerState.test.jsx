@@ -1,15 +1,22 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { waitFor } from '@testing-library/react';
 
 import requireCustomerStateHOC, { getIsAllowedProfileState } from './requireCustomerState';
 
 import { MockProviders } from 'testUtils';
 import { profileStates } from 'constants/customerStates';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 beforeEach(() => {
@@ -54,7 +61,8 @@ describe('requireCustomerState HOC', () => {
   const TestComponent = () => <div>My test component</div>;
   const TestComponentWithHOC = requireCustomerStateHOC(TestComponent, profileStates.ADDRESS_COMPLETE);
 
-  it('dispatches a redirect if the current state is earlier than the required state', () => {
+  it('dispatches a redirect if the current state is earlier than the required state', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     const mockState = {
       entities: {
         user: {
@@ -78,7 +86,9 @@ describe('requireCustomerState HOC', () => {
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    await waitFor(() => {
+      expect(wrapper.exists()).toBe(true);
+    });
     expect(mockNavigate).toHaveBeenCalledWith('/service-member/conus-oconus');
   });
 
@@ -95,7 +105,6 @@ describe('requireCustomerState HOC', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -136,7 +145,6 @@ describe('requireCustomerState HOC', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -168,7 +176,8 @@ describe('requireCustomerState HOC', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  it('does redirect if profile is complete and required state is not the completed profile state', () => {
+  it('does redirect if profile is complete and required state is not the completed profile state', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     const mockState = {
       entities: {
         user: {
@@ -181,7 +190,6 @@ describe('requireCustomerState HOC', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -214,7 +222,9 @@ describe('requireCustomerState HOC', () => {
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    await waitFor(() => {
+      expect(wrapper.exists()).toBe(true);
+    });
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
@@ -231,7 +241,6 @@ describe('requireCustomerState HOC', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',

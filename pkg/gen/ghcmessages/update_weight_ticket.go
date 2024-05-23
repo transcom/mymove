@@ -23,6 +23,10 @@ type UpdateWeightTicket struct {
 	// Minimum: 0
 	AdjustedNetWeight *int64 `json:"adjustedNetWeight,omitempty"`
 
+	// Indicates the maximum reimbursable weight of the shipment
+	// Minimum: 0
+	AllowableWeight *int64 `json:"allowableWeight,omitempty"`
+
 	// Weight of the vehicle when empty.
 	// Minimum: 0
 	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
@@ -55,6 +59,10 @@ func (m *UpdateWeightTicket) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAllowableWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEmptyWeight(formats); err != nil {
 		res = append(res, err)
 	}
@@ -79,6 +87,18 @@ func (m *UpdateWeightTicket) validateAdjustedNetWeight(formats strfmt.Registry) 
 	}
 
 	if err := validate.MinimumInt("adjustedNetWeight", "body", *m.AdjustedNetWeight, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateWeightTicket) validateAllowableWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.AllowableWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("allowableWeight", "body", *m.AllowableWeight, 0, false); err != nil {
 		return err
 	}
 

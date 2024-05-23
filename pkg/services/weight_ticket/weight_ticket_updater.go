@@ -41,6 +41,10 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 		return nil, err
 	}
 
+	if appCtx.Session().IsMilApp() && originalWeightTicket.EmptyDocument.ServiceMemberID != appCtx.Session().ServiceMemberID {
+		return nil, apperror.NewForbiddenError("not authorized to access weight ticket")
+	}
+
 	// verify ETag
 	if etag.GenerateEtag(originalWeightTicket.UpdatedAt) != eTag {
 		return nil, apperror.NewPreconditionFailedError(originalWeightTicket.ID, nil)
@@ -103,6 +107,7 @@ func mergeWeightTicket(weightTicket models.WeightTicket, originalWeightTicket mo
 	mergedWeightTicket.EmptyWeight = services.SetNoNilOptionalPoundField(weightTicket.EmptyWeight, mergedWeightTicket.EmptyWeight)
 	mergedWeightTicket.MissingEmptyWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingEmptyWeightTicket, mergedWeightTicket.MissingEmptyWeightTicket)
 	mergedWeightTicket.FullWeight = services.SetNoNilOptionalPoundField(weightTicket.FullWeight, mergedWeightTicket.FullWeight)
+	mergedWeightTicket.AllowableWeight = services.SetNoNilOptionalPoundField(weightTicket.AllowableWeight, mergedWeightTicket.AllowableWeight)
 	mergedWeightTicket.MissingFullWeightTicket = services.SetNoNilOptionalBoolField(weightTicket.MissingFullWeightTicket, mergedWeightTicket.MissingFullWeightTicket)
 	mergedWeightTicket.OwnsTrailer = services.SetNoNilOptionalBoolField(weightTicket.OwnsTrailer, mergedWeightTicket.OwnsTrailer)
 	mergedWeightTicket.TrailerMeetsCriteria = services.SetNoNilOptionalBoolField(weightTicket.TrailerMeetsCriteria, mergedWeightTicket.TrailerMeetsCriteria)

@@ -18,14 +18,19 @@ import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { completeCounseling, deleteShipment } from 'services/primeApi';
+import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
+import { SIT_SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
+import { MoveOrderDocumentType } from 'shared/constants';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
 
   const [errorMessage, setErrorMessage] = useState();
+
+  const [documentTypeKey, setDocumentTypeKey] = useState(MoveOrderDocumentType.ALL);
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
@@ -59,6 +64,58 @@ const MoveDetails = ({ setFlashMessage }) => {
         });
       }
       scrollToTop();
+    },
+  });
+
+  const { mutate: downloadMoveOrderMutation } = useMutation(downloadMoveOrder, {
+    onSuccess: (response) => {
+      // dynamically update DOM to trigger browser to display SAVE AS download file modal
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const disposition = response.headers['content-disposition'];
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      let filename = 'moverOrder.pdf';
+      const matches = filenameRegex.exec(disposition);
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, '');
+      }
+      link.setAttribute('download', filename);
+
+      // Append to html link element page
+      document.body.appendChild(link);
+
+      // Start download
+      link.click();
+
+      // Clean up and remove the link
+      link.parentNode.removeChild(link);
+
+      // erase error messages from previous if exists
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+      if (body) {
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
+      } else {
+        // Error message is coming in as byte array(PDF).
+        // Need to convert byte array into text/json.
+        (async () => {
+          let title = 'Unexpected Error: ';
+          if (error.response.status === 422) {
+            title = 'Unprocessable Entity Error: ';
+          }
+          const text = await error.response.data.text();
+          setErrorMessage({
+            title,
+            detail: JSON.parse(text).detail,
+          });
+        })();
+      }
     },
   });
 
@@ -98,7 +155,15 @@ const MoveDetails = ({ setFlashMessage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments, paymentRequests } = moveTaskOrder;
+  const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
+
+  const handleDownloadOrders = () => {
+    downloadMoveOrderMutation({ locator: moveTaskOrder.moveCode, type: documentTypeKey });
+  };
+
+  const handleDocumentTypeChange = (e) => {
+    setDocumentTypeKey(e.target.value);
+  };
 
   return (
     <div>
@@ -106,6 +171,11 @@ const MoveDetails = ({ setFlashMessage }) => {
         <div className="grid-row">
           <div className="grid-col-12">
             <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container">
+              {CHECK_SPECIAL_ORDERS_TYPES(moveTaskOrder?.order?.ordersType) ? (
+                <div className={styles.specialMovesLabel}>
+                  {SPECIAL_ORDERS_TYPES[`${moveTaskOrder?.order?.ordersType}`]}
+                </div>
+              ) : null}
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>
                   <div className={styles.moveHeader}>
@@ -133,6 +203,23 @@ const MoveDetails = ({ setFlashMessage }) => {
                     <dt>Move Id:</dt>
                     <dd>{moveTaskOrder.id}</dd>
                   </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Gun Safe:</dt>
+                    <dd>{moveTaskOrder.order.entitlement.gunSafe ? 'yes' : 'no'}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <Button onClick={handleDownloadOrders}>Download Move Orders</Button>
+                    <select
+                      onChange={handleDocumentTypeChange}
+                      className="usa-select"
+                      name="moveOrderDocumentType"
+                      id="moveOrderDocumentType"
+                    >
+                      <option value={MoveOrderDocumentType.ALL}>ALL</option>
+                      <option value={MoveOrderDocumentType.ORDERS}>ORDERS</option>
+                      <option value={MoveOrderDocumentType.AMENDMENTS}>AMENDMENTS</option>
+                    </select>
+                  </div>
                   {moveTaskOrder.primeCounselingCompletedAt && (
                     <div className={descriptionListStyles.row}>
                       <dt>Prime Counseling Completed At:</dt>
@@ -152,29 +239,40 @@ const MoveDetails = ({ setFlashMessage }) => {
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
-                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
+                        <Shipment
+                          shipment={mtoShipment}
+                          moveId={moveTaskOrder.id}
+                          onDelete={handleDeleteShipment}
+                          mtoServiceItems={mtoServiceItems}
+                        />
                         <div className={styles.serviceItemHeader}>
                           {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
-                          <Link
-                            to="../mto-service-items/update"
-                            relative="path"
-                            className="usa-button usa-button-secondary"
-                          >
-                            Update Service Items
-                          </Link>
                         </div>
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {
                             return (
                               <div className={styles.paymentRequestRows} key={serviceItem.id}>
-                                <h3>{serviceItem.reServiceName}</h3>
-                                <Link
-                                  to={`../mto-service-items/${serviceItem.id}/upload`}
-                                  relative="path"
-                                  className="usa-button usa-button-secondary"
-                                >
-                                  Upload Document for {serviceItem.reServiceName}
-                                </Link>
+                                <h3 className={styles.serviceItemHeading}>
+                                  {serviceItem.reServiceCode} - {serviceItem.reServiceName}
+                                </h3>
+                                <div className={styles.uploadBtn}>
+                                  {SIT_SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
+                                    <Link
+                                      className="usa-button usa-button--outline"
+                                      to={`../mto-service-items/${serviceItem.id}/update`}
+                                      relative="path"
+                                    >
+                                      Edit
+                                    </Link>
+                                  ) : null}
+                                  <Link
+                                    to={`../mto-service-items/${serviceItem.id}/upload`}
+                                    relative="path"
+                                    className="usa-button usa-button-secondary"
+                                  >
+                                    Upload Document for {serviceItem.reServiceName}
+                                  </Link>
+                                </div>
                               </div>
                             );
                           }

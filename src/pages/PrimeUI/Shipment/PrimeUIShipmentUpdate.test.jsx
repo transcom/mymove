@@ -8,7 +8,7 @@ import PrimeUIShipmentUpdate from './PrimeUIShipmentUpdate';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { updatePrimeMTOShipment } from 'services/primeApi';
+import { updatePrimeMTOShipmentV3 } from 'services/primeApi';
 
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
 const ppmShipmentId = '1b695b60-c3ed-401b-b2e3-808d095eb8cc';
@@ -29,6 +29,8 @@ const routingParams = {
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
   updatePrimeMTOShipment: jest.fn().mockImplementation(() => Promise.resolve()),
+  updatePrimeMTOShipmentV2: jest.fn().mockImplementation(() => Promise.resolve()),
+  updatePrimeMTOShipmentV3: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -93,6 +95,8 @@ const approvedMoveTaskOrder = {
         },
         primeActualWeight: 2000,
         primeEstimatedWeight: 1400,
+        actualProGearWeight: 1500,
+        actualSpouseProGearWeight: 250,
         primeEstimatedWeightRecordedDate: null,
         requestedPickupDate: '2020-03-15',
         requiredDeliveryDate: null,
@@ -253,7 +257,6 @@ const approvedMoveTaskOrder = {
         id: '0ecd8fb1-0551-44c8-a15e-83c5f4e3ae0f',
         name: 'XOXhgDSIRS',
       },
-      rank: 'E_1',
       reportByDate: '2018-08-01',
     },
     orderID: '8cda4825-283c-4910-89f4-1741e2fd9cb7',
@@ -332,6 +335,7 @@ describe('Update Shipment Page', () => {
 
     expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
     expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
+    expect(await screen.findByText('Pro Gear Weights')).toBeInTheDocument();
     expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
   });
 
@@ -384,6 +388,12 @@ describe('Displays the shipment information to update', () => {
       }),
     ).toBeInTheDocument();
     expect(
+      await within(updateShipmentContainer).findByRole('heading', {
+        name: 'Pro Gear Weights',
+        level: 2,
+      }),
+    ).toBeInTheDocument();
+    expect(
       within(updateShipmentContainer).getByRole('heading', {
         name: 'Shipment Addresses',
         level: 2,
@@ -419,7 +429,7 @@ expect(
 describe('successful submission of form', () => {
   it('calls history router back to move details', async () => {
     usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
-    updatePrimeMTOShipment.mockReturnValue({});
+    updatePrimeMTOShipmentV3.mockReturnValue({});
 
     render(mockedComponent);
 
@@ -429,6 +439,12 @@ describe('successful submission of form', () => {
 
     const actualWeightInput = screen.getByLabelText(/Actual weight/);
     await userEvent.type(actualWeightInput, '10000');
+
+    const actualProGearWeightInput = screen.getByLabelText(/Actual pro gear weight/);
+    await userEvent.type(actualProGearWeightInput, '2000');
+
+    const actualSpouseProGearWeightInput = screen.getByLabelText(/Actual spouse pro gear weight/);
+    await userEvent.type(actualSpouseProGearWeightInput, '500');
 
     const saveButton = await screen.getByRole('button', { name: 'Save' });
 

@@ -14,12 +14,15 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route/mocks"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -27,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -36,7 +40,13 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
-	updater := NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator)
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator)
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -227,6 +237,10 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	suite.Run("Successful Prime update - adding SITDestinationFinalAddress", func() {
 		now := time.Now()
 		requestApproavalsRequestedStatus := false
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -239,20 +253,51 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITDepartureDate:                  &now,
+					SITDepartureDate:                  &contactDatePlusGracePeriod,
+					SITEntryDate:                      &aMonthAgo,
+					SITCustomerContacted:              &now,
+					SITRequestedDelivery:              &sitRequestedDelivery,
 					Status:                            "REJECTED",
 					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
 				},
 			},
 		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
 
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
-
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, eTag)
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -268,6 +313,10 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	suite.Run("Unsuccessful Prime update - updating existing SITDestinationFinalAddres", func() {
 		now := time.Now()
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -284,18 +333,49 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITDepartureDate: &now,
+					SITDepartureDate:     &contactDatePlusGracePeriod,
+					SITEntryDate:         &aMonthAgo,
+					SITCustomerContacted: &now,
+					SITRequestedDelivery: &sitRequestedDelivery,
 				},
 			},
 		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
 
 		// Try to update SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
-
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, eTag)
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -308,6 +388,10 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	suite.Run("Unsuccessful basic update - adding SITDestinationOriginalAddress", func() {
 		now := time.Now()
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -320,10 +404,29 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITDepartureDate: &now,
+					SITDepartureDate:     &contactDatePlusGracePeriod,
+					SITEntryDate:         &aMonthAgo,
+					SITCustomerContacted: &now,
+					SITRequestedDelivery: &sitRequestedDelivery,
 				},
 			},
 		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
 
 		// Try to update SITDestinationOriginalAddress
@@ -331,8 +434,20 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
 		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
-
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, eTag)
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -345,6 +460,10 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	suite.Run("Unsuccessful prime update - adding SITDestinationOriginalAddress", func() {
 		now := time.Now()
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -357,10 +476,29 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITDepartureDate: &now,
+					SITDepartureDate:     &contactDatePlusGracePeriod,
+					SITEntryDate:         &aMonthAgo,
+					SITCustomerContacted: &now,
+					SITRequestedDelivery: &sitRequestedDelivery,
 				},
 			},
 		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
 
 		// Try to update SITDestinationOriginalAddress
@@ -368,8 +506,20 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
 		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
-
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, eTag)
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -379,7 +529,186 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.True(invalidInputError.ValidationErrors.HasAny())
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "SITDestinationOriginalAddress")
 	})
+	suite.Run("When TOO converts a SIT to customer expense", func() {
+		// Build shipment with SIT
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
 
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
+
+		// Update ConvertToCustomerExpense and CustomerExpenseReason
+		updatedServiceItem, err := updater.ConvertItemToCustomerExpense(
+			suite.AppContextForTest(), &approvedShipment, models.StringPointer("test"), true)
+		suite.NoError(err)
+
+		// Check the SIT for updated value
+		suite.Equal(true, updatedServiceItem.CustomerExpense)
+		suite.Equal(models.StringPointer("test"), updatedServiceItem.CustomerExpenseReason)
+	})
+
+	suite.Run("failure test for ghc transit time query", func() {
+		now := time.Now()
+		requestApproavalsRequestedStatus := false
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Now().AddDate(0, 0, 10)
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate:                  &contactDatePlusGracePeriod,
+					SITEntryDate:                      &aMonthAgo,
+					SITCustomerContacted:              &now,
+					SITRequestedDelivery:              &sitRequestedDelivery,
+					Status:                            "REJECTED",
+					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
+				},
+			},
+		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.Status = models.MTOServiceItemStatusApproved
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(20000)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, newServiceItemPrime)
+		_, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
+
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("failure test for ZipTransitDistance", func() {
+		now := time.Now()
+		requestApproavalsRequestedStatus := false
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Now().AddDate(0, 0, 10)
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate:                  &contactDatePlusGracePeriod,
+					SITEntryDate:                      &aMonthAgo,
+					SITCustomerContacted:              &now,
+					SITRequestedDelivery:              &sitRequestedDelivery,
+					Status:                            "REJECTED",
+					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
+				},
+			},
+		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, apperror.UnprocessableEntityError{})
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.Status = models.MTOServiceItemStatusApproved
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(20000)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, newServiceItemPrime)
+
+		_, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
+
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
@@ -571,6 +900,47 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 	})
+
+	// Test that when an approved DDDSIT sitDestination is updated the serviceItem stays approved
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Successfully Update Approved ServiceItem sitDepartureDate", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &now,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.RequestedApprovalsRequestedStatus = nil
+
+		// Change sitDepartureDate:
+		newDate := time.Now().AddDate(0, 0, 5)
+		newServiceItemPrime.SITDepartureDate = &newDate
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.Equal(updatedServiceItem.Status, models.MTOServiceItemStatusApproved)
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
@@ -658,7 +1028,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
-	updater := NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator)
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator)
 
 	rejectionReason := models.StringPointer("")
 
@@ -884,6 +1260,204 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
 	})
 
+	suite.Run("When TOO approves a DDASIT service item with an existing SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		sitDestinationFinalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    sitDestinationFinalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDASIT service item without a SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDFSIT service item with an existing SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		sitDestinationFinalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    sitDestinationFinalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDFSIT service item without a SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
 	// Test that the move's status changes to Approvals Requested if any of its service
 	// items' status is SUBMITTED
 	suite.Run("When move is approved and service item is submitted", func() {
@@ -983,5 +1557,67 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), serviceItem.ID.String())
+	})
+
+	suite.Run("When TOO rejects a DOFSIT service item and converts it to the customer expense", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITOriginHHGActualAddress,
+			},
+			{
+				Model: models.Address{},
+				Type:  &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+	})
+
+	suite.Run("Returns a not found error if the updater can't find the ReService code for DOFSIT in the DB.", func() {
+		_, err := updater.ConvertItemToCustomerExpense(
+			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("Returns a not found error if the updater can't find the MTO Shipment in the DB.", func() {
+		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
+		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
+		_, err := updater.ConvertItemToCustomerExpense(
+			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

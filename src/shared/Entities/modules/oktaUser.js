@@ -10,7 +10,5 @@ export function getOktaUser() {
 
 // load Okta user
 export function selectOktaUser(state) {
-  // console.log('loading from entities', state);
-
   return get(state, `entities.oktaUser`);
 }

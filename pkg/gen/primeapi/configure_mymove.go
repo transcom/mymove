@@ -41,6 +41,7 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
+	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
@@ -68,11 +69,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentCreateMTOShipmentHandler == nil {
 		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
-		})
-	}
-	if api.MtoShipmentCreateNonSITAddressUpdateRequestHandler == nil {
-		api.MtoShipmentCreateNonSITAddressUpdateRequestHandler = mto_shipment.CreateNonSITAddressUpdateRequestHandlerFunc(func(params mto_shipment.CreateNonSITAddressUpdateRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_shipment.CreateNonSITAddressUpdateRequest has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestCreatePaymentRequestHandler == nil {
@@ -103,6 +99,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentDeleteMTOShipmentHandler == nil {
 		api.MtoShipmentDeleteMTOShipmentHandler = mto_shipment.DeleteMTOShipmentHandlerFunc(func(params mto_shipment.DeleteMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.DeleteMTOShipment has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderDownloadMoveOrderHandler == nil {
+		api.MoveTaskOrderDownloadMoveOrderHandler = move_task_order.DownloadMoveOrderHandlerFunc(func(params move_task_order.DownloadMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.DownloadMoveOrder has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
@@ -148,6 +149,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentUpdateReweighHandler == nil {
 		api.MtoShipmentUpdateReweighHandler = mto_shipment.UpdateReweighHandlerFunc(func(params mto_shipment.UpdateReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateReweigh has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentUpdateShipmentDestinationAddressHandler == nil {
+		api.MtoShipmentUpdateShipmentDestinationAddressHandler = mto_shipment.UpdateShipmentDestinationAddressHandlerFunc(func(params mto_shipment.UpdateShipmentDestinationAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateShipmentDestinationAddress has not yet been implemented")
 		})
 	}
 

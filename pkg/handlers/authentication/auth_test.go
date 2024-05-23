@@ -44,6 +44,7 @@ const UserSessionCookieName = "session_token"
 
 // This is a dumy private key that has no use and is not reflective of any real keys utilized. This key was generated
 // specifically for the purpose of testing.
+// #nosec G101 not real key- only used for testing
 const DummyRSAPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDQ62hDHRRAduSuUQDxixn61bbRLj9iBBmRG03rW3PNnkSzrcof
 9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBrCskJqWLphifv6qoGX1pwsPA/
@@ -255,7 +256,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	req.AddCookie(&cookie)
 
 	var handlerSession *auth.Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 	sessionManager := scs.New()
@@ -297,7 +298,7 @@ func (suite *AuthSuite) TestCustomerAPIAuthMiddleware() {
 
 		api := internalapi.NewInternalAPI(handlerConfig)
 
-		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+		handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 		customerAPIAuthMiddleware := CustomerAPIAuthMiddleware(suite.AppContextForTest(), api)
 
@@ -412,7 +413,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	handlerConfig := suite.HandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
@@ -454,7 +455,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	handlerConfig := suite.HandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
@@ -521,7 +522,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/moves", nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	sessionManager := scs.New()
 	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.Logger())(handler))
 
@@ -552,7 +553,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	req = req.WithContext(ctx)
 
 	var handlerSession *auth.Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 
@@ -572,7 +573,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/admin/v1/office-users", nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := AdminAuthMiddleware(suite.Logger())(handler)
 
 	middleware.ServeHTTP(rr, req)
@@ -817,6 +818,135 @@ func (suite *AuthSuite) TestRedirectFromOktaForValidUser() {
 
 	suite.Equal(suite.urlForHost(appnames.OfficeServername).String(),
 		rr.Result().Header.Get("Location"))
+}
+
+func (suite *AuthSuite) TestCallbackThatRequiresOktaParamsRedirect() {
+	// build a real office user
+	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+		[]roles.RoleType{roles.RoleTypeTIO})
+
+	// Build provider
+	provider, err := factory.BuildOktaProvider(officeProviderName)
+	suite.NoError(err)
+
+	// Mock the necessary Okta endpoints
+	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
+
+	handlerConfig := suite.HandlerConfig()
+	appnames := handlerConfig.AppNames()
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Hostname:        appnames.OfficeServername,
+	}
+
+	// okta.mil state cookie
+	stateValue := "someStateValue"
+	cookieName := StateCookieName(&session)
+	cookie := http.Cookie{
+		Name:    cookieName,
+		Value:   shaAsString(stateValue),
+		Path:    "/",
+		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
+	}
+	errDescription := url.QueryEscape("The resource owner or authorization server denied the request.")
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback?state=%s&error_description=%s",
+		appnames.OfficeServername, stateValue, errDescription), nil)
+
+	req.AddCookie(&cookie)
+
+	authContext := suite.AuthContext()
+
+	sessionManager := handlerConfig.SessionManagers().Office
+	req = suite.SetupSessionRequest(req, &session, sessionManager)
+
+	defer goth.ClearProviders()
+	goth.UseProviders(provider)
+	suite.NoError(err)
+	// Create the callbackhandler with mock http client for testing
+	h := CallbackHandler{
+		authContext,
+		handlerConfig,
+		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(""))),
+			},
+			Err: nil,
+		},
+	}
+
+	rr := httptest.NewRecorder()
+	sessionManager.LoadAndSave(h).ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusTemporaryRedirect, rr.Code)
+
+	// this should clear the user's okta sessions and redirect them back to MM
+	suite.Equal(suite.urlForHost(appnames.OfficeServername).String()+"sign-in"+"?okta_logged_out=false",
+		rr.Result().Header.Get("Location"))
+}
+
+func (suite *AuthSuite) TestCallbackThatLogsUserOutOfOkta() {
+	// build a real office user
+	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+		[]roles.RoleType{roles.RoleTypeTIO})
+
+	// Build provider
+	provider, err := factory.BuildOktaProvider(officeProviderName)
+	suite.NoError(err)
+
+	// Mock the necessary Okta endpoints
+	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
+
+	handlerConfig := suite.HandlerConfig()
+	appnames := handlerConfig.AppNames()
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		IDToken:         "fake_token",
+		Hostname:        appnames.OfficeServername,
+	}
+
+	// okta.mil state cookie
+	stateValue := "someStateValue"
+	errDescription := url.QueryEscape("The resource owner or authorization server denied the request.")
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback?state=%s&error_description=%s",
+		appnames.OfficeServername, stateValue, errDescription), nil)
+
+	authContext := suite.AuthContext()
+
+	sessionManager := handlerConfig.SessionManagers().Office
+	req = suite.SetupSessionRequest(req, &session, sessionManager)
+
+	defer goth.ClearProviders()
+	goth.UseProviders(provider)
+	suite.NoError(err)
+	// Create the callbackhandler with mock http client for testing
+	h := CallbackHandler{
+		authContext,
+		handlerConfig,
+		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(""))),
+			},
+			Err: nil,
+		},
+	}
+
+	rr := httptest.NewRecorder()
+	sessionManager.LoadAndSave(h).ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusTemporaryRedirect, rr.Code)
+
+	// since the ID token is in the session, we will use that to log the user out instead of it needing to clear the session
+	actualURL, _ := url.Parse(rr.Result().Header.Get("Location"))
+	redirectURI := url.QueryEscape(fmt.Sprintf("http://%s:1234/sign-in?okta_logged_out=true", appnames.OfficeServername))
+	oktaLogoutURL := fmt.Sprintf("https://dummy.okta.com/oauth2/default/v1/logout?id_token_hint=%s&post_logout_redirect_uri=%s", session.IDToken, redirectURI)
+
+	suite.Equal(actualURL.String(), oktaLogoutURL)
 }
 
 func generateJWTToken(aud, iss, nonce string) (string, error) {
@@ -1546,7 +1676,7 @@ func (suite *AuthSuite) TestAuthorizePrime() {
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/prime/v1", appnames.PrimeServername), nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := PrimeAuthorizationMiddleware(suite.Logger())(handler)
 	rr := httptest.NewRecorder()
 

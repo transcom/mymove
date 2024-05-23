@@ -2,17 +2,17 @@ import { get, isNull, sum, isEmpty } from 'lodash';
 
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
-export function selectEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
-  if (!rankEntitlement) {
+export function selectEntitlements(ordersInfo, hasDependents = false, spouseHasProGear = false) {
+  if (!ordersInfo) {
     return {};
   }
-  const totalKey = hasDependents ? 'total_weight_self_plus_dependents' : 'total_weight_self';
   const entitlement = {
-    weight: rankEntitlement[totalKey],
-    pro_gear: rankEntitlement.pro_gear_weight,
-    pro_gear_spouse: spouseHasProGear ? rankEntitlement.pro_gear_weight_spouse : 0,
+    weight: ordersInfo.authorizedWeight,
+    proGear: ordersInfo.entitlement.proGear,
+    proGearSpouse: spouseHasProGear ? ordersInfo.entitlement.proGearSpouse : 0,
   };
-  entitlement.sum = sum([entitlement.weight, entitlement.pro_gear, entitlement.pro_gear_spouse]);
+
+  entitlement.sum = sum([entitlement.weight, entitlement.proGear, entitlement.proGearSpouse]);
   return entitlement;
 }
 

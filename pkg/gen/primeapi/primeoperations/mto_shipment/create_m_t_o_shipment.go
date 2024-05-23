@@ -34,6 +34,9 @@ func NewCreateMTOShipment(ctx *middleware.Context, handler CreateMTOShipmentHand
 
 createMTOShipment
 
+_[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.
+Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
+
 Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
 need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
 approve it before the contractor can proceed with billing.

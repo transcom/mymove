@@ -65,8 +65,12 @@ export default function ReviewBillableWeight() {
     return uploads;
   };
 
+  // filter out PPMs, as they're not including in TIO review
+  const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
-  const filteredShipments = mtoShipments?.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
+  const filteredShipments = excludePPMShipments?.filter((shipment) =>
+    includedStatusesForCalculatingWeights(shipment.status),
+  );
   const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
@@ -207,7 +211,6 @@ export default function ReviewBillableWeight() {
                 title="Max billable weight"
                 estimatedWeight={totalEstimatedWeight}
                 maxBillableWeight={maxBillableWeight}
-                weightAllowance={weightAllowance}
                 editEntity={editEntity}
                 billableWeightJustification={move.tioRemarks}
                 isNTSRShipment={selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR}
@@ -276,7 +279,16 @@ export default function ReviewBillableWeight() {
                   departedDate={selectedShipment.actualPickupDate}
                   pickupAddress={selectedShipment.pickupAddress}
                   destinationAddress={selectedShipment.destinationAddress}
-                  estimatedWeight={selectedShipment.primeEstimatedWeight}
+                  estimatedWeight={
+                    selectedShipment.shipmentType !== SHIPMENT_OPTIONS.PPM
+                      ? selectedShipment.primeEstimatedWeight
+                      : selectedShipment.ppmShipment.estimatedWeight
+                  }
+                  primeActualWeight={
+                    selectedShipment.shipmentType !== SHIPMENT_OPTIONS.PPM
+                      ? selectedShipment.primeActualWeight
+                      : weightRequested
+                  }
                   originalWeight={selectedShipment.primeActualWeight}
                   adjustedWeight={selectedShipment.billableWeightCap}
                   reweighRemarks={selectedShipment?.reweigh?.verificationReason}
@@ -294,6 +306,7 @@ export default function ReviewBillableWeight() {
                   Back
                 </Button>
                 {!isLastShipment && <Button onClick={handleClickNextButton}>Next Shipment</Button>}
+                {isLastShipment && <Button onClick={handleClose}>Done</Button>}
               </div>
             </DocumentViewerSidebar.Footer>
           </DocumentViewerSidebar>

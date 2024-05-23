@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { EditOktaInfo } from './EditOktaInfo';
 
 import { customerRoutes } from 'constants/routes';
+import { updateOktaUser } from 'services/internalApi';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -26,11 +27,11 @@ describe('EditOktaInfo page', () => {
   const testProps = {
     oktaUser: {
       id: 'testServiceMemberID',
-      oktaUsername: 'test@okta.mil',
-      oktaEmail: 'test@okta.mil',
-      oktaFirstName: 'Jim',
-      oktaLastName: 'Dunk',
-      oktaEdipi: '1234123412',
+      login: 'test@okta.mil',
+      email: 'test@okta.mil',
+      firstName: 'Jim',
+      lastName: 'Dunk',
+      cac_edipi: '1234123412',
     },
     serviceMember: {
       id: 'testServiceMemberId',
@@ -50,6 +51,45 @@ describe('EditOktaInfo page', () => {
     expect(contactHeader).toBeInTheDocument();
   });
 
+  it('shows error if no changes were made', async () => {
+    render(
+      <MemoryRouter>
+        <EditOktaInfo {...testProps} />
+      </MemoryRouter>,
+    );
+
+    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    await userEvent.click(saveBtn);
+
+    // Check if updateOktaUser is called with the expected arguments
+    expect(updateOktaUser).toHaveBeenCalledWith({
+      profile: {
+        id: 'testServiceMemberId', // Adjusted to match the received value
+        login: 'test@okta.mil',
+        email: 'test@okta.mil',
+        firstName: 'JimBob', // Adjusted to match the typed value
+        lastName: 'Dunk',
+        cac_edipi: '1234123412',
+      },
+    });
+  });
+
+  it('shows error if no changes were made', async () => {
+    render(
+      <MemoryRouter>
+        <EditOktaInfo {...testProps} />
+      </MemoryRouter>,
+    );
+
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    await userEvent.click(saveBtn);
+    const errorHeader = screen.getByText('No changes were made');
+    const errorMessage = screen.getByText('You must make some changes if you want to edit your Okta profile.');
+    expect(errorHeader).toBeInTheDocument();
+    expect(errorMessage).toBeInTheDocument();
+  });
+
   it('goes back to the profile page when the cancel button is clicked', async () => {
     render(
       <MemoryRouter>
@@ -61,7 +101,7 @@ describe('EditOktaInfo page', () => {
 
     await userEvent.click(cancelButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH, { state: null });
   });
 
   afterEach(jest.resetAllMocks);

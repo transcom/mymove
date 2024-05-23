@@ -69,7 +69,7 @@ const Table = ({
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
+              <tr data-uuid={row.values.id} onClick={(e) => handleClick(row.values, e)} {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <td

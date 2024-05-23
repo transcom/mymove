@@ -32,6 +32,19 @@ const requestedMoveDetailsQuery = {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
   },
+  customerData: {
+    id: '2468',
+    last_name: 'Kerry',
+    first_name: 'Smith',
+    dodID: '999999999',
+    agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
+  },
   order: {
     id: '1',
     originDutyLocation: {
@@ -174,6 +187,19 @@ const requestedMoveDetailsQueryRetiree = {
   move: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
+  },
+  customerData: {
+    id: '2468',
+    last_name: 'Kerry',
+    first_name: 'Smith',
+    dodID: '999999999',
+    agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
   },
   order: {
     id: '1',
@@ -320,6 +346,19 @@ const requestedMoveDetailsAmendedOrdersQuery = {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
   },
+  customerData: {
+    id: '2468',
+    last_name: 'Kerry',
+    first_name: 'Smith',
+    dodID: '999999999',
+    agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
+  },
   order: {
     id: '1',
     originDutyLocation: {
@@ -461,6 +500,19 @@ const requestedMoveDetailsMissingInfoQuery = {
   move: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
+  },
+  customerData: {
+    id: '2468',
+    last_name: 'Kerry',
+    first_name: 'Smith',
+    dodID: '999999999',
+    agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
   },
   order: {
     id: '1',
@@ -1063,6 +1115,26 @@ describe('MoveDetails page', () => {
 
       expect(await screen.getByRole('link', { name: 'View allowances' })).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+    });
+
+    it('renders edit customer info button when user has permission', async () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateCustomer]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+    });
+
+    it('does not show edit customer info button when user does not have permission', async () => {
+      render(
+        <MockProviders>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
     });
   });
 

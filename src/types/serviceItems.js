@@ -37,6 +37,7 @@ export const ServiceItemDetailsShape = PropTypes.shape({
   id: PropTypes.string,
   mtoShipmentID: PropTypes.string,
   createdAt: PropTypes.string,
+  convertToCustomerExpense: PropTypes.bool,
   submittedAt: PropTypes.string,
   approvedAt: PropTypes.string,
   rejectedAt: PropTypes.string,
@@ -53,6 +54,7 @@ export const ServiceItemDetailsShape = PropTypes.shape({
     crateDimensions: MTOServiceItemDimensionShape,
     customerContacts: PropTypes.arrayOf(MTOServiceItemCustomerContactShape),
     estimatedWeight: PropTypes.number,
+    status: PropTypes.string,
   }),
   sitAddressUpdates: PropTypes.arrayOf(SitAddressUpdatesShape),
 });

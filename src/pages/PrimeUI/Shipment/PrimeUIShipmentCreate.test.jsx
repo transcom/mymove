@@ -5,7 +5,7 @@ import { generatePath } from 'react-router-dom';
 
 import { primeSimulatorRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
-import { createPrimeMTOShipment } from 'services/primeApi';
+import { createPrimeMTOShipmentV3 } from 'services/primeApi';
 import PrimeUIShipmentCreate from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreate';
 
 const moveCode = 'LR4T8V';
@@ -25,7 +25,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
-  createPrimeMTOShipment: jest.fn().mockImplementation(() => Promise.resolve()),
+  createPrimeMTOShipmentV3: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const moveDetailsURL = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID: moveId });
@@ -59,7 +59,7 @@ describe('Create Shipment Page', () => {
 
 describe('successful submission of form', () => {
   it('calls history router back to move details', async () => {
-    createPrimeMTOShipment.mockReturnValue({});
+    createPrimeMTOShipmentV3.mockReturnValue({});
 
     render(mockedComponent);
 

@@ -58,7 +58,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 
 	email := "leo_spaceman_sm@example.com"
 	agency := models.AffiliationARMY
-	rank := models.ServiceMemberRankE1
 
 	// Create random edipi
 	randomEdipi := RandomEdipi()
@@ -74,7 +73,7 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 		PersonalEmail:        &email,
 		ResidentialAddressID: &resAddress.ID,
 		ResidentialAddress:   &resAddress,
-		Rank:                 &rank,
+		CacValidated:         false,
 	}
 
 	backupAddressResult := findValidCustomization(customs, Addresses.BackupMailingAddress)
@@ -88,15 +87,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 		serviceMember.BackupMailingAddress = &backupAddress
 	}
 
-	dutyLocationResult := findValidCustomization(customs, DutyLocation)
-	// Find/create the DutyLocation if customization is
-	// provided
-	if dutyLocationResult != nil {
-		dutyLocation := BuildDutyLocation(db, customs, traits)
-		serviceMember.DutyLocationID = &dutyLocation.ID
-		serviceMember.DutyLocation = dutyLocation
-	}
-
 	if buildType == serviceMemberBuildExtended {
 		serviceMember.EmailIsPreferred = models.BoolPointer(true)
 
@@ -106,14 +96,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 			backupAddress := BuildAddress(db, customs, traits)
 			serviceMember.BackupMailingAddressID = &backupAddress.ID
 			serviceMember.BackupMailingAddress = &backupAddress
-		}
-
-		// ensure extended service member has duty location,
-		// even if customization is not provided
-		if serviceMember.DutyLocationID == nil {
-			dutyLocation := FetchOrBuildCurrentDutyLocation(db)
-			serviceMember.DutyLocationID = &dutyLocation.ID
-			serviceMember.DutyLocation = dutyLocation
 		}
 	}
 

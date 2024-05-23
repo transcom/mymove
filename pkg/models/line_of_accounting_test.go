@@ -19,7 +19,7 @@ func (suite *ModelSuite) Test_LineOfAccountingAllFieldsPresentCanSave() {
 
 func (suite *ModelSuite) Test_LineOfAccountingCanSaveAndFetch() {
 	// Can save
-	loa := models.LineOfAccounting{LoaSysID: models.IntPointer(1234)}
+	loa := models.LineOfAccounting{LoaSysID: models.StringPointer("1234")}
 
 	suite.MustCreate(&loa)
 

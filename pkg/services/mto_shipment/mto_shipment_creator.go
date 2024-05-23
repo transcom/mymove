@@ -23,15 +23,32 @@ type createMTOShipmentQueryBuilder interface {
 type mtoShipmentCreator struct {
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	moveRouter services.MoveRouter
+	moveRouter     services.MoveRouter
+	addressCreator services.AddressCreator
+	checks         []validator
 }
 
-// NewMTOShipmentCreator creates a new struct with the service dependencies
-func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
+// NewMTOShipmentCreatorV1 creates a new struct with the service dependencies
+// This is utilized in Prime API V1
+func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter, addressCreator services.AddressCreator) services.MTOShipmentCreator {
 	return &mtoShipmentCreator{
 		builder,
 		fetcher,
 		moveRouter,
+		addressCreator,
+		[]validator{protectV1Diversion()},
+	}
+}
+
+// NewMTOShipmentCreator creates a new struct with the service dependencies
+// This is utilized in Prime API V2
+func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter, addressCreator services.AddressCreator) services.MTOShipmentCreator {
+	return &mtoShipmentCreator{
+		builder,
+		fetcher,
+		moveRouter,
+		addressCreator,
+		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule()},
 	}
 }
 
@@ -39,6 +56,19 @@ func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher servic
 func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error) {
 	var verrs *validate.Errors
 	var err error
+
+	for _, check := range f.checks {
+		if err = check.Validate(appCtx, shipment, nil); err != nil {
+			switch e := err.(type) {
+			case *validate.Errors:
+				// Accumulate all validation errors
+				verrs.Append(e)
+			default:
+				// Non-validation errors have priority and short-circuit doing any further checks
+				return nil, err
+			}
+		}
+	}
 
 	serviceItems := shipment.MTOServiceItems
 	err = checkShipmentIDFields(shipment, serviceItems)
@@ -125,57 +155,110 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			return nil, apperror.NewQueryError("Orders", err, "")
 		}
 		newDutyLocationAddress := move.Orders.NewDutyLocation.Address
+
+		county, errCounty := models.FindCountyByZipCode(appCtx.DB(), newDutyLocationAddress.PostalCode)
+		if errCounty != nil {
+			return nil, errCounty
+		}
+
 		shipment.DestinationAddress = &models.Address{
 			StreetAddress1: "N/A", // can't use an empty string given the model validations
 			City:           newDutyLocationAddress.City,
 			State:          newDutyLocationAddress.State,
 			PostalCode:     newDutyLocationAddress.PostalCode,
 			Country:        newDutyLocationAddress.Country,
+			County:         county,
+		}
+	}
+
+	// Populate address county information
+	if shipment.PickupAddress != nil && shipment.PickupAddress.County == "" {
+		shipment.PickupAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == "" {
+		shipment.DestinationAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.PickupAddress)
-			if verrs != nil || err != nil {
+			pickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
+			if errAddress != nil {
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
+			shipment.PickupAddress = pickupAddress
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.PickupAddress.County = county
+
 		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryPickupAddress)
-			if verrs != nil || err != nil {
+			secondaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
+			if errAddress != nil {
 				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
 			}
+			shipment.SecondaryPickupAddress = secondaryPickupAddress
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryPickupAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.SecondaryPickupAddress.County = county
 		}
 
 		if shipment.DestinationAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.DestinationAddress)
-			if verrs != nil || err != nil {
+			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
+			if errAddress != nil {
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
+			shipment.DestinationAddress = destinationAddress
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.DestinationAddress.County = county
 		}
 
 		if shipment.SecondaryDeliveryAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryDeliveryAddress)
-			if verrs != nil || err != nil {
+			secondaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
+			if errAddress != nil {
 				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
 			}
+			shipment.SecondaryDeliveryAddress = secondaryDeliveryAddress
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryDeliveryAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.SecondaryDeliveryAddress.County = county
 		}
 
 		if shipment.StorageFacility != nil {
-			verrs, err = f.builder.CreateOne(txnAppCtx, &shipment.StorageFacility.Address)
-			if verrs != nil || err != nil {
+			storageFacility, errAddress := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
+			if errAddress != nil {
 				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
 			}
+			shipment.StorageFacility.Address = *storageFacility
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.StorageFacility.Address.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.StorageFacility.Address.County = county
 
 			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
 			if verrs != nil || err != nil {
@@ -270,6 +353,18 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			if err != nil {
 				return err
 			}
+
+			// This is to make sure SeqNum for move matches what is currently
+			// in database. DB Trigger updates to moves.shipment_seq_num but we
+			// have to ensure it does not get overwritten with stale data in the
+			// update following this check. If this is not done, stale data will cause
+			// a unique index constraint error for subsequent new shipments due to
+			// shipment_seq_num is not correct.
+			err = ensureMoveShipmentSeqNumIsInSync(f, appCtx, &move)
+			if err != nil {
+				return err
+			}
+
 			verrs, err = f.builder.UpdateOne(txnAppCtx, &move, nil)
 			if err != nil {
 				return err
@@ -288,6 +383,17 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		return nil, apperror.NewQueryError("unknown", err, "")
 	}
 
+	var dbShipment models.MTOShipment
+
+	shipmentQueryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", shipment.ID),
+	}
+
+	// check if Move exists
+	err = f.builder.FetchOne(appCtx, &dbShipment, shipmentQueryFilters)
+	if err == nil {
+		shipment.ShipmentLocator = dbShipment.ShipmentLocator
+	}
 	return shipment, transactionError
 }
 
@@ -335,5 +441,27 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		return apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Fields that cannot be set found while creating new shipment.")
 	}
 
+	return nil
+}
+
+func ensureMoveShipmentSeqNumIsInSync(f mtoShipmentCreator, appCtx appcontext.AppContext, move *models.Move) error {
+	var currentMove models.Move
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", move.ID),
+	}
+	err := f.builder.FetchOne(appCtx, &currentMove, queryFilters)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(move.ID, "for move")
+		default:
+			return apperror.NewQueryError("Move", err, "")
+		}
+	}
+	// Ensure ShipmentSeqNum matches current database value. Will use shipment count
+	// for true count.
+	if move.ShipmentSeqNum != nil && currentMove.MTOShipments != nil && len(currentMove.MTOShipments) != *move.ShipmentSeqNum {
+		move.ShipmentSeqNum = models.IntPointer(len(currentMove.MTOShipments))
+	}
 	return nil
 }

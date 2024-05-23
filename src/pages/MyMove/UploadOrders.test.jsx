@@ -1,26 +1,168 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 
-import { UploadOrders } from './UploadOrders';
+import UploadOrders from './UploadOrders';
 
-import { deleteUpload, getOrdersForServiceMember } from 'services/internalApi';
+import { deleteUpload, getAllMoves, getOrders } from 'services/internalApi';
+import { renderWithProviders } from 'testUtils';
+import { customerRoutes } from 'constants/routes';
+import { selectOrdersForLoggedInUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectOrdersForLoggedInUser: jest.fn(),
+  selectServiceMemberFromLoggedInUser: jest.fn(),
+}));
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
-  getOrdersForServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
   createUploadForDocument: jest.fn().mockImplementation(() => Promise.resolve()),
   deleteUpload: jest.fn().mockImplementation(() => Promise.resolve()),
+  getOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
-const mockNavigate = jest.fn();
-describe('Orders Upload page', () => {
-  const testProps = {
-    serviceMemberId: '123',
-    router: { navigate: mockNavigate },
-    updateOrders: jest.fn(),
-  };
 
-  const testOrdersValues = {
+const testOrdersValues = {
+  id: 'testOrdersId',
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  issue_date: '2020-11-08',
+  report_by_date: '2020-11-26',
+  has_dependents: false,
+  moves: [{ id: 'testMoveId' }],
+  new_duty_location: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
+};
+
+const testPropsWithUploads = {
+  id: 'testOrdersId',
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  issue_date: '2020-11-08',
+  report_by_date: '2020-11-26',
+  has_dependents: false,
+  new_duty_location: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
+  uploaded_orders: {
+    id: 'testId',
+    uploads: [
+      {
+        bytes: 1578588,
+        contentType: 'image/png',
+        createdAt: '2024-02-23T16:51:45.504Z',
+        filename: 'Screenshot 2024-02-15 at 12.22.53 PM (2).png',
+        id: 'fd88b0e6-ff6d-4a99-be6f-49458a244209',
+        status: 'PROCESSING',
+        updatedAt: '2024-02-23T16:51:45.504Z',
+        url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/fd88b0e6-ff6d-4a99-be6f-49458a244209?contentType=image%2Fpng',
+      },
+    ],
+  },
+  moves: ['testMoveId'],
+};
+
+const testPropsNoUploads = {
+  id: 'testOrdersId2',
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  issue_date: '2020-11-08',
+  report_by_date: '2020-11-26',
+  has_dependents: false,
+  new_duty_location: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
+  uploaded_orders: {
+    id: 'testId',
+    service_member_id: 'testId',
+    uploads: [],
+  },
+  moves: ['testMoveId'],
+};
+
+const testOrders = [
+  {
+    id: 'testOrdersId2',
+    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    issue_date: '2020-11-08',
+    report_by_date: '2020-11-26',
+    has_dependents: false,
+    new_duty_location: {
+      address: {
+        city: 'Des Moines',
+        country: 'US',
+        id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+        postalCode: '50309',
+        state: 'IA',
+        streetAddress1: '987 Other Avenue',
+        streetAddress2: 'P.O. Box 1234',
+        streetAddress3: 'c/o Another Person',
+      },
+      address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      affiliation: 'AIR_FORCE',
+      created_at: '2020-10-19T17:01:16.114Z',
+      id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+      name: 'Yuma AFB',
+      updated_at: '2020-10-19T17:01:16.114Z',
+    },
+    uploaded_orders: {
+      id: 'testId',
+      uploads: [],
+    },
+    moves: ['testMoveId'],
+  },
+  {
     id: 'testOrdersId',
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     issue_date: '2020-11-08',
@@ -44,94 +186,284 @@ describe('Orders Upload page', () => {
       name: 'Yuma AFB',
       updated_at: '2020-10-19T17:01:16.114Z',
     },
-  };
+    uploaded_orders: {
+      id: 'testId',
+      uploads: [
+        {
+          bytes: 1578588,
+          contentType: 'image/png',
+          createdAt: '2024-02-23T16:51:45.504Z',
+          filename: 'Screenshot 2024-02-15 at 12.22.53 PM (2).png',
+          id: 'fd88b0e6-ff6d-4a99-be6f-49458a244209',
+          status: 'PROCESSING',
+          updatedAt: '2024-02-23T16:51:45.504Z',
+          url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/fd88b0e6-ff6d-4a99-be6f-49458a244209?contentType=image%2Fpng',
+        },
+      ],
+    },
+    moves: ['testMoveId'],
+  },
+];
 
-  beforeEach(() => {
-    getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
-  });
+afterEach(() => {
+  jest.resetAllMocks();
+});
 
-  it('loads orders on mount', async () => {
-    const { queryByText, queryByRole } = render(<UploadOrders {...testProps} />);
+const mockParams = { orderId: 'testOrdersId' };
+const mockPath = customerRoutes.ORDERS_UPLOAD_PATH;
+const mockRoutingOptions = { path: mockPath, params: mockParams };
 
-    expect(queryByText('Loading, please wait...')).toBeInTheDocument();
+const serviceMember = {
+  id: 'id123',
+  current_location: {
+    address: {
+      city: 'Fort Bragg',
+      country: 'United States',
+      id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
+      postalCode: '29310',
+      state: 'NC',
+      streetAddress1: '',
+    },
+    address_id: 'f1ee4cea-6b23-4971-9947-efb51294ed32',
+    affiliation: 'ARMY',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'dca78766-e76b-4c6d-ba82-81b50ca824b9"',
+    name: 'Fort Bragg',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
+};
 
-    await waitFor(() => {
-      expect(queryByText('Loading, please wait...')).not.toBeInTheDocument();
-      expect(queryByRole('heading', { name: 'Upload your orders', level: 1 })).toBeInTheDocument();
+const serviceMemberMoves = {
+  currentMove: [
+    {
+      createdAt: '2024-02-23T19:30:11.374Z',
+      eTag: 'MjAyNC0wMi0yM1QxOTozMDoxMS4zNzQxN1o=',
+      id: 'testMoveId',
+      moveCode: '44649B',
+      orders: {
+        authorizedWeight: 11000,
+        created_at: '2024-02-23T19:30:11.369Z',
+        entitlement: {
+          proGear: 2000,
+          proGearSpouse: 500,
+        },
+        grade: 'E_7',
+        has_dependents: false,
+        id: 'testOrders1',
+        issue_date: '2024-02-29',
+        new_duty_location: {
+          address: {
+            city: 'Fort Irwin',
+            country: 'United States',
+            id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+            postalCode: '92310',
+            state: 'CA',
+            streetAddress1: 'n/a',
+          },
+          address_id: '77dca457-d0d6-4718-9ca4-a630b4614cf8',
+          affiliation: 'ARMY',
+          created_at: '2024-02-22T21:34:21.449Z',
+          id: '12421bcb-2ded-4165-b0ac-05f76301082a',
+          name: 'Fort Irwin, CA 92310',
+          transportation_office: {
+            address: {
+              city: 'Fort Irwin',
+              country: 'United States',
+              id: '65a97b21-cf6a-47c1-a4b6-e3f885dacba5',
+              postalCode: '92310',
+              state: 'CA',
+              streetAddress1: 'Langford Lake Rd',
+              streetAddress2: 'Bldg 105',
+            },
+            created_at: '2018-05-28T14:27:37.312Z',
+            gbloc: 'LKNQ',
+            id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+            name: 'PPPO Fort Irwin - USA',
+            phone_lines: [],
+            updated_at: '2018-05-28T14:27:37.312Z',
+          },
+          transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
+          updated_at: '2024-02-22T21:34:21.449Z',
+        },
+        orders_type: 'PERMANENT_CHANGE_OF_STATION',
+        originDutyLocationGbloc: 'BGAC',
+        origin_duty_location: {
+          address: {
+            city: 'Fort Gregg-Adams',
+            country: 'United States',
+            id: '12270b68-01cf-4416-8b19-125d11bc8340',
+            postalCode: '23801',
+            state: 'VA',
+            streetAddress1: 'n/a',
+          },
+          address_id: '12270b68-01cf-4416-8b19-125d11bc8340',
+          affiliation: 'ARMY',
+          created_at: '2024-02-22T21:34:26.430Z',
+          id: '9cf15b8d-985b-4ca3-9f27-4ba32a263908',
+          name: 'Fort Gregg-Adams, VA 23801',
+          transportation_office: {
+            address: {
+              city: 'Fort Gregg-Adams',
+              country: 'United States',
+              id: '10dc88f5-d76a-427f-89a0-bf85587b0570',
+              postalCode: '23801',
+              state: 'VA',
+              streetAddress1: '1401 B Ave',
+              streetAddress2: 'Bldg 3400, Room 119',
+            },
+            created_at: '2018-05-28T14:27:42.125Z',
+            gbloc: 'BGAC',
+            id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+            name: 'PPPO Fort Gregg-Adams - USA',
+            phone_lines: [],
+            updated_at: '2018-05-28T14:27:42.125Z',
+          },
+          transportation_office_id: '4cc26e01-f0ea-4048-8081-1d179426a6d9',
+          updated_at: '2024-02-22T21:34:26.430Z',
+        },
+        report_by_date: '2024-02-29',
+        service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
+        spouse_has_pro_gear: false,
+        status: 'DRAFT',
+        updated_at: '2024-02-23T19:30:11.369Z',
+        uploaded_orders: {
+          id: 'bd35c4c2-41c6-44a1-bf54-9098c68d87cc',
+          service_member_id: '81aeac60-80f3-44d1-9b74-ba6d405ee2da',
+          uploads: [
+            {
+              bytes: 92797,
+              contentType: 'image/png',
+              createdAt: '2024-02-26T18:43:58.515Z',
+              filename: 'Screenshot 2024-02-08 at 12.57.43 PM.png',
+              id: '786237dc-c240-449d-8859-3f37583b3406',
+              status: 'PROCESSING',
+              updatedAt: '2024-02-26T18:43:58.515Z',
+              url: '/storage/user/5fe4d948-aa1c-4823-8967-b1fb40cf6679/uploads/786237dc-c240-449d-8859-3f37583b3406?contentType=image%2Fpng',
+            },
+          ],
+        },
+      },
+      status: 'DRAFT',
+      submittedAt: '0001-01-01T00:00:00.000Z',
+      updatedAt: '0001-01-01T00:00:00.000Z',
+    },
+  ],
+  previousMoves: [],
+};
 
-      expect(getOrdersForServiceMember).toHaveBeenCalled();
-      expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
-    });
-  });
-
-  it('back button goes to the Orders Info page', async () => {
-    const { queryByRole, getByRole } = render(<UploadOrders {...testProps} />);
-
-    await waitFor(() => {
-      expect(queryByRole('button', { name: 'Back' })).toBeInTheDocument();
-    });
-    await userEvent.click(getByRole('button', { name: 'Back' }));
-
-    expect(mockNavigate).toHaveBeenCalledWith('/orders/info');
-  });
-
-  it('next button is disabled without any uploads', async () => {
-    const { queryByRole } = render(<UploadOrders {...testProps} />);
-
-    await waitFor(() => {
-      const nextButton = queryByRole('button', { name: 'Next' });
-      expect(nextButton).toBeInTheDocument();
-      expect(nextButton).toBeDisabled();
-    });
-  });
-
-  describe('when there are uploads', () => {
-    const testUpload = {
-      id: 'test upload',
-      createdAt: '2020-10-19T17:01:16.114Z',
-      bytes: 100,
-      url: 'test url',
-      filename: 'Test Upload',
-      contentType: 'application/pdf',
+describe('UploadOrders component', () => {
+  it('renders the component successfully', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testOrders);
+    getOrders.mockResolvedValue(testOrdersValues);
+    const testProps = {
+      serviceMember,
+      serviceMemberId: 'id123',
+      orders: [testPropsWithUploads],
+      updateOrders: jest.fn(),
+      updateAllMoves: jest.fn(),
     };
 
-    it('renders the uploads table', async () => {
-      const { queryByText } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
+    renderWithProviders(<UploadOrders {...testProps} />, mockRoutingOptions);
 
-      await waitFor(() => {
-        expect(queryByText(testUpload.filename)).toBeInTheDocument();
-      });
-    });
-
-    it('implements the delete upload handler', async () => {
-      deleteUpload.mockImplementation(() => Promise.resolve(testOrdersValues));
-
-      const { queryByRole, getByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
-
-      await waitFor(() => {
-        expect(queryByRole('button', { name: 'Delete' })).toBeInTheDocument();
-      });
-      await userEvent.click(getByRole('button', { name: 'Delete' }));
-
-      expect(deleteUpload).toHaveBeenCalledWith(testUpload.id);
-      expect(getOrdersForServiceMember).toHaveBeenCalledTimes(2);
-      expect(testProps.updateOrders).toHaveBeenNthCalledWith(1, testOrdersValues);
-      expect(testProps.updateOrders).toHaveBeenNthCalledWith(2, testOrdersValues);
-    });
-
-    it('next button goes to the Home page if there are uploads', async () => {
-      const { queryByRole, getByRole } = render(<UploadOrders {...testProps} uploads={[testUpload]} />);
-
-      await waitFor(() => {
-        const nextButton = queryByRole('button', { name: 'Next' });
-        expect(nextButton).toBeInTheDocument();
-        expect(nextButton).not.toBeDisabled();
-      });
-      await userEvent.click(getByRole('button', { name: 'Next' }));
-
-      expect(mockNavigate).toHaveBeenCalledWith('/');
-    });
+    await screen.findByRole('heading', { level: 1, name: 'Upload your orders' });
+    expect(screen.getByTestId('upload-orders-container')).toBeInTheDocument();
   });
 
-  afterEach(jest.resetAllMocks);
+  it('back button exists and enabled', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testOrders);
+    getOrders.mockResolvedValue(testOrdersValues);
+    getAllMoves.mockResolvedValue(() => serviceMemberMoves);
+    const testProps = {
+      serviceMember,
+      serviceMemberId: 'id123',
+      orders: [testPropsWithUploads],
+      updateOrders: jest.fn(),
+    };
+
+    renderWithProviders(<UploadOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_UPLOAD_PATH,
+      params: { orderId: 'testOrdersId' },
+    });
+
+    const backBtn = await screen.findByRole('button', { name: 'Back' });
+    expect(backBtn).toBeInTheDocument();
+    expect(backBtn).toBeEnabled();
+  });
+
+  it('next button exists and disabled when there are no uploads', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testOrders);
+    getOrders.mockResolvedValue(testOrdersValues);
+    getAllMoves.mockResolvedValue(() => serviceMemberMoves);
+    const testProps = {
+      serviceMember,
+      serviceMemberId: 'id123',
+      orders: [testPropsNoUploads],
+      updateOrders: jest.fn(),
+    };
+
+    renderWithProviders(<UploadOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_UPLOAD_PATH,
+      params: { orderId: 'testOrdersId2' },
+    });
+
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    expect(nextBtn).toBeInTheDocument();
+    expect(nextBtn).toBeDisabled();
+  });
+
+  it('next button exists and enabled when there are uploads', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testOrders);
+    getOrders.mockResolvedValue(testOrdersValues);
+    getAllMoves.mockResolvedValue(() => serviceMemberMoves);
+    const testProps = {
+      serviceMember,
+      serviceMemberId: 'id123',
+      orders: [testPropsWithUploads],
+      updateOrders: jest.fn(),
+    };
+
+    renderWithProviders(<UploadOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_UPLOAD_PATH,
+      params: { orderId: 'testOrdersId' },
+    });
+
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    expect(nextBtn).toBeInTheDocument();
+    expect(nextBtn).toBeEnabled();
+  });
+
+  it('delete button exists and handler fires when clicked', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectOrdersForLoggedInUser.mockImplementation(() => testOrders);
+    getOrders.mockResolvedValue(testOrdersValues);
+    deleteUpload.mockImplementation(() => Promise.resolve(testOrdersValues));
+    getAllMoves.mockResolvedValue(() => serviceMemberMoves);
+    const testProps = {
+      serviceMember,
+      serviceMemberId: 'id123',
+      orders: [testPropsWithUploads],
+      updateOrders: jest.fn(),
+    };
+
+    renderWithProviders(<UploadOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_UPLOAD_PATH,
+      params: { orderId: 'testOrdersId' },
+    });
+
+    const deleteBtn = await screen.findByRole('button', { name: 'Delete' });
+    expect(deleteBtn).toBeInTheDocument();
+    await act(async () => {
+      await userEvent.click(deleteBtn);
+    });
+
+    expect(deleteUpload).toHaveBeenCalledWith(testPropsWithUploads.uploaded_orders.uploads[0].id, 'testOrdersId');
+
+    await waitFor(() => {
+      expect(getOrders).toHaveBeenCalled();
+    });
+  });
 });

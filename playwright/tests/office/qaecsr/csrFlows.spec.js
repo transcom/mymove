@@ -136,6 +136,7 @@ test.describe('Customer Support User Flows', () => {
       await expect(page.locator('select[name="ordersTypeDetail"]')).toBeDisabled();
       await expect(page.locator('input[name="tac"]')).toBeDisabled();
       await expect(page.locator('input[name="sac"]')).toBeDisabled();
+      await expect(page.locator('select[name="payGrade"]')).toBeDisabled();
       // no save button should exist
       await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);
     });
@@ -157,15 +158,28 @@ test.describe('Customer Support User Flows', () => {
       await expect(page.locator('input[name="storageInTransit"]')).toBeDisabled();
       await expect(page.locator('input[name="organizationalClothingAndIndividualEquipment"]')).toBeDisabled();
 
-      // read only grade and authorized weight
+      // read only authorized weight
       await expect(page.locator('select[name=agency]')).toBeDisabled();
       await expect(page.locator('select[name=agency]')).toBeDisabled();
-      await expect(page.locator('select[name="grade"]')).toBeDisabled();
-      await expect(page.locator('select[name="grade"]')).toBeDisabled();
       await expect(page.locator('input[name="dependentsAuthorized"]')).toBeDisabled();
 
       // no save button should exist
       await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);
+    });
+
+    test('is able to access view documents in payment request page', async ({ page, officePage }) => {
+      const move = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE();
+      const moveLocator = move.locator;
+
+      await officePage.signInAsNewQAECSRUser();
+      await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
+
+      await page.getByText('Payment requests').click();
+
+      await page.getByText('View documents').click();
+
+      // should see `Review service items` header if page loaded successfully
+      await expect(page.getByText('Review service items')).toBeVisible();
     });
   });
 });

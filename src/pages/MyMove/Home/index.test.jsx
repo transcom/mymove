@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mount } from 'enzyme';
 import moment from 'moment';
-import { generatePath } from 'react-router-dom';
+import { generatePath, MemoryRouter } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { Home } from './index';
@@ -23,6 +23,7 @@ import {
   createPPMShipmentWithFinalIncentive,
   createSubmittedPPMShipment,
 } from 'utils/test/factories/ppmShipment';
+import { downloadPPMAOAPacket } from 'services/internalApi';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -36,6 +37,11 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  downloadPPMAOAPacket: jest.fn(),
+}));
+
 const defaultProps = {
   serviceMember: {
     id: v4(),
@@ -44,10 +50,6 @@ const defaultProps = {
         name: 'Test Transportation Office Name',
         phone_lines: ['555-555-5555'],
       },
-    },
-    weight_allotment: {
-      total_weight_self: 8000,
-      total_weight_self_plus_dependents: 11000,
     },
   },
   showLoggedInUser: jest.fn(),
@@ -78,6 +80,7 @@ const orders = {
   has_dependents: false,
   moves: [defaultProps.move.id],
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  authorizedWeight: 8000,
 };
 
 const ordersUpload = createUpload({ fileName: 'testOrders1.pdf' });
@@ -191,6 +194,40 @@ const ppmShipmentWithCompleteWeightTicket = {
         { ppmShipmentId: ppmShipmentWithActualShipmentInfo.id },
       ),
     ],
+  },
+};
+
+const approvedAdvancePPMShipment = {
+  ...incompletePPMShipment,
+  ppmShipment: {
+    ...incompletePPMShipment.ppmShipment,
+    sitExpected: false,
+    estimatedWeight: 4000,
+    hasProGear: false,
+    estimatedIncentive: 10000000,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 30000,
+    advanceStatus: 'APPROVED',
+    status: ppmShipmentStatuses.SUBMITTED,
+    updatedAt: ppmShipmentUpdatedDate.toISOString(),
+    eTag: window.btoa(ppmShipmentUpdatedDate.toISOString()),
+  },
+};
+
+const rejectedAdvancePPMShipment = {
+  ...incompletePPMShipment,
+  ppmShipment: {
+    ...incompletePPMShipment.ppmShipment,
+    sitExpected: false,
+    estimatedWeight: 4000,
+    hasProGear: false,
+    estimatedIncentive: 10000000,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 30000,
+    advanceStatus: 'REJECTED',
+    status: ppmShipmentStatuses.SUBMITTED,
+    updatedAt: ppmShipmentUpdatedDate.toISOString(),
+    eTag: window.btoa(ppmShipmentUpdatedDate.toISOString()),
   },
 };
 
@@ -449,7 +486,7 @@ describe('Home component', () => {
 
   describe('if the user has orders with dependents', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { ...orders, has_dependents: true },
+      orders: { ...orders, has_dependents: true, authorizedWeight: 11000 },
       uploadedOrderDocuments,
     });
 
@@ -510,7 +547,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('renders Step 5', () => {
+      it('renders Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });
@@ -518,6 +555,139 @@ describe('Home component', () => {
       it('add shipments button no longer present', () => {
         render(<Home {...props} />);
         expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
+      });
+    });
+
+    describe('for advance request approved PPM', () => {
+      it('renders advance request submitted for PPM', () => {
+        const mtoShipments = [submittedPPMShipment];
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(<Home {...props} />);
+        expect(screen.getByText('Advance request submitted')).toBeInTheDocument();
+      });
+
+      it('renders advance request submitted for PPM', () => {
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+      });
+
+      it('renders advance request reviewed with 1 approved PPM', () => {
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
+
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+      });
+
+      it('renders advance request reviewed for approved advance for PPM with HHG', () => {
+        const mtoShipments = [{ id: v4(), shipmentType: SHIPMENT_OPTIONS.HHG }, approvedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
+
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+      });
+
+      it('renders advance request reviewed with 1 approved and 1 rejected advance', () => {
+        const mtoShipments = [approvedAdvancePPMShipment, rejectedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
+
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+        expect(screen.getByText('Advance request denied')).toBeInTheDocument();
+      });
+
+      it('renders advance request denied for PPM', () => {
+        const mtoShipments = [rejectedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request denied');
+      });
+
+      it('Download AOA Packet PPM - Error', async () => {
+        downloadPPMAOAPacket.mockRejectedValue({
+          response: { body: { title: 'Error title', detail: 'Error detail' } },
+        });
+
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+
+        const downloadAOAButton = screen.getByText('Download AOA Paperwork (PDF)');
+        expect(downloadAOAButton).toBeInTheDocument();
+        await userEvent.click(downloadAOAButton);
+
+        await waitFor(() => {
+          expect(
+            screen.getByText(/Something went wrong downloading PPM paperwork./, { exact: false }),
+          ).toBeInTheDocument();
+          expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      it('Download AOA Packet PPM - Success', async () => {
+        const mockResponse = {
+          ok: true,
+          headers: {
+            'content-disposition': 'filename="test.pdf"',
+          },
+          status: 200,
+          data: null,
+        };
+        downloadPPMAOAPacket.mockImplementation(() => Promise.resolve(mockResponse));
+
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+
+        const downloadAOAButton = screen.getByText('Download AOA Paperwork (PDF)');
+        expect(downloadAOAButton).toBeInTheDocument();
+
+        await userEvent.click(downloadAOAButton);
+
+        await waitFor(() => {
+          expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+        });
       });
     });
 
@@ -542,7 +712,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('does not render Step 5', () => {
+      it('does not render Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.queryByText('Manage your PPM')).not.toBeInTheDocument();
       });
@@ -574,7 +744,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('does not render Step 5', () => {
+      it('does not render Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.queryByText('Manage your PPM')).not.toBeInTheDocument();
       });
@@ -618,7 +788,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('renders Step 5', () => {
+      it('renders Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });

@@ -58,6 +58,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*order type
+	  In: query
+	*/
+	OrderType *string
 	/*
 	  In: query
 	*/
@@ -123,6 +127,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qOrder, qhkOrder, _ := qs.GetOK("order")
 	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOrderType, qhkOrderType, _ := qs.GetOK("orderType")
+	if err := o.bindOrderType(qOrderType, qhkOrderType, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -283,6 +292,24 @@ func (o *GetPaymentRequestsQueueParams) validateOrder(formats strfmt.Registry) e
 	return nil
 }
 
+// bindOrderType binds and validates parameter OrderType from query.
+func (o *GetPaymentRequestsQueueParams) bindOrderType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OrderType = &raw
+
+	return nil
+}
+
 // bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
 func (o *GetPaymentRequestsQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -398,7 +425,7 @@ func (o *GetPaymentRequestsQueueParams) bindStatus(rawData []string, hasKey bool
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"Payment requested", "Reviewed", "Rejected", "Paid", "Deprecated", "Error"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"PENDING", "REVIEWED", "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED", "PAID", "DEPRECATED", "EDI_ERROR"}, true); err != nil {
 			return err
 		}
 

@@ -97,6 +97,17 @@ func main() {
 	initGenCertsMigrationFlags(genCertsMigrationCommand.Flags())
 	genCommand.AddCommand(genCertsMigrationCommand)
 
+	genDisableCertsMigrationCommand := &cobra.Command{
+		Use:                   "disable-certs-migration [ -f FINGERPRINT ] -n MIGRATION_NAME",
+		Short:                 "Generate migrations required for removing client certificates",
+		Long:                  "Generate migrations required for removing client certificates",
+		RunE:                  genDisableCertsMigration,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
+	}
+	initGenDisableCertsMigrationFlags(genDisableCertsMigrationCommand.Flags())
+	genCommand.AddCommand(genDisableCertsMigrationCommand)
+
 	genDutyStationsMigrationCommand := &cobra.Command{
 		Use:                   "duty-stations-migration -f CSV_FILENAME -n MIGRATION_NAME",
 		Short:                 "Generate migrations required for adding duty stations",
@@ -122,7 +133,7 @@ func main() {
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
 		Long:  "To install completion scripts run:\n\nmilmove completion > /usr/local/etc/bash_completion.d/milmove",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			return root.GenBashCompletion(os.Stdout)
 		},
 	}

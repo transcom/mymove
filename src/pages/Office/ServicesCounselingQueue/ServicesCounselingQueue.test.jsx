@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
@@ -9,6 +10,7 @@ import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { servicesCounselingRoutes } from 'constants/routes';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
@@ -318,10 +320,10 @@ describe('ServicesCounselingQueue', () => {
     );
 
     it.each([
-      ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUser],
-      ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUser],
-      ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, true, serviceCounselorUserForCloseout],
-      ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, false, serviceCounselorUserForCloseout],
+      ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUser],
+      ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUser],
+      ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUserForCloseout],
+      ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUserForCloseout],
     ])('a %s user accessing path "%s"', (userDescription, queueType, showsCounselingTab, user) => {
       useUserQueries.mockReturnValue(user);
       useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
@@ -332,9 +334,9 @@ describe('ServicesCounselingQueue', () => {
         </MockProviders>,
       );
 
-      if (showsCounselingTab) {
+      if (showsCounselingTab === 'counseling') {
         // Make sure "Counseling" is the active tab.
-        const counselingActive = screen.getByText('Counseling', { selector: '.usa-current .tab-title' });
+        const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
         expect(counselingActive).toBeInTheDocument();
 
         // Check for the "Counseling" columns.
@@ -342,9 +344,9 @@ describe('ServicesCounselingQueue', () => {
         expect(screen.getByText(/Requested move date/)).toBeInTheDocument();
         expect(screen.getByText(/Date submitted/)).toBeInTheDocument();
         expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
-      } else {
+      } else if (showsCounselingTab === 'closeout') {
         // Make sure "PPM Closeout" is the active tab.
-        const ppmCloseoutActive = screen.getByText('PPM Closeout', { selector: '.usa-current .tab-title' });
+        const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
         expect(ppmCloseoutActive).toBeInTheDocument();
 
         // Check for the "PPM Closeout" columns.
@@ -352,6 +354,14 @@ describe('ServicesCounselingQueue', () => {
         expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
         expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
         expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
+      } else {
+        // Check for the "Search" tab
+        const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
+        expect(searchActive).toBeInTheDocument();
+        expect(MoveSearchForm).toBeInTheDocument();
+        userEvent.type(screen.getByLabelText('Search'), 'Joe');
+        const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
+        expect(addCustomer).toBeInTheDocument();
       }
     });
   });

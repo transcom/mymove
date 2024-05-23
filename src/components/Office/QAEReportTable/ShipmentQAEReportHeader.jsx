@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import styles from './ShipmentQAEReportHeader.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatEvaluationReportShipmentAddress, formatShortIDWithPound } from 'utils/formatters';
+import { formatEvaluationReportShipmentAddress } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { createShipmentEvaluationReport } from 'services/ghcApi';
@@ -86,9 +86,9 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
     <>
       <div className={classnames(styles.shipmentAccent, shipmentAccentStyle)} />
       <div className={styles.shipmentInfoContainer}>
-        <div className={styles.shipmentInfo}>
+        <div data-testid="shipmentHeader" className={styles.shipmentInfo}>
           <h4>
-            {heading} Shipment ID {formatShortIDWithPound(shipment.id)}
+            {heading} Shipment ID: {shipment.shipmentLocator}
           </h4>
           <small>
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}

@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -44,10 +45,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
-	if moveTaskOrder.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
-	}
-
 	if moveTaskOrder.PPMType != nil {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}
@@ -59,10 +56,11 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 }
 
 // ListMove payload
-func ListMove(move *models.Move) *primemessages.ListMove {
+func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primemessages.ListMove {
 	if move == nil {
 		return nil
 	}
+
 	payload := &primemessages.ListMove{
 		ID:                 strfmt.UUID(move.ID.String()),
 		MoveCode:           move.Locator,
@@ -72,27 +70,42 @@ func ListMove(move *models.Move) *primemessages.ListMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
-	}
-
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
+		Amendments: &primemessages.Amendments{
+			Total:          handlers.FmtInt64(0),
+			AvailableSince: handlers.FmtInt64(0),
+		},
 	}
 
 	if move.PPMType != nil {
 		payload.PpmType = *move.PPMType
 	}
 
+	if moveOrderAmendmentsCount != nil {
+		payload.Amendments.Total = handlers.FmtInt64(int64(moveOrderAmendmentsCount.Total))
+		payload.Amendments.AvailableSince = handlers.FmtInt64(int64(moveOrderAmendmentsCount.AvailableSinceTotal))
+	}
+
 	return payload
 }
 
 // ListMoves payload
-func ListMoves(moves *models.Moves) []*primemessages.ListMove {
+func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primemessages.ListMove {
 	payload := make(primemessages.ListMoves, len(*moves))
+
+	moveOrderAmendmentsFilterCountMap := make(map[uuid.UUID]services.MoveOrderAmendmentAvailableSinceCount, len(*moves))
+	for _, info := range moveOrderAmendmentAvailableSinceCounts {
+		moveOrderAmendmentsFilterCountMap[info.MoveID] = info
+	}
 
 	for i, m := range *moves {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListMove(&copyOfM)
+		if value, ok := moveOrderAmendmentsFilterCountMap[m.ID]; ok {
+			payload[i] = ListMove(&copyOfM, &value)
+		} else {
+			payload[i] = ListMove(&copyOfM, nil)
+		}
 	}
+
 	return payload
 }
 
@@ -130,7 +143,12 @@ func Order(order *models.Order) *primemessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+	}
+
+	var grade string
+	if order.Grade != nil {
+		grade = string(*order.Grade)
 	}
 
 	payload := primemessages.Order{
@@ -143,7 +161,7 @@ func Order(order *models.Order) *primemessages.Order {
 		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
 		OrderNumber:             order.OrdersNumber,
 		LinesOfAccounting:       order.TAC,
-		Rank:                    order.Grade,
+		Rank:                    &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
 		ETag:                    etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:            strfmt.Date(order.ReportByDate),
 		OrdersType:              primemessages.OrdersType(order.OrdersType),
@@ -182,6 +200,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
@@ -224,6 +243,7 @@ func Address(address *models.Address) *primemessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -285,7 +305,7 @@ func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primemessage
 	uploads := make([]*primemessages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
 	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
-			uploads[i] = basicUpload(&primeUpload.Upload)
+			uploads[i] = basicUpload(&primeUpload.Upload) //#nosec G601
 		}
 	}
 
@@ -411,6 +431,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	return &payload
 }
 
+//nolint:gosec //G601
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primemessages.ServiceRequestDocument {
 	uploads := make([]*primemessages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
 	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
@@ -582,6 +603,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitHHGActualOrigin:              Address(mtoServiceItem.SITOriginHHGActualAddress),
 			SitHHGOriginalOrigin:            Address(mtoServiceItem.SITOriginHHGOriginalAddress),
 			RequestApprovalsRequestedStatus: *mtoServiceItem.RequestedApprovalsRequestedStatus,
+			SitCustomerContacted:            handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
+			SitRequestedDelivery:            handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time

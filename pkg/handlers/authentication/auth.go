@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
+	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -209,20 +210,12 @@ var allowedRoutes = map[string]bool{
 	"move_docs.updateMoveDocument":                true,
 	"moves.showMove":                              true,
 	"office.approveMove":                          true,
-	"office.approvePPM":                           true,
 	"office.approveReimbursement":                 true,
 	"office.cancelMove":                           true,
 	"office.showOfficeOrders":                     true,
 	"orders.showOrders":                           true,
 	"orders.updateOrders":                         true,
 	"postal_codes.validatePostalCodeWithRateData": true,
-	"ppm.createPPMAttachments":                    true,
-	"ppm.requestPPMExpenseSummary":                true,
-	"ppm.showPPMEstimate":                         true,
-	"ppm.showPPMIncentive":                        true,
-	"ppm.showPPMSitEstimate":                      true,
-	"ppm.showPersonallyProcuredMove":              true,
-	"ppm.updatePersonallyProcuredMove":            true,
 	"queues.showQueue":                            true,
 	"uploads.deleteUpload":                        true,
 	"users.showLoggedInUser":                      true,
@@ -483,6 +476,16 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if appCtx.Session() != nil {
+		// if the user is an office user, we need to unlock any moves that they have locked
+		if appCtx.Session().IsOfficeApp() && appCtx.Session().OfficeUserID != uuid.Nil {
+			moveUnlocker := movelocker.NewMoveUnlocker()
+			officeUserID := appCtx.Session().OfficeUserID
+			err := moveUnlocker.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
+			}
+		}
+
 		sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 		if sessionManager == nil {
 			appCtx.Logger().Error("Authenticating user, cannot get session manager from request")
@@ -707,6 +710,33 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if the user is still signed into okta and has an active session in the browser
+	// but is being forced to authenticate/re-authenticate from MilMove, we need to handle logout or let the user know they need to log out
+	// so they can re-use their authenticator (CAC)
+	errDescription := r.URL.Query().Get("error_description")
+	// this is the description okta sends when the user has used all of their authenticators
+	if errDescription == "The resource owner or authorization server denied the request." {
+		provider, providerErr := okta.GetOktaProviderForRequest(r)
+		if providerErr != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		// if the user just closed their tab and appCtx is still holding the ID token, we can use it
+		// MM will still have the active IDToken and we can use that to log them out and clear their session
+		if appCtx.Session().IDToken != "" {
+			oktaLogoutURL, logoutErr := logoutOktaUserURL(provider, appCtx.Session().IDToken, landingURL.String())
+			if oktaLogoutURL == "" || logoutErr != nil {
+				appCtx.Logger().Error("failed to get Okta Logout URL")
+			}
+			http.Redirect(w, r, oktaLogoutURL, http.StatusTemporaryRedirect)
+			return
+		}
+		// if not, we will need the user to go to okta and sign out, adding these params will display a UI info banner
+		redirectURL := landingURL.String() + "sign-in" + "?okta_logged_out=false"
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+		return
+	}
+
 	if err := r.URL.Query().Get("error"); len(err) > 0 {
 		landingQuery := landingURL.Query()
 		switch err {
@@ -779,13 +809,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provider, err := okta.GetOktaProviderForRequest(r)
-	if err != nil {
-		appCtx.Logger().Error("get provider", zap.Error(err))
+	provider, providerErr := okta.GetOktaProviderForRequest(r)
+	if providerErr != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-
 	// Exchange code received from login for access token. This is used during the grant_type auth flow
 	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider, h.HTTPClient)
 	// Double error check
@@ -800,7 +828,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify access token
-	_, verificationError := verifyToken(exchange.IDToken, returnedState, *provider)
+	jwtResult, verificationError := verifyToken(exchange.IDToken, returnedState, *provider)
 
 	if verificationError != nil {
 		appCtx.Logger().Error("token exchange verification", zap.Error(err))
@@ -822,13 +850,22 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// adding Okta profile data with intent to use for Okta profile editing from MilMove app
 	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().Email = profileData.Email
+
+	// checking to see if user signed in with smart card
+	// this will be leveraged in the customer app to ensure they authenticate with SC at least once
+	var loggedInWithSmartCard bool
+	if didUserSignInWithSmartCard(jwtResult.Claims, "sc") {
+		loggedInWithSmartCard = true
+	}
+
 	oktaInfo := auth.OktaSessionInfo{
-		Login:     profileData.PreferredUsername,
-		Email:     profileData.Email,
-		FirstName: profileData.GivenName,
-		LastName:  profileData.FamilyName,
-		Edipi:     profileData.Edipi,
-		Sub:       profileData.Sub,
+		Login:                 profileData.PreferredUsername,
+		Email:                 profileData.Email,
+		FirstName:             profileData.GivenName,
+		LastName:              profileData.FamilyName,
+		Edipi:                 profileData.Edipi,
+		Sub:                   profileData.Sub,
+		SignedInWithSmartCard: loggedInWithSmartCard,
 	}
 	appCtx.Session().OktaSessionInfo = oktaInfo
 
@@ -843,6 +880,24 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case authorizationResultAuthorized:
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 	}
+}
+
+// didUserSignInWithSmartCard checks if the given value is present in the "amr" claim of the JWT claims interface
+func didUserSignInWithSmartCard(claims map[string]interface{}, value string) bool {
+	// isolate amr claim
+	amr, ok := claims["amr"].([]interface{})
+	if !ok {
+		return false
+	}
+
+	// sift through to find the passed in value
+	for _, v := range amr {
+		if str, ok := v.(string); ok && str == value {
+			return true
+		}
+	}
+
+	return false
 }
 
 func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser models.OktaUser, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
@@ -893,6 +948,25 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 	appCtx.Session().UserID = userIdentity.ID
 	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
 		appCtx.Session().ServiceMemberID = *(userIdentity.ServiceMemberID)
+	}
+
+	// we want to check if the service member is signing in with CAC for the first time
+	// if they are, their account is now validated with CAC and this check won't happen again
+	if appCtx.Session().IsMilApp() &&
+		appCtx.Session().OktaSessionInfo.SignedInWithSmartCard &&
+		!*(userIdentity.ServiceMemberCacValidated) {
+		sm, err := models.FetchServiceMember(appCtx.DB(), *userIdentity.ServiceMemberID)
+		if err != nil {
+			appCtx.Logger().Error("Error fetching service member to update", zap.Error(err))
+		}
+		sm.CacValidated = true
+		smVerrs, err := models.SaveServiceMember(appCtx, &sm)
+		if err != nil {
+			appCtx.Logger().Error("Error updating service member's cac_verified value", zap.Error(err))
+		}
+		if smVerrs.HasAny() {
+			appCtx.Logger().Error("Error updating service member's cac_verified value", zap.Error(smVerrs))
+		}
 	}
 
 	if appCtx.Session().IsOfficeApp() {
@@ -1085,9 +1159,14 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		// onboarding home page (via /src/sagas/onboarding.js). This meant that
 		// on the very first sign in, a user's `CurrentMilSessionId` would be
 		// empty, which was misleading and prevented us from revoking their session.
+
+		// setting cac_verified to false due to initial registration not allowing for smart card authentication
+		// this will let the user into the application, but show them an error page telling them to sign in with CAC
 		newServiceMember := models.ServiceMember{
-			UserID: user.ID,
+			UserID:       user.ID,
+			CacValidated: false,
 		}
+
 		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 		if smVerrs.HasAny() || smErr != nil {
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))

@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 )
 
 // MTOServiceItemFetcher is the exported interface for fetching a mto service item
@@ -31,7 +32,8 @@ type MTOServiceItemUpdater interface {
 	ApproveOrRejectServiceItem(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error)
 	UpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error)
 	UpdateMTOServiceItemBasic(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
-	UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
+	UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, planner route.Planner, shipment models.MTOShipment, eTag string) (*models.MTOServiceItem, error)
+	ConvertItemToCustomerExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment, customerExpenseReason *string, convertToCustomerExpense bool) (*models.MTOServiceItem, error)
 }
 
 // serviceRequestDocumentUploadCreator is the exported interface for creating a mto service item request upload

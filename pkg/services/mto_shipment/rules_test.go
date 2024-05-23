@@ -199,7 +199,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 		for name, tc := range testCases {
 			for status, canUpdate := range tc.tests {
-				appCtx := suite.AppContextWithSessionForTest(&tc.session)
+				appCtx := suite.AppContextWithSessionForTest(&tc.session) //#nosec G601
 
 				suite.Run(fmt.Sprintf("User:%v Shipment Status:%v", name, status), func() {
 					checker := checkUpdateAllowed()
@@ -217,7 +217,78 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
-	suite.Run("checkDeleteAllowed", func() {
+	suite.Run("checkDeleteAllowedTOO", func() {
+		testCases := map[models.MoveStatus]bool{
+			models.MoveStatusDRAFT:                      true,
+			models.MoveStatusSUBMITTED:                  true,
+			models.MoveStatusCANCELED:                   true,
+			models.MoveStatusAPPROVALSREQUESTED:         true,
+			models.MoveStatusNeedsServiceCounseling:     true,
+			models.MoveStatusServiceCounselingCompleted: true,
+		}
+
+		for status, allowed := range testCases {
+			suite.Run("Move status "+string(status), func() {
+				shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.Move{
+							Status: status,
+						},
+					},
+				}, nil)
+
+				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+
+				appContext := suite.AppContextWithSessionForTest(&auth.Session{
+					Roles:           officeUser.User.Roles,
+					ApplicationName: auth.OfficeApp,
+				})
+
+				err := checkDeleteAllowed().Validate(
+					appContext,
+					nil,
+					&shipment,
+				)
+
+				if allowed {
+					suite.NoError(err)
+				} else {
+					suite.Error(err)
+				}
+			})
+		}
+	})
+
+	suite.Run("checkDeleteAllowedTOO Approved MTO status", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		appContext := suite.AppContextWithSessionForTest(&auth.Session{
+			Roles:           officeUser.User.Roles,
+			ApplicationName: auth.OfficeApp,
+		})
+
+		err := checkDeleteAllowed().Validate(
+			appContext,
+			nil,
+			&shipment,
+		)
+
+		if false {
+			suite.NoError(err)
+		} else {
+			suite.Error(err)
+		}
+	})
+
+	suite.Run("checkDeleteAllowedSC", func() {
 		testCases := map[models.MoveStatus]bool{
 			models.MoveStatusDRAFT:                      true,
 			models.MoveStatusSUBMITTED:                  false,
@@ -238,8 +309,15 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 					},
 				}, nil)
 
+				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+				appContext := suite.AppContextWithSessionForTest(&auth.Session{
+					Roles:           officeUser.User.Roles,
+					ApplicationName: auth.OfficeApp,
+				})
+
 				err := checkDeleteAllowed().Validate(
-					suite.AppContextForTest(),
+					appContext,
 					nil,
 					&shipment,
 				)

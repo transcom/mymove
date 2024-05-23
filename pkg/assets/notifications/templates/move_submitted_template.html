@@ -12,10 +12,10 @@
 
 <p>
   {{- if .OriginDutyLocationPhoneLine }}
-  To change any information about your move, or to add or cancel shipments, you should contact {{.OriginDutyLocationPhoneLine}} or visit your <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">local transportation office</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact {{.OriginDutyLocationPhoneLine}} or visit your <a href="{{.OneSourceTransportationOfficeLink}}">local transportation office</a>.
   {{- end }}
   {{- if not .OriginDutyLocationPhoneLine }}
-  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">directory of PCS-related contacts</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="{{.OneSourceTransportationOfficeLink}}">directory of PCS-related contacts</a>.
   {{- end }}
 </p>
 
@@ -55,7 +55,7 @@
 
 {{- if not .ProvidesGovernmentCounseling }}
 <p>
-  Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+  Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
 </p>
 <p>
   Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
@@ -64,6 +64,10 @@
 
 <p>
   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+</p>
+
+<p>
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
 </p>
 
 <h4>
@@ -77,12 +81,8 @@
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
-  Thank you,
-</p>
-<p>
-  Defense Personal Property Program’s MilMove Team
-</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>

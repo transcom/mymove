@@ -13,6 +13,7 @@ import { MandatorySimpleAddressShape, SimpleAddressShape } from 'types/address';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { shipmentTypeLabels } from 'content/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import returnLowestValue from 'utils/returnLowestValue';
 
 const ShipmentCardDetailRow = ({ display, rowTestId, className, title, content, contentTestId }) => {
   if (display) {
@@ -54,6 +55,7 @@ export default function ShipmentCard({
   pickupAddress,
   destinationAddress,
   estimatedWeight,
+  primeActualWeight,
   originalWeight,
   adjustedWeight,
   reweighRemarks,
@@ -89,6 +91,8 @@ export default function ShipmentCard({
   const shipmentIsNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const dateText = shipmentIsNTSR ? 'Delivered' : 'Departed';
 
+  const lowestWeight = formatWeight(returnLowestValue(primeActualWeight, reweighWeight));
+
   const originAddress = shipmentIsNTSR ? storageFacilityAddress : pickupAddress;
   const deliveryAddress = shipmentIsNTS ? storageFacilityAddress : destinationAddress;
 
@@ -120,6 +124,17 @@ export default function ShipmentCard({
           title="Estimated weight"
           contentTestId="estimatedWeight"
           content={estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}
+        />
+
+        <ShipmentCardDetailRow
+          display={!shipmentIsNTSR}
+          rowTestId="actualWeightContainer"
+          className={classnames(styles.field, {
+            [styles.warning]: !primeActualWeight,
+          })}
+          title="Actual weight"
+          contentTestId="actualWeight"
+          content={primeActualWeight ? lowestWeight : <strong>Missing</strong>}
         />
 
         <ShipmentCardDetailRow
@@ -193,6 +208,7 @@ ShipmentCard.propTypes = {
   destinationAddress: MandatorySimpleAddressShape.isRequired,
   editEntity: func.isRequired,
   estimatedWeight: number,
+  primeActualWeight: number,
   originalWeight: number.isRequired,
   adjustedWeight: number,
   pickupAddress: MandatorySimpleAddressShape.isRequired,
@@ -209,6 +225,7 @@ ShipmentCard.defaultProps = {
   billableWeightJustification: '',
   dateReweighRequested: '',
   estimatedWeight: 0,
+  primeActualWeight: 0,
   adjustedWeight: null,
   reweighWeight: null,
   reweighRemarks: '',

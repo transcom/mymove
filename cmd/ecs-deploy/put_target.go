@@ -34,7 +34,6 @@ var names = []string{
 	"process-edis",
 	"save-ghc-fuel-price-data",
 	"send-payment-reminder",
-	"send-post-move-survey",
 }
 
 type errInvalidName struct {

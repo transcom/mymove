@@ -35,6 +35,8 @@ const (
 	AffiliationAIRFORCE ServiceMemberAffiliation = "AIR_FORCE"
 	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
 	AffiliationCOASTGUARD ServiceMemberAffiliation = "COAST_GUARD"
+	// AffiliationCOASTGUARD captures enum value "SPACE_FORCE"
+	AffiliationSPACEFORCE ServiceMemberAffiliation = "SPACE_FORCE"
 )
 
 // ServiceMember is a user of type service member
@@ -46,7 +48,6 @@ type ServiceMember struct {
 	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
-	Rank                   *ServiceMemberRank        `json:"rank" db:"rank"`
 	FirstName              *string                   `json:"first_name" db:"first_name"`
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
 	LastName               *string                   `json:"last_name" db:"last_name"`
@@ -62,8 +63,7 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
-	DutyLocationID         *uuid.UUID                `json:"duty_location_id" db:"duty_location_id"`
-	DutyLocation           DutyLocation              `belongs_to:"duty_locations" fk_id:"duty_location_id"`
+	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -88,9 +88,6 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyLocation.Address",
-		"DutyLocation.TransportationOffice",
-		"DutyLocation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
@@ -149,6 +146,12 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.ResidentialAddress.County = county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -158,6 +161,12 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		}
 
 		if serviceMember.BackupMailingAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.BackupMailingAddress.County = county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -214,7 +223,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	sac *string,
 	departmentIndicator *string,
 	originDutyLocation *DutyLocation,
-	grade *string,
+	grade *internalmessages.OrderPayGrade,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
@@ -290,9 +299,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.Affiliation == nil {
 		return false
 	}
-	if s.Rank == nil {
-		return false
-	}
 	if s.FirstName == nil {
 		return false
 	}
@@ -314,9 +320,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.BackupMailingAddressID == nil {
 		return false
 	}
-	if s.DutyLocationID == nil {
-		return false
-	}
 	if len(s.BackupContacts) == 0 {
 		return false
 	}
@@ -334,7 +337,6 @@ func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) 
 		"NewDutyLocation.Address",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
-		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
 		First(&order)

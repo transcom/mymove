@@ -57,7 +57,7 @@ func checkPPMShipmentID() ppmShipmentValidator {
 
 // checkRequiredFields checks that the required fields are included
 func checkRequiredFields() ppmShipmentValidator {
-	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		// Check that we have something in the expectedDepartureDate field:
@@ -85,7 +85,7 @@ func checkRequiredFields() ppmShipmentValidator {
 
 // checkAdvanceAmountRequested()  checks that the advance fields are updated appropriately
 func checkAdvanceAmountRequested() ppmShipmentValidator {
-	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		if newPPMShipment.HasRequestedAdvance == nil || !*newPPMShipment.HasRequestedAdvance {
@@ -109,7 +109,7 @@ func checkAdvanceAmountRequested() ppmShipmentValidator {
 
 // checkEstimatedWeight() checks that the weight estimate is available to the PPM Estimator
 func checkEstimatedWeight() ppmShipmentValidator {
-	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		// Check that we have something in the estimatedWeight field.
@@ -123,7 +123,7 @@ func checkEstimatedWeight() ppmShipmentValidator {
 
 // checkSITRequiredFields() checks that if SIT is expected that the other dependent fields are all unset or all valid
 func checkSITRequiredFields() ppmShipmentValidator {
-	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, oldPPMShipment *models.PPMShipment, _ *models.MTOShipment) error {
+	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		if newPPMShipment.SITExpected == nil || !*newPPMShipment.SITExpected {

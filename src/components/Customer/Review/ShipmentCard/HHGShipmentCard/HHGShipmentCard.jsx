@@ -10,6 +10,8 @@ import DeliveryDisplay from '../DeliveryDisplay';
 import { AddressShape } from 'types/address';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
+import { shipmentStatuses } from 'constants/shipments';
 import { customerRoutes } from 'constants/routes';
 
 const HHGShipmentCard = ({
@@ -27,24 +29,37 @@ const HHGShipmentCard = ({
   requestedDeliveryDate,
   requestedPickupDate,
   shipmentId,
+  shipmentLocator,
   shipmentNumber,
   shipmentType,
   showEditAndDeleteBtn,
+  status,
+  onIncompleteClick,
 }) => {
   const editPath = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId,
     mtoShipmentId: shipmentId,
   })}?shipmentNumber=${shipmentNumber}`;
 
+  const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
+  const moveCodeLabel = shipmentLocator;
+  const shipmentIsIncomplete = status === shipmentStatuses.DRAFT;
+
   return (
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
+        {shipmentIsIncomplete && (
+          <IncompleteShipmentToolTip
+            onClick={onIncompleteClick}
+            shipmentLabel={shipmentLabel}
+            moveCodeLabel={moveCodeLabel}
+            shipmentTypeLabel={shipmentType}
+          />
+        )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3>
-              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
-            </h3>
-            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
+            <h3>{shipmentLabel}</h3>
+            <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
@@ -93,6 +108,7 @@ HHGShipmentCard.propTypes = {
   shipmentNumber: number.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
+  shipmentLocator: string.isRequired,
   showEditAndDeleteBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,

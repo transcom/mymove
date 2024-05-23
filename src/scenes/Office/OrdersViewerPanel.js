@@ -16,7 +16,7 @@ import './office.scss';
 
 const OrdersViewerDisplay = (props) => {
   const { orders } = props;
-  const currentDutyLocation = get(props.serviceMember, 'current_location.name', '');
+  const currentDutyLocation = get(orders, 'origin_duty_location.name', '');
   const uploads = get(orders, 'uploaded_orders.uploads', []);
   const ordersFieldsProps = {
     values: props.orders,

@@ -6,6 +6,7 @@ import { EditContactInfo } from './EditContactInfo';
 
 import { patchBackupContact, patchServiceMember } from 'services/internalApi';
 import { customerRoutes } from 'constants/routes';
+import { MockProviders } from 'testUtils';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -62,7 +63,11 @@ describe('EditContactInfo page', () => {
   };
 
   it('renders the EditContactInfo form', async () => {
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const h1 = await screen.findByRole('heading', { name: 'Edit contact info', level: 1 });
     expect(h1).toBeInTheDocument();
@@ -70,7 +75,7 @@ describe('EditContactInfo page', () => {
     const contactHeader = screen.getByRole('heading', { name: 'Your contact info', level: 2 });
     expect(contactHeader).toBeInTheDocument();
 
-    const addressHeader = screen.getByRole('heading', { name: 'Current pickup address', level: 2 });
+    const addressHeader = screen.getByRole('heading', { name: 'Current address', level: 2 });
     expect(addressHeader).toBeInTheDocument();
 
     const backupAddressHeader = screen.getByRole('heading', { name: 'Backup address', level: 2 });
@@ -81,13 +86,17 @@ describe('EditContactInfo page', () => {
   });
 
   it('goes back to the profile page when the cancel button is clicked', async () => {
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
     await userEvent.click(cancelButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH, { state: null });
   });
 
   it('saves backup contact info when it is updated and the save button is clicked', async () => {
@@ -105,7 +114,11 @@ describe('EditContactInfo page', () => {
     patchBackupContact.mockImplementation(() => Promise.resolve(patchResponse));
     patchServiceMember.mockImplementation(() => Promise.resolve());
 
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const backupNameInput = await screen.findByLabelText('Name');
 
@@ -138,7 +151,11 @@ describe('EditContactInfo page', () => {
       }),
     );
 
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const backupNameInput = await screen.findByLabelText('Name');
 
@@ -165,7 +182,11 @@ describe('EditContactInfo page', () => {
   it('does not save backup contact info if it is not updated and the save button is clicked', async () => {
     patchServiceMember.mockImplementation(() => Promise.resolve());
 
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -191,7 +212,11 @@ describe('EditContactInfo page', () => {
 
     patchServiceMember.mockImplementation(() => Promise.resolve(patchResponse));
 
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const secondaryPhoneInput = await screen.findByLabelText(/Alt. phone/);
 
@@ -213,7 +238,11 @@ describe('EditContactInfo page', () => {
   it('sets a flash message when the save button is clicked', async () => {
     patchServiceMember.mockImplementation(() => Promise.resolve());
 
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -231,14 +260,36 @@ describe('EditContactInfo page', () => {
   it('routes to the profile page when the save button is clicked', async () => {
     patchServiceMember.mockImplementation(() => Promise.resolve());
 
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
     await userEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
+      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH, { state: null });
+    });
+  });
+
+  it('routes to the profile page when the cancel button is clicked', async () => {
+    patchServiceMember.mockImplementation(() => Promise.resolve());
+
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
+
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+
+    await userEvent.click(cancelButton);
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH, { state: null });
     });
   });
 
@@ -256,7 +307,11 @@ describe('EditContactInfo page', () => {
       }),
     );
 
-    render(<EditContactInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditContactInfo {...testProps} />
+      </MockProviders>,
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 

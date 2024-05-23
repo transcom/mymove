@@ -22,8 +22,10 @@ describe('CustomerAltContactInfoFields component', () => {
 
     expect(screen.getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
 
-    expect(screen.getByLabelText('Phone')).toBeInstanceOf(HTMLInputElement);
-    expect(screen.getByLabelText('Email')).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getAllByText('Phone')).toBeInstanceOf(Array);
+    expect(screen.getAllByText('Email')).toBeInstanceOf(Array);
+    expect(screen.getByLabelText(/Alternate Phone/)).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByText('Preferred contact method')).toBeInstanceOf(HTMLLabelElement);
   });
 
   describe('with pre-filled values', () => {
@@ -35,6 +37,7 @@ describe('CustomerAltContactInfoFields component', () => {
         suffix: 'Mr.',
         customerTelephone: '555-555-5555',
         customerEmail: 'test@sample.com',
+        secondaryPhone: '233-444-2222',
       };
 
       render(
@@ -46,8 +49,9 @@ describe('CustomerAltContactInfoFields component', () => {
       expect(screen.getByLabelText(/Middle name/)).toHaveValue(initialValues.middleName);
       expect(screen.getByLabelText('Last name')).toHaveValue(initialValues.lastName);
       expect(screen.getByLabelText(/Suffix/)).toHaveValue(initialValues.suffix);
-      expect(screen.getByLabelText('Phone')).toHaveValue(initialValues.customerTelephone);
-      expect(screen.getByLabelText('Email')).toHaveValue(initialValues.customerEmail);
+      expect(screen.getByDisplayValue(initialValues.customerTelephone)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByDisplayValue(initialValues.customerEmail)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Alternate Phone/)).toHaveValue(initialValues.secondaryPhone);
     });
   });
 });

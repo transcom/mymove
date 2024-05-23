@@ -1,0 +1,12 @@
+.gridContainerIncompleteToolTip {
+  padding-left: 25px;
+
+  .buttonContainer {
+    display: flex;
+    align-items: center;
+
+    :global(.usa-button.usa-button--unstyled) {
+      padding-left: 15px;
+    }
+  }
+}

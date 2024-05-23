@@ -37,10 +37,10 @@ describe('ShipmentList component', () => {
     render(<ShipmentList {...defaultProps} />);
 
     expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(4);
-    expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm #id-1/i);
-    expect(screen.getAllByTestId('shipment-list-item-container')[1]).toHaveTextContent(/^hhg #id-2/i);
-    expect(screen.getAllByTestId('shipment-list-item-container')[2]).toHaveTextContent(/^nts #id-3/i);
-    expect(screen.getAllByTestId('shipment-list-item-container')[3]).toHaveTextContent(/^nts-release #id-4/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[1]).toHaveTextContent(/^hhg/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[2]).toHaveTextContent(/^nts/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[3]).toHaveTextContent(/^nts-release/i);
   });
 
   it.each([
@@ -201,5 +201,60 @@ describe('Shipment List being used for billable weight', () => {
 
       expect(screen.queryByText('Incomplete')).not.toBeInTheDocument();
     });
+  });
+});
+describe('Shipment List with PPM', () => {
+  it('displays both estimated weight on PPM shipment', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '1234',
+          hasRequestedAdvance: null,
+          primeEstimatedWeight: '1000',
+          calculatedBillableWeight: '1500',
+        },
+      },
+    ];
+
+    const defaultProps = {
+      shipments,
+      moveSubmitted: true,
+      showShipmentWeight: true,
+    };
+
+    render(<ShipmentList {...defaultProps} />);
+
+    expect(screen.getByText('Estimated')).toBeInTheDocument();
+    expect(screen.getByText('Actual')).toBeInTheDocument();
+  });
+  it('should contain actual weight as full weight minus empty weight', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '1234',
+          hasRequestedAdvance: null,
+          primeEstimatedWeight: '1000',
+          weightTickets: [
+            {
+              id: '1',
+              fullWeight: '25000',
+              emptyWeight: '22500',
+            },
+          ],
+        },
+      },
+    ];
+    const defaultProps = {
+      shipments,
+      moveSubmitted: true,
+      showShipmentWeight: true,
+    };
+    render(<ShipmentList {...defaultProps} />);
+
+    expect(screen.getByText('2,500 lbs')).toBeInTheDocument();
   });
 });

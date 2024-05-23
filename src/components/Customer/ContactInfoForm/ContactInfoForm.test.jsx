@@ -39,7 +39,9 @@ describe('ContactInfoForm Component', () => {
     await userEvent.tab();
 
     await waitFor(() => {
-      expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
+      expect(
+        getByText('Please enter a valid phone number. Phone numbers must be entered as ###-###-####.'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -49,7 +51,9 @@ describe('ContactInfoForm Component', () => {
     await userEvent.tab();
 
     await waitFor(() => {
-      expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
+      expect(
+        getByText('Please enter a valid phone number. Phone numbers must be entered as ###-###-####.'),
+      ).toBeInTheDocument();
     });
   });
 

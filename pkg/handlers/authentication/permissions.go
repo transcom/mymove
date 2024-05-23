@@ -23,7 +23,6 @@ var TOO = RolePermissions{
 		"create.reweighRequest",
 		"create.shipmentCancellation",
 		"create.SITExtension",
-		"create.SITAddressUpdate",
 		"read.paymentRequest",
 		"read.shipmentsPaymentSITBalance",
 		"read.paymentServiceItemStatus",
@@ -33,10 +32,12 @@ var TOO = RolePermissions{
 		"update.orders",
 		"update.allowances",
 		"update.billableWeight",
-		"update.SITAddressUpdate",
 		"update.SITExtension",
 		"update.MTOServiceItem",
 		"update.excessWeightRisk",
+		"update.customer",
+		"view.closeoutOffice",
+		"update.MTOPage",
 	},
 }
 
@@ -52,6 +53,8 @@ var TIO = RolePermissions{
 		"update.maxBillableWeight",
 		"update.paymentRequest",
 		"update.paymentServiceItemStatus",
+		"update.MTOPage",
+		"update.customer",
 	},
 }
 
@@ -80,6 +83,8 @@ var QAECSR = RolePermissions{
 		"read.paymentRequest",
 		"update.evaluationReport",
 		"delete.evaluationReport",
+		"view.closeoutOffice",
+		"read.shipmentsPaymentSITBalance",
 	},
 }
 

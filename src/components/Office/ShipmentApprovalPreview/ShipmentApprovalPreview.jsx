@@ -69,7 +69,10 @@ const ShipmentApprovalPreview = ({
                 >
                   <div className={styles.innerWrapper}>
                     <div className={styles.shipmentTypeHeading}>
-                      <h3>{mtoShipmentTypes[shipment.shipmentType]}</h3>
+                      <div className={styles.typeLocator}>
+                        <h3>{mtoShipmentTypes[shipment.shipmentType]}</h3>
+                        <h5>#{shipment.shipmentLocator}</h5>
+                      </div>
                       {shipment.diversion && <Tag>diversion</Tag>}
                     </div>
                     <div className={styles.shipmentDetailWrapper}>
@@ -135,7 +138,7 @@ ShipmentApprovalPreview.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
-    rank: PropTypes.string,
+    grade: PropTypes.string,
     weightAllowance: PropTypes.number,
     authorizedWeight: PropTypes.number,
     progear: PropTypes.number,

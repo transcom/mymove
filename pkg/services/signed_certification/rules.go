@@ -60,28 +60,6 @@ func checkMoveID() signedCertificationValidator {
 	})
 }
 
-// checkPersonallyProcuredMoveID check that the PersonallyProcuredMoveID is either nil or a valid UUID if creating,
-// otherwise checks that it is valid and hasn't changed.
-func checkPersonallyProcuredMoveID() signedCertificationValidator {
-	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, originalSignedCertification *models.SignedCertification) error {
-		verrs := validate.NewErrors()
-
-		if newSignedCertification.PersonallyProcuredMoveID != nil && newSignedCertification.PersonallyProcuredMoveID.IsNil() {
-			verrs.Add("PersonallyProcuredMoveID", "PersonallyProcuredMoveID is not a valid UUID")
-		}
-
-		if originalSignedCertification != nil {
-			if (newSignedCertification.PersonallyProcuredMoveID != nil && originalSignedCertification.PersonallyProcuredMoveID == nil) ||
-				(newSignedCertification.PersonallyProcuredMoveID == nil && originalSignedCertification.PersonallyProcuredMoveID != nil) ||
-				(newSignedCertification.PersonallyProcuredMoveID != nil && originalSignedCertification.PersonallyProcuredMoveID != nil && *newSignedCertification.PersonallyProcuredMoveID != *originalSignedCertification.PersonallyProcuredMoveID) {
-				verrs.Add("PersonallyProcuredMoveID", "PersonallyProcuredMoveID cannot be changed")
-			}
-		}
-
-		return verrs
-	})
-}
-
 // checkPpmID check that the PpmID is either nil or a valid UUID if creating, otherwise checks that it is valid and
 // :hasn't changed.
 func checkPpmID() signedCertificationValidator {
@@ -135,7 +113,7 @@ func checkCertificationType() signedCertificationValidator {
 
 // checkCertificationText check that the CertificationText is not empty
 func checkCertificationText() signedCertificationValidator {
-	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, originalSignedCertification *models.SignedCertification) error {
+	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, _ *models.SignedCertification) error {
 		verrs := validate.NewErrors()
 
 		if newSignedCertification.CertificationText == "" {
@@ -148,7 +126,7 @@ func checkCertificationText() signedCertificationValidator {
 
 // checkSignature check that the Signature is not empty
 func checkSignature() signedCertificationValidator {
-	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, originalSignedCertification *models.SignedCertification) error {
+	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, _ *models.SignedCertification) error {
 		verrs := validate.NewErrors()
 
 		if newSignedCertification.Signature == "" {
@@ -161,7 +139,7 @@ func checkSignature() signedCertificationValidator {
 
 // checkDate checks that the Date is valid
 func checkDate() signedCertificationValidator {
-	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, originalSignedCertification *models.SignedCertification) error {
+	return signedCertificationValidatorFunc(func(_ appcontext.AppContext, newSignedCertification models.SignedCertification, _ *models.SignedCertification) error {
 		verrs := validate.NewErrors()
 
 		if newSignedCertification.Date.IsZero() {
@@ -178,7 +156,6 @@ func basicSignedCertificationChecks() []signedCertificationValidator {
 		checkSignedCertificationID(),
 		checkSubmittingUserID(),
 		checkMoveID(),
-		checkPersonallyProcuredMoveID(),
 		checkPpmID(),
 		checkCertificationType(),
 		checkCertificationText(),

@@ -25,6 +25,7 @@ const testInitialValues = {
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
   },
+  grade: 'E_1',
   uploaded_orders: [
     {
       id: '100',
@@ -56,6 +57,7 @@ const testProps = {
     report_by_date: '',
     has_dependents: '',
     new_duty_location: {},
+    grade: '',
     uploaded_orders: [
       {
         id: '100',

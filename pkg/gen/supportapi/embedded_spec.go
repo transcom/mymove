@@ -807,6 +807,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1038,14 +1044,18 @@ func init() {
       "enum": [
         "NAVY_AND_MARINES",
         "ARMY",
-        "AIR_FORCE",
-        "COAST_GUARD"
+        "ARMY_CORPS_OF_ENGINEERS",
+        "AIR_AND_SPACE_FORCE",
+        "COAST_GUARD",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
-        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense"
       },
       "x-nullable": true
     },
@@ -1106,6 +1116,10 @@ func init() {
         "eTag": {
           "type": "string",
           "readOnly": true
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -2007,15 +2021,19 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "GHC",
-        "NTS"
+        "NTS",
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -3598,6 +3616,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -3829,14 +3853,18 @@ func init() {
       "enum": [
         "NAVY_AND_MARINES",
         "ARMY",
-        "AIR_FORCE",
-        "COAST_GUARD"
+        "ARMY_CORPS_OF_ENGINEERS",
+        "AIR_AND_SPACE_FORCE",
+        "COAST_GUARD",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
-        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense"
       },
       "x-nullable": true
     },
@@ -3897,6 +3925,10 @@ func init() {
         "eTag": {
           "type": "string",
           "readOnly": true
+        },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -4798,15 +4830,19 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "GHC",
-        "NTS"
+        "NTS",
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {

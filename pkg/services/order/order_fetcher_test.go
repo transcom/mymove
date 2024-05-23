@@ -1117,7 +1117,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 		// CREATE EXPECTED MOVES
 		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{ // Default New Duty Location name is Fort Gordon
+			{ // Default New Duty Location name is Fort Eisenhower
 				Model: models.Move{
 					Status:  models.MoveStatusAPPROVED,
 					Locator: "AA1234",
@@ -1588,7 +1588,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 			{
 				Model: models.Address{
 					StreetAddress1: "Anchor 1212",
-					City:           "Augusta",
+					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "89898",
 					Country:        models.StringPointer("United States"),

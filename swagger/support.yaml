@@ -804,6 +804,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -876,13 +881,17 @@ definitions:
     enum:
       - NAVY_AND_MARINES
       - ARMY
-      - AIR_FORCE
+      - ARMY_CORPS_OF_ENGINEERS
+      - AIR_AND_SPACE_FORCE
       - COAST_GUARD
+      - OFFICE_OF_SECRETARY_OF_DEFENSE
     x-display-value:
       NAVY_AND_MARINES: 17 Navy and Marine Corps
       ARMY: 21 Army
-      AIR_FORCE: 57 Air Force
+      ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
+      AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
       COAST_GUARD: 70 Coast Guard
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of the Secretary of Defense
   Document:
     type: object
     properties:
@@ -927,6 +936,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1693,6 +1705,8 @@ definitions:
       - SEPARATION
       - GHC
       - NTS
+      - WOUNDED_WARRIOR
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1700,6 +1714,8 @@ definitions:
       SEPARATION: Separation
       GHC: GHC
       NTS: NTS
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   OrdersTypeDetail:
     type: string
     title: Orders type detail

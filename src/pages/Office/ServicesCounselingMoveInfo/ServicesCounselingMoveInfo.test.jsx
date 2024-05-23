@@ -8,6 +8,12 @@ import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 import { mockPage, ReactQueryWrapper } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
 
 const testMoveCode = '1A5PM3';
 const loggedInTIOState = {
@@ -31,6 +37,9 @@ jest.mock('hooks/queries', () => ({
   useTXOMoveInfoQueries: () => {
     return {
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+      move: {
+        lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+      },
       order: {
         id: '4321',
         customerID: '2468',
@@ -56,6 +65,7 @@ mockPage('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetai
 mockPage('pages/Office/PPM/ReviewDocuments/ReviewDocuments');
 mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment');
 mockPage('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks');
+mockPage('pages/Office/MoveTaskOrder/MoveTaskOrder');
 mockPage('pages/Office/MoveHistory/MoveHistory');
 mockPage('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper');
 mockPage('pages/Office/CustomerInfo/CustomerInfo');
@@ -100,6 +110,7 @@ describe('Services Counseling Move Info Container', () => {
       renderSCMoveInfo();
 
       expect(screen.getByTestId('MoveDetails-Tab')).toBeInTheDocument();
+      expect(screen.getByTestId('MoveTaskOrder-Tab')).toBeInTheDocument();
       expect(screen.getByTestId('MoveHistory-Tab')).toBeInTheDocument();
     });
 
@@ -114,10 +125,10 @@ describe('Services Counseling Move Info Container', () => {
 
       expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
         'href',
-        'https://move.mil/customer-service#technical-help-desk',
+        'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil',
       );
       expect(screen.getByTestId('system-error').textContent).toEqual(
-        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: some-trace-id",
       );
     });
 
@@ -134,6 +145,7 @@ describe('Services Counseling Move Info Container', () => {
       ['Services Counseling Move Details', 'details'],
       ['Review Documents', 'shipments/SHIP123/document-review'],
       ['Services Counseling Add Shipment', 'new-shipment/hhg'],
+      ['Move Task Order', 'mto'],
       ['Customer Support Remarks', 'customer-support-remarks'],
       ['Move History', 'history'],
       ['Services Counseling Move Document Wrapper', 'allowances'],
@@ -156,5 +168,25 @@ describe('Services Counseling Move Info Container', () => {
         await expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
       },
     );
+  });
+  it('renders a lock icon when move lock flag is on', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    renderSCMoveInfo();
+
+    await waitFor(() => {
+      const lockIcon = screen.queryByTestId('locked-move-banner');
+      expect(lockIcon).toBeInTheDocument();
+    });
+  });
+  it('does NOT render a lock icon when move lock flag is off', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(false);
+
+    renderSCMoveInfo();
+
+    await waitFor(() => {
+      const lockIcon = screen.queryByTestId('locked-move-banner');
+      expect(lockIcon).not.toBeInTheDocument();
+    });
   });
 });

@@ -51,9 +51,9 @@ func BuildFullTransportationAccountingCode(db *pop.Connection) models.Transporta
 		},
 		{
 			Model: models.TransportationAccountingCode{
-				TacSysID:           models.IntPointer(1234),
-				LoaSysID:           models.IntPointer(1234),
-				TacFyTxt:           models.IntPointer(1234),
+				TacSysID:           models.StringPointer("1234"),
+				LoaSysID:           models.StringPointer("1234"),
+				TacFyTxt:           models.StringPointer("1234"),
 				TacFnBlModCd:       models.StringPointer("1"),
 				OrgGrpDfasCd:       models.StringPointer("12"),
 				TacMvtDsgID:        models.StringPointer("TacMvtDsgID"),
@@ -79,4 +79,28 @@ func BuildFullTransportationAccountingCode(db *pop.Connection) models.Transporta
 	}
 
 	return BuildTransportationAccountingCode(db, defaultCustoms, nil)
+}
+
+func BuildTransportationAccountingCodeWithoutAttachedLoa(db *pop.Connection, customs []Customization, traits []Trait) models.TransportationAccountingCode {
+	customs = setupCustomizations(customs, traits)
+
+	var cTransportationAccountingCode models.TransportationAccountingCode
+	if result := findValidCustomization(customs, TransportationAccountingCode); result != nil {
+		cTransportationAccountingCode = result.Model.(models.TransportationAccountingCode)
+		if result.LinkOnly {
+			return cTransportationAccountingCode
+		}
+	}
+
+	transportationAccountingCode := models.TransportationAccountingCode{
+		TAC: "E01A",
+	}
+
+	testdatagen.MergeModels(&transportationAccountingCode, cTransportationAccountingCode)
+
+	if db != nil {
+		mustCreate(db, &transportationAccountingCode)
+	}
+
+	return transportationAccountingCode
 }

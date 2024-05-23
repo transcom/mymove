@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen, fireEvent } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
+import userEvent from '@testing-library/user-event';
 
 import ReviewWeightTicket from './ReviewWeightTicket';
 
@@ -10,22 +11,32 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+jest.setTimeout(60000);
+
+const mockCallback = jest.fn();
+
 const defaultProps = {
   order: {
     entitlement: {
       totalWeight: 2000,
     },
   },
-  ppmShipment: {
+  ppmShipmentInfo: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+    expectedDepartureDate: '2022-12-02',
+    actualMoveDate: '2022-12-06',
     actualPickupPostalCode: '90210',
-    actualMoveDate: '2022-04-30',
     actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
+    miles: 300,
+    estimatedWeight: 3000,
+    actualWeight: 3500,
   },
   tripNumber: 1,
+  showAllFields: false,
   ppmNumber: 1,
+  updateAllowableWeight: mockCallback,
+  updateDocumentSetAllowableWeight: mockCallback,
+  setCurrentMtoShipments: mockCallback,
 };
 
 const baseWeightTicketProps = {
@@ -34,6 +45,7 @@ const baseWeightTicketProps = {
   vehicleDescription: 'Kia Forte',
   emptyWeight: 400,
   fullWeight: 1200,
+  allowableWeight: 800,
 };
 
 const missingWeightTicketProps = {
@@ -66,6 +78,359 @@ const claimableTrailerProps = {
     trailerMeetsCriteria: true,
   },
 };
+const fullShipmentProps = {
+  weightTicket: {
+    adjustedNetWeight: null,
+    allowableWeight: 7000,
+    createdAt: '2023-12-20T17:33:48.215Z',
+    eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDIwNzJa',
+    emptyDocument: {
+      id: '5d86029c-8b02-4ceb-917f-2122b92a9582',
+      service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+      uploads: [
+        {
+          bytes: 2202009,
+          contentType: 'application/pdf',
+          createdAt: '2023-12-20T17:33:48.209Z',
+          filename: 'testFile.pdf',
+          id: 'b8425855-7472-408a-9150-5be0b6673200',
+          status: 'PROCESSING',
+          updatedAt: '2023-12-20T17:33:48.209Z',
+          url: '/storage/USER/uploads/b8425855-7472-408a-9150-5be0b6673200?contentType=application%2Fpdf',
+        },
+      ],
+    },
+    emptyDocumentId: '5d86029c-8b02-4ceb-917f-2122b92a9582',
+    emptyWeight: 1000,
+    fullDocument: {
+      id: '1a0000fa-b882-4383-a9c1-9fa8b8ba57d9',
+      service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+      uploads: [
+        {
+          bytes: 2202009,
+          contentType: 'application/pdf',
+          createdAt: '2023-12-20T17:33:48.211Z',
+          filename: 'testFile.pdf',
+          id: 'df9f7a51-1282-4929-8278-5d9249662860',
+          status: 'PROCESSING',
+          updatedAt: '2023-12-20T17:33:48.211Z',
+          url: '/storage/USER/uploads/df9f7a51-1282-4929-8278-5d9249662860?contentType=application%2Fpdf',
+        },
+      ],
+    },
+    fullDocumentId: '1a0000fa-b882-4383-a9c1-9fa8b8ba57d9',
+    fullWeight: 8000,
+    id: '4702f07c-486f-4420-b5b6-3ebb843e2277',
+    missingEmptyWeightTicket: false,
+    missingFullWeightTicket: false,
+    netWeightRemarks: null,
+    ownsTrailer: false,
+    ppmShipmentId: '8ac2411e-d3eb-43e1-b98f-2476cfe8c02e',
+    proofOfTrailerOwnershipDocument: {
+      id: '5ae4d700-4344-4648-8ab2-a424e3cbcec6',
+      service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+      uploads: [
+        {
+          bytes: 2202009,
+          contentType: 'application/pdf',
+          createdAt: '2023-12-20T17:33:48.213Z',
+          filename: 'testFile.pdf',
+          id: 'e56bc856-73a8-4006-b5b2-045142c1c71d',
+          status: 'PROCESSING',
+          updatedAt: '2023-12-20T17:33:48.213Z',
+          url: '/storage/USER/uploads/e56bc856-73a8-4006-b5b2-045142c1c71d?contentType=application%2Fpdf',
+        },
+      ],
+    },
+    proofOfTrailerOwnershipDocumentId: '5ae4d700-4344-4648-8ab2-a424e3cbcec6',
+    reason: null,
+    status: 'APPROVED',
+    trailerMeetsCriteria: false,
+    updatedAt: '2023-12-20T17:33:50.102Z',
+    vehicleDescription: '2022 Honda CR-V Hybrid',
+  },
+  mtoShipment: {
+    approvedDate: '2020-03-20T00:00:00.000Z',
+    calculatedBillableWeight: 980,
+    createdAt: '2023-12-20T17:33:48.205Z',
+    customerRemarks: 'Please treat gently',
+    eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4wNzk0MjJa',
+    hasSecondaryDeliveryAddress: null,
+    hasSecondaryPickupAddress: null,
+    id: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
+    moveTaskOrderID: '0536abcf-15c3-4935-bcd8-353ecb03a385',
+    ppmShipment: {
+      actualDestinationPostalCode: '30813',
+      actualMoveDate: '2020-03-16',
+      actualPickupPostalCode: '42444',
+      advanceAmountReceived: 340000,
+      advanceAmountRequested: 598700,
+      advanceStatus: 'APPROVED',
+      approvedAt: '2022-04-15T12:30:00.000Z',
+      createdAt: '2023-12-20T17:33:48.206Z',
+      destinationPostalCode: '30813',
+      eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDExNDFa',
+      estimatedIncentive: 1000000,
+      estimatedWeight: 4000,
+      expectedDepartureDate: '2020-03-15',
+      finalIncentive: null,
+      hasProGear: true,
+      hasReceivedAdvance: true,
+      hasRequestedAdvance: true,
+      id: '8ac2411e-d3eb-43e1-b98f-2476cfe8c02e',
+      movingExpenses: null,
+      pickupPostalCode: '90210',
+      proGearWeight: 1987,
+      proGearWeightTickets: null,
+      reviewedAt: null,
+      secondaryDestinationPostalCode: '30814',
+      secondaryPickupPostalCode: '90211',
+      shipmentId: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
+      sitEstimatedCost: null,
+      sitEstimatedDepartureDate: null,
+      sitEstimatedEntryDate: null,
+      sitEstimatedWeight: null,
+      sitExpected: false,
+      spouseProGearWeight: 498,
+      status: 'NEEDS_PAYMENT_APPROVAL',
+      submittedAt: null,
+      updatedAt: '2023-12-20T17:33:50.101Z',
+      w2Address: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4wOTk5NDha',
+        id: '7d972704-d448-4d9e-97d4-5f5585edf3bb',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      weightTickets: [
+        {
+          adjustedNetWeight: null,
+          allowableWeight: null,
+          createdAt: '2023-12-20T17:33:48.215Z',
+          eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDIwNzJa',
+          emptyDocument: {
+            id: '5d86029c-8b02-4ceb-917f-2122b92a9582',
+            service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+            uploads: [
+              {
+                bytes: 2202009,
+                contentType: 'application/pdf',
+                createdAt: '2023-12-20T17:33:48.209Z',
+                filename: 'testFile.pdf',
+                id: 'b8425855-7472-408a-9150-5be0b6673200',
+                status: 'PROCESSING',
+                updatedAt: '2023-12-20T17:33:48.209Z',
+                url: '/storage/USER/uploads/b8425855-7472-408a-9150-5be0b6673200?contentType=application%2Fpdf',
+              },
+            ],
+          },
+          emptyDocumentId: '5d86029c-8b02-4ceb-917f-2122b92a9582',
+          emptyWeight: 1000,
+          fullDocument: {
+            id: '1a0000fa-b882-4383-a9c1-9fa8b8ba57d9',
+            service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+            uploads: [
+              {
+                bytes: 2202009,
+                contentType: 'application/pdf',
+                createdAt: '2023-12-20T17:33:48.211Z',
+                filename: 'testFile.pdf',
+                id: 'df9f7a51-1282-4929-8278-5d9249662860',
+                status: 'PROCESSING',
+                updatedAt: '2023-12-20T17:33:48.211Z',
+                url: '/storage/USER/uploads/df9f7a51-1282-4929-8278-5d9249662860?contentType=application%2Fpdf',
+              },
+            ],
+          },
+          fullDocumentId: '1a0000fa-b882-4383-a9c1-9fa8b8ba57d9',
+          fullWeight: 8000,
+          id: '4702f07c-486f-4420-b5b6-3ebb843e2277',
+          missingEmptyWeightTicket: false,
+          missingFullWeightTicket: false,
+          netWeightRemarks: null,
+          ownsTrailer: false,
+          ppmShipmentId: '8ac2411e-d3eb-43e1-b98f-2476cfe8c02e',
+          proofOfTrailerOwnershipDocument: {
+            id: '5ae4d700-4344-4648-8ab2-a424e3cbcec6',
+            service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+            uploads: [
+              {
+                bytes: 2202009,
+                contentType: 'application/pdf',
+                createdAt: '2023-12-20T17:33:48.213Z',
+                filename: 'testFile.pdf',
+                id: 'e56bc856-73a8-4006-b5b2-045142c1c71d',
+                status: 'PROCESSING',
+                updatedAt: '2023-12-20T17:33:48.213Z',
+                url: '/storage/USER/uploads/e56bc856-73a8-4006-b5b2-045142c1c71d?contentType=application%2Fpdf',
+              },
+            ],
+          },
+          proofOfTrailerOwnershipDocumentId: '5ae4d700-4344-4648-8ab2-a424e3cbcec6',
+          reason: null,
+          status: 'APPROVED',
+          trailerMeetsCriteria: false,
+          updatedAt: '2023-12-20T17:33:50.102Z',
+          vehicleDescription: '2022 Honda CR-V Hybrid',
+        },
+      ],
+      reviewShipmentWeightsURL:
+        '/counseling/moves/RVDGWV/shipments/0ec4a5d2-3cca-4d1f-a2db-91f83d22644a/document-review',
+    },
+    primeActualWeight: 980,
+    shipmentType: 'PPM',
+    status: 'APPROVED',
+    updatedAt: '2023-12-20T17:33:50.079Z',
+  },
+  currentMtoShipments: [
+    {
+      approvedDate: '2020-03-20T00:00:00.000Z',
+      calculatedBillableWeight: 980,
+      createdAt: '2023-12-20T17:33:48.205Z',
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4wNzk0MjJa',
+      hasSecondaryDeliveryAddress: null,
+      hasSecondaryPickupAddress: null,
+      id: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
+      moveTaskOrderID: '0536abcf-15c3-4935-bcd8-353ecb03a385',
+      ppmShipment: {
+        actualDestinationPostalCode: '30813',
+        actualMoveDate: '2020-03-16',
+        actualPickupPostalCode: '42444',
+        advanceAmountReceived: 340000,
+        advanceAmountRequested: 598700,
+        advanceStatus: 'APPROVED',
+        approvedAt: '2022-04-15T12:30:00.000Z',
+        createdAt: '2023-12-20T17:33:48.206Z',
+        destinationPostalCode: '30813',
+        eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDExNDFa',
+        estimatedIncentive: 1000000,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: true,
+        hasReceivedAdvance: true,
+        hasRequestedAdvance: true,
+        id: '8ac2411e-d3eb-43e1-b98f-2476cfe8c02e',
+        movingExpenses: null,
+        pickupPostalCode: '90210',
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        secondaryDestinationPostalCode: '30814',
+        secondaryPickupPostalCode: '90211',
+        shipmentId: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: 498,
+        status: 'NEEDS_PAYMENT_APPROVAL',
+        submittedAt: null,
+        updatedAt: '2023-12-20T17:33:50.101Z',
+        w2Address: {
+          city: 'Beverly Hills',
+          country: 'US',
+          eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4wOTk5NDha',
+          id: '7d972704-d448-4d9e-97d4-5f5585edf3bb',
+          postalCode: '90210',
+          state: 'CA',
+          streetAddress1: '123 Any Street',
+          streetAddress2: 'P.O. Box 12345',
+          streetAddress3: 'c/o Some Person',
+        },
+        weightTickets: [
+          {
+            adjustedNetWeight: null,
+            allowableWeight: null,
+            createdAt: '2023-12-20T17:33:48.215Z',
+            eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDIwNzJa',
+            emptyDocument: {
+              id: '5d86029c-8b02-4ceb-917f-2122b92a9582',
+              service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+              uploads: [
+                {
+                  bytes: 2202009,
+                  contentType: 'application/pdf',
+                  createdAt: '2023-12-20T17:33:48.209Z',
+                  filename: 'testFile.pdf',
+                  id: 'b8425855-7472-408a-9150-5be0b6673200',
+                  status: 'PROCESSING',
+                  updatedAt: '2023-12-20T17:33:48.209Z',
+                  url: '/storage/USER/uploads/b8425855-7472-408a-9150-5be0b6673200?contentType=application%2Fpdf',
+                },
+              ],
+            },
+            emptyDocumentId: '5d86029c-8b02-4ceb-917f-2122b92a9582',
+            emptyWeight: 1000,
+            fullDocument: {
+              id: '1a0000fa-b882-4383-a9c1-9fa8b8ba57d9',
+              service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+              uploads: [
+                {
+                  bytes: 2202009,
+                  contentType: 'application/pdf',
+                  createdAt: '2023-12-20T17:33:48.211Z',
+                  filename: 'testFile.pdf',
+                  id: 'df9f7a51-1282-4929-8278-5d9249662860',
+                  status: 'PROCESSING',
+                  updatedAt: '2023-12-20T17:33:48.211Z',
+                  url: '/storage/USER/uploads/df9f7a51-1282-4929-8278-5d9249662860?contentType=application%2Fpdf',
+                },
+              ],
+            },
+            fullDocumentId: '1a0000fa-b882-4383-a9c1-9fa8b8ba57d9',
+            fullWeight: 8000,
+            id: '4702f07c-486f-4420-b5b6-3ebb843e2277',
+            missingEmptyWeightTicket: false,
+            missingFullWeightTicket: false,
+            netWeightRemarks: null,
+            ownsTrailer: false,
+            ppmShipmentId: '8ac2411e-d3eb-43e1-b98f-2476cfe8c02e',
+            proofOfTrailerOwnershipDocument: {
+              id: '5ae4d700-4344-4648-8ab2-a424e3cbcec6',
+              service_member_id: 'f9ee61ef-d1af-407a-a970-8a83bec0f5f5',
+              uploads: [
+                {
+                  bytes: 2202009,
+                  contentType: 'application/pdf',
+                  createdAt: '2023-12-20T17:33:48.213Z',
+                  filename: 'testFile.pdf',
+                  id: 'e56bc856-73a8-4006-b5b2-045142c1c71d',
+                  status: 'PROCESSING',
+                  updatedAt: '2023-12-20T17:33:48.213Z',
+                  url: '/storage/USER/uploads/e56bc856-73a8-4006-b5b2-045142c1c71d?contentType=application%2Fpdf',
+                },
+              ],
+            },
+            proofOfTrailerOwnershipDocumentId: '5ae4d700-4344-4648-8ab2-a424e3cbcec6',
+            reason: null,
+            status: 'APPROVED',
+            trailerMeetsCriteria: false,
+            updatedAt: '2023-12-20T17:33:50.102Z',
+            vehicleDescription: '2022 Honda CR-V Hybrid',
+          },
+        ],
+        reviewShipmentWeightsURL:
+          '/counseling/moves/RVDGWV/shipments/0ec4a5d2-3cca-4d1f-a2db-91f83d22644a/document-review',
+      },
+      primeActualWeight: 980,
+      shipmentType: 'PPM',
+      status: 'APPROVED',
+      updatedAt: '2023-12-20T17:33:50.079Z',
+    },
+  ],
+};
+
+jest.mock('pages/Office/PPM/ReviewDocuments/ReviewDocuments', () => {
+  const ReviewDocumentsMock = () => <div />;
+  return ReviewDocumentsMock;
+});
 
 describe('ReviewWeightTicket component', () => {
   describe('displays form', () => {
@@ -83,6 +448,7 @@ describe('ReviewWeightTicket component', () => {
       expect(screen.getByText('Vehicle description')).toBeInTheDocument();
       expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Net weight')).toBeInTheDocument();
+      expect(screen.getByText('Allowable weight')).toBeInTheDocument();
       expect(screen.getByText('Did they use a trailer they owned?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
@@ -138,6 +504,49 @@ describe('ReviewWeightTicket component', () => {
         await fireEvent.click(screen.getByLabelText('Accept'));
       });
       expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
+    });
+
+    it('populates edit form with existing weight ticket values and modifies them to alter the net weight calculation', async () => {
+      render(
+        <MockProviders>
+          <ReviewWeightTicket
+            updateTotalWeight={mockCallback}
+            updateDocumentSetAllowableWeight={mockCallback}
+            {...defaultProps}
+            {...fullShipmentProps}
+          />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('2022 Honda CR-V Hybrid')).toBeInTheDocument();
+      });
+      const emptyWeightInput = screen.getByTestId('emptyWeight');
+      const fullWeightInput = screen.getByTestId('fullWeight');
+      const allowableWeightInput = screen.getByTestId('allowableWeight');
+      const netWeightDisplay = screen.getByTestId('net-weight-display');
+      expect(emptyWeightInput).toHaveDisplayValue('1,000');
+      expect(fullWeightInput).toHaveDisplayValue('8,000');
+      expect(allowableWeightInput).toHaveDisplayValue('7,000');
+      expect(netWeightDisplay).toHaveTextContent('7,000');
+      expect(screen.getByLabelText('No')).toBeChecked();
+
+      await act(async () => {
+        await userEvent.clear(fullWeightInput);
+        await userEvent.type(fullWeightInput, '10,000');
+        fullWeightInput.blur();
+      });
+
+      await act(async () => {
+        await userEvent.clear(allowableWeightInput);
+        await userEvent.type(allowableWeightInput, '11,000');
+        allowableWeightInput.blur();
+      });
+
+      await waitFor(() => {
+        expect(netWeightDisplay).toHaveTextContent('9,000');
+        expect(allowableWeightInput).toHaveDisplayValue('11,000');
+      });
     });
 
     it('notifies the user when a trailer is claimable, and disables approval', async () => {

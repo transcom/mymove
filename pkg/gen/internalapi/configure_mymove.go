@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -72,11 +73,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
 		})
 	}
-	if api.OfficeApprovePPMHandler == nil {
-		api.OfficeApprovePPMHandler = office.ApprovePPMHandlerFunc(func(params office.ApprovePPMParams) middleware.Responder {
-			return middleware.NotImplemented("operation office.ApprovePPM has not yet been implemented")
-		})
-	}
 	if api.OfficeApproveReimbursementHandler == nil {
 		api.OfficeApproveReimbursementHandler = office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
@@ -117,19 +113,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		})
 	}
-	if api.PpmCreatePPMAttachmentsHandler == nil {
-		api.PpmCreatePPMAttachmentsHandler = ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
-		})
-	}
 	if api.PpmCreatePPMUploadHandler == nil {
 		api.PpmCreatePPMUploadHandler = ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
-		})
-	}
-	if api.PpmCreatePersonallyProcuredMoveHandler == nil {
-		api.PpmCreatePersonallyProcuredMoveHandler = ppm.CreatePersonallyProcuredMoveHandlerFunc(func(params ppm.CreatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePersonallyProcuredMove has not yet been implemented")
 		})
 	}
 	if api.PpmCreateProGearWeightTicketHandler == nil {
@@ -202,6 +188,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		})
 	}
+	if api.MovesGetAllMovesHandler == nil {
+		api.MovesGetAllMovesHandler = moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
+		})
+	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
 		api.TransportationOfficesGetTransportationOfficesHandler = transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
@@ -215,11 +206,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsIndexMoveDocumentsHandler == nil {
 		api.MoveDocsIndexMoveDocumentsHandler = move_docs.IndexMoveDocumentsHandlerFunc(func(params move_docs.IndexMoveDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.IndexMoveDocuments has not yet been implemented")
-		})
-	}
-	if api.PpmIndexPersonallyProcuredMovesHandler == nil {
-		api.PpmIndexPersonallyProcuredMovesHandler = ppm.IndexPersonallyProcuredMovesHandlerFunc(func(params ppm.IndexPersonallyProcuredMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.IndexPersonallyProcuredMoves has not yet been implemented")
 		})
 	}
 	if api.BackupContactsIndexServiceMemberBackupContactsHandler == nil {
@@ -247,24 +233,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.PatchMove has not yet been implemented")
 		})
 	}
-	if api.PpmPatchPersonallyProcuredMoveHandler == nil {
-		api.PpmPatchPersonallyProcuredMoveHandler = ppm.PatchPersonallyProcuredMoveHandlerFunc(func(params ppm.PatchPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.PatchPersonallyProcuredMove has not yet been implemented")
-		})
-	}
 	if api.ServiceMembersPatchServiceMemberHandler == nil {
 		api.ServiceMembersPatchServiceMemberHandler = service_members.PatchServiceMemberHandlerFunc(func(params service_members.PatchServiceMemberParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_members.PatchServiceMember has not yet been implemented")
-		})
-	}
-	if api.PpmRequestPPMExpenseSummaryHandler == nil {
-		api.PpmRequestPPMExpenseSummaryHandler = ppm.RequestPPMExpenseSummaryHandlerFunc(func(params ppm.RequestPPMExpenseSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.RequestPPMExpenseSummary has not yet been implemented")
-		})
-	}
-	if api.PpmRequestPPMPaymentHandler == nil {
-		api.PpmRequestPPMPaymentHandler = ppm.RequestPPMPaymentHandlerFunc(func(params ppm.RequestPPMPaymentParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.RequestPPMPayment has not yet been implemented")
 		})
 	}
 	if api.PpmResubmitPPMShipmentDocumentationHandler == nil {
@@ -275,6 +246,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.DutyLocationsSearchDutyLocationsHandler == nil {
 		api.DutyLocationsSearchDutyLocationsHandler = duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")
+		})
+	}
+	if api.PpmShowAOAPacketHandler == nil {
+		api.PpmShowAOAPacketHandler = ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
 		})
 	}
 	if api.AddressesShowAddressHandler == nil {
@@ -307,11 +283,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.ShowMove has not yet been implemented")
 		})
 	}
-	if api.MovesShowMoveDatesSummaryHandler == nil {
-		api.MovesShowMoveDatesSummaryHandler = moves.ShowMoveDatesSummaryHandlerFunc(func(params moves.ShowMoveDatesSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowMoveDatesSummary has not yet been implemented")
-		})
-	}
 	if api.OfficeShowOfficeOrdersHandler == nil {
 		api.OfficeShowOfficeOrdersHandler = office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
@@ -327,24 +298,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		})
 	}
-	if api.PpmShowPPMEstimateHandler == nil {
-		api.PpmShowPPMEstimateHandler = ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
-		})
-	}
-	if api.PpmShowPPMIncentiveHandler == nil {
-		api.PpmShowPPMIncentiveHandler = ppm.ShowPPMIncentiveHandlerFunc(func(params ppm.ShowPPMIncentiveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMIncentive has not yet been implemented")
-		})
-	}
-	if api.PpmShowPPMSitEstimateHandler == nil {
-		api.PpmShowPPMSitEstimateHandler = ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
-		})
-	}
-	if api.PpmShowPersonallyProcuredMoveHandler == nil {
-		api.PpmShowPersonallyProcuredMoveHandler = ppm.ShowPersonallyProcuredMoveHandlerFunc(func(params ppm.ShowPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPersonallyProcuredMove has not yet been implemented")
+	if api.PpmShowPaymentPacketHandler == nil {
+		api.PpmShowPaymentPacketHandler = ppm.ShowPaymentPacketHandlerFunc(func(params ppm.ShowPaymentPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPaymentPacket has not yet been implemented")
 		})
 	}
 	if api.QueuesShowQueueHandler == nil {
@@ -367,11 +323,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation service_members.ShowServiceMemberOrders has not yet been implemented")
 		})
 	}
-	if api.MovesShowShipmentSummaryWorksheetHandler == nil {
-		api.MovesShowShipmentSummaryWorksheetHandler = moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
-		})
-	}
 	if api.MovesSubmitAmendedOrdersHandler == nil {
 		api.MovesSubmitAmendedOrdersHandler = moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
@@ -385,11 +336,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmSubmitPPMShipmentDocumentationHandler == nil {
 		api.PpmSubmitPPMShipmentDocumentationHandler = ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
-		})
-	}
-	if api.PpmSubmitPersonallyProcuredMoveHandler == nil {
-		api.PpmSubmitPersonallyProcuredMoveHandler = ppm.SubmitPersonallyProcuredMoveHandlerFunc(func(params ppm.SubmitPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.SubmitPersonallyProcuredMove has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOShipmentHandler == nil {
@@ -417,11 +363,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
 		})
 	}
-	if api.PpmUpdatePersonallyProcuredMoveHandler == nil {
-		api.PpmUpdatePersonallyProcuredMoveHandler = ppm.UpdatePersonallyProcuredMoveHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMove has not yet been implemented")
-		})
-	}
 	if api.PpmUpdateProGearWeightTicketHandler == nil {
 		api.PpmUpdateProGearWeightTicketHandler = ppm.UpdateProGearWeightTicketHandlerFunc(func(params ppm.UpdateProGearWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateProGearWeightTicket has not yet been implemented")
@@ -440,6 +381,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OrdersUploadAmendedOrdersHandler == nil {
 		api.OrdersUploadAmendedOrdersHandler = orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
+		})
+	}
+	if api.ApplicationParametersValidateHandler == nil {
+		api.ApplicationParametersValidateHandler = application_parameters.ValidateHandlerFunc(func(params application_parameters.ValidateParams) middleware.Responder {
+			return middleware.NotImplemented("operation application_parameters.Validate has not yet been implemented")
 		})
 	}
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {

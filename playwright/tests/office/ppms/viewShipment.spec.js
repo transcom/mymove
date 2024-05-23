@@ -18,8 +18,15 @@ test.describe('Services counselor user', () => {
     await page.locator('[data-testid="ShipmentContainer"] ').click();
 
     await expect(page.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2020');
-    await expect(page.locator('[data-testid="originZIP"]')).toContainText('90210');
-    await expect(page.locator('[data-testid="destinationZIP"]')).toContainText('30813');
+
+    await expect(page.locator('[data-testid="pickupAddress"]')).toContainText(
+      '987 New Street, P.O. Box 12345, Des Moines, IA 50309',
+    );
+
+    await expect(page.locator('[data-testid="destinationAddress"]')).toContainText(
+      '123 New Street, P.O. Box 12345, Fort Eisenhower, GA 30813',
+    );
+
     await expect(page.locator('[data-testid="sitPlanned"]')).toContainText('No');
     await expect(page.locator('[data-testid="estimatedWeight"]')).toContainText('4,000 lbs');
     await expect(page.locator('[data-testid="hasRequestedAdvance"]')).toContainText('Yes, $5,987');

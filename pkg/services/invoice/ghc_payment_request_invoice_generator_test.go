@@ -15,6 +15,7 @@ import (
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -82,7 +83,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
 
-	setupTestData := func() {
+	setupTestData := func(grade *internalmessages.OrderPayGrade) {
 		customServiceMember := models.ServiceMember{
 			ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
 			Edipi: models.StringPointer("1000011111"),
@@ -102,6 +103,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{
 				Model:    serviceMember,
 				LinkOnly: true,
+			},
+			{
+				Model: models.Order{
+					Grade: grade,
+				},
 			},
 		}, nil)
 
@@ -330,13 +336,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
 	suite.Run("the GCN is equal to the ICN", func() {
-		setupTestData()
+		setupTestData(nil)
 		suite.EqualValues(result.ISA.InterchangeControlNumber, result.IEA.InterchangeControlNumber, result.GS.GroupControlNumber, result.GE.GroupControlNumber)
 	})
 
 	// Test that the Interchange Control Number (ICN) is being saved to the db
 	suite.Run("the ICN is saved to the database", func() {
-		setupTestData()
+		setupTestData(nil)
 		var pr2icn models.PaymentRequestToInterchangeControlNumber
 		err := suite.DB().Where("payment_request_id = ?", paymentRequest.ID).First(&pr2icn)
 		suite.NoError(err)
@@ -345,7 +351,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Test Invoice Start and End Segments
 	suite.Run("adds isa start segment", func() {
-		setupTestData()
+		setupTestData(nil)
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
 		suite.Equal("0084182369", result.ISA.AuthorizationInformation)
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
@@ -365,7 +371,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds gs start segment", func() {
-		setupTestData()
+		setupTestData(nil)
 		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
 		suite.Equal("MILMOVE", result.GS.ApplicationSendersCode)
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
@@ -377,33 +383,33 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds st start segment", func() {
-		setupTestData()
+		setupTestData(nil)
 		suite.Equal("858", result.ST.TransactionSetIdentifierCode)
 		suite.Equal("0001", result.ST.TransactionSetControlNumber)
 	})
 
 	suite.Run("se segment has correct value", func() {
-		setupTestData()
+		setupTestData(nil)
 		// Will need to be updated as more service items are supported
 		suite.Equal(179, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
 	suite.Run("adds ge end segment", func() {
-		setupTestData()
+		setupTestData(nil)
 		suite.Equal(1, result.GE.NumberOfTransactionSetsIncluded)
 		suite.Equal(int64(123), result.GE.GroupControlNumber)
 	})
 
 	suite.Run("adds iea end segment", func() {
-		setupTestData()
+		setupTestData(nil)
 		suite.Equal(1, result.IEA.NumberOfIncludedFunctionalGroups)
 		suite.Equal(int64(123), result.IEA.InterchangeControlNumber)
 	})
 
 	// Test Header Generation
 	suite.Run("adds bx header segment", func() {
-		setupTestData()
+		setupTestData(nil)
 		bx := result.Header.ShipmentInformation
 		suite.IsType(edisegment.BX{}, bx)
 		suite.Equal("00", bx.TransactionSetPurposeCode)
@@ -416,13 +422,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("does not error out creating EDI from Invoice858", func() {
-		setupTestData()
+		setupTestData(nil)
 		_, err := result.EDIString(suite.Logger())
 		suite.NoError(err)
 	})
 
 	suite.Run("adding to n9 header", func() {
-		setupTestData()
+		grade := models.ServiceMemberGradeE1
+		setupTestData(&grade)
 		testData := []struct {
 			TestName      string
 			Qualifier     string
@@ -432,7 +439,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
 			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
-			{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
+			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
 			{TestName: "service member dod id", Qualifier: "4A", ExpectedValue: string(*serviceMember.Edipi), ActualValue: &result.Header.ServiceMemberDodID},
 			{TestName: "move code", Qualifier: "CMN", ExpectedValue: mto.Locator, ActualValue: &result.Header.MoveCode},
@@ -447,7 +454,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 	})
 	suite.Run("adds currency to header", func() {
-		setupTestData()
+		setupTestData(nil)
 		currency := result.Header.Currency
 		suite.IsType(edisegment.C3{}, currency)
 		suite.Equal("USD", currency.CurrencyCodeC301)
@@ -774,7 +781,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds actual pickup date to header", func() {
-		setupTestData()
+		setupTestData(nil)
 		g62Requested := result.Header.RequestedPickupDate
 		suite.IsType(&edisegment.G62{}, g62Requested)
 		suite.NotNil(g62Requested)
@@ -793,7 +800,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds buyer and seller organization name", func() {
-		setupTestData()
+		setupTestData(nil)
 		// buyer name
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		buyerOrg := result.Header.BuyerOrganizationName
@@ -813,10 +820,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds orders destination address", func() {
-		setupTestData()
+		setupTestData(nil)
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
 		// This used to match a duty location by name in our database and ignore the default factory values.  Now that
-		// it doesn't match a named duty location ("Fort Gordon"), the EDI ends up using the postal code to determine
+		// it doesn't match a named duty location ("Fort Eisenhower"), the EDI ends up using the postal code to determine
 		// the GBLOC value.
 		destinationPostalCodeToGBLOC, err := models.FetchGBLOCForPostalCode(suite.DB(), expectedDutyLocation.Address.PostalCode)
 		suite.FatalNoError(err)
@@ -867,7 +874,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds orders origin address", func() {
-		setupTestData()
+		setupTestData(nil)
 		// name
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		n1 := result.Header.OriginName
@@ -916,7 +923,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds various service item segments", func() {
-		setupTestData()
+		setupTestData(nil)
 
 		for idx, paymentServiceItem := range paymentServiceItems {
 			var hierarchicalNumberInt = idx + 1
@@ -937,7 +944,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 			suite.Run("adds fa1 service item segment", func() {
 				fa1 := result.ServiceItems[segmentOffset].FA1
-				suite.Equal("DY", fa1.AgencyQualifierCode) // Default Order from testdatagen is AIR_FORCE
+				suite.Equal("DZ", fa1.AgencyQualifierCode) // Default Order from testdatagen is ARMY
 			})
 
 			suite.Run("adds fa2 service item segment", func() {
@@ -1677,8 +1684,11 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -1737,16 +1747,178 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		}
 	})
 
+	suite.Run("shipment with complete long line of accounting for HHG Officer with 5 TACs - B-19139 I-12630", func() {
+		// The TAC makes it for an HHG officer
+
+		// Create standalone LOA
+		loa := factory.BuildFullLineOfAccounting(suite.DB(), []factory.Customization{
+			{
+				Model: models.LineOfAccounting{
+					LoaDptID:           models.StringPointer(factory.MakeRandomString(2)),
+					LoaBafID:           models.StringPointer(factory.MakeRandomString(4)),
+					LoaTrsySfxTx:       models.StringPointer(factory.MakeRandomString(4)),
+					LoaOpAgncyID:       models.StringPointer(factory.MakeRandomString(2)),
+					LoaAlltSnID:        models.StringPointer(factory.MakeRandomString(4)),
+					LoaPgmElmntID:      models.StringPointer(factory.MakeRandomString(8)),
+					LoaObjClsID:        models.StringPointer(factory.MakeRandomString(4)),
+					LoaBdgtAcntClsNm:   models.StringPointer(factory.MakeRandomString(6)),
+					LoaDocID:           models.StringPointer(factory.MakeRandomString(10)),
+					LoaInstlAcntgActID: models.StringPointer(factory.MakeRandomString(6)),
+					LoaDscTx:           models.StringPointer(factory.MakeRandomString(100)),
+					LoaBgnDt:           &sixMonthsBefore,
+					LoaEndDt:           &sixMonthsAfter,
+					LoaFnctPrsNm:       models.StringPointer(factory.MakeRandomString(100)),
+					LoaStatCd:          models.StringPointer(factory.MakeRandomString(1)),
+					LoaHsGdsCd:         models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+					OrgGrpDfasCd:       models.StringPointer(factory.MakeRandomString(2)),
+					LoaTrnsnID:         models.StringPointer(factory.MakeRandomString(2)),
+					LoaBgFyTx:          &begYear,
+					LoaEndFyTx:         &endYear,
+				},
+			},
+		}, nil)
+		// Create 5 standalone TACs
+		fbmcs := []string{
+			"1",
+			"3",
+			"5",
+			"M",
+			"P",
+		}
+		for _, fbmc := range fbmcs {
+			newPointerFbmc := fbmc
+			factory.BuildTransportationAccountingCodeWithoutAttachedLoa(suite.DB(), []factory.Customization{
+				{
+					Model: models.TransportationAccountingCode{
+						TAC:               *models.StringPointer("CACI"),
+						TacFnBlModCd:      &newPointerFbmc,
+						TrnsprtnAcntBgnDt: &sixMonthsBefore,
+						TrnsprtnAcntEndDt: &sixMonthsAfter,
+						LoaSysID:          loa.LoaSysID,
+					},
+				},
+			}, nil)
+		}
+		// Setup move and payment data
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					TAC:       models.StringPointer("CACI"),
+					IssueDate: currentTime,
+				},
+			},
+		}, nil)
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					IsFinal: false,
+					Status:  models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
+
+		mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildPaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDNPK,
+			basicPaymentServiceItemParams,
+			[]factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    paymentRequest,
+					LinkOnly: true,
+				},
+				{
+					Model: models.PaymentServiceItem{
+						Status: models.PaymentServiceItemStatusApproved,
+					},
+				},
+			}, nil,
+		)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		concatDate := fmt.Sprintf("%d%d", begYear, endYear)
+		accountingInstallationNumber := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
+
+		fa2Assertions := []struct {
+			expectedDetailCode edisegment.FA2DetailCode
+			expectedInfoCode   *string
+		}{
+			{edisegment.FA2DetailCodeTA, move.Orders.TAC},
+			{edisegment.FA2DetailCodeA1, loa.LoaDptID},
+			{edisegment.FA2DetailCodeA2, loa.LoaTnsfrDptNm},
+			{edisegment.FA2DetailCodeA3, &concatDate},
+			{edisegment.FA2DetailCodeA4, loa.LoaBafID},
+			{edisegment.FA2DetailCodeA5, loa.LoaTrsySfxTx},
+			{edisegment.FA2DetailCodeA6, loa.LoaMajClmNm},
+			{edisegment.FA2DetailCodeB1, loa.LoaOpAgncyID},
+			{edisegment.FA2DetailCodeB2, loa.LoaAlltSnID},
+			{edisegment.FA2DetailCodeB3, loa.LoaUic},
+			{edisegment.FA2DetailCodeC1, loa.LoaPgmElmntID},
+			{edisegment.FA2DetailCodeC2, loa.LoaTskBdgtSblnTx},
+			{edisegment.FA2DetailCodeD1, loa.LoaDfAgncyAlctnRcpntID},
+			{edisegment.FA2DetailCodeD4, loa.LoaJbOrdNm},
+			{edisegment.FA2DetailCodeD6, loa.LoaSbaltmtRcpntID},
+			{edisegment.FA2DetailCodeD7, loa.LoaWkCntrRcpntNm},
+			{edisegment.FA2DetailCodeE1, loa.LoaMajRmbsmtSrcID},
+			{edisegment.FA2DetailCodeE2, loa.LoaDtlRmbsmtSrcID},
+			{edisegment.FA2DetailCodeE3, loa.LoaCustNm},
+			{edisegment.FA2DetailCodeF1, loa.LoaObjClsID},
+			{edisegment.FA2DetailCodeF3, loa.LoaSrvSrcID},
+			{edisegment.FA2DetailCodeG2, loa.LoaSpclIntrID},
+			{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
+			{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
+			{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
+			{edisegment.FA2DetailCodeL1, &accountingInstallationNumber},
+			{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
+			{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
+			{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},
+		}
+
+		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		// L1 segment must be padded to a length of 6 to meet the specification
+		suite.Len(result.ServiceItems[0].FA2s[25].FinancialInformationCode, 6)
+		for i, fa2Assertion := range fa2Assertions {
+			fa2Segment := result.ServiceItems[0].FA2s[i]
+			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
+			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
+		}
+	})
+
 	suite.Run("shipment with nil/blank long line of accounting (except fiscal year)", func() {
 		setupTestData()
 
 		// Add TAC/LOA records, with an LOA containing empty strings and nils
 		emptyString := ""
+		loaSysID := factory.MakeRandomString(20)
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
@@ -1757,6 +1929,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaEndDt:      &sixMonthsAfter,
 					LoaBgFyTx:     &begYear, // A3 (first part)
 					LoaEndFyTx:    &endYear, // A3 (second part)
+					LoaSysID:      &loaSysID,
 					LoaHsGdsCd:    models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
@@ -1787,16 +1960,20 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
+		loaSysID := factory.MakeRandomString(20)
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.IntPointer(123456),
+					LoaSysID:               &loaSysID,
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
@@ -1859,16 +2036,20 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
+		loaSysID := factory.MakeRandomString(20)
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC, // TA
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC, // TA
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          &loaSysID,
 				},
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.IntPointer(123456),
+					LoaSysID:               &loaSysID,
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
@@ -1979,8 +2160,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 				{
 					Model: models.TransportationAccountingCode{
-						TAC:          *move.Orders.TAC,
-						TacFnBlModCd: models.StringPointer("W"),
+						TAC:               *move.Orders.TAC,
+						TacFnBlModCd:      models.StringPointer("W"),
+						TrnsprtnAcntBgnDt: &sixMonthsBefore,
+						TrnsprtnAcntEndDt: &sixMonthsAfter,
+						LoaSysID:          loa.LoaSysID,
 					},
 				},
 				{
@@ -1991,13 +2175,14 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		}
 	}
 
-	setupTestData := func() {
+	setupTestData := func(grade *internalmessages.OrderPayGrade) {
 		move = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					TAC:       &hhgTAC,
 					NtsTAC:    &ntsTAC,
 					IssueDate: currentTime,
+					Grade:     grade,
 				},
 			},
 		}, nil)
@@ -2063,50 +2248,44 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	}
 
 	suite.Run("when there are multiple LOAs for a given TAC, the one matching the customer's rank should be used", func() {
-		setupTestData()
-		setupLoaTestData()
-
-		rankTestCases := []struct {
-			rank            models.ServiceMemberRank
+		gradeTestCases := []struct {
+			grade           internalmessages.OrderPayGrade
 			expectedLoaCode string
 		}{
-			{models.ServiceMemberRankE1, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE2, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE3, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE4, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE5, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE6, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE7, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberRankO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO6, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO7, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO8, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO9, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankO10, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankW1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankW2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
-			{models.ServiceMemberRankACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberRankMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeE1, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE2, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE3, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE4, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE5, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE6, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE7, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberGradeO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO6, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO7, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO8, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO9, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeO10, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeW1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeW2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
+			{models.ServiceMemberGradeACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 		}
 
-		for _, testCase := range rankTestCases {
-			// Update service member rank
-			move.Orders.ServiceMember.Rank = &testCase.rank
-			paymentRequest.MoveTaskOrder.Orders.ServiceMember.Rank = &testCase.rank
-			err := suite.DB().Save(&move.Orders.ServiceMember)
-			suite.NoError(err)
+		for _, testCase := range gradeTestCases {
+			setupTestData(&testCase.grade) //#nosec G601 new in 1.22.2
+			setupLoaTestData()
 
 			// Create invoice
 			result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
@@ -2128,28 +2307,24 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	})
 
 	suite.Run("test that we still get an LOA if none match the service member's rank", func() {
-		setupTestData()
+		setupTestData(nil)
 
 		// Create only civilian LOAs
 		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeCivilian)
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
 				Model: loa,
 			},
 		}, nil)
-
-		// Update service member rank to E1 knowing there is only Civilian LOAs
-		testCaseRank := models.ServiceMemberRankE1
-		move.Orders.ServiceMember.Rank = &testCaseRank
-		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Rank = &testCaseRank
-		err := suite.DB().Save(&move.Orders.ServiceMember)
-		suite.NoError(err)
 
 		// Create invoice
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
@@ -2172,15 +2347,18 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	})
 
 	suite.Run("test that the lowest tac_fn_bl_mod_cd is used as a tiebreaker", func() {
-		setupTestData()
+		setupTestData(nil)
 
 		// Create lowest FBMC LOA (value=1)
 		lowestLoa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeCivilian)
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          lowestLoa.LoaSysID,
 				},
 			},
 			{
@@ -2193,8 +2371,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("2"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("2"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          higherLoa.LoaSysID,
 				},
 			},
 			{
@@ -2223,7 +2404,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	})
 
 	suite.Run("test the most recent loa_bgn_dt is used as a tiebreaker", func() {
-		setupTestData()
+		setupTestData(nil)
 		fiveYearsAgo := currentTime.AddDate(-5, 0, 0)
 
 		// Create LOA with old datetime (loa_bgn_dt) and civilian code
@@ -2237,8 +2418,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          oldLoa.LoaSysID,
 				},
 			},
 			{
@@ -2251,8 +2435,11 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("1"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("1"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          newLoa.LoaSysID,
 				},
 			},
 			{
@@ -2279,15 +2466,18 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	})
 
 	suite.Run("test Coast Guard service members get 'HS' household goods code LOA", func() {
-		setupTestData()
+		setupTestData(nil)
 
 		// Create LOA with 'HS' household goods code
 		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeNTS)
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{
@@ -2321,15 +2511,18 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	})
 
 	suite.Run("test non Coast Guard service members dont get 'HS' household goods code LOA", func() {
-		setupTestData()
+		setupTestData(nil)
 
 		// Create LOA with 'HS' household goods code
 		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeNTS)
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC:          *move.Orders.TAC,
-					TacFnBlModCd: models.StringPointer("W"),
+					TAC:               *move.Orders.TAC,
+					TacFnBlModCd:      models.StringPointer("W"),
+					TrnsprtnAcntBgnDt: &sixMonthsBefore,
+					TrnsprtnAcntEndDt: &sixMonthsAfter,
+					LoaSysID:          loa.LoaSysID,
 				},
 			},
 			{

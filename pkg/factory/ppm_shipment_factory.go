@@ -18,6 +18,7 @@ type ppmBuildType byte
 const (
 	ppmBuildStandard ppmBuildType = iota
 	ppmBuildMinimal
+	ppmBuildFullAddress
 )
 
 // buildPPMShipmentWithBuildType does the actual work
@@ -89,6 +90,66 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.W2Address = &w2AddressResult
 	}
 
+	oldDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address
+	pickupAddress := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 New Street",
+				City:           oldDutyLocationAddress.City,
+				State:          oldDutyLocationAddress.State,
+				PostalCode:     oldDutyLocationAddress.PostalCode,
+			},
+		},
+	}, nil)
+	ppmShipment.PickupAddressID = &pickupAddress.ID
+	ppmShipment.PickupAddress = &pickupAddress
+
+	newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
+	destinationAddress := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 New Street",
+				City:           newDutyLocationAddress.City,
+				State:          newDutyLocationAddress.State,
+				PostalCode:     newDutyLocationAddress.PostalCode,
+			},
+		},
+	}, nil)
+	ppmShipment.DestinationAddressID = &destinationAddress.ID
+	ppmShipment.DestinationAddress = &destinationAddress
+
+	if buildType == ppmBuildFullAddress {
+		secondaryPickupAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main Street",
+					City:           pickupAddress.City,
+					State:          pickupAddress.State,
+					PostalCode:     pickupAddress.PostalCode,
+				},
+			},
+		}, nil)
+		secondaryDestinationAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Main Street",
+					City:           destinationAddress.City,
+					State:          destinationAddress.State,
+					PostalCode:     destinationAddress.PostalCode,
+				},
+			},
+		}, nil)
+		ppmShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+		ppmShipment.SecondaryPickupAddress = &secondaryPickupAddress
+		ppmShipment.SecondaryPickupPostalCode = &secondaryPickupAddress.PostalCode
+		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
+
+		ppmShipment.SecondaryDestinationAddressID = &secondaryDestinationAddress.ID
+		ppmShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
+		ppmShipment.SecondaryDestinationPostalCode = &secondaryDestinationAddress.PostalCode
+		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
+	}
+
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&ppmShipment, cPPMShipment)
 
@@ -108,6 +169,10 @@ func BuildPPMShipment(db *pop.Connection, customs []Customization, traits []Trai
 
 func BuildMinimalPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.PPMShipment {
 	return buildPPMShipmentWithBuildType(db, customs, traits, ppmBuildMinimal)
+}
+
+func BuildFullAddressPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.PPMShipment {
+	return buildPPMShipmentWithBuildType(db, customs, traits, ppmBuildFullAddress)
 }
 
 // buildApprovedPPMShipmentWaitingOnCustomer creates a single
@@ -756,6 +821,38 @@ func GetTraitApprovedPPMShipment() []Customization {
 				Status:      models.PPMShipmentStatusWaitingOnCustomer,
 				SubmittedAt: &submittedTime,
 				ApprovedAt:  &approvedTime,
+			},
+		},
+	}
+}
+func AddSignedCertificationToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, signedCertification models.SignedCertification) {
+	if db == nil && signedCertification.ID.IsNil() {
+		// need to create an ID so we can use the signedCertification as
+		// LinkOnly
+		signedCertification.ID = uuid.Must(uuid.NewV4())
+	}
+	ppmShipment.SignedCertification = &signedCertification
+}
+
+func GetTraitPPMShipmentReadyForPaymentRequest() []Customization {
+	estimatedWeight := unit.Pound(200)
+	estimateIncentive := unit.Cents(1000)
+	return []Customization{
+		{
+			Model: models.PPMShipment{
+				Status:             models.PPMShipmentStatusWaitingOnCustomer,
+				EstimatedWeight:    &estimatedWeight,
+				EstimatedIncentive: &estimateIncentive,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVED,
 			},
 		},
 	}

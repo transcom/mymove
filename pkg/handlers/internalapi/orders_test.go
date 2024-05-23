@@ -26,6 +26,14 @@ import (
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Not Yuma AFB",
+			},
+		},
+	}, nil)
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
@@ -38,19 +46,21 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	deptIndicator := internalmessages.DeptIndicatorAIRFORCE
+	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
 	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:       handlers.FmtBool(hasDependents),
-		SpouseHasProGear:    handlers.FmtBool(spouseHasProGear),
-		IssueDate:           handlers.FmtDate(issueDate),
-		ReportByDate:        handlers.FmtDate(reportByDate),
-		OrdersType:          internalmessages.NewOrdersType(ordersType),
-		NewDutyLocationID:   handlers.FmtUUID(dutyLocation.ID),
-		ServiceMemberID:     handlers.FmtUUID(sm.ID),
-		OrdersNumber:        handlers.FmtString("123456"),
-		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("SacNumber"),
-		DepartmentIndicator: internalmessages.NewDeptIndicator(deptIndicator),
+		HasDependents:        handlers.FmtBool(hasDependents),
+		SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
+		IssueDate:            handlers.FmtDate(issueDate),
+		ReportByDate:         handlers.FmtDate(reportByDate),
+		OrdersType:           internalmessages.NewOrdersType(ordersType),
+		OriginDutyLocationID: *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+		NewDutyLocationID:    handlers.FmtUUID(dutyLocation.ID),
+		ServiceMemberID:      handlers.FmtUUID(sm.ID),
+		OrdersNumber:         handlers.FmtString("123456"),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  handlers.FmtString("SacNumber"),
+		DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
+		Grade:                models.ServiceMemberGradeE1.Pointer(),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -77,8 +87,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
-	suite.Equal(sm.DutyLocationID, createdOrder.OriginDutyLocationID)
-	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
 	suite.Assertions.Equal(*models.Int64Pointer(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
 	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
@@ -126,8 +134,6 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
 	suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
 	suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
-	//suite.Assertions.Equal(order.IssueDate.String(), okResponse.Payload.IssueDate.String()) // TODO: get date formats aligned
-	//suite.Assertions.Equal(order.ReportByDate.String(), okResponse.Payload.ReportByDate.String())
 	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
 }
@@ -436,35 +442,43 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 	})
 }
 
-// TODO: Fix now that we capture transaction error. May be a data setup problem
-/*
-func (suite *HandlerSuite) TestUpdateOrder() {
-	order := factory.BuildOrder(suite.DB(), nil, nil)
+func (suite *HandlerSuite) TestUpdateOrdersHandler() {
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	newDutyLocation.TransportationOffice = newTransportationOffice
+
+	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	newOrdersNumber := "123456"
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+
+	payload := &internalmessages.CreateUpdateOrders{
+		OrdersNumber:         handlers.FmtString(newOrdersNumber),
+		OrdersType:           &newOrdersType,
+		NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+		OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+		IssueDate:            handlers.FmtDate(issueDate),
+		ReportByDate:         handlers.FmtDate(reportByDate),
+		DepartmentIndicator:  &deptIndicator,
+		HasDependents:        handlers.FmtBool(false),
+		SpouseHasProGear:     handlers.FmtBool(false),
+		Grade:                models.ServiceMemberGradeE4.Pointer(),
+	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
-
-	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	newOrdersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
-	departmentIndicator := internalmessages.DeptIndicatorAIRFORCE
-	otherServiceMemberUUID := uuid.Must(uuid.NewV4())
-
-	payload := &internalmessages.CreateUpdateOrders{
-		OrdersNumber:        handlers.FmtString("123456"),
-		HasDependents:       handlers.FmtBool(order.HasDependents),
-		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
-		IssueDate:           handlers.FmtDate(order.IssueDate),
-		ReportByDate:        handlers.FmtDate(order.ReportByDate),
-		OrdersType:          newOrdersType,
-		OrdersTypeDetail:    &newOrdersTypeDetail,
-		NewDutyLocationID:    handlers.FmtUUID(order.NewDutyLocationID),
-		Tac:                 order.TAC,
-		Sac:                 handlers.FmtString("N3TEST"),
-		DepartmentIndicator: &departmentIndicator,
-		// Attempt to assign to another service member
-		ServiceMemberID: handlers.FmtUUID(otherServiceMemberUUID),
-	}
 
 	params := ordersop.UpdateOrdersParams{
 		HTTPRequest:  req,
@@ -473,19 +487,37 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := handlers.NewHandlerCOnfig(suite.DB(), suite.TestLogger())
+	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	updateHandler := UpdateOrdersHandler{context}
 
-	response := updateHandler.Handle(params)
+	handler := UpdateOrdersHandler{handlerConfig}
 
-	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
+	response := handler.Handle(params)
+
+	suite.IsType(&ordersop.UpdateOrdersOK{}, response)
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
-	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
-	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
-	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
-	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
-	suite.Assertions.Equal(handlers.FmtString("N3TEST"), okResponse.Payload.Sac)
+	suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
+	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
+
+	updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
+	suite.NoError(err)
+	suite.Equal(payload.Grade, updatedOrder.Grade)
+	suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
+	expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade)
+	expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
+	if *payload.HasDependents {
+		expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
+	}
+
+	expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade)
+	expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
+	if *payload.HasDependents {
+		expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents
+	}
+
+	suite.Equal(expectedUpdatedOrderAuthorizedWeight, 7000)  // Ensure that when GetWeightAllotment is recalculated that it also returns 7000. This ensures that the database stored the correct information
+	suite.Equal(expectedOriginalOrderAuthorizedWeight, 5000) // The order was created as an E1. Ensure that the E1 authorized weight is 5000.
+	suite.Equal(string(newOrdersType), string(updatedOrder.OrdersType))
 }
-*/

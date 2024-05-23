@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primev2client/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primev2client/mto_shipment"
 )
 
 // Default mymove HTTP client.
@@ -56,6 +57,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mymove {
 	cli := new(Mymove)
 	cli.Transport = transport
 	cli.MoveTaskOrder = move_task_order.New(transport, formats)
+	cli.MtoShipment = mto_shipment.New(transport, formats)
 	return cli
 }
 
@@ -102,6 +104,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type Mymove struct {
 	MoveTaskOrder move_task_order.ClientService
 
+	MtoShipment mto_shipment.ClientService
+
 	Transport runtime.ClientTransport
 }
 
@@ -109,4 +113,5 @@ type Mymove struct {
 func (c *Mymove) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.MoveTaskOrder.SetTransport(transport)
+	c.MtoShipment.SetTransport(transport)
 }

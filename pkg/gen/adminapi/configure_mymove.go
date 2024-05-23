@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
@@ -93,6 +94,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		})
 	}
+	if api.RequestedOfficeUsersGetRequestedOfficeUserHandler == nil {
+		api.RequestedOfficeUsersGetRequestedOfficeUserHandler = requested_office_users.GetRequestedOfficeUserHandlerFunc(func(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.GetRequestedOfficeUser has not yet been implemented")
+		})
+	}
 	if api.UploadsGetUploadHandler == nil {
 		api.UploadsGetUploadHandler = uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
@@ -148,6 +154,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
 		})
 	}
+	if api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
+		api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler = requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
+		})
+	}
 	if api.UsersIndexUsersHandler == nil {
 		api.UsersIndexUsersHandler = users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
@@ -181,6 +192,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OfficeUsersUpdateOfficeUserHandler == nil {
 		api.OfficeUsersUpdateOfficeUserHandler = office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
+		})
+	}
+	if api.RequestedOfficeUsersUpdateRequestedOfficeUserHandler == nil {
+		api.RequestedOfficeUsersUpdateRequestedOfficeUserHandler = requested_office_users.UpdateRequestedOfficeUserHandlerFunc(func(params requested_office_users.UpdateRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.UpdateRequestedOfficeUser has not yet been implemented")
 		})
 	}
 	if api.UsersUpdateUserHandler == nil {

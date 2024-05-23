@@ -69,13 +69,24 @@ tags:
       The contractor submits a **paymentRequest** to the TIO for approval in
       order to be reimbursed for 1 or more
 
-      **mtoServiceItems** on a **moveTaskOrder**.
+      **mtoServiceItems** on a **moveTaskOrder**. A service item can be on
+      multiple payment requests if necessary.
 
 
       Proof of service documentation may be uploaded for each **mtoServiceItem**
-      in a **paymentRequest**.
+      in a **paymentRequest** after the payment
+
+      request is created via the endpoint
+      [createUpload](#operation/createUpload).
+
+
+      All weight entered should be in *pounds* and no other unit of measurement.
   - name: sitAddressUpdate
     description: >
+      **THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO
+      DESCRIPTION FOR DETAILS**
+
+
       A **sitAddressUpdate** is submitted when the prime or office user wishes
       to update the final address for an
 
@@ -278,6 +289,12 @@ paths:
     post:
       summary: createMTOShipment
       description: >
+        _[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and
+        will be removed in a future version.
+
+        Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
+
+
         Creates a new shipment within the specified move. This endpoint should
         be used whenever the movers identify a
 
@@ -377,6 +394,25 @@ paths:
     patch:
       summary: updateMTOShipment
       description: >
+        _[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated
+        and will be removed in a future version.
+
+        Please use the new endpoint at `/prime/v2/updateMTOShipment` instead.
+
+
+        **DEPRECATION ON AUGUST 5TH, 2024**
+
+        Following deprecation, there is an edge case scenario where a PPM
+        shipment with no addresses could be updated and it would also update the
+        final destination SIT address
+
+        for SIT service items. This edge case has been removed as you should not
+        be able to update items using this endpoint. Third-party APIs have
+        confirmed they will require
+
+        deprecation for this change.
+
+
         Updates an existing shipment for a move.
 
 
@@ -543,13 +579,17 @@ paths:
       description: >
         ### Functionality
 
-        This endpoint is used to **update** the pickup and secondary addresses
-        on an MTO Shipment.
+        This endpoint is used to **update** the pickup, secondary, and
+        destination addresses on an MTO Shipment.
         mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a
         delivery address. The address details completely replace the original,
         except for the UUID.
 
         Therefore a complete address should be sent in the request.
+
+        When a destination address on a shipment is updated, the destination SIT
+        service items address ID will also be updated so that shipment and
+        service item final destinations match.
 
 
         This endpoint **cannot create** an address.
@@ -624,7 +664,7 @@ paths:
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/shipment-address-updates:
     post:
-      summary: createNonSITAddressUpdateRequest
+      summary: updateShipmentDestinationAddress
       description: >
         ### Functionality
 
@@ -633,17 +673,20 @@ paths:
 
         after the destination address has already been approved.
 
-        This does not change addresses on SIT service items.
+        If automatically approved or TOO approves, this will update the final
+        destination address values for destination SIT service items to be the
+        same as the changed destination address that was approved.
 
         Address updates will be automatically approved unless they change:
-          - the service area
+          - The service area
           - Mileage bracket for direct delivery
+          - the address and the distance between the old and new address is > 50
           - Domestic Short Haul to Domestic Line Haul or vice versa
               - Shipments that start and end in one ZIP3 use Short Haul pricing
               - Shipments that start and end in different ZIP3s use Line Haul pricing
 
         For those, changes will require TOO approval.
-      operationId: createNonSITAddressUpdateRequest
+      operationId: updateShipmentDestinationAddress
       tags:
         - mtoShipment
       consumes:
@@ -661,7 +704,7 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateNonSITAddressUpdateRequest'
+            $ref: '#/definitions/UpdateShipmentDestinationAddress'
         - in: header
           name: If-Match
           type: string
@@ -1164,17 +1207,28 @@ paths:
         field below, select the modelType corresponding
          to the service item you wish to update and the documentation will update with the new definition.
 
-        * Addresses: You can add a new SIT Destination final address using this
-        endpoint (and must use this endpoint to do so), but you cannot update an
-        existing one.
+        * Addresses: To update a destination service item's SIT destination
+        final address, update the shipment destination address.
 
-        Please use
-        [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest)
-        instead.
+        For approved shipments, please use
+        [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).
+
+        For shipments not yet approved, please use
+        [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
+
+
+        * SIT Service Items: Take note that when updating
+        `sitCustomerContacted`, `sitDepartureDate`, or `sitRequestedDelivery`,
+        we want
+
+        those to be updated on `DOASIT` (for origin SIT) and `DDASIT` (for
+        destination SIT). If updating those values in other service
+
+        items, the office users will not have as much attention to those values.
 
 
         To create a service item, please use
-        [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+        [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1268,9 +1322,8 @@ paths:
     post:
       summary: createPaymentRequest
       description: >
-        Creates a new instance of a paymentRequest.
-
-        A newly created payment request is assigned the status `PENDING`.
+        Creates a new instance of a paymentRequest and is assigned the status
+        `PENDING`.
 
         A move task order can have multiple payment requests, and
 
@@ -1285,27 +1338,208 @@ paths:
 
 
         **NOTE**: In order to create a payment request for most service items,
+        the shipment *must*
 
-        the shipment *must* be updated with the `PrimeActualWeight` value via
+        be updated with the `PrimeActualWeight` value via
         [updateMTOShipment](#operation/updateMTOShipment).
 
-        **Fuel Surcharge** service items require `ActualPickupDate` to be
 
+        **FSC - Fuel Surcharge** service items require `ActualPickupDate` to be
         updated on the shipment.
 
 
-        To create a paymentRequest for a SIT Destination Additional Days
-        mtoServiceItem, the SITPaymentRequestStart and
-
-        SITPaymentRequestEnd dates must not overlap previously requested SIT
-        dates.
+        A service item can be on several payment requests in the case of partial
+        payment requests and payments.
 
 
-        To create a paymentRequest for a SIT Delivery mtoServiceItem, the item
-        must
+        In the request, if no params are necessary, then just the `serviceItem`
+        `id` is required. For example:
 
-        first have a final address set via
-        [updateMTOServiceItem](#operation/updateMTOServiceItem).
+        ```json
+
+        {
+          "isFinal": false,
+          "moveTaskOrderID": "uuid",
+          "serviceItems": [
+            {
+              "id": "uuid",
+            },
+            {
+              "id": "uuid",
+              "params": [
+                {
+                  "key": "Service Item Parameter Name",
+                  "value": "Service Item Parameter Value"
+                }
+              ]
+            }
+          ],
+          "pointOfContact": "string"
+        }
+
+        ```
+
+
+        SIT Service Items & Accepted Payment Request Parameters:
+
+        ---
+
+        If `WeightBilled` is not provided then the full shipment weight
+        (`PrimeActualWeight`) will be considered in the calculation.
+
+
+        **NOTE**: Diversions have a unique calcuation for payment requests
+        without a `WeightBilled` parameter.
+
+
+        If you created a payment request for a diversion and `WeightBilled` is
+        not provided, then the following will be used in the calculation:
+
+        - The lowest shipment weight (`PrimeActualWeight`) found in the diverted
+        shipment chain.
+
+        - The lowest reweigh weight found in the diverted shipment chain.
+
+
+        The diverted shipment chain is created by referencing the `diversion`
+        boolean, `divertedFromShipmentId` UUID, and matching destination to
+        pickup addresses.
+
+        If the chain cannot be established it will fall back to the
+        `PrimeActualWeight` of the current shipment. This is utilized because
+        diverted shipments are all one single shipment, but going to different
+        locations.
+
+        The lowest weight found is the true shipment weight, and thus we search
+        the chain of shipments for the lowest weight found.
+
+
+        **DOFSIT - Domestic origin 1st day SIT**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart &
+        SITPaymentRequestEnd are **REQUIRED**)*
+
+        *To create a paymentRequest for this service item, the
+        `SITPaymentRequestStart` and `SITPaymentRequestEnd` dates must not
+        overlap previously requested SIT dates.*
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            },
+            {
+              "key": "SITPaymentRequestStart",
+              "value": "date"
+            },
+            {
+              "key": "SITPaymentRequestEnd",
+              "value": "date"
+            }
+          ]
+        ```
+
+
+        **DOPSIT - Domestic origin SIT pickup**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DOSHUT - Domestic origin shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DDFSIT - Domestic destination 1st day SIT**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart &
+        SITPaymentRequestEnd are **REQUIRED**)*
+
+        *To create a paymentRequest for this service item, the
+        `SITPaymentRequestStart` and `SITPaymentRequestEnd` dates must not
+        overlap previously requested SIT dates.*
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            },
+            {
+              "key": "SITPaymentRequestStart",
+              "value": "date"
+            },
+            {
+              "key": "SITPaymentRequestEnd",
+              "value": "date"
+            }
+          ]
+        ```
+
+
+        **DDDSIT - Domestic destination SIT delivery**
+
+        *To create a paymentRequest for this service item, it must first have a
+        final address set via
+        [updateMTOServiceItem](#operation/updateMTOServiceItem).*
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DDSHUT - Domestic destination shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        ---
       operationId: createPaymentRequest
       tags:
         - paymentRequest
@@ -1352,12 +1586,14 @@ paths:
         The PaymentRequest should already exist.
 
 
-        Required field of **isWeightTicket** indicates if the document is a
-        weight ticket or not.
+        Optional key of **isWeightTicket** indicates if the document is a weight
+        ticket or not.
 
         This will be used for partial and full deliveries and makes it easier
         for the Transportation Invoicing Officers to locate and review service
         item documents.
+
+        If left empty, it will assume it is NOT a weight ticket.
 
 
         The formdata in the body of the POST request that is sent should look
@@ -1369,12 +1605,16 @@ paths:
             "isWeightTicket": true
           }
           ```
-
-          If the proof of service doc is NOT a weight ticket, it will look like this:
+          If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:
           ```json
           {
             "file": "filePath",
             "isWeightTicket": false
+          }
+          ```
+          ```json
+          {
+            "file": "filePath",
           }
           ```
 
@@ -1402,7 +1642,6 @@ paths:
           name: isWeightTicket
           type: boolean
           description: Indicates whether the file is a weight ticket.
-          required: true
       responses:
         '201':
           description: Successfully created upload of digital file.
@@ -1440,6 +1679,20 @@ paths:
         The update can be requested for APPROVED SIT service items only.
 
         Only ONE request is allowed per approved SIT service item.
+
+
+        **DEPRECATION ON AUGUST 5TH, 2024**
+
+        Following deprecation, when updating a service item's final delivery
+        address, you will need to update the shipment's destination address.
+        This will update the destination SIT service items' final delivery
+        address upon approval.
+
+        For `APPROVED` shipments, you can use
+        [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)
+
+        For shipments in any other status, you can use
+        [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)
       operationId: createSITAddressUpdateRequest
       tags:
         - sitAddressUpdate
@@ -1471,7 +1724,78 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{locator}/documents:
+    get:
+      summary: Downloads move order as a PDF
+      description: >
+        ### Functionality
+
+        This endpoint downloads all uploaded move order documentations into one
+        download file by locator.
+
+
+        ### Errors
+
+        * The move must be in need counseling state.
+
+        * The move client's origin duty location must not currently have gov
+        counseling.
+      operationId: downloadMoveOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/pdf
+      parameters:
+        - in: path
+          type: string
+          name: locator
+          description: the locator code for move order to be downloaded
+          required: true
+        - in: query
+          name: type
+          type: string
+          description: upload type
+          required: false
+          default: ALL
+          enum:
+            - ALL
+            - ORDERS
+            - AMENDMENTS
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Move Order PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
+  Amendments:
+    description: |
+      Metadata outlining number of amendments for given order.
+    type: object
+    properties:
+      total:
+        description: The total count of amendments.
+        type: integer
+      availableSince:
+        description: The total count of amendments available since specified time.
+        type: integer
+    required:
+      - total
+      - availableSince
   CreateMTOShipment:
     type: object
     properties:
@@ -1757,15 +2081,15 @@ definitions:
         enum:
           - FULL
           - PARTIAL
-      ppmEstimatedWeight:
-        type: integer
       eTag:
         type: string
         readOnly: true
+      amendments:
+        $ref: '#/definitions/Amendments'
   ListMoves:
+    type: array
     items:
       $ref: '#/definitions/ListMove'
-    type: array
   MoveTaskOrder:
     type: object
     required:
@@ -2027,6 +2351,18 @@ definitions:
             $ref: '#/definitions/Address'
           requestApprovalsRequestedStatus:
             type: boolean
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
         required:
           - reServiceCode
           - reason
@@ -2084,10 +2420,10 @@ definitions:
         readOnly: true
     allOf:
       - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
-  CreateNonSITAddressUpdateRequest:
+  UpdateShipmentDestinationAddress:
     description: >-
-      CreateNonSITAddressUpdateRequest contains the fields required for the
-      prime to create a non SIT address update request.
+      UpdateShipmentDestinationAddress contains the fields required for the
+      prime to request an update for the destination address on an MTO Shipment.
     type: object
     properties:
       newAddress:
@@ -2176,6 +2512,8 @@ definitions:
       corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DOASIT - UpdateMTOServiceItemSIT
+        * DOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -2229,7 +2567,10 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DDDSIT
+              - DDASIT
               - DOPSIT
+              - DOASIT
+              - DOFSIT
           sitDepartureDate:
             format: date
             type: string
@@ -2731,6 +3072,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -2787,6 +3133,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -2850,11 +3199,15 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   Order:
     type: object
     required:
@@ -3815,6 +4168,22 @@ definitions:
         $ref: '#/definitions/Address'
       newAddress:
         $ref: '#/definitions/Address'
+      sitOriginalAddress:
+        $ref: '#/definitions/Address'
+      oldSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and the previous/old
+          destination address of shipment
+        example: 50
+        minimum: 0
+        type: integer
+      newSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and requested new
+          destination address of shipment
+        example: 88
+        minimum: 0
+        type: integer
     required:
       - id
       - status
@@ -3980,6 +4349,18 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      actualProGearWeight:
+        description: |
+          The actual weight of any pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        description: |
+          The actual weight of any spouse pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:

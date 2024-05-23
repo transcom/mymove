@@ -35,9 +35,20 @@ type QueuePaymentRequest struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
+	// lock expires at
+	// Format: date-time
+	LockExpiresAt *strfmt.DateTime `json:"lockExpiresAt,omitempty"`
+
+	// locked by office user ID
+	// Format: uuid
+	LockedByOfficeUserID *strfmt.UUID `json:"lockedByOfficeUserID,omitempty"`
+
 	// move ID
 	// Format: uuid
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
+
+	// order type
+	OrderType *string `json:"orderType,omitempty"`
 
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
@@ -66,6 +77,14 @@ func (m *QueuePaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockExpiresAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLockedByOfficeUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -139,6 +158,30 @@ func (m *QueuePaymentRequest) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueuePaymentRequest) validateLockExpiresAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockExpiresAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockExpiresAt", "body", "date-time", m.LockExpiresAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueuePaymentRequest) validateLockedByOfficeUserID(formats strfmt.Registry) error {
+	if swag.IsZero(m.LockedByOfficeUserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lockedByOfficeUserID", "body", "uuid", m.LockedByOfficeUserID.String(), formats); err != nil {
 		return err
 	}
 

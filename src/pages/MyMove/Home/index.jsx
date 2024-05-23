@@ -16,6 +16,7 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -30,7 +31,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -54,6 +55,9 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
+import { ADVANCE_STATUSES } from 'constants/ppms';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -72,6 +76,9 @@ Description.defaultProps = {
   dataTestId: '',
 };
 
+const errorModalMessage =
+  "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
+
 export class Home extends Component {
   constructor(props) {
     super(props);
@@ -80,6 +87,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
+      showErrorAlert: false,
     };
   }
 
@@ -141,6 +149,30 @@ export class Home extends Component {
     return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
   }
 
+  get hasAdvanceApproved() {
+    const { mtoShipments } = this.props;
+    // determine if at least one advance was APPROVED (advance_status in ppm_shipments table is not nil)
+    const appovedAdvances = mtoShipments.filter(
+      (shipment) => shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue,
+    );
+    return !!appovedAdvances.length;
+  }
+
+  get hasAllAdvancesRejected() {
+    // check to see if all advance_status are REJECTED
+    const { mtoShipments } = this.props;
+    const rejectedAdvances = mtoShipments.filter(
+      (shipment) => shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue,
+    );
+    return !this.hasAdvanceApproved && rejectedAdvances.length > 0;
+  }
+
+  get hasAdvanceRequested() {
+    const { mtoShipments } = this.props;
+    const requestedAdvances = mtoShipments.filter((shipment) => shipment?.ppmShipment?.hasRequestedAdvance);
+    return !!requestedAdvances.length;
+  }
+
   get isMoveApproved() {
     const { move } = this.props;
     return move.status === MOVE_STATUSES.APPROVED;
@@ -166,6 +198,18 @@ export class Home extends Component {
       default:
         return 'Report by';
     }
+  }
+
+  get isPrimeCounseled() {
+    const { orders } = this.props;
+
+    return !orders.provides_services_counseling;
+  }
+
+  get isPrimeCounselingComplete() {
+    const { move } = this.props;
+
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   }
 
   renderAlert = () => {
@@ -194,7 +238,7 @@ export class Home extends Component {
   };
 
   renderCustomerHeaderText = () => {
-    const { serviceMember, orders, move } = this.props;
+    const { orders, move } = this.props;
     return (
       <>
         <p>
@@ -207,12 +251,7 @@ export class Home extends Component {
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
-            <dd>
-              {orders.has_dependents
-                ? formatWeight(serviceMember.weight_allotment.total_weight_self_plus_dependents)
-                : formatWeight(serviceMember.weight_allotment.total_weight_self)}
-              .
-            </dd>
+            <dd>{formatWeight(orders.authorizedWeight)}.</dd>
           </div>
           {move.locator && (
             <div className={styles.subheaderSubsection}>
@@ -334,6 +373,12 @@ export class Home extends Component {
     navigate(path);
   };
 
+  toggleErrorModal = () => {
+    this.setState((prevState) => ({
+      showErrorAlert: !prevState.showErrorAlert,
+    }));
+  };
+
   // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
@@ -349,10 +394,18 @@ export class Home extends Component {
   };
 
   render() {
-    const { isProfileComplete, move, mtoShipments, serviceMember, signedCertification, uploadedOrderDocuments } =
-      this.props;
+    const {
+      isProfileComplete,
+      move,
+      mtoShipments,
+      serviceMember,
+      signedCertification,
+      uploadedOrderDocuments,
+      orders,
+    } = this.props;
 
-    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert } = this.state;
+    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert, showErrorAlert } =
+      this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -367,7 +420,7 @@ export class Home extends Component {
 
     // eslint-disable-next-line camelcase
     const { current_location } = serviceMember;
-    const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
+    const ordersPath = this.hasOrdersNoUpload ? `/orders/upload/${orders.id}` : `/orders/add/`;
 
     const shipmentSelectionPath =
       move?.id &&
@@ -377,14 +430,16 @@ export class Home extends Component {
 
     const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = customerRoutes.PROFILE_PATH;
-    const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-    const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
+    const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
+    const ordersAmendPath = `/orders/amend/${orders.id}`;
     const allSortedShipments = this.sortAllShipments(mtoShipments);
     const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
     // eslint-disable-next-line camelcase
     const currentLocation = current_location;
+    const shipmentNumbersByType = {};
 
+    const isSpecialMove = CHECK_SPECIAL_ORDERS_TYPES(orders?.orders_type);
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -397,8 +452,14 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
+        <ErrorModal isOpen={showErrorAlert} closeModal={this.toggleErrorModal} errorMessage={errorModalMessage} />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
+            {isSpecialMove ? (
+              <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
+                <p>{SPECIAL_ORDERS_TYPES[`${orders?.orders_type}`]}</p>
+              </div>
+            ) : null}
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
               <h2>
                 {serviceMember.first_name} {serviceMember.last_name}
@@ -535,9 +596,145 @@ export class Home extends Component {
                       </Description>
                     )}
                   </Step>
+                  {!!ppmShipments.length && this.hasSubmittedMove && this.hasAdvanceRequested && (
+                    <Step
+                      complete={this.hasAdvanceApproved || this.hasAllAdvancesRejected}
+                      completedHeaderText={
+                        this.hasAllAdvancesRejected ? 'Advance request denied' : 'Advance request reviewed'
+                      }
+                      headerText="Advance request submitted"
+                      step="5"
+                    >
+                      <SectionWrapper className={styles['ppm-shipment']}>
+                        {this.hasAdvanceApproved && (
+                          <>
+                            <Description>
+                              Your Advance Operating Allowance (AOA) request has been reviewed. Download the paperwork
+                              for approved requests and submit it to your Finance Office to receive your advance.
+                              <br />
+                              <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                              incentive ends up being less than your advance, you will be required to pay back the
+                              difference.
+                              <br />
+                              <br />
+                            </Description>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleErrorModal}
+                                      />
+                                    </p>
+                                  )}
+                                  {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
+                                    <Description>Advance request denied</Description>
+                                  )}
+                                  {shipment?.ppmShipment?.advanceStatus == null && (
+                                    <Description>Advance request pending</Description>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
+                        )}
+                        {this.hasAllAdvancesRejected && (
+                          <Description>
+                            Your Advance Operating Allowance (AOA) request has been denied. You may be able to use your
+                            Government Travel Charge Card (GTCC). Contact your local transportation office to verify
+                            GTCC usage authorization or ask any questions.
+                          </Description>
+                        )}
+                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && !this.isPrimeCounseled && (
+                          <Description>
+                            Your service will review your request for an Advance Operating Allowance (AOA). If approved,
+                            you will be able to download the paperwork for your request and submit it to your Finance
+                            Office to receive your advance.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                          </Description>
+                        )}
+                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && this.isPrimeCounseled && (
+                          <Description>
+                            Once you have received counseling for your PPM you will receive emailed instructions on how
+                            to download your Advance Operating Allowance (AOA) packet. Please consult with your
+                            Transportation Office for review of your AOA packet.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                            <br />
+                            <br />
+                          </Description>
+                        )}
+                        {this.isPrimeCounselingComplete && (
+                          <>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <p className={styles.downloadLink}>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadPacketErrorModal}
+                                      />
+                                    </p>
+                                  )}
+                                  {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                    <>
+                                      <br />
+                                      <br />
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
+                        )}
+                      </SectionWrapper>
+                    </Step>
+                  )}
                   {!!ppmShipments.length && this.hasSubmittedMove && (
-                    <Step headerText="Manage your PPM" completedHeaderText="Manage your PPM" step="5">
-                      <PPMSummaryList shipments={ppmShipments} onUploadClick={this.handlePPMUploadClick} />
+                    <Step
+                      headerText="Manage your PPM"
+                      completedHeaderText="Manage your PPM"
+                      step={this.hasAdvanceRequested ? '6' : '5'}
+                    >
+                      <PPMSummaryList
+                        shipments={ppmShipments}
+                        onUploadClick={this.handlePPMUploadClick}
+                        onDownloadError={this.toggleErrorModal}
+                      />
                     </Step>
                   )}
                 </SectionWrapper>

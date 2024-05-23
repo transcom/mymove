@@ -20,17 +20,22 @@ describe('CreatePaymentRequestForm', () => {
       id: '1',
       pickupAddress: { streetAddress1: '500 Main Street', city: 'New York', state: 'NY', postalCode: '10001' },
       destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
+      primeActualWeight: 2000,
     },
     {
       id: '2',
       pickupAddress: { streetAddress1: '33 Bleeker Street', city: 'New York', state: 'NY', postalCode: '10002' },
       destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
+      primeActualWeight: 2000,
     },
   ];
 
   const basicAndShipmentsServiceItems = {
     basic: [{ id: '3', reServiceCode: 'MS' }],
-    1: [{ id: '4', reServiceCode: 'DLH' }],
+    1: [
+      { id: '4', reServiceCode: 'DLH' },
+      { id: '6', reServiceCode: 'DDFSIT', reServiceName: 'Domestic destination 1st day SIT' },
+    ],
     2: [{ id: '5', reServiceCode: 'FSC' }],
   };
 
@@ -48,7 +53,7 @@ describe('CreatePaymentRequestForm', () => {
     );
 
     // 1 move service item and 1 on each shipment
-    expect(screen.getAllByRole('checkbox', { name: 'Add to payment request' }).length).toEqual(3);
+    expect(screen.getAllByRole('checkbox', { name: 'Add to payment request' }).length).toEqual(4);
     // 1 select all checkbox for each shipment
     expect(screen.getAllByLabelText('Add all service items').length).toEqual(2);
     expect(screen.getByRole('button', { type: 'submit' })).toBeDisabled();
@@ -159,5 +164,23 @@ describe('CreatePaymentRequestForm', () => {
       expect(screen.getByText('At least 1 service item must be added when creating a payment request'));
       expect(screen.getByRole('button', { type: 'submit' })).toBeDisabled();
     });
+  });
+
+  it('renders the weight billed text input box', async () => {
+    render(
+      <CreatePaymentRequestForm
+        initialValues={initialValues}
+        createPaymentRequestSchema={createPaymentRequestSchema}
+        mtoShipments={twoShipments}
+        groupedServiceItems={basicAndShipmentsServiceItems}
+        onSubmit={jest.fn()}
+        handleSelectAll={jest.fn()}
+        handleValidateDate={jest.fn()}
+      />,
+    );
+
+    expect(
+      screen.getAllByRole('textbox', { name: 'Weight Billed (if different from shipment weight)' }).length,
+    ).toBeGreaterThan(0);
   });
 });

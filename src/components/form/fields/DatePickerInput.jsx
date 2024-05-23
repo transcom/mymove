@@ -20,6 +20,7 @@ export const DatePickerInput = (props) => {
     className,
     renderInput,
     disabled,
+    disabledDays,
     required,
     hint,
     disableErrorLabel,
@@ -54,6 +55,7 @@ export const DatePickerInput = (props) => {
             value={field.value}
             required={required}
             disabled={disabled}
+            disabledDays={disabledDays}
           />
         </>,
       )}

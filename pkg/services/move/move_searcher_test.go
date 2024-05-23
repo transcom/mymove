@@ -3,8 +3,10 @@ package move
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -12,6 +14,15 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 	searcher := NewMoveSearcher()
 
 	suite.Run("search with no filters should fail", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -28,10 +39,19 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			},
 		}, nil)
 
-		_, _, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{})
+		_, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{})
 		suite.Error(err)
 	})
 	suite.Run("search with valid locator", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		firstMove := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -48,12 +68,21 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			},
 		}, nil)
 
-		moves, _, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{Locator: &firstMove.Locator})
+		moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{Locator: &firstMove.Locator})
 		suite.NoError(err)
 		suite.Len(moves, 1)
 		suite.Equal(firstMove.Locator, moves[0].Locator)
 	})
 	suite.Run("search with valid DOD ID", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -70,12 +99,21 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			},
 		}, nil)
 
-		moves, _, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{DodID: secondMove.Orders.ServiceMember.Edipi})
+		moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{DodID: secondMove.Orders.ServiceMember.Edipi})
 		suite.NoError(err)
 		suite.Len(moves, 1)
 		suite.Equal(secondMove.Locator, moves[0].Locator)
 	})
 	suite.Run("search with customer name", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		firstMove := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -98,12 +136,20 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			},
 		}, nil)
 
-		moves, _, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{CustomerName: models.StringPointer("Grace Griffin")})
+		moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{CustomerName: models.StringPointer("Grace Griffin")})
 		suite.NoError(err)
 		suite.Len(moves, 1)
 		suite.Equal(firstMove.Locator, moves[0].Locator)
 	})
 	suite.Run("search with both DOD ID and locator filters should fail", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		firstMove := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -122,20 +168,37 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		}, nil)
 
 		// Search for Locator of one move and DOD ID of another move
-		_, _, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{
+		_, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{
 			Locator: &firstMove.Locator,
 			DodID:   secondMove.Orders.ServiceMember.Edipi,
 		})
 		suite.Error(err)
 	})
 	suite.Run("search with no results", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		nonexistantLocator := "CCCCCC"
-		moves, _, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{Locator: &nonexistantLocator})
+		moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{Locator: &nonexistantLocator})
 		suite.NoError(err)
 		suite.Len(moves, 0)
 	})
-
 	suite.Run("test pagination", func() {
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		firstMove := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -164,7 +227,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 			},
 		}, nil)
 		// get first page
-		moves, totalCount, err := searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{
+		moves, totalCount, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{
 			CustomerName: models.StringPointer("grace griffin"),
 			PerPage:      1,
 			Page:         1,
@@ -175,7 +238,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.Equal(2, totalCount)
 
 		// get second page
-		moves, totalCount, err = searcher.SearchMoves(suite.AppContextForTest(), &services.SearchMovesParams{
+		moves, totalCount, err = searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &services.SearchMovesParams{
 			CustomerName: models.StringPointer("grace griffin"),
 			PerPage:      1,
 			Page:         2,
@@ -186,7 +249,8 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.Equal(2, totalCount)
 	})
 }
-func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
+
+func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MTOShipment) {
 	armyAffiliation := models.AffiliationARMY
 	navyAffiliation := models.AffiliationNAVY
 	firstMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
@@ -226,7 +290,7 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 		},
 	}, nil)
 
-	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    firstMove,
 			LinkOnly: true,
@@ -268,6 +332,7 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
+
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    secondMove,
@@ -292,13 +357,23 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move) {
 		},
 	}, nil)
 
-	return firstMove, secondMove
+	return firstMove, secondMove, mtoShipment
 }
+
 func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 	suite.Run("search results ordering", func() {
-		firstMove, secondMove := setupTestData(suite)
+		firstMove, secondMove, _ := setupTestData(suite)
 		testMoves := models.Moves{}
 		suite.NoError(suite.DB().EagerPreload("Orders", "Orders.NewDutyLocation", "Orders.NewDutyLocation.Address").All(&testMoves))
+
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		searcher := NewMoveSearcher()
 		columns := []string{"status", "originPostalCode", "destinationPostalCode", "branch", "shipmentsCount"}
@@ -310,7 +385,7 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 					Sort:         &columns[ci],
 					Order:        &order,
 				}
-				moves, _, err := searcher.SearchMoves(suite.AppContextForTest(), &params)
+				moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &params)
 				suite.NoError(err)
 				suite.Len(moves, 2)
 				message := fmt.Sprintf("Sort by %s, %s failed", col, order)
@@ -325,9 +400,18 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 		}
 	})
 	suite.Run("search results filtering", func() {
-		_, secondMove := setupTestData(suite)
+		_, secondMove, mtoShipment := setupTestData(suite)
 		nameToSearch := "maria johnson"
 		searcher := NewMoveSearcher()
+
+		qaeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           qaeUser.User.Roles,
+			OfficeUserID:    qaeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		cases := []struct {
 			column string
@@ -339,10 +423,12 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 			{column: "Branch", value: string(*secondMove.Orders.ServiceMember.Affiliation), SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, Branch: models.StringPointer(secondMove.Orders.ServiceMember.Affiliation.String())}},
 			{column: "ShipmentsCount", value: "2", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, ShipmentsCount: models.Int64Pointer(2)}},
 			{column: "DestinationPostalCode", value: secondMove.Orders.NewDutyLocation.Address.PostalCode, SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, DestinationPostalCode: &secondMove.Orders.NewDutyLocation.Address.PostalCode}},
+			{column: "ScheduledPickupDate", value: "2020-03-16", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, PickupDate: mtoShipment.ScheduledPickupDate}},
+			{column: "ScheduledDeliveryDate", value: "2020-03-17", SearchMovesParams: services.SearchMovesParams{CustomerName: &nameToSearch, DeliveryDate: mtoShipment.ScheduledDeliveryDate}},
 		}
 		for _, testCase := range cases {
 			message := fmt.Sprintf("Filtering results of search by column %s = %s has failed", testCase.column, testCase.value)
-			moves, _, err := searcher.SearchMoves(suite.AppContextForTest(), &testCase.SearchMovesParams)
+			moves, _, err := searcher.SearchMoves(suite.AppContextWithSessionForTest(&session), &testCase.SearchMovesParams) //#nosec G601 vnew in 1.22.2
 			suite.NoError(err)
 			suite.Len(moves, 1, message)
 			suite.Equal(secondMove.Locator, moves[0].Locator, message)

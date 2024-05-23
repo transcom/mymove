@@ -47,15 +47,10 @@ const defaultProps = {
     streetAddress1: '123 Main',
     streetAddress2: '',
   },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
-      total_weight_self_plus_dependents: 8000,
-    },
-  },
   orders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
+    authorizedWeight: 5000,
   },
   shipmentType: SHIPMENT_OPTIONS.HHG,
 };
@@ -132,7 +127,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders the correct weight allowance when there are dependents', async () => {
-      renderMtoShipmentForm({ orders: { has_dependents: true } });
+      renderMtoShipmentForm({ orders: { has_dependents: true, authorizedWeight: 8000 } });
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
@@ -798,7 +793,10 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders the correct weight allowance when there are dependents', async () => {
-      renderMtoShipmentForm({ shipmentType: SHIPMENT_OPTIONS.NTS, orders: { has_dependents: true } });
+      renderMtoShipmentForm({
+        shipmentType: SHIPMENT_OPTIONS.NTS,
+        orders: { has_dependents: true, authorizedWeight: 8000 },
+      });
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
 
@@ -856,7 +854,10 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders the correct weight allowance when there are dependents', async () => {
-      renderMtoShipmentForm({ shipmentType: SHIPMENT_OPTIONS.NTSR, orders: { has_dependents: true } });
+      renderMtoShipmentForm({
+        shipmentType: SHIPMENT_OPTIONS.NTSR,
+        orders: { has_dependents: true, authorizedWeight: 8000 },
+      });
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 

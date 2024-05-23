@@ -77,30 +77,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				return userop.NewShowLoggedInUserUnauthorized(), err
 			}
 
-			// Load duty location and transportation office association
-			if serviceMember.DutyLocationID != nil {
-				// Fetch associations on duty location
-				dutyLocation, dutyLocationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
-				if dutyLocationErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr), dutyLocationErr
-				}
-				serviceMember.DutyLocation = dutyLocation
-
-				// Fetch duty location transportation office
-				transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyLocationID)
-				if tspErr != nil {
-					if errors.Cause(tspErr) != models.ErrFetchNotFound {
-						// The absence of an office shouldn't render the entire request a 404
-						return handlers.ResponseForError(appCtx.Logger(), tspErr), tspErr
-					}
-					// We might not have Transportation Office data for a Duty Location, and that's ok
-					if errors.Cause(tspErr) != models.ErrFetchNotFound {
-						return handlers.ResponseForError(appCtx.Logger(), tspErr), tspErr
-					}
-				}
-				serviceMember.DutyLocation.TransportationOffice = transportationOffice
-			}
-
 			// Load the latest orders associations and new duty location transport office
 			if len(serviceMember.Orders) > 0 {
 				orders, orderErr := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)
@@ -121,14 +97,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 				// Load associations on PPM if they exist
 				if len(serviceMember.Orders[0].Moves) > 0 {
-					if len(serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves) > 0 {
-						// TODO: load advances on all ppms for the latest order's move
-						ppm, ppmErr := models.FetchPersonallyProcuredMove(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
-						if ppmErr != nil {
-							return handlers.ResponseForError(appCtx.Logger(), ppmErr), ppmErr
-						}
-						serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
-					}
 
 					// Check if move is valid and not hidden
 					// If the move is hidden, return an error

@@ -37,16 +37,6 @@ func main() {
 	initSaveGHCFuelPriceFlags(saveGHCFuelPriceDataCommand.Flags())
 	root.AddCommand(saveGHCFuelPriceDataCommand)
 
-	sendPostMoveSurveyCommand := &cobra.Command{
-		Use:          "send-post-move-survey",
-		Short:        "sends post move survey email",
-		Long:         "sends post move survey email",
-		RunE:         sendPostMoveSurvey,
-		SilenceUsage: true,
-	}
-	initPostMoveSurveyFlags(sendPostMoveSurveyCommand.Flags())
-	root.AddCommand(sendPostMoveSurveyCommand)
-
 	sendPaymentReminderCommand := &cobra.Command{
 		Use:          "send-payment-reminder",
 		Short:        "sends payment reminder email",
@@ -91,7 +81,7 @@ func main() {
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
 		Long:  "To install completion scripts run:\n\nmilmove-tasks completion > /usr/local/etc/bash_completion.d/milmove-tasks",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			return root.GenBashCompletion(os.Stdout)
 		},
 	}

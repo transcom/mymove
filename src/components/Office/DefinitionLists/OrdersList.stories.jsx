@@ -24,6 +24,7 @@ export const Basic = () => (
         sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
         NTSsac: text('ordersInfo.NTSsac', '999 999999 999'),
         NTStac: text('ordersInfo.NTStac', '9999'),
+        payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
     />
   </div>
@@ -46,6 +47,7 @@ export const AsServiceCounselor = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
+        payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
     />
   </div>
@@ -68,6 +70,7 @@ export const AsServiceCounselorProcessingRetirement = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
+        payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
     />
   </div>
@@ -90,6 +93,7 @@ export const AsServiceCounselorProcessingSeparation = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
+        payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
     />
   </div>
@@ -111,6 +115,7 @@ export const AsTOO = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
+        payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
     />
   </div>
@@ -132,6 +137,7 @@ export const AsTOOProcessingRetirement = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
+        payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
     />
   </div>
@@ -153,6 +159,7 @@ export const AsTOOProcessingSeparation = () => (
         sacSDN: '',
         NTSsac: '',
         NTStac: '',
+        payGrade: text('ordersInfo.payGrade', 'E_5'),
       }}
     />
   </div>

@@ -5,6 +5,8 @@
  */
 
 // @ts-check
+import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
+
 import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
@@ -94,6 +96,24 @@ test.describe('Services counselor user', () => {
 
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
+  });
+
+  test.describe('with HHG Move with Marine Corps as BOS', () => {
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveAsUSMCNeedsSC();
+      await scPage.navigateToMove(move.locator);
+    });
+
+    test('is able to view USMC as Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA / USMC');
+    });
   });
 
   test.describe('with HHG Move with amended orders', () => {
@@ -110,6 +130,16 @@ test.describe('Services counselor user', () => {
 
       // Check for link that allows counselor to download the PDF for copy/paste functionality
       await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
+
+      // Check for department indicators
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.AIR_AND_SPACE_FORCE);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY_CORPS_OF_ENGINEERS);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.NAVY_AND_MARINES);
+      await page
+        .getByLabel('Department indicator')
+        .selectOption(DEPARTMENT_INDICATOR_OPTIONS.OFFICE_OF_SECRETARY_OF_DEFENSE);
     });
   });
 
@@ -197,8 +227,8 @@ test.describe('Services counselor user', () => {
       //   await expect(page.locator('[data-testid="rme"]')).toContainText('999');
       //   await expect(page.locator('[data-testid="storageInTransit"]')).toContainText('199');
       //   await expect(page.locator('[data-testid="ocie"]')).toContainText('Unauthorized');
-      //   await expect(page.locator('[data-testid="branchRank"]')).toContainText('Navy');
-      //   await expect(page.locator('[data-testid="branchRank"]')).toContainText('W-2');
+      //   await expect(page.locator('[data-testid="branchGrade"]')).toContainText('Navy');
+      //   await expect(page.locator('[data-testid="branchGrade"]')).toContainText('W-2');
       //   await expect(page.locator('[data-testid="dependents"]')).toContainText('Unauthorized');
       //   // Edit allowances page | Cancel
       //   await expect(page.locator('[data-testid="edit-allowances"]')).toContainText('Edit allowances').click();
@@ -291,11 +321,10 @@ test.describe('Services counselor user', () => {
     await scPage.navigateToCloseoutMove(move.locator);
 
     // Navigate to the "Review documents" page
-    await expect(page.getByRole('button', { name: 'Review documents' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
     await page.getByRole('button', { name: 'Review documents' }).click();
 
     await scPage.waitForPage.reviewWeightTicket();
-
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
@@ -305,7 +334,7 @@ test.describe('Services counselor user', () => {
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
-    await scPage.waitForPage.reviewReceipt();
+    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();

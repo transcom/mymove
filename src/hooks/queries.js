@@ -28,9 +28,13 @@ import {
   getReportViolationsByReportID,
   getMTOShipmentByID,
   getServicesCounselingPPMQueue,
+  getPrimeSimulatorAvailableMoves,
+  getPPMCloseout,
+  getPPMActualWeight,
+  searchCustomers,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
-import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
+import { getPrimeSimulatorMove } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
 import {
   PAYMENT_REQUESTS,
@@ -47,7 +51,6 @@ import {
   CUSTOMER,
   SERVICES_COUNSELING_QUEUE,
   SHIPMENTS_PAYMENT_SIT_BALANCE,
-  PRIME_SIMULATOR_AVAILABLE_MOVES,
   PRIME_SIMULATOR_MOVE,
   CUSTOMER_SUPPORT_REMARKS,
   QAE_CSR_MOVE_SEARCH,
@@ -58,6 +61,10 @@ import {
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
   DOCUMENTS,
+  PRIME_SIMULATOR_AVAILABLE_MOVES,
+  PPMCLOSEOUT,
+  PPMACTUALWEIGHT,
+  SC_CUSTOMER_SEARCH,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -140,6 +147,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
+    move,
     order,
     customerData,
     isLoading,
@@ -255,10 +263,35 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  const ppmShipmentId = mtoShipment?.ppmShipment?.id;
+  const { data: ppmActualWeight, ...ppmActualWeightQuery } = useQuery(
+    [PPMACTUALWEIGHT, ppmShipmentId],
+    ({ queryKey }) => getPPMActualWeight(...queryKey),
+    {
+      enabled: !!ppmShipmentId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery, ppmActualWeightQuery]);
   return {
     mtoShipment,
     documents,
+    ppmActualWeight,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePPMCloseoutQuery = (ppmShipmentId) => {
+  const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery([PPMCLOSEOUT, ppmShipmentId], ({ queryKey }) =>
+    getPPMCloseout(...queryKey),
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([ppmCloseoutQuery]);
+
+  return {
+    ppmCloseout,
     isLoading,
     isError,
     isSuccess,
@@ -766,26 +799,20 @@ export const useMoveDetailsQueries = (moveCode) => {
   };
 };
 
-export const usePrimeSimulatorAvailableMovesQueries = () => {
+export const usePrimeSimulatorAvailableMovesQueries = ({
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, { filters, currentPage, currentPageSize }],
     ({ queryKey }) => getPrimeSimulatorAvailableMoves(...queryKey),
   );
-  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
-  // README: This queueResult is being artificially constructed rather than
-  // created using the `..dataProp` destructering of other functions because
-  // the Prime API does not return an Object that the TableQueue component can
-  // consume. So the queueResult mimics that Objects properties since `data` in
-  // this case is a simple Array of Prime Available Moves.
-  const queueResult = {
-    data,
-    page: 1,
-    perPage: data.length,
-    totalCount: data.length,
-  };
+  const { isLoading, isError, isSuccess } = primeSimulatorAvailableMovesQuery;
+  const { queueMoves, ...dataProps } = data;
 
   return {
-    queueResult,
+    queueResult: { data: queueMoves, ...dataProps },
     isLoading,
     isError,
     isSuccess,
@@ -799,7 +826,6 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
-
   return {
     moveTaskOrder,
     isLoading,
@@ -827,7 +853,7 @@ export const useGHCGetMoveHistory = ({
   };
 };
 
-export const useQAECSRMoveSearchQueries = ({
+export const useMoveSearchQueries = ({
   sort,
   order,
   filters = [],
@@ -846,6 +872,49 @@ export const useQAECSRMoveSearchQueries = ({
   const searchMovesResult = data.searchMoves;
   return {
     searchResult: { data: searchMovesResult, page: data.page, perPage: data.perPage, totalCount: data.totalCount },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerSearchQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const queryResult = useQuery(
+    [SC_CUSTOMER_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
+    ({ queryKey }) => searchCustomers(...queryKey),
+    {
+      enabled: filters.length > 0,
+    },
+  );
+  const { data = {}, ...customerSearchQuery } = queryResult;
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerSearchQuery]);
+  const searchCustomersResult = data.searchCustomers;
+  return {
+    searchResult: { data: searchCustomersResult, page: data.page, perPage: data.perPage, totalCount: data.totalCount },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerQuery = (customerId) => {
+  const { data: { customer } = {}, ...customerQuery } = useQuery(
+    [CUSTOMER, customerId],
+    ({ queryKey }) => getCustomer(...queryKey),
+    {
+      enabled: !!customerId,
+    },
+  );
+  const customerData = customer && Object.values(customer)[0];
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerQuery]);
+  return {
+    customerData,
     isLoading,
     isError,
     isSuccess,

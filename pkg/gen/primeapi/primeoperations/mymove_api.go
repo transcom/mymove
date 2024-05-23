@@ -47,6 +47,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		JSONConsumer:          runtime.JSONConsumer(),
 		MultipartformConsumer: runtime.DiscardConsumer,
 
+		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
 
 		MoveTaskOrderCreateExcessWeightRecordHandler: move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
@@ -60,9 +61,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
-		}),
-		MtoShipmentCreateNonSITAddressUpdateRequestHandler: mto_shipment.CreateNonSITAddressUpdateRequestHandlerFunc(func(params mto_shipment.CreateNonSITAddressUpdateRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_shipment.CreateNonSITAddressUpdateRequest has not yet been implemented")
 		}),
 		PaymentRequestCreatePaymentRequestHandler: payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
@@ -81,6 +79,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoShipmentDeleteMTOShipmentHandler: mto_shipment.DeleteMTOShipmentHandlerFunc(func(params mto_shipment.DeleteMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.DeleteMTOShipment has not yet been implemented")
+		}),
+		MoveTaskOrderDownloadMoveOrderHandler: move_task_order.DownloadMoveOrderHandlerFunc(func(params move_task_order.DownloadMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.DownloadMoveOrder has not yet been implemented")
 		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
@@ -108,6 +109,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoShipmentUpdateReweighHandler: mto_shipment.UpdateReweighHandlerFunc(func(params mto_shipment.UpdateReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateReweigh has not yet been implemented")
+		}),
+		MtoShipmentUpdateShipmentDestinationAddressHandler: mto_shipment.UpdateShipmentDestinationAddressHandlerFunc(func(params mto_shipment.UpdateShipmentDestinationAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateShipmentDestinationAddress has not yet been implemented")
 		}),
 	}
 }
@@ -150,6 +154,9 @@ type MymoveAPI struct {
 	//   - multipart/form-data
 	MultipartformConsumer runtime.Consumer
 
+	// BinProducer registers a producer for the following mime types:
+	//   - application/pdf
+	BinProducer runtime.Producer
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
@@ -162,8 +169,6 @@ type MymoveAPI struct {
 	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
-	// MtoShipmentCreateNonSITAddressUpdateRequestHandler sets the operation handler for the create non s i t address update request operation
-	MtoShipmentCreateNonSITAddressUpdateRequestHandler mto_shipment.CreateNonSITAddressUpdateRequestHandler
 	// PaymentRequestCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestCreatePaymentRequestHandler payment_request.CreatePaymentRequestHandler
 	// SitAddressUpdateCreateSITAddressUpdateRequestHandler sets the operation handler for the create s i t address update request operation
@@ -176,6 +181,8 @@ type MymoveAPI struct {
 	PaymentRequestCreateUploadHandler payment_request.CreateUploadHandler
 	// MtoShipmentDeleteMTOShipmentHandler sets the operation handler for the delete m t o shipment operation
 	MtoShipmentDeleteMTOShipmentHandler mto_shipment.DeleteMTOShipmentHandler
+	// MoveTaskOrderDownloadMoveOrderHandler sets the operation handler for the download move order operation
+	MoveTaskOrderDownloadMoveOrderHandler move_task_order.DownloadMoveOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
@@ -194,6 +201,8 @@ type MymoveAPI struct {
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
 	// MtoShipmentUpdateReweighHandler sets the operation handler for the update reweigh operation
 	MtoShipmentUpdateReweighHandler mto_shipment.UpdateReweighHandler
+	// MtoShipmentUpdateShipmentDestinationAddressHandler sets the operation handler for the update shipment destination address operation
+	MtoShipmentUpdateShipmentDestinationAddressHandler mto_shipment.UpdateShipmentDestinationAddressHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -270,6 +279,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "MultipartformConsumer")
 	}
 
+	if o.BinProducer == nil {
+		unregistered = append(unregistered, "BinProducer")
+	}
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
@@ -285,9 +297,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
-	}
-	if o.MtoShipmentCreateNonSITAddressUpdateRequestHandler == nil {
-		unregistered = append(unregistered, "mto_shipment.CreateNonSITAddressUpdateRequestHandler")
 	}
 	if o.PaymentRequestCreatePaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreatePaymentRequestHandler")
@@ -306,6 +315,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentDeleteMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.DeleteMTOShipmentHandler")
+	}
+	if o.MoveTaskOrderDownloadMoveOrderHandler == nil {
+		unregistered = append(unregistered, "move_task_order.DownloadMoveOrderHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -333,6 +345,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentUpdateReweighHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateReweighHandler")
+	}
+	if o.MtoShipmentUpdateShipmentDestinationAddressHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateShipmentDestinationAddressHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -382,6 +397,8 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 	result := make(map[string]runtime.Producer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
+		case "application/pdf":
+			result["application/pdf"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
 		}
@@ -443,10 +460,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/shipment-address-updates"] = mto_shipment.NewCreateNonSITAddressUpdateRequest(o.context, o.MtoShipmentCreateNonSITAddressUpdateRequestHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/payment-requests"] = payment_request.NewCreatePaymentRequest(o.context, o.PaymentRequestCreatePaymentRequestHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -468,6 +481,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/mto-shipments/{mtoShipmentID}"] = mto_shipment.NewDeleteMTOShipment(o.context, o.MtoShipmentDeleteMTOShipmentHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/moves/{locator}/documents"] = move_task_order.NewDownloadMoveOrder(o.context, o.MoveTaskOrderDownloadMoveOrderHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -504,6 +521,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}"] = mto_shipment.NewUpdateReweigh(o.context, o.MtoShipmentUpdateReweighHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/shipment-address-updates"] = mto_shipment.NewUpdateShipmentDestinationAddress(o.context, o.MtoShipmentUpdateShipmentDestinationAddressHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

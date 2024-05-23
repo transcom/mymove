@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
@@ -28,7 +29,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	submittedAt := availableToPrimeAt.Add(-1 * time.Hour)
 
 	var move models.Move
-	var requestUser models.User
+	var requestUser models.OfficeUser
 	setupTestData := func() {
 		move = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -39,16 +40,18 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 				},
 			},
 		}, nil)
-		requestUser = factory.BuildUser(nil, nil, nil)
+		requestUser = factory.BuildOfficeUser(nil, nil, nil)
 	}
 
 	suite.Run("Successful move fetch", func() {
 		setupTestData()
 		mockFetcher := mocks.MoveFetcher{}
+		mockLocker := movelocker.NewMoveLocker()
 
 		handler := GetMoveHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
+			MoveLocker:    mockLocker,
 		}
 
 		mockFetcher.On("FetchMove",
@@ -58,7 +61,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		).Return(&move, nil)
 
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
+		req = suite.AuthenticateUserRequest(req, requestUser.User)
 		params := moveops.GetMoveParams{
 			HTTPRequest: req,
 			Locator:     move.Locator,
@@ -109,6 +112,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			},
 		}, nil)
 		moveFetcher := moveservice.NewMoveFetcher()
+		mockLocker := movelocker.NewMoveLocker()
 		requestOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
@@ -123,6 +127,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		handler := GetMoveHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   moveFetcher,
+			MoveLocker:    mockLocker,
 		}
 
 		response := handler.Handle(params)
@@ -147,7 +152,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			MoveFetcher:   &mockFetcher,
 		}
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
+		req = suite.AuthenticateUserRequest(req, requestUser.User)
 
 		// Validate incoming payload: no body to validate
 
@@ -162,10 +167,12 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	suite.Run("Unsuccessful move fetch - locator not found", func() {
 		setupTestData()
 		mockFetcher := mocks.MoveFetcher{}
+		mockLocker := movelocker.NewMoveLocker()
 
 		handler := GetMoveHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
+			MoveLocker:    mockLocker,
 		}
 
 		mockFetcher.On("FetchMove",
@@ -174,13 +181,11 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			mock.Anything,
 		).Return(&models.Move{}, apperror.NotFoundError{})
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
+		req = suite.AuthenticateUserRequest(req, requestUser.User)
 		params := moveops.GetMoveParams{
 			HTTPRequest: req,
 			Locator:     move.Locator,
 		}
-
-		// Validate incoming payload: no body to validate
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveNotFound{}, response)
@@ -193,10 +198,12 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	suite.Run("Unsuccessful move fetch - internal server error", func() {
 		setupTestData()
 		mockFetcher := mocks.MoveFetcher{}
+		mockLocker := movelocker.NewMoveLocker()
 
 		handler := GetMoveHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			MoveFetcher:   &mockFetcher,
+			MoveLocker:    mockLocker,
 		}
 
 		mockFetcher.On("FetchMove",
@@ -206,7 +213,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		).Return(&models.Move{}, apperror.QueryError{})
 
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
+		req = suite.AuthenticateUserRequest(req, requestUser.User)
 		params := moveops.GetMoveParams{
 			HTTPRequest: req,
 			Locator:     move.Locator,
@@ -280,6 +287,8 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.Equal(int64(0), payloadMove.ShipmentsCount)
 		suite.NotEmpty(payloadMove.FirstName)
 		suite.NotEmpty(payloadMove.LastName)
+		suite.NotEmpty(payloadMove.OriginGBLOC)
+		suite.NotEmpty(payloadMove.DestinationGBLOC)
 	})
 
 	suite.Run("Successful move search by DoD ID", func() {

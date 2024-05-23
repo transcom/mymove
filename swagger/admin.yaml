@@ -1,23 +1,21 @@
-schemes:
-  - https
 swagger: '2.0'
-host: admin.move.mil
 info:
+  contact:
+    email: milmove-developers@caci.com
   description: >
     The Admin API is a RESTful API that enables the Admin application for
     MilMove.
 
 
     All endpoints are located under `/admin/v1`.
-  version: 1.0.0
-  title: MilMove Admin API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
-  contact:
-    name: MilMove AppEng
-    email: support@movemil.pagerduty.com
+    url: https://opensource.org/licenses/MIT
+  title: MilMove Admin API
+  version: 1.0.0
 basePath: /admin/v1
+schemes:
+  - https
 consumes:
   - application/json
 produces:
@@ -59,6 +57,10 @@ tags:
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
+  - name: Requested Office Users
+    description: Information about requested office users
+    externalDocs:
+      url: https://transcom.github.io/mymove-docs/docs/api
   - name: Users
     description: Information about users
     externalDocs:
@@ -68,6 +70,21 @@ tags:
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
 definitions:
+  OktaAccountInfoResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      activated:
+        type: string
+      created:
+        type: string
+      profile:
+        type: object
+      credentials:
+        type: object
   Address:
     type: object
     properties:
@@ -208,6 +225,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - state
@@ -611,7 +633,6 @@ definitions:
       notificationType:
         type: string
         enum:
-          - MOVE_REVIEWED_EMAIL
           - MOVE_PAYMENT_REMINDER_EMAIL
       createdAt:
         type: string
@@ -654,6 +675,22 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -672,6 +709,10 @@ definitions:
       - transportationOfficeId
       - active
       - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
       - createdAt
       - updatedAt
   OfficeUserCreate:
@@ -705,6 +746,11 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
+      privileges:
+        type: array
+        x-nullable: true
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserUpdate:
     type: object
     properties:
@@ -738,6 +784,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserRole:
     type: object
     properties:
@@ -751,6 +801,19 @@ definitions:
         example: transportation_ordering_officer
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Supervisor
+        x-nullable: true
+        title: name
+      privilegeType:
+        type: string
+        example: supervisor
+        x-nullable: true
+        title: privilegeType
   OfficeUsers:
     type: array
     items:
@@ -794,6 +857,51 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Organization'
+  RequestedOfficeUserUpdate:
+    type: object
+    properties:
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: true
+      middleInitials:
+        type: string
+        title: Middle Initials
+        example: Q.
+        x-nullable: true
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: true
+      email:
+        type: string
+        example: user@userdomain.com
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+        x-nullable: true
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REJECTED
   Role:
     type: object
     properties:
@@ -821,6 +929,27 @@ definitions:
       - roleName
       - createdAt
       - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   ServiceMember:
     type: object
     properties:
@@ -1093,6 +1222,119 @@ definitions:
       FAILING: Failing
       DISABLED: Disabled
 paths:
+  /requested-office-users:
+    get:
+      produces:
+        - application/json
+      summary: List of Office Users Requesting Accounts
+      description: >
+        This endpoint returns a list of Office Users. Do not use this endpoint
+        directly
+
+        as it is meant to be used with the Admin UI exclusively.
+      operationId: indexRequestedOfficeUsers
+      tags:
+        - Requested office users
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/OfficeUsers'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
+  /requested-office-users/{officeUserId}:
+    get:
+      produces:
+        - application/json
+      summary: Get a Requested Office User
+      description: >-
+        Retrieving a single office user in any status. This endpoint is used in
+        the Admin UI that will allow the admin user to view the user's relevant
+        data.
+      operationId: getRequestedOfficeUser
+      tags:
+        - Requested office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
+    patch:
+      produces:
+        - application/json
+      summary: Update a Requested Office User
+      description: >-
+        Updates a requested office user to include profile data and status. This
+        will be used in the Admin UI for approving/rejecting/updating a user.
+      operationId: updateRequestedOfficeUser
+      tags:
+        - Requested office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestedOfficeUserUpdate'
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: server error
   /office-users:
     get:
       produces:

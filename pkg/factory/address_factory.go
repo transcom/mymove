@@ -32,10 +32,27 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		State:          "CA",
 		PostalCode:     "90210",
 		Country:        models.StringPointer("US"),
+		County:         "LOS ANGELES",
 	}
 
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
+
+	// This helps assign counties when the factory is called for seed data or tests
+	// Additionally, also only run if not 90210. 90210's county is by default populated
+	if db != nil && address.PostalCode != "90210" {
+		county, err := models.FindCountyByZipCode(db, address.PostalCode)
+		if err != nil {
+			// A zip code that is not being tracked has been entered
+			address.County = "does not exist"
+		} else {
+			// The zip code successfully found a county
+			address.County = county
+		}
+	} else if db == nil && address.PostalCode != "90210" {
+		// If no db supplied, mark that
+		address.County = "db nil when created"
+	}
 
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {

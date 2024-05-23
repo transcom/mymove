@@ -41,6 +41,16 @@ func (d *Document) Validate(_ *pop.Connection) (*validate.Errors, error) {
 
 // FetchDocument returns a document if the user has access to that document
 func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
+	return fetchDocumentWithAccessibilityCheck(db, session, id, includeDeletedDocs, true)
+}
+
+// FetchDocument returns a document regardless if user has access to that document
+func FetchDocumentWithNoRestrictions(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
+	return fetchDocumentWithAccessibilityCheck(db, session, id, includeDeletedDocs, false)
+}
+
+// FetchDocument returns a document if the user has access to that document
+func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool, checkUserAccessiability bool) (Document, error) {
 	var document Document
 	query := db.Q()
 
@@ -61,9 +71,12 @@ func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, incl
 		return Document{}, err
 	}
 
-	_, smErr := FetchServiceMemberForUser(db, session, document.ServiceMemberID)
-	if smErr != nil {
-		return Document{}, smErr
+	if checkUserAccessiability {
+		_, smErr := FetchServiceMemberForUser(db, session, document.ServiceMemberID)
+		if smErr != nil {
+			return Document{}, smErr
+		}
 	}
+
 	return document, nil
 }

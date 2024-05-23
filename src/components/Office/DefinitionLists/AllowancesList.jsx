@@ -6,7 +6,7 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatWeight } from 'utils/formatters';
-import friendlyBranchRank from 'utils/branchRankFormatters';
+import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
 const AllowancesList = ({ info, showVisualCues }) => {
   const visualCuesStyle = classNames(descriptionListStyles.row, {
@@ -17,12 +17,12 @@ const AllowancesList = ({ info, showVisualCues }) => {
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
-          <dt>Branch, rank</dt>
-          <dd data-testid="branchRank">{friendlyBranchRank(info.branch, info.rank)}</dd>
+          <dt>Branch</dt>
+          <dd data-testid="branch">{info.branch ? ORDERS_BRANCH_OPTIONS[info.branch] : ''}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Weight allowance</dt>
-          <dd data-testid="weightAllowance">{formatWeight(info.weightAllowance)}</dd>
+          <dd data-testid="weightAllowance">{formatWeight(info.authorizedWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Storage in transit (SIT)</dt>
@@ -50,6 +50,10 @@ const AllowancesList = ({ info, showVisualCues }) => {
             {info.organizationalClothingAndIndividualEquipment ? 'Authorized' : 'Unauthorized'}
           </dd>
         </div>
+        <div className={visualCuesStyle}>
+          <dt>Gun Safe</dt>
+          <dd data-testid="gunSafe"> {info.gunSafe ? 'Authorized' : 'Unauthorized'} </dd>
+        </div>
       </dl>
     </div>
   );
@@ -58,7 +62,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
 AllowancesList.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,
-    rank: PropTypes.string,
+    grade: PropTypes.string,
     weightAllowance: PropTypes.number,
     authorizedWeight: PropTypes.number,
     progear: PropTypes.number,

@@ -66,10 +66,10 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
   await page.getByRole('link', { name: 'Review Documents' }).click();
   await scPage.waitForPage.reviewWeightTicket();
 
-  await page.getByTestId('net-weight-display').getByTestId('button').click();
-  await page.getByTestId('weightInput').fill('0');
-  await page.getByTestId('formRemarks').fill('Reduce PPM weight to slash excess weight');
-  await page.getByRole('button', { name: 'Save changes' }).click();
+  await page.getByTestId('fullWeight').clear();
+  await page.getByTestId('fullWeight').fill('8000');
+  await page.getByTestId('fullWeight').blur();
+  await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByTestId('closeSidebar').click();
 
@@ -80,4 +80,25 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
   await expect(
     page.getByText('This move has excess weight. Review PPM weight ticket documents to resolve.'),
   ).toHaveCount(0);
+});
+
+test('A service counselor can see HHG weights when reviewing weight tickets', async ({ page, scPage }) => {
+  // Create a move with TestHarness, and then navigate to the move details page for it
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMWeightTicketOfficeWithHHG();
+  await scPage.navigateToCloseoutMove(move.locator);
+
+  // Navigate to the "Review documents" page
+  await page.getByRole('button', { name: 'Review documents' }).click();
+  await scPage.waitForPage.reviewWeightTicket();
+
+  // Verify the heading "HHG 1" is present
+  await expect(page.getByRole('heading', { level: 3, name: /HHG 1/ })).toBeVisible();
+
+  // Verify that the labels for Estimated Weight and Actual Weight are present
+  await expect(page.getByText('Estimated Weight')).toBeVisible();
+  await expect(page.getByText('Actual Weight')).toBeVisible();
+
+  // Verify that the specific weights are displayed as expected
+  await expect(page.getByText('1,400 lbs')).toBeVisible();
+  await expect(page.getByText('2,000 lbs')).toBeVisible();
 });

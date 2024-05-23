@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -883,37 +884,36 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				return fmt.Sprintf("ID: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
 			},
 		},
-		// ServiceMember with no Rank
+		// Order with no Grade
 		{
-			TestDescription: "Given move with service member that has no Rank, the create should fail",
+			TestDescription: "Given move with order that has no Rank, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
+				mtoInvalid.Orders.Grade = nil
 				sm := mtoInvalid.Orders.ServiceMember
-				sm.Rank = nil
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
-			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("ID: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+			ExpectedErrorMessage: func(_ uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("ID: %s is in a conflicting state unable to pick contract because move is not available to prime", mtoID)
 			},
 		},
-		// ServiceMember with blank Rank
+		// Order with empty Grade
 		{
-			TestDescription: "Given move with service member that has blank Rank, the create should fail",
+			TestDescription: "Given move with order that has blank Rank, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
+				mtoInvalid.Orders.Grade = internalmessages.NewOrderPayGrade("")
 				sm := mtoInvalid.Orders.ServiceMember
-				blank := models.ServiceMemberRank("")
-				sm.Rank = &blank
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
-			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
-				return fmt.Sprintf("ID: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+			ExpectedErrorMessage: func(_ uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("ID: %s is in a conflicting state unable to pick contract because move is not available to prime", mtoID)
 			},
 		},
 		// ServiceMember with no Affiliation
@@ -1357,7 +1357,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		{
 			Model: models.Address{
 				StreetAddress1: "235 Prospect Valley Road SE",
-				City:           "Augusta",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     testStorageFacilityZip,
 			},

@@ -10,6 +10,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+type MoveOrderAmendmentAvailableSinceCount struct {
+	MoveID              uuid.UUID
+	Total               int
+	AvailableSinceTotal int
+}
+
+type MoveOrderAmendmentAvailableSinceCounts []MoveOrderAmendmentAvailableSinceCount
+
 // HiddenMove struct used to store the MTO ID and the reason that the move is being hidden.
 type HiddenMove struct {
 	MTOID  uuid.UUID
@@ -40,7 +48,9 @@ type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
 	ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
+	ListNewPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, int, error)
 	GetMove(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error)
+	ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, MoveOrderAmendmentAvailableSinceCounts, error)
 }
 
 // MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
@@ -71,5 +81,9 @@ type MoveTaskOrderFetcherParams struct {
 	Since                    *time.Time // if filled, only MTOs that have been updated after this timestamp will be returned
 	MoveTaskOrderID          uuid.UUID  // ID of the move task order
 	Locator                  string     // the locator is a unique string that identifies the move
+	MoveCode                 *string    // moveCode that is passed in when searching through prime moves
+	ID                       *string    // id of the move that is sent in when searching through prime moves
 	ExcludeExternalShipments bool       // indicates if external vendor shipments should be returned
+	Page                     *int64
+	PerPage                  *int64
 }

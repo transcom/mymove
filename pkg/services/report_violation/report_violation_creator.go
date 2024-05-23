@@ -21,7 +21,7 @@ func NewReportViolationCreator() services.ReportViolationsCreator {
 // Remove all existing violations associations for a report and replace them with associations to the provided violations
 func (u reportViolationsCreator) AssociateReportViolations(appCtx appcontext.AppContext, reportViolations *models.ReportViolations, reportID uuid.UUID) error {
 
-	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+	txnErr := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 
 		// Delete all existing report_violations for this report
 		existingReportViolations := models.ReportViolations{}

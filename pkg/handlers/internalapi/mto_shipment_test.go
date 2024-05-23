@@ -59,19 +59,25 @@ func (suite *HandlerSuite) setUpMTOShipmentObjects() *mtoShipmentObjects {
 // CREATE
 //
 
-func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	// Setup in this area should only be for objects that can be created once for all the sub-tests. Any model data,
 	// mocks, or objects that can be modified in subtests should instead be set up in makeCreateSubtestData.
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
-
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
+	addressCreator := address.NewAddressCreator()
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
-	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		testMTOShipmentObjects.builder,
-		mtoserviceitem.NewMTOServiceItemCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),
 		testMTOShipmentObjects.moveRouter,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
@@ -217,6 +223,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
+
+		// create puckupAddress
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+
 		// pointers
 		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
 		pickupPostal := "11111"
@@ -230,6 +241,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				PickupPostalCode:      &pickupPostal,
 				DestinationPostalCode: &destinationPostalCode,
 				SitExpected:           &sitExpected,
+				PickupAddress: &internalmessages.Address{
+					City:           &pickupAddress.City,
+					Country:        pickupAddress.Country,
+					PostalCode:     &pickupAddress.PostalCode,
+					State:          &pickupAddress.State,
+					StreetAddress1: &pickupAddress.StreetAddress1,
+					StreetAddress2: pickupAddress.StreetAddress2,
+					StreetAddress3: pickupAddress.StreetAddress3,
+				},
+				DestinationAddress: &internalmessages.Address{
+					City:           &destinationAddress.City,
+					Country:        destinationAddress.Country,
+					PostalCode:     &destinationAddress.PostalCode,
+					State:          &destinationAddress.State,
+					StreetAddress1: &destinationAddress.StreetAddress1,
+					StreetAddress2: destinationAddress.StreetAddress2,
+					StreetAddress3: destinationAddress.StreetAddress3,
+				},
 			},
 			ShipmentType: &ppmShipmentType,
 		}
@@ -260,6 +289,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
 		suite.Nil(createdShipment.PpmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+		suite.Equal(*params.Body.PpmShipment.PickupAddress.StreetAddress1, *createdShipment.PpmShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.DestinationAddress.StreetAddress1, *createdShipment.PpmShipment.DestinationAddress.StreetAddress1)
 	})
 
 	suite.Run("Successful POST - Integration Test - PPM optional fields", func() {
@@ -272,6 +303,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		pickupPostal := "11111"
 		destinationPostalCode := "41414"
 		sitExpected := false
+
+		// create  PPM addressed
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+
 		// reset Body params to have PPM fields
 		params.Body = &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
@@ -282,6 +320,42 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				DestinationPostalCode:          &destinationPostalCode,
 				SecondaryDestinationPostalCode: nullable.NewString("41415"),
 				SitExpected:                    &sitExpected,
+				PickupAddress: &internalmessages.Address{
+					City:           &pickupAddress.City,
+					Country:        pickupAddress.Country,
+					PostalCode:     &pickupAddress.PostalCode,
+					State:          &pickupAddress.State,
+					StreetAddress1: &pickupAddress.StreetAddress1,
+					StreetAddress2: pickupAddress.StreetAddress2,
+					StreetAddress3: pickupAddress.StreetAddress3,
+				},
+				DestinationAddress: &internalmessages.Address{
+					City:           &destinationAddress.City,
+					Country:        destinationAddress.Country,
+					PostalCode:     &destinationAddress.PostalCode,
+					State:          &destinationAddress.State,
+					StreetAddress1: &destinationAddress.StreetAddress1,
+					StreetAddress2: destinationAddress.StreetAddress2,
+					StreetAddress3: destinationAddress.StreetAddress3,
+				},
+				SecondaryPickupAddress: &internalmessages.Address{
+					City:           &secondaryPickupAddress.City,
+					Country:        secondaryPickupAddress.Country,
+					PostalCode:     &secondaryPickupAddress.PostalCode,
+					State:          &secondaryPickupAddress.State,
+					StreetAddress1: &secondaryPickupAddress.StreetAddress1,
+					StreetAddress2: secondaryPickupAddress.StreetAddress2,
+					StreetAddress3: secondaryPickupAddress.StreetAddress3,
+				},
+				SecondaryDestinationAddress: &internalmessages.Address{
+					City:           &secondaryDestinationAddress.City,
+					Country:        secondaryDestinationAddress.Country,
+					PostalCode:     &secondaryDestinationAddress.PostalCode,
+					State:          &secondaryDestinationAddress.State,
+					StreetAddress1: &secondaryDestinationAddress.StreetAddress1,
+					StreetAddress2: secondaryDestinationAddress.StreetAddress2,
+					StreetAddress3: secondaryDestinationAddress.StreetAddress3,
+				},
 			},
 			ShipmentType: &ppmShipmentType,
 		}
@@ -312,6 +386,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SecondaryDestinationPostalCode.Value, *createdShipment.PpmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+		suite.Equal(*params.Body.PpmShipment.PickupAddress.StreetAddress1, *createdShipment.PpmShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.DestinationAddress.StreetAddress1, *createdShipment.PpmShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.SecondaryPickupAddress.StreetAddress1, *createdShipment.PpmShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.SecondaryDestinationAddress.StreetAddress1, *createdShipment.PpmShipment.SecondaryDestinationAddress.StreetAddress1)
 	})
 
 	suite.Run("Successful POST - Integration Test - NTS-Release", func() {
@@ -534,13 +612,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-
-	mtoShipmentUpdater := mtoshipment.NewCustomerMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	addressUpdater := address.NewAddressUpdater()
+	addressCreator := address.NewAddressCreator()
+	mtoShipmentUpdater := mtoshipment.NewCustomerMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 	ppmEstimator := mocks.PPMEstimator{}
 
-	addressCreator := address.NewAddressCreator()
-	addressUpdater := address.NewAddressUpdater()
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -652,6 +729,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			RequestedPickupDate:       handlers.FmtDatePtr(originalShipment.RequestedPickupDate),
 			RequestedDeliveryDate:     handlers.FmtDatePtr(originalShipment.RequestedDeliveryDate),
 			ShipmentType:              internalmessages.MTOShipmentTypeHHG,
+			ActualProGearWeight:       handlers.FmtInt64(1860),
+			ActualSpouseProGearWeight: handlers.FmtInt64(202),
 		}
 
 		return &mtoUpdateSubtestData{
@@ -673,6 +752,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		suite.Equal(subtestData.mtoShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
+		suite.Equal(*params.Body.ActualProGearWeight, *updatedShipment.ActualProGearWeight)
+		suite.Equal(*params.Body.ActualSpouseProGearWeight, *updatedShipment.ActualSpouseProGearWeight)
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *updatedShipment.DestinationAddress.StreetAddress1)
@@ -748,7 +829,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SitExpected:           handlers.FmtBool(false),
 				},
 				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, _ models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
 					// check all fields changed as expected
 					desiredShipment.ExpectedDepartureDate.Equal(*updatedShipment.PpmShipment.ExpectedDepartureDate)
 
@@ -790,7 +871,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SecondaryDestinationPostalCode: nullable.NewNullString(),
 				},
 				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, _ internalmessages.UpdatePPMShipment) {
 					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated
@@ -1056,10 +1137,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Allows updates to W2 Address": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					address := factory.BuildAddress(suite.DB(), nil, nil)
+					buildAddress := factory.BuildAddress(suite.DB(), nil, nil)
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
-							Model:    address,
+							Model:    buildAddress,
 							LinkOnly: true,
 							Type:     &factory.Addresses.W2Address,
 						},
@@ -1308,6 +1389,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
+			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 

@@ -14,7 +14,7 @@ const keepAliveEndpoint = '/internal/users/logged_in';
  * @description The component that handles logging out inactive users.
  * @param {int} idleTimeout the amount of time in milliseconds that the user can be idle before being logged out
  * @param {int} warningTime the amount of time in milliseconds that the user will be shown a warning before being logged out
- * @param {bool} activeSession pass whether or not the session is active
+ * @param {function} activeSession pass whether or not the session is active
  * @return {JSX.Element}
  * */
 const AdminLogoutOnInactivity = ({ idleTimeout, warningTime, activeSession }) => {
@@ -94,13 +94,13 @@ const AdminLogoutOnInactivity = ({ idleTimeout, warningTime, activeSession }) =>
 AdminLogoutOnInactivity.defaultProps = {
   idleTimeout: defaultIdleTimeout,
   warningTime: defaultWarningTime,
-  activeSession: PropTypes.bool,
+  activeSession: PropTypes.func,
 };
 
 AdminLogoutOnInactivity.propTypes = {
   idleTimeout: PropTypes.number,
   warningTime: PropTypes.number,
-  activeSession: PropTypes.bool,
+  activeSession: PropTypes.func,
 };
 
 export default AdminLogoutOnInactivity;

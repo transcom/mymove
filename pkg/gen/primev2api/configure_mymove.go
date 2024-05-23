@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/primev2api/primev2operations"
 	"github.com/transcom/mymove/pkg/gen/primev2api/primev2operations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primev2api/primev2operations/mto_shipment"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime_v2.yaml --api-package primev2operations --model-package primev2messages --server-package primev2api --principal interface{} --exclude-main
@@ -38,9 +39,19 @@ func configureAPI(api *primev2operations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.MtoShipmentCreateMTOShipmentHandler == nil {
+		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentUpdateMTOShipmentHandler == nil {
+		api.MtoShipmentUpdateMTOShipmentHandler = mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		})
 	}
 

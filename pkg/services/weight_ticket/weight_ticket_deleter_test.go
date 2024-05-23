@@ -75,11 +75,12 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 	}
 	suite.Run("Returns an error if the original doesn't exist", func() {
 		notFoundWeightTicketID := uuid.Must(uuid.NewV4())
+		ppmID := uuid.Must(uuid.NewV4())
 		fetcher := NewWeightTicketFetcher()
 		estimator := mocks.PPMEstimator{}
 		deleter := NewWeightTicketDeleter(fetcher, &estimator)
 
-		err := deleter.DeleteWeightTicket(suite.AppContextForTest(), notFoundWeightTicketID)
+		err := deleter.DeleteWeightTicket(suite.AppContextForTest(), ppmID, notFoundWeightTicketID)
 
 		if suite.Error(err) {
 			suite.IsType(apperror.NotFoundError{}, err)
@@ -98,6 +99,8 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
 		})
 
+		ppmID := originalWeightTicket.PPMShipmentID
+
 		fetcher := NewWeightTicketFetcher()
 		estimator := mocks.PPMEstimator{}
 		mockIncentive := unit.Cents(10000)
@@ -105,7 +108,7 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 		deleter := NewWeightTicketDeleter(fetcher, &estimator)
 
 		suite.Nil(originalWeightTicket.DeletedAt)
-		err := deleter.DeleteWeightTicket(appCtx, originalWeightTicket.ID)
+		err := deleter.DeleteWeightTicket(appCtx, ppmID, originalWeightTicket.ID)
 		suite.NoError(err)
 
 		var weightTicketInDB models.WeightTicket
@@ -145,6 +148,7 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 			ServiceMemberID: originalWeightTicket.EmptyDocument.ServiceMemberID,
 		})
 
+		ppmID := originalWeightTicket.PPMShipmentID
 		fetcher := NewWeightTicketFetcher()
 		estimator := mocks.PPMEstimator{}
 		mockIncentive := unit.Cents(10000)
@@ -153,7 +157,7 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentive, nil).Once()
 		deleter := NewWeightTicketDeleter(fetcher, &estimator)
-		err := deleter.DeleteWeightTicket(appCtx, originalWeightTicket.ID)
+		err := deleter.DeleteWeightTicket(appCtx, ppmID, originalWeightTicket.ID)
 		suite.NoError(err)
 
 		estimator.AssertCalled(suite.T(), "FinalIncentiveWithDefaultChecks",

@@ -62,7 +62,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	}
 
 	var originDutyLocation, originDutyLocationPhoneLine *string
-	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
+	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), orders.OriginDutyLocationID)
 	if err != nil {
 		return emails, err
 	}
@@ -91,6 +91,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 		DestinationDutyLocation:     orders.NewDutyLocation.Name,
 		OriginDutyLocationPhoneLine: originDutyLocationPhoneLine,
 		Locator:                     move.Locator,
+		MyMoveLink:                  MyMoveLink,
 	})
 
 	if err != nil {
@@ -132,6 +133,7 @@ type moveApprovedEmailData struct {
 	DestinationDutyLocation     string
 	OriginDutyLocationPhoneLine *string
 	Locator                     string
+	MyMoveLink                  string
 }
 
 // RenderHTML renders the html for the email

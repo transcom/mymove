@@ -57,7 +57,7 @@ export const completeCertificationText = `
 **Financial Liability**
 
 For a HHG shipment, I am entitled to move a certain amount of HHG by weight, known as authorized HHG shipment weight \
-(allowance or entitlement).  This allowance is based on my rank, my dependents, and the location of my move (within \
+(allowance or entitlement).  This allowance is based on my pay grade, my dependents, and the location of my move (within \
 the continental United States, or beyond).  If I move more HHG weight than my maximum weight allowance, I will be \
 subject to excess cost for exceeding my weight allowance or entitlement.
 

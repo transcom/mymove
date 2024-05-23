@@ -17,6 +17,7 @@ describe('when given a Update basic service item history record', () => {
       {
         name: 'Domestic uncrating',
         shipment_type: 'HHG',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'a1b2c',
       },
     ],
@@ -32,13 +33,13 @@ describe('when given a Update basic service item history record', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('HHG shipment #A1B2C, Domestic uncrating')).toBeInTheDocument();
+    expect(screen.getByText('HHG shipment #RQ38D4-01, Domestic uncrating')).toBeInTheDocument();
   });
 
   describe('When given a specific set of details', () => {
     it.each([
-      ['Actual weight', ': 300'],
-      ['Estimated weight', ': 500'],
+      ['Actual weight', ': 300 lbs'],
+      ['Estimated weight', ': 500 lbs'],
     ])('displays the proper details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));

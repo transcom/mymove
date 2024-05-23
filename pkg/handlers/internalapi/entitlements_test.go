@@ -3,15 +3,18 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/factory"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
 
+	ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	mtoShipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+	mtoShipment.PPMShipment = &ppm
+	move.MTOShipments = append(move.MTOShipments, mtoShipment)
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements", nil)
 	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)

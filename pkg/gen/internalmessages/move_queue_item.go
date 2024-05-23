@@ -64,6 +64,10 @@ type MoveQueueItem struct {
 	// Example: LNK12345
 	GblNumber *string `json:"gbl_number,omitempty"`
 
+	// grade
+	// Required: true
+	Grade *OrderPayGrade `json:"grade"`
+
 	// hhg status
 	// Example: ACCEPTED
 	HhgStatus *string `json:"hhg_status,omitempty"`
@@ -122,10 +126,6 @@ type MoveQueueItem struct {
 	// Example: PAYMENT_REQUESTED
 	PpmStatus *string `json:"ppm_status,omitempty"`
 
-	// rank
-	// Required: true
-	Rank *ServiceMemberRank `json:"rank"`
-
 	// status
 	// Example: APPROVED
 	// Required: true
@@ -168,6 +168,10 @@ func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateGrade(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -197,10 +201,6 @@ func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePmSurveyConductedDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -293,6 +293,30 @@ func (m *MoveQueueItem) validateEdipi(formats strfmt.Registry) error {
 
 	if err := validate.Pattern("edipi", "body", *m.Edipi, `^\d{10}$`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveQueueItem) validateGrade(formats strfmt.Registry) error {
+
+	if err := validate.Required("grade", "body", m.Grade); err != nil {
+		return err
+	}
+
+	if err := validate.Required("grade", "body", m.Grade); err != nil {
+		return err
+	}
+
+	if m.Grade != nil {
+		if err := m.Grade.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -430,30 +454,6 @@ func (m *MoveQueueItem) validatePmSurveyConductedDate(formats strfmt.Registry) e
 	return nil
 }
 
-func (m *MoveQueueItem) validateRank(formats strfmt.Registry) error {
-
-	if err := validate.Required("rank", "body", m.Rank); err != nil {
-		return err
-	}
-
-	if err := validate.Required("rank", "body", m.Rank); err != nil {
-		return err
-	}
-
-	if m.Rank != nil {
-		if err := m.Rank.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rank")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *MoveQueueItem) validateStatus(formats strfmt.Registry) error {
 
 	if err := validate.Required("status", "body", m.Status); err != nil {
@@ -498,7 +498,7 @@ func (m *MoveQueueItem) validateWeightAllotment(formats strfmt.Registry) error {
 func (m *MoveQueueItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateRank(ctx, formats); err != nil {
+	if err := m.contextValidateGrade(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -512,15 +512,15 @@ func (m *MoveQueueItem) ContextValidate(ctx context.Context, formats strfmt.Regi
 	return nil
 }
 
-func (m *MoveQueueItem) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+func (m *MoveQueueItem) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.Rank != nil {
+	if m.Grade != nil {
 
-		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rank")
+				return ve.ValidateName("grade")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
+				return ce.ValidateName("grade")
 			}
 			return err
 		}

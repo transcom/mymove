@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { PropTypes } from 'prop-types';
@@ -12,7 +12,7 @@ import styles from './ShipmentSITDisplay.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'utils/formatters';
-import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import { swaggerDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
@@ -70,9 +70,13 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
   );
 };
 
-const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
+const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, openConvertModalButton }) => {
+  const [isConvertedToCustomerExpense, setIsConvertedToCustomerExpense] = useState(false);
+
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
+  const sitDepartureDate =
+    formatDate(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitEntryDate = sitStatus.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
@@ -87,8 +91,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
-  const sitEndDate = moment(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat);
-  const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
+  const sitEndDate =
+    formatDate(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat, 'DD MMM YYYY') || '\u2014';
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
@@ -105,26 +109,42 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   // Currently active SIT
   const currentLocation =
     sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
-
   const totalSITDaysUsed = sitStatus.totalSITDaysUsed || 0;
+  const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
   const totalDaysRemaining = () => {
-    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (daysRemaining >= 0) {
+    if (daysRemaining > 0) {
       return daysRemaining;
     }
     return 'Expired';
   };
 
+  const showConvertToCustomerExpense = daysRemaining <= 30;
+
   // Customer delivery request
-  const isDestination = sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION;
   const customerContactDate =
     formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const sitRequestedDelivery =
     formatDate(sitStatus?.currentSIT?.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+
+  useEffect(() => {
+    if (shipment.mtoServiceItems) {
+      const itemsArray = Object.values(shipment.mtoServiceItems);
+      const currentSIT = itemsArray.find((item) => item.id === sitStatus?.currentSIT?.serviceItemID);
+      if (currentSIT?.convertToCustomerExpense) setIsConvertedToCustomerExpense(true);
+      else setIsConvertedToCustomerExpense(false);
+    }
+  }, [shipment.mtoServiceItems, sitStatus?.currentSIT?.serviceItemID]);
+
   return (
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
+        {!pendingSITExtension && isConvertedToCustomerExpense && <Tag>Converted To Customer Expense</Tag>}
+        {sitStatus.currentSIT &&
+          !pendingSITExtension &&
+          showConvertToCustomerExpense &&
+          !isConvertedToCustomerExpense &&
+          openConvertModalButton}
         {sitStatus.currentSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
@@ -142,14 +162,18 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
             {/* Sit Start and End table */}
             {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
             <DataTable
-              columnHeaders={[`SIT start date`, 'SIT authorized end date']}
-              dataRow={[sitStartDateElement, sitEndDateString]}
+              columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
+              dataRow={[sitStartDateElement, sitEndDate, sitStatus.calculatedTotalDaysInSIT]}
               custClass={styles.currentLocation}
             />
           </div>
           <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
             {/* Total days at current location */}
-            <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSITElement]} />
+            <DataTable
+              testID="currentSITDateData"
+              columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
+              dataRow={[currentDaysInSITElement, sitDepartureDate]}
+            />
           </div>
         </>
       )}
@@ -160,22 +184,26 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
           <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
         </div>
       )}
-
-      {isDestination && (
-        <div className={styles.tableContainer}>
-          <p className={styles.sitHeader}>Customer delivery request</p>
-          <DataTable
-            columnHeaders={['Customer contact date', 'Requested delivery date']}
-            dataRow={[customerContactDate, sitRequestedDelivery]}
-            custClass={styles.currentLocation}
-          />
-        </div>
-      )}
+      <div className={styles.tableContainer}>
+        <p className={styles.sitHeader}>Customer delivery request</p>
+        <DataTable
+          columnHeaders={['Customer contact date', 'Requested delivery date']}
+          dataRow={[customerContactDate, sitRequestedDelivery]}
+          custClass={styles.currentLocation}
+        />
+      </div>
     </>
   );
 };
 
-const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
+const ShipmentSITDisplay = ({
+  sitExtensions,
+  sitStatus,
+  shipment,
+  className,
+  openModalButton,
+  openConvertModalButton,
+}) => {
   const sitHistory = React.useMemo(
     () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
     [sitExtensions],
@@ -187,6 +215,7 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       testID="sitExtensions"
     >
       <SitStatusTables
+        openConvertModalButton={openConvertModalButton}
         openModalButton={openModalButton}
         shipment={shipment}
         sitStatus={sitStatus}
@@ -204,6 +233,7 @@ ShipmentSITDisplay.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   sitStatus: SitStatusShape,
   shipment: ShipmentShape.isRequired,
+  openConvertModalButton: PropTypes.element,
   openModalButton: PropTypes.element,
   className: PropTypes.string,
 };
@@ -211,6 +241,7 @@ ShipmentSITDisplay.propTypes = {
 ShipmentSITDisplay.defaultProps = {
   sitExtensions: [],
   sitStatus: undefined,
+  openConvertModalButton: undefined,
   openModalButton: undefined,
   className: '',
 };

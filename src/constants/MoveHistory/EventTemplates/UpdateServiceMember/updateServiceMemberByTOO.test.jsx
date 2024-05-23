@@ -11,7 +11,7 @@ describe('When a TOO updates shipping allowances', () => {
     eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'AIR_FORCE',
-      rank: 'E_2',
+      grade: 'E_2',
     },
   };
   it('correctly matches the update allowance event results in a change in service branch', () => {
@@ -22,7 +22,7 @@ describe('When a TOO updates shipping allowances', () => {
   describe('it correctly displays the details component', () => {
     it.each([
       ['Branch', ': Air Force'],
-      ['Rank', ': E-2'],
+      ['Pay grade', ': E-2'],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));

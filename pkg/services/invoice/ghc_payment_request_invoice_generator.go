@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
@@ -208,6 +209,17 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		return ediinvoice.Invoice858C{}, err
 	}
 
+	// Add order pay grade detail to header
+	if moveTaskOrder.Orders.Grade == nil {
+		// Nil check
+		return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ID, "order pay grade not found")
+	}
+
+	edi858.Header.OrderPayGrade = edisegment.N9{
+		ReferenceIdentificationQualifier: "ML",
+		ReferenceIdentification:          string(*moveTaskOrder.Orders.Grade),
+	}
+
 	var paymentServiceItems models.PaymentServiceItems
 	err = appCtx.DB().Q().
 		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
@@ -302,16 +314,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	header.ServiceMemberName = edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
 		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
-	}
-
-	// rank
-	rank := serviceMember.Rank
-	if rank == nil {
-		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
-	}
-	header.ServiceMemberRank = edisegment.N9{
-		ReferenceIdentificationQualifier: "ML",
-		ReferenceIdentification:          string(*rank),
 	}
 
 	// branch
@@ -613,7 +615,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 		}
 	}
 
-	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
+	affiliation := models.ServiceMemberAffiliation(*orders.ServiceMember.Affiliation)
 	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
 
 	if !found {
@@ -652,83 +654,94 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 	return fa1, fa2s, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
+// Fetches the long lines of accounting for an invoice based off a service member, tacCode, and the orders issue date.
+// There is special logic for whether or not the service member affiliation is for the US Coast Guard.
+func FetchLongLinesOfAccountingForInvoice(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
+	// Note regarding TAC:
+	// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
+	// numbers before letters. This is the behavior we get from order by.
 	var loas []models.LineOfAccounting
-	var loa models.LineOfAccounting
-
+	var err error
 	// If a service member is in the Coast Guard don't filter out the household goods code of 'HS' because that is
 	// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
 	// then this can be revisited to weight the different LOAs similar to the other services.
-	if *orders.ServiceMember.Affiliation == models.AffiliationCOASTGUARD {
-		err := appCtx.DB().Q().
-			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
-			Where("t.tac = ?", tac).
-			Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
+	if serviceMemberAffiliation == models.AffiliationCOASTGUARD {
+		err = appCtx.DB().Q().
+			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
+			Where("t.tac = ?", tacCode).
+			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
+			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
 			Where("t.tac_fn_bl_mod_cd != 'P'").
 			Order("t.tac_fn_bl_mod_cd asc").
 			Order("loa_bgn_dt desc").
 			Order("t.tac_fy_txt desc").
 			All(&loas)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				// If no matching rows, don't include any long lines of accounting.
-				return nil, nil
-			default:
-				return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
-			}
-		}
-
-		if len(loas) == 0 {
-			return nil, nil
-		}
-
-		// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt)
-		loa = loas[0]
 
 	} else {
-
-		// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
-		// numbers before letters. This is the behavior we get from order by.
-		err := appCtx.DB().Q().
-			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
-			Where("t.tac = ?", tac).
-			Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
+		// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
+		err = appCtx.DB().Q().
+			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
+			Where("t.tac = ?", tacCode).
+			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
+			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
 			Where("t.tac_fn_bl_mod_cd != 'P'").
 			Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
 			Order("t.tac_fn_bl_mod_cd asc").
 			Order("loa_bgn_dt desc").
 			Order("t.tac_fy_txt desc").
 			All(&loas)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				// If no matching rows, don't include any long lines of accounting.
-				return nil, nil
-			default:
-				return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
-			}
-		}
+	}
 
-		if len(loas) == 0 {
+	// Handle error
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// If no matching rows, don't include any long lines of accounting.
+			// We do not want to error here because there are cases in which no lines of accounting are present.
 			return nil, nil
+		default:
+			return nil, err
 		}
+	}
+	return loas, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
+	var loas []models.LineOfAccounting
+	var loa models.LineOfAccounting
+
+	// Nil check on service member affiliation
+	if orders.ServiceMember.Affiliation == nil {
+		return nil, apperror.NewQueryError("orders", fmt.Errorf("Could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
+	}
+
+	loas, err := FetchLongLinesOfAccountingForInvoice(*orders.ServiceMember.Affiliation, orders.IssueDate, tac, appCtx)
+	if err != nil {
+		return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
+	}
+	if len(loas) == 0 {
+		return nil, nil
+	}
+	// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt)
+	loa = loas[0]
+
+	if *orders.ServiceMember.Affiliation != models.AffiliationCOASTGUARD {
 
 		//"HE" - E-1 through E-9 and Special Enlisted
 		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
 		//"HC" - Civilian employee
 
-		if orders.ServiceMember.Rank == nil {
-			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
+		if orders.Grade == nil {
+			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no pay grade for the specified order")
 		}
-		rank := *orders.ServiceMember.Rank
+		grade := *orders.Grade
 
 		hhgCode := ""
-		if rank[:2] == "E_" {
+		if grade[:2] == "E_" {
 			hhgCode = "HE"
-		} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
+		} else if grade[:2] == "O_" || grade[:2] == "W_" || grade == models.ServiceMemberGradeACADEMYCADET || grade == models.ServiceMemberGradeAVIATIONCADET || grade == models.ServiceMemberGradeMIDSHIPMAN {
 			hhgCode = "HO"
-		} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
+		} else if grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
 			hhgCode = "HC"
 		} else {
 			return nil, apperror.NotImplementedError{}
@@ -751,7 +764,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 			// take first of loaWithMatchingCode
 			loa = loaWithMatchingCode[0]
 		}
-
 	}
 	var fa2LongLoaSegments []edisegment.FA2
 

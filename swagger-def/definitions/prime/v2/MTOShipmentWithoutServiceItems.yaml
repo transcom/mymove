@@ -1,0 +1,220 @@
+type: object
+properties:
+  id:
+    description: The ID of the shipment.
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  moveTaskOrderID:
+    description: The ID of the move for this shipment.
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  approvedDate:
+    description: The date when the Transportation Ordering Officer first approved this shipment for the move.
+    format: date
+    type: string
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  requestedPickupDate:
+    description: >
+      The date the customer selects during onboarding as their preferred pickup date. Other dates, such as
+      required delivery date and (outside MilMove) the pack date, are derived from this date.
+    format: date
+    type: string
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  requestedDeliveryDate:
+    description: The customer's preferred delivery date.
+    format: date
+    type: string
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  scheduledPickupDate:
+    description: The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
+    format: date
+    type: string
+    x-omitempty: false
+    x-nullable: true
+  actualPickupDate:
+    description: The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
+    format: date
+    type: string
+    x-omitempty: false
+    x-nullable: true
+  firstAvailableDeliveryDate:
+    description: >
+      The date the Prime provides to the customer as the first possible delivery date so that they can plan their
+      travel accordingly.
+    format: date
+    type: string
+    x-omitempty: false
+    x-nullable: true
+  requiredDeliveryDate:
+    description: >
+      The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is
+      calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.
+    format: date
+    type: string
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  scheduledDeliveryDate:
+    description: The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.
+    format: date
+    type: string
+    x-omitempty: false
+    x-nullable: true
+  actualDeliveryDate:
+    description: The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.
+    format: date
+    type: string
+    x-omitempty: false
+    x-nullable: true
+  primeEstimatedWeight:
+    description: >
+      The estimated weight of this shipment, determined by the movers during the pre-move survey.
+      This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
+      the Prime contracter will need to contact the TOO to change it.
+    type: integer
+    example: 4500
+    minimum: 1
+    x-nullable: true
+  primeEstimatedWeightRecordedDate:
+    description: The date when the Prime contractor recorded the shipment's estimated weight.
+    format: date
+    type: string
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  primeActualWeight:
+    description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
+    type: integer
+    example: 4500
+    minimum: 1
+    x-nullable: true
+  ntsRecordedWeight:
+    description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
+    type: integer
+    example: 4500
+    x-nullable: true
+    x-formatting: weight
+  customerRemarks:
+    description: |
+      The customer can use the customer remarks field to inform the services counselor and the movers about any
+      special circumstances for this shipment. Typical examples:
+        * bulky or fragile items,
+        * weapons,
+        * access info for their address.
+
+      Customer enters this information during onboarding. Optional field.
+    type: string
+    example: handle with care
+    x-nullable: true
+    readOnly: true
+  counselorRemarks:
+    description: |
+      The counselor can use the counselor remarks field to inform the movers about any
+      special circumstances for this shipment. Typical examples:
+        * bulky or fragile items,
+        * weapons,
+        * access info for their address.
+
+      Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+    type: string
+    example: handle with care
+    x-nullable: true
+    readOnly: true
+  actualProGearWeight:
+    description: |
+      The actual weight of any pro gear being shipped.
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  actualSpouseProGearWeight:
+    description: |
+      The actual weight of any spouse pro gear being shipped.
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  agents:
+    $ref: 'MTOAgents.yaml'
+  sitExtensions:
+    $ref: '../../SITExtensions.yaml'
+  reweigh:
+    $ref: '../Reweigh.yaml'
+  pickupAddress:
+    description: >
+      The address where the movers should pick up this shipment, entered by the customer during onboarding
+      when they enter shipment details.
+    allOf:
+      - $ref: '../../Address.yaml'
+  destinationAddress:
+    description: |
+      Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
+      during onboarding, if they know their new address already.
+
+      May be blank when entered by the customer, required when entered by the Prime. May not represent the true
+      final destination due to the shipment being diverted or placed in SIT.
+    allOf:
+      - $ref: '../../Address.yaml'
+  destinationType:
+    $ref: '../../DestinationType.yaml'
+  secondaryPickupAddress:
+    description: A second pickup address for this shipment, if the customer entered one. An optional field.
+    allOf:
+      - $ref: '../../Address.yaml'
+  secondaryDeliveryAddress:
+    description: A second delivery address for this shipment, if the customer entered one. An optional field.
+    allOf:
+      - $ref: '../../Address.yaml'
+  storageFacility:
+    allOf:
+      - x-nullable: true
+      - $ref: '../../StorageFacility.yaml'
+  shipmentType:
+    $ref: 'MTOShipmentType.yaml'
+  diversion:
+    description: >
+      This value indicates whether or not this shipment is part of a diversion.
+      If yes, the shipment can be either the starting or ending segment of the diversion.
+    type: boolean
+  status:
+    description: >
+      The status of a shipment, indicating where it is in the TOO's approval process.
+      Can only be updated by the contractor in special circumstances.
+    type: string
+    readOnly: true
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+      - CANCELLATION_REQUESTED
+      - CANCELED
+      - DIVERSION_REQUESTED
+  ppmShipment:
+    $ref: 'PPMShipment.yaml'
+  deliveryAddressUpdate:
+    $ref: '../../ShipmentAddressUpdate.yaml'
+  eTag:
+    description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+  createdAt:
+    format: date-time
+    type: string
+    readOnly: true
+  updatedAt:
+    format: date-time
+    type: string
+    readOnly: true
+  pointOfContact:
+    type: string
+    description: >
+      Email or ID of the person who will be contacted in the event of questions or concerns about this update.
+      May be the person performing the update, or someone else working with the Prime contractor.

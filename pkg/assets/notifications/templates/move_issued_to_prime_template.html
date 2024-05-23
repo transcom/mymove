@@ -8,10 +8,9 @@
 <p>
   What this means to you:
 </p>
-
+{{ if .ProvidesGovernmentCounseling }}
 <p>
-  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the
-  Global Household Goods Contract (GHC).
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -19,7 +18,7 @@
 <p>
   HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 </p>
-{{ if .ProvidesGovernmentCounseling }}
+
 <ul>
   <li>
     Log in to HomeSafe Connect as soon as possible to schedule your pre-move survey.
@@ -35,17 +34,27 @@
   </li>
   <li>
     Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-    This spread window must contain your requested pickup date. (What this means: your requested pickup date may
-    fall on the spread start date, the spread end date, or anywhere in between.)
+    This spread window must contain your requested pickup date.
+    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
-
-<p>
-  If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your
-  receipt of this email.
-</p>
 {{- end }}
 {{- if not .ProvidesGovernmentCounseling }}
+<p>
+  If you have requested a Personally Procured Move (PPM), <strong>DO NOT</strong> start your PPM until it has been approved by your counselor.
+  You will receive an email when that is complete.
+</p>
+
+<p>
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
+</p>
+
+<h4>Next steps for your government-arranged shipment(s): </h4>
+
+<p>
+  HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
+</p>
+
 <ul>
   <li>
     Log in to HomeSafe Connect as soon as possible to complete counseling and schedule your pre-move survey.
@@ -60,18 +69,17 @@
     Reach out to you within one Government Business Day.
   </li>
   <li>
-    Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling and
-    provide a 7-day pickup date spread window. This spread window must contain your requested pickup date. (What this means:
-    your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+    Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling
+    and provide a 7-day pickup date spread window. This spread window must contain your requested pickup date.
+    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
+{{- end }}
 
 <p>
   If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your
   receipt of this email.
 </p>
-{{- /* There is reference to PPM specific instructions in the example that I believe gets omitted for now. */ -}}
-{{- end }}
 
 <p>Utilize your HomeSafe Customer Care Representative:</p>
 <ul>
@@ -87,7 +95,7 @@
 
 <p>Thank you,</p>
 
-<p>Defense Personal Property Program’s MilMove Team</p>
+<p>USTRANSCOM MilMove Team</p>
 
 <p>
   The information contained in this email may contain Privacy Act information and is therefore protected under the

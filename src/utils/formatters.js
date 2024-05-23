@@ -7,6 +7,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -180,6 +181,41 @@ export const formatEvaluationReportShipmentAddress = (address) => {
   return `${streetAddress1}, ${city}, ${state} ${postalCode}`;
 };
 
+export const formatCustomerContactFullAddress = (address) => {
+  let formattedAddress = '';
+  if (address.streetAddress1) {
+    formattedAddress += `${address.streetAddress1}`;
+  }
+
+  if (address.streetAddress2) {
+    formattedAddress += `, ${address.streetAddress2}`;
+  }
+
+  if (address.streetAddress3) {
+    formattedAddress += `, ${address.streetAddress3}`;
+  }
+
+  if (address.city) {
+    formattedAddress += `, ${address.city}`;
+  }
+
+  if (address.state) {
+    formattedAddress += `, ${address.state}`;
+  }
+
+  if (address.postalCode) {
+    formattedAddress += ` ${address.postalCode}`;
+  }
+
+  if (formattedAddress[0] === ',') {
+    formattedAddress = formattedAddress.substring(1);
+  }
+
+  formattedAddress = formattedAddress.trim();
+
+  return formattedAddress;
+};
+
 export const formatMoveHistoryFullAddress = (address) => {
   let formattedAddress = '';
   if (address.street_address_1) {
@@ -209,6 +245,10 @@ export const formatMoveHistoryFullAddress = (address) => {
   formattedAddress = formattedAddress.trim();
 
   return formattedAddress;
+};
+
+export const formatMoveHistoryFullAddressFromJSON = (address) => {
+  return formatMoveHistoryFullAddress(JSON.parse(address));
 };
 
 export const formatMoveHistoryAgent = (agent) => {
@@ -285,6 +325,7 @@ export function formatReviewShipmentWeightsDate(date) {
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
+  if (!date) return DEFAULT_EMPTY_VALUE;
   return moment(date).format('DD MMM YYYY');
 }
 // Format dates for customer remarks in the office app (ex. 25 Dec 2020 8:00)
@@ -323,8 +364,8 @@ export const formatWeightCWTFromLbs = (value) => {
 };
 
 // Translate currency from millicents to dollars
-export const formatDollarFromMillicents = (value) => {
-  return `$${(parseInt(value, 10) / 100000).toFixed(2)}`;
+export const formatDollarFromMillicents = (value, decimalPlaces = 2) => {
+  return `$${(parseInt(value, 10) / 100000).toFixed(decimalPlaces)}`;
 };
 
 // Takes an whole number of day value and pluralizes with unit label
@@ -458,10 +499,10 @@ export function formatQAReportID(uuid) {
   return `#QA-${getUUIDFirstFive(uuid)}`;
 }
 
-export function formatShortIDWithPound(uuid) {
-  return `#${getUUIDFirstFive(uuid)}`;
+export function removeCommas(inputString) {
+  // Use a regular expression to replace commas with an empty string
+  return inputString.replace(/,/g, '');
 }
-
 export function formatEvaluationReportLocation(location) {
   switch (location) {
     case 'ORIGIN':
@@ -473,4 +514,12 @@ export function formatEvaluationReportLocation(location) {
     default:
       return undefined;
   }
+}
+
+export function formatTimeUnitDays(days) {
+  return `${days} days`;
+}
+
+export function formatDistanceUnitMiles(distance) {
+  return `${distance} miles`;
 }

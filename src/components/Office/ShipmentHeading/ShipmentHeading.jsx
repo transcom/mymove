@@ -36,6 +36,9 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
           <Tag>diversion requested</Tag>
         )}
       </div>
+      <div>
+        <h4>#{shipmentInfo.shipmentLocator}</h4>
+      </div>
       <div className={styles.row}>
         <small>
           {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
@@ -43,9 +46,11 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
         </small>
         {isCancelModalVisible && (
           <Restricted to={permissionTypes.createShipmentCancellation}>
-            <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
-              Request Cancellation
-            </Button>
+            <Restricted to={permissionTypes.updateMTOPage}>
+              <Button type="button" onClick={() => handleShowCancellationModal(shipmentInfo)} unstyled>
+                Request Cancellation
+              </Button>
+            </Restricted>
           </Restricted>
         )}
         {isCancellationRequested && <Tag>Cancellation Requested</Tag>}

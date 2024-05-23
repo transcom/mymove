@@ -12,10 +12,10 @@ import { ShipmentAddressUpdateShape } from 'types';
 
 const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
   const { originalAddress, newAddress, contractorRemarks } = deliveryAddressUpdate;
+  const newSitMileage = deliveryAddressUpdate.newSitDistanceBetween;
   return (
     <div>
       <h3 className={styles.previewHeading}>Delivery location</h3>
-
       <Alert type="warning" className={styles.alert}>
         <span className={styles.alertContent}>
           If approved, the requested update to the delivery location will change one or all of the following:
@@ -27,7 +27,15 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
           Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
         </span>
       </Alert>
-
+      {newSitMileage > 50 ? (
+        <Alert type="warning" className={styles.alert} id="destSitAlert" data-testid="destSitAlert">
+          <span className={styles.alertContent}>
+            Approval of this address change request will result in SIT Delivery &gt; 50 Miles.
+            <br />
+            Updated Mileage for SIT: <strong>{newSitMileage} miles</strong>
+          </span>
+        </Alert>
+      ) : null}
       <DataTableWrapper
         className={classnames('maxw-tablet', 'table--data-point-group', styles.reviewAddressChange)}
         testID="address-change-preview"
@@ -50,9 +58,7 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
     </div>
   );
 };
-
 export default AddressUpdatePreview;
-
 AddressUpdatePreview.propTypes = {
   deliveryAddressUpdate: ShipmentAddressUpdateShape.isRequired,
 };

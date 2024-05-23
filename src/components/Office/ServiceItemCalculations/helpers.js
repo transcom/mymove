@@ -1,6 +1,6 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import {
   formatCents,
   formatWeight,
@@ -62,18 +62,18 @@ const requestedPickupDateLabel = (shipmentType) => {
 const referenceDate = (params, shipmentType) => {
   const label = requestedPickupDateLabel(shipmentType);
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params);
-  return `${label}: ${formatDate(value, 'DD MMM YYYY')}`;
+  return `${label}: ${formatDateWithUTC(value, 'DD MMM YYYY')}`;
 };
 
 const cratingDate = (params) => {
-  return `${SERVICE_ITEM_CALCULATION_LABELS.CratingDate}: ${formatDate(
+  return `${SERVICE_ITEM_CALCULATION_LABELS.CratingDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
 };
 
 const unCratingDate = (params) => {
-  return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDate(
+  return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
@@ -88,6 +88,13 @@ const formatDetail = (detail, styles = {}) => {
     text: detail,
     styles,
   };
+};
+
+const formatMileage = (detail) => {
+  if (typeof detail !== 'number') {
+    return parseInt(detail, 10).toLocaleString();
+  }
+  return detail.toLocaleString();
 };
 
 // billable weight calculation
@@ -152,16 +159,32 @@ const billableWeight = (params) => {
     details.push(formatDetail(weightEstimatedDetail));
   }
 
+  const fscWeightBasedDistanceMultiplier = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
+  if (getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)) {
+    details.push(formatDetail(fscWeightBasedDistanceMultiplier));
+  }
+
   return calculation(value, label, ...details);
 };
 
 const shuttleBillableWeight = (params) => {
   const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
-
-  const weightBilledDetail = `${SERVICE_ITEM_CALCULATION_LABELS.ShuttleWeight}: ${formatWeight(
-    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilled, params), 10),
-  )}`;
+  const weightReweighValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightReweigh, params), 10);
+  const weightOriginalValue = parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightOriginal, params), 10);
+  let lowestActualWeight;
+  // In order to grab the lower of the two integers, we need to make sure that both are in fact numbers first
+  // If NaN comes back from parseInt, we know to use the other value
+  if (!Number.isNaN(weightReweighValue) && !Number.isNaN(weightOriginalValue)) {
+    lowestActualWeight = Math.min(weightReweighValue, weightOriginalValue);
+  } else if (!Number.isNaN(weightReweighValue)) {
+    lowestActualWeight = weightReweighValue;
+  } else if (!Number.isNaN(weightOriginalValue)) {
+    lowestActualWeight = weightOriginalValue;
+  }
+  const weightBilledDetail = `${SERVICE_ITEM_CALCULATION_LABELS.ShuttleWeight}: ${formatWeight(lowestActualWeight)}`;
 
   const weightEstimated = getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params);
   const weightEstimatedDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
@@ -171,7 +194,7 @@ const shuttleBillableWeight = (params) => {
 };
 
 const mileageZip = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params);
+  const value = `${formatMileage(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params), 10))}`;
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
@@ -226,7 +249,7 @@ const mileageZipSIT = (params, itemCode) => {
       )}`;
   }
 
-  const value = getParamValue(distanceZip, params);
+  const value = formatMileage(getParamValue(distanceZip, params));
 
   return calculation(value, label, formatDetail(detail));
 };
@@ -297,7 +320,7 @@ const shuttleOriginPriceDomestic = (params) => {
     params,
   )}`;
 
-  const pickupDate = `${SERVICE_ITEM_CALCULATION_LABELS.PickupDate}: ${formatDate(
+  const pickupDate = `${SERVICE_ITEM_CALCULATION_LABELS.PickupDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
@@ -335,7 +358,7 @@ const shuttleDestinationPriceDomestic = (params) => {
     params,
   )}`;
 
-  const deliveryDate = `${SERVICE_ITEM_CALCULATION_LABELS.DeliveryDate}: ${formatDate(
+  const deliveryDate = `${SERVICE_ITEM_CALCULATION_LABELS.DeliveryDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
@@ -371,9 +394,9 @@ const priceEscalationFactorWithoutContractYear = (params) => {
   return calculation(value, label);
 };
 
-const fuelSurchargePrice = (params, itemCode) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
-  // which gets the dollar value
+const mileageFactor = (params, itemCode) => {
+  // to get the mileage factor (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
+  // which gets the value in Cents to the tenths decimal place
   let distanceZip;
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DDSFSC:
@@ -390,36 +413,32 @@ const fuelSurchargePrice = (params, itemCode) => {
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
         getParamValue(distanceZip, params),
     ),
-  ).toFixed(2);
+  ).toFixed(3);
   const label =
     itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
       ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
       : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
 
+  const actualPickupDate = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]
+  }: ${formatDateWithUTC(getParamValue(SERVICE_ITEM_PARAM_KEYS.ActualPickupDate, params), 'DD MMM YYYY')}`;
+
   const eiaFuelPrice = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
-  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params))}`;
+  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params), 3)}`;
 
-  const fuelRateAdjustment = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
-  }: ${toDollarString(formatCents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params)))}`;
-
-  const fscWeightBasedDistanceMultiplier = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
-  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
-
-  const actualPickupDate = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]}: ${formatDate(
-    getParamValue(SERVICE_ITEM_PARAM_KEYS.ActualPickupDate, params),
-    'DD MMM YYYY',
-  )}`;
+  const baselineRateDifference = `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}: ${formatCents(
+    parseFloat(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params)),
+    1,
+    1,
+  )} \u00A2`;
 
   return calculation(
     value,
     label,
-    formatDetail(eiaFuelPrice),
-    formatDetail(fuelRateAdjustment),
-    formatDetail(fscWeightBasedDistanceMultiplier),
     formatDetail(actualPickupDate),
+    formatDetail(eiaFuelPrice),
+    formatDetail(baselineRateDifference),
   );
 };
 
@@ -597,10 +616,9 @@ const cratingSize = (params, mtoParams) => {
   return calculation(value, label, formatDetail(description), formatDetail(formattedDimensions));
 };
 
-// totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
-  const label = SERVICE_ITEM_CALCULATION_LABELS.TotalAmountRequested;
+  const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}:`;
   const detail = '';
 
   return calculation(value, label, formatDetail(detail));
@@ -648,7 +666,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZip(params),
-        fuelSurchargePrice(params, itemCode),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
@@ -657,7 +675,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZipSIT(params, itemCode),
-        fuelSurchargePrice(params, itemCode),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
@@ -666,7 +684,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZipSIT(params, itemCode),
-        fuelSurchargePrice(params, itemCode),
+        mileageFactor(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;

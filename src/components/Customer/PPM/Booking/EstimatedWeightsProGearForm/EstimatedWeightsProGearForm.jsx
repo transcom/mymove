@@ -13,7 +13,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
-import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
+import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 
@@ -36,7 +36,7 @@ const validationSchema = Yup.object().shape({
     .max(500, 'Enter a weight 500 lbs or less'),
 });
 
-const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSubmit, onBack }) => {
+const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) => {
   const initialValues = {
     estimatedWeight: mtoShipment?.ppmShipment?.estimatedWeight?.toString() || '',
     hasProGear: mtoShipment?.ppmShipment?.hasProGear?.toString() || 'false',
@@ -44,9 +44,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
     spouseProGearWeight: mtoShipment?.ppmShipment?.spouseProGearWeight?.toString() || '',
   };
 
-  const authorizedWeight = orders.has_dependents
-    ? serviceMember.weight_allotment?.total_weight_self_plus_dependents
-    : serviceMember.weight_allotment?.total_weight_self;
+  const weightAuthorized = orders.authorizedWeight;
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -55,7 +53,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
           <div className={classnames(styles.EstimatedWeightsProGearForm, ppmStyles.formContainer)}>
             <Form className={(formStyles.form, ppmStyles.form)}>
               <Alert headingLevel="h4" type="info">{`Total weight allowance for your move: ${formatWeight(
-                authorizedWeight,
+                weightAuthorized,
               )}`}</Alert>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Full PPM</h2>
@@ -79,7 +77,7 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
                   warning={
-                    values.estimatedWeight > authorizedWeight
+                    values.estimatedWeight > weightAuthorized
                       ? 'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.'
                       : ''
                   }
@@ -199,7 +197,6 @@ const EstimatedWeightsProGearForm = ({ orders, serviceMember, mtoShipment, onSub
 
 EstimatedWeightsProGearForm.propTypes = {
   orders: OrdersShape.isRequired,
-  serviceMember: ServiceMemberShape.isRequired,
   mtoShipment: ShipmentShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,

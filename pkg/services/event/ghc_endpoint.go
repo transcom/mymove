@@ -73,6 +73,9 @@ const GhcGetMTOServiceItemEndpointKey = "Ghc.GetMTOServiceItem"
 // GhcUpdateMTOServiceItemEndpointKey is the key for the updateMTOServiceItem endpoint in ghc
 const GhcUpdateMTOServiceItemEndpointKey = "Ghc.UpdateMTOServiceItem"
 
+// GhcUpdateMTOServiceItemCustomerExpenseEndpointKey is the key for the updateSITServiceItemCustomerExpense endpoint in ghc
+const GhcUpdateSITServiceItemCustomerExpenseEndpointKey = "Ghc.UpdateSITServiceItemCustomerExpense"
+
 // GhcUpdateMTOServiceItemStatusEndpointKey is the key for the updateMTOServiceItemStatus endpoint in ghc
 const GhcUpdateMTOServiceItemStatusEndpointKey = "Ghc.UpdateMTOServiceItemStatus"
 
@@ -213,6 +216,10 @@ var ghcEndpoints = EndpointMapType{
 	GhcUpdateMTOServiceItemEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "updateMTOServiceItem",
+	},
+	GhcUpdateSITServiceItemCustomerExpenseEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "updateSITServiceItemCustomerExpense",
 	},
 	GhcUpdateMTOServiceItemStatusEndpointKey: {
 		APIName:     GhcAPIName,

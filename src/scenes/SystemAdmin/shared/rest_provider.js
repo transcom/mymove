@@ -100,6 +100,9 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         if (paramsDiff.roles) {
           paramsDiff.roles = params.data.roles;
         }
+        if (paramsDiff.privileges) {
+          paramsDiff.privileges = params.data.privileges;
+        }
         options.body = JSON.stringify(paramsDiff);
         break;
       }

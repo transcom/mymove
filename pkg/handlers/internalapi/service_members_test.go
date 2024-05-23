@@ -118,9 +118,8 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// These shouldn't return any value or Swagger clients will complain during validation
 	// because the payloads for these objects are defined to require non-null values for most fields
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
-	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).Grade, (*internalmessages.OrderPayGrade)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
-	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationPayload)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupMailingAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupContacts, internalmessages.IndexServiceMemberBackupContactsPayload{})
@@ -175,8 +174,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
 
-	origRank := models.ServiceMemberRankE1
-
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
 
@@ -207,40 +204,10 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	origEmailIsPreferred := models.BoolPointer(true)
 	newEmailIsPreferred := models.BoolPointer(false)
 
-	origDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-	// Test updating duty location to one with different GBLOC
-	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				StreetAddress1: "Fort Gordon",
-				City:           "Augusta",
-				State:          "GA",
-				PostalCode:     "77777",
-				Country:        models.StringPointer("United States"),
-			},
-		},
-	}, nil)
-
-	// Create a custom postal code to GBLOC
-	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
-	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Fort Sam Houston",
-			},
-		},
-		{
-			Model:    newDutyLocationAddress,
-			LinkOnly: true,
-		},
-	}, nil)
-	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
-
 	newServiceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
 				Edipi:              &origEdipi,
-				Rank:               &origRank,
 				Affiliation:        &origAffiliation,
 				FirstName:          origFirstName,
 				MiddleName:         origMiddleName,
@@ -253,14 +220,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 				EmailIsPreferred:   origEmailIsPreferred,
 			},
 		},
-		{
-			Model:    origDutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
 	}, nil)
 
-	orderGrade := (string)(models.ServiceMemberRankE5)
+	orderGrade := models.ServiceMemberGradeE5
 	factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -268,17 +230,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 			},
 		},
 		{
-			Model:    origDutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
 			Model:    newServiceMember,
 			LinkOnly: true,
 		},
 	}, nil)
 
-	rank := internalmessages.ServiceMemberRankE1
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
@@ -286,7 +242,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
 		Affiliation:          &newAffiliation,
-		Rank:                 &rank,
 		EmailIsPreferred:     newEmailIsPreferred,
 		FirstName:            newFirstName,
 		LastName:             newLastName,
@@ -296,7 +251,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
-		CurrentLocationID:    &newDutyLocationID,
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
@@ -331,12 +285,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*newPhoneIsPreferred, *serviceMemberPayload.PhoneIsPreferred)
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
+	suite.Equal(*resAddress.County, *serviceMemberPayload.ResidentialAddress.County)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
-	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
-	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
-	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
-	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
-	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
+	suite.Equal(*backupAddress.County, *serviceMemberPayload.BackupMailingAddress.County)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
@@ -344,11 +295,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	user := factory.BuildDefaultUser(suite.DB())
 
 	edipi := "2342342344"
-
-	// If there are orders and the move has been submitted, then the
-	// affiliation rank, and duty location should not be editable.
-	origRank := models.ServiceMemberRankE1
-	newRank := internalmessages.ServiceMemberRankE2
 
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
@@ -389,7 +335,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 			Model: models.ServiceMember{
 				UserID:             user.ID,
 				Edipi:              &edipi,
-				Rank:               &origRank,
 				Affiliation:        &origAffiliation,
 				FirstName:          origFirstName,
 				MiddleName:         origMiddleName,
@@ -468,7 +413,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		MiddleName:           newMiddleName,
 		PersonalEmail:        newPersonalEmail,
 		PhoneIsPreferred:     newPhoneIsPreferred,
-		Rank:                 &newRank,
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
@@ -498,8 +442,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// These fields should not change (they should still be the original
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
-	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
-	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.
 	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)
@@ -513,7 +455,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
+	suite.Equal(*resAddress.County, *serviceMemberPayload.ResidentialAddress.County)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
+	suite.Equal(*backupAddress.County, *serviceMemberPayload.BackupMailingAddress.County)
 
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}

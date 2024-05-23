@@ -31,6 +31,7 @@ func MakeNeedsOrdersUser(db *pop.Connection) models.User {
 				PersonalEmail: models.StringPointer(email),
 				FirstName:     models.StringPointer("NEEDS" + suffix),
 				LastName:      models.StringPointer("ORDERS" + suffix),
+				CacValidated:  true,
 			},
 		},
 		{

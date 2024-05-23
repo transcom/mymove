@@ -8,8 +8,10 @@ package ghcmessages
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // DenySITExtension deny s i t extension
@@ -17,13 +19,50 @@ import (
 // swagger:model DenySITExtension
 type DenySITExtension struct {
 
+	// Whether or not to convert to members expense once SIT extension is denied.
+	// Example: false
+	// Required: true
+	ConvertToCustomerExpense *bool `json:"convertToCustomerExpense"`
+
 	// Remarks from TOO about SIT denial
 	// Example: Denied this extension as it does not match the criteria
-	OfficeRemarks *string `json:"officeRemarks,omitempty"`
+	// Required: true
+	OfficeRemarks *string `json:"officeRemarks"`
 }
 
 // Validate validates this deny s i t extension
 func (m *DenySITExtension) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateConvertToCustomerExpense(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOfficeRemarks(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *DenySITExtension) validateConvertToCustomerExpense(formats strfmt.Registry) error {
+
+	if err := validate.Required("convertToCustomerExpense", "body", m.ConvertToCustomerExpense); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DenySITExtension) validateOfficeRemarks(formats strfmt.Registry) error {
+
+	if err := validate.Required("officeRemarks", "body", m.OfficeRemarks); err != nil {
+		return err
+	}
+
 	return nil
 }
 

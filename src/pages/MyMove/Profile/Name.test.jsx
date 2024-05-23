@@ -19,6 +19,11 @@ jest.mock('services/internalApi', () => ({
   patchServiceMember: jest.fn(),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 beforeEach(() => {
   jest.resetAllMocks();
 });
@@ -166,7 +171,6 @@ describe('requireCustomerState Name', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
           },
@@ -198,7 +202,6 @@ describe('requireCustomerState Name', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -238,7 +241,6 @@ describe('requireCustomerState Name', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',

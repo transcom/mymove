@@ -14,7 +14,7 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -259,7 +259,7 @@ executors:
 
 commands:
   create_dot_go_version:
-    description: "Creates a .go-version file (if needed) which can be used for cache keys specific to golang"
+    description: 'Creates a .go-version file (if needed) which can be used for cache keys specific to golang'
     steps:
       - run:
           name: Create a .go-version file
@@ -277,13 +277,13 @@ commands:
       - create_dot_go_version
       - restore_cache:
           keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
 
   save_cache_for_go:
     steps:
       - create_dot_go_version
       - save_cache:
-          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          key: go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
             - '~/transcom/mymove/bin/swagger'
@@ -447,32 +447,27 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy connect to GEX via SFTP service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
-          name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-          no_output_timeout: 20m
-      - announce_failure
-      - deploy:
+      - run:
           name: Deploy payment reminder email task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy post to GEX service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container post-file-to-gex "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy process EDIs service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
@@ -489,17 +484,12 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
-          name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-          no_output_timeout: 20m
-      - announce_failure
-      - deploy:
+      - run:
           name: Deploy payment reminder email task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
@@ -530,7 +520,7 @@ commands:
             echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
 
             echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
           no_output_timeout: 20m
@@ -569,7 +559,7 @@ commands:
             echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
 
             echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
           no_output_timeout: 20m
@@ -594,7 +584,7 @@ commands:
       - attach_workspace:
           at: /tmp/storybook
       - checkout
-      - deploy:
+      - run:
           name: Push Storybook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
@@ -667,6 +657,7 @@ commands:
             mkdir -p images/sha
             echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
             cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+            sleep 60
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>)
@@ -754,9 +745,12 @@ commands:
             export OKTA_ADMIN_SECRET_KEY=notrealkey2
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
 
 
             make server_test
+          no_output_timeout: 20m
           environment:
             APPLICATION: '<< parameters.application >>'
             # 8 since this runs on xlarge with 8 CPUs
@@ -783,6 +777,9 @@ commands:
             OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
             OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
             OKTA_API_KEY: notrealapikey8675309
+            OKTA_OFFICE_GROUP_ID: notrealgroupId
+            OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
+
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
   # SLOOOOOOW
@@ -850,6 +847,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
@@ -861,6 +861,15 @@ commands:
             export HTTP_ORDERS_SERVER_NAME=orderslocal
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
+            export FEATURE_FLAG_MULTI_MOVE=true
+            export FEATURE_FLAG_PPM=true
+            export FEATURE_FLAG_NTS=true
+            export FEATURE_FLAG_NTSR=true
+            export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
+            export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
+            export FEATURE_FLAG_MOVE_LOCK=false
+            export FEATURE_FLAG_OKTA_DODID_INPUT=false
+
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
 
@@ -883,7 +892,15 @@ commands:
             PLAYWRIGHT_MY_URL: http://milmovelocal:4000
             PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
-          # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            FEATURE_FLAG_MULTI_MOVE: 'true'
+            FEATURE_FLAG_PPM: 'true'
+            FEATURE_FLAG_NTS: 'true'
+            FEATURE_FLAG_NTSR: 'true'
+            FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
+            FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
+            FEATURE_FLAG_MOVE_LOCK: 'false'
+            FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -893,6 +910,7 @@ commands:
             --workers << parameters.workers >> \
             --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
             << parameters.path >>
+          no_output_timeout: 60m
       - store_artifacts:
           path: playwright-report
       - run:
@@ -954,6 +972,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -1040,6 +1061,9 @@ commands:
             export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export OKTA_API_KEY=notrealapikey
+            export OKTA_OFFICE_GROUP_ID=notrealgroupId
+            export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
+
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
@@ -1247,7 +1271,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v3-spectral-lint-
+            - v20-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1306,7 +1330,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v3-spectral-lint-{{ .BuildNum }}
+                key: v20-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
@@ -1355,6 +1379,7 @@ jobs:
             echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
             source $BASH_ENV
             make db_dev_fresh
+          no_output_timeout: 60m
           environment:
             APPLICATION: app
             DB_PASSWORD: mysecretpassword
@@ -1457,7 +1482,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v7-server-tests-coverage-
+            - v8-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1591,7 +1616,7 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v5-client-tests-coverage-
+            - v6-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1737,6 +1762,7 @@ jobs:
           command: |
             export REACT_APP_ERROR_LOGGING=otel
             make client_build
+          no_output_timeout: 20m
       # only save the cache on default branch builds so that PRs don't pollute
       # the cache
       - when:
@@ -2020,6 +2046,18 @@ jobs:
           repo: app-tasks
       - announce_failure
 
+  # `prod_auth_check` checks if approved before going to prod
+  prod_auth_check:
+    executor: tls_small
+    steps:
+      - run: echo "build approved by $CIRCLE_USERNAME"
+      - run:
+          name: Check if Prod approval has rights
+          command: |
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" && $CIRCLE_USERNAME != "deandreJones" && $CIRCLE_USERNAME != "cameroncaci" ]]; then
+               exit 1
+            fi
+      - announce_failure
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
@@ -2330,6 +2368,10 @@ workflows:
       - integration_tests_load:
           requires:
             - compile_app_server
+            # limiting this run to integrationBranch only due to multiple branch pipeline
+          filters:
+            branches:
+              only: integrationTesting
 
       - client_test:
           requires:
@@ -2572,6 +2614,13 @@ workflows:
             - deploy_stg_app
             - deploy_stg_app_client_tls
 
+      - prod_auth_check:
+          requires:
+            - approve_prd_deploy
+          filters:
+            branches:
+              only: main
+
       - deploy_storybook_dp3:
           requires:
             - build_storybook
@@ -2586,28 +2635,28 @@ workflows:
 
       - push_otel_collector_image_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_app_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_migrations_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_tasks_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main

@@ -95,6 +95,37 @@ describe('BackupAddress page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.BACKUP_CONTACTS_PATH);
   });
 
+  it('Selecting an unsupported state should display an unsupported state message', async () => {
+    const testProps = generateTestProps(blankAddress);
+
+    const expectedServiceMemberPayload = { ...testProps.serviceMember, backup_mailing_address: fakeAddress };
+
+    patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
+
+    const { getByLabelText, getByText } = render(<BackupAddress {...testProps} />);
+
+    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    await userEvent.type(getByLabelText('City'), fakeAddress.city);
+    await userEvent.selectOptions(getByLabelText('State'), 'AK');
+    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
+
+    let msg = getByText('Moves to this state are not supported at this time.');
+    expect(msg).toBeVisible();
+
+    await userEvent.selectOptions(getByLabelText('State'), 'AL');
+    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
+    expect(msg).not.toBeVisible();
+
+    await userEvent.selectOptions(getByLabelText('State'), 'HI');
+    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.tab();
+    msg = getByText('Moves to this state are not supported at this time.');
+    expect(msg).toBeVisible();
+  });
+
   it('shows an error if the patchServiceMember API returns an error', async () => {
     const testProps = generateTestProps(fakeAddress);
 
@@ -147,7 +178,6 @@ describe('requireCustomerState BackupAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -187,7 +217,6 @@ describe('requireCustomerState BackupAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -230,7 +259,6 @@ describe('requireCustomerState BackupAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -276,7 +304,6 @@ describe('requireCustomerState BackupAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',

@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -39,10 +40,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev2messages.MoveTaskOrder {
 		ContractNumber:             moveTaskOrder.Contractor.ContractNumber,
 		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
-	}
-
-	if moveTaskOrder.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -89,7 +86,12 @@ func Order(order *models.Order) *primev2messages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+	}
+
+	var grade string
+	if order.Grade != nil {
+		grade = string(*order.Grade)
 	}
 
 	payload := primev2messages.Order{
@@ -102,7 +104,7 @@ func Order(order *models.Order) *primev2messages.Order {
 		OriginDutyLocationGBLOC:        swag.StringValue(order.OriginDutyLocationGBLOC),
 		OrderNumber:                    order.OrdersNumber,
 		LinesOfAccounting:              order.TAC,
-		Rank:                           order.Grade,
+		Rank:                           &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
 		ETag:                           etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:                   strfmt.Date(order.ReportByDate),
 		OrdersType:                     primev2messages.OrdersType(order.OrdersType),
@@ -145,6 +147,7 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
@@ -187,6 +190,7 @@ func Address(address *models.Address) *primev2messages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -247,7 +251,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev2messages.MTOAgents {
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primev2messages.ProofOfServiceDoc {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
 	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
-		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
+		for i, primeUpload := range proofOfServiceDoc.PrimeUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&primeUpload.Upload)
 		}
 	}
@@ -377,7 +381,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primev2messages.ServiceRequestDocument {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
 	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
-		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
+		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
 		}
 	}
@@ -455,6 +459,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		ShipmentType:                     primev2messages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
+		ActualProGearWeight:              handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:        handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
 		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
@@ -831,4 +837,30 @@ func InternalServerError(detail *string, traceID uuid.UUID) *primev2messages.Err
 		payload.Detail = detail
 	}
 	return &payload
+}
+
+// ValidationError describes validation errors from the model or properties
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *primev2messages.ValidationError {
+	payload := &primev2messages.ValidationError{
+		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
+	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorListResponse(validationErrors).Errors
+	}
+	return payload
+}
+
+// MTOShipment converts MTOShipment model to payload
+func MTOShipment(mtoShipment *models.MTOShipment) *primev2messages.MTOShipment {
+	payload := &primev2messages.MTOShipment{
+		MTOShipmentWithoutServiceItems: *MTOShipmentWithoutServiceItems(mtoShipment),
+	}
+
+	if mtoShipment.MTOServiceItems != nil {
+		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
+	} else {
+		payload.SetMtoServiceItems([]primev2messages.MTOServiceItem{})
+	}
+
+	return payload
 }

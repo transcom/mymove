@@ -4,15 +4,14 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
-import { isEmpty } from 'lodash';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import 'styles/office.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { tooRoutes } from 'constants/routes';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
@@ -33,6 +32,7 @@ import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 
 const errorIfMissing = {
@@ -52,7 +52,6 @@ const errorIfMissing = {
 const MoveDetails = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
-  setUnapprovedSITAddressUpdateCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
@@ -64,7 +63,8 @@ const MoveDetails = ({
   const [alertType, setAlertType] = useState('success');
   const navigate = useNavigate();
 
-  const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
+    useMoveDetailsQueries(moveCode);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -137,7 +137,6 @@ const MoveDetails = ({
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
   };
-
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
@@ -179,22 +178,6 @@ const MoveDetails = ({
     });
     setUnapprovedServiceItemCount(serviceItemCount);
   }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
-
-  useEffect(() => {
-    let sitAddressUpdateServiceItemCount = 0;
-
-    mtoServiceItems?.forEach((serviceItem) => {
-      if (serviceItem.mtoShipmentID && ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(serviceItem.reServiceCode)) {
-        const requestedSITAddressUpdateItems =
-          serviceItem?.sitAddressUpdates &&
-          serviceItem.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
-        if (!isEmpty(requestedSITAddressUpdateItems)) {
-          sitAddressUpdateServiceItemCount += 1;
-        }
-      }
-    });
-    setUnapprovedSITAddressUpdateCount(sitAddressUpdateServiceItemCount);
-  }, [mtoServiceItems, setUnapprovedSITAddressUpdateCount]);
 
   useEffect(() => {
     const estimatedWeight = calculateEstimatedWeight(mtoShipments);
@@ -267,11 +250,11 @@ const MoveDetails = ({
     sacSDN: order.sac,
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
+    payGrade: order.grade,
   };
   const allowancesInfo = {
     branch: customer.agency,
-    rank: order.grade,
-    weightAllowance: allowances.totalWeight,
+    grade: order.grade,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
@@ -279,13 +262,17 @@ const MoveDetails = ({
     dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
+    gunSafe: allowances.gunSafe,
   };
+
   const customerInfo = {
-    name: `${customer.last_name}, ${customer.first_name}`,
+    name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
-    phone: `+1 ${customer.phone}`,
+    phone: customer.phone,
+    altPhone: customer.secondaryTelephone,
     email: customer.email,
     currentAddress: customer.current_address,
+    backupAddress: customerData.backupAddress,
     backupContact: customer.backup_contact,
   };
 
@@ -377,6 +364,7 @@ const MoveDetails = ({
             <div className={styles.section} id="requested-shipments">
               <SubmittedRequestedShipments
                 mtoShipments={submittedShipments}
+                closeoutOffice={closeoutOffice}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
@@ -396,6 +384,7 @@ const MoveDetails = ({
             <div className={styles.section} id="approved-shipments">
               <ApprovedRequestedShipments
                 mtoShipments={approvedOrCanceledShipments}
+                closeoutOffice={closeoutOffice}
                 ordersInfo={ordersInfo}
                 mtoServiceItems={mtoServiceItems}
                 moveCode={moveCode}
@@ -449,7 +438,20 @@ const MoveDetails = ({
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
-            <DetailsPanel title="Customer info">
+            <DetailsPanel
+              title="Customer info"
+              editButton={
+                <Restricted to={permissionTypes.updateCustomer}>
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    data-testid="edit-customer-info"
+                    to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                  >
+                    Edit customer info
+                  </Link>
+                </Restricted>
+              }
+            >
               <CustomerInfoList customerInfo={customerInfo} />
             </DetailsPanel>
           </div>
@@ -462,7 +464,6 @@ const MoveDetails = ({
 MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
-  setUnapprovedSITAddressUpdateCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,

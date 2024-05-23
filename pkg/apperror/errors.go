@@ -75,6 +75,69 @@ func (e *NotFoundError) Unwrap() error {
 	return e.err
 }
 
+// UpdateError is returned when a service cannot be updated
+type UpdateError struct {
+	id      uuid.UUID
+	message string
+	err     error
+}
+
+// NewUpdateError returns an error for when a service cannot be updated
+func NewUpdateError(id uuid.UUID, message string) UpdateError {
+	return UpdateError{
+		id:      id,
+		message: message,
+	}
+}
+
+func (e UpdateError) Error() string {
+	return fmt.Sprintf("Update Error %s", e.message)
+}
+
+// Wrap lets the caller add an error to be wrapped in the NewUpdateError
+func (e *UpdateError) Wrap(err error) {
+	e.err = err
+}
+
+// Unwrap returns the wrapped error, could be nil
+func (e *UpdateError) Unwrap() error {
+	return e.err
+}
+
+type PPMNotReadyForCloseoutError struct {
+	id      uuid.UUID
+	message string
+}
+
+// NewNotFoundError returns an error for when a struct can not be found
+func NewPPMNotReadyForCloseoutError(id uuid.UUID, message string) PPMNotReadyForCloseoutError {
+	return PPMNotReadyForCloseoutError{
+		id:      id,
+		message: message,
+	}
+}
+
+func (e PPMNotReadyForCloseoutError) Error() string {
+	return fmt.Sprintf("ID: %s - PPM Shipment is not ready for closeout. Customer must upload PPM documents. %s", e.id.String(), e.message)
+}
+
+type PPMNoWeightTicketsError struct {
+	id      uuid.UUID
+	message string
+}
+
+// NewNotFoundError returns an error for when a struct can not be found
+func NewPPMNoWeightTicketsError(id uuid.UUID, message string) PPMNoWeightTicketsError {
+	return PPMNoWeightTicketsError{
+		id:      id,
+		message: message,
+	}
+}
+
+func (e PPMNoWeightTicketsError) Error() string {
+	return fmt.Sprintf("ID: %s - PPM Shipment has no weight tickets assigned to it, can't calculate any weights. %s", e.id.String(), e.message)
+}
+
 // ErrorCode contains error codes for the route package
 type ErrorCode string
 
@@ -164,6 +227,7 @@ func (e InvalidInputError) Error() string {
 		return fmt.Sprintf("Invalid input received. %s", e.ValidationErrors)
 	} else if e.ValidationErrors != nil {
 		return fmt.Sprintf("Invalid input for ID: %s. %s", e.id.String(), e.ValidationErrors)
+		//nolint:revive
 	} else {
 		return ("Invalid Input.")
 	}

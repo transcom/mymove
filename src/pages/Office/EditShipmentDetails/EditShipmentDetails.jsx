@@ -52,7 +52,7 @@ const EditShipmentDetails = () => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customer} moveCode={moveCode} />
       <div className={styles.tabContent}>
         <div className={styles.container}>
           <GridContainer className={styles.gridContainer}>

@@ -14,4 +14,9 @@ export default {
   service_members: 'service_members',
   user_uploads: 'user_uploads',
   backup_contacts: 'backup_contacts',
+  sit_address_updates: 'sit_address_updates',
+  ppm_shipments: 'ppm_shipments',
+  weight_tickets: 'weight_tickets',
+  moving_expenses: 'moving_expenses',
+  progear_weight_tickets: 'progear_weight_tickets',
 };

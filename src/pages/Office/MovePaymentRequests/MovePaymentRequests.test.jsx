@@ -47,7 +47,7 @@ const order = {
   orders_type: 'PERMANENT_CHANGE_OF_STATION',
   has_dependents: false,
   issue_date: '2020-08-11',
-  grade: 'RANK',
+  grade: 'E_1',
   moves: ['123'],
   origin_duty_location: {
     name: 'Test Duty Location',
@@ -153,6 +153,7 @@ const multiplePaymentRequests = {
         id: 'reweighID1',
         weight: 100,
       },
+
       mtoServiceItems: [
         {
           id: '5',
@@ -185,6 +186,7 @@ const multiplePaymentRequests = {
         id: 'reweighID2',
         weight: 600,
       },
+
       mtoServiceItems: [
         {
           id: '9',
@@ -217,6 +219,7 @@ const multiplePaymentRequests = {
         id: 'reweighID3',
         weight: 900,
       },
+
       mtoServiceItems: [
         {
           id: '12',
@@ -283,6 +286,7 @@ const singleReviewedPaymentRequest = {
         id: 'reweighID',
         weight: 900,
       },
+
       mtoServiceItems: [
         {
           id: '3',
@@ -312,6 +316,7 @@ const emptyPaymentRequests = {
         id: 'reweighID',
         weight: 900,
       },
+
       mtoServiceItems: [
         {
           id: '3',
@@ -338,6 +343,7 @@ const moveShipmentOverweight = {
       calculatedBillableWeight: 5000,
       primeActualWeight: 7000,
       primeEstimatedWeight: 3000,
+
       mtoServiceItems: [
         {
           id: '3',
@@ -367,6 +373,7 @@ const moveShipmentMissingReweighWeight = {
       reweigh: {
         id: '123',
       },
+
       mtoServiceItems: [
         {
           id: '3',
@@ -393,6 +400,7 @@ const returnWithBillableWeightsReviewed = {
       calculatedBillableWeight: 2000,
       primeActualWeight: 8000,
       primeEstimatedWeight: 3000,
+
       reweigh: {
         id: '123',
       },

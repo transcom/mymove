@@ -149,19 +149,19 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 }
 
 // FetchOrBuildOrdersDutyLocation returns a default orders duty location
-// It always fetches or builds a Fort Gordon duty location with the specified city/state/postal code
+// It always fetches or builds a Fort Eisenhower duty location with the specified city/state/postal code
 // Some tests rely on the duty location being in 30813
 func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 	if db == nil {
 		return BuildDutyLocation(nil, []Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Fort Gordon",
+					Name: "Fort Eisenhower, GA 30813",
 				},
 			},
 			{
 				Model: models.Address{
-					City:       "Augusta",
+					City:       "Fort Eisenhower",
 					State:      "GA",
 					PostalCode: "30813",
 				},
@@ -170,10 +170,10 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 		}, nil)
 	}
 
-	// Check if we already have a Fort Gordon Duty Location, return it if so
-	fortGordon, err := models.FetchDutyLocationByName(db, "Fort Gordon")
+	// Check if we already have a Fort Eisenhower Duty Location, return it if so
+	fortEisenhower, err := models.FetchDutyLocationByName(db, "Fort Eisenhower, GA 30813")
 	if err == nil {
-		return fortGordon
+		return fortEisenhower
 	}
 
 	return BuildDutyLocation(db, nil, []Trait{GetTraitDefaultOrdersDutyLocation})
@@ -183,14 +183,14 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 	return []Customization{
 		{
 			Model: models.DutyLocation{
-				Name: "Fort Gordon",
+				Name: "Fort Eisenhower, GA 30813",
 			},
 		},
 		{
-			// Update the DutyLocationAddress (but not TO address) to Augusta, Georgia
+			// Update the DutyLocationAddress (but not TO address) to Fort Eisenhower, Georgia
 			Type: &Addresses.DutyLocationAddress,
 			Model: models.Address{
-				City:       "Augusta",
+				City:       "Fort Eisenhower",
 				State:      "GA",
 				PostalCode: "30813",
 			},

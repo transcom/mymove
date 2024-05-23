@@ -420,9 +420,7 @@ func FormatContactInformationValues(customer models.ServiceMember, qae models.Of
 	if customer.Telephone != nil {
 		contactInfo.CustomerPhone = *customer.Telephone
 	}
-	if customer.Rank != nil {
-		contactInfo.CustomerRank = rankDisplayValue[*customer.Rank]
-	}
+
 	if customer.Affiliation != nil {
 		contactInfo.CustomerAffiliation = serviceMemberAffiliationDisplayValue[*customer.Affiliation]
 	}

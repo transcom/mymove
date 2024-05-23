@@ -32,11 +32,19 @@ BlankDatesAndLocation.args = {
   serviceMember: {
     id: '123',
     residential_address: {
+      streetAddress1: '123 Any St',
+      streetAddress2: '',
+      city: 'Beverly Hills',
+      state: 'CA',
       postalCode: '90210',
     },
   },
   destinationDutyLocation: {
     address: {
+      streetAddress1: '234 Any Dr',
+      streetAddress2: '',
+      city: 'Oakland',
+      state: 'CA',
       postalCode: '94611',
     },
   },

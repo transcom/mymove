@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -13,12 +14,15 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -36,20 +40,20 @@ const (
 type Generator struct {
 	fs        *afero.Afero
 	uploader  *uploader.Uploader
-	pdfConfig *pdfcpu.Configuration
+	pdfConfig *model.Configuration
 	workDir   string
 	pdfLib    PDFLibrary
 }
 
 type pdfCPUWrapper struct {
-	*pdfcpu.Configuration
+	*model.Configuration
 }
 
 // Merge merges files
 func (pcw pdfCPUWrapper) Merge(files []io.ReadSeeker, w io.Writer) error {
 	var rscs []io.ReadSeeker
 	rscs = append(rscs, files...)
-	return api.Merge(rscs, w, pcw.Configuration)
+	return api.MergeRaw(rscs, w, false, pcw.Configuration) // Todo: False refers to a divider page. Find out what this does
 }
 
 // Validate validates the api configuration
@@ -90,9 +94,14 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
-	afs := uploader.Storer.FileSystem()
+	// Use in memory filesystem for generation. Purpose is to not write
+	// to hard disk due to restrictions in AWS storage. May need better long term solution.
+	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
-	pdfConfig := pdfcpu.NewDefaultConfiguration()
+	// Disable ConfiDir for AWS deployment purposes.
+	// PDFCPU will attempt to create temp dir using os.create(hard disk).This will prevent it.
+	api.DisableConfigDir()
+	pdfConfig := model.NewDefaultConfiguration()
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
 	directory, err := afs.TempDir("", "generator")
@@ -122,9 +131,84 @@ func (g *Generator) newTempFile() (afero.File, error) {
 	return outputFile, nil
 }
 
+func (g *Generator) newTempFileWithName(fileName string) (afero.File, error) {
+	name := "temp"
+
+	if fileName != "" {
+		// by adding a * before the extension we tell TempFile to put its random number before the extension instead of after it
+		extensionIndex := strings.LastIndex(fileName, ".")
+		name = fileName[:extensionIndex] + strings.Replace(fileName[extensionIndex:], ".", "*.", 1)
+	}
+
+	outputFile, err := g.fs.TempFile(g.workDir, name)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return outputFile, nil
+}
+
 // Cleanup removes filesystem working dir
 func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
+}
+
+// Get PDF Configuration (For Testing)
+func (g *Generator) FileSystem() *afero.Afero {
+	return g.fs
+}
+
+// Add bookmarks into a single PDF
+func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
+
+	buf := new(bytes.Buffer)
+	replace := true
+	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
+	}
+
+	tempFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	pdfWithBookmarks, err := g.fs.Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+
+	return pdfWithBookmarks, nil
+}
+
+// Get PDF Configuration (For Testing)
+func (g *Generator) PdfConfiguration() *model.Configuration {
+	return g.pdfConfig
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
+	file, err := g.fs.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
+}
+
+func (g *Generator) GetPdfFileInfoForReadSeeker(rs io.ReadSeeker) (*pdfcpu.PDFInfo, error) {
+	return api.PDFInfo(rs, "", nil, g.pdfConfig)
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
+	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
@@ -217,6 +301,41 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 	}
 
 	return pdfs, nil
+}
+
+func (g *Generator) ConvertUploadToPDF(appCtx appcontext.AppContext, upload models.Upload) (string, error) {
+
+	download, err := g.uploader.Download(appCtx, &upload)
+	if err != nil {
+		return "nil", errors.Wrap(err, "Downloading file from upload")
+	}
+
+	defer func() {
+		if downloadErr := download.Close(); downloadErr != nil {
+			appCtx.Logger().Debug("Failed to close file", zap.Error(downloadErr))
+		}
+	}()
+
+	outputFile, err := g.newTempFile()
+
+	if err != nil {
+		return "nil", errors.Wrap(err, "Creating temp file")
+	}
+
+	_, err = io.Copy(outputFile, download)
+	if err != nil {
+		return "nil", errors.Wrap(err, "Copying to afero file")
+	}
+
+	path := outputFile.Name()
+
+	if upload.ContentType == uploader.FileTypePDF {
+		return path, nil
+	}
+
+	images := make([]inputFile, 0)
+	images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
+	return g.PDFFromImages(appCtx, images)
 }
 
 // convert between image MIME types and the values expected by gofpdf
@@ -442,4 +561,90 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	}
 
 	return g.PDFFromImages(appCtx, images)
+}
+
+func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, fileName string) (SSWWorksheet afero.File, err error) {
+	var conf = g.pdfConfig
+	// Change type to reader
+	readJSON := strings.NewReader(string(jsonData))
+	buf := new(bytes.Buffer)
+	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
+	formerr := api.FillForm(templateReader, readJSON, buf, conf)
+	if formerr != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	outputFile, err := g.FileSystem().Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+	return outputFile, nil
+}
+
+// MergePDFFiles Merges a slice of paths to PDF files into a single PDF
+func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
+	var err error
+
+	// Create a merged file
+	mergedFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
+	}
+	defer mergedFile.Close() // Close merged file after finishing
+
+	// Merge files
+	if err = g.pdfLib.Merge(fileReaders, mergedFile); err != nil {
+		return nil, err
+	}
+
+	// Reload the merged file
+	mergedFile, err = g.fs.Open(mergedFile.Name())
+	if err != nil {
+		return nil, err
+	}
+
+	return mergedFile, nil
+}
+
+func (g *Generator) AddWatermarks(inputFile afero.File, m map[int][]*model.Watermark) (afero.File, error) {
+	buf := new(bytes.Buffer)
+	err := api.AddWatermarksSliceMap(inputFile, buf, m, g.pdfConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	pdfWithWatermarks, err := g.fs.Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+
+	return pdfWithWatermarks, nil
+}
+
+func (g *Generator) CreateTextWatermark(text, desc string, onTop, update bool, u types.DisplayUnit) (*model.Watermark, error) {
+	return api.TextWatermark(text, desc, onTop, update, u)
 }

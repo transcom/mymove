@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -13,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PayloadsSuite) TestMoveTaskOrder() {
@@ -38,7 +40,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		PaymentRequests:            models.PaymentRequests{},
 		SubmittedAt:                &submittedAt,
 		UpdatedAt:                  time.Now(),
-		PersonallyProcuredMoves:    models.PersonallyProcuredMoves{},
 		Status:                     models.MoveStatusAPPROVED,
 		SignedCertifications:       models.SignedCertifications{},
 		MTOServiceItems:            models.MTOServiceItems{},
@@ -289,6 +290,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdate() {
 		suite.Equal(*payload.NewAddress.State, sitAddressUpdate.NewAddress.State)
 		suite.Equal(*payload.NewAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
 		suite.Equal(*payload.NewAddress.Country, *sitAddressUpdate.NewAddress.Country)
+		suite.Equal(*payload.NewAddress.County, sitAddressUpdate.NewAddress.County)
 		suite.Equal(*payload.NewAddress.StreetAddress1, sitAddressUpdate.NewAddress.StreetAddress1)
 		suite.Equal(payload.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
 		suite.Equal(payload.OfficeRemarks, sitAddressUpdate.OfficeRemarks)
@@ -357,7 +359,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberRankE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
 
 		payload := Entitlement(&entitlement)
 
@@ -396,7 +398,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberRankE5))
+		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5))
 
 		payload := Entitlement(&entitlement)
 
@@ -415,4 +417,360 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.NotEmpty(payload.ETag)
 		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
+}
+
+func (suite *PayloadsSuite) TestValidationError() {
+	instanceID, _ := uuid.NewV4()
+	detail := "Err"
+
+	noValidationErrors := ValidationError(detail, instanceID, nil)
+	suite.Equal(handlers.ValidationErrMessage, *noValidationErrors.ClientError.Title)
+	suite.Equal(detail, *noValidationErrors.ClientError.Detail)
+	suite.Equal(instanceID.String(), noValidationErrors.ClientError.Instance.String())
+	suite.Nil(noValidationErrors.InvalidFields)
+
+	valErrors := validate.NewErrors()
+	valErrors.Add("Field1", "dummy")
+	valErrors.Add("Field2", "dummy")
+
+	withValidationErrors := ValidationError(detail, instanceID, valErrors)
+	suite.Equal(handlers.ValidationErrMessage, *withValidationErrors.ClientError.Title)
+	suite.Equal(detail, *withValidationErrors.ClientError.Detail)
+	suite.Equal(instanceID.String(), withValidationErrors.ClientError.Instance.String())
+	suite.NotNil(withValidationErrors.InvalidFields)
+	suite.Equal(2, len(withValidationErrors.InvalidFields))
+}
+
+func (suite *PayloadsSuite) TestMTOShipment() {
+	mtoShipment := &models.MTOShipment{}
+
+	mtoShipment.MTOServiceItems = nil
+	payload := MTOShipment(mtoShipment)
+	suite.NotNil(payload)
+	suite.Empty(payload.MtoServiceItems())
+
+	mtoShipment.MTOServiceItems = models.MTOServiceItems{
+		models.MTOServiceItem{},
+	}
+	payload = MTOShipment(mtoShipment)
+	suite.NotNil(payload)
+	suite.NotEmpty(payload.MtoServiceItems())
+}
+
+func (suite *PayloadsSuite) TestInternalServerError() {
+	traceID, _ := uuid.NewV4()
+	detail := "Err"
+
+	noDetailError := InternalServerError(nil, traceID)
+	suite.Equal(handlers.InternalServerErrMessage, *noDetailError.Title)
+	suite.Equal(handlers.InternalServerErrDetail, *noDetailError.Detail)
+	suite.Equal(traceID.String(), noDetailError.Instance.String())
+
+	detailError := InternalServerError(&detail, traceID)
+	suite.Equal(handlers.InternalServerErrMessage, *detailError.Title)
+	suite.Equal(detail, *detailError.Detail)
+	suite.Equal(traceID.String(), detailError.Instance.String())
+}
+
+func (suite *PayloadsSuite) TestGetDimension() {
+	dimensionType := models.DimensionTypeItem
+	dimensions := models.MTOServiceItemDimensions{
+		models.MTOServiceItemDimension{
+			Type:   dimensionType,
+			Length: unit.ThousandthInches(100),
+		},
+		models.MTOServiceItemDimension{
+			Type:   models.DimensionTypeCrate,
+			Length: unit.ThousandthInches(200),
+		},
+	}
+
+	resultDimension := GetDimension(dimensions, dimensionType)
+	suite.Equal(dimensionType, resultDimension.Type)
+	suite.Equal(unit.ThousandthInches(100), resultDimension.Length)
+
+	emptyResultDimension := GetDimension(models.MTOServiceItemDimensions{}, dimensionType)
+	suite.Equal(models.MTOServiceItemDimension{}, emptyResultDimension)
+}
+
+func (suite *PayloadsSuite) TestProofOfServiceDoc() {
+	proofOfServiceDoc := models.ProofOfServiceDoc{
+		PrimeUploads: []models.PrimeUpload{
+			{Upload: models.Upload{ID: uuid.Must(uuid.NewV4())}},
+		},
+	}
+
+	result := ProofOfServiceDoc(proofOfServiceDoc)
+
+	suite.NotNil(result)
+	suite.Equal(len(proofOfServiceDoc.PrimeUploads), len(result.Uploads))
+}
+
+func (suite *PayloadsSuite) TestPaymentRequest() {
+	paymentRequest := models.PaymentRequest{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PaymentRequest(&paymentRequest)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(paymentRequest.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestPaymentRequests() {
+	paymentRequests := models.PaymentRequests{
+		models.PaymentRequest{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := PaymentRequests(&paymentRequests)
+
+	suite.NotNil(result)
+	suite.Equal(len(paymentRequests), len(*result))
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItem() {
+	paymentServiceItem := models.PaymentServiceItem{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PaymentServiceItem(&paymentServiceItem)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(paymentServiceItem.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItems() {
+	paymentServiceItems := models.PaymentServiceItems{
+		models.PaymentServiceItem{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := PaymentServiceItems(&paymentServiceItems)
+
+	suite.NotNil(result)
+	suite.Equal(len(paymentServiceItems), len(*result))
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
+	paymentServiceItemParam := models.PaymentServiceItemParam{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PaymentServiceItemParam(&paymentServiceItemParam)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(paymentServiceItemParam.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParams() {
+	paymentServiceItemParams := models.PaymentServiceItemParams{
+		models.PaymentServiceItemParam{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := PaymentServiceItemParams(&paymentServiceItemParams)
+
+	suite.NotNil(result)
+	suite.Equal(len(paymentServiceItemParams), len(*result))
+}
+
+func (suite *PayloadsSuite) TestServiceRequestDocument() {
+	serviceRequestDocument := models.ServiceRequestDocument{
+		ServiceRequestDocumentUploads: []models.ServiceRequestDocumentUpload{
+			{Upload: models.Upload{ID: uuid.Must(uuid.NewV4())}},
+		},
+	}
+
+	result := ServiceRequestDocument(serviceRequestDocument)
+
+	suite.NotNil(result)
+	suite.Equal(len(serviceRequestDocument.ServiceRequestDocumentUploads), len(result.Uploads))
+}
+
+func (suite *PayloadsSuite) TestPPMShipment() {
+	ppmShipment := &models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PPMShipment(ppmShipment)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(ppmShipment.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestGetCustomerContact() {
+	customerContacts := models.MTOServiceItemCustomerContacts{
+		models.MTOServiceItemCustomerContact{Type: models.CustomerContactTypeFirst},
+	}
+	contactType := models.CustomerContactTypeFirst
+
+	result := GetCustomerContact(customerContacts, contactType)
+
+	suite.Equal(models.CustomerContactTypeFirst, result.Type)
+}
+
+func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
+	shipmentAddressUpdate := &models.ShipmentAddressUpdate{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := ShipmentAddressUpdate(shipmentAddressUpdate)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(shipmentAddressUpdate.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestSITAddressUpdates() {
+	sitAddressUpdates := models.SITAddressUpdates{
+		models.SITAddressUpdate{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := SITAddressUpdates(sitAddressUpdates)
+
+	suite.NotNil(result)
+	suite.Equal(len(sitAddressUpdates), len(result))
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
+	reServiceCode := models.ReServiceCodeDCRT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemDCRT := &models.MTOServiceItem{
+		ID:        uuid.Must(uuid.NewV4()),
+		ReService: models.ReService{Code: reServiceCode},
+		Reason:    &reason,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultDCRT := MTOServiceItem(mtoServiceItemDCRT)
+
+	suite.NotNil(resultDCRT)
+
+	_, ok := resultDCRT.(*primemessages.MTOServiceItemDomesticCrating)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
+	reServiceCode := models.ReServiceCodeDDSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemDDSHUT := &models.MTOServiceItem{
+		ID:        uuid.Must(uuid.NewV4()),
+		ReService: models.ReService{Code: reServiceCode},
+		Reason:    &reason,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultDDSHUT := MTOServiceItem(mtoServiceItemDDSHUT)
+
+	suite.NotNil(resultDDSHUT)
+
+	_, ok := resultDDSHUT.(*primemessages.MTOServiceItemShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestStorageFacilityPayload() {
+	phone := "555"
+	email := "email"
+	facility := "facility"
+	lot := "lot"
+
+	storage := &models.StorageFacility{
+		ID:           uuid.Must(uuid.NewV4()),
+		Address:      models.Address{},
+		UpdatedAt:    time.Now(),
+		Email:        &email,
+		FacilityName: facility,
+		LotNumber:    &lot,
+		Phone:        &phone,
+	}
+
+	suite.NotNil(storage)
+}
+
+func (suite *PayloadsSuite) TestMTOAgentPayload() {
+	firstName := "John"
+	lastName := "Doe"
+	phone := "555"
+	email := "email"
+	mtoAgent := &models.MTOAgent{
+		ID:            uuid.Must(uuid.NewV4()),
+		MTOAgentType:  models.MTOAgentReceiving,
+		FirstName:     &firstName,
+		LastName:      &lastName,
+		Phone:         &phone,
+		Email:         &email,
+		MTOShipmentID: uuid.Must(uuid.NewV4()),
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+
+	payload := MTOAgent(mtoAgent)
+	suite.NotNil(payload)
+}
+
+func (suite *PayloadsSuite) TestStorageFacility() {
+	storageFacilityID := uuid.Must(uuid.NewV4())
+	updatedAt := time.Now()
+	dummy := "dummy"
+	email := "dummy@example.com"
+	facilityName := "dummy"
+	lotNumber := "dummy"
+	phone := "dummy"
+	storage := &models.StorageFacility{
+		ID: storageFacilityID,
+		Address: models.Address{
+			StreetAddress1: dummy,
+			City:           dummy,
+			State:          dummy,
+			PostalCode:     dummy,
+			Country:        &dummy,
+		},
+		Email:        &email,
+		FacilityName: facilityName,
+		LotNumber:    &lotNumber,
+		Phone:        &phone,
+		UpdatedAt:    updatedAt,
+	}
+
+	result := StorageFacility(storage)
+	suite.NotNil(result)
 }

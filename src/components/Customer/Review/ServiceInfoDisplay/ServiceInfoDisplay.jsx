@@ -1,6 +1,6 @@
 import React from 'react';
 import { string, bool } from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import serviceInfoDisplayStyles from './ServiceInfoDisplay.module.scss';
 
@@ -8,7 +8,6 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ServiceInfoDisplay = ({
   affiliation,
-  originDutyLocationName,
   originTransportationOfficeName,
   originTransportationOfficePhone,
   edipi,
@@ -17,13 +16,18 @@ const ServiceInfoDisplay = ({
   showMessage,
   lastName,
   editURL,
-  rank,
 }) => {
+  const { state } = useLocation();
+
   return (
     <div className={serviceInfoDisplayStyles.serviceInfoContainer}>
       <div className={serviceInfoDisplayStyles.header}>
         <h2>Service info</h2>
-        {isEditable && <Link to={editURL}>Edit</Link>}
+        {isEditable && (
+          <Link to={editURL} state={state}>
+            Edit
+          </Link>
+        )}
       </div>
       {!isEditable && showMessage && (
         <div className={serviceInfoDisplayStyles.whoToContactContainer}>
@@ -46,18 +50,8 @@ const ServiceInfoDisplay = ({
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>Rank</dt>
-            <dd>{rank}</dd>
-          </div>
-
-          <div className={descriptionListStyles.row}>
             <dt>DoD ID#</dt>
             <dd>{edipi}</dd>
-          </div>
-
-          <div className={descriptionListStyles.row}>
-            <dt>Current duty location</dt>
-            <dd>{originDutyLocationName}</dd>
           </div>
         </dl>
       </div>
@@ -67,7 +61,6 @@ const ServiceInfoDisplay = ({
 
 ServiceInfoDisplay.propTypes = {
   affiliation: string.isRequired,
-  originDutyLocationName: string.isRequired,
   originTransportationOfficeName: string.isRequired,
   originTransportationOfficePhone: string,
   edipi: string.isRequired,
@@ -76,7 +69,6 @@ ServiceInfoDisplay.propTypes = {
   showMessage: bool,
   lastName: string.isRequired,
   editURL: string,
-  rank: string.isRequired,
 };
 
 ServiceInfoDisplay.defaultProps = {

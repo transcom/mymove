@@ -23,6 +23,9 @@ type UpdateOrderPayload struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
+	// grade
+	Grade *Grade `json:"grade,omitempty"`
+
 	// Orders date
 	//
 	// The date and time that these orders were cut.
@@ -92,6 +95,10 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateGrade(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateIssueDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -149,6 +156,25 @@ func (m *UpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry
 				return ve.ValidateName("departmentIndicator")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateGrade(formats strfmt.Registry) error {
+	if swag.IsZero(m.Grade) { // not required
+		return nil
+	}
+
+	if m.Grade != nil {
+		if err := m.Grade.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}
@@ -327,6 +353,10 @@ func (m *UpdateOrderPayload) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateGrade(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateNtsSac(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -366,6 +396,27 @@ func (m *UpdateOrderPayload) contextValidateDepartmentIndicator(ctx context.Cont
 				return ve.ValidateName("departmentIndicator")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Grade != nil {
+
+		if swag.IsZero(m.Grade) { // not required
+			return nil
+		}
+
+		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}

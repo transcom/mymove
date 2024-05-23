@@ -61,7 +61,7 @@ const useOrdersDocumentQueriesReturnValue = {
       agency: 'ARMY',
       customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: mockDestinationDutyLocation,
       eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
       entitlement: {
@@ -202,7 +202,18 @@ describe('Orders page', () => {
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
+      expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
     });
+  });
+
+  it('renders an upload orders button when no orders are present', async () => {
+    render(
+      <MockProviders>
+        <ServicesCounselingOrders />
+      </MockProviders>,
+    );
+
+    expect(await screen.findByText('Add Orders')).toBeInTheDocument();
   });
 
   describe('TAC validation', () => {

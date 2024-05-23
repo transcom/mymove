@@ -71,7 +71,7 @@ G62*10*20200909**
 N1*BY*BuyerOrganizationName*92*LKNQ
 N1*SE*SellerOrganizationName*2*BLKW
 N1*ST*DestinationName*10*CNNQ
-N4*Augusta*GA*30813*US**
+N4*Fort Eisenhower*GA*30813*US**
 N1*SF*Uoe1WjuUjU*10*LKNQ
 N4*Des Moines*IA*50309*US**
 HL*1**I
@@ -124,7 +124,7 @@ func MakeValidEdi() Invoice858C {
 			ReferenceIdentificationQualifier: "1W",
 			ReferenceIdentification:          "Leo, Spacemen",
 		},
-		ServiceMemberRank: edisegment.N9{
+		OrderPayGrade: edisegment.N9{
 			ReferenceIdentificationQualifier: "ML",
 			ReferenceIdentification:          "E_1",
 		},
@@ -166,7 +166,7 @@ func MakeValidEdi() Invoice858C {
 			IdentificationCode:          "CNNQ",
 		},
 		DestinationPostalDetails: edisegment.N4{
-			CityName:            "Augusta",
+			CityName:            "Fort Eisenhower",
 			StateOrProvinceCode: "GA",
 			PostalCode:          "30813",
 			CountryCode:         "US",

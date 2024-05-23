@@ -17,6 +17,7 @@ func setupTestData(suite *PaperworkSuite) (models.EvaluationReport, models.Repor
 	violations := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{Report: report})
 	return report, models.ReportViolations{violations}, models.MTOShipments{shipment}, report.Move.Orders.ServiceMember
 }
+
 func (suite *PaperworkSuite) TestEvaluationReportFormSmokeTests() {
 	suite.Run("Shipment report", func() {
 		report, violations, shipments, customer := setupTestData(suite)

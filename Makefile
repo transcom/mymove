@@ -834,22 +834,6 @@ tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-pr
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks save-ghc-fuel-price-data
 
-tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
-	@echo "sending post move survey with docker command..."
-	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
-	docker run \
-		-t \
-		-e DB_HOST="database" \
-		-e DB_NAME \
-		-e DB_PORT \
-		-e DB_USER \
-		-e DB_PASSWORD \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
-		--rm \
-		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks send-post-move-survey
-
-
 tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-reminder from inside docker container
 	@echo "sending payment reminder with docker command..."
 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
@@ -1067,7 +1051,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d bash
 
 .PHONY: docker_local_ssh_server_with_password
 docker_local_ssh_server_with_password:
@@ -1230,6 +1214,54 @@ nonato_deploy_restore:  ## Restore placeholders in config after deploy to a non-
 
 #
 # ----- END NON-ATO DEPLOYMENT TARGETS -----
+#
+
+#
+# ----- START SETUP MULTI BRANCH -----
+#
+
+HAS_ENVRC_LOCAL := $(shell [ -f .envrc.local ] && echo 1 || echo 0)
+HAS_ENVRC_CLONED := $(shell [ -f $(CURDIR)2/.envrc.local ] && echo 1 || echo 0)
+
+check_local_env:
+ifeq (HAS_ENVRC_LOCAL,1)
+	@echo "Local .envrc.local found."; \
+	if [ -z "$$(grep -E '^export GIN_PORT=.*' $(CURDIR)/.envrc.local)" ]; then \
+		echo "export GIN_PORT=s" >> "$(CURDIR)/.envrc.local"; \
+	fi; \
+	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9001/' "$(CURDIR)/.envrc.local"
+else
+	@echo "Local .envrc.local NOT found. Creating file."; \
+	echo "export GIN_PORT=9001" > "$(CURDIR)/.envrc.local"
+endif
+
+check_cloned_env:
+ifeq (HAS_ENVRC_CLONED,1)
+	@echo "Cloned .envrc.local found."; \
+	if [ -z "$$(grep -E '^export GIN_PORT=.*' $(CURDIR)2/.envrc.local)" ]; then \
+		echo "export GIN_PORT=s" >> "$(CURDIR)2/.envrc.local"; \
+	fi; \
+	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9002/' "$(CURDIR)2/.envrc.local"
+else
+	@echo "Cloned .envrc.local NOT found. Creating file."; \
+	echo "export GIN_PORT=9002" > "$(CURDIR)2/.envrc.local"
+endif
+
+clone_repo:
+	@if [ -d "$(CURDIR)2" ]; then \
+		echo "Error: Folder $(CURDIR)2 already exists."; \
+		exit 1; \
+	fi; \
+	git clone https://github.com/transcom/mymove.git "$(CURDIR)2";
+
+success_message:
+	@echo "2 independent project folders created successfully."
+
+.PHONY: multi_branch
+multi_branch: check_local_env clone_repo check_cloned_env success_message ## Sets up 2 folders which can each target a different branch on the repo
+
+#
+# ----- END SETUP MULTI BRANCH -----
 #
 
 default: help

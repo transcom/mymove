@@ -20,6 +20,9 @@ import (
 // swagger:model ListMove
 type ListMove struct {
 
+	// amendments
+	Amendments *Amendments `json:"amendments,omitempty"`
+
 	// available to prime at
 	// Read Only: true
 	// Format: date-time
@@ -49,9 +52,6 @@ type ListMove struct {
 	// Format: uuid
 	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
-	// ppm estimated weight
-	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
-
 	// ppm type
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
@@ -69,6 +69,10 @@ type ListMove struct {
 // Validate validates this list move
 func (m *ListMove) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateAmendments(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
@@ -97,6 +101,25 @@ func (m *ListMove) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ListMove) validateAmendments(formats strfmt.Registry) error {
+	if swag.IsZero(m.Amendments) { // not required
+		return nil
+	}
+
+	if m.Amendments != nil {
+		if err := m.Amendments.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("amendments")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("amendments")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -206,6 +229,10 @@ func (m *ListMove) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *ListMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAmendments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAvailableToPrimeAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -229,6 +256,27 @@ func (m *ListMove) ContextValidate(ctx context.Context, formats strfmt.Registry)
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ListMove) contextValidateAmendments(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Amendments != nil {
+
+		if swag.IsZero(m.Amendments) { // not required
+			return nil
+		}
+
+		if err := m.Amendments.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("amendments")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("amendments")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

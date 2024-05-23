@@ -51,9 +51,6 @@ const shipmentSelectionProps = {
   ...uploadOrdersProps,
   serviceMember: {
     ...uploadOrdersProps.serviceMember,
-    weight_allotment: {
-      total_weight_self: 10000,
-    },
   },
   orders: {
     ...uploadOrdersProps.orders,
@@ -64,6 +61,11 @@ const shipmentSelectionProps = {
       name: 'NAS Norfolk',
     },
     report_by_date: '2020-12-25',
+    authorizedWeight: 10000,
+    entitlement: {
+      proGear: 2000,
+      proGearSpouse: 500,
+    },
   },
   uploadedOrderDocuments: [
     {

@@ -51,42 +51,44 @@ var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
 // Move is an object representing a move
 type Move struct {
-	ID                           uuid.UUID               `json:"id" db:"id"`
-	Locator                      string                  `json:"locator" db:"locator"`
-	CreatedAt                    time.Time               `json:"created_at" db:"created_at"`
-	UpdatedAt                    time.Time               `json:"updated_at" db:"updated_at"`
-	SubmittedAt                  *time.Time              `json:"submitted_at" db:"submitted_at"`
-	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
-	Orders                       Order                   `belongs_to:"orders" fk_id:"orders_id"`
-	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
-	Status                       MoveStatus              `json:"status" db:"status"`
-	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
-	CancelReason                 *string                 `json:"cancel_reason" db:"cancel_reason"`
-	Show                         *bool                   `json:"show" db:"show"`
-	TIORemarks                   *string                 `db:"tio_remarks"`
-	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
-	ContractorID                 *uuid.UUID              `db:"contractor_id"`
-	Contractor                   *Contractor             `belongs_to:"contractors" fk_id:"contractor_id"`
-	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
-	PPMType                      *string                 `db:"ppm_type"`
-	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items" fk_id:"move_id"`
-	PaymentRequests              PaymentRequests         `has_many:"payment_requests" fk_id:"move_id"`
-	MTOShipments                 MTOShipments            `has_many:"mto_shipments" fk_id:"move_id"`
-	ReferenceID                  *string                 `db:"reference_id"`
-	ServiceCounselingCompletedAt *time.Time              `db:"service_counseling_completed_at"`
-	PrimeCounselingCompletedAt   *time.Time              `db:"prime_counseling_completed_at"`
-	ExcessWeightQualifiedAt      *time.Time              `db:"excess_weight_qualified_at"`
-	ExcessWeightUploadID         *uuid.UUID              `db:"excess_weight_upload_id"`
-	ExcessWeightUpload           *Upload                 `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
-	ExcessWeightAcknowledgedAt   *time.Time              `db:"excess_weight_acknowledged_at"`
-	BillableWeightsReviewedAt    *time.Time              `db:"billable_weights_reviewed_at"`
-	FinancialReviewFlag          bool                    `db:"financial_review_flag"`
-	FinancialReviewFlagSetAt     *time.Time              `db:"financial_review_flag_set_at"`
-	FinancialReviewRemarks       *string                 `db:"financial_review_remarks"`
-	ShipmentGBLOC                MoveToGBLOCs            `has_many:"move_to_gbloc" fk_id:"move_id"`
-	CloseoutOfficeID             *uuid.UUID              `db:"closeout_office_id"`
-	CloseoutOffice               *TransportationOffice   `belongs_to:"transportation_offices" fk_id:"closeout_office_id"`
-	ApprovalsRequestedAt         *time.Time              `db:"approvals_requested_at"`
+	ID                           uuid.UUID             `json:"id" db:"id"`
+	Locator                      string                `json:"locator" db:"locator"`
+	CreatedAt                    time.Time             `json:"created_at" db:"created_at"`
+	UpdatedAt                    time.Time             `json:"updated_at" db:"updated_at"`
+	SubmittedAt                  *time.Time            `json:"submitted_at" db:"submitted_at"`
+	OrdersID                     uuid.UUID             `json:"orders_id" db:"orders_id"`
+	Orders                       Order                 `belongs_to:"orders" fk_id:"orders_id"`
+	Status                       MoveStatus            `json:"status" db:"status"`
+	SignedCertifications         SignedCertifications  `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
+	CancelReason                 *string               `json:"cancel_reason" db:"cancel_reason"`
+	Show                         *bool                 `json:"show" db:"show"`
+	TIORemarks                   *string               `db:"tio_remarks"`
+	AvailableToPrimeAt           *time.Time            `db:"available_to_prime_at"`
+	ContractorID                 *uuid.UUID            `db:"contractor_id"`
+	Contractor                   *Contractor           `belongs_to:"contractors" fk_id:"contractor_id"`
+	PPMType                      *string               `db:"ppm_type"`
+	MTOServiceItems              MTOServiceItems       `has_many:"mto_service_items" fk_id:"move_id"`
+	PaymentRequests              PaymentRequests       `has_many:"payment_requests" fk_id:"move_id"`
+	MTOShipments                 MTOShipments          `has_many:"mto_shipments" fk_id:"move_id"`
+	ReferenceID                  *string               `db:"reference_id"`
+	ServiceCounselingCompletedAt *time.Time            `db:"service_counseling_completed_at"`
+	PrimeCounselingCompletedAt   *time.Time            `db:"prime_counseling_completed_at"`
+	ExcessWeightQualifiedAt      *time.Time            `db:"excess_weight_qualified_at"`
+	ExcessWeightUploadID         *uuid.UUID            `db:"excess_weight_upload_id"`
+	ExcessWeightUpload           *Upload               `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
+	ExcessWeightAcknowledgedAt   *time.Time            `db:"excess_weight_acknowledged_at"`
+	BillableWeightsReviewedAt    *time.Time            `db:"billable_weights_reviewed_at"`
+	FinancialReviewFlag          bool                  `db:"financial_review_flag"`
+	FinancialReviewFlagSetAt     *time.Time            `db:"financial_review_flag_set_at"`
+	FinancialReviewRemarks       *string               `db:"financial_review_remarks"`
+	ShipmentGBLOC                MoveToGBLOCs          `has_many:"move_to_gbloc" fk_id:"move_id"`
+	CloseoutOfficeID             *uuid.UUID            `db:"closeout_office_id"`
+	CloseoutOffice               *TransportationOffice `belongs_to:"transportation_offices" fk_id:"closeout_office_id"`
+	ApprovalsRequestedAt         *time.Time            `db:"approvals_requested_at"`
+	ShipmentSeqNum               *int                  `db:"shipment_seq_num"`
+	LockedByOfficeUserID         *uuid.UUID            `json:"locked_by" db:"locked_by"`
+	LockedByOfficeUser           *OfficeUser           `belongs_to:"office_users" fk_id:"locked_by"`
+	LockExpiresAt                *time.Time            `json:"lock_expires_at" db:"lock_expires_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -96,7 +98,8 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show *bool
+	Show   *bool
+	Status *MoveStatus
 }
 
 type Moves []Move
@@ -122,6 +125,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"Orders.ServiceMember",
 		"Orders.UploadedAmendedOrders",
 		"CloseoutOffice",
+		"LockedByOfficeUser",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
@@ -162,62 +166,21 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	return &move, nil
 }
 
-// CreatePPM creates a new PPM associated with this move
-func (m Move) CreatePPM(db *pop.Connection,
-	weightEstimate *unit.Pound,
-	originalMoveDate *time.Time,
-	pickupPostalCode *string,
-	hasAdditionalPostalCode *bool,
-	additionalPickupPostalCode *string,
-	destinationPostalCode *string,
-	hasSit *bool,
-	daysInStorage *int64,
-	estimatedStorageReimbursement *string,
-	hasRequestedAdvance bool,
-	advance *Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
-
-	newPPM := PersonallyProcuredMove{
-		MoveID:                        m.ID,
-		Move:                          m,
-		WeightEstimate:                weightEstimate,
-		OriginalMoveDate:              originalMoveDate,
-		PickupPostalCode:              pickupPostalCode,
-		HasAdditionalPostalCode:       hasAdditionalPostalCode,
-		AdditionalPickupPostalCode:    additionalPickupPostalCode,
-		DestinationPostalCode:         destinationPostalCode,
-		HasSit:                        hasSit,
-		DaysInStorage:                 daysInStorage,
-		Status:                        PPMStatusDRAFT,
-		HasRequestedAdvance:           hasRequestedAdvance,
-		Advance:                       advance,
-		EstimatedStorageReimbursement: estimatedStorageReimbursement,
-	}
-
-	verrs, err := SavePersonallyProcuredMove(db, &newPPM)
-	if err != nil || verrs.HasAny() {
-		return nil, verrs, err
-	}
-
-	return &newPPM, verrs, nil
-}
-
 // CreateSignedCertification creates a new SignedCertification associated with this move
 func (m Move) CreateSignedCertification(db *pop.Connection,
 	submittingUserID uuid.UUID,
 	certificationText string,
 	signature string,
 	date time.Time,
-	ppmID *uuid.UUID,
 	certificationType *SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
-		MoveID:                   m.ID,
-		PersonallyProcuredMoveID: ppmID,
-		CertificationType:        certificationType,
-		SubmittingUserID:         submittingUserID,
-		CertificationText:        certificationText,
-		Signature:                signature,
-		Date:                     date,
+		MoveID:            m.ID,
+		CertificationType: certificationType,
+		SubmittingUserID:  submittingUserID,
+		CertificationText: certificationText,
+		Signature:         signature,
+		Date:              date,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newSignedCertification)
@@ -264,16 +227,20 @@ func createNewMove(db *pop.Connection,
 	if moveOptions.Show != nil {
 		show = moveOptions.Show
 	}
+	status := MoveStatusDRAFT
+	if moveOptions.Status != nil {
+		status = *moveOptions.Status
+	}
 
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
+		return nil, nil, fmt.Errorf("could not find contractor: %w", err)
 	}
 
 	referenceID, err := GenerateReferenceID(db)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not generate a unique ReferenceID: %w", err)
+		return nil, nil, fmt.Errorf("could not generate a unique ReferenceID: %w", err)
 	}
 
 	for i := 0; i < maxLocatorAttempts; i++ {
@@ -281,7 +248,7 @@ func createNewMove(db *pop.Connection,
 			Orders:       orders,
 			OrdersID:     orders.ID,
 			Locator:      GenerateLocator(),
-			Status:       MoveStatusDRAFT,
+			Status:       status,
 			Show:         show,
 			ContractorID: &contractor.ID,
 			ReferenceID:  &referenceID,
@@ -352,21 +319,6 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	for _, ppm := range move.PersonallyProcuredMoves {
-		copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
-		if copyOfPpm.Advance != nil {
-			if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Advance")
-			}
-		}
-
-		if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving PPM")
-		}
-	}
-
 	if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 		responseVErrors.Append(verrs)
 		responseError = errors.Wrap(err, "Error Saving Orders")
@@ -386,7 +338,7 @@ func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
 	err := db.
 		Eager(
-			"Orders.ServiceMember.DutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
 			"Orders.NewDutyLocation.Address",
 			"Orders.ServiceMember",
 		).
@@ -408,10 +360,95 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 	return move, nil
 }
 
+// FetchMovesByOrderID returns a Moves for a given id
+func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
+	var moves Moves
+
+	query := db.Where("orders_id = ?", orderID)
+	err := query.Eager(
+		"MTOShipments",
+		"MTOShipments.MTOAgents",
+		"MTOShipments.PPMShipment",
+		"MTOShipments.PPMShipment.WeightTickets",
+		"MTOShipments.PPMShipment.MovingExpenses",
+		"MTOShipments.PPMShipment.ProgearWeightTickets",
+		"MTOShipments.DestinationAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.PickupAddress",
+		"MTOShipments.PPMShipment.DestinationAddress",
+		"MTOShipments.PPMShipment.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.SecondaryDestinationAddress",
+		"Orders",
+		"Orders.UploadedOrders",
+		"Orders.UploadedOrders.UserUploads",
+		"Orders.UploadedAmendedOrders",
+		"Orders.Entitlement",
+		"Orders.ServiceMember",
+		"Orders.ServiceMember.User",
+		"Orders.OriginDutyLocation.Address",
+		"Orders.OriginDutyLocation.TransportationOffice",
+		"Orders.OriginDutyLocation.TransportationOffice.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.NewDutyLocation.TransportationOffice",
+		"Orders.NewDutyLocation.TransportationOffice.Address",
+		"CloseoutOffice",
+		"CloseoutOffice.Address",
+	).All(&moves)
+	if err != nil {
+		return moves, err
+	}
+
+	order := moves[0].Orders
+
+	// Eager loading of nested has_many associations is broken
+	var userUploads UserUploads
+	err = db.Q().
+		Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+		Where("document_id = ?", order.UploadedOrders.ID).
+		All(&userUploads)
+	if err != nil {
+		return moves, err
+	}
+
+	moves[0].Orders.UploadedOrders.UserUploads = userUploads
+
+	// Eager loading of nested has_many associations is broken
+	if order.UploadedAmendedOrders != nil {
+		var amendedUserUploads UserUploads
+		err = db.Q().
+			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", order.UploadedAmendedOrdersID).
+			All(&amendedUserUploads)
+		if err != nil {
+			return moves, err
+		}
+		moves[0].Orders.UploadedAmendedOrders.UserUploads = amendedUserUploads
+	}
+
+	return moves, err
+}
+
 // FetchMoveByMoveID returns a Move for a given id
 func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
 	err := db.Q().Find(&move, moveID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Move{}, ErrFetchNotFound
+		}
+		return Move{}, err
+	}
+	return move, nil
+}
+
+func FetchMoveByMoveIDWithOrders(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	err := db.Q().Eager(
+		"Orders",
+	).Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -443,6 +480,16 @@ func (m Move) IsPPMOnly() bool {
 		}
 	}
 	return ppmOnlyMove
+}
+func GetTotalNetWeightForMove(m Move) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, shipment := range m.MTOShipments {
+		if shipment.ShipmentType == MTOShipmentTypePPM && shipment.PPMShipment != nil {
+			totalNetWeight += GetPPMNetWeight(*shipment.PPMShipment)
+		}
+	}
+	return totalNetWeight
+
 }
 
 // HasPPM returns true if at least one shipment type is "PPM" associated with the move, false otherwise

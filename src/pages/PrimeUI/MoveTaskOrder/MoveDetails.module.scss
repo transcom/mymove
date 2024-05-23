@@ -2,7 +2,9 @@
 @import 'shared/styles/colors';
 
 .MoveDetails {
-  .moveHeader, .mainShipmentHeader, .serviceItemHeader {
+  .moveHeader,
+  .mainShipmentHeader,
+  .serviceItemHeader {
     @include u-display(flex);
     align-items: flex-start;
 
@@ -38,4 +40,24 @@
     @include u-border-left('error');
     @include u-font-weight(bold);
   }
+  .serviceItemHeading {
+    @include u-margin-bottom(neg-1px);
+  }
+  .uploadBtn {
+    display: flex;
+    flex-direction: row;
+    @include u-margin-bottom(2);
+  }
+
+  :global(.usa-select) {
+    width: 20%;
+  }
+}
+
+.specialMovesLabel {
+  width: fit-content;
+  margin: 20px auto;
+
+  font-size: 2.67rem;
+  color: red;
 }

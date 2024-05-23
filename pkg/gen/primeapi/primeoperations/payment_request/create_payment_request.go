@@ -34,8 +34,7 @@ func NewCreatePaymentRequest(ctx *middleware.Context, handler CreatePaymentReque
 
 createPaymentRequest
 
-Creates a new instance of a paymentRequest.
-A newly created payment request is assigned the status `PENDING`.
+Creates a new instance of a paymentRequest and is assigned the status `PENDING`.
 A move task order can have multiple payment requests, and
 a final payment request can be marked using boolean `isFinal`.
 
@@ -43,16 +42,167 @@ If a `PENDING` payment request is recalculated,
 a new payment request is created and the original request is
 marked with the status `DEPRECATED`.
 
-**NOTE**: In order to create a payment request for most service items,
-the shipment *must* be updated with the `PrimeActualWeight` value via [updateMTOShipment](#operation/updateMTOShipment).
-**Fuel Surcharge** service items require `ActualPickupDate` to be
-updated on the shipment.
+**NOTE**: In order to create a payment request for most service items, the shipment *must*
+be updated with the `PrimeActualWeight` value via [updateMTOShipment](#operation/updateMTOShipment).
 
-To create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and
-SITPaymentRequestEnd dates must not overlap previously requested SIT dates.
+**FSC - Fuel Surcharge** service items require `ActualPickupDate` to be updated on the shipment.
 
-To create a paymentRequest for a SIT Delivery mtoServiceItem, the item must
-first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).
+A service item can be on several payment requests in the case of partial payment requests and payments.
+
+In the request, if no params are necessary, then just the `serviceItem` `id` is required. For example:
+```json
+
+	{
+	  "isFinal": false,
+	  "moveTaskOrderID": "uuid",
+	  "serviceItems": [
+	    {
+	      "id": "uuid",
+	    },
+	    {
+	      "id": "uuid",
+	      "params": [
+	        {
+	          "key": "Service Item Parameter Name",
+	          "value": "Service Item Parameter Value"
+	        }
+	      ]
+	    }
+	  ],
+	  "pointOfContact": "string"
+	}
+
+```
+
+SIT Service Items & Accepted Payment Request Parameters:
+---
+If `WeightBilled` is not provided then the full shipment weight (`PrimeActualWeight`) will be considered in the calculation.
+
+**NOTE**: Diversions have a unique calcuation for payment requests without a `WeightBilled` parameter.
+
+If you created a payment request for a diversion and `WeightBilled` is not provided, then the following will be used in the calculation:
+- The lowest shipment weight (`PrimeActualWeight`) found in the diverted shipment chain.
+- The lowest reweigh weight found in the diverted shipment chain.
+
+The diverted shipment chain is created by referencing the `diversion` boolean, `divertedFromShipmentId` UUID, and matching destination to pickup addresses.
+If the chain cannot be established it will fall back to the `PrimeActualWeight` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.
+The lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.
+
+**DOFSIT - Domestic origin 1st day SIT**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart & SITPaymentRequestEnd are **REQUIRED**)*
+*To create a paymentRequest for this service item, the `SITPaymentRequestStart` and `SITPaymentRequestEnd` dates must not overlap previously requested SIT dates.*
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  },
+	  {
+	    "key": "SITPaymentRequestStart",
+	    "value": "date"
+	  },
+	  {
+	    "key": "SITPaymentRequestEnd",
+	    "value": "date"
+	  }
+	]
+
+```
+
+**DOPSIT - Domestic origin SIT pickup**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DOSHUT - Domestic origin shuttle service**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DDFSIT - Domestic destination 1st day SIT**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart & SITPaymentRequestEnd are **REQUIRED**)*
+*To create a paymentRequest for this service item, the `SITPaymentRequestStart` and `SITPaymentRequestEnd` dates must not overlap previously requested SIT dates.*
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  },
+	  {
+	    "key": "SITPaymentRequestStart",
+	    "value": "date"
+	  },
+	  {
+	    "key": "SITPaymentRequestEnd",
+	    "value": "date"
+	  }
+	]
+
+```
+
+**DDDSIT - Domestic destination SIT delivery**
+*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**DDSHUT - Domestic destination shuttle service**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+---
 */
 type CreatePaymentRequest struct {
 	Context *middleware.Context

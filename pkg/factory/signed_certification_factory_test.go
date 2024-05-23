@@ -24,7 +24,6 @@ func (suite *FactorySuite) TestBuildSignedCertification() {
 		// VALIDATE RESULTS
 		suite.False(signedCertification.MoveID.IsNil())
 		suite.False(signedCertification.SubmittingUserID.IsNil())
-		suite.Nil(signedCertification.PersonallyProcuredMoveID)
 		suite.NotNil(signedCertification.CertificationType)
 		suite.Equal(defaultCertificationType, *signedCertification.CertificationType)
 		suite.Equal(defaultCertificationText, signedCertification.CertificationText)

@@ -1,5 +1,7 @@
 import queryString from 'query-string';
 
+import { getBooleanFeatureFlagForUser } from '../services/internalApi';
+
 import { milmoveLogger } from 'utils/milmoveLog';
 
 // Simple feature toggling for client-side code.
@@ -9,6 +11,8 @@ import { milmoveLogger } from 'utils/milmoveLog';
 // make client_test -> test
 // make client_build -> branches based on hostname, see switch statement below
 
+// Please do not utilize these default / environment flags. These flags have been deprecated in place of Flipt.
+// Refer to the feature flag documentation within this project's docs.
 const defaultFlags = {
   ppm: true,
   documentViewer: true,
@@ -45,6 +49,10 @@ const environmentFlags = {
   },
 
   production: {
+    ...defaultFlags,
+  },
+
+  loadtest: {
     ...defaultFlags,
   },
 };
@@ -124,3 +132,39 @@ export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
     },
   };
 };
+
+// isBooleanFlagEnabled returns the Flipt feature flag value
+export function isBooleanFlagEnabled(flagKey) {
+  return getBooleanFeatureFlagForUser(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        // Found feature flag, "match" is its boolean value
+        return result.match;
+      }
+      throw new Error(`feature flag  is undefined ${flagKey}`);
+    })
+    .catch((error) => {
+      // On error, log it and then just return false setting it to be disabled.
+      // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}
+
+export function isCounselorMoveCreateEnabled() {
+  const flagKey = 'counselor_move_create';
+  return getBooleanFeatureFlagForUser(flagKey, {})
+    .then((result) => {
+      if (result && typeof result.match !== 'undefined') {
+        // Found feature flag, "match" is its boolean value
+        return result.match;
+      }
+      throw new Error('counselor move creation feature flag is undefined');
+    })
+    .catch((error) => {
+      // On error, log it and then just return false setting it to be disabled.
+      // No need to return it for extra handling.
+      milmoveLogger.error(error);
+      return false;
+    });
+}

@@ -19,11 +19,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
-	move := &Move{}
+	move := &m.Move{}
 
 	expErrors := map[string][]string{
 		"locator":   {"Locator can not be blank."},
@@ -38,8 +38,8 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	moveOptions := MoveOptions{
-		Show: BoolPointer(true),
+	moveOptions := m.MoveOptions{
+		Show: m.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -52,7 +52,7 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 
 func (suite *ModelSuite) TestGenerateReferenceID() {
 
-	refID, err := GenerateReferenceID(suite.DB())
+	refID, err := m.GenerateReferenceID(suite.DB())
 	suite.Run("reference id is properly created", func() {
 		suite.NoError(err)
 		suite.NotZero(refID)
@@ -67,7 +67,7 @@ func (suite *ModelSuite) TestGenerateReferenceID() {
 
 func (suite *ModelSuite) TestFetchMove() {
 
-	setupTestData := func() (*auth.Session, Order) {
+	setupTestData := func() (*auth.Session, m.Order) {
 
 		order := factory.BuildOrder(suite.DB(), nil, nil)
 		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
@@ -89,8 +89,8 @@ func (suite *ModelSuite) TestFetchMove() {
 		session, order := setupTestData()
 
 		// Create HHG Move
-		moveOptions := MoveOptions{
-			Show: BoolPointer(true),
+		moveOptions := m.MoveOptions{
+			Show: m.BoolPointer(true),
 		}
 		move, verrs, err := order.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -98,7 +98,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		suite.Equal(6, len(move.Locator))
 
 		// Fetch move
-		fetchedMove, err := FetchMove(suite.DB(), session, move.ID)
+		fetchedMove, err := m.FetchMove(suite.DB(), session, move.ID)
 		suite.Nil(err, "Expected to get moveResult back.")
 		suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
 
@@ -109,7 +109,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		suite.DB().Save(move)
 
 		// Fetch move again
-		actualMove, err := FetchMove(suite.DB(), session, move.ID)
+		actualMove, err := m.FetchMove(suite.DB(), session, move.ID)
 		suite.NoError(err, "Failed fetching completed move")
 		suite.Equal("COMPLETED", string(actualMove.Status))
 
@@ -124,8 +124,8 @@ func (suite *ModelSuite) TestFetchMove() {
 		session, _ := setupTestData()
 
 		// Bad Move
-		_, err := FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
-		suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
+		_, err := m.FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
+		suite.Equal(m.ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 	})
 
 	suite.Run("Fetch a move bad user", func() {
@@ -138,8 +138,8 @@ func (suite *ModelSuite) TestFetchMove() {
 
 		// Create a second sm and a move only on that sm
 		order2 := factory.BuildOrder(suite.DB(), nil, nil)
-		moveOptions := MoveOptions{
-			Show: BoolPointer(true),
+		moveOptions := m.MoveOptions{
+			Show: m.BoolPointer(true),
 		}
 		move2, verrs, err := order2.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -147,9 +147,9 @@ func (suite *ModelSuite) TestFetchMove() {
 		suite.Equal(6, len(move2.Locator))
 
 		// A fetch on the second moveID, with the first user logged in, should fail
-		_, err = FetchMove(suite.DB(), session, move2.ID)
+		_, err = m.FetchMove(suite.DB(), session, move2.ID)
 
-		suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
+		suite.Equal(m.ErrFetchForbidden, err, "Expected to get a Forbidden back.")
 	})
 
 	suite.Run("Hidden move is not returned", func() {
@@ -161,8 +161,8 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Create a hidden move
 		hiddenMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
-				Model: Move{
-					Show: BoolPointer(false),
+				Model: m.Move{
+					Show: m.BoolPointer(false),
 				},
 			},
 			{
@@ -172,8 +172,8 @@ func (suite *ModelSuite) TestFetchMove() {
 		}, nil)
 
 		// Attempt to fetch this move. We should receive an error.
-		_, err := FetchMove(suite.DB(), session, hiddenMove.ID)
-		suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
+		_, err := m.FetchMove(suite.DB(), session, hiddenMove.ID)
+		suite.Equal(m.ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 	})
 
 	suite.Run("deleted shipments are excluded from the results", func() {
@@ -181,10 +181,10 @@ func (suite *ModelSuite) TestFetchMove() {
 		mto := mtoShipment.MoveTaskOrder
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
-				Model: MTOShipment{
-					ShipmentType: MTOShipmentTypeHHG,
-					Status:       MTOShipmentStatusSubmitted,
-					DeletedAt:    TimePointer(time.Now()),
+				Model: m.MTOShipment{
+					ShipmentType: m.MTOShipmentTypeHHG,
+					Status:       m.MTOShipmentStatusSubmitted,
+					DeletedAt:    m.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -199,7 +199,7 @@ func (suite *ModelSuite) TestFetchMove() {
 			ApplicationName: auth.MilApp,
 		}
 
-		actualMove, err := FetchMove(suite.DB(), session, mto.ID)
+		actualMove, err := m.FetchMove(suite.DB(), session, mto.ID)
 
 		suite.NoError(err)
 		suite.Len(actualMove.MTOShipments, 1)
@@ -214,8 +214,8 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	orders.Status = ""
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	moveOptions := MoveOptions{
-		Show: BoolPointer(true),
+	moveOptions := m.MoveOptions{
+		Show: m.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -223,25 +223,25 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, _ = SaveMoveDependencies(suite.DB(), move)
+	verrs, _ = m.SaveMoveDependencies(suite.DB(), move)
 	suite.True(verrs.HasAny(), "saving invalid statuses should yield an error")
 }
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
-	orders.Status = OrderStatusSUBMITTED
+	orders.Status = m.OrderStatusSUBMITTED
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	moveOptions := MoveOptions{
-		Show: BoolPointer(true),
+	moveOptions := m.MoveOptions{
+		Show: m.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveDependencies(suite.DB(), move)
+	verrs, err = m.SaveMoveDependencies(suite.DB(), move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
 	suite.NoError(err)
 }
@@ -253,12 +253,12 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 
 	factory.BuildMove(suite.DB(), []factory.Customization{
 		{
-			Model: Move{
+			Model: m.Move{
 				ID: moveID,
 			},
 		},
 		{
-			Model: Order{
+			Model: m.Order{
 				ID: orderID,
 			},
 		},
@@ -274,7 +274,7 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 	}
 
 	for _, ts := range tests {
-		move, err := FetchMoveByOrderID(suite.DB(), ts.lookupID)
+		move, err := m.FetchMoveByOrderID(suite.DB(), ts.lookupID)
 		if ts.resultErr {
 			suite.Error(err)
 		} else {
@@ -284,6 +284,53 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 	}
 }
 
+func (suite *ModelSuite) FetchMovesByOrderID() {
+	// Given an order with multiple moves return all moves belonging to that order.
+	orderID := uuid.Must(uuid.NewV4())
+
+	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
+	moveID2, _ := uuid.FromString("e76b5dae-ae00-4147-b818-07eff29fca98")
+
+	factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: m.Move{
+				ID: moveID,
+			},
+		},
+		{
+			Model: m.Order{
+				ID: orderID,
+			},
+		},
+	}, nil)
+	factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: m.Move{
+				ID: moveID2,
+			},
+		},
+		{
+			Model: m.Order{
+				ID: orderID,
+			},
+		},
+	}, nil)
+
+	tests := []struct {
+		lookupID  uuid.UUID
+		resultErr bool
+	}{
+		{lookupID: orderID, resultErr: false},
+	}
+
+	moves, err := m.FetchMovesByOrderID(suite.DB(), tests[0].lookupID)
+	if err != nil {
+		suite.Error(err)
+	}
+
+	suite.Greater(len(moves), 1)
+}
+
 func (suite *ModelSuite) TestMoveIsPPMOnly() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	isPPMOnly := move.IsPPMOnly()
@@ -291,8 +338,8 @@ func (suite *ModelSuite) TestMoveIsPPMOnly() {
 
 	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 		{
-			Model: MTOShipment{
-				ShipmentType: MTOShipmentTypePPM,
+			Model: m.MTOShipment{
+				ShipmentType: m.MTOShipmentTypePPM,
 			},
 		},
 	}, nil)
@@ -301,8 +348,8 @@ func (suite *ModelSuite) TestMoveIsPPMOnly() {
 
 	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 		{
-			Model: MTOShipment{
-				ShipmentType: MTOShipmentTypeHHG,
+			Model: m.MTOShipment{
+				ShipmentType: m.MTOShipmentTypeHHG,
 			},
 		},
 	}, nil)
@@ -317,8 +364,8 @@ func (suite *ModelSuite) TestMoveHasPPM() {
 
 	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 		{
-			Model: MTOShipment{
-				ShipmentType: MTOShipmentTypePPM,
+			Model: m.MTOShipment{
+				ShipmentType: m.MTOShipmentTypePPM,
 			},
 		},
 	}, nil)
@@ -327,8 +374,8 @@ func (suite *ModelSuite) TestMoveHasPPM() {
 
 	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 		{
-			Model: MTOShipment{
-				ShipmentType: MTOShipmentTypeHHG,
+			Model: m.MTOShipment{
+				ShipmentType: m.MTOShipmentTypeHHG,
 			},
 		},
 	}, nil)
@@ -339,8 +386,8 @@ func (suite *ModelSuite) TestMoveHasPPM() {
 
 	factory.BuildMTOShipmentWithMove(&move2, suite.DB(), []factory.Customization{
 		{
-			Model: MTOShipment{
-				ShipmentType: MTOShipmentTypeHHG,
+			Model: m.MTOShipment{
+				ShipmentType: m.MTOShipmentTypeHHG,
 			},
 		},
 	}, nil)

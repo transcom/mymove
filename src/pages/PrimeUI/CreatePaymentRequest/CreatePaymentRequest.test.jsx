@@ -138,7 +138,7 @@ describe('CreatePaymentRequest page', () => {
       const hhgHeading = within(shipmentsContainer).getByRole('heading', { name: 'HHG shipment', level: 3 });
 
       expect(hhgHeading).toBeInTheDocument();
-      const hhgContainer = hhgHeading.parentElement.parentElement.parentElement;
+      const hhgContainer = hhgHeading.parentElement.parentElement;
 
       expect(
         within(hhgContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),
@@ -152,7 +152,7 @@ describe('CreatePaymentRequest page', () => {
 
       const ntsHeading = within(shipmentsContainer).getByRole('heading', { name: 'NTS shipment', level: 3 });
       expect(ntsHeading).toBeInTheDocument();
-      const ntsContainer = ntsHeading.parentElement.parentElement.parentElement;
+      const ntsContainer = ntsHeading.parentElement.parentElement;
 
       expect(
         within(ntsContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),

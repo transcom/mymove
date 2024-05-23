@@ -1,15 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
-
-import { calculateWeightRequested } from '../../../../hooks/custom';
 
 import styles from './ReviewDocuments.module.scss';
 
 import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
 import { ErrorMessage } from 'components/form';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -20,6 +18,8 @@ import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewW
 import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
+import { roleTypes } from 'constants/userRoles';
+import { calculateWeightRequested } from 'hooks/custom';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -32,71 +32,108 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-
-  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
+  const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
+  const [currentAllowableWeight, setCurrentAllowableWeight] = useState(0);
+  const [currentMtoShipments, setCurrentMtoShipments] = useState([]);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
-  let documentSets = [];
+  let documentSets = useMemo(() => [], []);
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
-
-  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+  const updateTotalWeight = (newWeight) => {
+    setCurrentTotalWeight(newWeight);
+  };
   useEffect(() => {
-    setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
-  }, [moveWeightTotal, order.entitlement.totalWeight]);
+    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
+      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+    }
+  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
+  useEffect(() => {
+    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
+    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
+  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
+  useEffect(() => {
+    setCurrentAllowableWeight(currentAllowableWeight);
+  }, [currentAllowableWeight]);
+  useEffect(() => {
+    setCurrentMtoShipments(mtoShipments);
+  }, [mtoShipments]);
+  const chronologicalComparatorProperty = (input) => input.createdAt;
+  const compareChronologically = (itemA, itemB) =>
+    chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
+
+  const constructWeightTicket = (weightTicket, tripNumber) => ({
+    documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
+    documentSet: weightTicket,
+    uploads: [
+      ...weightTicket.emptyDocument.uploads,
+      ...weightTicket.fullDocument.uploads,
+      ...weightTicket.proofOfTrailerOwnershipDocument.uploads,
+    ],
+    tripNumber,
+  });
 
   if (weightTickets.length > 0) {
-    weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    weightTickets.sort(compareChronologically);
 
-    documentSets = documentSets.concat(
-      weightTickets.map((weightTicket, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
-          documentSet: weightTicket,
-          uploads: [
-            ...weightTicket.emptyDocument.uploads,
-            ...weightTicket.fullDocument.uploads,
-            ...weightTicket.proofOfTrailerOwnershipDocument.uploads,
-          ],
-          tripNumber: index + 1,
-        };
-      }),
-    );
+    documentSets = documentSets.concat(weightTickets.map(constructWeightTicket));
   }
 
-  if (proGearWeightTickets.length > 0) {
-    proGearWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+  const constructProGearWeightTicket = (weightTicket, tripNumber) => ({
+    documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
+    documentSet: weightTicket,
+    uploads: weightTicket.document.uploads,
+    tripNumber,
+  });
 
-    documentSets = documentSets.concat(
-      proGearWeightTickets.map((proGearWeightTicket, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
-          documentSet: proGearWeightTicket,
-          uploads: proGearWeightTicket.document.uploads,
-          tripNumber: index + 1,
-        };
-      }),
-    );
+  if (proGearWeightTickets.length > 0) {
+    proGearWeightTickets.sort(compareChronologically);
+
+    documentSets = documentSets.concat(proGearWeightTickets.map(constructProGearWeightTicket));
   }
 
   if (movingExpenses.length > 0) {
-    movingExpenses.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    // index individual input set elements by categorical type and chronological index.
+    const accumulateMovingExpensesCategoricallyIndexed = (input) => {
+      const constructExpenseCategoricallyIndexed = (movingExpense, categoryIndex) => ({
+        documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
+        documentSet: movingExpense,
+        uploads: movingExpense.document.uploads,
+        categoryIndex,
+      });
 
-    documentSets = documentSets.concat(
-      movingExpenses.map((movingExpense, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
-          documentSet: movingExpense,
-          uploads: movingExpense.document.uploads,
-          tripNumber: index + 1,
-        };
-      }),
-    );
+      const addFlattenedIndexToExpense = (expenseView, index) => ({ ...expenseView, tripNumber: index });
+      // safari's dev team hasn't caught up to the chromium javascript ecma version, so there is no cross-browser availability for Object.groupBy
+      const groupByFix = (iterable, key) => {
+        const groupByResult = iterable.reduce((accumulator, item) => {
+          (accumulator[key(item)] ??= []).push(item);
+          return accumulator;
+        }, {});
+        return groupByResult;
+      };
+      const groupResult = groupByFix(input, ({ movingExpenseType }) => movingExpenseType);
+      const assignDiscreetIndexesPerGroupElements = Object.values(groupResult).map((grp) =>
+        grp.map(constructExpenseCategoricallyIndexed),
+      );
+      const flattenedGroupsWithUnifiedIndex = assignDiscreetIndexesPerGroupElements
+        .flat()
+        // even though the initial set was ordered, we have to adjust the order again. (Maintaining the index of chronological existence)
+        .sort((itemA, itemB) => compareChronologically(itemA.documentSet, itemB.documentSet))
+        .map(addFlattenedIndexToExpense);
+      return flattenedGroupsWithUnifiedIndex;
+    };
+
+    // sort expenses by occurrence
+    const sortedExpenses = [...movingExpenses].sort(compareChronologically);
+    const resultSet = accumulateMovingExpensesCategoricallyIndexed(sortedExpenses);
+
+    documentSets = documentSets.concat(resultSet);
   }
 
   const navigate = useNavigate();
@@ -110,7 +147,12 @@ export const ReviewDocuments = () => {
   const queryClient = useQueryClient();
 
   const onClose = () => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+    navigate(
+      generatePath(
+        roleTypes.SERVICES_COUNSELOR ? servicesCounselingRoutes.BASE_MOVE_VIEW_PATH : tooRoutes.BASE_MOVE_VIEW_PATH,
+        { moveCode },
+      ),
+    );
   };
 
   const onBack = () => {
@@ -144,7 +186,9 @@ export const ReviewDocuments = () => {
   };
 
   const onConfirmSuccess = () => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+    if (roleTypes.SERVICES_COUNSELOR)
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+    else if (roleTypes.TOO) navigate(generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onContinue = () => {
@@ -157,7 +201,14 @@ export const ReviewDocuments = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const ppmShipmentInfo = mtoShipment.ppmShipment;
+  ppmShipmentInfo.miles = mtoShipment.distance;
+  ppmShipmentInfo.actualWeight = currentTotalWeight;
+
   const currentDocumentSet = documentSets[documentSetIndex];
+  const updateDocumentSetAllowableWeight = (newWeight) => {
+    currentDocumentSet.documentSet.allowableWeight = newWeight;
+  };
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
   const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
@@ -167,8 +218,13 @@ export const ReviewDocuments = () => {
 
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
+  const currentTripNumber = currentDocumentSet.tripNumber + 1;
+  const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
+
+  const formatDocumentSetDisplay = documentSetIndex + 1;
+
   return (
-    <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
+    <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
         <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
@@ -177,7 +233,7 @@ export const ReviewDocuments = () => {
         onClose={onClose}
         className={styles.sidebar}
         supertitle={
-          showOverview ? 'All Document Sets' : `${documentSetIndex + 1} of ${documentSets.length} Document Sets`
+          showOverview ? 'All Document Sets' : `${formatDocumentSetDisplay} of ${documentSets.length} Document Sets`
         }
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
@@ -196,33 +252,41 @@ export const ReviewDocuments = () => {
             (showOverview ? (
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
+                ppmShipmentInfo={ppmShipmentInfo}
                 weightTickets={weightTickets}
                 proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
                 formRef={formRef}
+                allowableWeight={currentAllowableWeight}
               />
             ) : (
               <>
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
                     weightTicket={currentDocumentSet.documentSet}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     order={order}
-                    mtoShipments={mtoShipments}
+                    currentMtoShipments={currentMtoShipments}
+                    setCurrentMtoShipments={setCurrentMtoShipments}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
+                    allowableWeight={currentAllowableWeight}
+                    updateTotalWeight={updateTotalWeight}
+                    updateDocumentSetAllowableWeight={updateDocumentSetAllowableWeight}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
                     onSuccess={onSuccess}
@@ -232,8 +296,10 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
+                    ppmShipmentInfo={ppmShipmentInfo}
+                    categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
                     onSuccess={onSuccess}
@@ -247,7 +313,7 @@ export const ReviewDocuments = () => {
           <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
             Back
           </Button>
-          <Button type="submit" onClick={onContinue}>
+          <Button type="submit" onClick={onContinue} data-testid="reviewDocumentsContinueButton">
             {showOverview ? 'Confirm' : 'Continue'}
           </Button>
         </DocumentViewerSidebar.Footer>

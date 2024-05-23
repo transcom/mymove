@@ -5,20 +5,23 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { arrayOf, func, number, object } from 'prop-types';
+import moment from 'moment';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
 import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';
-import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { formatDate, formatCents } from 'utils/formatters';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
+  ppmShipmentInfo,
   ppmNumber,
   formRef,
   onSuccess,
@@ -29,8 +32,6 @@ export default function ReviewDocumentsSidePanel({
 }) {
   let status;
   let showReason;
-  let storageNumber = 0;
-  let receiptNumber = 0;
 
   const { mutate: patchDocumentsSetStatusMutation } = useMutation(patchPPMDocumentsSetStatus, {
     onSuccess,
@@ -72,11 +73,30 @@ export default function ReviewDocumentsSidePanel({
     return status;
   };
 
+  const expenseSetProjection = (expenses) => {
+    const process = expenses.reduce((accumulator, item, index) => {
+      accumulator[item.movingExpenseType] ??= [];
+      const expenseSet = accumulator[item.movingExpenseType];
+
+      expenseSet.push({ ...item, receiptIndex: index + 1, groupIndex: expenseSet.length + 1 });
+      return accumulator;
+    }, {});
+
+    const compareReceiptIndex = (itemA, itemB) => itemA.receiptIndex >= itemB.receiptIndex;
+
+    return Object.values(process).flat().sort(compareReceiptIndex);
+  };
+
+  const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
+  const allCase = (input) => input.split(' ').map(titleCase).join(' ');
+  const formatMovingType = (input) => allCase(input?.trim().toLowerCase().replace('_', ' ') ?? '');
+  let total = 0;
+
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
-          <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
+          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields />
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -90,6 +110,35 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(weight)}
                         </div>
                         {showReason ? <p>{weight.reason}</p> : null}
+
+                        <dl className={classnames(styles.ItemDetails)}>
+                          <span>
+                            <dt>Empty Weight:</dt>
+                            <dd>{weight.emptyWeight} lbs</dd>
+                          </span>
+                          <span>
+                            <dt>Full Weight:</dt>
+                            <dl>{weight.fullWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Net Weight:</dt>
+                            <dl>{weight.fullWeight - weight.emptyWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Allowable Weight:</dt>
+                            <dl>{weight.allowableWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Trailer Used:</dt>
+                            <dl>{weight.ownsTrailer ? `Yes` : `No`}</dl>
+                          </span>
+                          {weight.ownsTrailer && (
+                            <span>
+                              <dt>Trailer Claimable:</dt>
+                              <dl>{weight.trailerMeetsCriteria ? `Yes` : `No`}</dl>
+                            </span>
+                          )}
+                        </dl>
                       </li>
                     );
                   })
@@ -103,32 +152,93 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(gear)}
                         </div>
                         {showReason ? <p>{gear.reason}</p> : null}
+
+                        <dl className={classnames(styles.ItemDetails)}>
+                          <span>
+                            <dt>Belongs To: </dt>
+                            <dd>{gear.belongsToSelf ? `Customer` : `Spouse`}</dd>
+                          </span>
+                          <span>
+                            <dt>Missing Weight Ticket (Constructed)?</dt>
+                            <dl>{gear.missingWeightTicket ? `Yes` : `No`}</dl>
+                          </span>
+                          <span>
+                            <dt>Pro-gear Weight:</dt>
+                            {/* TODO: proGearWeight shows empty for some reason? */}
+                            <dl>{gear.weight} lbs</dl>
+                          </span>
+                        </dl>
                       </li>
                     );
                   })
                 : null}
               {expenseTickets.length > 0
-                ? expenseTickets.map((exp, index) => {
-                    const isStorage = exp.movingExpenseType === expenseTypes.STORAGE;
-                    if (isStorage) {
-                      storageNumber += 1;
-                    } else {
-                      receiptNumber += 1;
+                ? expenseSetProjection(expenseTickets).map((exp) => {
+                    if (exp.movingExpenseType !== expenseTypes.STORAGE && exp.status === PPMDocumentsStatus.APPROVED) {
+                      total += exp.amount;
                     }
                     return (
-                      <li className={styles.rowContainer} key={index}>
+                      <li className={styles.rowContainer} key={exp.receiptIndex}>
                         <div className={styles.row}>
                           <h3 className={styles.tripNumber}>
-                            {isStorage ? 'Storage' : 'Receipt'}
-                            &nbsp;{isStorage ? storageNumber : receiptNumber}
+                            Receipt&nbsp;{exp.receiptIndex}
+                            <br />
+                            {formatMovingType(exp.movingExpenseType)}&nbsp;#{exp.groupIndex}
                           </h3>
                           {statusWithIcon(exp)}
                         </div>
                         {showReason ? <p>{exp.reason}</p> : null}
+
+                        <div className={classnames(styles.ItemDetails)}>
+                          {exp.movingExpenseType === expenseTypes.STORAGE ? (
+                            <dl>
+                              <span>
+                                <dt>SIT Start Date:</dt>
+                                <dd>{formatDate(exp.sitStartDate)}</dd>
+                              </span>
+                              <span>
+                                <dt>SIT End Date:</dt>
+                                <dl>{formatDate(exp.sitEndDate)}</dl>
+                              </span>
+                              <span>
+                                <dt>Total Days in SIT:</dt>
+                                <dl data-testid="days-in-sit">
+                                  {moment(exp.sitEndDate, 'YYYY MM DD')
+                                    .add(1, 'days')
+                                    .diff(moment(exp.sitStartDate, 'YYYY MM DD'), 'days')}
+                                </dl>
+                              </span>
+                              <span>
+                                <dt>Authorized Price:</dt>
+                                <dl>${formatCents(exp.amount)}</dl>
+                              </span>
+                            </dl>
+                          ) : (
+                            <span>
+                              <dt>Authorized Price:</dt>
+                              <dl>${formatCents(exp.amount)}</dl>
+                            </span>
+                          )}
+                        </div>
                       </li>
                     );
                   })
                 : null}
+              {expenseTickets.length > 0 ? (
+                <>
+                  <hr />
+                  <li className={styles.rowContainer}>
+                    <div className={classnames(styles.ItemDetails)}>
+                      <dl>
+                        <span className={classnames(styles.ReceiptTotal)}>
+                          <dt>Accepted Receipt Totals:</dt>
+                          <dd>${formatCents(total)}</dd>
+                        </span>
+                      </dl>
+                    </div>
+                  </li>
+                </>
+              ) : null}
             </ul>
           </DocumentViewerSidebar.Content>
         </Form>

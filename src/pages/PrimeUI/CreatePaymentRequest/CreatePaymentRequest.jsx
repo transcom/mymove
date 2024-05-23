@@ -108,14 +108,22 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
 
   const onSubmit = (values, formik) => {
     const serviceItemsPayload = values.serviceItems.map((serviceItem) => {
-      if (
-        values.params &&
-        values.params[serviceItem]?.SITPaymentRequestStart &&
-        values.params[serviceItem]?.SITPaymentRequestEnd
-      ) {
-        return {
-          id: serviceItem,
-          params: [
+      // building params to send to API
+      const params = [];
+
+      // there won't always be params, so we'll check it here
+      if (values.params) {
+        // adding WeightBilled param to service item
+        if (values.params[serviceItem]?.WeightBilled) {
+          params.push({
+            key: 'WeightBilled',
+            value: values.params[serviceItem]?.WeightBilled,
+          });
+        }
+
+        // adding add'l day SIT params to service item
+        if (values.params[serviceItem]?.SITPaymentRequestStart && values.params[serviceItem]?.SITPaymentRequestEnd) {
+          params.push(
             {
               key: 'SITPaymentRequestStart',
               value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestStart),
@@ -124,7 +132,14 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
               key: 'SITPaymentRequestEnd',
               value: formatDateForSwagger(values.params[serviceItem].SITPaymentRequestEnd),
             },
-          ],
+          );
+        }
+      }
+
+      if (params.length > 0) {
+        return {
+          id: serviceItem,
+          params,
         };
       }
       return { id: serviceItem };

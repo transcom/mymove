@@ -57,7 +57,7 @@ describe('ContactInfoDisplay component', () => {
 
     expect(emailTerm.nextElementSibling.textContent).toBe(testProps.personalEmail);
 
-    const addressTerm = screen.getByText('Current pickup address');
+    const addressTerm = screen.getByText('Current address');
 
     expect(addressTerm).toBeInTheDocument();
 

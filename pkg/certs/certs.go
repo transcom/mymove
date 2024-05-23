@@ -33,7 +33,7 @@ func InitDoDCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate,
 	caCertString := v.GetString(cli.MoveMilDoDCACertFlag)
 	caCerts := cli.ParseCertificates(caCertString)
 	if len(caCerts) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", cli.MoveMilDoDTLSCertFlag)
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", cli.MoveMilDoDCACertFlag)
 	}
 
 	logger.Info(fmt.Sprintf("CA certificate chain from %s parsed", cli.MoveMilDoDCACertFlag), zap.Any("count", len(caCerts)))

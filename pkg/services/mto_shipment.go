@@ -16,6 +16,7 @@ import (
 type MTOShipmentFetcher interface {
 	ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error)
 	GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error)
+	GetDiversionChain(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*[]models.MTOShipment, error)
 }
 
 // MTOShipmentUpdater is the service object interface for UpdateMTOShipment
@@ -23,7 +24,7 @@ type MTOShipmentFetcher interface {
 //go:generate mockery --name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
-	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error)
 }
 
 // BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated
@@ -124,14 +125,16 @@ type ShipmentRouter interface {
 
 // SITStatus is the summary of the current SIT service item days in storage remaining balance and dates
 type SITStatus struct {
-	ShipmentID         uuid.UUID
-	TotalSITDaysUsed   int
-	TotalDaysRemaining int
-	CurrentSIT         *CurrentSIT
-	PastSITs           []models.MTOServiceItem
+	ShipmentID               uuid.UUID
+	TotalSITDaysUsed         int
+	TotalDaysRemaining       int
+	CalculatedTotalDaysInSIT int
+	CurrentSIT               *CurrentSIT
+	PastSITs                 []models.MTOServiceItem
 }
 
 type CurrentSIT struct {
+	ServiceItemID        uuid.UUID
 	Location             string
 	DaysInSIT            int
 	SITEntryDate         time.Time

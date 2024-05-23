@@ -17,9 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -50,7 +47,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
-	"github.com/transcom/mymove/pkg/trdm"
 )
 
 // initServeFlags - Order matters!
@@ -73,9 +69,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Certs
 	cli.InitCertFlags(flag)
-
-	// TRDM
-	cli.InitTRDMFlags(flag)
 
 	// Ports to listen to
 	cli.InitPortFlags(flag)
@@ -160,10 +153,6 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckCert(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckTRDM(v); err != nil {
 		return err
 	}
 
@@ -400,6 +389,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	if routingConfig.ServePrime || routingConfig.ServePrimeSimulator {
 		routingConfig.PrimeSwaggerPath = v.GetString(cli.PrimeSwaggerFlag)
 		routingConfig.PrimeV2SwaggerPath = v.GetString(cli.PrimeV2SwaggerFlag)
+		routingConfig.PrimeV3SwaggerPath = v.GetString(cli.PrimeV3SwaggerFlag)
 	}
 
 	routingConfig.ServeSupport = v.GetBool(cli.ServeSupportFlag)
@@ -507,7 +497,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		)
 	} else {
 		// this spins up a local test server
-		fakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fakeServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		gexSender = invoice.NewGexSenderHTTP(
@@ -554,7 +544,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 
 	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
 	if err != nil {
-		appCtx.Logger().Fatal("Could not instantiate feature flag featcher", zap.Error(err))
+		appCtx.Logger().Fatal("Could not instantiate feature flag fetcher", zap.Error(err))
 	}
 
 	routingConfig.HandlerConfig = handlers.NewHandlerConfig(
@@ -810,43 +800,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Fatal("error creating mutual-tls server", zap.Error(err))
 		}
 		go startListener(mutualTLSServer, logger, true)
-	}
-
-	// Gather TRDM TGET data
-	trdmEnabledEnvironments := []string{
-		cli.EnvironmentTest,
-		cli.EnvironmentPrd,
-	}
-	if environment := v.GetString(cli.EnvironmentFlag); stringSliceContains(trdmEnabledEnvironments, environment) {
-		// Get the AWS configuration so we can build a session
-		cfg, err := config.LoadDefaultConfig(context.Background(),
-			config.WithRegion(v.GetString(cli.AWSRegionFlag)),
-		)
-		if err != nil {
-			logger.Fatal("error loading default aws config", zap.Error(err))
-			return err
-		}
-
-		// Create an Amazon STS client
-		stsClient := sts.NewFromConfig(cfg)
-
-		// Obtain creds for signing
-		trdmIamRole := v.GetString(trdm.TrdmIamRoleFlag)
-		stsProvider := stscreds.NewAssumeRoleProvider(stsClient, trdmIamRole)
-
-		// Setup client
-		tr := &http.Transport{TLSClientConfig: tlsConfig}
-		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
-
-		// Begin the TRDM cron job now (Referred to as the TGET flow as well). This will
-		// send a REST call to the lastTableUpdate endpoint within the trdm soap proxy api gateway,
-		// then if new data is discovered it will call getTable to retreive, parse, and store within the database.
-		// This will run immediately when the server turns on as well as every day at midnight.
-		err = trdm.BeginTGETFlow(v, appCtx, stsProvider, httpClient)
-		if err != nil {
-			logger.Fatal("unable to retrieve latest TGET data from TRDM", zap.Error(err))
-			return err
-		}
 	}
 
 	// make sure we flush any pending startup messages

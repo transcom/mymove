@@ -8,7 +8,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import Expenses from 'pages/MyMove/PPM/Closeout/Expenses/Expenses';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { createBaseMovingExpense, createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createMovingExpense, patchMovingExpense, deleteUpload } from 'services/internalApi';
 
@@ -68,7 +68,8 @@ const mockNewExpenseAndIndex = {
   index: 0,
 };
 
-const homePath = generatePath(generalRoutes.HOME_PATH);
+const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
+
 const expensesEditPath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -285,6 +286,7 @@ describe('Expenses page', () => {
           SITEndDate: undefined,
           SITStartDate: undefined,
           paidWithGTCC: true,
+          WeightStored: 0,
         },
         mockExpense.eTag,
       );
@@ -323,6 +325,7 @@ describe('Expenses page', () => {
           SITEndDate: undefined,
           SITStartDate: undefined,
           paidWithGTCC: false,
+          WeightStored: 0,
         },
         mockExpense.eTag,
       );
@@ -362,6 +365,7 @@ describe('Expenses page', () => {
           SITEndDate: '2022-10-11',
           SITStartDate: '2022-10-10',
           paidWithGTCC: false,
+          WeightStored: 0,
         },
         mockExpense.eTag,
       );
@@ -407,7 +411,7 @@ describe('Expenses page', () => {
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockNavigate).toHaveBeenCalledWith(homePath);
+    expect(mockNavigate).toHaveBeenCalledWith(movePath);
   });
 
   it('calls the delete handler when removing an existing upload', async () => {

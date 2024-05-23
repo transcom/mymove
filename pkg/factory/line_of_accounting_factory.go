@@ -50,7 +50,7 @@ func BuildFullLineOfAccounting(db *pop.Connection, customs []Customization, trai
 	later := now.AddDate(1, 0, 0)
 
 	lineOfAccounting := models.LineOfAccounting{
-		LoaSysID:               models.IntPointer(123456),
+		LoaSysID:               models.StringPointer(MakeRandomString(20)),
 		LoaDptID:               models.StringPointer("12"),
 		LoaTnsfrDptNm:          models.StringPointer("1234"),
 		LoaBafID:               models.StringPointer("1234"),

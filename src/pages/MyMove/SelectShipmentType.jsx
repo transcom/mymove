@@ -5,6 +5,9 @@ import { func, arrayOf } from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from '../../shared/constants';
+
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 import SelectableCard from 'components/Customer/SelectableCard';
@@ -12,16 +15,16 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import styles from 'pages/MyMove/SelectShipmentType.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
-import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
+import { selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
 import { MoveTaskOrderShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 import determineShipmentInfo from 'utils/shipmentInfo';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
+import { selectMove } from 'shared/Entities/modules/moves';
 
 export class SelectShipmentType extends Component {
   constructor(props) {
@@ -30,12 +33,30 @@ export class SelectShipmentType extends Component {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
       errorMessage: null,
+      enablePPM: false,
+      enableNTS: false,
+      enableNTSR: false,
     };
   }
 
   componentDidMount() {
     const { loadMTOShipments, move } = this.props;
     loadMTOShipments(move.id);
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM).then((enabled) => {
+      this.setState({
+        enablePPM: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS).then((enabled) => {
+      this.setState({
+        enableNTS: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
+      this.setState({
+        enableNTSR: enabled,
+      });
+    });
   }
 
   setShipmentType = (e) => {
@@ -71,7 +92,8 @@ export class SelectShipmentType extends Component {
       move,
       mtoShipments,
     } = this.props;
-    const { shipmentType, showStorageInfoModal, showMoveInfoModal, errorMessage } = this.state;
+    const { shipmentType, showStorageInfoModal, showMoveInfoModal, enablePPM, enableNTS, enableNTSR, errorMessage } =
+      this.state;
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
@@ -143,51 +165,62 @@ export class SelectShipmentType extends Component {
                 disabled={!shipmentInfo.isHHGSelectable}
                 onHelpClick={this.toggleMoveInfoModal}
               />
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Move it yourself and get paid for it (PPM)"
-                value={SHIPMENT_OPTIONS.PPM}
-                id={SHIPMENT_OPTIONS.PPM}
-                cardText={ppmCardText}
-                checked={shipmentType === SHIPMENT_OPTIONS.PPM}
-                disabled={!shipmentInfo.isPPMSelectable}
-                onHelpClick={this.toggleMoveInfoModal}
-              />
 
-              <h3 className={styles.longTermStorageHeader} data-testid="long-term-storage-heading">
-                Long-term storage
-              </h3>
-
-              {!shipmentInfo.isNTSSelectable && !shipmentInfo.isNTSRSelectable ? (
-                <p className={styles.pSmall}>
-                  Talk to your movers about long-term storage if you need to add it to this move or change a request you
-                  made earlier.
-                </p>
-              ) : (
-                <>
-                  <p>Your orders might not authorize long-term storage &mdash; your counselor can verify.</p>
-                  <SelectableCard
-                    {...selectableCardDefaultProps}
-                    label="It is going into storage for months or years (NTS)"
-                    value={SHIPMENT_OPTIONS.NTS}
-                    id={SHIPMENT_OPTIONS.NTS}
-                    cardText={ntsCardText}
-                    checked={shipmentType === SHIPMENT_OPTIONS.NTS && shipmentInfo.isNTSSelectable}
-                    disabled={!shipmentInfo.isNTSSelectable}
-                    onHelpClick={this.toggleStorageModal}
-                  />
-                  <SelectableCard
-                    {...selectableCardDefaultProps}
-                    label="It was stored during a previous move (NTS-release)"
-                    value={SHIPMENT_OPTIONS.NTSR}
-                    id={SHIPMENT_OPTIONS.NTSR}
-                    cardText={ntsrCardText}
-                    checked={shipmentType === SHIPMENT_OPTIONS.NTSR && shipmentInfo.isNTSRSelectable}
-                    disabled={!shipmentInfo.isNTSRSelectable}
-                    onHelpClick={this.toggleStorageModal}
-                  />
-                </>
+              {enablePPM && (
+                <SelectableCard
+                  {...selectableCardDefaultProps}
+                  label="Move it yourself and get paid for it (PPM)"
+                  value={SHIPMENT_OPTIONS.PPM}
+                  id={SHIPMENT_OPTIONS.PPM}
+                  cardText={ppmCardText}
+                  checked={shipmentType === SHIPMENT_OPTIONS.PPM}
+                  disabled={!shipmentInfo.isPPMSelectable}
+                  onHelpClick={this.toggleMoveInfoModal}
+                />
               )}
+
+              {enableNTS || enableNTSR ? (
+                <>
+                  <h3 className={styles.longTermStorageHeader} data-testid="long-term-storage-heading">
+                    Long-term storage
+                  </h3>
+
+                  {!shipmentInfo.isNTSSelectable && !shipmentInfo.isNTSRSelectable ? (
+                    <p className={styles.pSmall}>
+                      Talk to your movers about long-term storage if you need to add it to this move or change a request
+                      you made earlier.
+                    </p>
+                  ) : (
+                    <>
+                      <p>Your orders might not authorize long-term storage &mdash; your counselor can verify.</p>
+                      {enableNTS && (
+                        <SelectableCard
+                          {...selectableCardDefaultProps}
+                          label="It is going into storage for months or years (NTS)"
+                          value={SHIPMENT_OPTIONS.NTS}
+                          id={SHIPMENT_OPTIONS.NTS}
+                          cardText={ntsCardText}
+                          checked={shipmentType === SHIPMENT_OPTIONS.NTS && shipmentInfo.isNTSSelectable}
+                          disabled={!shipmentInfo.isNTSSelectable}
+                          onHelpClick={this.toggleStorageModal}
+                        />
+                      )}
+                      {enableNTSR && (
+                        <SelectableCard
+                          {...selectableCardDefaultProps}
+                          label="It was stored during a previous move (NTS-release)"
+                          value={SHIPMENT_OPTIONS.NTSR}
+                          id={SHIPMENT_OPTIONS.NTSR}
+                          cardText={ntsrCardText}
+                          checked={shipmentType === SHIPMENT_OPTIONS.NTSR && shipmentInfo.isNTSRSelectable}
+                          disabled={!shipmentInfo.isNTSRSelectable}
+                          onHelpClick={this.toggleStorageModal}
+                        />
+                      )}
+                    </>
+                  )}
+                </>
+              ) : null}
 
               {!shipmentInfo.hasShipment && (
                 <p data-testid="helper-footer" className={styles.footer}>
@@ -208,8 +241,17 @@ export class SelectShipmentType extends Component {
             </Grid>
           </Grid>
         </GridContainer>
-        <ConnectedMoveInfoModal isOpen={showMoveInfoModal} closeModal={this.toggleMoveInfoModal} />
-        <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
+        <ConnectedMoveInfoModal
+          isOpen={showMoveInfoModal}
+          enablePPM={enablePPM}
+          closeModal={this.toggleMoveInfoModal}
+        />
+        <ConnectedStorageInfoModal
+          isOpen={showStorageInfoModal}
+          enableNTS={enableNTS}
+          enableNTSR={enableNTSR}
+          closeModal={this.toggleStorageModal}
+        />
       </>
     );
   }
@@ -223,8 +265,13 @@ SelectShipmentType.propTypes = {
   router: RouterShape.isRequired,
 };
 
-const mapStateToProps = (state) => {
-  const move = selectCurrentMove(state) || {};
+const mapStateToProps = (state, ownProps) => {
+  const {
+    router: {
+      params: { moveId },
+    },
+  } = ownProps;
+  const move = selectMove(state, moveId);
   const mtoShipments = selectMTOShipmentsForCurrentMove(state);
 
   return {

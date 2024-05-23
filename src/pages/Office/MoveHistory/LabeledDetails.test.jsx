@@ -1,80 +1,61 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import LabeledDetails from './LabeledDetails';
+import LabeledDetails, { retrieveTextToDisplay } from './LabeledDetails';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('LabeledDetails', () => {
   describe('for each changed value', () => {
-    const historyRecord = {
-      changedValues: {
-        customer_remarks: 'Test customer remarks',
-        counselor_remarks: 'Test counselor remarks',
-        billable_weight_justification: 'Test TIO remarks',
-        billable_weight_cap: '400',
-        tac_type: 'HHG',
-        sac_type: 'NTS',
-        service_order_number: '1234',
-        authorized_weight: '500',
-        storage_in_transit: '5',
-        dependents_authorized: true,
-        pro_gear_weight: '100',
-        pro_gear_weight_spouse: '50',
-        required_medical_equipment_weight: '300',
-        organizational_clothing_and_individual_equipment: 'false',
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
-        orders_type_detail: 'HHG_PERMITTED',
-        origin_duty_location_name: 'Origin duty location name',
-        new_duty_location_name: 'New duty location name',
-        orders_number: '1111',
-        tac: '2222',
-        sac: '3333',
-        nts_tac: '4444',
-        nts_sac: '5555',
-        department_indicator: 'AIR_FORCE',
-        grade: 'E_1',
-        actual_pickup_date: '2022-01-01',
-        prime_actual_weight: '100 lbs',
-        destination_address_type: 'HOME_OF_SELECTION',
-        affiliation: 'COAST_GUARD',
-      },
+    const changedValues = {
+      customer_remarks: 'Test customer remarks',
+      counselor_remarks: 'Test counselor remarks',
+      billable_weight_justification: 'Test TIO remarks',
+      billable_weight_cap: '400',
+      tac_type: 'HHG',
+      sac_type: 'NTS',
+      service_order_number: '1234',
+      authorized_weight: '500',
+      storage_in_transit: '5',
+      dependents_authorized: true,
+      pro_gear_weight: '100',
+      pro_gear_weight_spouse: '50',
+      required_medical_equipment_weight: '300',
+      organizational_clothing_and_individual_equipment: 'false',
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      orders_type_detail: 'HHG_PERMITTED',
+      origin_duty_location_name: 'Origin duty location name',
+      new_duty_location_name: 'New duty location name',
+      orders_number: '1111',
+      tac: '2222',
+      sac: '4444',
+      nts_tac: '3333',
+      nts_sac: '5555',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
+      grade: 'E_1',
+      actual_pickup_date: '2022-01-01',
+      prime_actual_weight: '100 lbs',
+      destination_address_type: 'HOME_OF_SELECTION',
+      affiliation: 'COAST_GUARD',
+      requested_delivery_date: '2023-02-05',
+      sit_entry_date: '2023-04-05',
+      sit_departure_date: '2023-03-05',
+      sit_expected: true,
+      sit_location: 'Destination',
+      sit_estimated_weight: '500',
+      sit_estimated_cost: '120000',
+      estimated_incentive: '850',
+      shipment_weight: '100',
     };
-    it.each([
-      ['Customer remarks', ': Test customer remarks'],
-      ['Counselor remarks', ': Test counselor remarks'],
-      ['Billable weight remarks', ': Test TIO remarks'],
-      ['Billable weight', ': 400 lbs'],
-      ['TAC type', ': HHG'],
-      ['SAC type', ': NTS'],
-      ['Service order number', ': 1234'],
-      ['Authorized weight', ': 500 lbs'],
-      ['Storage in transit (SIT)', ': 5 days'],
-      ['Dependents', ': Yes'],
-      ['Pro-gear', ': 100 lbs'],
-      ['Spouse pro-gear', ': 50 lbs'],
-      ['Required medical equipment', ': 300 lbs'],
-      ['Orders type', ': Permanent Change Of Station (PCS)'],
-      ['Orders type detail', ': Shipment of HHG Permitted'],
-      ['Origin duty location name', ': Origin duty location name'],
-      ['New duty location name', ': New duty location name'],
-      ['Orders number', ': 1111'],
-      ['HHG TAC', ': 2222'],
-      ['NTS TAC', ': 3333'],
-      ['HHG SAC', ': 4444'],
-      ['NTS SAC', ': 5555'],
-      ['Rank', ': E-1'],
-      ['Dept. indicator', ': Air Force'],
-      ['Departure date', ': 01 Jan 2022'],
-      ['Shipment weight', ': 100 lbs'],
-      ['Destination type', ': Home of selection (HOS)'],
-      ['Branch', ': Coast Guard'],
-    ])('it renders %s%s', (displayName, value) => {
-      render(<LabeledDetails historyRecord={historyRecord} />);
 
-      expect(screen.getByText(displayName)).toBeInTheDocument();
+    const testCases = Object.entries(changedValues).map(([fieldName, value]) => {
+      const { displayName, displayValue } = retrieveTextToDisplay(fieldName, value);
+      return [fieldName, value, displayName, displayValue];
+    });
 
-      expect(screen.getByText(value)).toBeInTheDocument();
+    it.each(testCases)("it renders [%s %s] as '%s: %s'", (fieldName, value, displayName, displayValue) => {
+      const { baseElement } = render(<LabeledDetails historyRecord={{ changedValues: { [fieldName]: value } }} />);
+      expect(baseElement).toHaveTextContent(`${displayName}: ${displayValue}`, { normalizeWhitespace: true });
     });
   });
 
@@ -84,13 +65,14 @@ describe('LabeledDetails', () => {
         billable_weight_cap: '200',
         billable_weight_justification: 'Test TIO Remarks',
         shipment_type: SHIPMENT_OPTIONS.NTSR,
+        shipment_locator: 'RQ38D4-01',
         shipment_id_display: 'X9Y0Z',
       },
     };
 
     render(<LabeledDetails historyRecord={historyRecord} />);
 
-    expect(screen.getByText('NTS-release shipment #X9Y0Z')).toBeInTheDocument();
+    expect(screen.getByText('NTS-release shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   it('does not render any text for changed values that are blank', async () => {
@@ -127,10 +109,8 @@ it('does render text for changed values that are blank when they exist in the ol
     },
   };
 
-  render(<LabeledDetails historyRecord={historyRecord} />);
+  const { baseElement } = render(<LabeledDetails historyRecord={historyRecord} />);
 
-  expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
-  expect(screen.getByText('—', { exact: false })).toBeInTheDocument();
-
-  expect(await screen.queryByText('These remarks were deleted')).not.toBeInTheDocument();
+  expect(baseElement).toHaveTextContent('Counselor remarks');
+  expect(baseElement).toHaveTextContent('—');
 });

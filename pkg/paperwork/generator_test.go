@@ -114,7 +114,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(err)
 	err = os.WriteFile(f.Name(), file, os.ModePerm)
 	suite.FatalNil(err)
-	err = api.ExtractImages(f, tmpDir, []string{"-2"}, generator.pdfConfig)
+	err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
 	suite.FatalNil(err)
 	err = os.Remove(f.Name())
 	suite.FatalNil(err)
@@ -123,7 +123,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	files, err := os.ReadDir(tmpDir)
 	suite.FatalNil(err)
 
-	suite.Equal(2, len(files), "did not find 2 images")
+	suite.Equal(4, len(files), "did not find 2 images")
 
 	for _, file := range files {
 		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
@@ -211,6 +211,34 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	suite.Equal(3, ctx.PageCount)
 }
 
+func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
+	generator, err := NewGenerator(suite.userUploader.Uploader())
+	suite.FatalNil(err)
+
+	file1, err := suite.openLocalFile("testdata/orders1.pdf", generator.fs)
+	suite.FatalNil(err)
+
+	file2, err := suite.openLocalFile("testdata/orders1.pdf", generator.fs)
+	suite.FatalNil(err)
+
+	var files []io.ReadSeeker
+
+	files = append(files, file1)
+	files = append(files, file2)
+
+	file, err := generator.MergePDFFilesByContents(suite.AppContextForTest(), files)
+	suite.FatalNil(err)
+
+	// Read merged file and verify page count
+	ctx, err := api.ReadContext(file, generator.pdfConfig)
+	suite.FatalNil(err)
+
+	err = validate.XRefTable(ctx.XRefTable)
+	suite.FatalNil(err)
+
+	suite.Equal(2, ctx.PageCount)
+}
+
 func (suite *PaperworkSuite) TestCleanup() {
 	generator, order := suite.setupOrdersDocument()
 
@@ -237,7 +265,7 @@ func (suite *PaperworkSuite) TestCleanup() {
 		suite.Failf("expected %s to not be a directory, but it was", generator.workDir)
 
 		var paths []string
-		walkErr := fs.Walk(generator.workDir, func(path string, info os.FileInfo, err error) error {
+		walkErr := fs.Walk(generator.workDir, func(path string, _ os.FileInfo, _ error) error {
 			if path != generator.workDir { // Walk starts off with the directory passed to it
 				paths = append(paths, path)
 			}

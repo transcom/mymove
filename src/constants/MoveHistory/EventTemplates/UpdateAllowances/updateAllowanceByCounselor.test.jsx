@@ -27,8 +27,8 @@ describe('When a service counselor updates shipping allowances', () => {
     it.each([
       ['Authorized weight', ': 8,000 lbs'],
       ['Dependents', ': Yes'],
-      ['Pro-gear', ': 100 lbs'],
-      ['Spouse pro-gear', ': 85 lbs'],
+      ['Pro-gear weight', ': 100 lbs'],
+      ['Spouse pro-gear weight', ': 85 lbs'],
       ['Required medical equipment', ': 10 lbs'],
       ['Storage in transit (SIT)', ': 80 days'],
     ])('displays the correct details value for %s', async (label, value) => {

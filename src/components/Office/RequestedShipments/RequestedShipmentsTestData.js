@@ -1,4 +1,4 @@
-import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from '../../../constants/orders';
+import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from '../../../constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
 
 import { SHIPMENT_OPTIONS, MTOAgentType } from 'shared/constants';
@@ -341,7 +341,7 @@ export const ordersInfo = {
 
 export const allowancesInfo = {
   branch: ORDERS_BRANCH_OPTIONS.NAVY,
-  rank: ORDERS_RANK_OPTIONS.E_6,
+  grade: ORDERS_PAY_GRADE_OPTIONS.E_6,
   weightAllowance: 11000,
   authorizedWeight: 11000,
   progear: 2000,
@@ -425,3 +425,5 @@ export const serviceItemsCS = [
 export const serviceItemsEmpty = [];
 
 export const moveTaskOrders = [{}, { serviceCounselingCompletedAt: '2020-10-02T19:20:08.481139Z' }];
+
+export const closeoutOffice = 'Office of Closeout';

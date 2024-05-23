@@ -207,7 +207,19 @@ export const someShipmentsApprovedMTOQuery = {
     {
       id: '8',
       reServiceName: 'Move management',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'MS',
+    },
+    {
+      id: '9',
+      reServiceName: 'Move management',
       status: SERVICE_ITEM_STATUS.APPROVED,
+      reServiceCode: 'MS',
+    },
+    {
+      id: '10',
+      reServiceName: 'Move management',
+      status: SERVICE_ITEM_STATUS.REJECTED,
       reServiceCode: 'MS',
     },
   ],
@@ -388,6 +400,18 @@ export const allApprovedMTOQuery = {
       sitExtensions: [],
       sitStatus: SITStatusOrigin,
     },
+    {
+      distance: 1993,
+      id: '1',
+      moveTaskOrderID: '2',
+      ppmShipment: {
+        estimatedWeight: 2000,
+      },
+      shipmentType: 'PPM',
+      sitDaysAllowance: 90,
+      status: 'APPROVED',
+      updatedAt: '2024-03-29T00:40:15.943Z',
+    },
   ],
   mtoServiceItems: [
     {
@@ -403,6 +427,62 @@ export const allApprovedMTOQuery = {
       reServiceName: "Domestic origin add'l SIT",
       status: SERVICE_ITEM_STATUS.SUBMITTED,
       reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
+export const actualPPMWeightQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postalCode: '40121',
+        },
+      },
+      destinationDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postalCode: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
+    {
+      distance: 1993,
+      id: '1',
+      moveTaskOrderID: '2',
+      ppmShipment: {
+        estimatedWeight: 2000,
+        weightTickets: [
+          {
+            emptyWeight: 4000,
+            fullWeight: 6100,
+          },
+        ],
+      },
+      shipmentType: 'PPM',
+      sitDaysAllowance: 90,
+      status: 'APPROVED',
+      updatedAt: '2024-03-29T00:40:15.943Z',
     },
   ],
   isLoading: false,
@@ -1741,7 +1821,7 @@ export const reviewWeightsQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',
@@ -2197,7 +2277,7 @@ export const reviewWeightsNoProGearQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',
@@ -2655,7 +2735,7 @@ const order = {
   orders_type: 'PERMANENT_CHANGE_OF_STATION',
   has_dependents: false,
   issue_date: '2020-08-11',
-  grade: 'RANK',
+  grade: 'GRADE',
   moves: ['123'],
   origin_duty_location: {
     name: 'Test Duty Location',

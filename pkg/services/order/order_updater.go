@@ -154,11 +154,10 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
-	// update both order origin duty location and service member duty location
+	// update order origin duty location
 	if payload.OriginDutyLocationID != nil {
 		originDutyLocationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyLocationID
-		order.ServiceMember.DutyLocationID = &originDutyLocationID
 	}
 
 	if payload.NewDutyLocationID != nil {
@@ -229,6 +228,19 @@ func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, pa
 		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
 	}
 
+	if payload.Grade != nil {
+		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
+		// Calculate new DBWeightAuthorized based on the new grade
+		weightAllotment := models.GetWeightAllotment(*order.Grade)
+		weight := weightAllotment.TotalWeightSelf
+		// Payload does not have this information, retrieve dependents from the existing order
+		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
+			// Only utilize dependent weight authorized if dependents are both present and authorized
+			weight = weightAllotment.TotalWeightSelfPlusDependents
+		}
+		order.Entitlement.DBAuthorizedWeight = &weight
+	}
+
 	return order
 }
 
@@ -282,11 +294,10 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
 	order := existingOrder
 
-	// update both order origin duty location and service member duty location
+	// update order origin duty location
 	if payload.OriginDutyLocationID != nil {
 		originDutyLocationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyLocationID
-		order.ServiceMember.DutyLocationID = &originDutyLocationID
 	}
 
 	if payload.NewDutyLocationID != nil {
@@ -350,6 +361,19 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
 	}
 
+	if payload.Grade != nil {
+		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
+		// Calculate new DBWeightAuthorized based on the new grade
+		weightAllotment := models.GetWeightAllotment(*order.Grade)
+		weight := weightAllotment.TotalWeightSelf
+		// Payload does not have this information, retrieve dependents from the existing order
+		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
+			// Only utilize dependent weight authorized if dependents are both present and authorized
+			weight = weightAllotment.TotalWeightSelfPlusDependents
+		}
+		order.Entitlement.DBAuthorizedWeight = &weight
+	}
+
 	return order
 }
 
@@ -373,11 +397,21 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.ServiceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Agency)
 	}
 
-	// rank
+	// grade
 	if payload.Grade != nil {
-		grade := (*string)(payload.Grade)
-		order.Grade = grade
+		grade := internalmessages.OrderPayGrade(*payload.Grade)
+		order.Grade = &grade
 	}
+
+	// Calculate new DBWeightAuthorized based on the new grade
+	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weight := weightAllotment.TotalWeightSelf
+	// Payload does not have this information, retrieve dependents from the existing order
+	if existingOrder.HasDependents && *payload.DependentsAuthorized {
+		// Only utilize dependent weight authorized if dependents are both present and authorized
+		weight = weightAllotment.TotalWeightSelfPlusDependents
+	}
+	order.Entitlement.DBAuthorizedWeight = &weight
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
 		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
@@ -390,6 +424,10 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 	if payload.StorageInTransit != nil {
 		newSITAllowance := int(*payload.StorageInTransit)
 		order.Entitlement.StorageInTransit = &newSITAllowance
+	}
+
+	if payload.GunSafe != nil {
+		order.Entitlement.GunSafe = *payload.GunSafe
 	}
 
 	return order
@@ -415,11 +453,21 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 		order.ServiceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Agency)
 	}
 
-	// rank
+	// grade
 	if payload.Grade != nil {
-		grade := (*string)(payload.Grade)
-		order.Grade = grade
+		grade := internalmessages.OrderPayGrade(*payload.Grade)
+		order.Grade = &grade
 	}
+
+	// Calculate new DBWeightAuthorized based on the new grade
+	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weight := weightAllotment.TotalWeightSelf
+	// Payload does not have this information, retrieve dependents from the existing order
+	if existingOrder.HasDependents && *payload.DependentsAuthorized {
+		// Only utilize dependent weight authorized if dependents are both present and authorized
+		weight = weightAllotment.TotalWeightSelfPlusDependents
+	}
+	order.Entitlement.DBAuthorizedWeight = &weight
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
 		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
@@ -432,6 +480,10 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 	if payload.StorageInTransit != nil {
 		newSITAllowance := int(*payload.StorageInTransit)
 		order.Entitlement.StorageInTransit = &newSITAllowance
+	}
+
+	if payload.GunSafe != nil {
+		order.Entitlement.GunSafe = *payload.GunSafe
 	}
 
 	return order
@@ -521,12 +573,6 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		return nil, verr
 	}
 
-	// update service member
-	if order.Grade != nil {
-		// keep grade and rank in sync
-		order.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
-	}
-
 	if order.OriginDutyLocationID != nil {
 		// TODO refactor to use service objects to fetch duty location
 		var originDutyLocation models.DutyLocation
@@ -552,9 +598,6 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			}
 		}
 		order.OriginDutyLocationGBLOC = &dutyLocationGBLOC.GBLOC
-
-		order.ServiceMember.DutyLocationID = &originDutyLocation.ID
-		order.ServiceMember.DutyLocation = originDutyLocation
 	}
 
 	if order.Grade != nil || order.OriginDutyLocationID != nil {

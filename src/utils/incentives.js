@@ -1,15 +1,7 @@
 import { PPM_MAX_ADVANCE_RATIO } from 'constants/shipments';
-import { formatCentsTruncateWhole, formatCentsRange, convertCentsToWholeDollarsRoundedDown } from 'utils/formatters';
+import { formatCentsTruncateWhole, convertCentsToWholeDollarsRoundedDown } from 'utils/formatters';
 
 export const hasShortHaulError = (error) => error?.statusCode === 409;
-
-export const getIncentiveRange = (ppm, estimate) => {
-  let range = formatCentsRange(ppm?.incentive_estimate_min, ppm?.incentive_estimate_max);
-
-  if (!range) range = formatCentsRange(estimate?.range_min, estimate?.range_max);
-
-  return range || '';
-};
 
 // Calculates the max advance based on the incentive (in cents). Rounds down and returns a cent value as a number.
 export const calculateMaxAdvance = (incentive) => {

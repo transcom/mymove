@@ -9,26 +9,43 @@ import DataTableWrapper from 'components/DataTableWrapper/index';
 
 const ImportantShipmentDates = ({
   requestedPickupDate,
+  plannedMoveDate,
   scheduledPickupDate,
-  requiredDeliveryDate,
+  actualMoveDate,
   actualPickupDate,
+  requiredDeliveryDate,
   requestedDeliveryDate,
   scheduledDeliveryDate,
   actualDeliveryDate,
+  isPPM,
 }) => {
+  const headerPlannedMoveDate = isPPM ? 'Planned Move Date' : 'Requested pick up date';
+  const headerActualMoveDate = isPPM ? 'Actual Move Date' : 'Scheduled pick up date';
+  const headerActualPickupDate = isPPM ? '' : 'Actual pick up date';
+
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
-        <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />
-        <DataTable
-          columnHeaders={['Requested pick up date', 'Scheduled pick up date', 'Actual pick up date']}
-          dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
-        />
-        <DataTable
-          columnHeaders={['Requested delivery date', 'Scheduled delivery date', 'Actual delivery date']}
-          dataRow={[requestedDeliveryDate || emDash, scheduledDeliveryDate || emDash, actualDeliveryDate || emDash]}
-        />
+        {!isPPM && <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />}
+        {!isPPM && (
+          <DataTable
+            columnHeaders={[headerPlannedMoveDate, headerActualMoveDate, headerActualPickupDate]}
+            dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
+          />
+        )}
+        {isPPM && (
+          <DataTable
+            columnHeaders={[headerPlannedMoveDate, headerActualMoveDate]}
+            dataRow={[plannedMoveDate || emDash, actualMoveDate || emDash]}
+          />
+        )}
+        {!isPPM && (
+          <DataTable
+            columnHeaders={['Requested delivery date', 'Scheduled delivery date', 'Actual delivery date']}
+            dataRow={[requestedDeliveryDate || emDash, scheduledDeliveryDate || emDash, actualDeliveryDate || emDash]}
+          />
+        )}
       </DataTableWrapper>
     </div>
   );
@@ -39,19 +56,25 @@ ImportantShipmentDates.defaultProps = {
   scheduledPickupDate: '',
   requiredDeliveryDate: '',
   actualPickupDate: '',
+  plannedMoveDate: '',
+  actualMoveDate: '',
   requestedDeliveryDate: '',
   scheduledDeliveryDate: '',
   actualDeliveryDate: '',
+  isPPM: false,
 };
 
 ImportantShipmentDates.propTypes = {
   requestedPickupDate: PropTypes.string,
   scheduledPickupDate: PropTypes.string,
+  plannedMoveDate: PropTypes.string,
+  actualMoveDate: PropTypes.string,
   requiredDeliveryDate: PropTypes.string,
   actualPickupDate: PropTypes.string,
   requestedDeliveryDate: PropTypes.string,
   scheduledDeliveryDate: PropTypes.string,
   actualDeliveryDate: PropTypes.string,
+  isPPM: PropTypes.bool,
 };
 
 export default ImportantShipmentDates;

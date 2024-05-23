@@ -34,8 +34,6 @@ type ClientService interface {
 
 	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error)
 
-	CreateNonSITAddressUpdateRequest(params *CreateNonSITAddressUpdateRequestParams, opts ...ClientOption) (*CreateNonSITAddressUpdateRequestCreated, error)
-
 	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error)
 
 	DeleteMTOShipment(params *DeleteMTOShipmentParams, opts ...ClientOption) (*DeleteMTOShipmentNoContent, error)
@@ -49,6 +47,8 @@ type ClientService interface {
 	UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, opts ...ClientOption) (*UpdateMTOShipmentStatusOK, error)
 
 	UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error)
+
+	UpdateShipmentDestinationAddress(params *UpdateShipmentDestinationAddressParams, opts ...ClientOption) (*UpdateShipmentDestinationAddressCreated, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -106,8 +106,11 @@ func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOpti
 /*
 	CreateMTOShipment creates m t o shipment
 
-	Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+	_[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.
 
+Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
+
+Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
 need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
 approve it before the contractor can proceed with billing.
 
@@ -147,58 +150,6 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...Clie
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
-	CreateNonSITAddressUpdateRequest creates non s i t address update request
-
-	### Functionality
-
-This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
-after the destination address has already been approved.
-This does not change addresses on SIT service items.
-Address updates will be automatically approved unless they change:
-  - the service area
-  - Mileage bracket for direct delivery
-  - Domestic Short Haul to Domestic Line Haul or vice versa
-  - Shipments that start and end in one ZIP3 use Short Haul pricing
-  - Shipments that start and end in different ZIP3s use Line Haul pricing
-
-For those, changes will require TOO approval.
-*/
-func (a *Client) CreateNonSITAddressUpdateRequest(params *CreateNonSITAddressUpdateRequestParams, opts ...ClientOption) (*CreateNonSITAddressUpdateRequestCreated, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewCreateNonSITAddressUpdateRequestParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "createNonSITAddressUpdateRequest",
-		Method:             "POST",
-		PathPattern:        "/mto-shipments/{mtoShipmentID}/shipment-address-updates",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &CreateNonSITAddressUpdateRequestReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*CreateNonSITAddressUpdateRequestCreated)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for createNonSITAddressUpdateRequest: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
@@ -346,7 +297,16 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOpti
 /*
 	UpdateMTOShipment updates m t o shipment
 
-	Updates an existing shipment for a move.
+	_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.
+
+Please use the new endpoint at `/prime/v2/updateMTOShipment` instead.
+
+**DEPRECATION ON AUGUST 5TH, 2024**
+Following deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address
+for SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require
+deprecation for this change.
+
+Updates an existing shipment for a move.
 
 Note that there are some restrictions on nested objects:
 
@@ -398,8 +358,9 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...Clie
 
 	### Functionality
 
-This endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
+This endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
 Therefore a complete address should be sent in the request.
+When a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
 
 This endpoint **cannot create** an address.
 To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
@@ -534,6 +495,59 @@ func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for updateReweigh: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+	UpdateShipmentDestinationAddress updates shipment destination address
+
+	### Functionality
+
+This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
+after the destination address has already been approved.
+If automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.
+Address updates will be automatically approved unless they change:
+  - The service area
+  - Mileage bracket for direct delivery
+  - the address and the distance between the old and new address is > 50
+  - Domestic Short Haul to Domestic Line Haul or vice versa
+  - Shipments that start and end in one ZIP3 use Short Haul pricing
+  - Shipments that start and end in different ZIP3s use Line Haul pricing
+
+For those, changes will require TOO approval.
+*/
+func (a *Client) UpdateShipmentDestinationAddress(params *UpdateShipmentDestinationAddressParams, opts ...ClientOption) (*UpdateShipmentDestinationAddressCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateShipmentDestinationAddressParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "updateShipmentDestinationAddress",
+		Method:             "POST",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/shipment-address-updates",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateShipmentDestinationAddressReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateShipmentDestinationAddressCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateShipmentDestinationAddress: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

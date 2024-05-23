@@ -67,7 +67,7 @@ const mockOrders = {
     agency: 'ARMY',
     customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
     date_issued: '2018-03-15',
-    department_indicator: 'AIR_FORCE',
+    department_indicator: 'AIR_AND_SPACE_FORCE',
     destinationDutyLocation: mockDestinationDutyLocation,
     eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
     entitlement: {
@@ -328,14 +328,11 @@ describe('ReviewBillableWeight', () => {
       expect(screen.getByTestId('totalBillableWeight').textContent).toBe('8,000 lbs');
     });
 
-    it('renders max billable weight and edit view', async () => {
+    it('renders 110% estimated weight and edit view', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-      const weightAllowance = formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight);
-
       renderWithProviders(<ReviewBillableWeight />);
 
       await userEvent.click(screen.getByText('Edit'));
-      expect((await screen.findByTestId('maxWeight-weightAllowance')).textContent).toBe(weightAllowance);
 
       expect(screen.getByTestId('maxWeight-estimatedWeight').textContent).toBe('11,000 lbs');
       expect(screen.getByText(move.tioRemarks)).toBeInTheDocument();

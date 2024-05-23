@@ -3,279 +3,233 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
+	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	paperwork "github.com/transcom/mymove/pkg/services/paperwork"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
-	mockPPMShipmentFetcher := &mocks.PPMShipmentFetcher{}
-	mockUserUploadToPDFConverter := &mocks.UserUploadToPDFConverter{}
-	mockPDFMerger := &mocks.PDFMerger{}
-	mockPPMShipmentUpdater := &mocks.PPMShipmentUpdater{}
+func (suite *PPMShipmentSuite) TestVerifyAOAPacketSuccess() {
 
+	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
+	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
+	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-
-	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
-
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)
 
-	aoaPacketCreator := NewAOAPacketCreator(mockPPMShipmentFetcher, mockUserUploadToPDFConverter, mockPDFMerger, mockPPMShipmentUpdater, userUploader)
-
-	setUpMockPPMShipmentFetcherForAOA := func(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, returnValue ...interface{}) {
-		setUpMockPPMShipmentFetcher(
-			mockPPMShipmentFetcher,
-			appCtx,
-			ppmShipmentID,
-			[]string{EagerPreloadAssociationServiceMember, EagerPreloadAssociationAOAPacket},
-			[]string{PostLoadAssociationUploadedOrders},
-			returnValue...,
-		)
+	// Create an instance of aoaPacketCreator with mock dependencies
+	a := &aoaPacketCreator{
+		SSWPPMGenerator:                     mockSSWPPMGenerator,
+		SSWPPMComputer:                      mockSSWPPMComputer,
+		PrimeDownloadMoveUploadPDFGenerator: mockPrimeDownloadMoveUploadPDFGenerator,
+		UserUploader:                        *userUploader,
 	}
+	// Set up service member ID to verify
+	serviceMemberID, err := uuid.NewV4()
+	suite.FatalNoError(err)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: serviceMemberID,
+			},
+		},
+	}, nil)
+	// Copy ID to session for passing test
+	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID,
+	})
+	ppmShipmentID := ppmShipment.ID
+	suite.MustSave(&ppmShipment)
 
-	// prepMockInfo is a helper function to prep the data needed for mocks and also passes back a cleanup func that
-	// should be deferred to run after the test is done.
-	prepMockInfo := func(ppmShipment *models.PPMShipment) (
-		models.UserUploads,
-		[]*services.FileInfo,
-		[]io.ReadCloser,
-		func(),
-	) {
-		userUploads := models.UserUploads{}
-		fileInfoSet := []*services.FileInfo{}
+	err = a.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+	suite.Nil(err)
 
-		uploadedOrdersUserUpload := &ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0]
+}
 
-		if uploadedOrdersUserUpload.ID.IsNil() {
-			uploadedOrdersUserUpload.ID = uuid.Must(uuid.NewV4())
-		}
+func (suite *PPMShipmentSuite) TestVerifyAOAPacketFail() {
 
-		ordersFileInfo := services.NewFileInfo(uploadedOrdersUserUpload, factory.FixtureOpen("test.png"))
-		ordersFileInfo.PDFStream = factory.FixtureOpen("filled-out-orders.pdf")
+	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
+	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
+	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
+	suite.FatalNoError(uploaderErr)
 
-		userUploads = append(userUploads, *uploadedOrdersUserUpload)
-		fileInfoSet = append(fileInfoSet, ordersFileInfo)
-
-		cleanUpFunc := func() {
-			ordersFileInfo.OriginalUploadStream.Close()
-			ordersFileInfo.PDFStream.Close()
-		}
-
-		pdfStreams := []io.ReadCloser{}
-
-		pdfStreams = append(pdfStreams, ordersFileInfo.PDFStream)
-
-		return userUploads, fileInfoSet, pdfStreams, cleanUpFunc
+	// Create an instance of aoaPacketCreator with mock dependencies
+	a := &aoaPacketCreator{
+		SSWPPMGenerator:                     mockSSWPPMGenerator,
+		SSWPPMComputer:                      mockSSWPPMComputer,
+		PrimeDownloadMoveUploadPDFGenerator: mockPrimeDownloadMoveUploadPDFGenerator,
+		UserUploader:                        *userUploader,
 	}
+	// Set up service member ID to verify
+	serviceMemberID, err := uuid.NewV4()
+	suite.FatalNoError(err)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: serviceMemberID,
+			},
+		},
+	}, nil)
 
-	suite.Run("returns an error if the PPMShipmentFetcher returns an error", func() {
+	// Ensure appcontext id is different than service member id
+	differentID, err := uuid.NewV4()
+	suite.FatalNoError(err)
+
+	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: differentID,
+	})
+	ppmShipmentID := ppmShipment.ID
+	suite.MustSave(&ppmShipment)
+
+	err = a.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+	suite.Error(err)
+
+}
+
+func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
+	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
+	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
+	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
+	// mockAOAPacketCreator := &mocks.AOAPacketCreator{}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
+	suite.FatalNoError(uploaderErr)
+
+	suite.Run("returns an error if the FetchDataShipmentSummaryWorksheet returns an error", func() {
+
 		appCtx := suite.AppContextForTest()
 
-		ppmShipmentID := uuid.Must(uuid.NewV4())
+		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
+		ppmShipmentID := ppmshipment.ID
+		errMsgPrefix := "error creating AOA packet"
+
+		// Create an instance of aoaPacketCreator with mock dependencies
+		a := &aoaPacketCreator{
+			SSWPPMGenerator:                     mockSSWPPMGenerator,
+			SSWPPMComputer:                      mockSSWPPMComputer,
+			PrimeDownloadMoveUploadPDFGenerator: mockPrimeDownloadMoveUploadPDFGenerator,
+			UserUploader:                        *userUploader,
+		}
 		fakeErr := apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+		fakeErrWithWrap := fmt.Errorf("%s: %w", errMsgPrefix, fakeErr)
 
-		setUpMockPPMShipmentFetcherForAOA(appCtx, ppmShipmentID, nil, fakeErr)
+		// Define mock behavior for FetchDataShipmentSummaryWorksheetFormData
+		mockSSWPPMComputer.On("FetchDataShipmentSummaryWorksheetFormData", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("*auth.Session"), mock.AnythingOfType("uuid.UUID")).Return(nil, fakeErr)
 
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
-
-		if suite.Error(err) {
-			suite.ErrorIs(err, fakeErr)
-
-			suite.ErrorContains(err, "error creating AOA packet: failed to load PPMShipment")
+		// Test case: returns an error if FetchDataShipmentSummaryWorksheetFormData returns an error
+		packet, err := a.CreateAOAPacket(appCtx, ppmShipmentID)
+		suite.Error(err, err)
+		suite.Equal(fakeErrWithWrap, err)
+		if packet != nil {
+			println("packet exists")
 		}
 	})
 
-	// TODO: add test case(s) for the SSW gen call
+}
 
-	suite.Run("returns an error if we get an error trying to convert the orders to a PDF", func() {
-		appCtx := suite.AppContextForTest()
+func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
+	suite.FatalNoError(uploaderErr)
 
-		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
+	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	suite.FatalNil(err)
+
+	document := factory.BuildDocument(suite.DB(), nil, nil)
+	file, err := suite.openLocalFile("../../paperwork/testdata/orders1.pdf", generator.FileSystem())
+	suite.FatalNil(err)
+	if generator != nil {
+		suite.FatalNil(err)
+	}
+
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
+	suite.FatalNoError(err)
+
+	downloadMoveUploadGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(generator)
+	suite.FatalNoError(err)
+	appCtx := suite.AppContextForTest()
+	order := factory.BuildOrder(suite.DB(), nil, nil)
+
+	_, _, err = userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	suite.FatalNil(err)
+
+	err = suite.DB().Load(&document, "UserUploads.Upload")
+	suite.FatalNil(err)
+	suite.Equal(1, len(document.UserUploads))
+
+	order.UploadedOrders = document
+	order.UploadedOrdersID = document.ID
+	suite.MustSave(&order)
+
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	grade := models.ServiceMemberGradeE9
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+				Grade:      &grade,
 			},
-		}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
+		},
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.SignedCertification{},
+		},
+	}, nil)
+	ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders = document
+	ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrdersID = document.ID
+	ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedAmendedOrders = &document
+	ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedAmendedOrdersID = &document.ID
 
-		userUploads, _, _, cleanUpFunc := prepMockInfo(&ppmShipment)
+	ppmShipmentID := ppmShipment.ID
+	suite.MustSave(&ppmShipment)
 
-		defer cleanUpFunc()
+	// Create an instance of aoaPacketCreator with mock dependencies
+	a := &aoaPacketCreator{
+		SSWPPMGenerator:                     ppmGenerator,
+		SSWPPMComputer:                      SSWPPMComputer,
+		PrimeDownloadMoveUploadPDFGenerator: downloadMoveUploadGenerator,
+		UserUploader:                        *userUploader,
+		pdfGenerator:                        generator,
+	}
 
-		setUpMockPPMShipmentFetcherForAOA(appCtx, ppmShipment.ID, &ppmShipment, nil)
+	_, err = models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+	suite.NoError(err)
 
-		uploadedOrdersUserUpload := ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0]
-
-		fakeErr := fmt.Errorf(
-			"failed to convert file %s (UserUploadID: %s) to PDF",
-			uploadedOrdersUserUpload.Upload.Filename,
-			uploadedOrdersUserUpload.ID,
-		)
-
-		setUpMockUserUploadToPDFConverter(
-			mockUserUploadToPDFConverter,
-			appCtx,
-			userUploads,
-			nil,
-			fakeErr,
-		)
-
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
-
-		if suite.Error(err) {
-			suite.ErrorIs(err, fakeErr)
-
-			suite.ErrorContains(err, "error creating AOA packet: failed to convert orders to PDF")
-		}
-	})
-
-	suite.Run("returns an error if we get an error trying to merge the orders PDF with the SSW PDF", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-		}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
-
-		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
-
-		defer cleanUpFunc()
-
-		setUpMockPPMShipmentFetcherForAOA(appCtx, ppmShipment.ID, &ppmShipment, nil)
-
-		setUpMockUserUploadToPDFConverter(
-			mockUserUploadToPDFConverter,
-			appCtx,
-			userUploads,
-			fileInfoSet,
-			nil,
-		)
-
-		fakeErr := fmt.Errorf("failed to merge PDFs")
-
-		setUpMockPDFMerger(mockPDFMerger, appCtx, pdfStreams, nil, fakeErr)
-
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
-
-		if suite.Error(err) {
-			suite.ErrorIs(err, fakeErr)
-
-			suite.ErrorContains(err, "error creating AOA packet: failed to merge SSW and orders PDFs")
-		}
-	})
-
-	suite.Run("returns an error if we get an error trying to save the AOA packet", func() {
-		// These tests rely on failures being raised because of bad service member IDs, but the important part is us
-		// getting the error back, so this could change to be anything that triggers an error when saving. Service
-		// member ID is mainly chosen because it's one of the first things we can error on and is easy to set up.
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ID: uuid.Must(uuid.NewV4()),
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					ID: uuid.Nil,
-				},
-			},
-		}, []factory.Trait{factory.GetTraitApprovedPPMShipment})
-
-		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
-
-		defer cleanUpFunc()
-
-		setUpMockPPMShipmentFetcherForAOA(appCtx, ppmShipment.ID, &ppmShipment, nil)
-
-		setUpMockUserUploadToPDFConverter(
-			mockUserUploadToPDFConverter,
-			appCtx,
-			userUploads,
-			fileInfoSet,
-			nil,
-		)
-
-		mockMergedPDF := factory.FixtureOpen("aoa-packet.pdf")
-
-		defer mockMergedPDF.Close()
-
-		setUpMockPDFMerger(mockPDFMerger, appCtx, pdfStreams, mockMergedPDF, nil)
-
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
-
-		if suite.Error(err) {
-			suite.ErrorContains(err, "error creating AOA packet: failed to save AOA packet")
-
-			suite.ErrorContains(err, "failed to create AOA packet document")
-
-			suite.ErrorContains(err, "ServiceMemberID can not be blank")
-		}
-	})
-
-	suite.Run("returns nil if all goes well", func() {
-		appCtx := suite.AppContextForTest()
-
-		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, []factory.Trait{factory.GetTraitApprovedPPMShipment})
-
-		userUploads, fileInfoSet, pdfStreams, cleanUpFunc := prepMockInfo(&ppmShipment)
-
-		defer cleanUpFunc()
-
-		// need to start a transaction so that our mocks know what the appCtx will actually be pointing to since the
-		// saveAOAPacket function will be using a transaction.
-		suite.NoError(appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			setUpMockPPMShipmentFetcherForAOA(txnAppCtx, ppmShipment.ID, &ppmShipment, nil)
-
-			setUpMockUserUploadToPDFConverter(
-				mockUserUploadToPDFConverter,
-				txnAppCtx,
-				userUploads,
-				fileInfoSet,
-				nil,
-			)
-
-			mockMergedPDF := factory.FixtureOpen("aoa-packet.pdf")
-
-			defer mockMergedPDF.Close()
-
-			setUpMockPDFMerger(mockPDFMerger, txnAppCtx, pdfStreams, mockMergedPDF, nil)
-
-			setUpMockPPMShipmentUpdater(
-				mockPPMShipmentUpdater,
-				txnAppCtx,
-				&ppmShipment,
-				// This function will get called instead of the regular update function, so it needs to have the same
-				// signature.
-				func(_ appcontext.AppContext, ppmShipment *models.PPMShipment, _ uuid.UUID) (*models.PPMShipment, error) {
-					// We'll just pass it back. In reality, the updatedAt field would have been updated, but it's not
-					// super relevant to what we're testing.
-					return ppmShipment, nil
-				},
-			)
-
-			err := aoaPacketCreator.CreateAOAPacket(txnAppCtx, ppmShipment.ID)
-
-			if suite.NoError(err) {
-				suite.NotNil(ppmShipment.AOAPacketID)
-			}
-
-			return nil
-		}))
-	})
+	packet, err := a.CreateAOAPacket(appCtx, ppmShipmentID)
+	suite.NoError(err)
+	suite.NotNil(packet) // ensures was generated with temp filesystem
 }
 
 func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
@@ -536,4 +490,29 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 			suite.Equal(expectedBytes, actualBytes)
 		}
 	})
+}
+
+func (suite *PPMShipmentSuite) closeFile(file afero.File) {
+	suite.filesToClose = append(suite.filesToClose, file)
+}
+
+func (suite *PPMShipmentSuite) openLocalFile(path string, fs *afero.Afero) (afero.File, error) {
+	file, err := os.Open(filepath.Clean(path))
+	if err != nil {
+		return nil, errors.Wrap(err, "could not open file")
+	}
+
+	outputFile, err := fs.Create(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating afero file")
+	}
+
+	_, err = io.Copy(outputFile, file)
+	if err != nil {
+		return nil, errors.Wrap(err, "error copying over file contents")
+	}
+
+	suite.closeFile(outputFile)
+
+	return outputFile, nil
 }

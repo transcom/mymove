@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -265,7 +264,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			if err != nil {
 				appCtx.Logger().Error(
 					"Error fetching move task order: ",
-					zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)),
+					zap.Error(fmt.Errorf("move Task Order ID: %s", moveTaskOrder.ID)),
 					zap.Error(err))
 
 				return mtoserviceitemop.NewListMTOServiceItemsNotFound(), err
@@ -280,8 +279,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryAssociation("Dimensions"),
 				query.NewQueryAssociation("SITDestinationOriginalAddress"),
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
-				query.NewQueryAssociation("SITAddressUpdates.OldAddress"),
-				query.NewQueryAssociation("SITAddressUpdates.NewAddress"),
+				query.NewQueryAssociation("SITOriginHHGOriginalAddress"),
+				query.NewQueryAssociation("SITOriginHHGActualAddress"),
 			})
 
 			var serviceItems models.MTOServiceItems
@@ -308,170 +307,5 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 
 			returnPayload := payloads.MTOServiceItemModels(serviceItems, h.FileStorer())
 			return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload), nil
-		})
-}
-
-// CreateSITAddressUpdateHandler creates a SIT Address Update in the approved state
-type CreateSITAddressUpdateHandler struct {
-	handlers.HandlerConfig
-	services.ApprovedSITAddressUpdateRequestCreator
-}
-
-// Handle creates the approved SIT Address Update
-func (h CreateSITAddressUpdateHandler) Handle(params mtoserviceitemop.CreateSITAddressUpdateParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			payload := params.Body
-			serviceItemID := params.MtoServiceItemID
-
-			handleError := func(err error) (middleware.Responder, error) {
-				appCtx.Logger().Error("ghcapi.CreateSITAddressUpdate error", zap.Error(err))
-				switch e := err.(type) {
-				case apperror.NotFoundError:
-					payload := ghcmessages.Error{
-						Message: handlers.FmtString(err.Error()),
-					}
-					return mtoserviceitemop.NewCreateSITAddressUpdateNotFound().WithPayload(&payload), err
-				case apperror.InvalidInputError:
-					payload := payloadForValidationError(
-						"Validation errors",
-						"CreateSITAddressUpdate",
-						h.GetTraceIDFromRequest(params.HTTPRequest),
-						e.ValidationErrors)
-					return mtoserviceitemop.NewCreateSITAddressUpdateUnprocessableEntity().WithPayload(payload), err
-				case apperror.QueryError:
-					if e.Unwrap() != nil {
-						// If you can unwrap, log the internal error (usually a pq error) for better debugging
-						appCtx.Logger().Error("ghcapi.CreateSITAddressUpdate query error", zap.Error(e.Unwrap()))
-					}
-					return mtoserviceitemop.NewCreateSITAddressUpdateInternalServerError(), err
-				case apperror.ForbiddenError:
-					return mtoserviceitemop.NewCreateSITAddressUpdateForbidden().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
-				default:
-					return mtoserviceitemop.NewCreateSITAddressUpdateInternalServerError(), err
-				}
-			}
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				return handleError(apperror.NewForbiddenError("is not a TOO"))
-			}
-
-			sitAddressUpdate := payloads.ApprovedSITAddressUpdateFromCreate(payload, serviceItemID)
-			createdSITAddressUpdate, err := h.ApprovedSITAddressUpdateRequestCreator.CreateApprovedSITAddressUpdate(appCtx, sitAddressUpdate)
-			if err != nil {
-				return handleError(err)
-			}
-
-			returnPayload := payloads.MTOServiceItemModel(&createdSITAddressUpdate.MTOServiceItem, h.FileStorer())
-			return mtoserviceitemop.NewCreateSITAddressUpdateOK().WithPayload(returnPayload), nil
-		})
-}
-
-// ApproveSITAddressUpdateHandler approves a SIT Address Update
-type ApproveSITAddressUpdateHandler struct {
-	handlers.HandlerConfig
-	services.SITAddressUpdateRequestApprover
-}
-
-// Handle approves a SIT Address Update
-func (h ApproveSITAddressUpdateHandler) Handle(params mtoserviceitemop.ApproveSITAddressUpdateParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			handleError := func(err error) (middleware.Responder, error) {
-				appCtx.Logger().Error("error approving SIT Address Update", zap.Error(err))
-				switch e := err.(type) {
-				case apperror.NotFoundError:
-					return mtoserviceitemop.NewApproveSITAddressUpdateNotFound(), err
-				case apperror.InvalidInputError:
-					payload := payloadForValidationError(
-						handlers.ValidationErrMessage,
-						err.Error(),
-						h.GetTraceIDFromRequest(params.HTTPRequest),
-						e.ValidationErrors)
-					return mtoserviceitemop.NewApproveSITAddressUpdateUnprocessableEntity().WithPayload(payload), err
-				case apperror.PreconditionFailedError:
-					return mtoserviceitemop.NewApproveSITAddressUpdatePreconditionFailed().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
-				case apperror.ForbiddenError:
-					return mtoserviceitemop.NewApproveSITAddressUpdateForbidden().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
-				default:
-					return mtoserviceitemop.NewApproveSITAddressUpdateInternalServerError(), err
-				}
-			}
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				forbiddenError := apperror.NewForbiddenError("is not a TOO")
-				return handleError(forbiddenError)
-			}
-
-			sitAddressUpdateID := uuid.FromStringOrNil(string(params.SitAddressUpdateID))
-			officeRemarks := params.Body.OfficeRemarks
-			updatedServiceItem, err := h.SITAddressUpdateRequestApprover.ApproveSITAddressUpdateRequest(appCtx, sitAddressUpdateID, officeRemarks, params.IfMatch)
-			if err != nil {
-				return handleError(err)
-			}
-			serviceItemPayload := payloads.MTOServiceItemModel(updatedServiceItem, h.FileStorer())
-			return mtoserviceitemop.NewApproveSITAddressUpdateOK().WithPayload(serviceItemPayload), nil
-		})
-}
-
-// RejectSITAddressUpdateHandler rejects a SIT Address Update
-type RejectSITAddressUpdateHandler struct {
-	handlers.HandlerConfig
-	services.SITAddressUpdateRequestRejector
-}
-
-// Handle rejects a SIT Address Update
-func (h RejectSITAddressUpdateHandler) Handle(params mtoserviceitemop.RejectSITAddressUpdateParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			handleError := func(err error) (middleware.Responder, error) {
-				appCtx.Logger().Error("error approving SIT Address Update", zap.Error(err))
-				switch e := err.(type) {
-				case apperror.NotFoundError:
-					return mtoserviceitemop.NewRejectSITAddressUpdateNotFound(), err
-				case apperror.InvalidInputError:
-					payload := payloadForValidationError(
-						handlers.ValidationErrMessage,
-						err.Error(),
-						h.GetTraceIDFromRequest(params.HTTPRequest),
-						e.ValidationErrors)
-					return mtoserviceitemop.NewRejectSITAddressUpdateUnprocessableEntity().WithPayload(payload), err
-				case apperror.PreconditionFailedError:
-					return mtoserviceitemop.NewRejectSITAddressUpdatePreconditionFailed().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
-				case apperror.ForbiddenError:
-					return mtoserviceitemop.NewRejectSITAddressUpdateForbidden().
-						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
-				default:
-					return mtoserviceitemop.NewRejectSITAddressUpdateInternalServerError(), err
-				}
-			}
-
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				forbiddenError := apperror.NewForbiddenError("is not a TOO")
-				return handleError(forbiddenError)
-			}
-
-			sitAddressUpdateID := uuid.FromStringOrNil(string(params.SitAddressUpdateID))
-			officeRemarks := params.Body.OfficeRemarks
-
-			rejectedSITAddressUpdate, err := h.SITAddressUpdateRequestRejector.RejectSITAddressUpdateRequest(appCtx, sitAddressUpdateID, officeRemarks, params.IfMatch)
-			if err != nil {
-				return handleError(err)
-			}
-
-			serviceItem, err := models.FetchServiceItem(appCtx.DB(), rejectedSITAddressUpdate.MTOServiceItemID)
-			if err != nil {
-				return handleError(err)
-			}
-
-			serviceItemPayload := payloads.MTOServiceItemModel(&serviceItem, h.FileStorer())
-			return mtoserviceitemop.NewRejectSITAddressUpdateOK().WithPayload(serviceItemPayload), nil
 		})
 }

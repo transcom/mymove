@@ -3,6 +3,7 @@ package factory
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -133,9 +134,10 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		// Now DBAuthorizedWeight should be appropriate for O_9 grade
 
 		// FUNCTION UNDER TEST
+		grade := internalmessages.OrderPayGrade(models.ServiceMemberGradeO9)
 		entitlement := BuildEntitlement(suite.DB(), []Customization{
 			{Model: models.Order{
-				Grade: models.StringPointer("O_9"),
+				Grade: &grade,
 			}},
 		}, nil)
 

@@ -147,7 +147,7 @@ func logoutOktaUserURL(provider *okta.Provider, idToken string, redirectURL stri
 	// add params required by Okta to successfully sign a user out
 	params := logoutURL.Query()
 	params.Set("id_token_hint", idToken)
-	params.Set("post_logout_redirect_uri", redirectURL+"sign-in")
+	params.Set("post_logout_redirect_uri", redirectURL+"sign-in"+"?okta_logged_out=true")
 
 	logoutURL.RawQuery = params.Encode()
 

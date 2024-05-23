@@ -12,7 +12,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 import styles from './ReviewExpense.module.scss';
 
 import { formatCents, formatDate } from 'utils/formatters';
-import { ShipmentShape, ExpenseShape } from 'types/shipment';
+import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -50,7 +50,16 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required('Reviewing this receipt is required'),
 });
 
-export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
+export default function ReviewExpense({
+  ppmShipmentInfo,
+  expense,
+  categoryIndex,
+  tripNumber,
+  ppmNumber,
+  onError,
+  onSuccess,
+  formRef,
+}) {
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
 
@@ -58,8 +67,6 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
     onSuccess,
     onError,
   });
-
-  const ppmShipment = mtoShipment?.ppmShipment;
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -90,7 +97,11 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
       eTag: expense.eTag,
     });
   };
-  const expenseName = movingExpenseType === expenseTypes.STORAGE ? 'Storage' : 'Receipt';
+
+  const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
+  const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
+  const formatMovingType = (input) => allCase(input?.trim().toLowerCase().replace('_', ' '));
+  const expenseName = formatMovingType(initialValues.movingExpenseType);
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -111,17 +122,19 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
 
           const daysInSIT =
             values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
-              ? moment(values.sitEndDate, 'DD MMM YYYY').diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
+              ? moment(values.sitEndDate, 'DD MMM YYYY')
+                  .add(1, 'days')
+                  .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
               : '##';
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
-              <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
-              <h3 className={styles.tripNumber}>
-                {expenseName} {tripNumber}
-              </h3>
-              <legend className={classnames('usa-label', styles.label)}>Expense type</legend>
-              <div className={styles.displayValue}>{expenseTypeLabels[movingExpenseType]}</div>
+              <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
+              <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
+              <div className={styles.displayValue}>
+                {`${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
+              </div>
               <legend className={classnames('usa-label', styles.label)}>Description</legend>
               <div className={styles.displayValue}>{description}</div>
               <MaskedTextField
@@ -150,9 +163,9 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {expenseName.toLowerCase()} {tripNumber}
+                {`Review ${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
               </h3>
-              <p>Add a review for this {expenseName.toLowerCase()}</p>
+              <p>Add a review for this {allCase(expenseName)}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
                 <div
@@ -241,7 +254,6 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
 
 ReviewExpense.propTypes = {
   expense: ExpenseShape,
-  mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
   onSuccess: func,
@@ -250,7 +262,6 @@ ReviewExpense.propTypes = {
 
 ReviewExpense.defaultProps = {
   expense: undefined,
-  mtoShipment: undefined,
   onSuccess: null,
   formRef: null,
 };

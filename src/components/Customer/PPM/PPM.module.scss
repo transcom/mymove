@@ -13,7 +13,11 @@
 
     :global(.usa-form-group--error),
     :global(.usa-form-group.warning) {
-      @include u-margin-top(2);
+      margin-top: 1.6rem;
+    }
+
+    :global(.usa-form-group:first-of-type .usa-label) {
+      margin-top: 0;
     }
 
     // last section wrapper on mobile shouldn't render divider
@@ -57,7 +61,8 @@
     }
   }
 
-  :global(.usa-label), :global(.usa-checkbox__label) {
+  :global(.usa-label),
+  :global(.usa-checkbox__label) {
     @include u-margin-top(2);
   }
 

@@ -10,13 +10,11 @@
 package internalapi
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -24,9 +22,9 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
@@ -412,193 +410,6 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
-	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				StreetAddress1: "Fort Gordon",
-				City:           "Augusta",
-				State:          "GA",
-				PostalCode:     "30813",
-				Country:        models.StringPointer("United States"),
-			},
-		},
-	}, nil)
-
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Fort Sam Houston",
-			},
-		},
-		{
-			Model:    dutyLocationAddress,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	rank := models.ServiceMemberRankE4
-	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
-		},
-		{
-			Model:    dutyLocation,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				StreetAddress1: "n/a",
-				City:           "San Antonio",
-				State:          "TX",
-				PostalCode:     "78234",
-				Country:        models.StringPointer("United States"),
-			},
-		},
-	}, nil)
-
-	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Fort Gordon",
-			},
-		},
-		{
-			Model:    newDutyLocationAddress,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Order{
-				ReportByDate:     time.Date(2018, 10, 31, 0, 0, 0, 0, time.UTC),
-				HasDependents:    true,
-				SpouseHasProGear: true,
-			},
-		},
-		{
-			Model:    serviceMember,
-			LinkOnly: true,
-		},
-		{
-			Model:    dutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model:    newDutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.NewDutyLocation,
-		},
-	}, nil)
-
-	path := fmt.Sprintf("/moves/%s/move_dates", move.ID.String())
-	req := httptest.NewRequest("GET", path, nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-
-	moveID := strfmt.UUID(move.ID.String())
-	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
-	params := moveop.ShowMoveDatesSummaryParams{
-		HTTPRequest: req,
-		MoveID:      moveID,
-		MoveDate:    moveDate,
-	}
-	planner := &mocks.Planner{}
-	planner.On("ZipTransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(1125, nil)
-
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetDTODPlanner(planner)
-
-	showHandler := ShowMoveDatesSummaryHandler{handlerConfig}
-	response := showHandler.Handle(params)
-
-	suite.IsType(&moveop.ShowMoveDatesSummaryOK{}, response)
-	okResponse := response.(*moveop.ShowMoveDatesSummaryOK)
-
-	id := move.ID.String() + ":" + moveDate.String()
-	suite.Equal(id, *okResponse.Payload.ID)
-	suite.Equal(moveID, *okResponse.Payload.MoveID)
-	suite.Equal(moveDate, *okResponse.Payload.MoveDate)
-
-	pack := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 5, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 9, 0, 0, 0, 0, time.UTC)),
-	}
-	suite.Equal(pack, okResponse.Payload.Pack)
-
-	pickup := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC)),
-	}
-	suite.Equal(pickup, okResponse.Payload.Pickup)
-
-	transit := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 11, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 12, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 13, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 14, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 15, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 16, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 17, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 18, 0, 0, 0, 0, time.UTC)),
-		strfmt.Date(time.Date(2018, 10, 19, 0, 0, 0, 0, time.UTC)),
-	}
-	suite.Equal(transit, okResponse.Payload.Transit)
-
-	delivery := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 22, 0, 0, 0, 0, time.UTC)),
-	}
-	suite.Equal(delivery, okResponse.Payload.Delivery)
-
-	report := []strfmt.Date{
-		strfmt.Date(move.Orders.ReportByDate),
-	}
-	suite.Equal(report, okResponse.Payload.Report)
-}
-
-func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
-	// Given: a set of orders, a move, user and servicemember
-	move := factory.BuildMove(suite.DB(), nil, nil)
-	// And: another logged in user
-	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-	// And: the context contains the auth values for not logged-in user
-	req := httptest.NewRequest("GET", "/moves/some_id/", nil)
-	req = suite.AuthenticateRequest(req, anotherUser)
-
-	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
-	params := moveop.ShowMoveDatesSummaryParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		MoveDate:    moveDate,
-	}
-	planner := &mocks.Planner{}
-	planner.On("ZipTransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(1125, nil)
-
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetPlanner(planner)
-
-	showHandler := ShowMoveDatesSummaryHandler{handlerConfig}
-	response := showHandler.Handle(params)
-
-	// Then: expect a forbidden response
-	suite.CheckResponseForbidden(response)
-
-}
-
 func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 	suite.Run("Submits move with amended orders for review", func() {
 		// Given: a set of orders, a move, user and service member
@@ -633,5 +444,93 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		move, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
 		suite.NoError(err)
 		suite.Assertions.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+	})
+}
+
+func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
+	suite.Run("Gets all moves belonging to a service member", func() {
+
+		time := time.Now()
+		laterTime := time.AddDate(0, 0, 1)
+		// Given: A servicemember and a user
+		user := factory.BuildDefaultUser(suite.DB())
+
+		newServiceMember := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model:    user,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.MustSave(&newServiceMember)
+
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    newServiceMember,
+				LinkOnly: true,
+				Type:     &factory.ServiceMember,
+			},
+		}, nil)
+
+		// Given: a set of orders, a move, user and service member
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+			{
+				Model:    newServiceMember,
+				LinkOnly: true,
+				Type:     &factory.ServiceMember,
+			},
+			{
+				Model: models.Move{
+					CreatedAt: time,
+				},
+			},
+		}, nil)
+
+		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+			{
+				Model:    newServiceMember,
+				LinkOnly: true,
+				Type:     &factory.ServiceMember,
+			},
+			{
+				Model: models.Move{
+					CreatedAt: laterTime,
+				},
+			},
+		}, nil)
+
+		// // And: the context contains the auth values
+		req := httptest.NewRequest("GET", "/moves/allmoves", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+		params := moveop.GetAllMovesParams{
+			HTTPRequest:     req,
+			ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
+		}
+
+		// And: a move is submitted
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+
+		handler := GetAllMovesHandler{handlerConfig}
+		response := handler.Handle(params)
+
+		// // Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.GetAllMovesOK{}, response)
+		okResponse := response.(*moveop.GetAllMovesOK)
+
+		suite.Greater(len(okResponse.Payload.CurrentMove), 0)
+		suite.Greater(len(okResponse.Payload.PreviousMoves), 0)
+		suite.Equal(okResponse.Payload.CurrentMove[0].ID.String(), move.ID.String())
+		suite.Equal(okResponse.Payload.PreviousMoves[0].ID.String(), move2.ID.String())
+
 	})
 }

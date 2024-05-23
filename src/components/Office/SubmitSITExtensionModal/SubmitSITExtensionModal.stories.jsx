@@ -30,6 +30,7 @@ export default {
 const sitStatus = {
   totalDaysRemaining: 210,
   totalSITDaysUsed: 60,
+  calculatedTotalDaysInSIT: 60,
   currentSIT: {
     location: 'DESTINATION',
     daysInSIT: 30,

@@ -39,7 +39,23 @@ tags:
   - name: mtoShipment
   - name: featureFlags
   - name: okta_profile
+  - name: application_parameters
 definitions:
+  ApplicationParameters:
+    type: object
+    properties:
+      validationCode:
+        type: string
+        format: string
+        x-nullable: true
+      parameterName:
+        type: string
+        format: string
+        x-nullable: true
+      parameterValue:
+        type: string
+        format: string
+        x-nullable: true
   OktaUserProfileData:
     type: object
     properties:
@@ -109,465 +125,11 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/DutyLocationPayload'
-  CreatePersonallyProcuredMovePayload:
-    type: object
-    properties:
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When do you plan to move?
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      estimated_storage_reimbursement:
-        type: string
-        title: Estimated Storage Reimbursement
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-      has_requested_advance:
-        type: boolean
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/CreateReimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/Document'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-  UpdatePersonallyProcuredMovePayload:
-    type: object
-    properties:
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: When do you plan to move?
-        x-nullable: true
-      actual_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When did you actually move?
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      total_sit_cost:
-        type: integer
-        title: How much does your storage cost?
-        minimum: 0
-        x-nullable: true
-      estimated_storage_reimbursement:
-        type: string
-        title: Estimated Storage Reimbursement
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-      has_requested_advance:
-        type: boolean
-        default: false
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/Document'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-  PatchPersonallyProcuredMovePayload:
-    type: object
-    properties:
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When do you plan to move?
-        x-nullable: true
-      actual_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When did you actually move?
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      total_sit_cost:
-        type: integer
-        minimum: 1
-        title: How much does your storage cost?
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-      incentive_estimate_max:
-        type: integer
-        minimum: 1
-        title: Incentive Estimate Max
-        x-nullable: true
-      incentive_estimate_min:
-        type: integer
-        minimum: 1
-        title: Incentive Estimate Min
-        x-nullable: true
-      has_requested_advance:
-        type: boolean
-        default: false
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/Document'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-  PersonallyProcuredMovePayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        format: date
-        title: When do you plan to move?
-        example: '2018-04-26'
-        x-nullable: true
-      actual_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When did you actually move?
-        x-nullable: true
-      submit_date:
-        type: string
-        format: date-time
-        title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
-        x-nullable: true
-      approve_date:
-        type: string
-        format: date-time
-        title: When was the ppm move approved?
-        example: '2019-03-26T13:19:56-04:00'
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      estimated_storage_reimbursement:
-        type: string
-        title: Estimated Storage Reimbursement
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-        x-formatting: weight
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-        x-formatting: weight
-      mileage:
-        type: integer
-        title: Distance between origin and destination in miles
-        x-nullable: true
-      planned_sit_max:
-        type: integer
-        title: Maximum SIT reimbursement for the planned SIT duration
-        x-nullable: true
-      total_sit_cost:
-        type: integer
-        format: cents
-        title: Total cost for the planned SIT duration
-        x-nullable: true
-      sit_max:
-        type: integer
-        title: Maximum SIT reimbursement for maximum SIT duration
-        x-nullable: true
-      incentive_estimate_min:
-        type: integer
-        title: Estimated incentive minimum in cents
-        x-nullable: true
-      incentive_estimate_max:
-        type: integer
-        title: Estimated incentive maximum in cents
-        x-nullable: true
-      status:
-        $ref: '#/definitions/PPMStatus'
-      has_requested_advance:
-        type: boolean
-        default: false
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/Document'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-        x-display-value:
-          NOT SURE: Not Sure
-          'YES': 'Yes'
-          'NO': 'No'
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-        x-display-value:
-          NOT SURE: Not Sure
-          'YES': 'Yes'
-          'NO': 'No'
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - created_at
-      - updated_at
   SubmitMoveForApprovalPayload:
     type: object
     properties:
       certificate:
         $ref: '#/definitions/CreateSignedCertificationPayload'
-  SubmitPersonallyProcuredMovePayload:
-    type: object
-    properties:
-      submit_date:
-        type: string
-        format: date-time
-        title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
-    required:
-      - submit_date
-  PPMSitEstimate:
-    type: object
-    properties:
-      estimate:
-        type: integer
-        title: Value in cents of SIT estimate for PPM
-    required:
-      - estimate
   PPMEstimateRange:
     type: object
     properties:
@@ -580,64 +142,6 @@ definitions:
     required:
       - range_min
       - range_max
-  PPMIncentive:
-    type: object
-    properties:
-      gcc:
-        type: integer
-        title: GCC
-      incentive_percentage:
-        type: integer
-        title: PPM Incentive @ 95%
-    required:
-      - gcc
-      - incentive_percentage
-  ExpenseSummaryPayload:
-    type: object
-    properties:
-      categories:
-        type: array
-        items:
-          $ref: '#/definitions/CategoryExpenseSummary'
-      grand_total:
-        type: object
-        properties:
-          payment_method_totals:
-            $ref: '#/definitions/PaymentMethodsTotals'
-          total:
-            type: integer
-  CategoryExpenseSummary:
-    type: object
-    properties:
-      category:
-        $ref: '#/definitions/MovingExpenseType'
-      payment_methods:
-        $ref: '#/definitions/PaymentMethodsTotals'
-      total:
-        type: integer
-  PaymentMethodsTotals:
-    type: object
-    properties:
-      MIL_PAY:
-        type: integer
-      OTHER:
-        type: integer
-      GTCC:
-        type: integer
-  ApprovePersonallyProcuredMovePayload:
-    type: object
-    properties:
-      approve_date:
-        type: string
-        format: date-time
-        title: When was the ppm move approved?
-        example: '2019-03-26T13:19:56-04:00'
-    required:
-      - approve_date
-  IndexPersonallyProcuredMovePayload:
-    type: array
-    items:
-      $ref: '#/definitions/PersonallyProcuredMovePayload'
   MovePayload:
     type: object
     properties:
@@ -669,8 +173,6 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
-      personally_procured_moves:
-        $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
       closeout_office:
@@ -681,6 +183,10 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -935,15 +441,16 @@ definitions:
           The date the shipment entered storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2022-04-26'
         format: date
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2018-05-26'
         format: date
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
     required:
       - movingExpenseType
       - description
@@ -1060,6 +567,10 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
+      allowableWeight:
+        description: Indicates the maximum reimbursable weight of the shipment
+        type: integer
+        minimum: 0
   TransportationOffices:
     type: array
     items:
@@ -1139,9 +650,9 @@ definitions:
       affiliation:
         $ref: '#/definitions/Affiliation'
         title: Branch
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
-        title: Rank
+      grade:
+        $ref: '#/definitions/OrderPayGrade'
+        title: Grade
       first_name:
         type: string
         example: John
@@ -1191,8 +702,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_location:
-        $ref: '#/definitions/DutyLocationPayload'
       residential_address:
         $ref: '#/definitions/Address'
         title: Residential Address
@@ -1201,6 +710,8 @@ definitions:
       backup_contacts:
         $ref: '#/definitions/IndexServiceMemberBackupContactsPayload'
       is_profile_complete:
+        type: boolean
+      cac_validated:
         type: boolean
       created_at:
         type: string
@@ -1234,8 +745,8 @@ definitions:
         title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
+      grade:
+        $ref: '#/definitions/OrderPayGrade'
       first_name:
         type: string
         example: John
@@ -1312,8 +823,6 @@ definitions:
         title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
       first_name:
         type: string
         example: John
@@ -1594,18 +1103,10 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
-  TShirtSize:
+  OrderPayGrade:
     type: string
     x-nullable: true
-    title: Size
-    enum:
-      - S
-      - M
-      - L
-  ServiceMemberRank:
-    type: string
-    x-nullable: true
-    title: Rank
+    title: Grade
     enum:
       - E_1
       - E_2
@@ -1673,28 +1174,17 @@ definitions:
     enum:
       - NAVY_AND_MARINES
       - ARMY
-      - AIR_FORCE
+      - ARMY_CORPS_OF_ENGINEERS
+      - AIR_AND_SPACE_FORCE
       - COAST_GUARD
+      - OFFICE_OF_SECRETARY_OF_DEFENSE
     x-display-value:
       NAVY_AND_MARINES: 17 Navy and Marine Corps
       ARMY: 21 Army
-      AIR_FORCE: 57 Air Force
+      ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
+      AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
       COAST_GUARD: 70 Coast Guard
-  CreateReimbursement:
-    type: object
-    x-nullable: true
-    properties:
-      requested_amount:
-        type: integer
-        format: cents
-        minimum: 1
-        title: Requested Amount
-        description: unit is cents
-      method_of_receipt:
-        $ref: '#/definitions/MethodOfReceipt'
-    required:
-      - requested_amount
-      - method_of_receipt
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of the Secretary of Defense
   Reimbursement:
     type: object
     x-nullable: true
@@ -1759,23 +1249,6 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  PPMStatus:
-    type: string
-    title: PPM status
-    enum:
-      - DRAFT
-      - SUBMITTED
-      - APPROVED
-      - COMPLETED
-      - CANCELED
-      - PAYMENT_REQUESTED
-    x-display-value:
-      DRAFT: Draft
-      SUBMITTED: Submitted
-      APPROVED: Approved
-      COMPLETED: Completed
-      CANCELED: Canceled
-      PAYMENT_REQUESTED: Payment Requested
   OrdersStatus:
     type: string
     title: Move status
@@ -1821,9 +1294,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       grade:
-        type: string
-        example: O-6
-        x-nullable: true
+        $ref: '#/definitions/OrderPayGrade'
       issue_date:
         type: string
         description: The date and time that these orders were cut.
@@ -1898,6 +1369,9 @@ definitions:
         x-nullable: true
       entitlement:
         $ref: '#/definitions/Entitlement'
+      providesServicesCounseling:
+        type: boolean
+        x-omitempty: false
     required:
       - id
       - service_member_id
@@ -1919,14 +1393,14 @@ definitions:
         x-nullable: true
         description: >
           Pro-gear weight limit as set by an Office user, distinct from the
-          service member's default weight allotment determined by rank
+          service member's default weight allotment determined by pay grade
       proGearSpouse:
         type: integer
         example: 500
         x-nullable: true
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from
-          the service member's default weight allotment determined by rank
+          the service member's default weight allotment determined by pay grade
   CreateUpdateOrders:
     type: object
     properties:
@@ -1979,6 +1453,12 @@ definitions:
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
+      grade:
+        $ref: '#/definitions/OrderPayGrade'
+      origin_duty_location_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - service_member_id
       - issue_date
@@ -2032,8 +1512,8 @@ definitions:
         maxLength: 10
         example: '5789345789'
         title: 'DoD ID #'
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
+      grade:
+        $ref: '#/definitions/OrderPayGrade'
       orders_type:
         type: string
         title: Move Type
@@ -2114,64 +1594,11 @@ definitions:
       - locator
       - customer_name
       - edipi
-      - rank
+      - grade
       - orders_type
       - branch_of_service
       - last_modified_date
       - created_at
-  MoveDatesSummary:
-    type: object
-    properties:
-      id:
-        type: string
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_date:
-        type: string
-        format: date
-        example: '2018-09-25'
-      pack:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      pickup:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      transit:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      delivery:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      report:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-    required:
-      - id
-      - move_id
-      - move_date
-      - pack
-      - pickup
-      - transit
-      - delivery
-      - report
   AvailableMoveDates:
     type: object
     properties:
@@ -2376,8 +1803,21 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       eTag:
         type: string
+      shipmentLocator:
+        type: string
+        x-nullable: true
+        readOnly: true
+        example: 1K43AR-01
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -2441,30 +1881,40 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryDestinationAddress:
+        $ref: '#/definitions/Address'
       sitExpected:
         type: boolean
     required:
       - expectedDepartureDate
       - pickupPostalCode
+      - pickupAddress
       - destinationPostalCode
+      - destinationAddress
       - sitExpected
   UpdatePPMShipment:
     type: object
@@ -2487,12 +1937,20 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -2510,12 +1968,20 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryDestinationAddress:
+        $ref: '#/definitions/Address'
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -2616,6 +2082,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
   ClientError:
@@ -2659,6 +2133,61 @@ definitions:
       - title
       - detail
     type: object
+  MovesList:
+    type: object
+    properties:
+      currentMove:
+        type: array
+        items:
+          $ref: '#/definitions/InternalMove'
+      previousMoves:
+        type: array
+        items:
+          $ref: '#/definitions/InternalMove'
+  InternalMove:
+    type: object
+    properties:
+      id:
+        example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
+        format: uuid
+        type: string
+      moveCode:
+        type: string
+        example: HYXFJF
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      orderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      orders:
+        type: object
+      status:
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      submittedAt:
+        format: date-time
+        type: string
+        readOnly: true
+        x-nullable: true
+      mtoShipments:
+        $ref: '#/definitions/MTOShipments'
+      closeoutOffice:
+        $ref: '#/definitions/TransportationOffice'
+      eTag:
+        type: string
+        readOnly: true
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
   FeatureFlagBoolean:
     description: A feature flag
     type: object
@@ -2713,11 +2242,15 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   Address:
     description: A postal address
     type: object
@@ -2866,6 +2399,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -2882,6 +2420,7 @@ definitions:
       - MARINES
       - AIR_FORCE
       - COAST_GUARD
+      - SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -2889,6 +2428,7 @@ definitions:
       MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
       OTHER: OTHER
   TransportationOffice:
     type: object
@@ -3064,12 +2604,14 @@ definitions:
     title: PPM Advance Status
     description: >-
       Indicates whether an advance status has been accepted, rejected, or
-      edited.
+      edited, or a prime counseled PPM has been received or not received
     x-nullable: true
     enum:
       - APPROVED
       - REJECTED
       - EDITED
+      - RECEIVED
+      - NOT_RECEIVED
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -3225,6 +2767,12 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      allowableWeight:
+        description: Maximum reimbursable weight.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -3362,6 +2910,11 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
@@ -3606,6 +3159,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: >-
           An optional secondary pickup location near the origin where additional
@@ -3616,6 +3171,15 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -3636,6 +3200,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         description: >-
           An optional secondary location near the destination where goods will
@@ -3647,6 +3213,15 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -3842,115 +3417,6 @@ definitions:
         package: github.com/transcom/mymove/pkg/swagger/nullable
       type: String
 paths:
-  /estimates/ppm:
-    get:
-      summary: Return a PPM cost estimate
-      description: Calculates a reimbursement range for a PPM move (excluding SIT)
-      operationId: showPPMEstimate
-      tags:
-        - ppm
-      parameters:
-        - in: query
-          name: original_move_date
-          type: string
-          format: date
-          required: true
-        - in: query
-          name: origin_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: origin_duty_location_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: orders_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: weight_estimate
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: Made estimate of PPM cost range
-          schema:
-            $ref: '#/definitions/PPMEstimateRange'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: >-
-            ppm discount not found for provided postal codes and original move
-            date
-        '409':
-          description: distance is less than 50 miles (no short haul moves)
-        '422':
-          description: cannot process request with given information
-        '500':
-          description: internal server error
-  /estimates/ppm_sit:
-    get:
-      summary: Return a PPM move's SIT cost estimate
-      description: Calculates a reimbursment for a PPM move's SIT
-      operationId: showPPMSitEstimate
-      tags:
-        - ppm
-      parameters:
-        - in: query
-          name: personally_procured_move_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: original_move_date
-          type: string
-          format: date
-          required: true
-        - in: query
-          name: days_in_storage
-          type: integer
-          required: true
-        - in: query
-          name: origin_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: orders_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: weight_estimate
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: show PPM SIT estimate
-          schema:
-            $ref: '#/definitions/PPMSitEstimate'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '409':
-          description: distance is less than 50 miles (no short haul moves)
-        '422':
-          description: the payload was unprocessable
-        '500':
-          description: internal server error
   /feature-flags/user-boolean/{key}:
     post:
       summary: Determines if a user has a feature flag enabled
@@ -4066,6 +3532,34 @@ paths:
                 type: boolean
         '400':
           description: invalid request
+        '500':
+          description: server error
+  /application_parameters:
+    post:
+      summary: >-
+        Searches for an application parameter by name and value, returns nil if
+        not found
+      description: >-
+        Searches for an application parameter by name and value, returns nil if
+        not found
+      operationId: validate
+      tags:
+        - application_parameters
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+      responses:
+        '200':
+          description: Application Parameters
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
         '500':
           description: server error
   /orders:
@@ -4194,6 +3688,39 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /allmoves/{serviceMemberId}:
+    get:
+      summary: Return the current and previous moves of a service member
+      description: >
+        This endpoint gets all moves that belongs to the serviceMember by using
+        the service members id. In a previous moves array and the current move
+        in the current move array. The current move is the move with the latest
+        CreatedAt date. All other moves will go into the previous move array.
+      operationId: getAllMoves
+      tags:
+        - moves
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        '200':
+          description: >-
+            Successfully retrieved moves. A successful fetch might still return
+            zero moves.
+          schema:
+            $ref: '#/definitions/MovesList'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/{moveId}:
     patch:
       summary: Patches the move
@@ -4322,269 +3849,6 @@ paths:
           description: move not found
         '500':
           description: internal server error
-  /moves/{moveId}/personally_procured_move:
-    post:
-      summary: Creates a new PPM for the given move
-      description: Create an instance of personally_procured_move tied to the move ID
-      operationId: createPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this PPM is associated with
-        - in: body
-          name: createPersonallyProcuredMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreatePersonallyProcuredMovePayload'
-      responses:
-        '201':
-          description: created instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: move not found
-        '500':
-          description: server error
-    get:
-      summary: Returns a list of all PPMs associated with this move
-      description: Returns a list of all PPMs associated with this move
-      operationId: indexPersonallyProcuredMoves
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move these PPMs are associated with
-      responses:
-        '200':
-          description: returns list of personally_procured_move
-          schema:
-            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
-    put:
-      summary: Updates the PPM
-      description: This replaces the current version of the PPM with the version sent.
-      operationId: updatePersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being updated
-        - in: body
-          name: updatePersonallyProcuredMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
-    patch:
-      summary: Patches the PPM
-      description: Any fields sent in this request will be set on the PPM referenced
-      operationId: patchPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being patched
-        - in: body
-          name: patchPersonallyProcuredMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: >-
-            ppm is not found or ppm discount not found for provided postal codes
-            and original move date
-        '422':
-          description: cannot process request with given information
-        '500':
-          description: internal server error
-    get:
-      summary: Returns the given PPM
-      description: Returns the given PPM
-      operationId: showPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move being signed for
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM
-      responses:
-        '200':
-          description: the instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-  /personally_procured_move/{personallyProcuredMoveId}/submit:
-    post:
-      summary: Submits a PPM for approval
-      description: >-
-        Submits a PPM for approval by the office. The status of the PPM will be
-        updated to SUBMITTED
-      operationId: submitPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being submitted
-        - name: submitPersonallyProcuredMovePayload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: ppm is not found
-        '500':
-          description: internal server error
-  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
-    get:
-      summary: Returns an expense summary organized by expense type
-      description: Calculates and returns an expense summary organized by expense type
-      operationId: requestPPMExpenseSummary
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM
-      responses:
-        '200':
-          description: Successfully calculated expense summary
-          schema:
-            $ref: '#/definitions/ExpenseSummaryPayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: personally procured move not found
-        '500':
-          description: server error
-  /personally_procured_move/{personallyProcuredMoveId}/request_payment:
-    post:
-      summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
-      description: Moves the PPM and the move into the PAYMENT_REQUESTED state
-      operationId: requestPPMPayment
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM
-      responses:
-        '200':
-          description: Sucesssfully requested payment
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: move not found
-        '500':
-          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
@@ -4900,59 +4164,29 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  /moves/{moveId}/move_dates_summary:
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
+    parameters:
+      - description: the id for the ppmshipment with aoa to be downloaded
+        in: path
+        name: ppmShipmentId
+        required: true
+        type: string
     get:
-      summary: Returns projected move-related dates for a given move date
-      description: Returns projected move-related dates for a given move date
-      operationId: showMoveDatesSummary
+      summary: Downloads AOA Packet form PPMShipment as a PDF
+      description: >
+        ### Functionality
+
+        This endpoint downloads all uploaded move order documentation combined
+        with the Shipment Summary Worksheet into a single PDF.
+
+        ### Errors
+
+        * The PPMShipment must have requested an AOA.
+
+        * The PPMShipment AOA Request must have been approved.
+      operationId: showAOAPacket
       tags:
-        - moves
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: query
-          name: moveDate
-          type: string
-          format: date
-          required: true
-          description: The chosen move date
-      responses:
-        '200':
-          description: List of projected move-related dates
-          schema:
-            $ref: '#/definitions/MoveDatesSummary'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
-  /moves/{moveId}/shipment_summary_worksheet:
-    get:
-      summary: Returns Shipment Summary Worksheet
-      description: Generates pre-filled PDF using data already collected
-      operationId: showShipmentSummaryWorksheet
-      tags:
-        - moves
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: query
-          name: preparationDate
-          type: string
-          format: date
-          required: true
-          description: The preparationDate of PDF
+        - ppm
       produces:
         - application/pdf
       responses:
@@ -4961,7 +4195,45 @@ paths:
             Content-Disposition:
               type: string
               description: File name to download
-          description: Pre-filled worksheet PDF
+          description: AOA PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/payment-packet:
+    get:
+      summary: Returns PPM payment packet
+      description: >-
+        Generates a PDF containing all user uploaded documentations for PPM.
+        Contains SSW form, orders, weight and expense documentations.
+      operationId: showPaymentPacket
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppmShipment
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: PPM Payment Packet PDF
           schema:
             format: binary
             type: file
@@ -4971,135 +4243,8 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-        '500':
-          description: internal server error
-  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
-    post:
-      summary: Creates PPM attachments PDF
-      description: Creates a PPM attachments PDF
-      operationId: createPPMAttachments
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM to create an attachments PDF for
-        - name: docTypes
-          in: query
-          type: array
-          required: true
-          items:
-            type: string
-            enum:
-              - OTHER
-              - WEIGHT_TICKET
-              - STORAGE_EXPENSE
-              - SHIPMENT_SUMMARY
-              - EXPENSE
-              - WEIGHT_TICKET_SET
-          collectionFormat: csv
-          description: Restrict the list to documents with matching docType.
-      responses:
-        '200':
-          description: returns a PPM attachments upload
-          schema:
-            $ref: '#/definitions/Upload'
-        '400':
-          description: invalid request
-        '401':
-          description: must be authenticated to use this endpoint
-        '403':
-          description: not authorized to perform this action
-        '413':
-          description: payload is too large
-        '422':
-          description: malformed PDF contained in uploads
-        '424':
-          description: no files to be processed into attachments PDF
-        '500':
-          description: server error
-  /personally_procured_moves/{personallyProcuredMoveId}/approve:
-    post:
-      summary: Approves the PPM
-      description: Sets the status of the PPM to APPROVED.
-      operationId: approvePPM
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being updated
-        - name: approvePersonallyProcuredMovePayload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ApprovePersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
-  /personally_procured_moves/incentive:
-    get:
-      summary: Return a PPM incentive value
-      description: Calculates incentive for a PPM move (excluding SIT)
-      operationId: showPPMIncentive
-      tags:
-        - ppm
-      parameters:
-        - in: query
-          name: original_move_date
-          type: string
-          format: date
-          required: true
-        - in: query
-          name: origin_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: origin_duty_location_zip
-          type: string
-          format: zip
-          pattern: ^(\d{5}([\-]\d{4})?)$
-          required: true
-        - in: query
-          name: orders_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: weight
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: Made calculation of PPM incentive
-          schema:
-            $ref: '#/definitions/PPMIncentive'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '409':
-          description: distance is less than 50 miles (no short haul moves)
+        '404':
+          description: ppm not found
         '500':
           description: internal server error
   /documents:
@@ -5169,6 +4314,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
       responses:
         '204':
           description: deleted
@@ -6039,6 +5189,11 @@ paths:
           type: file
           description: The file to upload.
           required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
       responses:
         '201':
           description: created upload
@@ -6277,6 +5432,8 @@ paths:
         * Delivery Address
         * Customer Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:

@@ -2,9 +2,9 @@ package notifications
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	html "html/template"
-	"strings"
 	text "text/template"
 
 	"github.com/gofrs/uuid"
@@ -52,17 +52,22 @@ func (m ReweighRequested) emails(appCtx appcontext.AppContext) ([]emailContent, 
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{})
+	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{
+		MilitaryOneSourceLink: OneSourceTransportationOfficeLink,
+	})
 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
-
-	shipmentType := strings.Split(string(m.shipment.ShipmentType), "_")[0]
+	shipmentLocator := *m.shipment.ShipmentLocator
+	if len(shipmentLocator) <= 0 {
+		appCtx.Logger().Error("error getting ShipmentLocator, nil string received")
+		return nil, errors.New("error getting ShipmentLocator, nil string received")
+	}
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        fmt.Sprintf("FYI: Your %v should be reweighed before it is delivered", shipmentType),
+		subject:        fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentLocator),
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
@@ -86,7 +91,9 @@ func (m ReweighRequested) renderTemplates(appCtx appcontext.AppContext, data rew
 	return htmlBody, textBody, nil
 }
 
-type reweighRequestedEmailData struct{}
+type reweighRequestedEmailData struct {
+	MilitaryOneSourceLink string
+}
 
 // RenderHTML renders the html for the email
 func (m ReweighRequested) RenderHTML(appCtx appcontext.AppContext, data reweighRequestedEmailData) (string, error) {

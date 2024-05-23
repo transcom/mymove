@@ -79,6 +79,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	// Test that we can initialize routing and serve the index file
 	handlerConfig := suite.BaseHandlerTestSuite.HandlerConfig()
 	handlerConfig.SetAppNames(handlers.ApplicationTestServername())
+	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 
 	// Need this for any requests that will either retrieve or save files or their info.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
@@ -186,7 +187,7 @@ func (suite *BaseRoutingSuite) setupRequestSession(req *http.Request, user model
 
 	// set up CSRF cookie and headers
 	maskedToken := ""
-	tokenHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	tokenHandler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		maskedToken = csrf.Token(r)
 	})
 	fakeReq := httptest.NewRequest("GET", "/", nil)

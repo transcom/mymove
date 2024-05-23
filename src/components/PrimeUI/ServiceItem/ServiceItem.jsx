@@ -3,10 +3,12 @@ import React from 'react';
 import descriptionListStyles from '../../../styles/descriptionList.module.scss';
 import { MTOServiceItemShape } from '../../../types';
 
-const ServiceItem = ({ serviceItem }) => {
+import { SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM } from 'constants/serviceItems';
+
+const ServiceItem = ({ serviceItem, mtoShipment }) => {
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${serviceItem.reServiceName}`}</h3>
+      <h3>{serviceItem.reServiceName}</h3>
       <div className={descriptionListStyles.row}>
         <dt>Status:</dt>
         <dd>{serviceItem.status}</dd>
@@ -27,6 +29,12 @@ const ServiceItem = ({ serviceItem }) => {
         <dt>eTag:</dt>
         <dd>{serviceItem.eTag}</dd>
       </div>
+      {SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM.includes(serviceItem.reServiceCode) && (
+        <div className={descriptionListStyles.row}>
+          <dt>Shipment Weight (pounds):</dt>
+          <dd>{mtoShipment.primeActualWeight || 'Not provided'}</dd>
+        </div>
+      )}
     </dl>
   );
 };

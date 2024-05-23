@@ -16,6 +16,9 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	if address == nil {
 		return nil
 	}
+	if address.County == nil {
+		address.County = models.StringPointer("")
+	}
 	return &models.Address{
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress1: *address.StreetAddress1,
@@ -25,6 +28,7 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
+		County:         *address.County,
 	}
 }
 
@@ -124,6 +128,24 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
 
+	if ppmShipment.PickupAddress != nil {
+		model.PickupAddress = AddressModel(ppmShipment.PickupAddress)
+	}
+
+	model.HasSecondaryPickupAddress = handlers.FmtBool(ppmShipment.SecondaryPickupAddress != nil)
+	if ppmShipment.SecondaryPickupAddress != nil {
+		model.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
+	}
+
+	if ppmShipment.DestinationAddress != nil {
+		model.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
+	}
+
+	model.HasSecondaryDestinationAddress = handlers.FmtBool(ppmShipment.SecondaryDestinationAddress != nil)
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		model.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
+	}
+
 	return model
 }
 
@@ -148,6 +170,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 	}
 
 	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
@@ -155,12 +179,28 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	}
 
+	if ppmShipment.PickupPostalCode != nil {
+		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	}
+
+	if ppmShipment.PickupAddress != nil {
+		ppmModel.PickupAddress = AddressModel(ppmShipment.PickupAddress)
+	}
+
+	if ppmShipment.SecondaryPickupAddress != nil {
+		ppmModel.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
+	}
+
 	if ppmShipment.DestinationPostalCode != nil {
 		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
-	if ppmShipment.PickupPostalCode != nil {
-		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	if ppmShipment.DestinationAddress != nil {
+		ppmModel.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
+	}
+
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		ppmModel.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
 	}
 
 	if ppmShipment.FinalIncentive != nil {
@@ -195,6 +235,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		Status:                      models.MTOShipmentStatus(mtoShipment.Status),
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
@@ -231,6 +273,7 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		Amount:            handlers.FmtInt64PtrToPopPtr(movingExpense.Amount),
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+		WeightStored:      handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
 	}
 
 	if movingExpense.PaidWithGTCC != nil {
@@ -350,18 +393,12 @@ func SignedCertificationFromSubmit(payload *internalmessages.SubmitMoveForApprov
 	date := time.Time(*payload.Certificate.Date)
 	certType := models.SignedCertificationType(*payload.Certificate.CertificationType)
 	newSignedCertification := models.SignedCertification{
-		MoveID:                   uuid.FromStringOrNil(moveID.String()),
-		PersonallyProcuredMoveID: nil,
-		CertificationType:        &certType,
-		SubmittingUserID:         userID,
-		CertificationText:        *payload.Certificate.CertificationText,
-		Signature:                *payload.Certificate.Signature,
-		Date:                     date,
-	}
-
-	if payload.Certificate.PersonallyProcuredMoveID != nil {
-		ppmID := uuid.FromStringOrNil(payload.Certificate.PersonallyProcuredMoveID.String())
-		newSignedCertification.PersonallyProcuredMoveID = &ppmID
+		MoveID:            uuid.FromStringOrNil(moveID.String()),
+		CertificationType: &certType,
+		SubmittingUserID:  userID,
+		CertificationText: *payload.Certificate.CertificationText,
+		Signature:         *payload.Certificate.Signature,
+		Date:              date,
 	}
 
 	return &newSignedCertification

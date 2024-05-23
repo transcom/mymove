@@ -26,7 +26,80 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
+  - name: uploads
+  - name: paymentRequests
 paths:
+  '/customer':
+    post:
+      summary: Creates a customer with Okta option
+      description: Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /open/requested-office-users:
+      post:
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        summary: Create an Office User
+        description: >
+          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+
+          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+          An identification method must be present. The following 2 fields have an "OR" requirement.
+          - edipi
+          - other_unique_id
+          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+        operationId: createRequestedOfficeUser
+        tags:
+          - officeUsers
+        parameters:
+          - in: body
+            name: officeUser
+            description: Office User information
+            schema:
+              $ref: '#/definitions/OfficeUserCreate'
+        responses:
+          '201':
+            description: successfully requested the creation of provided office user
+            schema:
+              $ref: '#/definitions/OfficeUser'
+          '422':
+            description: validation error
+            schema:
+              $ref: '#/definitions/ValidationError'
+          '500':
+            description: internal server error
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -100,6 +173,68 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.customer
+  /customer/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search customers by DOD ID or customer name
+      description: >
+        Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.
+      operationId: searchCustomers
+      tags:
+        - customer
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+              branch:
+                description: Branch
+                type: string
+                minLength: 1
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  [
+                    customerName,
+                    dodID,
+                    branch,
+                    personalEmail,
+                    telephone,
+                  ]
+              order:
+                type: string
+                x-nullable: true
+                enum: [asc, desc]
+          description: field that results should be sorted by
+      responses:
+        '200':
+          description: Successfully returned all customers matching the criteria
+          schema:
+            $ref: '#/definitions/SearchCustomersResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system
@@ -275,6 +410,37 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/orders':
+    post:
+      summary: Creates an orders model for a logged-in user
+      description: Creates an instance of orders tied to a service member, which allow for creation of a move and an entitlement. Orders are required before the creation of a move
+      operationId: createOrder
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: createOrders
+          schema:
+            $ref: '#/definitions/CreateOrders'
+      responses:
+        '200':
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/Order'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          description: internal server error
   '/orders/{orderID}':
     parameters:
       - description: ID of order to use
@@ -775,6 +941,8 @@ paths:
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
@@ -1132,154 +1300,6 @@ paths:
         Approving the address update will update the Destination Final Address of the associated service item
       operationId: reviewShipmentAddressUpdate
       summary: Allows TOO to review a shipment address update
-
-  '/service-items/{mtoServiceItemID}/sit-address-update':
-    post:
-      summary: Create an approved SIT Address Update
-      description: >-
-        TOO can create an already-approved SIT Address Update on behalf of a
-        customer
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      operationId: createSITAddressUpdate
-      tags:
-        - mtoServiceItem
-      parameters:
-        - description: ID of line item to use
-          in: path
-          name: mtoServiceItemID
-          required: true
-          format: uuid
-          type: string
-        - in: body
-          name: body
-          schema:
-            $ref: '#/definitions/CreateSITAddressUpdate'
-          required: true
-      responses:
-        '200':
-          description: Successfully created a SIT Address Update.
-          schema:
-            $ref: 'definitions/MTOServiceItem.yaml'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
-      x-permissions:
-        - create.SITAddressUpdate
-  '/sit-address-update/{sitAddressUpdateID}/approve':
-    parameters:
-      - description: ID of the sit address update
-        in: path
-        name: sitAddressUpdateID
-        required: true
-        type: string
-        format: uuid
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PatchSITAddressUpdateStatus'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: >-
-            Successfully approved a SIT address update
-          schema:
-            $ref: 'definitions/MTOServiceItem.yaml'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
-      tags:
-        - mtoServiceItem
-      description: >-
-        This endpoint is used to approve a SIT address update. Office remarks are required.
-        Approving the SIT address update will update the SIT Destination Final Address of the associated service item
-      operationId: approveSITAddressUpdate
-      summary: Approves a SIT Address Update
-      x-permissions:
-        - update.MTOServiceItem
-        - update.SITAddressUpdate
-  '/sit-address-update/{sitAddressUpdateID}/reject':
-    parameters:
-      - description: ID of the sit address update
-        in: path
-        name: sitAddressUpdateID
-        required: true
-        type: string
-        format: uuid
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PatchSITAddressUpdateStatus'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: >-
-            Successfully rejected a SIT address update
-          schema:
-            $ref: 'definitions/MTOServiceItem.yaml'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
-      tags:
-        - mtoServiceItem
-      description: >-
-        This endpoint is used to reject a requested SIT address update. Office remarks are required.
-        Rejecting the SIT address update will not update the SIT Destination Final Address.
-      operationId: rejectSITAddressUpdate
-      summary: Rejects a SIT Address Update
-      x-permissions:
-        - update.SITAddressUpdate
   '/shipments/{shipmentID}/sit-extensions':
     post:
       summary: Create an approved SIT Duration Update
@@ -1435,6 +1455,54 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
+  '/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateSITServiceItemCustomerExpense'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully converted to customer expense
+          schema:
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+        - mtoServiceItem
+      description: Converts a SIT to customer expense
+      operationId: updateSITServiceItemCustomerExpense
+      summary: Converts a SIT to customer expense
+      x-permissions:
+        - update.MTOServiceItem
   /shipments/{shipmentID}/ppm-documents:
     parameters:
       - description: ID of the shipment
@@ -1594,6 +1662,46 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
+    parameters:
+      - description: the id for the ppmshipment with aoa to be downloaded
+        in: path
+        name: ppmShipmentId
+        required: true
+        type: string
+    get:
+      summary: Downloads AOA Packet form PPMShipment as a PDF
+      description: |
+        ### Functionality
+        This endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.
+        ### Errors
+        * The PPMShipment must have requested an AOA.
+        * The PPMShipment AOA Request must have been approved.
+      operationId: showAOAPacket
+      tags:
+        - ppm
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: AOA PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/finish-document-review:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -1636,6 +1744,96 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.shipment
+  /ppm-shipments/{ppmShipmentId}/closeout:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    get:
+      summary: Get the closeout calcuations for the specified PPM shipment
+      description: |
+        Retrieves the closeout calculations for the specified PPM shipment.
+      operationId: getPPMCloseout
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns closeout for the specified PPM shipment.
+          schema:
+            $ref: 'definitions/PPMCloseout.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/actual-weight:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+    get:
+      summary: Get the actual weight for a PPM shipment
+      description: |
+        Retrieves the actual weight for the specified PPM shipment.
+      operationId: getPPMActualWeight
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns actual weight for the specified PPM shipment.
+          schema:
+            $ref: 'definitions/PPMActualWeight.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/payment-packet:
+    get:
+      summary: Returns PPM payment packet
+      description: Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.
+      operationId: showPaymentPacket
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppmShipment
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: PPM Payment Packet PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: ppm not found
+        '500':
+          description: internal server error
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -1706,45 +1904,6 @@ paths:
       description: Gets a line item by ID for a move by ID
       operationId: getMTOServiceItem
       summary: Gets a line item by ID for a move by ID
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: 'definitions/MTOServiceItem.yaml'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: Successfully updated move task order status
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '500':
-          $ref: '#/responses/ServerError'
-      tags:
-        - mtoServiceItem
-      description: Updates a service item by ID for a move by ID
-      operationId: updateMTOServiceItem
-      summary: Updates a service item by ID for a move by ID
-      x-permissions:
-        - update.MTOServiceItem
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
     parameters:
       - description: ID of move to use
@@ -2913,11 +3072,64 @@ paths:
           name: closeoutLocation
           type: string
           description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
           schema:
             $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  /queues/prime-moves:
+    get:
+      summary: getPrimeMovesQueue
+      description: |
+        Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
+        list down to only the moves that have been updated since the provided timestamp. A move will be considered
+        updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment
+        requests, is later than the provided date and time.
+
+        **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
+        been set, that move will always appear in this list.
+      operationId: listPrimeMoves
+      tags:
+        - queues
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: string
+          format: date-time
+          description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
+        - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
+        - in: query
+          name: id
+          type: string
+        - in: query
+          name: moveCode
+          type: string
+        - in: query
+          name: orderType
+          type: string
+          description: order type
+      responses:
+        '200':
+          description: Successfully retrieved moves. A successful fetch might still return zero moves.
+          schema:
+            $ref: '#/definitions/ListPrimeMovesResult'
         '403':
           $ref: '#/responses/PermissionDenied'
         '500':
@@ -2999,6 +3211,10 @@ paths:
               - SUBMITTED
               - APPROVALS REQUESTED
               - APPROVED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3071,12 +3287,16 @@ paths:
           items:
             type: string
             enum:
-              - Payment requested
-              - Reviewed
-              - Rejected
-              - Paid
-              - Deprecated
-              - Error
+              - PENDING
+              - REVIEWED
+              - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+              - PAID
+              - DEPRECATED
+              - EDI_ERROR
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3132,9 +3352,12 @@ paths:
                 items:
                   type: string
                   enum:
+                    - DRAFT
                     - SUBMITTED
                     - APPROVALS REQUESTED
                     - APPROVED
+                    - NEEDS SERVICE COUNSELING
+                    - SERVICE COUNSELING COMPLETED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -3146,6 +3369,14 @@ paths:
                 x-nullable: true
               shipmentsCount:
                 type: integer
+                x-nullable: true
+              pickupDate:
+                type: string
+                format: date-time
+                x-nullable: true
+              deliveryDate:
+                type: string
+                format: date-time
                 x-nullable: true
               sort:
                 type: string
@@ -3235,6 +3466,75 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /open/transportation-offices:
+    get:
+      produces:
+        - application/json
+      summary: Returns the transportation offices matching the search query
+      description: This endpoint is publicly accessible as it is utilized to access transportation office information without having an office account.Returns the transportation offices matching the search query.
+      operationId: getTransportationOfficesOpen
+      tags:
+        - transportationOffice
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: true
+          minLength: 2
+          description: Search string for transportation offices
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
 definitions:
   ClientError:
     type: object
@@ -3269,7 +3569,7 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: backupContact@mail.com
       phone:
         type: string
         format: telephone
@@ -3289,6 +3589,183 @@ definitions:
         type: string
       type:
         type: string
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      roleName:
+        type: string
+        example: Transportation Ordering Officer
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - roleType
+      - roleName
+      - createdAt
+      - updatedAt
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+      middleInitials:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
+      active:
+        type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - firstName
+      - middleInitials
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - active
+      - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
+      - createdAt
+      - updatedAt
+  LockedOfficeUser:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
+  OfficeUserCreate:
+    type: object
+    properties:
+      email:
+        type: string
+        example: 'user@userdomain.com'
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        example: '1234567890'
+        maxLength: 10
+        title: EDIPI
+        x-nullable: true
+      otherUniqueId:
+        type: string
+        title: Office user identifier when EDIPI is not available
+        x-nullable: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: false
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+        x-nullable: false
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+        x-nullable: false
+    required:
+      - firstName
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - roles
+  OfficeUserRole:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Transportation Ordering Officer'
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: 'transportation_ordering_officer'
+        x-nullable: true
+        title: roleType
   Customer:
     type: object
     properties:
@@ -3335,6 +3812,80 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$|^$'
+        x-nullable: true
+      backupAddress:
+        $ref: 'definitions/Address.yaml'
+      cacValidated:
+        type: boolean
+  CreatedCustomer:
+    type: object
+    properties:
+      affiliation:
+        type: string
+        title: Branch of service customer is affilated with
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      residentialAddress:
+        $ref: 'definitions/Address.yaml'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      edipi:
+        type: string
+        x-nullable: true
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      oktaID:
+        type: string
+      oktaEmail:
+        type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backupAddress:
+        $ref: 'definitions/Address.yaml'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3367,6 +3918,118 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$|^$'
+        x-nullable: true
+      backupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      cac_validated:
+        type: boolean
+  CreateCustomerPayload:
+    type: object
+    properties:
+      affiliation:
+        $ref: 'definitions/Affiliation.yaml'
+      edipi:
+        type: string
+        example: John
+        x-nullable: true
+      firstName:
+        type: string
+        example: John
+      middleName:
+        type: string
+        example: David
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      residentialAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      backupContact:
+        $ref: '#/definitions/BackupContact'
+      backupMailingAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      createOktaAccount:
+        type: boolean
+      cacUser:
+        type: boolean
+  SearchCustomersResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchCustomers:
+        $ref: '#/definitions/SearchCustomers'
+  SearchCustomers:
+    type: array
+    items:
+      $ref: '#/definitions/SearchCustomer'
+  SearchCustomer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        x-nullable: true
+      branch:
+        type: string
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
   Entitlements:
     properties:
       id:
@@ -3382,6 +4045,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -3578,6 +4244,19 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -3747,13 +4426,17 @@ definitions:
     enum:
       - NAVY_AND_MARINES
       - ARMY
-      - AIR_FORCE
+      - ARMY_CORPS_OF_ENGINEERS
+      - AIR_AND_SPACE_FORCE
       - COAST_GUARD
+      - OFFICE_OF_SECRETARY_OF_DEFENSE
     x-display-value:
       NAVY_AND_MARINES: 17 Navy and Marine Corps
       ARMY: 21 Army
-      AIR_FORCE: 57 Air Force
+      ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
+      AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
       COAST_GUARD: 70 Coast Guard
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of the Secretary of Defense
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -3807,6 +4490,8 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      originDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3883,6 +4568,74 @@ definitions:
       eTag:
         type: string
     type: object
+  OrderBody:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+  CreateOrders:
+    type: object
+    properties:
+      serviceMemberId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        title: Report-by date
+      ordersType:
+        $ref: 'definitions/OrdersType.yaml'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      spouseHasProGear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+      newDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ordersNumber:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: '030-00362'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      grade:
+        $ref: '#/definitions/Grade'
+      originDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    required:
+      - serviceMemberId
+      - issueDate
+      - reportByDate
+      - ordersType
+      - hasDependents
+      - spouseHasProGear
+      - newDutyLocationId
   CounselingUpdateOrderPayload:
     type: object
     properties:
@@ -3939,6 +4692,8 @@ definitions:
         title: NTS SAC
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -4005,6 +4760,8 @@ definitions:
         description: Confirmation that the new amended orders were reviewed after previously approving the original orders
         type: boolean
         x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -4051,6 +4808,10 @@ definitions:
         description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4120,6 +4881,10 @@ definitions:
         description: the number of storage in transit days that the customer is entitled to for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -4387,6 +5152,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       agents:
@@ -4427,35 +5200,26 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      destinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
@@ -4498,9 +5262,20 @@ definitions:
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+      hasReceivedAdvance:
+        description: >
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
       advanceAmountRequested:
         description: >
           The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceAmountReceived:
+        description: >
+          The amount received for an advance, or null if no advance is received
         type: integer
         format: cents
         x-nullable: true
@@ -4536,9 +5311,20 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
+      allowableWeight:
+        description: Indicates the maximum reimbursable weight of the shipment
+        type: integer
+        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
+      movingExpenseType:
+        $ref: "definitions/OmittableMovingExpenseType.yaml"
+      description:
+        description: A brief description of the expense.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
         type: integer
@@ -4555,6 +5341,9 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -4673,33 +5462,26 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      destinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       sitLocation:
@@ -4733,8 +5515,8 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
+      - pickupAddress
+      - destinationAddress
       - sitExpected
       - estimatedWeight
       - hasProGear
@@ -4778,6 +5560,25 @@ definitions:
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
+      convertToCustomerExpense:
+        description: Whether or not to convert to members expense once SIT extension is denied.
+        type: boolean
+        example: false
+    required:
+      - officeRemarks
+      - convertToCustomerExpense
+  UpdateSITServiceItemCustomerExpense:
+    properties:
+      convertToCustomerExpense:
+        example: true
+        type: boolean
+      customerExpenseReason:
+        description: Reason the service item was rejected
+        type: string
+        example: Insufficent details provided
+    required:
+      - convertToCustomerExpense
+      - customerExpenseReason
   CreateApprovedSITDurationUpdate:
     properties:
       requestReason:
@@ -4804,24 +5605,6 @@ definitions:
     required:
       - requestReason
       - approvedDays
-  CreateSITAddressUpdate:
-    properties:
-      newAddress:
-        $ref: 'definitions/Address.yaml'
-      officeRemarks:
-        description: Remarks from TOO about SIT Address Update creation
-        type: string
-    required:
-      - newAddress
-      - officeRemarks
-  PatchSITAddressUpdateStatus:
-    required:
-      - officeRemarks
-    properties:
-      officeRemarks:
-        description: Reason the SIT address update was approved or rejected
-        type: string
-        example: Insufficient details provided
   PatchMTOServiceItemStatusPayload:
     properties:
       status:
@@ -4914,6 +5697,20 @@ definitions:
       closeoutLocation:
         type: string
         x-nullable: true
+      orderType:
+        type: string
+        x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -4925,6 +5722,65 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
+  ListPrimeMove:
+    description: >
+      An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
+      fetch a list of moves more efficiently.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveCode:
+        type: string
+        example: 'HYXFJF'
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      orderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      referenceId:
+        example: 1001-3456
+        type: string
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      eTag:
+        type: string
+        readOnly: true
+      orderType:
+        type: string
+  ListPrimeMoves:
+    type: array
+    items:
+      $ref: '#/definitions/ListPrimeMove'
+  ListPrimeMovesResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      queueMoves:
+        $ref: '#/definitions/ListPrimeMoves'
   QueuePaymentRequest:
     type: object
     properties:
@@ -4953,6 +5809,17 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      orderType:
+        type: string
+        x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5018,6 +5885,28 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      orderType:
+        type: string
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:

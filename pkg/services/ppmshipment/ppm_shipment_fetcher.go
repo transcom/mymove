@@ -39,6 +39,14 @@ const (
 	EagerPreloadAssociationAOAPacket = "AOAPacket"
 	// EagerPreloadAssociationPaymentPacket is the name of the association for the payment packet
 	EagerPreloadAssociationPaymentPacket = "PaymentPacket"
+	// EagerPreloadAssociationPickupAddress is the name of the association for the Pickup address
+	EagerPreloadAssociationPickupAddress = "PickupAddress"
+	// EagerPreloadAssociationSecondaryPickupAddress is the name of the association for the Secondary Pickup address
+	EagerPreloadAssociationSecondaryPickupAddress = "SecondaryPickupAddress"
+	// EagerPreloadAssociationDestinationAddress is the name of the association for the Destination address
+	EagerPreloadAssociationDestinationAddress = "DestinationAddress"
+	// EagerPreloadAssociationSecondaryDestinationAddress is the name of the association for the Secondary Destination address
+	EagerPreloadAssociationSecondaryDestinationAddress = "SecondaryDestinationAddress"
 )
 
 // These are helper constants for requesting post load associations, meaning associations that can't be eager pre-loaded
@@ -67,6 +75,10 @@ func GetListOfAllPreloadAssociations() []string {
 		EagerPreloadAssociationW2Address,
 		EagerPreloadAssociationAOAPacket,
 		EagerPreloadAssociationPaymentPacket,
+		EagerPreloadAssociationPickupAddress,
+		EagerPreloadAssociationDestinationAddress,
+		EagerPreloadAssociationSecondaryPickupAddress,
+		EagerPreloadAssociationSecondaryDestinationAddress,
 	}
 }
 
@@ -256,6 +268,10 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"MovingExpenses",
 			"ProgearWeightTickets",
 			"W2Address",
+			"PickupAddress",
+			"SecondaryPickupAddress",
+			"DestinationAddress",
+			"SecondaryDestinationAddress",
 		).
 		Where("shipment_id = ?", mtoID).First(&ppmShipment)
 
@@ -434,4 +450,28 @@ func FetchPPMShipmentFromMTOShipmentID(appCtx appcontext.AppContext, mtoShipment
 		}
 	}
 	return &ppmShipment, nil
+}
+
+// returns true if moves orders are from a location that does not provide service counseling
+func IsPrimeCounseledPPM(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
+	var ppmDutyLocation models.DutyLocation
+
+	err := appCtx.DB().Q().
+		Join("orders", "duty_locations.id = orders.origin_duty_location_id").
+		Join("moves", "orders.id = moves.orders_id ").
+		Join("mto_shipments", "moves.id = mto_shipments.move_id").
+		Join("ppm_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
+		Where("ppm_shipments.shipment_id = ?", mtoShipmentID).
+		First(&ppmDutyLocation)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return false, apperror.NewNotFoundError(mtoShipmentID, "while looking for PPMShipment")
+		default:
+			return false, apperror.NewQueryError("PPMShipment", err, "")
+		}
+	}
+
+	return !ppmDutyLocation.ProvidesServicesCounseling, err
 }

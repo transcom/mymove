@@ -1,173 +1,138 @@
-import React, { Component, createRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { generatePath, useNavigate, useParams } from 'react-router';
+
+import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 
 import './UploadOrders.css';
 
-import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { documentSizeLimitMsg } from 'shared/constants';
-import { getOrdersForServiceMember, createUploadForDocument, deleteUpload } from 'services/internalApi';
-import { updateOrders as updateOrdersAction } from 'store/entities/actions';
-import {
-  selectServiceMemberFromLoggedInUser,
-  selectCurrentOrders,
-  selectUploadsForCurrentOrders,
-} from 'store/entities/selectors';
-import { OrdersShape, UploadsShape } from 'types/customerShapes';
+import { createUploadForDocument, deleteUpload, getAllMoves, getOrders } from 'services/internalApi';
+import { updateOrders as updateOrdersAction, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
+import { selectOrdersForLoggedInUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
-import { RouterShape } from 'types';
-import withRouter from 'utils/routing';
+import { withContext } from 'shared/AppContext';
 
-export class UploadOrders extends Component {
-  constructor(props) {
-    super(props);
+const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId }) => {
+  const filePondEl = useRef();
+  const navigate = useNavigate();
+  const { orderId } = useParams();
+  const currentOrders = orders.find((order) => order.id === orderId);
+  const uploads = currentOrders?.uploaded_orders?.uploads || [];
+  const [multiMove, setMultiMove] = useState(false);
 
-    this.state = { isLoading: true, serverError: null };
-
-    this.filePondEl = createRef();
-
-    this.onChange = this.onChange.bind(this);
-    this.handleUploadFile = this.handleUploadFile.bind(this);
-    this.handleDeleteFile = this.handleDeleteFile.bind(this);
-  }
-
-  componentDidMount() {
-    const { serviceMemberId, updateOrders } = this.props;
-    getOrdersForServiceMember(serviceMemberId).then((response) => {
-      updateOrders(response);
-      this.setState({ isLoading: false });
-    });
-  }
-
-  handleUploadFile(file) {
-    const { currentOrders } = this.props;
+  const handleUploadFile = (file) => {
     const documentId = currentOrders?.uploaded_orders?.id;
     return createUploadForDocument(file, documentId);
-  }
+  };
 
-  handleUploadComplete() {
-    const { serviceMemberId, updateOrders } = this.props;
-
-    getOrdersForServiceMember(serviceMemberId).then((response) => {
+  const handleUploadComplete = async () => {
+    filePondEl.current?.removeFiles();
+    return getOrders(orderId).then((response) => {
       updateOrders(response);
     });
-  }
+  };
 
-  handleDeleteFile(uploadId) {
-    const { serviceMemberId, updateOrders } = this.props;
-
-    return deleteUpload(uploadId).then(() => {
-      getOrdersForServiceMember(serviceMemberId).then((response) => {
+  const handleDeleteFile = async (uploadId) => {
+    return deleteUpload(uploadId, orderId).then(() => {
+      getOrders(orderId).then((response) => {
         updateOrders(response);
       });
     });
-  }
-
-  onChange() {
-    this.filePondEl.current?.removeFiles();
-    this.handleUploadComplete();
-  }
-
-  render() {
-    const {
-      uploads,
-      router: { navigate },
-    } = this.props;
-    const isValid = !!uploads.length;
-
-    const handleBack = () => {
-      navigate(customerRoutes.ORDERS_INFO_PATH);
-    };
-    const handleNext = () => {
-      navigate(generalRoutes.HOME_PATH);
-    };
-
-    const { isLoading, serverError } = this.state;
-    if (isLoading) return <LoadingPlaceholder />;
-
-    return (
-      <GridContainer>
-        <NotificationScrollToTop dependency={serverError} />
-
-        {serverError && (
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              <Alert type="error" headingLevel="h4" heading="An error occurred">
-                {serverError}
-              </Alert>
-            </Grid>
-          </Grid>
-        )}
-
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <h1>Upload your orders</h1>
-            <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
-            <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
-            <p>{documentSizeLimitMsg}</p>
-
-            {uploads?.length > 0 && (
-              <>
-                <br />
-                <UploadsTable uploads={uploads} onDelete={this.handleDeleteFile} />
-              </>
-            )}
-
-            <div className="uploader-box">
-              <FileUpload
-                ref={this.filePondEl}
-                createUpload={this.handleUploadFile}
-                onChange={this.onChange}
-                labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
-              />
-              <div className="hint">(Each page must be clear and legible.)</div>
-            </div>
-
-            <div className={formStyles.formActions}>
-              <WizardNavigation onBackClick={handleBack} disableNext={!isValid} onNextClick={handleNext} />
-            </div>
-          </Grid>
-        </Grid>
-      </GridContainer>
-    );
-  }
-}
-
-UploadOrders.propTypes = {
-  serviceMemberId: PropTypes.string.isRequired,
-  updateOrders: PropTypes.func.isRequired,
-  currentOrders: OrdersShape,
-  uploads: UploadsShape,
-  router: RouterShape.isRequired,
-};
-
-UploadOrders.defaultProps = {
-  currentOrders: null,
-  uploads: [],
-};
-
-function mapStateToProps(state) {
-  const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const serviceMemberId = serviceMember?.id;
-  const currentOrders = selectCurrentOrders(state);
-
-  const props = {
-    serviceMemberId,
-    currentOrders,
-    uploads: selectUploadsForCurrentOrders(state),
   };
 
-  return props;
-}
+  const onChange = () => {
+    filePondEl.current?.removeFiles();
+    handleUploadComplete();
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await getOrders(orderId).then((response) => {
+        updateOrders(response);
+      });
+      await getAllMoves(serviceMemberId).then((response) => {
+        updateAllMoves(response);
+      });
+      isBooleanFlagEnabled('multi_move').then((enabled) => {
+        setMultiMove(enabled);
+      });
+    };
+    fetchData();
+  }, [updateOrders, orderId, serviceMemberId, updateAllMoves]);
+
+  if (!currentOrders || !uploads) return <LoadingPlaceholder />;
+
+  const isValid = !!uploads.length;
+
+  const handleBack = () => {
+    const moveId = currentOrders.moves[0];
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
+  };
+  const handleNext = () => {
+    const moveId = currentOrders.moves[0];
+    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+  };
+
+  return (
+    <GridContainer>
+      <Grid row>
+        <Grid col desktop={{ col: 8, offset: 2 }} data-testid="upload-orders-container">
+          <h1>Upload your orders</h1>
+          <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
+          <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
+          <p>{documentSizeLimitMsg}</p>
+
+          {uploads?.length > 0 && (
+            <>
+              <br />
+              <UploadsTable uploads={uploads} onDelete={handleDeleteFile} />
+            </>
+          )}
+
+          <div className="uploader-box">
+            <FileUpload
+              ref={filePondEl}
+              createUpload={handleUploadFile}
+              onChange={onChange}
+              labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+            />
+            <div className="hint">(Each page must be clear and legible.)</div>
+          </div>
+
+          <div className={formStyles.formActions}>
+            <WizardNavigation onBackClick={handleBack} disableNext={!isValid} onNextClick={handleNext} />
+          </div>
+        </Grid>
+      </Grid>
+    </GridContainer>
+  );
+};
+
+const mapStateToProps = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const serviceMemberId = serviceMember.id;
+  const orders = selectOrdersForLoggedInUser(state);
+
+  return {
+    serviceMemberId,
+    orders,
+  };
+};
 
 const mapDispatchToProps = {
   updateOrders: updateOrdersAction,
+  updateAllMoves: updateAllMovesAction,
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UploadOrders));
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(UploadOrders));

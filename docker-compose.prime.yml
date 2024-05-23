@@ -97,6 +97,7 @@ services:
       - OKTA_OFFICE_CLIENT_ID
       - OKTA_TENANT_CALLBACK_PORT=4000
       - OKTA_TENANT_CALLBACK_PROTOCOL=http
+      - OKTA_OFFICE_GROUP_ID
       - PGPASSWORD=mysecretpassword
       - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true

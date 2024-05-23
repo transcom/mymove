@@ -5,7 +5,8 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import { BackupContactShape } from 'types/backupContact';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { ResidentialAddressShape } from 'types/address';
+import { AddressShape } from 'types/address';
+import { formatCustomerContactFullAddress } from 'utils/formatters';
 
 const CustomerInfoList = ({ customerInfo }) => {
   return (
@@ -21,7 +22,11 @@ const CustomerInfoList = ({ customerInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Phone</dt>
-          <dd data-testid="phone">{customerInfo.phone}</dd>
+          <dd data-testid="phone">{`+1 ${customerInfo.phone}`}</dd>
+        </div>
+        <div className={descriptionListStyles.row}>
+          <dt>Alt. Phone</dt>
+          <dd data-testid="phone">{customerInfo.altPhone ? `+1 ${customerInfo.altPhone}` : '—'}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Email</dt>
@@ -30,21 +35,35 @@ const CustomerInfoList = ({ customerInfo }) => {
         <div className={descriptionListStyles.row}>
           <dt>Current address</dt>
           <dd data-testid="currentAddress">
-            {`${customerInfo.currentAddress?.streetAddress1}, ${customerInfo.currentAddress?.city}, ${customerInfo.currentAddress?.state} ${customerInfo.currentAddress?.postalCode}`}
+            {customerInfo.currentAddress?.streetAddress1
+              ? formatCustomerContactFullAddress(customerInfo.currentAddress)
+              : '—'}
+          </dd>
+        </div>
+        <div className={descriptionListStyles.row}>
+          <dt>Backup address</dt>
+          <dd data-testid="backupAddress">
+            {customerInfo.backupAddress?.streetAddress1
+              ? formatCustomerContactFullAddress(customerInfo.backupAddress)
+              : '—'}
           </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact name</dt>
-          <dd data-testid="backupContactName">{customerInfo.backupContact?.name}</dd>
+          <dd data-testid="backupContactName">
+            {customerInfo.backupContact?.name ? customerInfo.backupContact.name : '—'}
+          </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact email</dt>
-          <dd data-testid="backupContactEmail">{customerInfo.backupContact?.email}</dd>
+          <dd data-testid="backupContactEmail">
+            {customerInfo.backupContact?.email ? customerInfo.backupContact.email : '—'}
+          </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact phone</dt>
           <dd data-testid="backupContactPhone">
-            {customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : ''}
+            {customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : '—'}
           </dd>
         </div>
       </dl>
@@ -58,7 +77,8 @@ CustomerInfoList.propTypes = {
     dodId: PropTypes.string,
     phone: PropTypes.string,
     email: PropTypes.string,
-    currentAddress: ResidentialAddressShape,
+    currentAddress: AddressShape,
+    backupAddress: AddressShape,
     backupContact: BackupContactShape,
   }).isRequired,
 };

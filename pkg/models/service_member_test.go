@@ -8,12 +8,12 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
-	servicemember := &ServiceMember{}
+	servicemember := &m.ServiceMember{}
 
 	expErrors := map[string][]string{
 		"user_id": {"UserID can not be blank."},
@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
 func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// Given: a user and a service member
 	lgu := uuid.Must(uuid.NewV4())
-	user1 := User{
+	user1 := m.User{
 		OktaID:    lgu.String(),
 		OktaEmail: "whoever@example.com",
 	}
@@ -35,47 +35,37 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 
 	// And: a service member is incompletely initialized with almost all required values
 	edipi := "12345567890"
-	affiliation := AffiliationARMY
-	rank := ServiceMemberRankE5
+	affiliation := m.AffiliationARMY
 	firstName := "bob"
 	lastName := "sally"
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
 	fakeAddress := factory.BuildAddress(nil, []factory.Customization{
 		{
-			Model: Address{
+			Model: m.Address{
 				ID: uuid.Must(uuid.NewV4()),
 			},
 		},
 	}, nil)
 	fakeBackupAddress := factory.BuildAddress(nil, []factory.Customization{
 		{
-			Model: Address{
-				ID: uuid.Must(uuid.NewV4()),
-			},
-		},
-	}, nil)
-	location := factory.BuildDutyLocation(nil, []factory.Customization{
-		{
-			Model: DutyLocation{
+			Model: m.Address{
 				ID: uuid.Must(uuid.NewV4()),
 			},
 		},
 	}, nil)
 
-	serviceMember := ServiceMember{
+	serviceMember := m.ServiceMember{
 		ID:                     uuid.Must(uuid.NewV4()),
 		UserID:                 user1.ID,
 		Edipi:                  &edipi,
 		Affiliation:            &affiliation,
-		Rank:                   &rank,
 		FirstName:              &firstName,
 		LastName:               &lastName,
 		Telephone:              &telephone,
 		PersonalEmail:          &email,
 		ResidentialAddressID:   &fakeAddress.ID,
 		BackupMailingAddressID: &fakeBackupAddress.ID,
-		DutyLocationID:         &location.ID,
 	}
 
 	suite.Equal(false, serviceMember.IsProfileComplete())
@@ -101,7 +91,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 
 	firstName := "Oliver"
 	resAddress := factory.BuildAddress(suite.DB(), nil, nil)
-	sm := ServiceMember{
+	sm := m.ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,
 		FirstName:            &firstName,
@@ -116,7 +106,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 		UserID:          user1.ID,
 		ServiceMemberID: sm.ID,
 	}
-	goodSm, err := FetchServiceMemberForUser(suite.DB(), session, sm.ID)
+	goodSm, err := m.FetchServiceMemberForUser(suite.DB(), session, sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
@@ -124,17 +114,17 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 
 	// Wrong ServiceMember
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchServiceMemberForUser(suite.DB(), session, wrongID)
+	_, err = m.FetchServiceMemberForUser(suite.DB(), session, wrongID)
 	if suite.Error(err) {
-		suite.Equal(ErrFetchNotFound, err)
+		suite.Equal(m.ErrFetchNotFound, err)
 	}
 
 	// User is forbidden from fetching order
 	session.UserID = user2.ID
 	session.ServiceMemberID = uuid.Nil
-	_, err = FetchServiceMemberForUser(suite.DB(), session, sm.ID)
+	_, err = m.FetchServiceMemberForUser(suite.DB(), session, sm.ID)
 	if suite.Error(err) {
-		suite.Equal(ErrFetchForbidden, err)
+		suite.Equal(m.ErrFetchForbidden, err)
 	}
 }
 
@@ -143,7 +133,7 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 
 	firstName := "Nino"
 	resAddress := factory.BuildAddress(suite.DB(), nil, nil)
-	sm := ServiceMember{
+	sm := m.ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,
 		FirstName:            &firstName,
@@ -152,7 +142,7 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 	}
 	suite.MustSave(&sm)
 
-	goodSm, err := FetchServiceMember(suite.DB(), sm.ID)
+	goodSm, err := m.FetchServiceMember(suite.DB(), sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddressID, goodSm.ResidentialAddressID)
@@ -160,7 +150,7 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 }
 
 func (suite *ModelSuite) TestFetchLatestOrders() {
-	setupTestData := func() (Order, *auth.Session) {
+	setupTestData := func() (m.Order, *auth.Session) {
 
 		user := factory.BuildDefaultUser(suite.DB())
 
@@ -173,7 +163,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		hasDependents := true
 		spouseHasProGear := true
-		uploadedOrder := Document{
+		uploadedOrder := m.Document{
 			ServiceMember:   serviceMember,
 			ServiceMemberID: serviceMember.ID,
 		}
@@ -183,9 +173,10 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		SAC := "N002214CSW32Y9"
 		ordersNumber := "FD4534JFJ"
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-		packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
+		packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
 
-		order := Order{
+		grade := m.ServiceMemberGradeE1
+		order := m.Order{
 			ServiceMemberID:                serviceMember.ID,
 			ServiceMember:                  serviceMember,
 			IssueDate:                      issueDate,
@@ -199,15 +190,15 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			NewDutyLocation:                dutyLocation2,
 			UploadedOrdersID:               uploadedOrder.ID,
 			UploadedOrders:                 uploadedOrder,
-			Status:                         OrderStatusSUBMITTED,
+			Status:                         m.OrderStatusSUBMITTED,
 			OrdersNumber:                   &ordersNumber,
 			TAC:                            &TAC,
 			SAC:                            &SAC,
 			DepartmentIndicator:            &deptIndicator,
-			Grade:                          StringPointer("E-1"),
-			SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
-			MethodOfPayment:                MethodOfPayment,
-			NAICS:                          NAICS,
+			Grade:                          &grade,
+			SupplyAndServicesCostEstimate:  m.SupplyAndServicesCostEstimate,
+			MethodOfPayment:                m.MethodOfPayment,
+			NAICS:                          m.NAICS,
 			PackingAndShippingInstructions: packingAndShippingInstructions,
 		}
 		suite.MustSave(&order)
@@ -223,7 +214,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 	suite.Run("successfully returns orders with uploads", func() {
 		order, session := setupTestData()
-		actualOrder, err := FetchLatestOrder(session, suite.DB())
+		actualOrder, err := m.FetchLatestOrder(session, suite.DB())
 
 		if suite.NoError(err) {
 			suite.Equal(order.Grade, actualOrder.Grade)
@@ -240,9 +231,9 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 
 		// Wrong ServiceMember
 		wrongID, _ := uuid.NewV4()
-		_, err = FetchServiceMemberForUser(suite.DB(), session, wrongID)
+		_, err = m.FetchServiceMemberForUser(suite.DB(), session, wrongID)
 		if suite.Error(err) {
-			suite.Equal(ErrFetchNotFound, err)
+			suite.Equal(m.ErrFetchNotFound, err)
 		}
 	})
 
@@ -261,7 +252,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			ServiceMemberID: expectedOrder.ServiceMemberID,
 		}
 
-		actualOrder, err := FetchLatestOrder(&userSession, suite.DB())
+		actualOrder, err := m.FetchLatestOrder(&userSession, suite.DB())
 
 		suite.NoError(err)
 		suite.Equal(expectedOrder.ID, actualOrder.ID)
@@ -276,15 +267,15 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 				LinkOnly: true,
 			},
 			{
-				Model: UserUpload{
-					DeletedAt: TimePointer(time.Now()),
+				Model: m.UserUpload{
+					DeletedAt: m.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
 
 		nonDeletedAmendedUpload := factory.BuildUserUpload(suite.DB(), []factory.Customization{
 			{
-				Model: UserUpload{
+				Model: m.UserUpload{
 					UploaderID: nonDeletedOrdersUpload.Document.ServiceMember.UserID,
 				},
 			},
@@ -295,8 +286,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 				LinkOnly: true,
 			},
 			{
-				Model: UserUpload{
-					DeletedAt: TimePointer(time.Now()),
+				Model: m.UserUpload{
+					DeletedAt: m.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
@@ -324,7 +315,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			ServiceMemberID: expectedOrder.ServiceMemberID,
 		}
 
-		actualOrder, err := FetchLatestOrder(&userSession, suite.DB())
+		actualOrder, err := m.FetchLatestOrder(&userSession, suite.DB())
 
 		suite.NoError(err)
 		suite.Len(actualOrder.UploadedOrders.UserUploads, 1)

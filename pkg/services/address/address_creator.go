@@ -28,6 +28,14 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 
+	if address.PostalCode != "" {
+		county, err := models.FindCountyByZipCode(appCtx.DB(), address.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.County = county
+	}
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
 		if verrs != nil && verrs.HasAny() {

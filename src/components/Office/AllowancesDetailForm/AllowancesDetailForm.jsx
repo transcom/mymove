@@ -10,7 +10,7 @@ import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
-const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions, formIsDisabled }) => {
+const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
@@ -71,14 +71,6 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
       />
-      <DropdownInput
-        data-testid="rankInput"
-        name="grade"
-        label="Rank"
-        options={rankOptions}
-        showDropdownPlaceholderText={false}
-        isDisabled={formIsDisabled}
-      />
       <MaskedTextField
         data-testid="sitInput"
         defaultValue="0"
@@ -101,9 +93,18 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
           isDisabled={formIsDisabled}
         />
       </div>
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          data-testid="gunSafeInput"
+          id="gunSafeInput"
+          name="gunSafe"
+          label="Gun safe authorized"
+          isDisabled={formIsDisabled}
+        />
+      </div>
       <dl>
         <dt>Weight allowance</dt>
-        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
+        <dd data-testid="weightAllowance">{formatWeight(entitlements.authorizedWeight)}</dd>
       </dl>
       <div className={styles.wrappedCheckbox}>
         <CheckboxField
@@ -120,7 +121,6 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
 
 AllowancesDetailForm.propTypes = {
   entitlements: EntitlementShape.isRequired,
-  rankOptions: DropdownArrayOf.isRequired,
   branchOptions: DropdownArrayOf.isRequired,
   header: PropTypes.string,
   formIsDisabled: PropTypes.bool,

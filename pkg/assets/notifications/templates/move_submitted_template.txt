@@ -4,7 +4,7 @@ This is a confirmation that you have submitted the details for your move {{if .O
 
 We have assigned you a move code: {{.Locator}}. You can use this code when talking to any representative about your move.
 
-{{ if .OriginDutyLocationPhoneLine -}} To change any information about your move, or to add or cancel shipments, you should contact {{.OriginDutyLocationPhoneLine}} or visit your local transportation office (https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL) . {{- end }} {{- if not .OriginDutyLocationPhoneLine }} To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the directory of PCS-related contacts (https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL) . {{- end }}
+{{ if .OriginDutyLocationPhoneLine -}} To change any information about your move, or to add or cancel shipments, you should contact {{.OriginDutyLocationPhoneLine}} or visit your local transportation office ({{.OneSourceTransportationOfficeLink}}) . {{- end }} {{- if not .OriginDutyLocationPhoneLine }} To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the directory of PCS-related contacts ({{.OneSourceTransportationOfficeLink}}) . {{- end }}
 
 Your weight allowance: {{.WeightAllowance}} pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders.
 
@@ -27,12 +27,14 @@ Your move counselor will, among other things:
 Once your counseling is complete, your request will be reviewed by the responsible personal property shipping office, and a move task order will be placed with HomeSafe Alliance. Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use to schedule your pre-move survey.
 {{- end }} {{- if not .ProvidesGovernmentCounseling }}
 
-Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
 
 Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
 {{- end }}
 
 HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+
+If you have requested a PPM, DO NOT start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
 
 
 ** IMPORTANT: Take the Customer Satisfaction Survey
@@ -43,7 +45,6 @@ You will receive an invitation to take a quick customer satisfaction survey (CSS
 Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 
 Thank you,
-
-Defense Personal Property Program’s MilMove Team
+USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.

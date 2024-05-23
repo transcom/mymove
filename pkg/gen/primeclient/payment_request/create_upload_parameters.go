@@ -72,7 +72,7 @@ type CreateUploadParams struct {
 
 	   Indicates whether the file is a weight ticket.
 	*/
-	IsWeightTicket bool
+	IsWeightTicket *bool
 
 	/* PaymentRequestID.
 
@@ -145,13 +145,13 @@ func (o *CreateUploadParams) SetFile(file runtime.NamedReadCloser) {
 }
 
 // WithIsWeightTicket adds the isWeightTicket to the create upload params
-func (o *CreateUploadParams) WithIsWeightTicket(isWeightTicket bool) *CreateUploadParams {
+func (o *CreateUploadParams) WithIsWeightTicket(isWeightTicket *bool) *CreateUploadParams {
 	o.SetIsWeightTicket(isWeightTicket)
 	return o
 }
 
 // SetIsWeightTicket adds the isWeightTicket to the create upload params
-func (o *CreateUploadParams) SetIsWeightTicket(isWeightTicket bool) {
+func (o *CreateUploadParams) SetIsWeightTicket(isWeightTicket *bool) {
 	o.IsWeightTicket = isWeightTicket
 }
 
@@ -178,12 +178,18 @@ func (o *CreateUploadParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 
-	// form param isWeightTicket
-	frIsWeightTicket := o.IsWeightTicket
-	fIsWeightTicket := swag.FormatBool(frIsWeightTicket)
-	if fIsWeightTicket != "" {
-		if err := r.SetFormParam("isWeightTicket", fIsWeightTicket); err != nil {
-			return err
+	if o.IsWeightTicket != nil {
+
+		// form param isWeightTicket
+		var frIsWeightTicket bool
+		if o.IsWeightTicket != nil {
+			frIsWeightTicket = *o.IsWeightTicket
+		}
+		fIsWeightTicket := swag.FormatBool(frIsWeightTicket)
+		if fIsWeightTicket != "" {
+			if err := r.SetFormParam("isWeightTicket", fIsWeightTicket); err != nil {
+				return err
+			}
 		}
 	}
 

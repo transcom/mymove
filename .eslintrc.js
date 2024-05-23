@@ -125,6 +125,7 @@ module.exports = {
         '@typescript-eslint/no-floating-promises': 'error',
         'no-restricted-syntax': 'off',
         'no-await-in-loop': 'off',
+        'no-shadow': 'off',
       },
     },
   ],

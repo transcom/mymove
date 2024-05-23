@@ -37,6 +37,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 	var mtoShipmentID *uuid.UUID
 	var mtoShipment models.MTOShipment
 	var move models.Move
+	var isCustomerExpense = false
 	if buildType == mtoServiceItemBuildExtended {
 		// BuildMTOShipment creates a move as necessary
 		mtoShipment = BuildMTOShipment(db, customs, traits)
@@ -65,6 +66,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		ReServiceID:                       reService.ID,
 		Status:                            models.MTOServiceItemStatusSubmitted,
 		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
+		CustomerExpense:                   isCustomerExpense,
 	}
 
 	// only set SITOriginHHGOriginalAddress if a customization is provided
@@ -755,6 +757,14 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 				Reason:        &reason,
 			},
 		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
+		},
 	}, nil)
 
 	dopsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOPSIT, move, shipment, []Customization{
@@ -767,6 +777,14 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 				SITPostalCode:    &postalCode,
 				Reason:           &reason,
 			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
 		},
 	}, nil)
 
@@ -842,6 +860,81 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 				SITDepartureDate: defaultDepartureDate,
 				SITPostalCode:    &postalCode,
 				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
+		},
+	}, nil)
+
+	ddsfsc := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDSFSC, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
+		},
+	}, nil)
+	return []models.MTOServiceItem{ddfsit, ddasit, dddsit, ddsfsc}
+}
+
+func BuildDestSITServiceItemsNoSITDepartureDate(db *pop.Connection, move models.Move, shipment models.MTOShipment, entryDate *time.Time) models.MTOServiceItems {
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	defaultApprovedAtDate := time.Now()
+	if entryDate != nil {
+		defaultEntryDate = *entryDate
+	}
+
+	ddfsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDFSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+	}, nil)
+
+	ddasit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDASIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+	}, nil)
+
+	dddsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDDSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
 			},
 		},
 		{

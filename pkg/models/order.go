@@ -64,7 +64,7 @@ type Order struct {
 	NtsTAC                         *string                            `json:"nts_tac" db:"nts_tac"`
 	NtsSAC                         *string                            `json:"nts_sac" db:"nts_sac"`
 	DepartmentIndicator            *string                            `json:"department_indicator" db:"department_indicator"`
-	Grade                          *string                            `json:"grade" db:"grade"`
+	Grade                          *internalmessages.OrderPayGrade    `json:"grade" db:"grade"`
 	Entitlement                    *Entitlement                       `belongs_to:"entitlements" fk_id:"entitlement_id"`
 	EntitlementID                  *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
 	UploadedAmendedOrders          *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`
@@ -75,6 +75,7 @@ type Order struct {
 	PackingAndShippingInstructions string                             `json:"packing_and_shipping_instructions" db:"packing_and_shipping_instructions"`
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
+	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -117,25 +118,8 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := db.Transaction(func(_ *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
-
-		ppm, err := FetchPersonallyProcuredMoveByOrderID(db, order.ID)
-		if err != nil && err != ErrFetchNotFound {
-			responseError = err
-			return transactionError
-		}
-
-		if ppm.ID != uuid.Nil {
-			// If we're going to do this, we should check to see if the PMM postal code matches the postal code of the
-			// previous destination duty location.  Otherwise, we may be overwriting a home address postal code.
-			ppm.DestinationPostalCode = &order.NewDutyLocation.Address.PostalCode
-			if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = err
-				return transactionError
-			}
-		}
 
 		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
@@ -185,11 +169,11 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyLocation.TransportationOffice",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
-		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Moves.CloseoutOffice.Address",
 		"Entitlement",
-		"OriginDutyLocation").
+		"OriginDutyLocation",
+		"OriginDutyLocation.ProvidesServicesCounseling").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -221,6 +205,38 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		var amendedUserUploads UserUploads
 		err = db.Q().
 			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", order.UploadedAmendedOrdersID).
+			All(&amendedUserUploads)
+		if err != nil {
+			return Order{}, err
+		}
+		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
+	}
+
+	return order, nil
+}
+
+// Fetch order containing only base amendment information
+func FetchOrderAmendmentsInfo(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
+	var order Order
+	err := db.Q().EagerPreload("ServiceMember.User",
+		"UploadedAmendedOrders").
+		Find(&order, id)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
+	}
+
+	if session != nil && session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
+		return Order{}, ErrFetchForbidden
+	}
+
+	if order.UploadedAmendedOrders != nil {
+		var amendedUserUploads UserUploads
+		err = db.Q().
 			Where("document_id = ?", order.UploadedAmendedOrdersID).
 			All(&amendedUserUploads)
 		if err != nil {

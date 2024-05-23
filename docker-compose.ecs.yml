@@ -78,6 +78,7 @@ services:
       - OKTA_ADMIN_CLIENT_ID
       - OKTA_OFFICE_CLIENT_ID
       - OKTA_TENANT_CALLBACK_PROTOCOL
+      - OKTA_OFFICE_GROUP_ID
       - REDIS_HOST=127.0.0.1
       - REVIEW_BASE_DOMAIN
     logging:

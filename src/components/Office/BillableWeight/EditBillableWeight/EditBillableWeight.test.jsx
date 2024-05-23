@@ -44,23 +44,6 @@ describe('EditBillableWeight', () => {
     expect(screen.getByText(defaultProps.billableWeightJustification)).toBeInTheDocument();
   });
 
-  it('renders max billable weight view', async () => {
-    const defaultProps = {
-      title: 'Max billable weight',
-      weightAllowance: 8000,
-      estimatedWeight: 13750,
-      maxBillableWeight: 10000,
-      editEntity: () => {},
-    };
-
-    render(<EditBillableWeight {...defaultProps} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
-    expect(await screen.findByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
-    expect(screen.getByText('| weight allowance')).toBeInTheDocument();
-    expect(screen.getByText('| 110% of total estimated weight')).toBeInTheDocument();
-  });
-
   it('renders edit billable weight view', async () => {
     const defaultProps = {
       title: 'Billable weight',
@@ -97,10 +80,7 @@ describe('EditBillableWeight', () => {
 
       render(<EditBillableWeight {...defaultProps} />);
       await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-      await waitFor(() => {
-        expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
-      });
-      expect(screen.getByText('| weight allowance')).toBeInTheDocument();
+
       expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
     });
   });
@@ -141,24 +121,6 @@ describe('EditBillableWeight', () => {
         });
       });
 
-      it('should not show if the billable weight is less than the estimated weight * 110%', async () => {
-        const defaultProps = {
-          title: 'Billable weight',
-          originalWeight: 10000,
-          estimatedWeight: 13000,
-          maxBillableWeight: 6000,
-          billableWeight: 14000,
-          totalBillableWeight: 11000,
-          editEntity: () => {},
-        };
-
-        render(<EditBillableWeight {...defaultProps} />);
-        await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-        await waitFor(() => {
-          expect(screen.queryByText(formatWeight(defaultProps.estimatedWeight * 1.1))).not.toBeInTheDocument();
-        });
-        expect(screen.queryByText('| 110% of total estimated weight')).not.toBeInTheDocument();
-      });
       it('should not show if this is an NTS-release shipment', async () => {
         const defaultProps = {
           title: 'Billable weight',
@@ -241,7 +203,6 @@ describe('EditBillableWeight', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     // weights
-    expect(await screen.findByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.estimatedWeight * 1.1))).toBeInTheDocument();
     // buttons
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();

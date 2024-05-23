@@ -58,7 +58,6 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	}
 
 	randomEdipi := RandomEdipi()
-	rank := models.ServiceMemberRankE1
 
 	serviceMember := models.ServiceMember{
 		UserID:               user.ID,
@@ -71,7 +70,6 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		PersonalEmail:        &email,
 		ResidentialAddressID: currentAddressID,
 		ResidentialAddress:   currentAddress,
-		Rank:                 &rank,
 	}
 
 	// Overwrite values with those from assertions
@@ -99,7 +97,6 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	}
 	residentialAddress := MakeDefaultAddress(db)
 	backupMailingAddress := MakeAddress2(db, assertions)
-	e1 := models.ServiceMemberRankE1
 
 	dutyLocation := assertions.OriginDutyLocation
 	if isZeroUUID(dutyLocation.ID) {
@@ -117,12 +114,9 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
 		Edipi:                  models.StringPointer(RandomEdipi()),
-		Rank:                   &e1,
 		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
-		DutyLocationID:         &dutyLocation.ID,
-		DutyLocation:           dutyLocation,
 		EmailIsPreferred:       models.BoolPointer(true),
 		Telephone:              models.StringPointer("555-555-5555"),
 	}

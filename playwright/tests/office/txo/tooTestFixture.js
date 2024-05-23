@@ -56,7 +56,7 @@ export class TooFlowPage extends OfficePage {
       await this.selectAndApproveAllServiceItems();
     }
     // Select additional service items
-    await this.page.locator('label[for="shipmentManagementFee"]').click();
+    await expect(this.page.locator('label[for="shipmentManagementFee"]')).toBeChecked();
     await this.page.locator('label[for="counselingFee"]').click();
     // Open modal
     await this.page.getByRole('button', { name: 'Approve selected' }).click();

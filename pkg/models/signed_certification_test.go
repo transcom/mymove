@@ -42,19 +42,17 @@ func (suite *ModelSuite) TestSignedCertificationValidations() {
 		},
 		"Validates Optional Fields": {
 			signedCertification: models.SignedCertification{
-				SubmittingUserID:         uuid.Must(uuid.NewV4()),
-				MoveID:                   uuid.Must(uuid.NewV4()),
-				PersonallyProcuredMoveID: &uuid.Nil,
-				PpmID:                    &uuid.Nil,
-				CertificationType:        &blankCertType,
-				CertificationText:        "Lorem ipsum dolor sit amet...",
-				Signature:                "Best Customer",
-				Date:                     testdatagen.NextValidMoveDate,
+				SubmittingUserID:  uuid.Must(uuid.NewV4()),
+				MoveID:            uuid.Must(uuid.NewV4()),
+				PpmID:             &uuid.Nil,
+				CertificationType: &blankCertType,
+				CertificationText: "Lorem ipsum dolor sit amet...",
+				Signature:         "Best Customer",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 			expectedErrs: map[string][]string{
-				"personally_procured_move_id": {"PersonallyProcuredMoveID can not be blank."},
-				"ppm_id":                      {"PpmID can not be blank."},
-				"certification_type":          {fmt.Sprintf("CertificationType is not in the list [%s].", validCertTypes)},
+				"ppm_id":             {"PpmID can not be blank."},
+				"certification_type": {fmt.Sprintf("CertificationType is not in the list [%s].", validCertTypes)},
 			},
 		},
 	}
@@ -70,9 +68,10 @@ func (suite *ModelSuite) TestSignedCertificationValidations() {
 }
 
 func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+
+	sm := move.Orders.ServiceMember
 
 	session := &auth.Session{
 		UserID:          sm.UserID,
@@ -88,11 +87,10 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -103,9 +101,9 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
 }
 
 func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	sm := ppm.Move.Orders.ServiceMember
-	otherPpm := testdatagen.MakeDefaultPPM(suite.DB())
+	ppmMove1 := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	sm := ppmMove1.Orders.ServiceMember
+	ppmMove2 := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
 
 	session := &auth.Session{
 		UserID:          sm.UserID,
@@ -116,16 +114,15 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 	certificationType := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    ppmMove1,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -133,28 +130,26 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 	signedCertificationType := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    otherPpm.Move,
+			Model:    ppmMove2,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &otherPpm.ID,
-				CertificationType:        &signedCertificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &signedCertificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
 
-	_, err := models.FetchSignedCertificationsPPMPayment(suite.DB(), session, otherPpm.MoveID)
+	_, err := models.FetchSignedCertificationsPPMPayment(suite.DB(), session, ppmMove2.ID)
 	suite.Equal(errors.Cause(err), models.ErrFetchForbidden)
 }
 
 func (suite *ModelSuite) TestFetchSignedCertifications() {
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
-	sm := ppm.Move.Orders.ServiceMember
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	sm := move.Orders.ServiceMember
 
 	session := &auth.Session{
 		UserID:          sm.UserID,
@@ -165,48 +160,45 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
 	ppmCert := models.SignedCertificationTypeSHIPMENT
 	ppmSignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmCert,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmCert,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
 	hhgCert := models.SignedCertificationTypeSHIPMENT
 	hhgSignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    ppm.Move,
+			Model:    move,
 			LinkOnly: true,
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &hhgCert,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &hhgCert,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)

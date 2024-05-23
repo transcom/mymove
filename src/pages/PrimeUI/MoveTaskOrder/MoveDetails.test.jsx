@@ -6,7 +6,7 @@ import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
-import { completeCounseling, deleteShipment } from 'services/primeApi';
+import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 
 const mockRequestedMoveCode = 'LN4T89';
@@ -18,6 +18,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/primeApi', () => ({
   completeCounseling: jest.fn(),
   deleteShipment: jest.fn(),
+  downloadMoveOrder: jest.fn(),
 }));
 
 const moveTaskOrder = {
@@ -84,6 +85,75 @@ const moveTaskOrder = {
       paymentRequestNumber: '5924-0164-1',
     },
   ],
+  mtoServiceItems: [
+    {
+      reServiceCode: 'DDDSIT',
+      reason: null,
+      sitCustomerContacted: '2023-04-15',
+      sitDestinationFinalAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy43MDg2Nzla',
+        id: '20d6218a-3fbc-4dbc-8258-d4b3ee009657',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      sitEntryDate: '2020-04-15',
+      sitRequestedDelivery: '2023-04-15',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45Mjk0NzNa',
+      id: 'serviceItemDDDSIT',
+      modelType: 'MTOServiceItemDestSIT',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '2',
+      reServiceName: 'Domestic destination SIT delivery',
+      status: 'APPROVED',
+    },
+    {
+      reServiceCode: 'DDFSIT',
+      reason: null,
+      sitDepartureDate: '2020-04-15',
+      sitDestinationFinalAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy43MDg2Nzla',
+        id: '20d6218a-3fbc-4dbc-8258-d4b3ee009657',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      sitEntryDate: '2020-04-15',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45NjAwMTha',
+      id: 'serviceItemDDFSIT',
+      modelType: 'MTOServiceItemDestSIT',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '2',
+      reServiceName: 'Domestic destination 1st day SIT',
+      status: 'APPROVED',
+    },
+    {
+      reServiceCode: 'DDASIT',
+      reason: null,
+      sitDepartureDate: '2020-04-15',
+      sitEntryDate: '2020-04-15',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45NjAwMTha',
+      id: 'serviceItemDDASIT',
+      modelType: 'MTOServiceItemDestSIT',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '2',
+      reServiceName: "Domestic destination add'l SIT",
+      status: 'APPROVED',
+    },
+  ],
+  order: {
+    entitlement: {
+      gunSafe: true,
+    },
+  },
 };
 
 const moveReturnValue = {
@@ -119,7 +189,7 @@ describe('PrimeUI MoveDetails page', () => {
       const paymentRequestsHeading = screen.getByRole('heading', { name: 'Payment Requests', level: 2 });
       expect(paymentRequestsHeading).toBeInTheDocument();
 
-      const uploadButton = screen.getByText(/Upload Document/, { selector: 'a.usa-button' });
+      const uploadButton = screen.getByRole('link', { name: 'Upload Document' });
       expect(uploadButton).toBeInTheDocument();
     });
 
@@ -211,6 +281,69 @@ describe('PrimeUI MoveDetails page', () => {
         expect(screen.getByText(/Error title/)).toBeInTheDocument();
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });
+    });
+
+    it('error when download move orders', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      downloadMoveOrder.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+      await userEvent.click(downloadMoveOrderButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Error title/)).toBeInTheDocument();
+        expect(screen.getByText('Error detail')).toBeInTheDocument();
+      });
+    });
+
+    it('success when downloading move orders', async () => {
+      global.URL.createObjectURL = jest.fn();
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      downloadMoveOrder.mockReturnValue(mockResponse);
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+
+      jest.spyOn(document.body, 'appendChild');
+      jest.spyOn(document, 'createElement');
+
+      await userEvent.click(downloadMoveOrderButton);
+
+      // verify hyperlink was created
+      expect(document.createElement).toBeCalledWith('a');
+
+      // verify hypelink element was created with correct
+      // default file name from content-disposition
+      expect(document.body.appendChild).toBeCalledWith(
+        expect.objectContaining({
+          download: 'test.pdf',
+        }),
+      );
+    });
+
+    it('shows edit button next to the right destination SIT service items', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      renderWithProviders(<MoveDetails />);
+
+      // Check for Edit buttons - there should be 2 since there are DDASIT & DDDSIT service items in the mtoServiceItems array
+      const editButtons = screen.getAllByRole('link', { name: 'Edit' });
+      expect(editButtons).toHaveLength(2);
     });
   });
 });

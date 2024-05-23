@@ -10,14 +10,12 @@ import { customerRoutes } from 'constants/routes';
 const ProfileTable = ({
   affiliation,
   city,
-  currentDutyLocationName,
   edipi,
   email,
   firstName,
   lastName,
   onEditClick,
   postalCode,
-  rank,
   state,
   streetAddress1,
   streetAddress2,
@@ -56,20 +54,8 @@ const ProfileTable = ({
             <td>{affiliation}</td>
           </tr>
           <tr>
-            <th scope="row">Rank</th>
-            <td>{rank}</td>
-          </tr>
-          <tr>
             <th scope="row">DOD ID#</th>
             <td>{edipi}</td>
-          </tr>
-          <tr>
-            <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
-              Current duty location
-            </th>
-            <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
-              {currentDutyLocationName}
-            </td>
           </tr>
           <tr>
             <th scope="row">Best contact phone</th>
@@ -80,7 +66,7 @@ const ProfileTable = ({
             <td>{email}</td>
           </tr>
           <tr>
-            <th scope="row">Current pickup address</th>
+            <th scope="row">Current address</th>
             <td>
               {streetAddress1} {streetAddress2}
               <br />
@@ -96,14 +82,12 @@ const ProfileTable = ({
 ProfileTable.propTypes = {
   affiliation: string.isRequired,
   city: string.isRequired,
-  currentDutyLocationName: string.isRequired,
   edipi: string.isRequired,
   email: string.isRequired,
   firstName: string.isRequired,
   lastName: string.isRequired,
   onEditClick: func.isRequired,
   postalCode: string.isRequired,
-  rank: string.isRequired,
   state: string.isRequired,
   streetAddress1: string.isRequired,
   streetAddress2: string,

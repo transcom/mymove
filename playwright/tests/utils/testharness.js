@@ -30,6 +30,14 @@ export class TestHarness {
    * @property {string} Orders.ServiceMember.user_id
    * @property {Object} CloseoutOffice
    * @property {string} CloseoutOffice.name
+   * @property {Array.<Object>} MTOShipments
+   * @property {string} MTOShipments.ID
+   * @property {Array.<Object>} MTOServiceItems
+   * @property {string} MTOServiceItems.ID
+   * @property {Object} MTOServiceItems.ReService
+   * @property {string} MTOServiceItems.ReService.ID
+   * @property {string} MTOServiceItems.ReService.Code
+   *
    */
 
   /**
@@ -160,6 +168,23 @@ export class TestHarness {
    */
   async buildHHGMoveInSIT() {
     return this.buildDefault('HHGMoveInSIT');
+  }
+
+  /**
+   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
+   * @returns {Promise<Move>}
+   */
+
+  async buildHHGMoveInSITNoDestinationSITOutDate() {
+    return this.buildDefault('HHGMoveInSITNoDestinationSITOutDate');
+  }
+
+  /**
+   * Use testharness to build a move with an hhg shipment in SIT without excess weight
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveInSITNoExcessWeight() {
+    return this.buildDefault('HHGMoveInSITNoExcessWeight');
   }
 
   /**
@@ -300,11 +325,27 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move for QAE
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE() {
+    return this.buildDefault('HHGMoveWithServiceItemsandPaymentRequestReviewedForQAE');
+  }
+
+  /**
    * Use testharness to build hhg move needing SC approval
    * @returns {Promise<Move>}
    */
   async buildHHGMoveNeedsSC() {
     return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move as USMC needing SC approval
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveAsUSMCNeedsSC() {
+    return this.buildDefault('HHGMoveAsUSMCNeedsSC');
   }
 
   /**
@@ -401,6 +442,14 @@ export class TestHarness {
    */
   async buildApprovedMoveWithPPMWeightTicketOffice() {
     return this.buildDefault('ApprovedMoveWithPPMWeightTicketOffice');
+  }
+
+  /**
+   * Use testharness to build submitted move with partial ppm and weight ticket
+   * @returns {Promise<Object>}
+   */
+  async buildApprovedMoveWithPPMWeightTicketOfficeWithHHG() {
+    return this.buildDefault('ApprovedMoveWithPPMWeightTicketOfficeWithHHG');
   }
 
   /**

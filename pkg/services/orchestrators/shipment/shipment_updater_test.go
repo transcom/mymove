@@ -49,6 +49,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					updateMTOShipmentMethodName,
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("*models.MTOShipment"),
+					mock.AnythingOfType("string"),
 					mock.AnythingOfType("string")).
 				Return(nil, subtestData.fakeError)
 		} else {
@@ -57,20 +58,12 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					updateMTOShipmentMethodName,
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("*models.MTOShipment"),
+					mock.AnythingOfType("string"),
 					mock.AnythingOfType("string")).
 				Return(
-					func(_ appcontext.AppContext, ship *models.MTOShipment, _ string) *models.MTOShipment {
-						// Mimicking how the MTOShipment updater actually returns a new pointer so that we can test
-						// a bit more realistically while still using mocks.
-						updatedShip := *ship
-						updatedShip.PPMShipment = nil // Currently returns an MTOShipment without PPMShipment info
-
-						return &updatedShip
-					},
-					func(_ appcontext.AppContext, ship *models.MTOShipment, _ string) error {
-						return nil
-					},
-				)
+					&models.MTOShipment{
+						ID: uuid.Must(uuid.FromString("a5e95c1d-97c3-4f79-8097-c12dd2557ac7")),
+					}, nil)
 		}
 
 		if returnErrorForPPMShipment {
@@ -91,6 +84,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					mock.AnythingOfType("*appcontext.appContext"),
 					mock.AnythingOfType("*models.PPMShipment"),
 					mock.AnythingOfType("uuid.UUID"),
+					mock.AnythingOfType("string"),
 				).
 				Return(
 					func(_ appcontext.AppContext, ship *models.PPMShipment, _ uuid.UUID) *models.PPMShipment {
@@ -100,7 +94,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 						return &updatedShip
 					},
-					func(_ appcontext.AppContext, ship *models.PPMShipment, _ uuid.UUID) error {
+					func(_ appcontext.AppContext, _ *models.PPMShipment, _ uuid.UUID) error {
 						return nil
 					},
 				)
@@ -119,7 +113,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// Set invalid data, can't pass in blank to the generator above (it'll default to HHG if blank) so we're setting it afterward.
 		shipment.ShipmentType = ""
 
-		updatedShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
+		updatedShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
 
 		suite.Nil(updatedShipment)
 
@@ -156,6 +150,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 				shipment = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 					{
 						Model: models.MTOShipment{
+							ID:           uuid.Must(uuid.FromString("a5e95c1d-97c3-4f79-8097-c12dd2557ac7")),
 							ShipmentType: shipmentType,
 						},
 					},
@@ -166,7 +161,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 			// Need to start a transaction so we can assert the call with the correct appCtx
 			err := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
-				mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(txAppCtx, &shipment, eTag)
+				mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(txAppCtx, &shipment, eTag, "test")
 
 				suite.NoError(err)
 				suite.NotNil(mtoShipment)
@@ -177,6 +172,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					txAppCtx,
 					&shipment,
 					eTag,
+					"test",
 				)
 
 				if isPPMShipment {
@@ -185,7 +181,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 						updatePPMShipmentMethodName,
 						txAppCtx,
 						shipment.PPMShipment,
-						shipment.ID,
+						uuid.Must(uuid.FromString("a5e95c1d-97c3-4f79-8097-c12dd2557ac7")),
 					)
 				} else {
 					subtestData.mockPPMShipmentUpdater.AssertNotCalled(
@@ -194,6 +190,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 						mock.AnythingOfType("*appcontext.appContext"),
 						mock.AnythingOfType("*models.PPMShipment"),
 						mock.AnythingOfType("uuid.UUID"),
+						mock.AnythingOfType("string"),
 					)
 				}
 
@@ -212,9 +209,11 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					HasProGear:          models.BoolPointer(true),
-					ProGearWeight:       models.PoundPointer(unit.Pound(1900)),
-					SpouseProGearWeight: models.PoundPointer(unit.Pound(300)),
+					HasProGear:            models.BoolPointer(true),
+					ProGearWeight:         models.PoundPointer(unit.Pound(1900)),
+					SpouseProGearWeight:   models.PoundPointer(unit.Pound(300)),
+					AdvanceAmountReceived: nil,
+					HasReceivedAdvance:    models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -222,8 +221,10 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		// set new field to update
 		shipment.PPMShipment.HasProGear = models.BoolPointer(false)
+		shipment.PPMShipment.AdvanceAmountReceived = models.CentPointer(unit.Cents(55000))
+		shipment.PPMShipment.HasReceivedAdvance = models.BoolPointer(true)
 
-		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
 
 		suite.NoError(err)
 
@@ -236,6 +237,8 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// check we got the latest version back
 		suite.NotEqual(&ppmShipment, mtoShipment.PPMShipment)
 		suite.False(*mtoShipment.PPMShipment.HasProGear)
+		suite.Equal(*mtoShipment.PPMShipment.AdvanceAmountReceived, *shipment.PPMShipment.AdvanceAmountReceived)
+		suite.True(*mtoShipment.PPMShipment.HasReceivedAdvance)
 	})
 
 	serviceObjectErrorTestCases := map[string]struct {
@@ -280,7 +283,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 				}, nil)
 			}
 
-			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
+			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
 
 			suite.Nil(mtoShipment)
 
@@ -304,7 +307,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, eTag)
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, eTag, "test")
 
 		suite.Nil(mtoShipment)
 
@@ -317,6 +320,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			&shipment,
 			eTag,
+			"test",
 		)
 
 		subtestData.mockPPMShipmentUpdater.AssertNotCalled(

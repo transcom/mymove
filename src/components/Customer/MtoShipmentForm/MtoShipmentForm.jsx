@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { bool, func, number, shape, string } from 'prop-types';
+import { bool, func, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router-dom';
 import {
@@ -148,7 +148,6 @@ class MtoShipmentForm extends Component {
       shipmentType,
       isCreatePage,
       mtoShipment,
-      serviceMember,
       orders,
       currentResidence,
       router: { params, navigate },
@@ -227,11 +226,8 @@ class MtoShipmentForm extends Component {
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
 
                     <Alert headingLevel="h4" type="info" noIcon>
-                      Remember: You can move{' '}
-                      {orders.has_dependents
-                        ? formatWeight(serviceMember.weight_allotment?.total_weight_self_plus_dependents)
-                        : formatWeight(serviceMember.weight_allotment?.total_weight_self)}{' '}
-                      total. You’ll be billed for any excess weight you move.
+                      Remember: You can move {formatWeight(orders.authorizedWeight)} total. You’ll be billed for any
+                      excess weight you move.
                     </Alert>
 
                     <Form className={formStyles.form}>
@@ -523,11 +519,6 @@ MtoShipmentForm.propTypes = {
   newDutyLocationAddress: SimpleAddressShape,
   shipmentType: string.isRequired,
   mtoShipment: ShipmentShape,
-  serviceMember: shape({
-    weight_allotment: shape({
-      total_weight_self: number,
-    }),
-  }).isRequired,
   orders: OrdersShape,
 };
 

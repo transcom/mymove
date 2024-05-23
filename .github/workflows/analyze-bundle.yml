@@ -31,7 +31,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -50,18 +50,18 @@ jobs:
     steps:
       - name: Cache PR bundle stats
         id: cache-bundle-stats
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: build/bundle-stats-${{ github.event.pull_request.head.sha }}.json
           key: bundle-stats-${{ github.event.pull_request.head.sha }}
 
       - name: Check out branch
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.1.5
 
       - name: Set up node
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: 'yarn'
           node-version-file: '.tool-versions'
@@ -88,7 +88,7 @@ jobs:
           cp ./build/bundle-stats-${{ github.event.pull_request.head.sha }}.json ./build/bundle-stats.json
 
       - name: Upload stats.json
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr-stats
           path: ./build/bundle-stats.json
@@ -104,20 +104,20 @@ jobs:
     steps:
       - name: Cache base bundle stats
         id: cache-bundle-stats
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: build/bundle-stats-${{ github.event.pull_request.base.sha }}.json
           key: bundle-stats-${{ github.event.pull_request.base.sha }}
 
       - name: Check out base branch
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.1.5
         with:
           ref: ${{ github.base_ref }}
 
       - name: Set up node
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: 'yarn'
           node-version-file: '.tool-versions'
@@ -144,7 +144,7 @@ jobs:
           cp ./build/bundle-stats-${{ github.event.pull_request.base.sha }}.json ./build/bundle-stats.json
 
       - name: Upload stats.json
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: base-stats
           path: ./build/bundle-stats.json
@@ -161,7 +161,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
       - uses: github/webpack-bundlesize-compare-action@v1.8.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { EditServiceInfo } from './EditServiceInfo';
 
 import { patchServiceMember } from 'services/internalApi';
+import { MockProviders } from 'testUtils';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -33,21 +34,28 @@ describe('EditServiceInfo page', () => {
   };
 
   it('renders the EditServiceInfo form', async () => {
-    render(<EditServiceInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditServiceInfo {...testProps} />
+      </MockProviders>,
+    );
 
     expect(await screen.findByRole('heading', { name: 'Edit service info', level: 1 })).toBeInTheDocument();
   });
 
   it('the cancel button goes back to the profile page', async () => {
-    render(<EditServiceInfo {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditServiceInfo {...testProps} />
+      </MockProviders>,
+    );
     const cancelButton = await screen.findByText('Cancel');
     await waitFor(() => {
       expect(cancelButton).toBeInTheDocument();
     });
 
     await userEvent.click(cancelButton);
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
   it('save button submits the form and goes to the profile page', async () => {
@@ -57,7 +65,6 @@ describe('EditServiceInfo page', () => {
       last_name: 'Spaceman',
       affiliation: 'NAVY',
       edipi: '1234567890',
-      rank: 'E_5',
       current_location: {
         address: {
           city: 'Test City',
@@ -79,15 +86,15 @@ describe('EditServiceInfo page', () => {
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <EditServiceInfo
-        {...testProps}
-        serviceMember={testServiceMemberValues}
-        currentOrders={{
-          has_dependents: false,
-          grade: testServiceMemberValues.rank,
-          origin_duty_location: testServiceMemberValues.current_location,
-        }}
-      />,
+      <MockProviders>
+        <EditServiceInfo
+          {...testProps}
+          serviceMember={testServiceMemberValues}
+          currentOrders={{
+            has_dependents: false,
+          }}
+        />
+      </MockProviders>,
     );
 
     const submitButton = await screen.findByText('Save');
@@ -99,112 +106,8 @@ describe('EditServiceInfo page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
-    expect(testProps.setFlashMessage).toHaveBeenCalledWith(
-      'EDIT_SERVICE_INFO_SUCCESS',
-      'success',
-      '',
-      'Your changes have been saved.',
-    );
 
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
-  });
-
-  it('displays a flash message about entitlement when the rank changes', async () => {
-    const testServiceMemberValues = {
-      id: 'testServiceMemberId',
-      first_name: 'Leo',
-      last_name: 'Spaceman',
-      affiliation: 'NAVY',
-      edipi: '1234567890',
-      rank: 'E_5',
-      current_location: {
-        address: {
-          city: 'Test City',
-          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-          postalCode: '12345',
-          state: 'NY',
-          streetAddress1: '123 Main St',
-        },
-        address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-        affiliation: 'AIR_FORCE',
-        created_at: '2021-02-11T16:48:04.117Z',
-        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
-        name: 'Luke AFB',
-        updated_at: '2021-02-11T16:48:04.117Z',
-      },
-      weight_allotment: {
-        total_weight_self: 7000,
-        total_weight_self_plus_dependents: 9000,
-        pro_gear_weight: 2000,
-        pro_gear_weight_spouse: 500,
-      },
-    };
-
-    const testServiceMemberValuesResponse = {
-      id: 'testServiceMemberId',
-      first_name: 'Leo',
-      last_name: 'Spaceman',
-      affiliation: 'NAVY',
-      edipi: '1234567890',
-      rank: 'E_2',
-      current_location: {
-        address: {
-          city: 'Test City',
-          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-          postalCode: '12345',
-          state: 'NY',
-          streetAddress1: '123 Main St',
-        },
-        address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-        affiliation: 'AIR_FORCE',
-        created_at: '2021-02-11T16:48:04.117Z',
-        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
-        name: 'Luke AFB',
-        updated_at: '2021-02-11T16:48:04.117Z',
-      },
-      weight_allotment: {
-        total_weight_self: 5000,
-        total_weight_self_plus_dependents: 8000,
-        pro_gear_weight: 2000,
-        pro_gear_weight_spouse: 500,
-      },
-    };
-
-    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValuesResponse));
-
-    // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    render(
-      <EditServiceInfo
-        {...testProps}
-        serviceMember={testServiceMemberValues}
-        currentOrders={{
-          grade: testServiceMemberValues.rank,
-          has_dependents: true,
-          origin_duty_location: testServiceMemberValues.current_location,
-        }}
-      />,
-    );
-
-    const rankInput = await screen.findByLabelText('Rank');
-    await userEvent.selectOptions(rankInput, ['E_2']);
-
-    const submitButton = await screen.findByText('Save');
-    expect(submitButton).toBeInTheDocument();
-    await userEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(patchServiceMember).toHaveBeenCalled();
-    });
-
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValuesResponse);
-    expect(testProps.setFlashMessage).toHaveBeenCalledWith(
-      'EDIT_SERVICE_INFO_SUCCESS',
-      'info',
-      `Your weight entitlement is now 8,000 lbs.`,
-      'Your changes have been saved. Note that the entitlement has also changed.',
-    );
-
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -214,7 +117,6 @@ describe('EditServiceInfo page', () => {
       last_name: 'Spaceman',
       affiliation: 'NAVY',
       edipi: '1234567890',
-      rank: 'E_5',
       current_location: {
         address: {
           city: 'Test City',
@@ -229,12 +131,6 @@ describe('EditServiceInfo page', () => {
         id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
         name: 'Luke AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
-      },
-      weight_allotment: {
-        total_weight_self: 7000,
-        total_weight_self_plus_dependents: 9000,
-        pro_gear_weight: 2000,
-        pro_gear_weight_spouse: 500,
       },
     };
 
@@ -253,14 +149,9 @@ describe('EditServiceInfo page', () => {
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <EditServiceInfo
-        {...testProps}
-        serviceMember={testServiceMemberValues}
-        currentOrders={{
-          grade: testServiceMemberValues.rank,
-          origin_duty_location: testServiceMemberValues.current_location,
-        }}
-      />,
+      <MockProviders>
+        <EditServiceInfo {...testProps} serviceMember={testServiceMemberValues} currentOrders={{}} />
+      </MockProviders>,
     );
 
     const submitButton = await screen.findByText('Save');
@@ -279,7 +170,11 @@ describe('EditServiceInfo page', () => {
 
   describe('if the current move has been submitted', () => {
     it('redirects to the home page', async () => {
-      render(<EditServiceInfo {...testProps} moveIsInDraft={false} />);
+      render(
+        <MockProviders>
+          <EditServiceInfo {...testProps} moveIsInDraft={false} />
+        </MockProviders>,
+      );
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/');

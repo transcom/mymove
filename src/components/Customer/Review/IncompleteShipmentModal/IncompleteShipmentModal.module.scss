@@ -1,0 +1,19 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+
+.Modal {
+  h3 {
+    font-size: 1.45rem;
+  }
+
+  li {
+    @include u-margin-bottom('105');
+  }
+}
+
+.Button {
+  @media (max-width: $tablet) {
+    width: 100%;
+  }
+}

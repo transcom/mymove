@@ -58,7 +58,7 @@ export class WaitForCustomerPage extends WaitForPage {
    */
   async onboardingCurrentAddress() {
     await this.runAccessibilityAudit();
-    await base.expect(this.page.getByRole('heading', { name: 'Current pickup address' })).toBeVisible();
+    await base.expect(this.page.getByRole('heading', { name: 'Current address' })).toBeVisible();
     await this.runAccessibilityAudit();
   }
 
@@ -86,6 +86,24 @@ export class WaitForCustomerPage extends WaitForPage {
   async home() {
     await this.runAccessibilityAudit();
     await base.expect(this.page.getByTestId('stepContainer1').getByText('Profile complete')).toBeVisible();
+    await this.runAccessibilityAudit();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async multiMoveDashboard() {
+    await this.runAccessibilityAudit();
+    await base.expect(this.page.getByText('Welcome to MilMove!')).toBeVisible();
+    await this.runAccessibilityAudit();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async multiMoveLandingPage() {
+    await this.runAccessibilityAudit();
+    await base.expect(this.page.getByText('Welcome to MilMove!')).toBeVisible();
     await this.runAccessibilityAudit();
   }
 

@@ -9,22 +9,12 @@
   flex-direction: column;
   flex: auto;
 
-  p {
-    @include u-margin(0);
-    @include u-padding-left(0.5);
-  }
-
-  h2 {
-    @include u-margin-top(4);
-    @include u-margin-bottom(2);
-    @include u-padding-left(0.5);
-  }
-
   .tableContainer {
     flex: auto;
     @include u-margin-top(1);
     width: 100%;
     overflow-x: auto;
+    min-height: 460px;
   }
 
   table {
@@ -33,5 +23,11 @@
     tbody tr {
       cursor: pointer;
     }
+  }
+
+  .specialMoves {
+    min-width: 100px;
+    display: block;
+    color: red;
   }
 }

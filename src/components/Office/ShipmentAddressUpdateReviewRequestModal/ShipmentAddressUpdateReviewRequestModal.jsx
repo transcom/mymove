@@ -21,7 +21,6 @@ const formSchema = Yup.object().shape({
   addressUpdateReviewStatus: Yup.string().required('Required'),
   officeRemarks: Yup.string().required('Required'),
 });
-
 export const ShipmentAddressUpdateReviewRequestModal = ({
   onSubmit,
   shipment,
@@ -31,18 +30,14 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
 }) => {
   const handleSubmit = async (values, { setSubmitting }) => {
     const { addressUpdateReviewStatus, officeRemarks } = values;
-
     await onSubmit(shipment.id, shipment.eTag, addressUpdateReviewStatus, officeRemarks);
-
     setSubmitting(false);
   };
-
   const errorMessageAlertControl = (
     <Button type="button" onClick={() => setErrorMessage(null)} unstyled>
       <FontAwesomeIcon icon="times" style={styles.alertClose} />
     </Button>
   );
-
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
@@ -117,7 +112,6 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
     </Modal>
   );
 };
-
 ShipmentAddressUpdateReviewRequestModal.propTypes = {
   shipment: ShipmentShape.isRequired,
   onSubmit: PropTypes.func.isRequired,
@@ -125,11 +119,9 @@ ShipmentAddressUpdateReviewRequestModal.propTypes = {
   errorMessage: PropTypes.node,
   setErrorMessage: PropTypes.func,
 };
-
 ShipmentAddressUpdateReviewRequestModal.defaultProps = {
   errorMessage: null,
   setErrorMessage: undefined,
 };
-
 ShipmentAddressUpdateReviewRequestModal.displayName = 'ShipmentAddressUpdateReviewRequestModal';
 export default connectModal(ShipmentAddressUpdateReviewRequestModal);

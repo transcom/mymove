@@ -35,8 +35,7 @@ type Orders struct {
 	Entitlement *Entitlement `json:"entitlement,omitempty"`
 
 	// grade
-	// Example: O-6
-	Grade *string `json:"grade,omitempty"`
+	Grade *OrderPayGrade `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
 	// Required: true
@@ -79,6 +78,9 @@ type Orders struct {
 
 	// origin duty location
 	OriginDutyLocation *DutyLocationPayload `json:"origin_duty_location,omitempty"`
+
+	// provides services counseling
+	ProvidesServicesCounseling bool `json:"providesServicesCounseling"`
 
 	// Report by
 	//
@@ -140,6 +142,10 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEntitlement(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -256,6 +262,25 @@ func (m *Orders) validateEntitlement(formats strfmt.Registry) error {
 				return ve.ValidateName("entitlement")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("entitlement")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) validateGrade(formats strfmt.Registry) error {
+	if swag.IsZero(m.Grade) { // not required
+		return nil
+	}
+
+	if m.Grade != nil {
+		if err := m.Grade.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}
@@ -526,6 +551,10 @@ func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateGrade(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMoves(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -598,6 +627,27 @@ func (m *Orders) contextValidateEntitlement(ctx context.Context, formats strfmt.
 				return ve.ValidateName("entitlement")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("entitlement")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Grade != nil {
+
+		if swag.IsZero(m.Grade) { // not required
+			return nil
+		}
+
+		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("grade")
 			}
 			return err
 		}

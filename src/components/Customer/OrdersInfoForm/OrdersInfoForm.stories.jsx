@@ -25,6 +25,25 @@ const testInitialValues = {
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
   },
+  grade: 'E_1',
+  origin_duty_location: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
 };
 
 export default {
@@ -37,14 +56,21 @@ export default {
 };
 
 const testProps = {
-  initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_location: {} },
+  initialValues: {
+    orders_type: '',
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    new_duty_location: {},
+    grade: '',
+    origin_duty_location: {},
+  },
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
-  currentDutyLocation: {},
 };
 
 export const EmptyValues = (argTypes) => (

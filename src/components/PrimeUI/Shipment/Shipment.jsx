@@ -15,7 +15,7 @@ import { ppmShipmentStatuses, shipmentDestinationTypes } from 'constants/shipmen
 import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-const Shipment = ({ shipment, moveId, onDelete }) => {
+const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const editShipmentAddressUrl = moveId
@@ -43,15 +43,44 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
     onDelete(shipmentID);
   };
 
+  // Returns True if there are any SIT service item for the shipment, False otherwise.
+  const hasSITServiceItem = () => {
+    return (
+      mtoServiceItems &&
+      mtoServiceItems.some(
+        (serviceItem) =>
+          serviceItem && serviceItem.mtoShipmentID === shipment.id && serviceItem.reServiceCode.includes('SIT'),
+      )
+    );
+  };
+
   return (
     <dl className={descriptionListStyles.descriptionList}>
+      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
-        <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
         {moveId && (
           <>
+            {!shipment.ppmShipment && hasSITServiceItem() && (
+              <Link
+                to={`../shipments/${shipment.id}/sit-extension-requests/new`}
+                relative="path"
+                className="usa-button usa-button-secondary"
+              >
+                Request SIT Extension
+              </Link>
+            )}
             <Link to={`../shipments/${shipment.id}`} relative="path" className="usa-button usa-button-secondary">
               Update Shipment
             </Link>
+            {shipment.shipmentType !== SHIPMENT_OPTIONS.PPM && (
+              <Link
+                to={`../shipments/${shipment.id}/updateDestinationAddress`}
+                relative="path"
+                className="usa-button usa-button-secondary"
+              >
+                Update Shipment Destination Address
+              </Link>
+            )}
             {shipment.shipmentType === SHIPMENT_OPTIONS.PPM &&
               shipment.ppmShipment &&
               shipment.ppmShipment.status !== ppmShipmentStatuses.WAITING_ON_CUSTOMER && (
@@ -138,6 +167,24 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
           <dd>{formatDateFromIso(shipment.reweigh.requestedAt, 'YYYY-MM-DD')}</dd>
         </div>
       )}
+      {shipment.shipmentType === SHIPMENT_OPTIONS.HHG && (
+        <div className={descriptionListStyles.row}>
+          <dt>Actual Pro Gear Weight:</dt>
+          <dd>
+            {shipment.actualProGearWeight || shipment.actualProGearWeight === 0 ? shipment.actualProGearWeight : '—'}
+          </dd>
+        </div>
+      )}
+      {shipment.shipmentType === SHIPMENT_OPTIONS.HHG && (
+        <div className={descriptionListStyles.row}>
+          <dt>Actual Spouse Pro Gear Weight:</dt>
+          <dd>
+            {shipment.actualSpouseProGearWeight || shipment.actualSpouseProGearWeight === 0
+              ? shipment.actualSpouseProGearWeight
+              : '—'}
+          </dd>
+        </div>
+      )}
       <div className={descriptionListStyles.row}>
         <dt>Pickup Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.pickupAddress)}</dd>
@@ -153,7 +200,7 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
         <dd>
           {shipmentDestinationTypes[shipment.destinationType]
             ? shipmentDestinationTypes[shipment.destinationType]
-            : '-'}
+            : '—'}
         </dd>
       </div>
       <div className={descriptionListStyles.row}>
@@ -216,20 +263,20 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
             <dd>{formatDateFromIso(shipment.ppmShipment.approvedAt, 'YYYY-MM-DD')}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Pickup Postal Code:</dt>
-            <dd>{shipment.ppmShipment.pickupPostalCode}</dd>
+            <dt>Pickup Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.pickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Secondary Pickup Postal Code:</dt>
-            <dd>{shipment.ppmShipment.secondaryPickupPostalCode}</dd>
+            <dt>Secondary Pickup Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryPickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Destination Postal Code:</dt>
-            <dd>{shipment.ppmShipment.destinationPostalCode}</dd>
+            <dt>Destination Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.destinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>PPM Secondary Destination Postal Code:</dt>
-            <dd>{shipment.ppmShipment.secondaryDestinationPostalCode}</dd>
+            <dt>Secondary Destination Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryDestinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM SIT Expected:</dt>

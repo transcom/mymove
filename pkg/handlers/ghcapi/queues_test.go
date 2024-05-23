@@ -15,7 +15,9 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
@@ -69,9 +71,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -95,6 +99,31 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(order.OriginDutyLocation.ID.String(), result.OriginDutyLocation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
+}
+
+func (suite *HandlerSuite) TestListPrimeMovesHandler() {
+	// Default Origin Duty Location GBLOC is KKFA
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+	request := httptest.NewRequest("GET", "/queues/listPrimeMoves", nil)
+	params := queues.ListPrimeMovesParams{
+		HTTPRequest: request,
+	}
+	handlerConfig := suite.HandlerConfig()
+	handler := ListPrimeMovesHandler{
+		handlerConfig,
+		movetaskorder.NewMoveTaskOrderFetcher(),
+	}
+
+	// Validate incoming payload: no body to validate
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	movesList := response.(*queues.ListPrimeMovesOK).Payload.QueueMoves
+
+	suite.Equal(1, len(movesList))
+	suite.Equal(move.ID.String(), movesList[0].ID.String())
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
@@ -166,9 +195,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			HTTPRequest: request,
 		}
 		handlerConfig := suite.HandlerConfig()
+		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetMovesQueueHandler{
 			handlerConfig,
 			&orderFetcher,
+			mockUnlocker,
 		}
 
 		// Validate incoming payload: no body to validate
@@ -237,9 +268,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		Branch:      models.StringPointer("AIR_FORCE"),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -322,9 +355,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -468,9 +503,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	suite.Run("loads results with all STATUSes selected", func() {
@@ -722,9 +759,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	suite.Run("returns unfiltered results", func() {
@@ -861,9 +900,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -889,9 +930,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -938,9 +981,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -984,9 +1029,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		HTTPRequest: request,
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1057,9 +1104,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
+		mockUnlocker,
 	}
 	suite.Run("returns unfiltered results", func() {
 		params := queues.GetPaymentRequestsQueueParams{
@@ -1134,9 +1183,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1167,9 +1218,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		&paymentRequestListFetcher,
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1201,9 +1254,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		PerPage:     models.Int64Pointer(1),
 	}
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		&paymentRequestListFetcher,
+		mockUnlocker,
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1299,8 +1354,8 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				StreetAddress1: "Fort Gordon",
-				City:           "Augusta",
+				StreetAddress1: "Fort Eisenhower",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "77777",
 				Country:        models.StringPointer("United States"),
@@ -1404,9 +1459,11 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	request := httptest.NewRequest("GET", "/queues/counseling", nil)
 	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
 	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
+		mockUnlocker,
 	}
 
 	return subtestData

@@ -19,8 +19,16 @@ import (
 // swagger:model UpdateCustomerPayload
 type UpdateCustomerPayload struct {
 
+	// backup address
+	BackupAddress struct {
+		Address
+	} `json:"backupAddress,omitempty"`
+
 	// backup contact
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
+
+	// cac validated
+	CacValidated bool `json:"cac_validated,omitempty"`
 
 	// current address
 	CurrentAddress struct {
@@ -30,6 +38,9 @@ type UpdateCustomerPayload struct {
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email,omitempty"`
+
+	// email is preferred
+	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
 
 	// first name
 	// Example: John
@@ -47,6 +58,13 @@ type UpdateCustomerPayload struct {
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Phone *string `json:"phone,omitempty"`
 
+	// phone is preferred
+	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
+
+	// secondary telephone
+	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
+	SecondaryTelephone *string `json:"secondaryTelephone,omitempty"`
+
 	// suffix
 	// Example: Jr.
 	Suffix *string `json:"suffix,omitempty"`
@@ -55,6 +73,10 @@ type UpdateCustomerPayload struct {
 // Validate validates this update customer payload
 func (m *UpdateCustomerPayload) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateBackupAddress(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateBackupContact(formats); err != nil {
 		res = append(res, err)
@@ -72,9 +94,21 @@ func (m *UpdateCustomerPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSecondaryTelephone(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateCustomerPayload) validateBackupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.BackupAddress) { // not required
+		return nil
+	}
+
 	return nil
 }
 
@@ -129,9 +163,25 @@ func (m *UpdateCustomerPayload) validatePhone(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdateCustomerPayload) validateSecondaryTelephone(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryTelephone) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$|^$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update customer payload based on the context it is used
 func (m *UpdateCustomerPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateBackupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateBackupContact(ctx, formats); err != nil {
 		res = append(res, err)
@@ -144,6 +194,11 @@ func (m *UpdateCustomerPayload) ContextValidate(ctx context.Context, formats str
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateCustomerPayload) contextValidateBackupAddress(ctx context.Context, formats strfmt.Registry) error {
+
 	return nil
 }
 

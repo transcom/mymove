@@ -18,9 +18,9 @@ import {
   sitExtensionApproved,
   allApprovedExternalVendorMTOQuery,
   riskOfExcessWeightQueryExternalShipment,
-  unapprovedSITAddressUpdates,
   multiplePaymentRequests,
   moveHistoryTestData,
+  actualPPMWeightQuery,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -359,6 +359,50 @@ describe('MoveTaskOrder', () => {
       expect(moveWeightTotal).toBeInTheDocument();
     });
 
+    it('displays the ppm estimated weight and no ppm actual weight', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const weightSummaries = await screen.findAllByTestId('weight-display');
+
+      expect(weightSummaries[4]).toHaveTextContent('2,000 lbs');
+      expect(weightSummaries[5]).toHaveTextContent('—');
+    });
+
+    it('displays the ppm actual weight (total)', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(actualPPMWeightQuery);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const weightSummaries = await screen.findAllByTestId('weight-display');
+
+      expect(weightSummaries[4]).toHaveTextContent('2,000 lbs');
+      expect(weightSummaries[5]).toHaveTextContent('2,100 lbs');
+    });
+
     it('displays the move weight total using lower reweighs', async () => {
       useMoveTaskOrderQueries.mockReturnValue(lowerReweighsMTOQuery);
 
@@ -526,7 +570,7 @@ describe('MoveTaskOrder', () => {
     useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
     useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
     const wrapper = mount(
-      <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
+      <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
         <MoveTaskOrder
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
@@ -568,6 +612,7 @@ describe('MoveTaskOrder', () => {
     it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
+      expect(wrapper.find('h4').at(0).text()).toEqual('#');
       expect(wrapper.find('[data-testid="button"]').exists()).toBe(true);
     });
 
@@ -586,10 +631,14 @@ describe('MoveTaskOrder', () => {
     it('renders the RequestedServiceItemsTable for requested, approved, and rejected service items', () => {
       const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
       // There should be 1 of each status table requested, approved, rejected service items
-      expect(requestedServiceItemsTable.length).toBe(3);
+      // Plus approved move-level service items separate from the shipment items
+      expect(requestedServiceItemsTable.length).toBe(6);
       expect(requestedServiceItemsTable.at(0).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
       expect(requestedServiceItemsTable.at(1).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.APPROVED);
       expect(requestedServiceItemsTable.at(2).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.REJECTED);
+      expect(requestedServiceItemsTable.at(3).prop('statusForTableType')).toBe('Move Task Order Requested');
+      expect(requestedServiceItemsTable.at(4).prop('statusForTableType')).toBe('Move Task Order Approved');
+      expect(requestedServiceItemsTable.at(5).prop('statusForTableType')).toBe('Move Task Order Rejected');
     });
 
     it('updates the unapproved shipments tag state', () => {
@@ -644,7 +693,7 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the ShipmentContainer', () => {
-      expect(wrapper.find('ShipmentContainer').length).toBe(5);
+      expect(wrapper.find('ShipmentContainer').length).toBe(6);
     });
 
     it('renders the ShipmentHeading', () => {
@@ -775,52 +824,6 @@ describe('MoveTaskOrder', () => {
       expect(navLinks.at(1).contains('1'));
     });
   });
-  describe('SIT Address Update Alerts/Tags', () => {
-    it('displays service item update requested alert', async () => {
-      useMoveTaskOrderQueries.mockReturnValue(unapprovedSITAddressUpdates);
-
-      render(
-        <MockProviders>
-          <MoveTaskOrder
-            {...requiredProps}
-            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
-            setExcessWeightRiskCount={setExcessWeightRiskCount}
-            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
-          />
-        </MockProviders>,
-      );
-
-      expect(setUnapprovedSITAddressUpdateCount).toHaveBeenCalledWith(1);
-
-      const serviceItemUpdateRequestedAlert = await screen.getByText(
-        /Service item update requested. Review request below./,
-      );
-      expect(serviceItemUpdateRequestedAlert).toBeInTheDocument();
-    });
-
-    it('renders the left nav with tag for SIT Address Update request', async () => {
-      const wrapper = mount(
-        <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
-          <MoveTaskOrder
-            {...requiredProps}
-            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
-            setExcessWeightRiskCount={setExcessWeightRiskCount}
-            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
-          />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('nav').exists()).toBe(true);
-
-      const navLinks = wrapper.find('nav a');
-      expect(navLinks.at(1).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(1).contains('1'));
-    });
-  });
   describe('SIT extension approved', () => {
     useMoveTaskOrderQueries.mockReturnValue(sitExtensionApproved);
     const wrapper = mount(
@@ -864,7 +867,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the financial review flag button when user has permission', async () => {
       render(
-        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag, permissionTypes.updateMTOPage]}>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );
@@ -875,6 +878,16 @@ describe('MoveTaskOrder', () => {
     it('does not show the financial review flag button if user does not have permission', () => {
       render(
         <MockProviders>
+          <MoveTaskOrder {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+    });
+
+    it('does not show the financial review flag button if user does not have updateMTOPage permission', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]}>
           <MoveTaskOrder {...testProps} />
         </MockProviders>,
       );

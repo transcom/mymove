@@ -332,7 +332,6 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 		testid := uuid.Must(uuid.NewV4())
 		edipi := RandomEdipi()
 		timestamp := time.Now()
-		rank := models.ServiceMemberRankE4
 		name := "Riley Baker"
 		phone := "555-777-9929"
 
@@ -344,7 +343,6 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				UserID:                 testid,
 				Edipi:                  &edipi,
 				Affiliation:            &navy,
-				Rank:                   &rank,
 				FirstName:              &name,
 				MiddleName:             &name,
 				LastName:               &name,
@@ -356,7 +354,6 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				EmailIsPreferred:       models.BoolPointer(false),
 				ResidentialAddressID:   &testid,
 				BackupMailingAddressID: &testid,
-				DutyLocationID:         &testid,
 			},
 			Type: &ServiceMember,
 		}
@@ -512,7 +509,7 @@ func (suite *FactorySuite) TestValidateCustomizations() {
 		})
 		suite.Len(customs, 3)
 		err := isUnique(customs)
-		suite.ErrorContains(err, "Found more than one instance")
+		suite.ErrorContains(err, "found more than one instance")
 
 	})
 

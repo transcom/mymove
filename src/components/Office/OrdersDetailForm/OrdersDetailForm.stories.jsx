@@ -4,7 +4,7 @@ import { Formik } from 'formik';
 
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
 const originDutyLocation = {
@@ -41,6 +41,7 @@ const newDutyLocation = {
 const deptIndicatorOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
+const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
 export default {
   title: 'Office Components/OrdersDetailForm',
@@ -86,6 +87,8 @@ export const EmptyValues = () => (
           ordersTypeDetailOptions={ordersTypeDetailOptions}
           ordersType={ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION}
           setFieldValue={Formik.setFieldValue}
+          payGrade={ORDERS_PAY_GRADE_OPTIONS.E_1}
+          payGradeOptions={payGradeOptions}
         />
       </form>
     </Formik>
@@ -135,6 +138,7 @@ export const InitialValues = () => {
                 ordersTypeDetailOptions={ordersTypeDetailOptions}
                 showOrdersAcknowledgement
                 setFieldValue={formik.setFieldValue}
+                payGradeOptions={payGradeOptions}
               />
             </form>
           );
@@ -186,6 +190,7 @@ export const FieldsHidden = (args) => {
                 ordersTypeOptions={ordersTypeOptions}
                 ordersTypeDetailOptions={ordersTypeDetailOptions}
                 setFieldValue={formik.setFieldValue}
+                payGradeOptions={payGradeOptions}
                 {...args}
               />
             </form>
@@ -224,6 +229,7 @@ export const Retiree = () => (
               ordersTypeDetailOptions={ordersTypeDetailOptions}
               ordersType="RETIREMENT"
               setFieldValue={formik.setFieldValue}
+              payGradeOptions={payGradeOptions}
             />
           </form>
         );
@@ -260,6 +266,7 @@ export const Separatee = () => (
               ordersTypeDetailOptions={ordersTypeDetailOptions}
               ordersType="SEPARATION"
               setFieldValue={formik.setFieldValue}
+              payGradeOptions={payGradeOptions}
             />
           </form>
         );
