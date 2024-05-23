@@ -7,7 +7,7 @@ import { v4 } from 'uuid';
 import { MockProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import ProGear from 'pages/MyMove/PPM/Closeout/ProGear/ProGear';
-import { createProGearWeightTicket, deleteUpload, patchProGearWeightTicket } from 'services/internalApi';
+import { createProGearWeightTicket, deleteUpload, patchMTOShipment, patchProGearWeightTicket } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { selectMTOShipmentById, selectProGearWeightTicketAndIndexById } from 'store/entities/selectors';
 
@@ -37,6 +37,7 @@ jest.mock('services/internalApi', () => ({
   deleteUpload: jest.fn(),
   patchProGearWeightTicket: jest.fn(),
   getResponseError: jest.fn(),
+  patchMTOShipment: jest.fn(),
 }));
 
 const mockMTOShipment = {
@@ -100,6 +101,18 @@ const mockProGearWeightTicketWithUploads = {
   },
   eTag: mockProGearWeightTicketETag,
 };
+
+let belongsToSelf = 'true';
+const testPayload = {
+  belongsToSelf,
+  ppmShipment: {
+    id: mockMTOShipment.ppmShipment.id,
+  },
+  shipmentType: mockMTOShipment.shipmentType,
+  actualSpouseProGearWeight: 10,
+  actualProGearWeight: 10,
+  shipmentLocator: 'TESTER-01',
+}
 
 const mockEmptyProGearWeightTicketAndIndex = {
   proGearWeightTicket: null,
@@ -217,6 +230,55 @@ describe('Pro-gear page', () => {
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockNavigate).toHaveBeenCalledWith(movePath);
+  });
+
+  it('calls patchMtoShipment with the appropriate paylaod', async () => {
+    createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicketWithUploads);
+    selectProGearWeightTicketAndIndexById.mockReturnValue({
+      proGearWeightTicket: mockProGearWeightTicketWithUploads,
+      index: 1,
+    });
+
+    patchMTOShipment.mockResolvedValue(testPayload);
+
+    renderProGearPage();
+    await userEvent.click(screen.getByLabelText('My spouse'));
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Set 2');
+    });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/^Brief description of the pro-gear/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/I don't have weight tickets/)).toBeInTheDocument();
+    });
+    await userEvent.type(screen.getByLabelText(/^Brief description of the pro-gear/), 'Professional gear');
+    await userEvent.type(screen.getByLabelText(/^Shipment's pro-gear weight/), '100');
+    await userEvent.click(screen.getByLabelText(/I don't have weight tickets/));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeVisible();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(patchMTOShipment).toHaveBeenCalledWith(
+        mockMTOShipment.id,
+        {
+          belongsToSelf: false,
+          ppmShipment: {
+            id: testPayload.ppmShipment.id,
+          },
+          shipmentType: testPayload.shipmentType,
+          actualProGearWeight: NaN,
+          actualSpouseProGearWeight: 100,
+          shipmentLocator: undefined,
+        },
+        mockMTOShipment.eTag
+      );
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls patchProGearWeightTicket with the appropriate payload', async () => {
