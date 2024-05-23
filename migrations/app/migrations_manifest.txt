@@ -924,6 +924,7 @@
 20240411201158_add_application_parameter_and_validation_code_table.up.sql
 20240412201837_edit_gun_safe_entitlement_not_null.up.sql
 20240416145256_update_safety_privilege_label.up.sql
+20240502225801_add_hq_role.up.sql
 20240502175909_add_lookup_valid_columns_to_tac_and_loa_tables.up.sql
 20240502183613_add_support_for_standalone_payment_cap.up.sql
 20240503123556_add_diversion_reason_to_mto_shipments.up.sql
@@ -938,3 +939,4 @@
 20240516143952_add_pricing_estimate_to_mto_service_items.up.sql
 20240516184021_import_pricing_data_ghc.up.sql
 20240521160335_backfill_LOA_FY_TX.up.sql
+20240522124339_add_csr_to_roles.up.sql

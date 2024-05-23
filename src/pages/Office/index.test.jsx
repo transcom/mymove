@@ -220,6 +220,7 @@ describe('Office App', () => {
 
     it.each([
       ['Move Queue', '/moves/queue', roleTypes.TOO],
+      ['Move Queue', '/moves/queue', roleTypes.HQ],
       ['Payment Request Queue', '/invoicing/queue', roleTypes.TIO],
       ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.SERVICES_COUNSELOR],
       ['Services Counseling Queue', '/counseling', roleTypes.SERVICES_COUNSELOR],
@@ -258,6 +259,7 @@ describe('Office App', () => {
       ['TXO Move Info', '/moves/move123', roleTypes.TIO],
       ['Payment Request Queue', '/', roleTypes.TIO],
       ['Move Queue', '/', roleTypes.TOO],
+      ['Move Queue', '/', roleTypes.HQ],
       ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
       ['QAE CSR Move Search', '/', roleTypes.QAE_CSR],
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
