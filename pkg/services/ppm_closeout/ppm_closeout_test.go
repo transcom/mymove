@@ -71,6 +71,15 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
+		testdatagen.FetchOrMakeReZip3(suite.AppContextForTest().DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originDomesticServiceArea.Contract,
+				ContractID:          originDomesticServiceArea.ContractID,
+				DomesticServiceArea: originDomesticServiceArea,
+				Zip3:                "503",
+			},
+		})
+
 		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 				Contract:              originDomesticServiceArea.Contract,
@@ -337,7 +346,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		appCtx := suite.AppContextForTest()
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2294, nil)
+			"50309", "30813").Return(2294, nil)
 
 		mockedPaymentRequestHelper.On(
 			"FetchServiceParamsForServiceItems",
