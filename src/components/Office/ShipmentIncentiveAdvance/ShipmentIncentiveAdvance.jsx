@@ -54,8 +54,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
     }
   };
 
-  const handleAdvanceChange = (event) => {
-    const { value } = event.target;
+  const advanceHandler = (value) => {
     // If advance number input is different than saved value, assume
     // ACCEPT state and select radio button.
     if (value !== savedAdvanceAmountRequestedDisplayValue) {
@@ -63,6 +62,23 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
         statusHelper.setValue(ADVANCE_STATUSES.APPROVED.apiValue);
       }
     }
+  };
+
+  const onKeyUpAdvanceHandler = (event) => {
+    const { value } = event.target;
+    // keyUp handler to ensure masking value display is properly
+    // handled when number exceeds 3 digits because anything greater
+    // will display ',' separator
+    advanceHandler(value);
+  };
+
+  const onPasteAdvanceHandler = (event) => {
+    const { value } = event.clipboardData.getData('Text');
+    // delay to prevent string concatenation between current value
+    // and incoming for copy and paste edge case.
+    setTimeout(() => {
+      advanceHandler(value);
+    }, 100);
   };
 
   return (
@@ -109,7 +125,8 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
-                    onChange={handleAdvanceChange}
+                    onKeyUp={onKeyUpAdvanceHandler}
+                    onPaste={onPasteAdvanceHandler}
                   />
                 </FormGroup>
 
