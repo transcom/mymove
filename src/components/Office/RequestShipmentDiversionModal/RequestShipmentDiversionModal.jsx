@@ -36,7 +36,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
           >
             {({ handleChange, values, isValid, dirty }) => {
               return (
-                <Form>
+                <Form aria-label="diversion reason">
                   <TextField
                     id="diversionReason"
                     name="diversionReason"
@@ -46,10 +46,10 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
                     onChange={handleChange}
                   />
                   <ModalActions>
-                    <Button secondary type="reset" onClick={() => onClose()} data-testid="backButton">
+                    <Button secondary type="reset" onClick={() => onClose()} data-testid="modalBackButton">
                       Back
                     </Button>
-                    <Button type="submit" disabled={!isValid || !dirty} data-testid="submitButton">
+                    <Button type="submit" disabled={!isValid || !dirty} data-testid="modalSubmitButton">
                       Request Diversion
                     </Button>
                   </ModalActions>

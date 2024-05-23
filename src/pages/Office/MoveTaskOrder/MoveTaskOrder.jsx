@@ -599,6 +599,11 @@ export const MoveTaskOrder = (props) => {
             true,
           );
         },
+        onError: () => {
+          setIsDiversionModalVisible(false);
+          setAlertMessage('There was a problem requesting a diversion on this shipment. Please try again later.');
+          setAlertType('error');
+        },
       },
     );
   };
