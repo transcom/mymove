@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.6
         with:
           fetch-depth: 0
         if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'

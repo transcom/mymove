@@ -10768,7 +10768,7 @@ imask@^7.3.0:
   resolved "https://registry.npmjs.org/imask/-/imask-7.3.0.tgz"
   integrity sha512-TG+/rfb62JaQDM2KVrzEHMb4lv2srbsby7vHndXhqgQFB1MgPIXl60VQUfly/Xv5iWfA9ytB+rfQ+skUgINw7A==
   dependencies:
-    "@babel/runtime-corejs3" "^7.23.6"
+    "@babel/runtime-corejs3" "^7.24.4"
 
 immer@^9.0.2, immer@^9.0.6, immer@^9.0.7:
   version "9.0.21"
@@ -15291,7 +15291,7 @@ react-imask@^7.3.0:
   resolved "https://registry.npmjs.org/react-imask/-/react-imask-7.3.0.tgz"
   integrity sha512-AHoQUeXil6PfqDzJHN08hO2liWxNDRJosNUa2XSqliFY2tXGL/3Elm0msupDNAyNPItAnyF9G5FGFoCfiCn+AQ==
   dependencies:
-    imask "^7.3.0"
+    imask "^7.6.1"
     prop-types "^15.8.1"
 
 react-inspector@^6.0.0:
