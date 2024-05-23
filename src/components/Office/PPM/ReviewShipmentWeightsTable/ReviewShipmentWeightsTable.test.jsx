@@ -26,10 +26,8 @@ const PPMProps = {
         actualDestinationPostalCode: '94611',
         hasReceivedAdvance: true,
         advanceAmountReceived: 60000,
-        proGearWeight: 1000,
-        spouseProGearWeight: 500,
         estimatedWeight: 4000,
-        expectedDepartureDate: '01-Apr-23',
+        actualMoveDate: '2023-04-01',
         weightTickets: [
           {
             emptyWeight: 1000,
@@ -37,6 +35,8 @@ const PPMProps = {
           },
         ],
       },
+      actualProGearWeight: 1000,
+      actualSpouseProGearWeight: 500,
     },
   ],
   tableConfig: PPMReviewWeightsTableConfig,
@@ -46,7 +46,7 @@ const ProGearProps = {
     {
       entitlement: {
         proGearWeight: 2000,
-        spouseProGearWeight: 500,
+        proGearWeightSpouse: 500,
       },
     },
   ],
@@ -63,7 +63,7 @@ const NonPPMProps = {
         id: 'rw01',
         weight: 3200,
       },
-      actualDeliveryDate: '04-Apr-23',
+      actualDeliveryDate: '2023-04-23',
     },
   ],
   tableConfig: nonPPMReviewWeightsTableConfig,
@@ -82,13 +82,13 @@ describe('ReviewShipmentWeight component', () => {
       expect(screen.getByText('Review Documents')).toBeInTheDocument();
       expect(screen.getByText('Review Documents').tagName).toBe('A');
       expect(screen.getByText('Pro-gear (lbs)')).toBeInTheDocument();
-      expect(screen.getByText('1,000 lbs')).toBeInTheDocument();
+      expect(screen.getByText('4,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Spouse pro-gear')).toBeInTheDocument();
       expect(screen.getByText('500 lbs')).toBeInTheDocument();
       expect(screen.getByText('Net weight')).toBeInTheDocument();
       expect(screen.getByText('5,001 lbs')).toBeInTheDocument();
       expect(screen.getByText('Departure date')).toBeInTheDocument();
-      expect(screen.getByText('Apr 01 2023')).toBeInTheDocument();
+      expect(screen.getByText('04 01 2023')).toBeInTheDocument();
     });
   });
   it('correctly renders Pro-gear table data', async () => {
@@ -120,7 +120,7 @@ describe('ReviewShipmentWeight component', () => {
       expect(screen.getByText('Billable weight')).toBeInTheDocument();
       expect(screen.getByText('3,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Delivery date')).toBeInTheDocument();
-      expect(screen.getByText('Apr 04 2023')).toBeInTheDocument();
+      expect(screen.getByText('04 23 2023')).toBeInTheDocument();
     });
   });
 });

@@ -15,6 +15,7 @@ import {
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
+  patchMTOShipment,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -109,9 +110,38 @@ const ProGear = () => {
       });
   };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    setErrorMessage(null);
-    setErrors({});
+  const updateMtoShipment = (values) => {
+    const belongsToSelf = values.belongsToSelf === 'true';
+    let proGear;
+    let spouseProGear;
+    if (belongsToSelf) {
+      proGear = values.weight;
+    }
+    if (!belongsToSelf) {
+      spouseProGear = values.weight;
+    }
+    const payload = {
+      belongsToSelf,
+      ppmShipment: {
+        id: mtoShipment.ppmShipment.id,
+      },
+      shipmentType: mtoShipment.shipmentType,
+      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
+      actualProGearWeight: parseInt(proGear, 10),
+      shipmentLocator: values.shipmentLocator,
+    };
+
+    patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
+      .then((resp) => {
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        dispatch(updateMTOShipment(resp));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to update MTO shipment due to server error.');
+      });
+  };
+
+  const updateProGearWeightTicket = (values) => {
     const hasWeightTickets = !values.missingWeightTicket;
     const belongsToSelf = values.belongsToSelf === 'true';
     const payload = {
@@ -130,15 +160,21 @@ const ProGear = () => {
       currentProGearWeightTicket.eTag,
     )
       .then((resp) => {
-        setSubmitting(false);
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex] = resp;
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {
-        setSubmitting(false);
         setErrorMessage('Failed to save updated trip record');
       });
+  };
+
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    setErrorMessage(null);
+    setErrors({});
+    setSubmitting(false);
+    updateMtoShipment(values);
+    updateProGearWeightTicket(values);
   };
 
   const renderError = () => {

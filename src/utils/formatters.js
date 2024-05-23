@@ -320,8 +320,8 @@ export function formatReviewShipmentWeightsDate(date) {
    * support for parsing strings. Read more about *String + Format* here:
    * <https://momentjs.com/docs/#/parsing/string/>
    */
-  const INCOMING_DATE_FORMAT = 'DD-MMM-YY';
-  return moment(date, INCOMING_DATE_FORMAT).format('MMM DD YYYY');
+  const INCOMING_DATE_FORMAT = 'YYYY-MM-DD';
+  return moment(date, INCOMING_DATE_FORMAT).format('MM DD YYYY');
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
