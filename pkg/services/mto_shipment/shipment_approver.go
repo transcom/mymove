@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"math"
-
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -56,14 +54,8 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return nil, err
 	}
 
-	if shipment.PrimeEstimatedWeight != nil {
-		err = f.updateAuthorizedWeight(appCtx, shipment)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
@@ -174,44 +166,6 @@ func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppConte
 		if err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-// when a TOO approves a shipment, if it was created by PRIME and an estimated weight exists
-// add that to the authorized weight
-func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	var move models.Move
-	err := appCtx.DB().EagerPreload(
-		"MTOShipments",
-		"Orders.Entitlement",
-	).Find(&move, shipment.MoveTaskOrderID)
-
-	if err != nil {
-		return apperror.NewQueryError("Move", err, "unable to find Move")
-	}
-
-	dBAuthorizedWeight := int(*shipment.PrimeEstimatedWeight)
-	if len(move.MTOShipments) != 0 {
-		for _, mtoShipment := range move.MTOShipments {
-			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved {
-				dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
-			}
-		}
-	}
-	dBAuthorizedWeight = int(math.Round(float64(dBAuthorizedWeight) * 1.10))
-
-	entitlement := move.Orders.Entitlement
-	entitlement.DBAuthorizedWeight = &dBAuthorizedWeight
-	verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
-
-	if verrs != nil && verrs.HasAny() {
-		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
-		return invalidInputError
-	}
-	if err != nil {
-		return err
 	}
 
 	return nil

@@ -8119,6 +8119,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -10820,6 +10826,15 @@ func init() {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -10836,6 +10851,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -10932,6 +10951,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
@@ -10962,6 +10987,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -21091,6 +21121,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -23850,6 +23886,15 @@ func init() {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -23866,6 +23911,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -23962,6 +24011,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
@@ -23992,6 +24047,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },
