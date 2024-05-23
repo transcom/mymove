@@ -58,9 +58,10 @@ const ServicesCounselingAddOrders = ({ userPrivileges }) => {
     });
   }, []);
 
-  const isSafetyPrivileged = isSafetyMoveFF
-    ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
-    : false;
+  const isSafetyPrivileged =
+    isSafetyMoveFF && isSafetyMoveSelected !== false
+      ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
+      : false;
 
   const allowedOrdersTypes = isSafetyPrivileged
     ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY: 'Safety' } }
