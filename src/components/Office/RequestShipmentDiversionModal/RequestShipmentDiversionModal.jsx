@@ -21,7 +21,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
         <Modal>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
-            <h3>Request Shipment Diversion for {shipmentInfo.shipmentLocator}</h3>
+            <h3>Request Shipment Diversion for #{shipmentInfo.shipmentLocator}</h3>
           </ModalTitle>
           <p>
             Movers will be notified that a diversion has been requested on this shipment. They will confirm or deny this
