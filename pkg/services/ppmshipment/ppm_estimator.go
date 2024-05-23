@@ -240,9 +240,29 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	logger := appCtx.Logger()
 
 	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
-	actualPickupPostal := *ppmShipment.ActualPickupPostalCode
-	actualDestPostal := *ppmShipment.ActualDestinationPostalCode
-	if actualPickupPostal[0:3] == actualDestPostal[0:3] {
+
+	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
+	var pickupPostal, destPostal string
+
+	// Check different address values for a postal code
+	if ppmShipment.ActualPickupPostalCode != nil {
+		pickupPostal = *ppmShipment.ActualPickupPostalCode
+	} else if ppmShipment.PickupPostalCode != "" {
+		pickupPostal = ppmShipment.PickupPostalCode
+	} else if ppmShipment.PickupAddress.PostalCode != "" {
+		pickupPostal = ppmShipment.PickupAddress.PostalCode
+	}
+
+	// Same for destination
+	if ppmShipment.ActualDestinationPostalCode != nil {
+		destPostal = *ppmShipment.ActualDestinationPostalCode
+	} else if ppmShipment.DestinationPostalCode != "" {
+		destPostal = ppmShipment.DestinationPostalCode
+	} else if ppmShipment.DestinationAddress.PostalCode != "" {
+		destPostal = ppmShipment.DestinationAddress.PostalCode
+	}
+
+	if pickupPostal[0:3] == destPostal[0:3] {
 		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
 	}
 
