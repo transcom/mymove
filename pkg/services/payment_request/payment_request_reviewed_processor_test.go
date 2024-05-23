@@ -427,7 +427,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(2)
 
 		// Set up mock HTTP server and mock GEX
-		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		mockGexSender := invoice.NewGexSenderHTTP(mockServer.URL, false, nil, "", "")
@@ -672,7 +672,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sendToSyncada := true // Call GEXSender but using mock here
 
-		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 		}))
 		mockGexSender := invoice.NewGexSenderHTTP(mockServer.URL, false, nil, "", "")

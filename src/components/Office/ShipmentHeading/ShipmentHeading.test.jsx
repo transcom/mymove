@@ -29,6 +29,7 @@ const headingInfo = {
   scheduledPickupDate: '27 Mar 2020',
   shipmentStatus: 'SUBMITTED',
   ifMatchEtag: '1234',
+  shipmentLocator: 'EVLRPT-01',
 };
 
 describe('Shipment Heading with full destination address', () => {
@@ -59,6 +60,7 @@ describe('Shipment Heading with missing destination address', () => {
       />,
     );
     expect(wrapper.find('h2').text()).toEqual('Household Goods');
+    expect(wrapper.find('h4').text()).toContain(headingInfo.shipmentLocator);
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('98421');
     expect(wrapper.find('small').text()).toContain('27 Mar 2020');
