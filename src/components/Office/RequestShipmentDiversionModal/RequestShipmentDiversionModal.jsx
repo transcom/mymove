@@ -36,7 +36,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
           >
             {({ handleChange, values, isValid, dirty }) => {
               return (
-                <Form>
+                <Form aria-label="diversion reason">
                   <TextField
                     id="diversionReason"
                     name="diversionReason"
