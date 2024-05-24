@@ -129,12 +129,14 @@ const ProGear = () => {
       actualSpouseProGearWeight: parseInt(spouseProGear, 10),
       actualProGearWeight: parseInt(proGear, 10),
       shipmentLocator: values.shipmentLocator,
+      eTag: mtoShipment.eTag,
     };
 
-    patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
-      .then((resp) => {
+    console.log('patchMTOShipment Etag:' ,payload.eTag);
+    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
+      .then(() => {
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(resp));
+        dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {
         setErrorMessage('Failed to update MTO shipment due to server error.');
@@ -153,6 +155,7 @@ const ProGear = () => {
       hasWeightTickets,
     };
 
+    console.log('patchProGear Weight Etag:', currentProGearWeightTicket.eTag);
     patchProGearWeightTicket(
       mtoShipment?.ppmShipment?.id,
       currentProGearWeightTicket.id,
