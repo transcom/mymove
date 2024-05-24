@@ -84,6 +84,7 @@ var QAECSR = RolePermissions{
 		"update.evaluationReport",
 		"delete.evaluationReport",
 		"view.closeoutOffice",
+		"read.shipmentsPaymentSITBalance",
 	},
 }
 
