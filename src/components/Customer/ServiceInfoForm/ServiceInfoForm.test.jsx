@@ -288,7 +288,6 @@ describe('ServiceInfoForm', () => {
       // Skip branch because Coast Guard needs to be selected for EMPLID to appear
       await userEvent.click(screen.getByLabelText('First name'));
       await userEvent.click(screen.getByLabelText('Last name'));
-      await userEvent.click(screen.getByLabelText('DoD ID number'));
       await userEvent.click(screen.getByLabelText('EMPLID'));
 
       const submitBtn = screen.getByRole('button', { name: 'Save' });
