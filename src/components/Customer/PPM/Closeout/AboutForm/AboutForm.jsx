@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Button, Form, FormGroup, Radio } from '@trussworks/react-uswds';
@@ -11,21 +11,16 @@ import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
-import {
-  InvalidZIPTypeError,
-  requiredW2AddressSchema,
-  UnsupportedZipCodePPMErrorMsg,
-  ZIP5_CODE_REGEX,
-} from 'utils/validation';
+import { requiredW2AddressSchema, requiredAddressSchema } from 'utils/validation';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 
-const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
+const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
   const formFieldsName = 'w2Address';
   const today = new Date();
 
@@ -33,8 +28,10 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
     actualMoveDate: Yup.date()
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
-    actualPickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-    actualDestinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+    pickupAddress: requiredAddressSchema,
+    destinationAddress: requiredAddressSchema,
+    secondaryPickupAddress: OptionalAddressSchema,
+    secondaryDestinationAddress: OptionalAddressSchema,
     hasReceivedAdvance: Yup.boolean().required('Required'),
     advanceAmountReceived: Yup.number().when('hasReceivedAdvance', {
       is: true,
@@ -43,56 +40,47 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
           .required('Required')
           .min(1, "The minimum advance request is $1. If you don't want an advance, select No."),
     }),
-    [formFieldsName]: requiredW2AddressSchema.required(),
+    w2Address: requiredW2AddressSchema.required(),
   });
 
-  const [postalCodeValid, setPostalCodeValid] = useState({});
-
+  const ppmShipment = mtoShipment?.ppmShipment || {};
   const {
+    pickupAddress,
+    secondaryPickupAddress,
+    destinationAddress,
+    secondaryDestinationAddress,
+    hasSecondaryPickupAddress,
+    hasSecondaryDestinationAddress,
     actualMoveDate,
-    actualPickupPostalCode,
-    actualDestinationPostalCode,
-    destinationPostalCode,
     hasReceivedAdvance,
     advanceAmountReceived,
-  } = mtoShipment?.ppmShipment || {};
+  } = ppmShipment;
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
-    actualPickupPostalCode: actualPickupPostalCode || '',
-    actualDestinationPostalCode: actualDestinationPostalCode || destinationPostalCode || '',
+    actualPickupPostalCode: '',
+    actualDestinationPostalCode: '',
+    pickupAddress,
+    secondaryPickupAddress: hasSecondaryPickupAddress ? secondaryPickupAddress : {},
+    destinationAddress,
+    secondaryDestinationAddress: hasSecondaryDestinationAddress ? secondaryDestinationAddress : {},
+    hasSecondaryPickupAddress: 'false',
+    hasSecondaryDestinationAddress: 'false',
     hasReceivedAdvance: hasReceivedAdvance ? 'true' : 'false',
     advanceAmountReceived: hasReceivedAdvance ? formatCentsTruncateWhole(advanceAmountReceived) : '',
     [formFieldsName]: {
       streetAddress1: mtoShipment?.ppmShipment?.w2Address?.streetAddress1 || '',
       streetAddress2: mtoShipment?.ppmShipment?.w2Address?.streetAddress2 || '',
+      streetAddress3: mtoShipment?.ppmShipment?.w2Address?.streetAddress3 || '',
       city: mtoShipment?.ppmShipment?.w2Address?.city || '',
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
     },
   };
 
-  const postalCodeValidate = async (value, location, name) => {
-    if (value?.length !== 5) {
-      return undefined;
-    }
-    // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
-    if (postalCodeValid[`${name}`]?.value !== value) {
-      const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
-      setPostalCodeValid((state) => {
-        return {
-          ...state,
-          [name]: { value, isValid: !response },
-        };
-      });
-      return response;
-    }
-    return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
-  };
-
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched, values }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
@@ -110,22 +98,98 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                   If you picked things up or dropped things off from other places a long way from your start or end
                   ZIPs, ask your counselor if you should add another PPM shipment.
                 </p>
-                <TextField
-                  label="Starting ZIP"
-                  id="actualPickupPostalCode"
-                  name="actualPickupPostalCode"
-                  maxLength={5}
-                  validate={(value) => postalCodeValidate(value, 'origin', 'actualPickupPostalCode')}
+                <AddressFields
+                  name="pickupAddress"
+                  legend="Pickup Address"
+                  className={styles.AddressFieldSet}
+                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                  render={(fields) => (
+                    <>
+                      {fields}
+                      <h4>Second pickup location</h4>
+                      <FormGroup>
+                        <p>
+                          Will you pick up any belongings from a second address? (Must be near the pickup address.
+                          Subject to approval.)
+                        </p>
+                        <div className={formStyles.radioGroup}>
+                          <Field
+                            as={Radio}
+                            id="has-secondary-pickup"
+                            data-testid="has-secondary-pickup"
+                            label="Yes"
+                            name="hasSecondaryPickupAddress"
+                            value="true"
+                            title="Yes, there is a second pickup location"
+                            checked={values.hasSecondaryPickupAddress === 'true'}
+                          />
+                          <Field
+                            as={Radio}
+                            id="no-secondary-pickup"
+                            data-testid="no-secondary-pickup"
+                            label="No"
+                            name="hasSecondaryPickupAddress"
+                            value="false"
+                            title="No, there is not a second pickup location"
+                            checked={values.hasSecondaryPickupAddress !== 'true'}
+                          />
+                        </div>
+                      </FormGroup>
+                      {values.hasSecondaryPickupAddress === 'true' && (
+                        <AddressFields
+                          name="secondaryPickupAddress"
+                          formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        />
+                      )}
+                    </>
+                  )}
                 />
-                <Hint className={ppmStyles.hint}>The ZIP for the address you moved away from.</Hint>
-                <TextField
-                  label="Ending ZIP"
-                  id="actualDestinationPostalCode"
-                  name="actualDestinationPostalCode"
-                  maxLength={5}
-                  validate={(value) => postalCodeValidate(value, 'destination', 'actualDestinationPostalCode')}
+                <AddressFields
+                  name="destinationAddress"
+                  legend="Destination Address"
+                  className={styles.AddressFieldSet}
+                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                  render={(fields) => (
+                    <>
+                      {fields}
+                      <h4>Second destination address</h4>
+                      <FormGroup>
+                        <p>
+                          Will you deliver any belongings to a second address? (Must be near the destination address.
+                          Subject to approval.)
+                        </p>
+                        <div className={formStyles.radioGroup}>
+                          <Field
+                            as={Radio}
+                            data-testid="has-secondary-destination"
+                            id="has-secondary-destination"
+                            label="Yes"
+                            name="hasSecondaryDestinationAddress"
+                            value="true"
+                            title="Yes, there is a second destination location"
+                            checked={values.hasSecondaryDestinationAddress === 'true'}
+                          />
+                          <Field
+                            as={Radio}
+                            data-testid="no-secondary-destination"
+                            id="no-secondary-destination"
+                            label="No"
+                            name="hasSecondaryDestinationAddress"
+                            value="false"
+                            title="No, there is not a second destination location"
+                            checked={values.hasSecondaryDestinationAddress !== 'true'}
+                          />
+                        </div>
+                      </FormGroup>
+                      {values.hasSecondaryDestinationAddress === 'true' && (
+                        <AddressFields
+                          name="secondaryDestinationAddress"
+                          formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        />
+                      )}
+                    </>
+                  )}
                 />
-                <Hint className={ppmStyles.hint}>The ZIP for your new permanent address.</Hint>
                 <h2>Advance (AOA)</h2>
                 <FormGroup>
                   <Fieldset className={styles.advanceFieldset}>
@@ -133,6 +197,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                     <Field
                       as={Radio}
                       id="yes-has-received-advance"
+                      data-testid="yes-has-received-advance"
                       label="Yes"
                       name="hasReceivedAdvance"
                       value="true"
@@ -141,6 +206,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, postalCodeValidator }) => {
                     <Field
                       as={Radio}
                       id="no-has-received-advance"
+                      data-testid="no-has-received-advance"
                       label="No"
                       name="hasReceivedAdvance"
                       value="false"
@@ -195,7 +261,6 @@ AboutForm.propTypes = {
   mtoShipment: ShipmentShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  postalCodeValidator: func.isRequired,
 };
 
 export default AboutForm;
