@@ -97,7 +97,7 @@ require (
 	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.13.0
 	google.golang.org/grpc v1.62.0
-	gopkg.in/dnaeon/go-vcr.v3 v3.1.2
+	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
 	gotest.tools/gotestsum v1.10.1
 	pault.ag/go/pksigner v1.0.2
 )
