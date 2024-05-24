@@ -1256,6 +1256,7 @@ definitions:
             example: Decorated horse head to be crated.
           standaloneCrate:
             type: boolean
+            x-nullable: true
         required:
           - reServiceCode
           - item

@@ -53,7 +53,7 @@ type MTOServiceItemDomesticCrating struct {
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// standalone crate
-	StandaloneCrate bool `json:"standaloneCrate,omitempty"`
+	StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -158,7 +158,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// standalone crate
-		StandaloneCrate bool `json:"standaloneCrate,omitempty"`
+		StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -251,7 +251,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// standalone crate
-		StandaloneCrate bool `json:"standaloneCrate,omitempty"`
+		StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
 	}{
 
 		Crate: m.Crate,
