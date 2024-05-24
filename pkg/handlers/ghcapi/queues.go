@@ -1,6 +1,8 @@
 package ghcapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
 	"go.uber.org/zap"
@@ -26,12 +28,12 @@ type GetMovesQueueHandler struct {
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
 type FilterOption func(*pop.Query)
 
-// Handle returns the paginated list of moves for the TOO user
+// Handle returns the paginated list of moves for the TOO or HQ user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TOO office role",
 				)
@@ -90,6 +92,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 						}
 						moves[i] = *unlockedMove
 					}
+				}
+				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
+				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
 
@@ -229,6 +236,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 						(*paymentRequests)[i].MoveTaskOrder = *unlockedMove
 					}
 				}
+				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
+				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
+				}
 			}
 
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
@@ -329,6 +341,11 @@ func (h GetServicesCounselingQueueHandler) Handle(
 						}
 						moves[i] = *unlockedMove
 					}
+				}
+				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
+				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
 

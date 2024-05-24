@@ -82,6 +82,23 @@ describe('Shipment Container', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={cancelledInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByText('cancelled')).toBeInTheDocument();
     });
+    it('renders a disabled button when move is locked', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={hhgInfo}
+            onChange={jest.fn()}
+            isSubmitted
+            editURL="/"
+            isMoveLocked
+          />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeDisabled();
+    });
   });
 
   describe('NTS shipment', () => {

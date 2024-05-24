@@ -707,8 +707,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 			} else {
 				hasAmendmentsMap[pm.ID] = false
 			}
-			//nolint:gosec //G601
-			suite.MustSave(&pm.Orders)
+
+			suite.MustSave(&pm.Orders) // #nosec G601 new in 1.22.2
 			upload := models.Upload{
 				Filename:    "test.pdf",
 				Bytes:       1048576,

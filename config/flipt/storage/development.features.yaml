@@ -1,6 +1,14 @@
 version: "1.2"
 namespace: development
 flags:
+- key: safety_move
+  name: Safety Move feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: counselor_move_create
   name: Counselor Move Creation feature flag
   type: BOOLEAN_FLAG_TYPE
@@ -41,6 +49,22 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: okta_dodid_input
   name: Customer DODID input being pulled from Okta and disabling text input
   type: BOOLEAN_FLAG_TYPE
@@ -67,6 +91,14 @@ flags:
       value: true
 - key: ntsr
   name: NTSR feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: coast_guard_emplid
+  name: USCG EMPLID feature flag
   type: BOOLEAN_FLAG_TYPE
   enabled: true
   rollouts:

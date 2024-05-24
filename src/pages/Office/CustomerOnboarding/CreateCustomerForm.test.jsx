@@ -25,6 +25,11 @@ jest.mock('store/flash/actions', () => ({
   setFlashMessage: jest.fn(),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 beforeEach(jest.resetAllMocks);
 
 const fakePayload = {
@@ -62,6 +67,7 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
+  is_safety_move: 'false',
 };
 
 const fakeResponse = {
@@ -181,19 +187,19 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
 
-    await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
-    await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
-    await userEvent.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
-    await userEvent.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+    await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
+    await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
+    await user.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
+    await user.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
 
-    await userEvent.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
-    await userEvent.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
-    await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
-    await userEvent.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+    await user.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
+    await user.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
+    await user.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
+    await user.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
 
-    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
-    await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
-    await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
+    await user.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
+    await user.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
     await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
 
@@ -202,12 +208,19 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
     });
-    await userEvent.click(saveBtn);
 
-    await waitFor(() => {
+    const waiter = waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(ordersPath);
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: false,
+        },
+      });
     });
+
+    await user.click(saveBtn);
+    await waiter;
+    expect(mockNavigate).toHaveBeenCalled();
   }, 10000);
 
   it('submits the form and tests for unsupported state validation', async () => {
@@ -270,7 +283,13 @@ describe('CreateCustomerForm', () => {
 
     await userEvent.click(saveBtn);
 
-    expect(createCustomerWithOktaOption).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: false,
+        },
+      });
+    });
   }, 10000);
 });

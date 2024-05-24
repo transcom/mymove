@@ -482,7 +482,7 @@ test.describe('TOO user', () => {
 
       // Check the alert message with shipment locator
       const alertText = await page.locator('[data-testid="alert"]').textContent();
-      const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
+      const shipmentNumberPattern = /Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})/;
       const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
       expect(hasValidShipmentNumber).toBeTruthy();
 
@@ -732,7 +732,7 @@ test.describe('TOO user', () => {
     await expect(page.getByText('Update request details')).not.toBeVisible();
     await expect(page.getByText('Review required')).not.toBeVisible();
     await expect(page.getByTestId('destinationAddress')).toContainText(
-      '123 Any Street, P.O. Box 12345, Beverly Hills, CA 90210',
+      '123 Any Street, P.O. Box 12345, c/o Some Person, Beverly Hills, CA 90210',
     );
 
     await page.getByText('KKFA moves').click();

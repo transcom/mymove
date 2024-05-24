@@ -6,13 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
-import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import {
   SERVICE_COUNSELING_BRANCH_OPTIONS,
-  SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
@@ -25,7 +24,7 @@ import {
   useMoveSearchQueries,
   useCustomerSearchQueries,
 } from 'hooks/queries';
-import { DATE_FORMAT_STRING } from 'shared/constants';
+import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -34,12 +33,11 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
 const counselingColumns = (moveLockFlag) => [
@@ -84,15 +82,13 @@ const counselingColumns = (moveLockFlag) => [
   createHeader(
     'Status',
     (row) => {
-      return SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`];
+      return row.status !== MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED
+        ? SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`]
+        : null;
     },
     {
       id: 'status',
-      isFilterable: true,
-      Filter: (props) => (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS} {...props} />
-      ),
+      disableSortBy: true,
     },
   ),
   createHeader(
@@ -268,8 +264,19 @@ const ServicesCounselingQueue = () => {
     fetchData();
   }, [setErrorState]);
 
-  const handleClick = (values) => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+  const handleEditProfileClick = (locator) => {
+    navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
+  };
+
+  const handleClick = (values, e) => {
+    // if the user clicked the profile icon to edit, we want to route them elsewhere
+    // since we don't have innerText, we are using the data-label property
+    const editProfileDiv = e.target.closest('div[data-label="editProfile"]');
+    if (editProfileDiv) {
+      navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else {
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
 
   const handleCustomerSearchClick = (values) => {
@@ -366,6 +373,7 @@ const ServicesCounselingQueue = () => {
       <Navigate to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH} />
     );
   }
+
   const navTabs = () => (isCounselorMoveCreateFFEnabled ? ffTabs : tabs);
 
   const renderNavBar = () => {
@@ -390,6 +398,7 @@ const ServicesCounselingQueue = () => {
             disableSortBy={false}
             title="Results"
             handleClick={handleClick}
+            handleEditProfileClick={handleEditProfileClick}
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}

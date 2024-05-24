@@ -168,7 +168,7 @@ func init() {
     },
     "/customer": {
       "post": {
-        "description": "Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.",
+        "description": "Creates a customer with option to create an Okta profile account",
         "consumes": [
           "application/json"
         ],
@@ -4527,6 +4527,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -7398,6 +7406,11 @@ func init() {
           "type": "boolean",
           "example": true
         },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
+        },
         "eTag": {
           "type": "string"
         },
@@ -8538,13 +8551,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -9736,6 +9751,17 @@ func init() {
         "$ref": "#/definitions/ReportViolation"
       }
     },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
+      }
+    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "type": "object",
@@ -10047,7 +10073,8 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true
+          "x-nullable": true,
+          "example": 1234567890
         },
         "firstName": {
           "type": "string",
@@ -11874,7 +11901,7 @@ func init() {
     },
     "/customer": {
       "post": {
-        "description": "Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.",
+        "description": "Creates a customer with option to create an Okta profile account",
         "consumes": [
           "application/json"
         ],
@@ -17380,6 +17407,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -20408,6 +20443,11 @@ func init() {
           "type": "boolean",
           "example": true
         },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
+        },
         "eTag": {
           "type": "string"
         },
@@ -21548,13 +21588,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -22748,6 +22790,17 @@ func init() {
         "$ref": "#/definitions/ReportViolation"
       }
     },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
+      }
+    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "type": "object",
@@ -23109,7 +23162,8 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true
+          "x-nullable": true,
+          "example": 1234567890
         },
         "firstName": {
           "type": "string",

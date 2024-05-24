@@ -839,14 +839,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
-		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -1168,6 +1168,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems, storer),
 		Diversion:                   mtoShipment.Diversion,
+		DiversionReason:             mtoShipment.DiversionReason,
 		Reweigh:                     Reweigh(mtoShipment.Reweigh, sitStatusPayload),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
@@ -1925,7 +1926,6 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
-
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++

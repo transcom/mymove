@@ -86,6 +86,27 @@ definitions:
     properties:
       profile:
         $ref: "#/definitions/OktaUserProfileData"
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -118,6 +139,10 @@ definitions:
         type: array
         items:
           type: string
+      privileges:
+        type: array
+        items:
+          $ref: "#/definitions/Privilege"
     required:
       - id
   DutyLocationsPayload:
@@ -622,6 +647,14 @@ definitions:
         maxLength: 10
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: '^\d{7}$'
+        minLength: 7
+        maxLength: 7
+        example: "5789345"
+        x-nullable: true
+        title: USCG EMPLID
       orders:
         type: array
         items:
@@ -800,6 +833,14 @@ definitions:
         example: "5789345789"
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: '^\d{7}$'
+        minLength: 7
+        maxLength: 7
+        example: "5789345"
+        x-nullable: true
+        title: USCG EMPLID
       affiliation:
         $ref: "definitions/Affiliation.yaml"
       first_name:
@@ -1345,7 +1386,7 @@ definitions:
         example: 7000
         x-nullable: true
       entitlement:
-        $ref: '#/definitions/Entitlement'
+        $ref: "#/definitions/Entitlement"
       providesServicesCounseling:
         type: boolean
         x-omitempty: false
@@ -1853,7 +1894,7 @@ definitions:
         example: "90210"
         pattern: ^(\d{5})$
       pickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
@@ -1861,7 +1902,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryPickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       destinationPostalCode:
         format: zip
         type: string
@@ -1869,7 +1910,7 @@ definitions:
         example: "90210"
         pattern: ^(\d{5})$
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
@@ -1877,7 +1918,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryDestinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       sitExpected:
         type: boolean
     required:
@@ -1909,7 +1950,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       pickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
@@ -1917,7 +1958,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryPickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
@@ -1939,7 +1980,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
@@ -1947,7 +1988,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryDestinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -2145,9 +2186,9 @@ definitions:
         readOnly: true
         x-nullable: true
       mtoShipments:
-        $ref: '#/definitions/MTOShipments'
+        $ref: "#/definitions/MTOShipments"
       closeoutOffice:
-        $ref: 'definitions/TransportationOffice.yaml'
+        $ref: "definitions/TransportationOffice.yaml"
       eTag:
         type: string
         readOnly: true
@@ -2913,16 +2954,16 @@ paths:
           schema:
             format: binary
             type: file
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
@@ -2940,7 +2981,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        '200':
+        "200":
           headers:
             Content-Disposition:
               type: string
@@ -2949,15 +2990,15 @@ paths:
           schema:
             format: binary
             type: file
-        '400':
+        "400":
           description: invalid request
-        '401':
+        "401":
           description: request requires user authentication
-        '403':
+        "403":
           description: user is not authorized
-        '404':
+        "404":
           description: ppm not found
-        '500':
+        "500":
           description: internal server error
 
   /documents:
@@ -4025,7 +4066,7 @@ paths:
   /addresses/{addressId}:
     get:
       summary: Returns an address
-      description: Returns an address
+      description: Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.
       operationId: showAddress
       tags:
         - addresses

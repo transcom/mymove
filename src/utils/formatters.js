@@ -145,6 +145,9 @@ export const ordersTypeReadable = (ordersType, missingText) => {
   if (!ordersType) {
     return missingText;
   }
+  if (ordersType === 'SAFETY') {
+    return 'Safety';
+  }
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };
 
@@ -169,8 +172,8 @@ export const formatAddressShort = (address) => {
 };
 
 export const formatPrimeAPIFullAddress = (address) => {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
-  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
+  const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = address;
+  return `${streetAddress1}, ${streetAddress2}, ${streetAddress3}, ${city}, ${state} ${postalCode}`;
 };
 
 export const formatEvaluationReportShipmentAddress = (address) => {
