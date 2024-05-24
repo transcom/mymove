@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { RadioField } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive } from 'utils/incentives';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -136,7 +137,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                 <FormGroup>
                   <h3 className={styles.NoSpacing}>Review the advance (AOA) request:</h3>
                   <Label className={styles.Label}>Advance request status:</Label>
-                  <Radio
+                  <RadioField
                     id="approveAdvanceRequest"
                     label="Approve"
                     name="advanceStatus"
@@ -145,7 +146,7 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
                     onChange={handleAdvanceRequestStatusChange}
                   />
-                  <Radio
+                  <RadioField
                     id="rejectAdvanceRequest"
                     label="Reject"
                     name="advanceStatus"
