@@ -93,7 +93,7 @@ const ExpenseForm = ({
                           <RadioField
                             id="approveAdvanceRequest"
                             label="Origin"
-                            name="advanceStatus"
+                            name="storageLocation"
                             // value={ADVANCE_STATUSES.APPROVED.apiValue}
                             title="Approve"
                             // checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
@@ -102,7 +102,7 @@ const ExpenseForm = ({
                           <RadioField
                             id="rejectAdvanceRequest"
                             label="Destination"
-                            name="advanceStatus"
+                            name="storageLocation"
                             // value={ADVANCE_STATUSES.REJECTED.apiValue}
                             title="Reject"
                             // checked={!!statusInput.value && !advanceRequestStatus} // defaults to false if advanceStatus has a null value
