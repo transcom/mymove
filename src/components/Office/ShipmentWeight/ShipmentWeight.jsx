@@ -27,6 +27,7 @@ const ShipmentWeight = () => {
               name="estimatedWeight"
               label="Estimated PPM weight"
               id="estimatedWeight"
+              mask={Number}
               scale={0} // digits after point, 0 for integers
               signed={false} // disallow negative
               thousandsSeparator=","
