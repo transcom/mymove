@@ -101,8 +101,6 @@ const incompletePPMShipment = {
     shipmentId: mtoPPMShipmentId,
     status: ppmShipmentStatuses.DRAFT,
     expectedDepartureDate: '2022-08-25',
-    pickupPostalCode: '90210',
-    destinationPostalCode: '30813',
     createdAt: ppmShipmentCreatedDate.toISOString(),
     updatedAt: ppmShipmentCreatedDate.toISOString(),
     eTag: window.btoa(ppmShipmentCreatedDate.toISOString()),

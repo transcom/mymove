@@ -16,20 +16,16 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// Set up:          Create a PPM shipment with no customizations or traits
 		// Expected outcome:PPMShipment should be created with default values
 		defaultPPM := models.PPMShipment{
-			ExpectedDepartureDate:          time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-			PickupPostalCode:               "90210",
-			DestinationPostalCode:          "30813",
-			SITExpected:                    models.BoolPointer(false),
-			Status:                         models.PPMShipmentStatusSubmitted,
-			SecondaryPickupPostalCode:      models.StringPointer("90211"),
-			SecondaryDestinationPostalCode: models.StringPointer("30814"),
-			EstimatedWeight:                models.PoundPointer(unit.Pound(4000)),
-			HasProGear:                     models.BoolPointer(true),
-			ProGearWeight:                  models.PoundPointer(unit.Pound(1987)),
-			SpouseProGearWeight:            models.PoundPointer(unit.Pound(498)),
-			EstimatedIncentive:             models.CentPointer(unit.Cents(1000000)),
-			HasRequestedAdvance:            models.BoolPointer(true),
-			AdvanceAmountRequested:         models.CentPointer(unit.Cents(598700)),
+			ExpectedDepartureDate:  time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+			SITExpected:            models.BoolPointer(false),
+			Status:                 models.PPMShipmentStatusSubmitted,
+			EstimatedWeight:        models.PoundPointer(unit.Pound(4000)),
+			HasProGear:             models.BoolPointer(true),
+			ProGearWeight:          models.PoundPointer(unit.Pound(1987)),
+			SpouseProGearWeight:    models.PoundPointer(unit.Pound(498)),
+			EstimatedIncentive:     models.CentPointer(unit.Cents(1000000)),
+			HasRequestedAdvance:    models.BoolPointer(true),
+			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
 		}
 
 		// SETUP
@@ -37,12 +33,8 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		// VALIDATE RESULTS
 		suite.Equal(defaultPPM.ExpectedDepartureDate, ppmShipment.ExpectedDepartureDate)
-		suite.Equal(defaultPPM.PickupPostalCode, ppmShipment.PickupPostalCode)
-		suite.Equal(defaultPPM.DestinationPostalCode, ppmShipment.DestinationPostalCode)
 		suite.Equal(defaultPPM.SITExpected, ppmShipment.SITExpected)
 		suite.Equal(defaultPPM.Status, ppmShipment.Status)
-		suite.Equal(defaultPPM.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
-		suite.Equal(defaultPPM.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(defaultPPM.EstimatedWeight, ppmShipment.EstimatedWeight)
 		suite.Equal(defaultPPM.HasProGear, ppmShipment.HasProGear)
 		suite.Equal(defaultPPM.ProGearWeight, ppmShipment.ProGearWeight)
@@ -57,11 +49,25 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// Mocked:          None
 		// Set up:          Create a Minimal PPM shipment with no customizations or traits
 		// Expected outcome:PPMShipment should be created with default values
+		pickupAddress := models.Address{
+			StreetAddress1: "987 New Street",
+			City:           "Des Moines",
+			State:          "IA",
+			PostalCode:     "50309",
+		}
+
+		destinationAddress := models.Address{
+			StreetAddress1: "123 New Street",
+			City:           "Fort Eisenhower",
+			State:          "GA",
+			PostalCode:     "30813",
+		}
+
 		defaultPPM := models.PPMShipment{
 			Status:                models.PPMShipmentStatusDraft,
 			ExpectedDepartureDate: time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "30813",
+			PickupAddress:         &pickupAddress,
+			DestinationAddress:    &destinationAddress,
 			SITExpected:           models.BoolPointer(false),
 		}
 
@@ -71,10 +77,15 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// VALIDATE RESULTS
 		suite.Equal(defaultPPM.Status, ppmShipment.Status)
 		suite.Equal(defaultPPM.ExpectedDepartureDate, ppmShipment.ExpectedDepartureDate)
-		suite.Equal(defaultPPM.PickupPostalCode, ppmShipment.PickupPostalCode)
-		suite.Equal(defaultPPM.DestinationPostalCode, ppmShipment.DestinationPostalCode)
+		suite.Equal(defaultPPM.PickupAddress.StreetAddress1, ppmShipment.PickupAddress.StreetAddress1)
+		suite.Equal(defaultPPM.PickupAddress.State, ppmShipment.PickupAddress.State)
+		suite.Equal(defaultPPM.PickupAddress.City, ppmShipment.PickupAddress.City)
+		suite.Equal(defaultPPM.PickupAddress.PostalCode, ppmShipment.PickupAddress.PostalCode)
+		suite.Equal(defaultPPM.DestinationAddress.StreetAddress1, ppmShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(defaultPPM.DestinationAddress.State, ppmShipment.DestinationAddress.State)
+		suite.Equal(defaultPPM.DestinationAddress.City, ppmShipment.DestinationAddress.City)
+		suite.Equal(defaultPPM.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
 		suite.Equal(defaultPPM.SITExpected, ppmShipment.SITExpected)
-		suite.Nil(ppmShipment.SecondaryDestinationPostalCode)
 		suite.Nil(ppmShipment.EstimatedWeight)
 		suite.Nil(ppmShipment.HasProGear)
 		suite.Nil(ppmShipment.ProGearWeight)
@@ -90,14 +101,51 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// Expected outcome:PPMShipment should be created with custom fields
 		// SETUP
 		sitLocation := models.SITLocationTypeDestination
+
+		pickupAddress := models.Address{
+			StreetAddress1: "987 New Street",
+			City:           "Des Moines",
+			State:          "IA",
+			PostalCode:     "50309",
+		}
+
+		destinationAddress := models.Address{
+			StreetAddress1: "123 New Street",
+			City:           "Fort Eisenhower",
+			State:          "GA",
+			PostalCode:     "30813",
+		}
+
+		secondaryPickupAddress := models.Address{
+			StreetAddress1: "123 Main Street",
+			City:           "Des Moines",
+			State:          "IA",
+			PostalCode:     "50309",
+		}
+
+		secondaryDestinationAddress := models.Address{
+			StreetAddress1: "1234 Main Street",
+			City:           "Fort Eisenhower",
+			State:          "GA",
+			PostalCode:     "30813",
+		}
+
+		customAddress := models.Address{
+			StreetAddress1: "123 Any Street",
+		}
+
+		departureDate := time.Now()
+
 		customPPM := models.PPMShipment{
 			ID:                             uuid.Must(uuid.NewV4()),
 			Status:                         models.PPMShipmentStatusWaitingOnCustomer,
-			ExpectedDepartureDate:          time.Now(),
-			PickupPostalCode:               "79329",
-			SecondaryPickupPostalCode:      models.StringPointer("80238"),
-			DestinationPostalCode:          "90210",
-			SecondaryDestinationPostalCode: models.StringPointer("83126"),
+			ExpectedDepartureDate:          departureDate,
+			PickupAddress:                  &pickupAddress,
+			DestinationAddress:             &destinationAddress,
+			SecondaryPickupAddress:         &secondaryPickupAddress,
+			SecondaryDestinationAddress:    &secondaryDestinationAddress,
+			HasSecondaryPickupAddress:      models.BoolPointer(true),
+			HasSecondaryDestinationAddress: models.BoolPointer(true),
 			HasProGear:                     models.BoolPointer(true),
 			ProGearWeight:                  models.PoundPointer(unit.Pound(1989)),
 			EstimatedWeight:                models.PoundPointer(unit.Pound(3000)),
@@ -109,13 +157,28 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			SITLocation:                    &sitLocation,
 			SITEstimatedWeight:             models.PoundPointer(unit.Pound(2000)),
 		}
-		customAddress := models.Address{
-			StreetAddress1: "123 Any Street",
+
+		testPPM := models.PPMShipment{
+			ID:                             uuid.Must(uuid.NewV4()),
+			Status:                         models.PPMShipmentStatusWaitingOnCustomer,
+			ExpectedDepartureDate:          departureDate,
+			HasSecondaryPickupAddress:      models.BoolPointer(true),
+			HasSecondaryDestinationAddress: models.BoolPointer(true),
+			HasProGear:                     models.BoolPointer(true),
+			ProGearWeight:                  models.PoundPointer(unit.Pound(1989)),
+			EstimatedWeight:                models.PoundPointer(unit.Pound(3000)),
+			SpouseProGearWeight:            models.PoundPointer(unit.Pound(123)),
+			EstimatedIncentive:             models.CentPointer(unit.Cents(1005000)),
+			HasRequestedAdvance:            models.BoolPointer(true),
+			AdvanceAmountRequested:         models.CentPointer(unit.Cents(600000)),
+			SITExpected:                    models.BoolPointer(true),
+			SITLocation:                    &sitLocation,
+			SITEstimatedWeight:             models.PoundPointer(unit.Pound(2000)),
 		}
 
 		// CALL FUNCTION UNDER TEST
-		ppmShipment := BuildPPMShipment(suite.DB(), []Customization{
-			{Model: customPPM},
+		ppmShipment := BuildFullAddressPPMShipment(suite.DB(), []Customization{
+			{Model: testPPM},
 			{
 				Model: customAddress,
 				Type:  &Addresses.W2Address,
@@ -124,12 +187,24 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		// VALIDATE RESULTS
 		suite.Equal(customPPM.ExpectedDepartureDate, ppmShipment.ExpectedDepartureDate)
-		suite.Equal(customPPM.PickupPostalCode, ppmShipment.PickupPostalCode)
-		suite.Equal(customPPM.DestinationPostalCode, ppmShipment.DestinationPostalCode)
+		suite.Equal(customPPM.PickupAddress.StreetAddress1, ppmShipment.PickupAddress.StreetAddress1)
+		suite.Equal(customPPM.PickupAddress.State, ppmShipment.PickupAddress.State)
+		suite.Equal(customPPM.PickupAddress.City, ppmShipment.PickupAddress.City)
+		suite.Equal(customPPM.PickupAddress.PostalCode, ppmShipment.PickupAddress.PostalCode)
+		suite.Equal(customPPM.DestinationAddress.StreetAddress1, ppmShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(customPPM.DestinationAddress.State, ppmShipment.DestinationAddress.State)
+		suite.Equal(customPPM.DestinationAddress.City, ppmShipment.DestinationAddress.City)
+		suite.Equal(customPPM.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
 		suite.Equal(customPPM.SITExpected, ppmShipment.SITExpected)
 		suite.Equal(customPPM.Status, ppmShipment.Status)
-		suite.Equal(customPPM.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
-		suite.Equal(customPPM.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
+		suite.Equal(customPPM.SecondaryPickupAddress.StreetAddress1, ppmShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(customPPM.SecondaryPickupAddress.State, ppmShipment.SecondaryPickupAddress.State)
+		suite.Equal(customPPM.SecondaryPickupAddress.City, ppmShipment.SecondaryPickupAddress.City)
+		suite.Equal(customPPM.SecondaryPickupAddress.PostalCode, ppmShipment.SecondaryPickupAddress.PostalCode)
+		suite.Equal(customPPM.SecondaryDestinationAddress.StreetAddress1, ppmShipment.SecondaryDestinationAddress.StreetAddress1)
+		suite.Equal(customPPM.SecondaryDestinationAddress.State, ppmShipment.SecondaryDestinationAddress.State)
+		suite.Equal(customPPM.SecondaryDestinationAddress.City, ppmShipment.SecondaryDestinationAddress.City)
+		suite.Equal(customPPM.SecondaryDestinationAddress.PostalCode, ppmShipment.SecondaryDestinationAddress.PostalCode)
 		suite.Equal(customPPM.EstimatedWeight, ppmShipment.EstimatedWeight)
 		suite.Equal(customPPM.HasProGear, ppmShipment.HasProGear)
 		suite.Equal(customPPM.ProGearWeight, ppmShipment.ProGearWeight)
@@ -235,9 +310,9 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
+		suite.Equal(ppmShipment.PickupAddress.PostalCode, *ppmShipment.ActualPickupPostalCode)
 		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
-		suite.Equal(ppmShipment.DestinationPostalCode,
+		suite.Equal(ppmShipment.DestinationAddress.PostalCode,
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
@@ -259,9 +334,9 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 
 		suite.False(ppmShipment.ID.IsNil())
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
+		suite.Equal(ppmShipment.PickupAddress.PostalCode, *ppmShipment.ActualPickupPostalCode)
 		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
-		suite.Equal(ppmShipment.DestinationPostalCode,
+		suite.Equal(ppmShipment.DestinationAddress.PostalCode,
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
@@ -281,9 +356,9 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), nil)
 
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
+		suite.Equal(ppmShipment.PickupAddress.PostalCode, *ppmShipment.ActualPickupPostalCode)
 		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
-		suite.Equal(ppmShipment.DestinationPostalCode,
+		suite.Equal(ppmShipment.DestinationAddress.PostalCode,
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
@@ -314,9 +389,9 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		ppmShipment := BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(suite.DB(), nil)
 
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
+		suite.Equal(ppmShipment.PickupAddress.PostalCode, *ppmShipment.ActualPickupPostalCode)
 		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
-		suite.Equal(ppmShipment.DestinationPostalCode,
+		suite.Equal(ppmShipment.DestinationAddress.PostalCode,
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
@@ -347,9 +422,9 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(suite.DB(), nil, nil)
 
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
-		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
+		suite.Equal(ppmShipment.PickupAddress.PostalCode, *ppmShipment.ActualPickupPostalCode)
 		suite.NotNil(ppmShipment.ActualDestinationPostalCode)
-		suite.Equal(ppmShipment.DestinationPostalCode,
+		suite.Equal(ppmShipment.DestinationAddress.PostalCode,
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)

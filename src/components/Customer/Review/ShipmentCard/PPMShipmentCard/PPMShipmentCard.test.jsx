@@ -19,8 +19,6 @@ const defaultProps = {
     shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
-      destinationPostalCode: '11111',
       sitExpected: false,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
     },
@@ -38,10 +36,6 @@ const completeProps = {
     shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
-      secondaryPickupPostalCode: '10002',
-      destinationPostalCode: '11111',
-      secondaryDestinationPostalCode: '22222',
       sitExpected: true,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
       estimatedWeight: 5999,
@@ -67,8 +61,6 @@ const incompleteProps = {
     shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
-      destinationPostalCode: '11111',
       sitExpected: false,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
       hasRequestedAdvance: null,

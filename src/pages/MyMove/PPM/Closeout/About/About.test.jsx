@@ -52,8 +52,6 @@ const mockMTOShipment = {
     id: mockPPMShipmentId,
     shipmentId: mockMTOShipmentId,
     status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
-    pickupPostalCode: '10001',
-    destinationPostalCode: '10002',
     expectedDepartureDate: '2022-04-30',
     hasRequestedAdvance: true,
     advanceAmountRequested: 598700,

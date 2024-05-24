@@ -1551,8 +1551,6 @@ describe('ShipmentForm component', () => {
   const mockPPMShipmentWithSIT = {
     sitEstimatedCost: 123400,
     sitEstimatedWeight: 2345,
-    pickupPostalCode: '12345',
-    destinationPostalCode: '54321',
     sitLocation: 'DESTINATION',
     sitEstimatedDepartureDate: '2022-10-29',
     sitEstimatedEntryDate: '2022-08-06',

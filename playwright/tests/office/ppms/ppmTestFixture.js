@@ -78,8 +78,6 @@ export class PpmPage extends ServiceCounselorPage {
   /**
    * @param {Object} options
    * @param {string} [options.expectedDepartureDate='09 Jun 2022']
-   * @param {string} [options.pickupPostalCode=90210]
-   * @param {string} [options.secondPickupPostalCode='07003']
    *
    * @returns Promise<void>
    */

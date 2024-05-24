@@ -65,16 +65,6 @@ func checkRequiredFields() ppmShipmentValidator {
 			verrs.Add("expectedDepartureDate", "cannot be a zero value")
 		}
 
-		// Check that we have something in the pickupPostalCode field:
-		if newPPMShipment.PickupPostalCode == "" {
-			verrs.Add("pickupPostalCode", "cannot be nil or empty")
-		}
-
-		// Check that we have something in the destinationPostalCode field:
-		if newPPMShipment.DestinationPostalCode == "" {
-			verrs.Add("destinationPostalCode", "cannot be nil or empty")
-		}
-
 		if newPPMShipment.SITExpected == nil {
 			verrs.Add("sitExpected", "cannot be nil")
 		}

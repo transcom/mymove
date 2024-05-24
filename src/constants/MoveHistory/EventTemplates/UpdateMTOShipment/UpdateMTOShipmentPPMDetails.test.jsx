@@ -12,12 +12,8 @@ describe('when given a PPM shipment update', () => {
     eventName: o.updateMTOShipment,
     tableName: t.ppm_shipments,
     changedValues: {
-      destination_postal_code: '59801',
       estimated_weight: 2233,
       expected_departure_date: '2023-12-08',
-      pickup_postal_code: '20906',
-      secondary_destination_postal_code: '59802',
-      secondary_pickup_postal_code: '20832',
       sit_estimated_departure_date: '2020-04-13',
       sit_estimated_entry_date: '2020-03-22',
       sit_estimated_weight: '6877',

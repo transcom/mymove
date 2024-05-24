@@ -480,8 +480,6 @@ describe('when getting the next incomplete page', () => {
           ppm: {
             id: 'baz',
             original_move_date: '2018-10-10',
-            pickup_postal_code: '22222',
-            destination_postal_code: '22222',
           },
           context: ppmContext,
         });
@@ -513,8 +511,6 @@ describe('when getting the next incomplete page', () => {
           ppm: {
             id: 'baz',
             original_move_date: '2018-10-10',
-            pickup_postal_code: '22222',
-            destination_postal_code: '22222',
             weight_estimate: 555,
           },
           context: ppmContext,

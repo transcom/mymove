@@ -210,24 +210,15 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 	}
 
 	model := &models.PPMShipment{
-		Status:                         models.PPMShipmentStatusSubmitted,
-		SITExpected:                    ppmShipment.SitExpected,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		HasProGear:                     ppmShipment.HasProGear,
+		Status:          models.PPMShipmentStatusSubmitted,
+		SITExpected:     ppmShipment.SitExpected,
+		EstimatedWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		HasProGear:      ppmShipment.HasProGear,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	if expectedDepartureDate != nil && !expectedDepartureDate.IsZero() {
 		model.ExpectedDepartureDate = *expectedDepartureDate
-	}
-
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -340,25 +331,16 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev2messages.UpdatePPMShipment) 
 	}
 
 	model := &models.PPMShipment{
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		SITExpected:                    ppmShipment.SitExpected,
-		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		HasProGear:                     ppmShipment.HasProGear,
-		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
+		SITExpected:         ppmShipment.SitExpected,
+		EstimatedWeight:     handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		HasProGear:          ppmShipment.HasProGear,
+		ProGearWeight:       handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	if expectedDepartureDate != nil && !expectedDepartureDate.IsZero() {
 		model.ExpectedDepartureDate = *expectedDepartureDate
-	}
-
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
 	if ppmShipment.SitLocation != nil {

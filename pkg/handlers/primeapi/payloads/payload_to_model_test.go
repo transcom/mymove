@@ -525,8 +525,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdateModel() {
 func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
-	pickupPostalCode := ""
-	destinationPostalCode := ""
 	sitExpected := true
 	estimatedWeight := int64(5000)
 	hasProGear := true
@@ -535,8 +533,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 
 	ppmShipment := primemessages.CreatePPMShipment{
 		ExpectedDepartureDate: expectedDepartureDate,
-		PickupPostalCode:      &pickupPostalCode,
-		DestinationPostalCode: &destinationPostalCode,
 		SitExpected:           &sitExpected,
 		EstimatedWeight:       &estimatedWeight,
 		HasProGear:            &hasProGear,
@@ -553,6 +549,4 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasProGear)
 	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
 	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
-	suite.Equal(pickupPostalCode, model.PickupPostalCode)
-	suite.Equal(destinationPostalCode, model.DestinationPostalCode)
 }

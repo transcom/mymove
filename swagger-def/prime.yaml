@@ -295,8 +295,6 @@ paths:
                     'shipmentType': 'PPM',
                     'ppmShipment':
                       {
-                        'pickupPostalCode': '90210',
-                        'destinationPostalCode': '10001',
                         'expectedDepartureDate': '2022-10-01',
                         'estimatedWeight': 4999,
                         'hasProGear': false,
@@ -1558,35 +1556,6 @@ definitions:
           Date the customer expects to begin moving from their origin.
         format: date
         type: string
-      pickupPostalCode:
-        description: The postal code of the origin location where goods are being moved from.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        description: An optional secondary pickup location near the origin where additional goods exist.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      destinationPostalCode:
-        description: The postal code of the destination location where goods are being delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        description: An optional secondary location near the destination where goods will be dropped off.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       sitExpected:
         description: |
           Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
@@ -1630,8 +1599,6 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - estimatedWeight
       - hasProGear
@@ -2072,35 +2039,6 @@ definitions:
           Date the customer expects to begin moving from their origin.
         format: date
         type: string
-        x-nullable: true
-      pickupPostalCode:
-        description: The postal code of the origin location where goods are being moved from.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryPickupPostalCode:
-        description: An optional secondary pickup location near the origin where additional goods exist.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      destinationPostalCode:
-        description: The postal code of the destination location where goods are being delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        description: An optional secondary location near the destination where goods will be dropped off.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
         x-nullable: true
       sitExpected:
         description: |

@@ -61,15 +61,11 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusDraft,
 		ExpectedDepartureDate: time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		PickupPostalCode:      serviceMember.ResidentialAddress.PostalCode,
-		DestinationPostalCode: shipment.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode,
 		SITExpected:           models.BoolPointer(false),
 	}
 
 	if buildType == ppmBuildStandard {
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
-		ppmShipment.SecondaryPickupPostalCode = models.StringPointer("90211")
-		ppmShipment.SecondaryDestinationPostalCode = models.StringPointer("30814")
 		ppmShipment.EstimatedWeight = models.PoundPointer(unit.Pound(4000))
 		ppmShipment.HasProGear = models.BoolPointer(true)
 		ppmShipment.ProGearWeight = models.PoundPointer(unit.Pound(1987))
@@ -77,6 +73,7 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.EstimatedIncentive = models.CentPointer(unit.Cents(1000000))
 		ppmShipment.HasRequestedAdvance = models.BoolPointer(true)
 		ppmShipment.AdvanceAmountRequested = models.CentPointer(unit.Cents(598700))
+
 	}
 
 	// Find/create the W2Address if and only if customization is
@@ -141,12 +138,10 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		}, nil)
 		ppmShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
 		ppmShipment.SecondaryPickupAddress = &secondaryPickupAddress
-		ppmShipment.SecondaryPickupPostalCode = &secondaryPickupAddress.PostalCode
 		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 
 		ppmShipment.SecondaryDestinationAddressID = &secondaryDestinationAddress.ID
 		ppmShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
-		ppmShipment.SecondaryDestinationPostalCode = &secondaryDestinationAddress.PostalCode
 		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
 	}
 
@@ -238,8 +233,8 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader, customs)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
-	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupPostalCode
-	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationPostalCode
+	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupAddress.PostalCode
+	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationAddress.PostalCode
 
 	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
 		ppmShipment.HasReceivedAdvance = models.BoolPointer(true)

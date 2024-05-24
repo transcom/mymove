@@ -15,7 +15,6 @@ describe('ReviewItems component', () => {
             rows: [
               { id: 'moveDate', hideLabel: true, label: 'Actual Move Date:', value: '04 Jul 2022' },
               { id: 'depatureDate', label: 'Departure date:', value: '16 Mar 2020' },
-              { id: 'pickupPostalCode', label: 'Starting ZIP:', value: '90210' },
             ],
             renderEditLink: () => <Link to="#">Edit</Link>,
           },
@@ -37,10 +36,7 @@ describe('ReviewItems component', () => {
         contents={[
           {
             id: '1',
-            rows: [
-              { id: 'moveDate', hideLabel: true, label: 'Actual Move Date:', value: '04 Jul 2022' },
-              { id: 'pickupPostalCode', label: 'Starting ZIP:', value: '90210' },
-            ],
+            rows: [{ id: 'moveDate', hideLabel: true, label: 'Actual Move Date:', value: '04 Jul 2022' }],
             renderEditLink: () => <Link to="#">Edit</Link>,
             onDelete: () => {},
           },

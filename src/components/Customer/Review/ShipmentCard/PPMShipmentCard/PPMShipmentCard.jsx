@@ -27,10 +27,12 @@ const PPMShipmentCard = ({
 }) => {
   const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
-    pickupPostalCode,
-    secondaryPickupPostalCode,
-    destinationPostalCode,
-    secondaryDestinationPostalCode,
+    pickupAddress,
+    secondaryPickupAddress,
+    destinationAddress,
+    secondaryDestinationAddress,
+    hasSecondaryPickupAddress,
+    hasSecondaryDestinationAddress,
     sitExpected,
     expectedDepartureDate,
     proGearWeight,
@@ -93,22 +95,22 @@ const PPMShipmentCard = ({
           </div>
           <div className={styles.row}>
             <dt>Origin ZIP</dt>
-            <dd>{pickupPostalCode}</dd>
+            <dd>{pickupAddress.PostalCode}</dd>
           </div>
-          {secondaryPickupPostalCode && (
+          {hasSecondaryPickupAddress && (
             <div className={styles.row}>
               <dt>Second origin ZIP</dt>
-              <dd>{secondaryPickupPostalCode}</dd>
+              <dd>{secondaryPickupAddress.PostalCode}</dd>
             </div>
           )}
           <div className={styles.row}>
             <dt>Destination ZIP</dt>
-            <dd>{destinationPostalCode}</dd>
+            <dd>{destinationAddress.PostalCode}</dd>
           </div>
-          {secondaryDestinationPostalCode && (
+          {hasSecondaryDestinationAddress && (
             <div className={styles.row}>
               <dt>Second destination ZIP</dt>
-              <dd>{secondaryDestinationPostalCode}</dd>
+              <dd>{secondaryDestinationAddress.PostalCode}</dd>
             </div>
           )}
           {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (

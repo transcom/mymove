@@ -1365,7 +1365,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &originLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1404,7 +1403,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &destinationLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1444,7 +1442,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &destinationLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
