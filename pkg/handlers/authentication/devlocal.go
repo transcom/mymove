@@ -37,6 +37,8 @@ const (
 	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
 	AdminUserType string = "admin"
+	// HQOfficeUserType is a type of user for a HQ user
+	HQOfficeUserType string = "HQ office"
 )
 
 // UserListHandler handles redirection
@@ -109,6 +111,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		AdminUserType                   string
 		CsrfToken                       string
 		QueryLimit                      int
+		HQOfficeUserType                string
 	}
 
 	templateData := TemplateData{
@@ -126,6 +129,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MultiRoleOfficeUserType:         MultiRoleOfficeUserType,
 		IsAdminApp:                      auth.AdminApp == appCtx.Session().ApplicationName,
 		AdminUserType:                   AdminUserType,
+		HQOfficeUserType:                HQOfficeUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
 		CsrfToken:  csrf.Token(r),
 		QueryLimit: limit,
@@ -261,7 +265,14 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					  <button type="submit" data-hook="new-user-login-{{.MultiRoleOfficeUserType}}">Create a New {{.MultiRoleOfficeUserType}} User</button>
 					</p>
 				  </form>
-
+				<form method="post" action="/devlocal-auth/new">
+					<p>
+						<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+						<input type="hidden" name="userType" value="{{.HQOfficeUserType}}">
+						` + gblocSelectHTML + `
+						<button type="submit" data-hook="new-user-login-{{.HQOfficeUserType}}">Create a New {{.HQOfficeUserType}} User</button>
+					</p>
+				  </form>
 			  {{end}}
 			</div>
 		  </div>
@@ -464,7 +475,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		}
-	case TOOOfficeUserType:
+	case TOOOfficeUserType, HQOfficeUserType:
 		// Now create the Truss JPPSO
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
@@ -957,7 +968,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType, MultiRoleOfficeUserType:
+	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType, MultiRoleOfficeUserType, HQOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.AppNames().OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -1045,7 +1056,8 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType ||
+		userType == QaeCsrOfficeUserType || userType == HQOfficeUserType {
 		return true
 	}
 	return false

@@ -8,7 +8,6 @@ import styles from './Office.module.scss';
 
 import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
-
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
@@ -91,10 +90,10 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 const ServicesCounselingAddOrders = lazy(() =>
   import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
 );
-
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -159,6 +158,7 @@ export class OfficeApp extends Component {
       },
       hasRecentError,
       traceId,
+      userPrivileges,
     } = this.props;
 
     // TODO - test login page?
@@ -234,13 +234,12 @@ export class OfficeApp extends Component {
                   // Auth Routes
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-
-                    {/* TXO */}
+                    {/* TXO, HQ */}
                     <Route
                       path="/moves/queue"
                       end
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.HQ]}>
                           <MoveQueue />
                         </PrivateRoute>
                       }
@@ -281,7 +280,7 @@ export class OfficeApp extends Component {
                       path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateCustomerForm />
+                          <CreateCustomerForm userPrivileges={userPrivileges} />
                         </PrivateRoute>
                       }
                     />
@@ -297,7 +296,7 @@ export class OfficeApp extends Component {
                       path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingAddOrders />
+                          <ServicesCounselingAddOrders userPrivileges={userPrivileges} />
                         </PrivateRoute>
                       }
                     />
@@ -323,6 +322,17 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+                    {activeRole === roleTypes.HQ && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                            <MoveQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
@@ -334,6 +344,14 @@ export class OfficeApp extends Component {
                     />
 
                     {/* TOO */}
+                    <Route
+                      path={`${tooRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <CustomerInfo />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="tooEditShipmentDetailsRoute"
                       end
@@ -491,6 +509,7 @@ export class OfficeApp extends Component {
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
                     {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<MoveQueue />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}
@@ -526,6 +545,7 @@ OfficeApp.propTypes = {
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
   router: RouterShape.isRequired,
+  userPrivileges: PropTypes.arrayOf(PropTypes.string),
 };
 
 OfficeApp.defaultProps = {
@@ -535,6 +555,7 @@ OfficeApp.defaultProps = {
   userPermissions: [],
   userRoles: [],
   activeRole: null,
+  userPrivileges: [],
 };
 
 const mapStateToProps = (state) => {
@@ -550,6 +571,7 @@ const mapStateToProps = (state) => {
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
+    userPrivileges: user?.privileges || null,
   };
 };
 

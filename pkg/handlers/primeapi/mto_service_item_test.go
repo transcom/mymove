@@ -584,6 +584,126 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticStandaloneCratingHandler() {
+	builder := query.NewQueryBuilder()
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
+
+	type localSubtestData struct {
+		req            *http.Request
+		mtoServiceItem models.MTOServiceItem
+	}
+
+	makeSubtestData := func() (subtestData *localSubtestData) {
+		subtestData = &localSubtestData{}
+
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRTSA)
+		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
+
+		subtestData.mtoServiceItem = models.MTOServiceItem{
+			MoveTaskOrderID: mto.ID,
+			MTOShipmentID:   &mtoShipment.ID,
+			Description:     handlers.FmtString("description"),
+			Dimensions: models.MTOServiceItemDimensions{
+				models.MTOServiceItemDimension{
+					Type:   models.DimensionTypeItem,
+					Length: 1000,
+					Height: 1000,
+					Width:  1000,
+				},
+				models.MTOServiceItemDimension{
+					Type:   models.DimensionTypeCrate,
+					Length: 10000,
+					Height: 10000,
+					Width:  10000,
+				},
+			},
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Reason:    handlers.FmtString("reason"),
+		}
+		return subtestData
+	}
+
+	suite.Run("Successful POST - Integration Test - Standalone Crating", func() {
+		subtestData := makeSubtestData()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
+
+		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: subtestData.req,
+			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+		// Validate outgoing payload (each element of slice)
+		for _, mtoServiceItem := range okResponse.Payload {
+			suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		}
+
+		suite.NotZero(okResponse.Payload[0].ID())
+	})
+
+	suite.Run("POST failure - 422", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			&mockCreator,
+			mtoChecker,
+		}
+		err := fmt.Errorf("ServerError")
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: subtestData.req,
+			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
+		}
+
+		var height int32
+		params.Body.(*primemessages.MTOServiceItemDomesticStandaloneCrating).Crate.Height = &height
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+		responsePayload := response.(*mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity).Payload
+
+		// Validate outgoing payload
+		suite.NoError(responsePayload.Validate(strfmt.Default))
+	})
+}
+
 func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 	// Under test: createMTOServiceItemHandler function,
 	// - no DOPSIT standalone

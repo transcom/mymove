@@ -1280,15 +1280,70 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticStandaloneCrating": {
+      "description": "Describes a standard crating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "A motorcycle to be crated."
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (DCRTSA).",
+              "type": "string",
+              "enum": [
+                "DCRTSA"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * DCRTSA - MTOServiceItemDomesticStandaloneCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemDomesticStandaloneCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -1514,6 +1569,12 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -1553,6 +1614,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -1878,13 +1945,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -2330,6 +2399,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -4745,15 +4815,70 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticStandaloneCrating": {
+      "description": "Describes a standard crating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "A motorcycle to be crated."
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (DCRTSA).",
+              "type": "string",
+              "enum": [
+                "DCRTSA"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * DCRTSA - MTOServiceItemDomesticStandaloneCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemDomesticStandaloneCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -4979,6 +5104,12 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -5018,6 +5149,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -5343,13 +5480,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -5795,6 +5934,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",

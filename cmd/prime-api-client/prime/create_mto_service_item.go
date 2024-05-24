@@ -35,6 +35,9 @@ type dDFSITParams struct {
 type domesticCratingParams struct {
 	Body primemessages.MTOServiceItemDomesticCrating `json:"body"`
 }
+type domesticStandaloneCratingParams struct {
+	Body primemessages.MTOServiceItemDomesticStandaloneCrating `json:"body"`
+}
 type shuttleParams struct {
 	Body primemessages.MTOServiceItemShuttle `json:"body"`
 }
@@ -142,6 +145,10 @@ func CreateMTOServiceItem(cmd *cobra.Command, args []string) error {
 		var params domesticCratingParams
 		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticStandaloneCrating:
+		var params domesticStandaloneCratingParams
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
+		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		var params shuttleParams
 		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
@@ -151,6 +158,7 @@ func CreateMTOServiceItem(cmd *cobra.Command, args []string) error {
 			primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating,
+			primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticStandaloneCrating,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle,
 		})
 	}

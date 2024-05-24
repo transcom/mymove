@@ -520,6 +520,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
+		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
+		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 	}
 
 	// Set up address payloads
@@ -656,6 +658,27 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		cratingSI := primemessages.MTOServiceItemDomesticCrating{
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:   mtoServiceItem.Description,
+			Reason:        mtoServiceItem.Reason,
+		}
+		cratingSI.Item.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(item.ID.String()),
+			Height: item.Height.Int32Ptr(),
+			Length: item.Length.Int32Ptr(),
+			Width:  item.Width.Int32Ptr(),
+		}
+		cratingSI.Crate.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(crate.ID.String()),
+			Height: crate.Height.Int32Ptr(),
+			Length: crate.Length.Int32Ptr(),
+			Width:  crate.Width.Int32Ptr(),
+		}
+		payload = &cratingSI
+	case models.ReServiceCodeDCRTSA:
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		cratingSI := primemessages.MTOServiceItemDomesticStandaloneCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Description:   mtoServiceItem.Description,
 			Reason:        mtoServiceItem.Reason,

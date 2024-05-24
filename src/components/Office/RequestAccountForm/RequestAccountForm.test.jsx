@@ -90,6 +90,10 @@ describe('RequestAccountForm component', () => {
     const qsaCheckbox = screen.getByTestId('qualityAssuranceAndCustomerSupportCheckBox');
     expect(qsaCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(qsaCheckbox).not.toBeChecked(false);
+
+    const hqCheckbox = screen.getByTestId('headquartersCheckBox');
+    expect(hqCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(hqCheckbox).not.toBeChecked(false);
   });
 
   it('cancels requesting office account when cancel button is clicked', async () => {
@@ -143,6 +147,76 @@ describe('RequestAccountForm component', () => {
     await userEvent.click(submitButton);
 
     expect(testProps.onSubmit).toHaveBeenCalled();
+  });
+
+  it('submits Headquarters office account form when submit button is clicked', async () => {
+    const mockOfficeId = '3210a533-19b8-4805-a564-7eb452afce10';
+    const mockHeadquartersOffice = {
+      address: {
+        city: 'Test City',
+        country: 'United States',
+        id: 'a13806fc-0e7d-4dc3-91ca-b802d9da50f1',
+        postalCode: '85309',
+        state: 'AZ',
+        streetAddress1: '7383 N Litchfield Rd',
+        streetAddress2: 'Rm 1122',
+      },
+      created_at: '2018-05-28T14:27:39.198Z',
+      gbloc: 'KKFA',
+      id: mockOfficeId,
+      name: 'Tester',
+      phone_lines: [],
+      updated_at: '2018-05-28T14:27:39.198Z',
+    };
+
+    const mockSearchHeadquartersOfficesOpen = () => Promise.resolve([mockHeadquartersOffice]);
+    searchTransportationOfficesOpen.mockImplementation(mockSearchHeadquartersOfficesOpen);
+
+    renderWithRouter(<RequestAccountForm {...testProps} />);
+
+    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
+    await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
+    await userEvent.type(screen.getByLabelText('Email'), 'banks@gmail.com');
+    await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
+    await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
+    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
+
+    const transportationOfficeInput = screen.getByLabelText('Transportation Office');
+    fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
+    await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
+
+    const tooCheckbox = screen.getByTestId('headquartersCheckBox');
+    await userEvent.click(tooCheckbox);
+
+    const submitButton = await screen.getByTestId('requestOfficeAccountSubmitButton');
+    await userEvent.click(submitButton);
+
+    expect(testProps.onSubmit).toHaveBeenCalled();
+  });
+
+  it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
+    renderWithRouter(<RequestAccountForm {...testProps} />);
+
+    const tooCheckbox = screen.getByTestId('transportationOrderingOfficerCheckBox');
+    const tioCheckbox = screen.getByTestId('transportationInvoicingOfficerCheckBox');
+
+    // Click both the TOO and TIO role checkboxes
+    await userEvent.click(tooCheckbox);
+    await userEvent.click(tioCheckbox);
+
+    // Check that the validation error appears
+    const policyVerrs = await screen.findAllByText(
+      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+    );
+    expect(policyVerrs.length).toBeGreaterThan(0);
+
+    // Check that it goes away after unselecting either TIO or TOO checkbox
+    await userEvent.click(tioCheckbox);
+    expect(
+      screen.queryByText(
+        'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      ),
+    ).not.toBeInTheDocument();
   });
 
   afterEach(jest.resetAllMocks);

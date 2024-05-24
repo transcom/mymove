@@ -499,6 +499,45 @@ definitions:
           - item
           - crate
           - description
+  MTOServiceItemDomesticStandaloneCrating:
+    description: Describes a standard crating service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for crating (DCRTSA).
+            enum:
+              - DCRTSA
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: A motorcycle to be crated.
+            description: A description of the item being crated.
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: >
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -1584,6 +1623,7 @@ definitions:
       - SEPARATION
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -1591,6 +1631,7 @@ definitions:
       SEPARATION: Separation
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   Order:
     type: object
     required:
@@ -1933,6 +1974,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * DCRTSA - MTOServiceItemDomesticStandaloneCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -1942,6 +1984,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemDomesticStandaloneCrating
   ServiceRequestDocument:
     properties:
       uploads:
@@ -2846,6 +2889,16 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
+      originSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for origin SIT.
+        x-nullable: true
+      destinationSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for destination SIT.
+        x-nullable: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -2975,6 +3028,7 @@ definitions:
       - DBHF
       - DBTF
       - DCRT
+      - DCRTSA
       - DDASIT
       - DDDSIT
       - DDFSIT

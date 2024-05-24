@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
-func (suite *MoveLockerServiceSuite) TestMoveFetcher() {
+func (suite *MoveLockerServiceSuite) TestLockMove() {
 	moveLocker := NewMoveLocker()
 
 	suite.Run("successfully returns move with office user values and lockExpiresAt value", func() {
