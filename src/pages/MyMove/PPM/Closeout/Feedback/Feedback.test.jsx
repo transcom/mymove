@@ -71,7 +71,6 @@ describe('Feedback page', () => {
     expect(screen.getByText('Starting ZIP: 59402')).toBeInTheDocument();
     expect(screen.getByText('Ending ZIP: 20889')).toBeInTheDocument();
     expect(screen.getByText('Advance: No')).toBeInTheDocument();
-    // expect(screen.getByText('W-2 address: 422 Dearborn Ave Missoula, MT 59801')).toBeInTheDocument();
     expect(screen.getByTestId('w-2Address')).toHaveTextContent('W-2 address: 422 Dearborn AveMissoula, MT 59801');
   });
 
