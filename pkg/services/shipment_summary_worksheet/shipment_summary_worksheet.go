@@ -167,14 +167,13 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	entitlements := models.GetWeightAllotment(grade)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
+	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
 		return services.SSWMaxWeightEntitlement(sswEntitlements)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
-	if spouseHasProGear {
-		sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
-	}
+	
 	return services.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
