@@ -30,6 +30,10 @@ type Entitlements struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// gun safe
+	// Example: false
+	GunSafe bool `json:"gunSafe,omitempty"`
+
 	// id
 	// Example: 571008b1-b0de-454d-b843-d71be9f02c04
 	// Format: uuid

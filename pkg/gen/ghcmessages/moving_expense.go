@@ -90,6 +90,9 @@ type MovingExpense struct {
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt"`
+
+	// The total weight stored in PPM SIT
+	WeightStored *int64 `json:"weightStored"`
 }
 
 // Validate validates this moving expense

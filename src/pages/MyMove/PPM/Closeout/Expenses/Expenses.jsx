@@ -68,7 +68,7 @@ const Expenses = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file, false)
       .then((upload) => {
         mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -122,6 +122,7 @@ const Expenses = () => {
       paidWithGTCC: values.paidWithGTCC === 'true',
       SITEndDate: formatDateForSwagger(values.sitEndDate),
       SITStartDate: formatDateForSwagger(values.sitStartDate),
+      WeightStored: 0,
     };
 
     patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)

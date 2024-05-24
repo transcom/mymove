@@ -4,14 +4,22 @@ import userEvent from '@testing-library/user-event';
 
 import DodInfoForm from './DodInfoForm';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 describe('DodInfoForm component', () => {
   const testProps = {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-    initialValues: { affiliation: '', edipi: '' },
+    initialValues: { affiliation: '', edipi: '1234567890' },
     onBack: jest.fn(),
   };
 
   it('renders the form inputs', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const { getByLabelText } = render(<DodInfoForm {...testProps} />);
 
     await waitFor(() => {
@@ -19,19 +27,20 @@ describe('DodInfoForm component', () => {
       expect(getByLabelText('Branch of service')).toBeRequired();
 
       expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('DOD ID number')).toBeRequired();
+      expect(getByLabelText('DOD ID number')).toBeDisabled();
     });
   });
 
-  it('validates the DOD ID number on blur', async () => {
-    const { getByLabelText, getByText } = render(<DodInfoForm {...testProps} />);
-
-    await userEvent.type(getByLabelText('DOD ID number'), 'not a valid ID number');
-    await userEvent.tab();
+  it('renders the form inputs but enables editing of DOD ID when flag is on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+    const { getByLabelText } = render(<DodInfoForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('DOD ID number')).not.toBeValid();
-      expect(getByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
+      expect(getByLabelText('Branch of service')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('Branch of service')).toBeRequired();
+
+      expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('DOD ID number')).toBeEnabled();
     });
   });
 
@@ -44,7 +53,7 @@ describe('DodInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(2);
+      expect(getAllByText('Required').length).toBe(1);
       expect(submitBtn).toBeDisabled();
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();

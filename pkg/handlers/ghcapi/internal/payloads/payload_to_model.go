@@ -77,6 +77,7 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 		PhoneIsPreferred:     &payload.PhoneIsPreferred,
 		EmailIsPreferred:     &payload.EmailIsPreferred,
 		BackupMailingAddress: backupAddress,
+		CacValidated:         payload.CacValidated,
 	}
 }
 
@@ -450,6 +451,8 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
+		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
@@ -562,18 +565,30 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 
 // MovingExpenseModelFromUpdate
 func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense) *models.MovingExpense {
+	var model models.MovingExpense
+
 	if movingExpense == nil {
 		return nil
 	}
-	model := &models.MovingExpense{
-		Amount:       handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount),
-		SITStartDate: handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
-		SITEndDate:   handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
-		Status:       (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status))),
-		Reason:       handlers.FmtString(movingExpense.Reason),
+
+	var expenseType models.MovingExpenseReceiptType
+	if movingExpense.MovingExpenseType != nil {
+		expenseType = models.MovingExpenseReceiptType(*movingExpense.MovingExpenseType.Pointer())
+		model.MovingExpenseType = &expenseType
 	}
 
-	return model
+	if movingExpense.Description != nil {
+		model.Description = movingExpense.Description
+	}
+
+	model.Amount = handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount)
+	model.SITStartDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate)
+	model.SITEndDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate)
+	model.Status = (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status)))
+	model.Reason = handlers.FmtString(movingExpense.Reason)
+	model.WeightStored = handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored)
+
+	return &model
 }
 
 func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) (*models.EvaluationReport, error) {
