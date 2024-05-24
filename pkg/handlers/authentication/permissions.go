@@ -93,6 +93,7 @@ var CustomerServiceRepresentative = RolePermissions{
 	Permissions: []string{
 		"read.paymentRequest",
 		"view.closeoutOffice",
+		"read.shipmentsPaymentSITBalance",
 	},
 }
 
