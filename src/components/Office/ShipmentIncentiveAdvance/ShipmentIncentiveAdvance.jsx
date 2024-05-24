@@ -36,6 +36,11 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
   // ie..takes 10100 to 101 for display with a scale of 0.
   const advanceAmountRequestedMaskTaskFieldValueDenominator = 10 ** (2 - advanceAmountRequestedMaskTextFieldScale);
 
+  // Display mask value using scale defined by advanceAmountRequestedMaskTextFieldScale
+  const savedAdvanceAmountRequestedDisplayValue = `${
+    advanceAmountRequested / advanceAmountRequestedMaskTaskFieldValueDenominator
+  }`;
+
   const handleAdvanceRequestStatusChange = (event) => {
     const selected = event.target.value;
     statusHelper.setValue(selected);
@@ -44,11 +49,36 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
       // with respect to form validator. Doing this ensures setValue uses correct AdvanceStatus.
       setTimeout(() => {
         // Programmatically undo unsaved input to persisted value
-        advanceAmountRequestedProps.setValue(
-          `${advanceAmountRequested / advanceAmountRequestedMaskTaskFieldValueDenominator}`,
-        );
+        advanceAmountRequestedProps.setValue(savedAdvanceAmountRequestedDisplayValue);
       }, 100);
     }
+  };
+
+  const advanceHandler = (value) => {
+    // If advance number input is different than saved value, assume
+    // ACCEPT state and select radio button.
+    if (value !== savedAdvanceAmountRequestedDisplayValue) {
+      if (statusInput.value === ADVANCE_STATUSES.REJECTED.apiValue) {
+        statusHelper.setValue(ADVANCE_STATUSES.APPROVED.apiValue);
+      }
+    }
+  };
+
+  const onKeyUpAdvanceHandler = (event) => {
+    const { value } = event.target;
+    // keyUp handler to ensure masking value display is properly
+    // handled when number exceeds 3 digits because anything greater
+    // will display ',' separator
+    advanceHandler(value);
+  };
+
+  const onPasteAdvanceHandler = (event) => {
+    const { value } = event.clipboardData.getData('Text');
+    // delay to prevent string concatenation between current value
+    // and incoming for copy and paste edge case.
+    setTimeout(() => {
+      advanceHandler(value);
+    }, 100);
   };
 
   return (
@@ -95,6 +125,8 @@ const ShipmentIncentiveAdvance = ({ estimatedIncentive, advanceAmountRequested }
                     thousandsSeparator=","
                     lazy={false} // immediate masking evaluation
                     prefix="$"
+                    onKeyUp={onKeyUpAdvanceHandler}
+                    onPaste={onPasteAdvanceHandler}
                   />
                 </FormGroup>
 
