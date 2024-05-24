@@ -41,12 +41,13 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.App
 }
 
 // CalculateShipmentSITStatus provides a mock function with given fields: appCtx, shipment
-func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
+func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipment)
 
 	var r0 *services.SITStatus
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) (*services.SITStatus, error)); ok {
+	var r1 models.MTOShipment
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) (*services.SITStatus, models.MTOShipment, error)); ok {
 		return rf(appCtx, shipment)
 	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) *services.SITStatus); ok {
@@ -57,13 +58,19 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppCon
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) models.MTOShipment); ok {
 		r1 = rf(appCtx, shipment)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(models.MTOShipment)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.MTOShipment) error); ok {
+		r2 = rf(appCtx, shipment)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // CalculateShipmentsSITStatuses provides a mock function with given fields: appCtx, shipments
