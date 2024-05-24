@@ -229,9 +229,9 @@ type SITStatusCurrentSIT struct {
 	// Format: uuid
 	ServiceItemID strfmt.UUID `json:"serviceItemID,omitempty"`
 
-	// sit allowance end date
+	// sit authorized end date
 	// Format: date
-	SitAllowanceEndDate *strfmt.Date `json:"sitAllowanceEndDate,omitempty"`
+	SitAuthorizedEndDate *strfmt.Date `json:"sitAuthorizedEndDate,omitempty"`
 
 	// sit customer contacted
 	// Format: date
@@ -262,7 +262,7 @@ func (m *SITStatusCurrentSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSitAllowanceEndDate(formats); err != nil {
+	if err := m.validateSitAuthorizedEndDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -312,12 +312,12 @@ func (m *SITStatusCurrentSIT) validateServiceItemID(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *SITStatusCurrentSIT) validateSitAllowanceEndDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitAllowanceEndDate) { // not required
+func (m *SITStatusCurrentSIT) validateSitAuthorizedEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAuthorizedEndDate) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("currentSIT"+"."+"sitAllowanceEndDate", "body", "date", m.SitAllowanceEndDate.String(), formats); err != nil {
+	if err := validate.FormatOf("currentSIT"+"."+"sitAuthorizedEndDate", "body", "date", m.SitAuthorizedEndDate.String(), formats); err != nil {
 		return err
 	}
 
