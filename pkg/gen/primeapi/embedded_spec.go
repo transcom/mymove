@@ -2524,7 +2524,8 @@ func init() {
               "example": "Storage items need to be picked up"
             },
             "standaloneCrate": {
-              "type": "boolean"
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -7687,7 +7688,8 @@ func init() {
               "example": "Storage items need to be picked up"
             },
             "standaloneCrate": {
-              "type": "boolean"
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

@@ -1510,7 +1510,8 @@ func init() {
               ]
             },
             "standaloneCrate": {
-              "type": "boolean"
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -4322,7 +4323,8 @@ func init() {
               ]
             },
             "standaloneCrate": {
-              "type": "boolean"
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

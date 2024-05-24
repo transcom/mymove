@@ -2309,6 +2309,7 @@ definitions:
             x-omitempty: false
           standaloneCrate:
             type: boolean
+            x-nullable: true
         required:
           - reServiceCode
           - item
