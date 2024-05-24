@@ -231,7 +231,7 @@ func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 
 	// Only apply this check to the service items in this list
-	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
 
 	if slices.Contains(reServiceCodesAllowed, serviceItemData.oldServiceItem.ReService.Code) {
 		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
@@ -282,7 +282,7 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 				"- unknown field or fields attempting to be updated.")
-
+			//nolint:revive // This is intentionally returning an error
 		} else {
 			// Rejects the update if the original SIT does not have a REJECTED status
 			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
@@ -307,7 +307,7 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
 func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
 
-	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
 
 	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(reServiceCodesAllowed, v.oldServiceItem.ReService.Code)) {
 		v.verrs.Add("status", "cannot be updated")
@@ -333,7 +333,7 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) 
 func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) error {
 
 	// Manual updates to SIT Departure dates are allowed for these service items
-	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
 
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here

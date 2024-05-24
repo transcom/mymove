@@ -107,7 +107,7 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 	testCases["AirForce"].cert.AllowAirForceOrdersRead = false
 
 	for name, testCase := range testCases {
-		suite.T().Run(name, func(t *testing.T) {
+		suite.T().Run(name, func(_ *testing.T) {
 			assertions := testdatagen.Assertions{
 				ElectronicOrder: models.ElectronicOrder{
 					Edipi:  testCase.edipi,

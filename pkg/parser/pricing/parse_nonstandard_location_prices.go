@@ -8,7 +8,7 @@ import (
 )
 
 // parseNonStandardLocnPrices: parser for 3e) Non-Standard Loc'n Prices
-var parseNonStandardLocnPrices processXlsxSheet = func(appCtx appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseNonStandardLocnPrices processXlsxSheet = func(_ appcontext.AppContext, params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 14        // 3e) Non-Standard Loc'n Prices
 	const feeColIndexStart int = 7         // start at column 7 to get the rates

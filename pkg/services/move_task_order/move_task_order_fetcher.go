@@ -41,6 +41,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		"Orders.Entitlement",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address",
+		"LockedByOfficeUser",
 	)
 
 	setMTOQueryFilters(query, searchParams)
@@ -359,6 +360,7 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 	// getting all moves that are available to the prime and aren't null
 	query := appCtx.DB().Select("moves.*").
 		InnerJoin("orders", "moves.orders_id = orders.id").
+		LeftJoin("office_users", "office_users.id = moves.locked_by").
 		Where("moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE")
 
 	// now we will see if the user is searching for move code or id

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -11,16 +11,21 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const DodInfoForm = ({ initialValues, onSubmit, onBack, isEmplidEnabled }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
+  const [isDodidDisabled, setIsDodidDisabled] = useState(false);
 
+  // considering the edipi input when the okta_dodid_input ff is off
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string()
-      .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
-      .required('Required'),
+    edipi: isDodidDisabled
+      ? Yup.string().notRequired()
+      : Yup.string()
+          .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
+          .required('Required'),
     emplid: Yup.string().when('showEmplid', () => {
       if (showEmplid && isEmplidEnabled)
         return Yup.string()
@@ -29,6 +34,15 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack, isEmplidEnabled }) => {
       return Yup.string().nullable();
     }),
   });
+
+  useEffect(() => {
+    // checking feature flag to see if DODID input should be disabled
+    // this data pulls from Okta and doens't let the customer update it
+    const fetchData = async () => {
+      setIsDodidDisabled(await isBooleanFlagEnabled('okta_dodid_input'));
+    };
+    fetchData();
+  }, []);
 
   return (
     <Formik
@@ -71,6 +85,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack, isEmplidEnabled }) => {
                 maxLength="10"
                 inputMode="numeric"
                 pattern="[0-9]{10}"
+                isDisabled={isDodidDisabled}
               />
               {showEmplid && isEmplidEnabled && (
                 <TextField
