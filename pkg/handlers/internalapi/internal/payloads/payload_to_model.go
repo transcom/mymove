@@ -274,6 +274,7 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
 		WeightStored:      handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
+		SITLocation:       (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation))),
 	}
 
 	if movingExpense.PaidWithGTCC != nil {
