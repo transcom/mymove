@@ -180,4 +180,82 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		suite.Equal(serviceMember2.Edipi, customers[0].Edipi)
 		suite.Equal(2, totalCount)
 	})
+
+	suite.Run("search does not return safety moves for those without privileges", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		serviceMember := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Page"),
+					LastName:  models.StringPointer("McConnell"),
+					Edipi:     models.StringPointer("1018231018"),
+				},
+			},
+			{
+				Model: models.Order{
+					OrdersType: "SAFETY",
+				},
+			},
+		}, nil)
+
+		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{DodID: serviceMember.Orders.ServiceMember.Edipi})
+		suite.NoError(err)
+		suite.Len(customers, 0)
+	})
+
+	suite.Run("search returns safety moves for those with privileges", func() {
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email: "officeuser1@example.com",
+				},
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSafety,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser2.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		serviceMember := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Page"),
+					LastName:  models.StringPointer("McConnell"),
+					Edipi:     models.StringPointer("1018231018"),
+				},
+			},
+			{
+				Model: models.Order{
+					OrdersType: "SAFETY",
+				},
+			},
+		}, nil)
+
+		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{DodID: serviceMember.Orders.ServiceMember.Edipi})
+		suite.NoError(err)
+		suite.Len(customers, 1)
+	})
 }

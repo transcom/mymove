@@ -52,11 +52,11 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		query = appCtx.DB().Q().EagerPreload("Orders").
 			Join("users", "users.id = service_members.user_id").
-			InnerJoin("orders", "orders.service_member_id = service_members.id")
+			LeftJoin("orders", "orders.service_member_id = service_members.id")
 	}
 
 	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-		query.Where("orders.orders_type != (?)", "SAFETY")
+		query.Where("(orders.orders_type != 'SAFETY' or orders.orders_type IS NULL)")
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
