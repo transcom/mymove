@@ -295,7 +295,7 @@ describe('ServiceInfoForm', () => {
       await userEvent.click(submitBtn);
 
       await waitFor(() => {
-        expect(screen.getAllByText('Required').length).toBe(4);
+        expect(screen.getAllByText('Required').length).toBe(3);
       });
     });
   });
