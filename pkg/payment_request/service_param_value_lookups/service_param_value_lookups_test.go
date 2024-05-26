@@ -472,8 +472,8 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("DestinationAddress will not change from when SIT Destination service items were approved", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: time.Now().Add(-48 * time.Hour),
+				EndDate:   time.Now().Add(-24 * time.Hour),
 			},
 		})
 		testData := []models.MTOServiceItem{
@@ -515,7 +515,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 			suite.NotNil(paramLookup.MTOServiceItem)
 
-			originalAddress, err := getDestinationAddressForService(models.ReServiceCodeDDDSIT, mtoServiceItem.MTOShipment)
+			originalAddress, err := getDestinationAddressForService(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, mtoServiceItem.MTOShipment)
 			suite.FatalNoError(err)
 
 			if sdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress].(ZipAddressLookup); ok {
