@@ -469,6 +469,63 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 	})
 
+	suite.Run("DestinationAddress will not change from when SIT Destination service items were approved", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		testData := []models.MTOServiceItem{
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDLH,
+						Name: models.ReServiceCodeDLH.String(),
+					},
+				},
+			}, []factory.Trait{
+				factory.GetTraitAvailableToPrimeMove,
+			}),
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeFSC,
+						Name: models.ReServiceCodeFSC.String(),
+					},
+				},
+			}, []factory.Trait{
+				factory.GetTraitAvailableToPrimeMove,
+			}),
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDDSIT,
+						Name: models.ReServiceCodeDDDSIT.String(),
+					},
+				},
+			}, []factory.Trait{
+				factory.GetTraitAvailableToPrimeMove,
+			}),
+		}
+
+		for _, mtoServiceItem := range testData {
+			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+			suite.FatalNoError(err)
+
+			suite.NotNil(paramLookup.MTOServiceItem)
+
+			originalAddress, err := getDestinationAddressForService(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, mtoServiceItem.MTOShipment)
+			suite.FatalNoError(err)
+
+			if sdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress].(ZipAddressLookup); ok {
+				suite.Equal(originalAddress.PostalCode, sdal.Address.PostalCode)
+			} else {
+				suite.Fail("lookup not ZipAddressLookup type")
+			}
+		}
+	})
+
 	suite.Run("DestinationAddress is not required for service items like domestic pack", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
