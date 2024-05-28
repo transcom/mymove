@@ -65,7 +65,7 @@ func (fh *FileHelper) ListFiles(p string, s3Client S3ListObjectsV2API) ([]string
 					key := *obj.Key
 					filenames = append(filenames, key[len(prefix)+1:])
 				}
-				if !listObjectsOutput.IsTruncated {
+				if listObjectsOutput.IsTruncated == nil || !*listObjectsOutput.IsTruncated {
 					break
 				}
 				continuationToken = listObjectsOutput.NextContinuationToken
