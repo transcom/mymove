@@ -131,7 +131,7 @@ func ServiceParamLookupInitialize(
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		err := appCtx.DB().Load(&mtoServiceItem, "Dimensions")
 		if err != nil {
 			return nil, err
