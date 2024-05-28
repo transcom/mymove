@@ -29,6 +29,9 @@ allOf:
           deciding to approve or reject the service item.
         x-nullable: true
         x-omitempty: false
+      standaloneCrate:
+        type: boolean
+        x-nullable: true
     required:
       - reServiceCode
       - item
