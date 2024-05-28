@@ -182,3 +182,9 @@ properties:
     x-nullable: true
     readOnly: true
     example: '1K43AR-01'
+  originSitAuthEndDate:
+    format: date-time
+    type: string
+  destinationSitAuthEndDate:
+    format: date-time
+    type: string

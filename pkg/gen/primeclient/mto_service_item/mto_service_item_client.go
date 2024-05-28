@@ -224,6 +224,10 @@ This endpoint supports different body definitions. In the modelType field below,
 For approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).
 For shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
 
+* SIT Service Items: Take note that when updating `sitCustomerContacted`, `sitDepartureDate`, or `sitRequestedDelivery`, we want
+those to be updated on `DOASIT` (for origin SIT) and `DDASIT` (for destination SIT). If updating those values in other service
+items, the office users will not have as much attention to those values.
+
 To create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
 */
 func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error) {
