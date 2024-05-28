@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	shipmentmocks "github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -88,7 +89,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
 
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)
@@ -97,6 +98,89 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		ApplicationName: auth.OfficeApp,
 		OfficeUserID:    uuid.Must(uuid.NewV4()),
 	})
+
+	const (
+		dopTestServiceArea = "123"
+		dopTestWeight      = 1212
+	)
+
+	pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "7 Q St",
+				City:           "Birmingham",
+				State:          "KY",
+				PostalCode:     "40356",
+			},
+		},
+	}, nil)
+
+	//ContractCode
+	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			StartDate: time.Now().Add(-24 * time.Hour),
+			EndDate:   time.Now().Add(24 * time.Hour),
+		},
+	})
+
+	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
+		ReDomesticServiceArea: models.ReDomesticServiceArea{
+			ServiceArea: dopTestServiceArea,
+		},
+		ReRateArea: models.ReRateArea{
+			Name: "Alabama",
+		},
+		ReZip3: models.ReZip3{
+			Zip3:          pickupAddress.PostalCode[0:3],
+			BasePointCity: pickupAddress.City,
+			State:         pickupAddress.State,
+		},
+	})
+
+	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			Contract:              contractYear.Contract,
+			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceArea:   serviceArea,
+			IsPeakPeriod:          false,
+		},
+	})
+
+	_ = testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			Contract:              contractYear.Contract,
+			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceArea:   serviceArea,
+			IsPeakPeriod:          true,
+			PriceMillicents:       baseLinehaulPrice.PriceMillicents - 2500, // minus $0.025
+		},
+	})
+
+	domesticOriginService := factory.FetchOrBuildReService(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOP,
+				Name: "Dom. Origin Price",
+			},
+		},
+	}, nil)
+
+	domesticOriginPrice := models.ReDomesticServiceAreaPrice{
+		ContractID:            contractYear.Contract.ID,
+		ServiceID:             domesticOriginService.ID,
+		IsPeakPeriod:          true,
+		DomesticServiceAreaID: serviceArea.ID,
+		PriceCents:            146,
+	}
+
+	domesticOriginPeakPrice := domesticOriginPrice
+	domesticOriginPeakPrice.PriceCents = 146
+
+	domesticOriginNonpeakPrice := domesticOriginPrice
+	domesticOriginNonpeakPrice.IsPeakPeriod = false
+	domesticOriginNonpeakPrice.PriceCents = 127
 
 	return subtestData
 }
@@ -108,6 +192,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		move := subtestData.move
 		approver := subtestData.shipmentApprover
 		planner := subtestData.planner
+		estimatedWeight := unit.Pound(1212)
 
 		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -116,7 +201,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:               models.MTOShipmentStatusSubmitted,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequestedPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 				},
 			},
 		}, nil)
@@ -126,6 +213,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		// Verify that required delivery date is not calculated when it does not need to be
 		planner.AssertNumberOfCalls(suite.T(), "TransitDistance", 0)
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(500, nil)
 
 		preApprovalTime := time.Now()
 		shipment, approverErr := approver.ApproveShipment(appCtx, shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
@@ -153,6 +246,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(subtestData.reServiceCodes[i], serviceItems[i].ReService.Code)
+			if serviceItems[i].ReService.Code == models.ReServiceCodeDOP {
+				// pricing estimate will be nil for invalid service area
+				suite.Nil(serviceItems[i].PricingEstimate)
+			}
 		}
 	})
 
