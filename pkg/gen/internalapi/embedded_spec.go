@@ -41,7 +41,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -7383,7 +7383,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
