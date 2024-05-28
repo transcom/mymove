@@ -2761,6 +2761,16 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
+      originSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for origin SIT.
+        x-nullable: true
+      destinationSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for destination SIT.
+        x-nullable: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
