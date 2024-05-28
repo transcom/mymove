@@ -46,7 +46,7 @@ const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
   createHeader('  ', (row) => {
     return (
       <div className={styles.editProfile} data-label="editProfile" data-testid="editProfileBtn">
-        <Button outline type="button" onClick={() => handleEditProfileClick(row.locator)}>
+        <Button unstyled type="button" onClick={() => handleEditProfileClick(row.locator)}>
           <FontAwesomeIcon icon={['far', 'user']} />
         </Button>
       </div>
