@@ -65,7 +65,7 @@ type MTOServiceItem struct {
 	CustomerExpense                   bool                           `db:"customer_expense"`
 	CustomerExpenseReason             *string                        `db:"customer_expense_reason"`
 	SITDeliveryMiles                  *int                           `db:"sit_delivery_miles"`
-  PricingEstimate                   *int                           `db:"pricing_estimate"`
+	PricingEstimate                   *int                           `db:"pricing_estimate"`
 	StandaloneCrate                   *bool                          `db:"standalone_crate"`
 }
 
