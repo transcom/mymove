@@ -984,6 +984,7 @@ const ShipmentForm = (props) => {
                   <ShipmentIncentiveAdvance
                     values={values}
                     estimatedIncentive={mtoShipment.ppmShipment?.estimatedIncentive}
+                    advanceAmountRequested={mtoShipment.ppmShipment?.advanceAmountRequested}
                   />
                 )}
 
