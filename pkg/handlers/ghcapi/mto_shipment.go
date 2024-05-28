@@ -109,21 +109,25 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				return handleError(err)
 			}
 
-			ppmEagerAssociations := []string{"Shipment",
-				"PickupAddress",
-				"DestinationAddress",
-				"SecondaryPickupAddress",
-				"SecondaryDestinationAddress",
+			if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+				ppmEagerAssociations := []string{"PickupAddress",
+					"DestinationAddress",
+					"SecondaryPickupAddress",
+					"SecondaryDestinationAddress",
+				}
+
+				ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
+
+				ppmShipment, err := ppmShipmentFetcher.GetPPMShipment(appCtx, mtoShipment.PPMShipment.ID, ppmEagerAssociations, nil)
+				if err != nil {
+					return handleError(err)
+				}
+
+				mtoShipment.PPMShipment.PickupAddress = ppmShipment.PickupAddress
+				mtoShipment.PPMShipment.DestinationAddress = ppmShipment.DestinationAddress
+				mtoShipment.PPMShipment.SecondaryPickupAddress = ppmShipment.SecondaryPickupAddress
+				mtoShipment.PPMShipment.SecondaryDestinationAddress = ppmShipment.SecondaryDestinationAddress
 			}
-
-			ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
-
-			ppmShipment, err := ppmShipmentFetcher.GetPPMShipment(appCtx, mtoShipment.PPMShipment.ID, ppmEagerAssociations, nil)
-			if err != nil {
-				return handleError(err)
-			}
-
-			mtoShipment.PPMShipment = ppmShipment
 
 			var agents []models.MTOAgent
 			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
