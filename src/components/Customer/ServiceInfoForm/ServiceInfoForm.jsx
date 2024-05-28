@@ -15,8 +15,9 @@ import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
+  const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
 
   useEffect(() => {
@@ -39,11 +40,32 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
       : Yup.string()
           .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
           .required('Required'),
+    emplid: Yup.string().when('showEmplid', () => {
+      if (showEmplid && isEmplidEnabled)
+        return Yup.string()
+          .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
+          .required('Required');
+      return Yup.string().nullable();
+    }),
   });
 
   return (
-    <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit }) => {
+    <Formik
+      initialValues={initialValues}
+      validateOnMount
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+      showEmplid={showEmplid}
+      setShowEmplid={setShowEmplid}
+    >
+      {({ isValid, isSubmitting, handleSubmit, handleChange }) => {
+        const handleBranchChange = (e) => {
+          if (e.target.value === 'COAST_GUARD') {
+            setShowEmplid(true);
+          } else {
+            setShowEmplid(false);
+          }
+        };
         return (
           <Form className={formStyles.form}>
             <h1>Edit service info</h1>
@@ -74,8 +96,25 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                     id="affiliation"
                     required
                     options={branchOptions}
+                    onChange={(e) => {
+                      handleChange(e);
+                      handleBranchChange(e);
+                    }}
                   />
                 </Grid>
+                {showEmplid && isEmplidEnabled && (
+                  <Grid mobileLg={{ col: 6 }}>
+                    <TextField
+                      label="EMPLID"
+                      name="emplid"
+                      id="emplid"
+                      required
+                      maxLength="7"
+                      inputMode="numeric"
+                      pattern="[0-9]{7}"
+                    />
+                  </Grid>
+                )}
               </Grid>
 
               <Grid row gap>
