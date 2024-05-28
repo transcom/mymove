@@ -76,6 +76,13 @@ func (suite *OrderServiceSuite) TestListOrders() {
 	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
 		// Make an office user → GBLOC X
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		// Create a move with a shipment → GBLOC X
 		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -547,6 +554,13 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		}, nil)
 		// Create office user tied to the default KKFA GBLOC
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -1093,6 +1107,13 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 			},
 		}, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -1161,7 +1182,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
 	}
-
+  
 	orderFetcher := NewOrderFetcher()
 	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
 
@@ -1255,7 +1276,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		}, nil)
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		session = auth.Session{
+		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			Roles:           officeUser.User.Roles,
 			OfficeUserID:    officeUser.ID,
@@ -1343,6 +1364,13 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		// Scenario: In order to sort the moves the submitted_at, service_counseling_completed_at, and approvals_requested_at are checked to which are the minimum
 		// Expected: The moves appear in the order they are created below
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 		now := time.Now()
 		oneWeekAgo := now.AddDate(0, 0, -7)
 		move1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
@@ -1369,7 +1397,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	// MUST BE LAST, ADDS EXTRA MOVE
 	suite.Run("Sort by service member last name", func() {
-		setupTestData()
+		_, _, session := setupTestData()
 
 		// Last name sort is the only one that needs 3 moves for a complete test, so add that here at the end
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
@@ -1681,7 +1709,13 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 
 		// Create a services counselor (default GBLOC is KKFA)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		var session auth.Session
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		// Create a move with Origin KKFA, needs service couseling
 		kkfaMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
@@ -1756,7 +1790,13 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	}, nil)
 	// Make a TOO user and the postal code to GBLOC link.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	var session auth.Session
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Roles:           tooOfficeUser.User.Roles,
+		OfficeUserID:    tooOfficeUser.ID,
+		IDToken:         "fake_token",
+		AccessToken:     "fakeAccessToken",
+	}
 
 	orderFetcher := NewOrderFetcher()
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
@@ -1768,17 +1808,19 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	postalCode := "90210"
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-	}, nil)
+	partialPPMType := models.MovePPMTypePARTIAL
+
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
-			Model:    move,
-			LinkOnly: true,
+			Model: models.Order{
+				ID: uuid.UUID{uuid.V4},
+			},
+		},
+		{
+			Model: models.Move{
+				Status:  models.MoveStatusAPPROVED,
+				PPMType: &partialPPMType,
+			},
 		},
 		{
 			Model: models.PPMShipment{
@@ -1788,7 +1830,13 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	}, nil)
 	// Make a TOO user.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	var session auth.Session
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Roles:           tooOfficeUser.User.Roles,
+		OfficeUserID:    tooOfficeUser.ID,
+		IDToken:         "fake_token",
+		AccessToken:     "fakeAccessToken",
+	}
 
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
@@ -1836,7 +1884,13 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 
 	// Make a TOO user.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	var session auth.Session
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Roles:           tooOfficeUser.User.Roles,
+		OfficeUserID:    tooOfficeUser.ID,
+		IDToken:         "fake_token",
+		AccessToken:     "fakeAccessToken",
+	}
 
 	orderFetcher := NewOrderFetcher()
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
@@ -1900,7 +1954,13 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 
 	// Make a TOO user and the postal code to GBLOC link.
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	var session auth.Session
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Roles:           tooOfficeUser.User.Roles,
+		OfficeUserID:    tooOfficeUser.ID,
+		IDToken:         "fake_token",
+		AccessToken:     "fakeAccessToken",
+	}
 
 	orderFetcher := NewOrderFetcher()
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
