@@ -2,7 +2,7 @@ package models_test
 
 import (
 	"github.com/transcom/mymove/pkg/factory"
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
@@ -13,26 +13,26 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 
 	type TestCaseType struct {
 		name             string
-		sitAddressUpdate SITAddressUpdate
+		sitAddressUpdate m.SITAddressUpdate
 		expectedErrs     map[string][]string
 	}
 
 	testCases := []TestCaseType{
 		{
 			name: "Successful create",
-			sitAddressUpdate: SITAddressUpdate{
+			sitAddressUpdate: m.SITAddressUpdate{
 				MTOServiceItemID:  testMTOServiceItem.ID,
 				OldAddressID:      testOldAddress.ID,
 				NewAddressID:      testNewAddress.ID,
 				ContractorRemarks: &testContractorRemarksString,
 				Distance:          1323,
-				Status:            SITAddressUpdateStatusRejected,
+				Status:            m.SITAddressUpdateStatusRejected,
 			},
 			expectedErrs: nil,
 		},
 		{
 			name:             "Missing UUIDs",
-			sitAddressUpdate: SITAddressUpdate{},
+			sitAddressUpdate: m.SITAddressUpdate{},
 			expectedErrs: map[string][]string{
 				"mtoservice_item_id": {"MTOServiceItemID can not be blank."},
 				"old_address_id":     {"OldAddressID can not be blank."},
@@ -42,14 +42,14 @@ func (suite *ModelSuite) TestSITAddressUpdateInstantiation() {
 		},
 		{
 			name: "Optional fields are invalid",
-			sitAddressUpdate: SITAddressUpdate{
+			sitAddressUpdate: m.SITAddressUpdate{
 				MTOServiceItemID:  testMTOServiceItem.ID,
 				OldAddressID:      testOldAddress.ID,
 				NewAddressID:      testNewAddress.ID,
-				ContractorRemarks: StringPointer(""),
+				ContractorRemarks: m.StringPointer(""),
 				Distance:          1323,
-				Status:            SITAddressUpdateStatusRejected,
-				OfficeRemarks:     StringPointer(""),
+				Status:            m.SITAddressUpdateStatusRejected,
+				OfficeRemarks:     m.StringPointer(""),
 			},
 			expectedErrs: map[string][]string{
 				"office_remarks":     {"OfficeRemarks can not be blank."},

@@ -5,42 +5,42 @@ import (
 
 	"github.com/pkg/errors"
 
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReimbursementStateMachine() {
-	reimbursement := BuildDraftReimbursement(1200, MethodOfReceiptOTHERDD)
+	reimbursement := m.BuildDraftReimbursement(1200, m.MethodOfReceiptOTHERDD)
 
 	err := reimbursement.Request()
 	suite.NoError(err)
-	suite.Equal(ReimbursementStatusREQUESTED, reimbursement.Status, "expected Requested")
+	suite.Equal(m.ReimbursementStatusREQUESTED, reimbursement.Status, "expected Requested")
 
 	err = reimbursement.Approve()
 	suite.NoError(err)
-	suite.Equal(ReimbursementStatusAPPROVED, reimbursement.Status, "expected Approved")
+	suite.Equal(m.ReimbursementStatusAPPROVED, reimbursement.Status, "expected Approved")
 
 	err = reimbursement.Pay()
 	suite.NoError(err)
-	suite.Equal(ReimbursementStatusPAID, reimbursement.Status, "expected Paid")
+	suite.Equal(m.ReimbursementStatusPAID, reimbursement.Status, "expected Paid")
 
 	err = reimbursement.Reject()
-	suite.Equal(ErrInvalidTransition, errors.Cause(err))
+	suite.Equal(m.ErrInvalidTransition, errors.Cause(err))
 
-	reimbursement.Status = ReimbursementStatusDRAFT // NEVER do this outside of a test.
+	reimbursement.Status = m.ReimbursementStatusDRAFT // NEVER do this outside of a test.
 
 	err = reimbursement.Pay()
-	suite.Equal(ErrInvalidTransition, errors.Cause(err))
+	suite.Equal(m.ErrInvalidTransition, errors.Cause(err))
 
 	err = reimbursement.Approve()
-	suite.Equal(ErrInvalidTransition, errors.Cause(err))
+	suite.Equal(m.ErrInvalidTransition, errors.Cause(err))
 
 	err = reimbursement.Reject()
-	suite.Equal(ErrInvalidTransition, errors.Cause(err))
+	suite.Equal(m.ErrInvalidTransition, errors.Cause(err))
 
 }
 
 func (suite *ModelSuite) TestBasicReimbursement() {
-	reimbursement := BuildDraftReimbursement(1200, MethodOfReceiptOTHERDD)
+	reimbursement := m.BuildDraftReimbursement(1200, m.MethodOfReceiptOTHERDD)
 
 	//RA Summary: gosec - errcheck - Unchecked return value
 	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.

@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 	}
 
 	handler := PostRevisionHandler{suite.HandlerConfig()}
-	suite.T().Run("NewSuccess", func(t *testing.T) {
+	suite.T().Run("NewSuccess", func(_ *testing.T) {
 		response := handler.Handle(params)
 
 		suite.IsType(&ordersoperations.PostRevisionCreated{}, response)
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 		suite.Equal(rev.LosingUnit.PostalCode, storedRev.LosingUnitPostalCode)
 	})
 
-	suite.T().Run("AmendmentSuccess", func(t *testing.T) {
+	suite.T().Run("AmendmentSuccess", func(_ *testing.T) {
 		seqNum = int64(1)
 		response := handler.Handle(params)
 
@@ -135,7 +135,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 		suite.Equal(rev.LosingUnit.PostalCode, storedRev.LosingUnitPostalCode)
 	})
 
-	suite.T().Run("SeqNumConflict", func(t *testing.T) {
+	suite.T().Run("SeqNumConflict", func(_ *testing.T) {
 		// Sending the amendment again should result in a conflict because the SeqNum will be taken
 		response := handler.Handle(params)
 		suite.IsType(&handlers.ErrResponse{}, response)
@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 		suite.Equal(http.StatusConflict, errResponse.Code)
 	})
 
-	suite.T().Run("EdipiConflict", func(t *testing.T) {
+	suite.T().Run("EdipiConflict", func(_ *testing.T) {
 		params.MemberID = "9999999999"
 		seqNum = int64(99999)
 		response := handler.Handle(params)
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 	testCases["AirForce"].cert.AllowAirForceOrdersWrite = false
 
 	for name, testCase := range testCases {
-		suite.T().Run(name, func(t *testing.T) {
+		suite.T().Run(name, func(_ *testing.T) {
 			req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 

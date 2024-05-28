@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		params      progearops.UpdateProGearWeightTicketParams
 		handler     UpdateProgearWeightTicketHandler
 	}
-	makeUpdateSubtestData := func(appCtx appcontext.AppContext, authenticateRequest bool) (subtestData progearUpdateSubtestData) {
+	makeUpdateSubtestData := func(appCtx appcontext.AppContext, _ bool) (subtestData progearUpdateSubtestData) {
 		db := appCtx.DB()
 
 		// Use fake data:

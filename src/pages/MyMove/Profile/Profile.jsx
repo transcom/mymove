@@ -40,20 +40,24 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
   const [profileValidated, setProfileValidated] = useState(false);
   const [multiMove, setMultiMove] = useState(false);
+  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
 
   const navigate = useNavigate();
   const { state } = useLocation();
   const { moveId } = state;
 
   useEffect(() => {
-    if (state && state.needsToVerifyProfile) {
-      setNeedsToVerifyProfile(state.needsToVerifyProfile);
-    } else {
-      setNeedsToVerifyProfile(false);
-    }
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
+    const fetchData = async () => {
+      if (state && state.needsToVerifyProfile) {
+        setNeedsToVerifyProfile(state.needsToVerifyProfile);
+      } else {
+        setNeedsToVerifyProfile(false);
+      }
+
+      setMultiMove(await isBooleanFlagEnabled('multi_move'));
+      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
+    };
+    fetchData();
   }, [state]);
 
   const handleCreateMoveClick = () => {
@@ -121,9 +125,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
               payGrade={ORDERS_PAY_GRADE_OPTIONS[payGrade] || ''}
               edipi={serviceMember?.edipi || ''}
+              emplid={serviceMember?.emplid || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}
               showMessage={showMessages}
+              isEmplidEnabled={isEmplidEnabled}
             />
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
