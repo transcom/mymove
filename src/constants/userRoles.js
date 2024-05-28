@@ -18,6 +18,7 @@ export const adminOfficeRoles = [
   { roleType: 'services_counselor', name: 'Services Counselor' },
   { roleType: 'prime_simulator', name: 'Prime Simulator' },
   { roleType: 'qae_csr', name: 'Quality Assurance and Customer Support' },
+  { roleType: 'customer_service_representative', name: 'Customer Service Representative' },
 ];
 
 export const officeRoles = [
