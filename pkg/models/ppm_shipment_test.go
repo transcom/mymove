@@ -29,8 +29,8 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
-				PickupAddressID:       models.UUIDPointer(uuid.Nil),
-				DestinationAddressID:  models.UUIDPointer(uuid.Nil),
+				PickupAddressID:       models.UUIDPointer(uuid.Must(uuid.NewV4())),
+				DestinationAddressID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 			expectedErrs: nil,
 		},
@@ -50,8 +50,8 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
-				PickupAddressID:       models.UUIDPointer(uuid.Nil),
-				DestinationAddressID:  models.UUIDPointer(uuid.Nil),
+				PickupAddressID:       models.UUIDPointer(uuid.Must(uuid.NewV4())),
+				DestinationAddressID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
 
 				// Now setting optional fields with invalid values.
 				SecondaryPickupAddressID:      models.UUIDPointer(uuid.Nil),

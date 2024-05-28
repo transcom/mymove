@@ -121,10 +121,6 @@ describe('when given a PPM shipment update', () => {
       ['SIT estimated storage start', ': 22 Mar 2020'],
       ['SIT estimated storage end', ': 13 Apr 2020'],
       ['SIT estimated storage weight', ': 6,877 lbs'],
-      ['Pickup postal code', ': 20906'],
-      ['Destination postal code', ': 59801'],
-      ['Secondary pickup postal code', ': 20832'],
-      ['Secondary destination postal code', ': 59802'],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));

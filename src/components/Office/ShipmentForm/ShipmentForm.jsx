@@ -973,8 +973,8 @@ const ShipmentForm = (props) => {
                     cost={mtoShipment.ppmShipment?.sitEstimatedCost}
                     weight={mtoShipment.ppmShipment?.sitEstimatedWeight}
                     sitLocation={mtoShipment.ppmShipment?.sitLocation}
-                    originZip={mtoShipment.ppmShipment?.pickupAddress.PostalCode}
-                    destinationZip={mtoShipment.ppmShipment?.destinationAddress.PostalCode}
+                    originZip={mtoShipment.ppmShipment?.pickupAddress.postalCode}
+                    destinationZip={mtoShipment.ppmShipment?.destinationAddress.postalCode}
                     departureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
                     entryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
                   />

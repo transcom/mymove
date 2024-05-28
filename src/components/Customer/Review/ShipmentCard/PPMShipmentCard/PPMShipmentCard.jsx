@@ -95,22 +95,22 @@ const PPMShipmentCard = ({
           </div>
           <div className={styles.row}>
             <dt>Origin ZIP</dt>
-            <dd>{pickupAddress.PostalCode}</dd>
+            <dd>{pickupAddress.postalCode}</dd>
           </div>
           {hasSecondaryPickupAddress && (
             <div className={styles.row}>
               <dt>Second origin ZIP</dt>
-              <dd>{secondaryPickupAddress.PostalCode}</dd>
+              <dd>{secondaryPickupAddress.postalCode}</dd>
             </div>
           )}
           <div className={styles.row}>
             <dt>Destination ZIP</dt>
-            <dd>{destinationAddress.PostalCode}</dd>
+            <dd>{destinationAddress.postalCode}</dd>
           </div>
           {hasSecondaryDestinationAddress && (
             <div className={styles.row}>
               <dt>Second destination ZIP</dt>
-              <dd>{secondaryDestinationAddress.PostalCode}</dd>
+              <dd>{secondaryDestinationAddress.postalCode}</dd>
             </div>
           )}
           {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (

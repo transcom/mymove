@@ -62,7 +62,10 @@ const ntsReleaseShipment = {
 const ppmShipment = {
   id: 'c3c64a08-778d-4f9f-8b67-b2502e0fb5e9',
   shipmentType: SHIPMENT_OPTIONS.PPM,
-  ppmShipment: {},
+  ppmShipment: {
+    pickupAddress,
+    destinationAddress,
+  },
   status: 'SUBMITTED',
   createdAt: '2022-07-12T19:38:35.886Z',
   shipmentLocator: 'EVLRPT-04',
@@ -118,8 +121,10 @@ describe('ShipmentQAEReportHeader', () => {
     );
     expect(screen.getByTestId('shipmentHeader')).toHaveTextContent('EVLRPT-04');
 
-    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ppmShipment.ppmShipment.pickupPostalCode);
-    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ppmShipment.ppmShipment.destinationPostalCode);
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.postalCode);
+    expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(
+      ppmShipment.ppmShipment.destinationAddress.postalCode,
+    );
     expect(screen.getByRole('button', { name: 'Create report' })).toBeVisible();
   });
 });

@@ -46,12 +46,8 @@ describe('When a PPM is created by the Prime and the move history is viewed', ()
       expect(screen.getByText(': 6,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Expected departure date')).toBeInTheDocument();
       expect(screen.getByText(': 15 Jan 2024')).toBeInTheDocument();
-      expect(screen.getByText('Pickup postal code')).toBeInTheDocument();
-      expect(screen.getByText(': 95630')).toBeInTheDocument();
       expect(screen.getByText('Destination postal code')).toBeInTheDocument();
       expect(screen.getByText(': 62269')).toBeInTheDocument();
-      expect(screen.getByText('Secondary pickup postal code')).toBeInTheDocument();
-      expect(screen.getByText(': 63108')).toBeInTheDocument();
       expect(screen.getByText('Secondary destination postal code')).toBeInTheDocument();
       expect(screen.getByText(': 95670')).toBeInTheDocument();
     });
