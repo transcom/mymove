@@ -6,7 +6,6 @@ export const createServiceItemModelTypes = {
   MTOServiceItemDestSIT: 'MTOServiceItemDestSIT',
   MTOServiceItemShuttle: 'MTOServiceItemShuttle',
   MTOServiceItemDomesticCrating: 'MTOServiceItemDomesticCrating',
-  MTOServiceItemDomesticStandaloneCrating: 'MTOServiceItemDomesticStandaloneCrating',
 };
 
 export const shuttleServiceItemCodeOptions = [
@@ -17,10 +16,6 @@ export const shuttleServiceItemCodeOptions = [
 export const domesticCratingServiceItemCodeOptions = [
   { value: serviceItemCodes.DCRT, key: SERVICE_ITEM_CODES.DCRT },
   { value: serviceItemCodes.DUCRT, key: SERVICE_ITEM_CODES.DUCRT },
-];
-
-export const domesticStandaloneCratingServiceItemCodeOptions = [
-  { value: serviceItemCodes.DCRTSA, key: SERVICE_ITEM_CODES.DCRTSA },
 ];
 
 export default createServiceItemModelTypes;
