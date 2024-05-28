@@ -3033,6 +3033,20 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -6511,6 +6525,20 @@ func init() {
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
         },
         "counselorRemarks": {
           "type": "string",
