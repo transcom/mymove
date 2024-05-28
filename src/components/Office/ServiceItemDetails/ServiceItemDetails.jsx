@@ -41,8 +41,8 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
   const numberOfDaysApprovedForDOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
   const sitEndDate =
     sitStatus &&
-    sitStatus.currentSIT?.sitAllowanceEndDate &&
-    formatDateWithUTC(sitStatus.currentSIT.sitAllowanceEndDate, 'DD MMM YYYY');
+    sitStatus.currentSIT?.sitAuthorizedEndDate &&
+    formatDateWithUTC(sitStatus.currentSIT.sitAuthorizedEndDate, 'DD MMM YYYY');
   const originalDeliveryAddress = details.sitDestinationOriginalAddress
     ? details.sitDestinationOriginalAddress
     : shipment.destinationAddress;
@@ -197,8 +197,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       const numberOfDaysApprovedForDOASIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
       const sitEndDate =
         sitStatus &&
-        sitStatus.currentSIT?.sitAllowanceEndDate &&
-        formatDateWithUTC(sitStatus.currentSIT.sitAllowanceEndDate, 'DD MMM YYYY');
+        sitStatus.currentSIT?.sitAuthorizedEndDate &&
+        formatDateWithUTC(sitStatus.currentSIT.sitAuthorizedEndDate, 'DD MMM YYYY');
 
       detailSection = (
         <div>
