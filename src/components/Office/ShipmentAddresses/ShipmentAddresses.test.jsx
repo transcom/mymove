@@ -33,7 +33,7 @@ const testProps = {
     state: 'CA',
     postalCode: '92310',
   },
-  handleDivertShipment: jest.fn(),
+  handleShowDiversionModal: jest.fn(),
   shipmentInfo: {
     id: '456',
     eTag: 'abc123',
@@ -96,7 +96,7 @@ const cancelledShipment = {
     state: 'CA',
     postalCode: '92310',
   },
-  handleDivertShipment: jest.fn(),
+  handleShowDiversionModal: jest.fn(),
   shipmentInfo: {
     id: '456',
     eTag: 'abc123',
@@ -107,7 +107,7 @@ const cancelledShipment = {
 };
 
 describe('ShipmentAddresses', () => {
-  it('calls props.handleDivertShipment on request diversion button click', async () => {
+  it('calls props.handleShowDiversionModal on request diversion button click', async () => {
     render(
       <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
         <ShipmentAddresses {...testProps} />
@@ -117,13 +117,8 @@ describe('ShipmentAddresses', () => {
 
     await userEvent.click(requestDiversionBtn);
     await waitFor(() => {
-      expect(testProps.handleDivertShipment).toHaveBeenCalled();
-      expect(testProps.handleDivertShipment).toHaveBeenCalledWith(
-        testProps.shipmentInfo.id,
-        testProps.shipmentInfo.eTag,
-        testProps.shipmentInfo.shipmentLocator,
-        testProps.diversionReason,
-      );
+      expect(testProps.handleShowDiversionModal).toHaveBeenCalled();
+      expect(testProps.handleShowDiversionModal).toHaveBeenCalledWith(testProps.shipmentInfo);
     });
   });
 
