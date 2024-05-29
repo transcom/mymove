@@ -887,7 +887,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		office := models.TransportationOffice{
-			Name:      "Truss",
+			Name:      "Transcom",
 			AddressID: address.ID,
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
