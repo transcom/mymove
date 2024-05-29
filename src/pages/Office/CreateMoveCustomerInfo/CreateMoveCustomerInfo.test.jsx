@@ -56,6 +56,7 @@ const useCustomerQueryReturnValue = {
     middle_name: 'Quincey',
     suffix: 'Jr.',
     phone: '223-444-3434',
+    cacValidated: true,
   },
 };
 
