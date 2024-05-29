@@ -9,7 +9,7 @@ import { formatWeight } from 'utils/formatters';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
+const WeightDisplay = ({ heading, weightValue, onEdit, children, isMoveLocked }) => {
   return (
     <div className={classnames('maxw-tablet', styles.WeightDisplay)}>
       <div className={styles.heading}>
@@ -23,6 +23,7 @@ const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
                 className={styles.editButton}
                 onClick={onEdit}
                 data-testid="weightDisplayEdit"
+                disabled={isMoveLocked}
               >
                 <FontAwesomeIcon icon="pen" title="edit" alt="" />
               </Button>
