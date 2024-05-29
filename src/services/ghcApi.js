@@ -750,3 +750,23 @@ export async function createUploadForDocument(file, documentId) {
     },
   );
 }
+
+export async function searchCustomers(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    'customer.searchCustomers',
+    {
+      body: {
+        sort,
+        order,
+        page: currentPage,
+        perPage: currentPageSize,
+        ...paramFilters,
+      },
+    },
+    { schemaKey: 'searchMovesResult', normalize: false },
+  );
+}

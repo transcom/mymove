@@ -59,7 +59,7 @@ func (d *movingExpenseDeleter) DeleteMovingExpense(appCtx appcontext.AppContext,
 		return err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		// movingExpense.Document is a belongs_to relation, so will not be automatically
 		// deleted when we call SoftDestroy on the moving expense
 		err = utilities.SoftDestroy(appCtx.DB(), &movingExpense.Document)

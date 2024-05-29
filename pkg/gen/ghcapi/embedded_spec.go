@@ -314,6 +314,91 @@ func init() {
         }
       ]
     },
+    "/customer/search": {
+      "post": {
+        "description": "Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Search customers by DOD ID or customer name",
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "description": "field that results should be sorted by",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "branch": {
+                  "description": "Branch",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all customers matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchCustomersResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -5797,6 +5882,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -6189,6 +6277,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -6267,6 +6358,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -6995,6 +7089,24 @@ func init() {
         }
       }
     },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -7513,6 +7625,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -7560,6 +7676,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -7796,6 +7916,20 @@ func init() {
         "locator": {
           "type": "string",
           "example": "1K43AR"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orders": {
           "$ref": "#/definitions/Order"
@@ -8236,6 +8370,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -8330,6 +8470,9 @@ func init() {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "transportationOfficeId": {
           "type": "string",
@@ -9635,6 +9778,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -9714,6 +9871,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "moveID": {
           "type": "string",
@@ -10077,7 +10244,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -10111,6 +10278,67 @@ func init() {
           "type": "integer"
         },
         "totalSITDaysUsed": {
+          "type": "integer"
+        }
+      }
+    },
+    "SearchCustomer": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchCustomers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchCustomer"
+      }
+    },
+    "SearchCustomersResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchCustomers": {
+          "$ref": "#/definitions/SearchCustomers"
+        },
+        "totalCount": {
           "type": "integer"
         }
       }
@@ -10152,6 +10380,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"
@@ -10741,6 +10979,9 @@ func init() {
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cac_validated": {
+          "type": "boolean"
+        },
         "current_address": {
           "allOf": [
             {
@@ -10836,6 +11077,15 @@ func init() {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -10852,6 +11102,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -10948,6 +11202,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
@@ -10978,6 +11238,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -12051,6 +12316,97 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/customer/search": {
+      "post": {
+        "description": "Search customers by DOD ID or customer name. Used by services counselors to locate profiles to update, find attached moves, and to create new moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Search customers by DOD ID or customer name",
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "description": "field that results should be sorted by",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "branch": {
+                  "description": "Branch",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "customerName": {
+                  "description": "Customer Name",
+                  "type": "string",
+                  "minLength": 1,
+                  "x-nullable": true
+                },
+                "dodID": {
+                  "description": "DOD ID",
+                  "type": "string",
+                  "maxLength": 10,
+                  "minLength": 10,
+                  "x-nullable": true
+                },
+                "order": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ],
+                  "x-nullable": true
+                },
+                "page": {
+                  "description": "requested page of results",
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "customerName",
+                    "dodID",
+                    "branch",
+                    "personalEmail",
+                    "telephone"
+                  ],
+                  "x-nullable": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all customers matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/SearchCustomersResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/customer/{customerID}": {
       "get": {
@@ -18914,6 +19270,9 @@ func init() {
             }
           ]
         },
+        "cacUser": {
+          "type": "boolean"
+        },
         "createOktaAccount": {
           "type": "boolean"
         },
@@ -19306,6 +19665,9 @@ func init() {
         "backupContact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cacValidated": {
+          "type": "boolean"
+        },
         "edipi": {
           "type": "string",
           "x-nullable": true
@@ -19384,6 +19746,9 @@ func init() {
         },
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
+        },
+        "cacValidated": {
+          "type": "boolean"
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -20112,6 +20477,24 @@ func init() {
         }
       }
     },
+    "LockedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -20630,6 +21013,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -20677,6 +21064,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -20913,6 +21304,20 @@ func init() {
         "locator": {
           "type": "string",
           "example": "1K43AR"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orders": {
           "$ref": "#/definitions/Order"
@@ -21353,6 +21758,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -21447,6 +21858,9 @@ func init() {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "transportationOfficeId": {
           "type": "string",
@@ -22754,6 +23168,20 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUser": {
+          "x-nullable": true,
+          "$ref": "#/definitions/LockedOfficeUser"
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "orderType": {
           "type": "string",
           "x-nullable": true
@@ -22833,6 +23261,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "moveID": {
           "type": "string",
@@ -23199,7 +23637,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -23257,7 +23695,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "sitAllowanceEndDate": {
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -23281,6 +23719,67 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        }
+      }
+    },
+    "SearchCustomer": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "dodID": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Doe"
+        },
+        "personalEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "personalEmail@email.com"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
+    "SearchCustomers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SearchCustomer"
+      }
+    },
+    "SearchCustomersResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "searchCustomers": {
+          "$ref": "#/definitions/SearchCustomers"
+        },
+        "totalCount": {
+          "type": "integer"
         }
       }
     },
@@ -23321,6 +23820,16 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "lockedByOfficeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
         },
         "orderType": {
           "type": "string"
@@ -23916,6 +24425,9 @@ func init() {
         "backup_contact": {
           "$ref": "#/definitions/BackupContact"
         },
+        "cac_validated": {
+          "type": "boolean"
+        },
         "current_address": {
           "allOf": [
             {
@@ -24011,6 +24523,15 @@ func init() {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
         },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
           "type": "string"
@@ -24027,6 +24548,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -24123,6 +24648,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "advanceAmountReceived": {
+          "description": "The amount received for an advance, or null if no advance is received\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "advanceAmountRequested": {
           "description": "The amount request for an advance, or null if no advance is requested\n",
           "type": "integer",
@@ -24153,6 +24684,11 @@ func init() {
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear.\n",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "hasReceivedAdvance": {
+          "description": "Indicates whether an advance was received for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
         },

@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		params       weightticketops.UpdateWeightTicketParams
 		handler      UpdateWeightTicketHandler
 	}
-	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
+	makeUpdateSubtestData := func(_ bool) (subtestData weightTicketUpdateSubtestData) {
 
 		// Use fake data:
 		subtestData.ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
