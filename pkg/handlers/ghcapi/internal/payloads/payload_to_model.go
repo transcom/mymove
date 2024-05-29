@@ -565,11 +565,11 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 
 // MovingExpenseModelFromUpdate
 func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense) *models.MovingExpense {
+	var model models.MovingExpense
+
 	if movingExpense == nil {
 		return nil
 	}
-
-	var model models.MovingExpense
 
 	var expenseType models.MovingExpenseReceiptType
 	if movingExpense.MovingExpenseType != nil {
@@ -586,6 +586,7 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	model.SITEndDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate)
 	model.Status = (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status)))
 	model.Reason = handlers.FmtString(movingExpense.Reason)
+	model.WeightStored = handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored)
 
 	return &model
 }

@@ -7382,6 +7382,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -7429,6 +7433,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -8119,6 +8127,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -9987,7 +10001,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -10845,6 +10859,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -20374,6 +20392,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -20421,6 +20443,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -21111,6 +21137,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -22984,7 +23016,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -23042,7 +23074,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "sitAllowanceEndDate": {
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -23895,6 +23927,10 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
