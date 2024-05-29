@@ -8637,7 +8637,7 @@ func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
 		return
 	}
 
-	/* A user with tio role */
+	/* A user with RoleTypeCustomerServiceRepresentative role */
 	customerServiceRepresentativeRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeCustomerServiceRepresentative).First(&customerServiceRepresentativeRole)
 	if err != nil {
