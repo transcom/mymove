@@ -13,7 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.4.6
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.23.6
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.28.1
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.41.11
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.41.9
 	github.com/aws/aws-sdk-go-v2/service/rds v1.78.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.54.1
 	github.com/aws/aws-sdk-go-v2/service/ses v1.22.7
@@ -46,7 +46,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/gomodule/redigo v1.9.2
+	github.com/gomodule/redigo v1.8.9
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/imdario/mergo v0.3.16
@@ -97,7 +97,7 @@ require (
 	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.13.0
 	google.golang.org/grpc v1.62.0
-	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
+	gopkg.in/dnaeon/go-vcr.v3 v3.1.2
 	gotest.tools/gotestsum v1.10.1
 	pault.ag/go/pksigner v1.0.2
 )
@@ -135,8 +135,8 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.2 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.2 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.7 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.6 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.6 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.0 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.6 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.11.2 // indirect
