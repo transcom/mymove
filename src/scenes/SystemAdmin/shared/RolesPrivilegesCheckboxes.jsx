@@ -40,6 +40,15 @@ const RolesPrivilegesCheckboxInput = (props) => {
       }
     }
 
+    if (privilegesSelected.includes('safety')) {
+      if (input.includes('headquarters')) {
+        index = input.indexOf('headquarters');
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    }
+
     return input.reduce((rolesArray, role) => {
       rolesArray.push(adminOfficeRoles.find((adminOfficeRole) => adminOfficeRole.roleType === role));
       return rolesArray;
