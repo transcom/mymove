@@ -33,7 +33,7 @@ const (
 	PrimeSimulatorOfficeUserType string = "Prime Simulator office"
 	// QaeCsrOfficeUserType is a type of user for an Office user
 	QaeCsrOfficeUserType string = "QAE/CSR office"
-	// QaeCsrOfficeUserType is the Customer Service Representative type of user for an Office user
+	// CustomerServiceRepresentativeOfficeUserType is the Customer Service Representative type of user for an Office user
 	CustomerServiceRepresentativeOfficeUserType string = "Customer Service Representative office"
 	// MultiRoleOfficeUserType has all the Office user roles
 	MultiRoleOfficeUserType string = "Multi role office"
