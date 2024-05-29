@@ -274,7 +274,6 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
 		WeightStored:      handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
-		SITLocation:       (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation))),
 	}
 
 	if movingExpense.PaidWithGTCC != nil {
@@ -283,6 +282,10 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 
 	if movingExpense.MissingReceipt != nil {
 		model.MissingReceipt = handlers.FmtBool(*movingExpense.MissingReceipt)
+	}
+
+	if movingExpense.SitLocation != nil {
+		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
 	}
 
 	return model
