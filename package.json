@@ -14,11 +14,13 @@
     "@trussworks/react-uswds": "3.2.0",
     "axe-playwright": "^1.2.3",
     "bytes": "^3.1.2",
+    "canvas": "^2.11.2",
     "classnames": "^2.5.1",
     "connected-react-router": "^6.9.3",
     "core-js": "^3.37.0",
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.9",
+    "dotenv": "^16.3.1",
     "eslint-plugin-react": "^7.34",
     "filepond": "^4.31.1",
     "filepond-plugin-file-validate-size": "^2.2.8",
@@ -79,8 +81,7 @@
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
-    "yup": "^1.2.0",
-    "dotenv": "^16.3.1"
+    "yup": "^1.2.0"
   },
   "resolutions": {
     "dns-packet": "^5.4.0",
