@@ -177,7 +177,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter),
-		moveRouter,
+		moveRouter, signedCertificationCreator, signedCertificationUpdater,
 	)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator), shipmentRouter, moveTaskOrderUpdater)
 
