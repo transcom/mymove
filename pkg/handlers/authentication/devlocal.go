@@ -34,7 +34,7 @@ const (
 	// QaeCsrOfficeUserType is a type of user for an Office user
 	QaeCsrOfficeUserType string = "QAE/CSR office"
 	// CustomerServiceRepresentativeOfficeUserType is the Customer Service Representative type of user for an Office user
-	CustomerServiceRepresentativeOfficeUserType string = "Customer Service Representative office"
+	CustomerServiceRepresentativeOfficeUserType string = "CSR office"
 	// MultiRoleOfficeUserType has all the Office user roles
 	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
