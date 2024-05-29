@@ -16,8 +16,8 @@ type RoleAssociater struct {
 	mock.Mock
 }
 
-// FetchRoles provides a mock function with given fields: appCtx, userID
-func (_m *RoleAssociater) FetchRoles(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error) {
+// FetchRolesForUser provides a mock function with given fields: appCtx, userID
+func (_m *RoleAssociater) FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error) {
 	ret := _m.Called(appCtx, userID)
 
 	var r0 roles.Roles

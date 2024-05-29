@@ -24,6 +24,7 @@ const ShipmentAddresses = ({
   destinationDutyLocation,
   handleShowDiversionModal,
   shipmentInfo,
+  isMoveLocked,
 }) => {
   let pickupHeader;
   let destinationHeader;
@@ -54,7 +55,12 @@ const ShipmentAddresses = ({
             {shipmentInfo.status !== shipmentStatuses.CANCELED && (
               <Restricted to={permissionTypes.createShipmentDiversionRequest}>
                 <Restricted to={permissionTypes.updateMTOPage}>
-                  <Button type="button" onClick={() => handleShowDiversionModal(shipmentInfo)} unstyled>
+                  <Button
+                    type="button"
+                    onClick={() => handleShowDiversionModal(shipmentInfo)}
+                    unstyled
+                    disabled={isMoveLocked}
+                  >
                     Request diversion
                   </Button>
                 </Restricted>

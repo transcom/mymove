@@ -135,6 +135,7 @@ export const MoveTaskOrder = (props) => {
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
+    isMoveLocked,
   } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
@@ -925,7 +926,13 @@ export const MoveTaskOrder = (props) => {
   }
 
   const excessWeightAlertControl = (
-    <Button type="button" onClick={handleHideWeightAlert} unstyled>
+    <Button
+      data-testid="excessWeightAlertButton"
+      type="button"
+      onClick={handleHideWeightAlert}
+      unstyled
+      disabled={isMoveLocked}
+    >
       <FontAwesomeIcon icon="times" />
     </Button>
   );
@@ -991,7 +998,13 @@ export const MoveTaskOrder = (props) => {
                 <Restricted to={permissionTypes.updateBillableWeight}>
                   <Restricted to={permissionTypes.updateMTOPage}>
                     <span className={styles.rightAlignButtonWrapper}>
-                      <Button type="button" onClick={handleShowWeightModal} unstyled>
+                      <Button
+                        data-testid="reviewBillableWeightBtn"
+                        type="button"
+                        onClick={handleShowWeightModal}
+                        unstyled
+                        disabled={isMoveLocked}
+                      >
                         Review billable weight
                       </Button>
                     </span>
@@ -1072,6 +1085,7 @@ export const MoveTaskOrder = (props) => {
                     <FinancialReviewButton
                       onClick={handleShowFinancialReviewModal}
                       reviewRequested={move.financialReviewFlag}
+                      isMoveLocked={isMoveLocked}
                     />
                   </div>
                 </Restricted>
@@ -1099,6 +1113,7 @@ export const MoveTaskOrder = (props) => {
               heading="Max billable weight"
               weightValue={maxBillableWeight}
               onEdit={displayMaxBillableWeight(nonPPMShipments) ? handleShowWeightModal : null}
+              isMoveLocked={isMoveLocked}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
@@ -1155,6 +1170,7 @@ export const MoveTaskOrder = (props) => {
                     shipmentLocator: mtoShipment.shipmentLocator,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
+                  isMoveLocked={isMoveLocked}
                 />
                 <ShipmentDetails
                   shipment={mtoShipment}
@@ -1167,6 +1183,7 @@ export const MoveTaskOrder = (props) => {
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}
+                  isMoveLocked={isMoveLocked}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
@@ -1177,6 +1194,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1188,6 +1206,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
@@ -1198,6 +1217,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
               </ShipmentContainer>

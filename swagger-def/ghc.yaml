@@ -213,14 +213,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum:
-                  [
-                    customerName,
-                    dodID,
-                    branch,
-                    personalEmail,
-                    telephone,
-                  ]
+                enum: [customerName, dodID, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true

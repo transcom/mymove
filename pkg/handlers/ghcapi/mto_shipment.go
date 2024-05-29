@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -307,7 +308,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				appCtx.Logger().Error("ghcapi.UpdateMTOShipment could not generate the event")
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *updatedMtoShipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -432,7 +433,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 
 			h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -514,7 +515,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 
 			h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -595,7 +596,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 
 			h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -748,7 +749,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 
 			h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -853,7 +854,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 				}
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
 			if err != nil {
 				return handleError(err), err
 			}
@@ -937,6 +938,7 @@ type ApproveSITExtensionHandler struct {
 	handlers.HandlerConfig
 	services.SITExtensionApprover
 	services.ShipmentSITStatus
+	services.ShipmentUpdater
 }
 
 // Handle ... approves the SIT extension
@@ -982,10 +984,18 @@ func (h ApproveSITExtensionHandler) Handle(params shipmentops.ApproveSITExtensio
 				return handleError(err)
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+			shipmentSITStatus, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
 			if err != nil {
 				return handleError(err)
 			}
+
+			existingETag := etag.GenerateEtag(updatedShipment.UpdatedAt)
+
+			updatedShipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+			if err != nil {
+				return handleError(err)
+			}
+
 			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
 
 			shipmentPayload := payloads.MTOShipment(h.FileStorer(), updatedShipment, sitStatusPayload)
@@ -1062,7 +1072,7 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 				return handleError(err)
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *updatedShipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1152,7 +1162,7 @@ func (h UpdateSITServiceItemCustomerExpenseHandler) Handle(params shipmentops.Up
 					return handleError(err)
 				}
 			}
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1168,6 +1178,7 @@ type CreateApprovedSITDurationUpdateHandler struct {
 	handlers.HandlerConfig
 	services.ApprovedSITDurationUpdateCreator
 	services.ShipmentSITStatus
+	services.ShipmentUpdater
 }
 
 // Handle creates the approved SIT extension
@@ -1220,7 +1231,14 @@ func (h CreateApprovedSITDurationUpdateHandler) Handle(params shipmentops.Create
 				return handleError(apperror.NewForbiddenError("is not a TOO"))
 			}
 
-			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			shipmentSITStatus, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			if err != nil {
+				return handleError(err)
+			}
+
+			existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+
+			shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
 			if err != nil {
 				return handleError(err)
 			}

@@ -15,8 +15,8 @@ func NewRolesFetcher() services.RoleAssociater {
 	return rolesFetcher{}
 }
 
-// FetchRoles associates a given user with a set of roles
-func (f rolesFetcher) FetchRoles(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error) {
+// FetchRolesForUser associates a given user with a set of roles
+func (f rolesFetcher) FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error) {
 	var roles roles.Roles
 	err := appCtx.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
 		Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (userID)).

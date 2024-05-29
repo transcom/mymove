@@ -17,7 +17,7 @@ import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }) => {
+const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode, isMoveLocked }) => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -95,7 +95,11 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
           </small>
         </div>
         <Restricted to={permissionTypes.createEvaluationReport}>
-          <Button data-testid="shipmentEvaluationCreate" onClick={() => handleCreateClick(shipment.id)}>
+          <Button
+            data-testid="shipmentEvaluationCreate"
+            onClick={() => handleCreateClick(shipment.id)}
+            disabled={isMoveLocked}
+          >
             Create report
           </Button>
         </Restricted>
