@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
-import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate, NavLink, useParams, Navigate, generatePath } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MoveQueue.module.scss';
 
@@ -22,9 +23,22 @@ import TabNav from 'components/TabNav';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const columns = (showBranchFilter = true) => [
+const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader('ID', 'id'),
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+      return (
+        <div data-testid="lock-icon">
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader(
     'Customer name',
     (row) => {
@@ -113,6 +127,16 @@ const MoveQueue = () => {
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -142,8 +166,19 @@ const MoveQueue = () => {
   // eslint-disable-next-line camelcase
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
-  const handleClick = (values) => {
-    navigate(`/moves/${values.locator}/details`);
+  const handleEditProfileClick = (locator) => {
+    navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
+  };
+
+  const handleClick = (values, e) => {
+    // if the user clicked the profile icon to edit, we want to route them elsewhere
+    // since we don't have innerText, we are using the data-label property
+    const editProfileDiv = e.target.closest('div[data-label="editProfile"]');
+    if (editProfileDiv) {
+      navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else {
+      navigate(generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -189,6 +224,7 @@ const MoveQueue = () => {
             disableSortBy={false}
             title="Results"
             handleClick={handleClick}
+            handleEditProfileClick={handleEditProfileClick}
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
@@ -211,7 +247,7 @@ const MoveQueue = () => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(showBranchFilter)}
+          columns={columns(moveLockFlag, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}

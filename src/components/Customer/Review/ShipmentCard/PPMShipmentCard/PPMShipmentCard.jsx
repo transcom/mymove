@@ -9,7 +9,12 @@ import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShip
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
-import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
+import {
+  formatCentsTruncateWhole,
+  formatCustomerDate,
+  formatWeight,
+  formatCustomerContactFullAddress,
+} from 'utils/formatters';
 import { getShipmentTypeLabel, canChoosePPMLocation } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
@@ -27,12 +32,12 @@ const PPMShipmentCard = ({
 }) => {
   const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
-    pickupPostalCode,
-    secondaryPickupPostalCode,
-    tertiaryPickupPostalCode,
-    destinationPostalCode,
-    secondaryDestinationPostalCode,
-    tertiaryDestinationPostalCode,
+    pickupAddress,
+    secondaryPickupAddress,
+    tertiaryPickupAddress,
+    destinationAddress,
+    secondaryDestinationAddress,
+    tertiaryDestinationAddress,
     sitExpected,
     expectedDepartureDate,
     proGearWeight,
@@ -94,35 +99,35 @@ const PPMShipmentCard = ({
             <dd>{formatCustomerDate(expectedDepartureDate)}</dd>
           </div>
           <div className={styles.row}>
-            <dt>Origin ZIP</dt>
-            <dd>{pickupPostalCode}</dd>
+            <dt>Origin address</dt>
+            <dd>{pickupAddress ? formatCustomerContactFullAddress(pickupAddress) : '—'}</dd>
           </div>
-          {secondaryPickupPostalCode && (
+          {secondaryPickupAddress && (
             <div className={styles.row}>
-              <dt>Second origin ZIP</dt>
-              <dd>{secondaryPickupPostalCode}</dd>
+              <dt>Second origin address</dt>
+              <dd>{formatCustomerContactFullAddress(secondaryPickupAddress)}</dd>
             </div>
           )}
-          {tertiaryPickupPostalCode && (
+          {secondaryPickupAddress && tertiaryPickupAddress && (
             <div className={styles.row}>
-              <dt>Third pickup ZIP</dt>
-              <dd>{tertiaryPickupPostalCode}</dd>
+              <dt>Third origin address</dt>
+              <dd>{formatCustomerContactFullAddress(tertiaryPickupAddress)}</dd>
             </div>
           )}
           <div className={styles.row}>
-            <dt>Destination ZIP</dt>
-            <dd>{destinationPostalCode}</dd>
+            <dt>Destination address</dt>
+            <dd>{destinationAddress ? formatCustomerContactFullAddress(destinationAddress) : '—'}</dd>
           </div>
-          {secondaryDestinationPostalCode && (
+          {secondaryDestinationAddress && (
             <div className={styles.row}>
-              <dt>Second destination ZIP</dt>
-              <dd>{secondaryDestinationPostalCode}</dd>
+              <dt>Second destination address</dt>
+              <dd>{formatCustomerContactFullAddress(secondaryDestinationAddress)}</dd>
             </div>
           )}
-          {tertiaryDestinationPostalCode && (
+          {secondaryDestinationAddress && tertiaryDestinationAddress && (
             <div className={styles.row}>
-              <dt>Third destination ZIP</dt>
-              <dd>{tertiaryDestinationPostalCode}</dd>
+              <dt>Third destination addresss</dt>
+              <dd>{formatCustomerContactFullAddress(tertiaryDestinationAddress)}</dd>
             </div>
           )}
           {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (

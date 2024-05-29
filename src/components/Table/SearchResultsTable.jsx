@@ -3,6 +3,7 @@ import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
@@ -19,8 +20,21 @@ import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheck
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const moveSearchColumns = () => [
+const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+      return (
+        <div data-testid="lock-icon">
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -28,6 +42,15 @@ const moveSearchColumns = () => [
   createHeader('DOD ID', 'dodID', {
     id: 'dodID',
     isFilterable: false,
+  }),
+  createHeader('  ', (row) => {
+    return (
+      <div className={styles.editProfile} data-label="editProfile" data-testid="editProfileBtn">
+        <Button unstyled type="button" onClick={() => handleEditProfileClick(row.locator)}>
+          <FontAwesomeIcon icon={['far', 'user']} />
+        </Button>
+      </div>
+    );
   }),
   createHeader(
     'Customer name',
@@ -234,6 +257,7 @@ const SearchResultsTable = (props) => {
     defaultSortedColumns,
     defaultHiddenColumns,
     handleClick,
+    handleEditProfileClick,
     useQueries,
     showFilters,
     showPagination,
@@ -247,6 +271,7 @@ const SearchResultsTable = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
@@ -278,8 +303,10 @@ const SearchResultsTable = (props) => {
 
   const tableData = useMemo(() => data, [data]);
   const tableColumns = useMemo(() => {
-    return searchType === 'customer' ? customerSearchColumns() : moveSearchColumns();
-  }, [searchType]);
+    return searchType === 'customer'
+      ? customerSearchColumns()
+      : moveSearchColumns(moveLockFlag, handleEditProfileClick);
+  }, [searchType, moveLockFlag, handleEditProfileClick]);
 
   const {
     getTableProps,
@@ -348,6 +375,16 @@ const SearchResultsTable = (props) => {
     }
     setParamFilters(filtersToAdd.concat(filters));
   }, [filters, moveCode, dodID, customerName]);
+
+  // this useEffect handles the fetching of feature flags
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

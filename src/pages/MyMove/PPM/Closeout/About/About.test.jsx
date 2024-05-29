@@ -12,7 +12,7 @@ import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'serv
 import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses } from 'constants/shipments';
 import { shipment } from 'shared/Entities/schema';
 
 const mockMoveId = v4();
@@ -51,27 +51,7 @@ const mockMTOShipment = {
   ppmShipment: {
     id: mockPPMShipmentId,
     shipmentId: mockMTOShipmentId,
-    status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
-    pickupPostalCode: '10001',
-    destinationPostalCode: '10002',
-    expectedDepartureDate: '2022-04-30',
-    hasRequestedAdvance: true,
-    advanceAmountRequested: 598700,
-    estimatedWeight: 4000,
-    estimatedIncentive: 1000000,
-    sitExpected: false,
-    hasProGear: false,
-    proGearWeight: null,
-    spouseProGearWeight: null,
-    actualMoveDate: null,
-    actualPickupPostalCode: null,
-    actualDestinationPostalCode: null,
-    hasReceivedAdvance: null,
-    advanceAmountReceived: null,
     weightTickets: [],
-    createdAt: ppmShipmentCreatedDate.toISOString(),
-    updatedAt: approvedDate.toISOString(),
-    eTag: window.btoa(approvedDate.toISOString()),
   },
   createdAt: mtoShipmentCreatedDate.toISOString(),
   updatedAt: approvedDate.toISOString(),
@@ -80,16 +60,37 @@ const mockMTOShipment = {
 
 const partialPayload = {
   actualMoveDate: '2022-05-31',
-  actualPickupPostalCode: '10001',
-  actualDestinationPostalCode: '10002',
+  actualPickupPostalCode: '78234',
+  actualDestinationPostalCode: '98421',
+  pickupAddress: {
+    streetAddress1: '812 S 129th St',
+    streetAddress2: '#123',
+    streetAddress3: 'Some Person',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
+  destinationAddress: {
+    streetAddress1: '441 SW Rio de la Plata Drive',
+    streetAddress2: '#124',
+    streetAddress3: 'Some Person',
+    city: 'Tacoma',
+    state: 'WA',
+    postalCode: '98421',
+  },
+  secondaryPickupAddress: null,
+  secondaryDestinationAddress: null,
+  hasSecondaryPickupAddress: false,
+  hasSecondaryDestinationAddress: false,
   hasReceivedAdvance: true,
   advanceAmountReceived: 750000,
   w2Address: {
-    streetAddress1: '10642 N Second Ave',
+    streetAddress1: '11 NE Elm Road',
     streetAddress2: '',
-    city: 'Goldsboro',
-    state: 'NC',
-    postalCode: '27534',
+    streetAddress3: '',
+    city: 'Jacksonville',
+    state: 'FL',
+    postalCode: '32217',
   },
 };
 
@@ -114,11 +115,6 @@ jest.mock('store/entities/selectors', () => ({
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
 }));
 
-jest.mock('utils/validation', () => ({
-  ...jest.requireActual('utils/validation'),
-  validatePostalCode: jest.fn(),
-}));
-
 const mockDispatch = jest.fn();
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
@@ -137,34 +133,67 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
 
 const fillOutBasicForm = async (form) => {
   within(form).getByLabelText('When did you leave your origin?').focus();
-  await userEvent.paste('31 May 2022');
+  await userEvent.paste('2022-05-31');
 
-  within(form).getByLabelText('Starting ZIP').focus();
-  await userEvent.paste('10001', {
-    initialSelectionStart: 0,
-    initialSelectionEnd: 5,
-  });
+  within(form).getAllByLabelText('Address 1')[0].focus();
+  await userEvent.paste('812 S 129th St');
 
-  within(form).getByLabelText('Ending ZIP').focus();
-  await userEvent.paste('10002', {
-    initialSelectionStart: 0,
-    initialSelectionEnd: 5,
-  });
+  within(form)
+    .getAllByLabelText(/Address 2/)[0]
+    .focus();
+  await userEvent.paste('#123');
 
-  within(form).getByLabelText('Address 1').focus();
-  await userEvent.paste('10642 N Second Ave');
+  within(form)
+    .getAllByLabelText(/Address 3/)[0]
+    .focus();
+  await userEvent.paste('Some Person');
 
-  within(form).getByLabelText('City').focus();
-  await userEvent.paste('Goldsboro');
+  within(form).getAllByLabelText('City')[0].focus();
+  await userEvent.paste('San Antonio');
 
-  await userEvent.selectOptions(within(form).getByLabelText('State'), 'NC');
+  within(form).getAllByLabelText('State')[0].focus();
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[0], 'TX');
 
-  within(form).getByLabelText('ZIP').focus();
-  await userEvent.paste('27534');
+  within(form).getAllByLabelText('ZIP')[0].focus();
+  await userEvent.paste('78234');
+
+  within(form).getAllByLabelText('Address 1')[1].focus();
+  await userEvent.paste('441 SW Rio de la Plata Drive');
+
+  within(form)
+    .getAllByLabelText(/Address 2/)[1]
+    .focus();
+  await userEvent.paste('#124');
+
+  within(form)
+    .getAllByLabelText(/Address 3/)[1]
+    .focus();
+  await userEvent.paste('Some Person');
+
+  within(form).getAllByLabelText('City')[1].focus();
+  await userEvent.paste('Tacoma');
+
+  within(form).getAllByLabelText('State')[1].focus();
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[1], 'WA');
+
+  within(form).getAllByLabelText('ZIP')[1].focus();
+  await userEvent.paste('98421');
+
+  within(form).getAllByLabelText('Address 1')[2].focus();
+  await userEvent.paste('11 NE Elm Road');
+
+  within(form).getAllByLabelText('City')[2].focus();
+  await userEvent.paste('Jacksonville');
+
+  within(form).getAllByLabelText('State')[2].focus();
+  await userEvent.selectOptions(within(form).getAllByLabelText('State')[2], 'FL');
+
+  within(form).getAllByLabelText('ZIP')[2].focus();
+  await userEvent.paste('32217');
 };
 
 const fillOutAdvanceSections = async (form) => {
-  await userEvent.click(within(form).getByLabelText('Yes'));
+  await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
 
   within(form).getByLabelText('How much did you receive?').focus();
   await userEvent.paste('7500');
@@ -177,6 +206,7 @@ const renderAboutPage = () => {
     </MockProviders>,
   );
 };
+
 describe('About page', () => {
   it('loads the selected shipment from redux', () => {
     getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
@@ -186,7 +216,7 @@ describe('About page', () => {
   });
 
   it('renders the page Content', async () => {
-    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
+    await getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     renderAboutPage();
 
     await waitFor(() => {
@@ -207,7 +237,7 @@ describe('About page', () => {
   });
 
   it('routes back to home when return to homepage is clicked', async () => {
-    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
+    await getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     renderAboutPage();
 
     await waitFor(async () => {
@@ -242,9 +272,9 @@ describe('About page', () => {
 
   it('displays an error when the patch shipment API fails', async () => {
     const mockErrorMsg = 'Error Updating';
-    getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
-    patchMTOShipment.mockRejectedValue(mockErrorMsg);
-    getResponseError.mockReturnValue(mockErrorMsg);
+    await getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
+    await patchMTOShipment.mockRejectedValue(mockErrorMsg);
+    await getResponseError.mockReturnValue(mockErrorMsg);
 
     renderAboutPage();
 
@@ -255,6 +285,7 @@ describe('About page', () => {
 
     await fillOutBasicForm(form);
 
+    expect(within(form).getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     const payload = {
       ...mockPayload,

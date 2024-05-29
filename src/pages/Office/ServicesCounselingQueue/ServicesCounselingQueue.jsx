@@ -1,17 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
-import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import {
   SERVICE_COUNSELING_BRANCH_OPTIONS,
-  SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
@@ -24,7 +23,7 @@ import {
   useMoveSearchQueries,
   useCustomerSearchQueries,
 } from 'hooks/queries';
-import { DATE_FORMAT_STRING } from 'shared/constants';
+import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -41,7 +40,19 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const counselingColumns = () => [
+const counselingColumns = (moveLockFlag) => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+      return (
+        <div data-testid="lock-icon">
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -71,15 +82,13 @@ const counselingColumns = () => [
   createHeader(
     'Status',
     (row) => {
-      return SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`];
+      return row.status !== MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED
+        ? SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`]
+        : null;
     },
     {
       id: 'status',
-      isFilterable: true,
-      Filter: (props) => (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS} {...props} />
-      ),
+      disableSortBy: true,
     },
   ),
   createHeader(
@@ -128,7 +137,19 @@ const counselingColumns = () => [
     isFilterable: true,
   }),
 ];
-const closeoutColumns = (ppmCloseoutGBLOC) => [
+const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+      return (
+        <div id={row.id}>
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -218,6 +239,7 @@ const ServicesCounselingQueue = () => {
   const navigate = useNavigate();
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
 
   // Feature Flag
@@ -226,6 +248,8 @@ const ServicesCounselingQueue = () => {
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
         setisCounselorMoveCreateFFEnabled(isEnabled);
+        const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+        setMoveLockFlag(lockedMoveFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -240,8 +264,19 @@ const ServicesCounselingQueue = () => {
     fetchData();
   }, [setErrorState]);
 
-  const handleClick = (values) => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+  const handleEditProfileClick = (locator) => {
+    navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
+  };
+
+  const handleClick = (values, e) => {
+    // if the user clicked the profile icon to edit, we want to route them elsewhere
+    // since we don't have innerText, we are using the data-label property
+    const editProfileDiv = e.target.closest('div[data-label="editProfile"]');
+    if (editProfileDiv) {
+      navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else {
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
 
   const handleCustomerSearchClick = (values) => {
@@ -362,6 +397,7 @@ const ServicesCounselingQueue = () => {
             disableSortBy={false}
             title="Results"
             handleClick={handleClick}
+            handleEditProfileClick={handleEditProfileClick}
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
@@ -386,7 +422,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(inPPMCloseoutGBLOC)}
+          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}
@@ -407,7 +443,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns()}
+          columns={counselingColumns(moveLockFlag)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}

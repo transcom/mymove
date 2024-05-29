@@ -103,7 +103,7 @@ func (suite *ClientCertServiceSuite) TestUpdateClientCert() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 			mock.Anything,
-		).Return([]models.UsersRoles{}, nil)
+		).Return([]models.UsersRoles{}, nil, nil)
 		updater := NewClientCertUpdater(builder, associator, mockSender)
 		_, _, err := updater.UpdateClientCert(suite.AppContextWithSessionForTest(&auth.Session{}), newUUID, payload)
 		suite.Error(err)
