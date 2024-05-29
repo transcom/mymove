@@ -213,14 +213,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum:
-                  [
-                    customerName,
-                    dodID,
-                    branch,
-                    personalEmail,
-                    telephone,
-                  ]
+                enum: [customerName, dodID, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -5344,6 +5337,10 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+      sitLocation:
+        allOf:
+          - $ref: 'definitions/SITLocationType.yaml'
+          - x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:

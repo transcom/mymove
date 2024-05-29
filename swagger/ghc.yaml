@@ -5542,6 +5542,10 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7310,7 +7314,7 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAllowanceEndDate:
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
@@ -7671,6 +7675,11 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
     required:
       - id
       - createdAt
@@ -8400,6 +8409,12 @@ definitions:
         x-nullable: true
         readOnly: true
         example: 1K43AR-01
+      originSitAuthEndDate:
+        format: date-time
+        type: string
+      destinationSitAuthEndDate:
+        format: date-time
+        type: string
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
