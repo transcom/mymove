@@ -17,9 +17,11 @@ export const RequestAccount = ({ setFlashMessage }) => {
   const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
 
   useEffect(() => {
-    isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
-      setHeadquartersRoleFF(enabled);
-    });
+    // checking feature flag to see if HQ role should be available
+    const fetchData = async () => {
+      setHeadquartersRoleFF(await isBooleanFlagEnabled('headquarters_role'));
+    };
+    fetchData();
   }, []);
 
   const initialValues = {

@@ -49,7 +49,14 @@ const RolesPrivilegesCheckboxInput = (props) => {
       }
     }
 
-    if (isHeadquartersRoleFF && privilegesSelected.includes('safety')) {
+    if (!isHeadquartersRoleFF && input.includes('headquarters')) {
+      if (input.includes('headquarters')) {
+        index = input.indexOf('headquarters');
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    } else if (isHeadquartersRoleFF && privilegesSelected.includes('safety')) {
       if (input.includes('headquarters')) {
         index = input.indexOf('headquarters');
         if (index !== -1) {
