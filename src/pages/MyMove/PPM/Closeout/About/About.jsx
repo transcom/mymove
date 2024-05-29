@@ -14,7 +14,6 @@ import { shipmentTypes } from 'constants/shipments';
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
 import { customerRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
-import { validatePostalCode } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
 import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
@@ -69,8 +68,15 @@ const About = () => {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         actualMoveDate: formatDateForSwagger(values.actualMoveDate),
-        actualPickupPostalCode: values.actualPickupPostalCode,
-        actualDestinationPostalCode: values.actualDestinationPostalCode,
+        pickupAddress: values.pickupAddress,
+        hasSecondaryPickupAddress: values.hasSecondaryPickupAddress === 'true',
+        secondaryPickupAddress: values.hasSecondaryPickupAddress === 'true' ? values.secondaryPickupAddress : null,
+        destinationAddress: values.destinationAddress,
+        hasSecondaryDestinationAddress: values.hasSecondaryDestinationAddress === 'true',
+        secondaryDestinationAddress:
+          values.hasSecondaryDestinationAddress === 'true' ? values.secondaryDestinationAddress : null,
+        actualPickupPostalCode: values.pickupAddress.postalCode,
+        actualDestinationPostalCode: values.destinationAddress.postalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
         w2Address: values.w2Address,
@@ -151,12 +157,7 @@ const About = () => {
                 eligible operating expenses.)
               </p>
             </div>
-            <AboutForm
-              mtoShipment={mtoShipment}
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-              postalCodeValidator={validatePostalCode}
-            />
+            <AboutForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} />
           </Grid>
         </Grid>
       </GridContainer>

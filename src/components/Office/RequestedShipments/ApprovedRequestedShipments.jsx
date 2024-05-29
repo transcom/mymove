@@ -42,6 +42,7 @@ const ApprovedRequestedShipments = ({
   ordersInfo,
   mtoServiceItems,
   displayDestinationType,
+  isMoveLocked,
 }) => {
   const ordersLOA = {
     tac: ordersInfo.tacMDC,
@@ -92,6 +93,7 @@ const ApprovedRequestedShipments = ({
                 errorIfMissing={errorIfMissing}
                 isSubmitted={false}
                 editURL={editUrl}
+                isMoveLocked={isMoveLocked}
               />
             );
           })}
