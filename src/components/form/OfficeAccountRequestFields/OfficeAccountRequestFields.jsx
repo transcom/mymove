@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { func } from 'prop-types';
 import { Fieldset } from '@trussworks/react-uswds';
 
@@ -6,6 +6,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const OfficeAccountRequestFields = ({ render }) => {
   const firstNameFieldName = 'officeAccountRequestFirstName';
@@ -16,6 +17,13 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
+  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
+      setHeadquartersRoleFF(enabled);
+    });
+  }, []);
 
   return (
     <Fieldset>
@@ -90,12 +98,14 @@ export const OfficeAccountRequestFields = ({ render }) => {
             name="qualityAssuranceAndCustomerSupportCheckBox"
             label="Quality Assurance & Customer Support"
           />
-          <CheckboxField
-            id="headquartersCheckBox"
-            data-testid="headquartersCheckBox"
-            name="headquartersCheckBox"
-            label="Headquarters"
-          />
+          {isHeadquartersRoleFF && (
+            <CheckboxField
+              id="headquartersCheckBox"
+              data-testid="headquartersCheckBox"
+              name="headquartersCheckBox"
+              label="Headquarters"
+            />
+          )}
         </>,
       )}
     </Fieldset>

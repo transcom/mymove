@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +13,14 @@ import { generalRoutes } from 'constants/routes';
 export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
 
+  useEffect(() => {
+    isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
+      setHeadquartersRoleFF(enabled);
+    });
+  }, []);
+  
   const initialValues = {
     officeAccountRequestFirstName: '',
     officeAccountRequestMiddleInitial: '',
@@ -62,7 +69,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'qae_csr',
       });
     }
-    if (values.headquartersCheckBox) {
+    if (isHeadquartersRoleFF && values.headquartersCheckBox) {
       requestedRoles.push({
         name: 'Headquarters',
         roleType: 'headquarters',
