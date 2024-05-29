@@ -5450,6 +5450,14 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 		},
 	}, nil)
 
+	tertiaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 3rd Address",
+			},
+		},
+	}, nil)
+
 	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
@@ -5482,6 +5490,11 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
+		},
+		{
+			Model:    tertiaryDeliveryAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.TertiaryDeliveryAddress,
 		},
 		{
 			Model:    secondaryDeliveryAddress,

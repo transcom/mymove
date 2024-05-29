@@ -174,12 +174,20 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "201 Other Street",
 		}
 
+		customTertiaryPickupAddress := models.Address{
+			StreetAddress1: "301 Other Street",
+		}
+
 		customDeliveryAddress := models.Address{
 			StreetAddress1: "301 Another Good Street",
 		}
 
 		customSecondaryDeliveryAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
+		}
+
+		customTertiaryDeliveryAddress := models.Address{
+			StreetAddress1: "301 Big MTO Street",
 		}
 
 		customStorageFacility := models.StorageFacility{
@@ -212,6 +220,15 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Model: customSecondaryDeliveryAddress,
 				Type:  &Addresses.SecondaryDeliveryAddress,
 			},
+			{
+				Model: customTertiaryPickupAddress,
+				Type:  &Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: customTertiaryDeliveryAddress,
+				Type:  &Addresses.TertiaryDeliveryAddress,
+			},
+
 		}, nil)
 
 		// VALIDATE RESULTS
@@ -267,6 +284,10 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "401 Big MTO Street",
 		}
 
+		customTertiaryDeliveryAddress := models.Address{
+			StreetAddress1: "401 Big MTO Street",
+		}
+
 		customStorageFacility := models.StorageFacility{
 			Email: models.StringPointer("old@email.com"),
 		}
@@ -289,6 +310,10 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Model: customSecondaryDeliveryAddress,
 				Type:  &Addresses.SecondaryDeliveryAddress,
 			},
+			{
+				Model: customSecondaryDeliveryAddress,
+				Type:  &Addresses.TertiaryDeliveryAddress,
+			},
 		}, nil)
 
 		// VALIDATE RESULTS
@@ -303,6 +328,10 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check Secondary DeliveryAddress
 		suite.Equal(customSecondaryDeliveryAddress.StreetAddress1, mtoShipment.SecondaryDeliveryAddress.StreetAddress1)
 		suite.Equal(models.BoolPointer(true), mtoShipment.HasSecondaryDeliveryAddress)
+
+		// Check Tertiary DeliveryAddress
+		suite.Equal(customTertiaryDeliveryAddress.StreetAddress1, mtoShipment.TertiaryDeliveryAddress.StreetAddress1)
+		suite.Equal(models.BoolPointer(true), mtoShipment.HasTertiaryDeliveryAddress)
 
 		// Check Storage Facility
 		suite.Equal(customStorageFacility.Email, mtoShipment.StorageFacility.Email)

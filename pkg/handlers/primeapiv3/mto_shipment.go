@@ -117,11 +117,14 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
 
-			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID, "DestinationAddress",
-				"SecondaryPickupAddress",
-				"SecondaryDeliveryAddress",
-				"StorageFacility",
-				"PPMShipment")
+			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID,
+			"DestinationAddress",
+			"SecondaryPickupAddress",
+			"SecondaryDeliveryAddress",
+			"TertiaryPickupAddress",
+			"TertiaryDeliveryAddress",
+			"StorageFacility",
+			"PPMShipment")
 			if err != nil {
 				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err

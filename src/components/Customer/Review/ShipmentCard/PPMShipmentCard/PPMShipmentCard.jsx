@@ -29,8 +29,10 @@ const PPMShipmentCard = ({
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
+    tertiaryPickupPostalCode,
     destinationPostalCode,
     secondaryDestinationPostalCode,
+    tertiaryDestinationPostalCode,
     sitExpected,
     expectedDepartureDate,
     proGearWeight,
@@ -101,6 +103,12 @@ const PPMShipmentCard = ({
               <dd>{secondaryPickupPostalCode}</dd>
             </div>
           )}
+          {tertiaryPickupPostalCode && (
+            <div className={styles.row}>
+              <dt>Third pickup ZIP</dt>
+              <dd>{tertiaryPickupPostalCode}</dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt>Destination ZIP</dt>
             <dd>{destinationPostalCode}</dd>
@@ -109,6 +117,12 @@ const PPMShipmentCard = ({
             <div className={styles.row}>
               <dt>Second destination ZIP</dt>
               <dd>{secondaryDestinationPostalCode}</dd>
+            </div>
+          )}
+          {tertiaryDestinationPostalCode && (
+            <div className={styles.row}>
+              <dt>Third destination ZIP</dt>
+              <dd>{tertiaryDestinationPostalCode}</dd>
             </div>
           )}
           {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (

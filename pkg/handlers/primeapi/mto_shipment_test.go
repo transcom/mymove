@@ -2745,6 +2745,8 @@ func (suite *HandlerSuite) refreshFromDB(id uuid.UUID) models.MTOShipment {
 		"DestinationAddress",
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
+		"TertiaryPickupAddress",
+		"TertiaryDeliveryAddress",
 		"MTOAgents").Find(&dbShipment, id)
 	suite.Nil(err)
 	return dbShipment

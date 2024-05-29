@@ -96,8 +96,15 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 	}
 
 	// Now load any additional required relationships since we now know we intend to send this notification.
-	err = appCtx.DB().Load(&mtoShipment, "PickupAddress", "DestinationAddress", "SecondaryPickupAddress",
-		"SecondaryDeliveryAddress", "MTOAgents", "StorageFacility")
+	err = appCtx.DB().Load(&mtoShipment,
+	"PickupAddress",
+	"DestinationAddress",
+	"SecondaryPickupAddress",
+	"SecondaryDeliveryAddress",
+	"TertiaryPickupAddress",
+	"TertiaryDeliveryAddress",
+	"MTOAgents",
+	"StorageFacility")
 	if err != nil {
 		return nil, false, apperror.NewQueryError("MTOShipment", err, "Unable to load MTOShipment relationships")
 	}

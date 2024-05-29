@@ -927,3 +927,4 @@
 20240502175909_add_lookup_valid_columns_to_tac_and_loa_tables.up.sql
 20240503123556_add_diversion_reason_to_mto_shipments.up.sql
 20240507133524_add_locked_moves_column_to_moves_table.up.sql
+20240516230021_19686-add-third-address-shipments.up.sql

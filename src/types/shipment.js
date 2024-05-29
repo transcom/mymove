@@ -142,6 +142,8 @@ export const ShipmentShape = shape({
   destinationType: ShipmentDestinationTypeOneOf,
   secondaryPickupAddress: AddressShape,
   secondaryDeliveryAddress: AddressShape,
+  tertiaryPickupAddress: AddressShape,
+  tertiaryDeliveryAddress: AddressShape,
   customerRemarks: string,
   counselorRemarks: string,
   shipmentType: ShipmentOptionsOneOf,

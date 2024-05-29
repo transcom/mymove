@@ -8869,6 +8869,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -9029,6 +9039,50 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryDestinationPostalCode": {
+          "type": "string",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupPostalCode": {
+          "type": "string",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
         },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
@@ -21773,6 +21827,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -21933,6 +21997,50 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryDestinationPostalCode": {
+          "type": "string",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupPostalCode": {
+          "type": "string",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
         },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",

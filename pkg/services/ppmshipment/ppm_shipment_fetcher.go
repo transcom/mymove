@@ -270,8 +270,10 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"W2Address",
 			"PickupAddress",
 			"SecondaryPickupAddress",
+			"TertiaryPickupAddress",
 			"DestinationAddress",
 			"SecondaryDestinationAddress",
+			"TertiaryDestinationAddress",
 		).
 		Where("shipment_id = ?", mtoID).First(&ppmShipment)
 

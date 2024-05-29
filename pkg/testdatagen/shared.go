@@ -87,6 +87,8 @@ type Assertions struct {
 	Role                                     roles.Role
 	SecondaryDeliveryAddress                 models.Address
 	SecondaryPickupAddress                   models.Address
+	TertiaryDeliveryAddress                 models.Address
+	TertiaryPickupAddress                   models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
 	ServiceMember                            models.ServiceMember
 	ServiceParam                             models.ServiceParam

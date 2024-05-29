@@ -70,10 +70,10 @@ class MtoShipmentForm extends Component {
     secondaryPickup,
     hasSecondaryDelivery,
     secondaryDelivery,
-    hasThirdDelivery,
-    hasThirdPickup,
-    thirdDelivery,
-    thirdPickup,
+    hasTertiaryDelivery,
+    hasTertiaryPickup,
+    tertiaryDelivery,
+    tertiaryPickup,
   }) => {
     const {
       router: { navigate, params },
@@ -100,10 +100,10 @@ class MtoShipmentForm extends Component {
       secondaryPickup: hasSecondaryPickup === 'yes' ? secondaryPickup : {},
       hasSecondaryDelivery: hasSecondaryDelivery === 'yes',
       secondaryDelivery: hasSecondaryDelivery === 'yes' ? secondaryDelivery : {},
-      hasThirdPickup: hasThirdPickup === 'yes',
-      thirdPickup: hasThirdPickup === 'yes' ? thirdPickup : {},
-      hasThirdDelivery: hasThirdDelivery === 'yes',
-      thirdDelivery: hasThirdDelivery === 'yes' ? thirdDelivery : {},
+      hasTertiaryPickup: hasTertiaryPickup === 'yes',
+      tertiaryPickup: hasTertiaryPickup === 'yes' ? tertiaryPickup : {},
+      hasTertiaryDelivery: hasTertiaryDelivery === 'yes',
+      tertiaryDelivery: hasTertiaryDelivery === 'yes' ? tertiaryDelivery : {},
     };
 
     const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);
@@ -183,8 +183,13 @@ class MtoShipmentForm extends Component {
         onSubmit={this.submitMTOShipment}
       >
         {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
-          const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery, hasThirdPickup, hasThirdDelivery } =
-            values;
+          const {
+            hasDeliveryAddress,
+            hasSecondaryPickup,
+            hasSecondaryDelivery,
+            hasTertiaryPickup,
+            hasTertiaryDelivery,
+          } = values;
 
           const handleUseCurrentResidenceChange = (e) => {
             const { checked } = e.target;
@@ -308,32 +313,32 @@ class MtoShipmentForm extends Component {
                                       <div className={formStyles.radioGroup}>
                                         <Field
                                           as={Radio}
-                                          id="has-third-pickup"
-                                          data-testid="has-third-pickup"
+                                          id="has-tertiary-pickup"
+                                          data-testid="has-tertiary-pickup"
                                           label="Yes"
-                                          name="hasThirdPickup"
+                                          name="hasTertiaryPickup"
                                           value="yes"
                                           title="Yes, I have a third pickup location"
-                                          checked={hasThirdPickup === 'yes'}
+                                          checked={hasTertiaryPickup === 'yes'}
                                         />
                                         <Field
                                           as={Radio}
-                                          id="no-third-pickup"
-                                          data-testid="no-third-pickup"
+                                          id="no-tertiary-pickup"
+                                          data-testid="no-tertiary-pickup"
                                           label="No"
-                                          name="hasThirdPickup"
+                                          name="hasTertiaryPickup"
                                           value="no"
                                           title="No, I do not have a third pickup location"
-                                          checked={hasThirdPickup !== 'yes'}
+                                          checked={hasTertiaryPickup !== 'yes'}
                                         />
                                       </div>
                                     </FormGroup>
                                   </div>
                                 )}
-                                {hasThirdPickup === 'yes' && hasSecondaryPickup === 'yes' && (
+                                {hasTertiaryPickup === 'yes' && hasSecondaryPickup === 'yes' && (
                                   <>
                                     <h3>Third pickup location</h3>
-                                    <AddressFields name="thirdPickup.address" />
+                                    <AddressFields name="tertiaryPickup.address" />
                                   </>
                                 )}
                               </>
@@ -440,32 +445,32 @@ class MtoShipmentForm extends Component {
                                           <div className={formStyles.radioGroup}>
                                             <Field
                                               as={Radio}
-                                              id="has-third-delivery"
-                                              data-testid="has-third-delivery"
+                                              id="has-tertiary-delivery"
+                                              data-testid="has-tertiary-delivery"
                                               label="Yes"
-                                              name="hasThirdDelivery"
+                                              name="hasTertiaryDelivery"
                                               value="yes"
                                               title="Yes, I have a third delivery location"
-                                              checked={hasThirdDelivery === 'yes'}
+                                              checked={hasTertiaryDelivery === 'yes'}
                                             />
                                             <Field
                                               as={Radio}
-                                              id="no-third-delivery"
-                                              data-testid="no-third-delivery"
+                                              id="no-tertiary-delivery"
+                                              data-testid="no-tertiary-delivery"
                                               label="No"
-                                              name="hasThirdDelivery"
+                                              name="hasTertiaryDelivery"
                                               value="no"
                                               title="No, I do not have a third delivery location"
-                                              checked={hasThirdDelivery !== 'yes'}
+                                              checked={hasTertiaryDelivery !== 'yes'}
                                             />
                                           </div>
                                         </FormGroup>
                                       </div>
                                     )}
-                                    {hasThirdDelivery === 'yes' && hasSecondaryDelivery === 'yes' && (
+                                    {hasTertiaryDelivery === 'yes' && hasSecondaryDelivery === 'yes' && (
                                       <>
                                         <h3>Third delivery location</h3>
-                                        <AddressFields name="thirdDelivery.address" />
+                                        <AddressFields name="tertiaryDelivery.address" />
                                       </>
                                     )}
                                   </>
