@@ -156,11 +156,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved)
+					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
 			}
 		} else {
 			// TODO  not sure we'll need this once we're in a situation where closeout param is always passed
@@ -467,11 +467,11 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			if *gbloc == navyGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsPaymentApproval)
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsCloseout)
 			} else if *gbloc == tvcbGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsCloseout)
 			} else if *gbloc == uscgGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsCloseout)
 			}
 		}
 	}
