@@ -29,12 +29,10 @@ type UpdateMTOShipment struct {
 
 	// The actual weight of any pro gear shipped during a move.
 	// Example: 4500
-	// Minimum: 1
 	ActualProGearWeight *int64 `json:"actualProGearWeight,omitempty"`
 
 	// The actual weight of any pro gear shipped during a move.
 	// Example: 4500
-	// Minimum: 1
 	ActualSpouseProGearWeight *int64 `json:"actualSpouseProGearWeight,omitempty"`
 
 	// counselor remarks
@@ -128,14 +126,6 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateActualProGearWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateActualSpouseProGearWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -212,30 +202,6 @@ func (m *UpdateMTOShipment) validateActualPickupDate(formats strfmt.Registry) er
 	}
 
 	if err := validate.FormatOf("actualPickupDate", "body", "date", m.ActualPickupDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOShipment) validateActualProGearWeight(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualProGearWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("actualProGearWeight", "body", *m.ActualProGearWeight, 1, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOShipment) validateActualSpouseProGearWeight(formats strfmt.Registry) error {
-	if swag.IsZero(m.ActualSpouseProGearWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("actualSpouseProGearWeight", "body", *m.ActualSpouseProGearWeight, 1, false); err != nil {
 		return err
 	}
 
