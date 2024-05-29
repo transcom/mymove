@@ -16,6 +16,7 @@ import { DutyLocationShape } from 'types/dutyLocation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
@@ -35,6 +36,11 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled })
     last_name: Yup.string().required('Required'),
     suffix: Yup.string(),
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
+    edipi: isDodidDisabled
+      ? Yup.string().notRequired()
+      : Yup.string()
+          .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
+          .required('Required'),
     emplid: Yup.string().when('showEmplid', () => {
       if (showEmplid && isEmplidEnabled)
         return Yup.string()
@@ -42,11 +48,6 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled })
           .required('Required');
       return Yup.string().nullable();
     }),
-    edipi: isDodidDisabled
-      ? Yup.string().notRequired()
-      : Yup.string()
-          .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
-          .required('Required'),
   });
 
   return (
