@@ -102,7 +102,20 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
 };
 
 EditPPMHeaderSummaryModal.propTypes = {
+  sectionType: PropTypes.string.isRequired,
+  sectionInfo: PropTypes.shape({
+    actualMoveDate: PropTypes.string,
+    advanceAmountReceived: PropTypes.number,
+  }),
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  editSectionName: PropTypes.string.isRequired,
+};
+
+EditPPMHeaderSummaryModal.defaultProps = {
+  sectionInfo: {
+    actualMoveDate: '',
+    advanceAmountReceived: 0,
+  },
 };
 export default EditPPMHeaderSummaryModal;

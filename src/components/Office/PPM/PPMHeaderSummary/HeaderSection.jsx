@@ -7,8 +7,6 @@ import classnames from 'classnames';
 
 import styles from './HeaderSection.module.scss';
 
-import Restricted from 'components/Restricted/Restricted';
-import { permissionTypes } from 'constants/permissions';
 import EditPPMHeaderSummaryModal from 'components/Office/PPM/PPMHeaderSummary/EditPPMHeaderSummaryModal';
 import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -34,14 +32,12 @@ const getSectionTitle = (sectionInfo) => {
   }
 };
 
-const OpenModalButton = ({ permission, onClick }) => (
-  <Restricted to={permission}>
-    <Button type="button" data-testid="editTextButton" className={styles['edit-btn']} onClick={onClick}>
-      <span>
-        <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
-      </span>
-    </Button>
-  </Restricted>
+const OpenModalButton = ({ onClick }) => (
+  <Button type="button" data-testid="editTextButton" className={styles['edit-btn']} onClick={onClick}>
+    <span>
+      <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
+    </span>
+  </Button>
 );
 
 // Returns the markup needed for a specific section
@@ -61,10 +57,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
             <Label>Actual Move Start Date</Label>
             <span className={styles.light}>
               {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
-              <OpenModalButton
-                permission={permissionTypes.updateSITExtension}
-                onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
-              />
+              <OpenModalButton onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')} />
             </span>
           </div>
           <div>
@@ -109,10 +102,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
             <Label>Advance Received</Label>
             <span className={styles.light}>
               {aoaValue}
-              <OpenModalButton
-                permission={permissionTypes.updateSITExtension}
-                onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')}
-              />
+              <OpenModalButton onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')} />
             </span>
           </div>
           <div>
@@ -156,7 +146,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
   }
 };
 
-export default function PPMHeaderSummary({ sectionInfo }) {
+export default function PPMHeaderSummary({ sectionInfo, dataTestId }) {
   const { shipmentId, moveCode } = useParams();
   const { mtoShipment, refetchMTOShipment } = usePPMShipmentDocsQueries(shipmentId);
   const queryClient = useQueryClient();
@@ -254,7 +244,7 @@ export default function PPMHeaderSummary({ sectionInfo }) {
   };
 
   return (
-    <section className={classnames(styles.HeaderSection)}>
+    <section className={classnames(styles.HeaderSection)} data-testid={dataTestId}>
       <header>
         <h4>{getSectionTitle(currentSectionInfo)}</h4>
       </header>

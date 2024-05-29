@@ -39,9 +39,13 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
           type: sectionTypes.incentives,
           ...incentives,
         }}
+        dataTestId="incentives"
       />
       <hr />
-      <HeaderSection sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }} />
+      <HeaderSection
+        sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }}
+        dataTestId="incentiveFactors"
+      />
     </>
   );
 };
@@ -67,6 +71,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
               advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
               ...shipmentInfo,
             }}
+            dataTestId="shipmentInfo"
           />
         </section>
         {showAllFields && <GCCAndIncentiveInfo ppmShipmentInfo={ppmShipmentInfo} />}
