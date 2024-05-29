@@ -13110,7 +13110,7 @@ pathe@^1.1.0:
   resolved "https://registry.yarnpkg.com/pathe/-/pathe-1.1.0.tgz#e2e13f6c62b31a3289af4ba19886c230f295ec03"
   integrity sha512-ODbEPR0KKHqECXW1GoxdDb+AZvULmXjVPy4rt+pGo2+TnjJTIPJQSVS6N63n8T2Ip+syHhbn52OewKicV0373w==
 
-pdfjs-dist@1.8.357:
+pdfjs-dist@1.8.357, pdfjs-dist@^4.2.67:
   version "1.8.357"
   resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-1.8.357.tgz#85c24944e81b67080656a60dd7b58f3a33fbd084"
   integrity sha1-hcJJROgbZwgGVqYN17WPOjP70IQ=
