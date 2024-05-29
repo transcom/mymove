@@ -85,16 +85,16 @@ export const OfficeAccountRequestFields = ({ render }) => {
             label="Services Counselor"
           />
           <CheckboxField
-            id="qualityAssuranceAndCustomerSupportCheckBox"
-            data-testid="qualityAssuranceAndCustomerSupportCheckBox"
-            name="qualityAssuranceAndCustomerSupportCheckBox"
-            label="Quality Assurance & Customer Support"
-          />
-          <CheckboxField
             id="customerSupportRepresentativeCheckBox"
             data-testid="customerSupportRepresentativeCheckBox"
             name="customerSupportRepresentativeCheckBox"
             label="Customer Support Representative"
+          />
+          <CheckboxField
+            id="qualityAssuranceAndCustomerSupportCheckBox"
+            data-testid="qualityAssuranceAndCustomerSupportCheckBox"
+            name="qualityAssuranceAndCustomerSupportCheckBox"
+            label="Quality Assurance & Customer Support"
           />
         </>,
       )}
