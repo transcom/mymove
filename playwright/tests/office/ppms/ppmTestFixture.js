@@ -120,6 +120,7 @@ export class PpmPage extends ServiceCounselorPage {
       await this.page.locator('label[for="hasRequestedAdvanceYes"]').click();
       await this.page.locator('input[name="advance"]').clear();
       await this.page.locator('input[name="advance"]').type(advance);
+      await this.page.locator('label[for="approveAdvanceRequest"]').click();
     } else {
       await this.page.locator('label[for="hasRequestedAdvanceNo"]').click();
     }

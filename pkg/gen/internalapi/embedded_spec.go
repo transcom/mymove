@@ -41,7 +41,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -5844,6 +5844,15 @@ func init() {
           "title": "Email",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
+        },
         "first_name": {
           "type": "string",
           "title": "First name",
@@ -6245,6 +6254,15 @@ func init() {
           "type": "boolean",
           "title": "Email",
           "x-nullable": true
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
         },
         "first_name": {
           "type": "string",
@@ -7402,7 +7420,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -13650,6 +13668,15 @@ func init() {
           "title": "Email",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
+        },
         "first_name": {
           "type": "string",
           "title": "First name",
@@ -14052,6 +14079,15 @@ func init() {
           "type": "boolean",
           "title": "Email",
           "x-nullable": true
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
         },
         "first_name": {
           "type": "string",

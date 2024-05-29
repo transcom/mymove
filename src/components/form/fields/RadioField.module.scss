@@ -1,0 +1,13 @@
+@import 'shared/styles/colors';
+
+:global {
+  .usa-radio__input:disabled + .usa-radio__label, .usa-radio__input:disabled + .usa-radio__label {
+    color: $base-darker;
+  }
+  .usa-radio__label:disabled + .usa-radio__label:before {
+    background-color: $base-darker;
+    box-shadow: 0 0 0 2px $base-dark;
+  }
+
+
+}
