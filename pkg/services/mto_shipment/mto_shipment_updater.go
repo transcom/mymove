@@ -208,7 +208,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 	if requestedUpdatedShipment.HasTertiaryDeliveryAddress != nil && !*requestedUpdatedShipment.HasTertiaryDeliveryAddress {
 		dbShipment.HasTertiaryDeliveryAddress = requestedUpdatedShipment.HasTertiaryDeliveryAddress
 		dbShipment.TertiaryDeliveryAddress = nil
-		dbShipment.TertiaryDeliveryAddressID   = nil
+		dbShipment.TertiaryDeliveryAddressID = nil
 	} else if requestedUpdatedShipment.TertiaryDeliveryAddress != nil {
 		dbShipment.TertiaryDeliveryAddress = requestedUpdatedShipment.TertiaryDeliveryAddress
 		dbShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)

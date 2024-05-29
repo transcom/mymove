@@ -67,8 +67,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		}
 		expectedSecondaryPickupAddressID      = uuid.Must(uuid.NewV4())
 		expectedSecondaryDestinationAddressID = uuid.Must(uuid.NewV4())
-		expectedTertiaryPickupAddressID      = uuid.Must(uuid.NewV4())
-		expectedTertiaryDestinationAddressID = uuid.Must(uuid.NewV4())
+		expectedTertiaryPickupAddressID       = uuid.Must(uuid.NewV4())
+		expectedTertiaryDestinationAddressID  = uuid.Must(uuid.NewV4())
 	)
 
 	// setupShipmentData - sets up old shipment based on the expected state and flags that are passed in.
@@ -159,7 +159,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			}
 		}
 
-		if  ppmState >= PPMShipmentStateTertiaryAddress {
+		if ppmState >= PPMShipmentStateTertiaryAddress {
 			oldShipment.HasTertiaryPickupAddress = &oldFlags.hasTertiaryPickupAddress
 			if oldFlags.hasTertiaryPickupAddress {
 				oldShipment.TertiaryPickupAddress = expectedTertiaryPickupAddress
@@ -728,8 +728,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldFlags: flags{
 				hasSecondaryPickupAddress:      true,
 				hasSecondaryDestinationAddress: true,
-				hasTertiaryPickupAddress:      true,
-				hasTertiaryDestinationAddress: true,
+				hasTertiaryPickupAddress:       true,
+				hasTertiaryDestinationAddress:  true,
 			},
 			newShipment: models.PPMShipment{
 				//hasTertiaryPickupAddress and hasTertiaryDestinationAddress not provided, assumes no deletes
@@ -767,8 +767,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldFlags: flags{
 				hasSecondaryPickupAddress:      true,
 				hasSecondaryDestinationAddress: true,
-				hasTertiaryPickupAddress:      true,
-				hasTertiaryDestinationAddress: true,
+				hasTertiaryPickupAddress:       true,
+				hasTertiaryDestinationAddress:  true,
 			},
 			newShipment: models.PPMShipment{
 				HasTertiaryPickupAddress: models.BoolPointer(false),
@@ -810,8 +810,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldFlags: flags{
 				hasSecondaryPickupAddress:      true,
 				hasSecondaryDestinationAddress: true,
-				hasTertiaryPickupAddress:      true,
-				hasTertiaryDestinationAddress: true,
+				hasTertiaryPickupAddress:       true,
+				hasTertiaryDestinationAddress:  true,
 			},
 			newShipment: models.PPMShipment{
 				HasTertiaryDestinationAddress: models.BoolPointer(false),
@@ -860,8 +860,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			oldFlags: flags{
 				hasSecondaryPickupAddress:      true,
 				hasSecondaryDestinationAddress: true,
-				hasTertiaryPickupAddress:      true,
-				hasTertiaryDestinationAddress: true,
+				hasTertiaryPickupAddress:       true,
+				hasTertiaryDestinationAddress:  true,
 			},
 			newShipment: models.PPMShipment{
 				TertiaryPickupAddress: &models.Address{
@@ -876,8 +876,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				checkPickupAddressDidntChange(mergedShipment, oldShipment)
 				checkDestinationAddressDidntChange(mergedShipment, oldShipment)
 				checkSecondaryDestinationAddressDidntChange(mergedShipment, oldShipment)
-				checkSecondaryPickupAddressDidntChange(mergedShipment,oldShipment)
-				checkTertiaryDestinationAddressDidntChange(mergedShipment,oldShipment)
+				checkSecondaryPickupAddressDidntChange(mergedShipment, oldShipment)
+				checkTertiaryDestinationAddressDidntChange(mergedShipment, oldShipment)
 				// ensure fields were set correctly
 				suite.Equal(newShipment.TertiaryPickupAddress.City, mergedShipment.TertiaryPickupAddress.City)
 				suite.Equal(newShipment.TertiaryPickupAddress.StreetAddress1, mergedShipment.TertiaryPickupAddress.StreetAddress1)

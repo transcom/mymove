@@ -228,7 +228,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Model: customTertiaryDeliveryAddress,
 				Type:  &Addresses.TertiaryDeliveryAddress,
 			},
-
 		}, nil)
 
 		// VALIDATE RESULTS
