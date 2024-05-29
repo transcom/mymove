@@ -173,7 +173,6 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 		return services.SSWMaxWeightEntitlement(sswEntitlements)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
-
 	return services.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
