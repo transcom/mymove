@@ -10,7 +10,6 @@ export const roleTypes = {
   HQ: 'headquarters',
 };
 
-//TODO: ONLY ADD HQ ROLE IF FF IS TRUE
 export const adminOfficeRoles = [
   { roleType: 'customer', name: 'Customer' },
   { roleType: 'transportation_ordering_officer', name: 'Transportation Ordering Officer' },
