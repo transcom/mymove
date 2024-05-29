@@ -98,6 +98,11 @@ const ppmShipmentSchema = ({
         then: (schema) => schema.required('Required'),
       }),
 
+    advanceStatus: Yup.string().when('advanceRequested', {
+      is: (advanceRequested) => (isAdvancePage && advanceRequested) === true,
+      then: (schema) => schema.required('Required'),
+    }),
+
     closeoutOffice: closeoutOfficeSchema(showCloseoutOffice, isAdvancePage),
     counselorRemarks: Yup.string().when(['advance', 'advanceRequested', 'advanceStatus'], {
       is: (advance, advanceRequested, advanceStatus) =>
