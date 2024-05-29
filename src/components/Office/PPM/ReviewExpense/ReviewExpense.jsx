@@ -106,13 +106,15 @@ export default function ReviewExpense({
   );
 
   useEffect(() => {
-    // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button.
-    if (!samePage) setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
+    if (expense) {
+      // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button.
+      if (!samePage) setSelectedExpenseType(expenseTypeLabels[movingExpenseType]);
 
-    const selectedExpenseTypeKey = convertLabelToKey(selectedExpenseType); // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
-    const index = computeCurrentCategoryIndex(selectedExpenseTypeKey); // Get index for number at bottom of page (e.x. "Contracted Expense #2")
-    setCurrentCategoryIndex(index);
-  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage]);
+      const selectedExpenseTypeKey = convertLabelToKey(selectedExpenseType); // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
+      const index = computeCurrentCategoryIndex(selectedExpenseTypeKey); // Get index for number at bottom of page (e.x. "Contracted Expense #2")
+      setCurrentCategoryIndex(index);
+    }
+  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage, expense]);
 
   // If parent state updates to show that we've moved onto another document, then user must've used back or submit button
   useEffect(() => {
