@@ -16,6 +16,7 @@ import {
   deleteUpload,
   patchProGearWeightTicket,
   patchMTOShipment,
+  getMTOShipmentsForMove,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -132,11 +133,10 @@ const ProGear = () => {
       eTag: mtoShipment.eTag,
     };
 
-    console.log('patchMTOShipment Etag:' ,payload.eTag);
     patchMTOShipment(mtoShipment.id, payload, payload.eTag)
-      .then(() => {
+      .then((response) => {
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(mtoShipment));
+        dispatch(updateMTOShipment(response));
       })
       .catch(() => {
         setErrorMessage('Failed to update MTO shipment due to server error.');
@@ -155,7 +155,6 @@ const ProGear = () => {
       hasWeightTickets,
     };
 
-    console.log('patchProGear Weight Etag:', currentProGearWeightTicket.eTag);
     patchProGearWeightTicket(
       mtoShipment?.ppmShipment?.id,
       currentProGearWeightTicket.id,
@@ -164,8 +163,16 @@ const ProGear = () => {
     )
       .then((resp) => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex] = resp;
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(mtoShipment));
+        getMTOShipmentsForMove(moveId)
+          .then((response) => {
+            dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
+            mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
+            updateMtoShipment(values);
+            navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+          })
+          .catch(() => {
+            setErrorMessage('Failed to fetch shipment information');
+          });
       })
       .catch(() => {
         setErrorMessage('Failed to save updated trip record');
@@ -176,7 +183,6 @@ const ProGear = () => {
     setErrorMessage(null);
     setErrors({});
     setSubmitting(false);
-    updateMtoShipment(values);
     updateProGearWeightTicket(values);
   };
 
