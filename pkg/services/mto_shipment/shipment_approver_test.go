@@ -31,6 +31,7 @@ type approveShipmentSubtestData struct {
 	mockedShipmentApprover services.ShipmentApprover
 	mockedShipmentRouter   *shipmentmocks.ShipmentRouter
 	reServiceCodes         []models.ReServiceCode
+	moveWeights            services.MoveWeights
 }
 
 // Creates data for the TestApproveShipment function
@@ -90,9 +91,10 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 	subtestData.planner = &mocks.Planner{}
+	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester())
 
-	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)
-	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner)
+	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights)
+	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights)
 	subtestData.appCtx = suite.AppContextWithSessionForTest(&auth.Session{
 		ApplicationName: auth.OfficeApp,
 		OfficeUserID:    uuid.Must(uuid.NewV4()),
@@ -583,5 +585,95 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		estimatedWeight110 := int(math.Round(float64(*shipment.PrimeEstimatedWeight) * 1.10))
 		suite.Equal(estimatedWeight110, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+	})
+	suite.Run("Approval of a shipment that exceeds excess weight will flag for excess weight", func() {
+		subtestData := suite.createApproveShipmentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		planner := subtestData.planner
+		approver := subtestData.shipmentApprover
+		estimatedWeight := unit.Pound(100000)
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusSubmitted,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+		}, nil)
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(500, nil)
+
+		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag)
+		suite.NoError(approverErr)
+
+		err := appCtx.DB().Reload(&shipment.MoveTaskOrder)
+		suite.NoError(err)
+
+		suite.NotNil(shipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+
+		// estimatedWeight110 := int(math.Round(float64(*shipment.PrimeEstimatedWeight) * 1.10))
+		// suite.Equal(estimatedWeight110, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+
+		// subtestData := suite.createApproveShipmentSubtestData()
+		// // appCtx := subtestData.appCtx
+		// // move := subtestData.move
+		// // planner := subtestData.planner
+		// moveWeights := subtestData.moveWeights
+		// approver := subtestData.shipmentApprover
+		// now := time.Now()
+		// pickupDate := now.AddDate(0, 0, 10)
+
+		// primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model: models.MTOShipment{
+		// 			Status:              models.MTOShipmentStatusSubmitted,
+		// 			ApprovedDate:        &now,
+		// 			ScheduledPickupDate: &pickupDate,
+		// 		},
+		// 	},
+		// 	{
+		// 		Model: models.Move{
+		// 			AvailableToPrimeAt: &now,
+		// 			Status:             models.MoveStatusAPPROVED,
+		// 		},
+		// 	},
+		// }, nil)
+		// estimatedWeight := unit.Pound(7200)
+		// // there is a validator check about updating the status
+		// primeShipment.Status = ""
+		// primeShipment.PrimeEstimatedWeight = &estimatedWeight
+
+		// suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+		// suite.Equal(models.MoveStatusAPPROVED, primeShipment.MoveTaskOrder.Status)
+
+		// moveWeights.On("CheckExcessWeight",
+		// 	mock.AnythingOfType("*appcontext.appContext"),
+		// 	primeShipment.MoveTaskOrderID,
+		// 	mock.AnythingOfType("models.MTOShipment"),
+		// ).Return(&primeShipment.MoveTaskOrder, nil, nil)
+
+		// session := auth.Session{}
+		// _, err := approver.ApproveShipment(suite.AppContextWithSessionForTest(&session), primeShipment.ID, etag.GenerateEtag(primeShipment.UpdatedAt))
+		// suite.NoError(err)
+
+		// err = suite.DB().Reload(&primeShipment.MoveTaskOrder)
+		// suite.NoError(err)
+
+		// suite.NotNil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+		// suite.Equal(models.MoveStatusAPPROVALSREQUESTED, primeShipment.MoveTaskOrder.Status)
+
+		// // Verify that shipment recalculate was handled correctly
+		// // mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 }

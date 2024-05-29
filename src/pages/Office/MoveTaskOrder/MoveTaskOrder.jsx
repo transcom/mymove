@@ -438,10 +438,6 @@ export const MoveTaskOrder = (props) => {
     setIsReweighModalVisible(true);
   };
 
-  const handleShowWeightModal = () => {
-    setIsWeightModalVisible(true);
-  };
-
   // To-do: Combine handle Acknowldge Weights and handle Weight alert into one one mutation function
   const handleAcknowledgeExcessWeightRisk = () => {
     mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
@@ -449,6 +445,11 @@ export const MoveTaskOrder = (props) => {
   const handleHideWeightAlert = () => {
     handleAcknowledgeExcessWeightRisk();
     setIsWeightAlertVisible(false);
+  };
+
+  const handleShowWeightModal = () => {
+    handleHideWeightAlert();
+    setIsWeightModalVisible(true);
   };
   /*
   *
