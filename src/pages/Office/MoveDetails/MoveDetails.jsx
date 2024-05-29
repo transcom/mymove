@@ -62,7 +62,6 @@ const MoveDetails = ({
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
-  /* ------------------ Flags ------------------------- */
 
   const navigate = useNavigate();
 
