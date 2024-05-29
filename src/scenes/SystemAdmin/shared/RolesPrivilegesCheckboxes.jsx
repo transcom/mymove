@@ -8,14 +8,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
   let rolesSelected = [];
   let privilegesSelected = [];
 
-  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
-
-  useEffect(() => {
-    isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
-      setHeadquartersRoleFF(enabled);
-    });
-  }, []);
-  
   const makeRoleTypeArray = (roles) => {
     if (!roles || roles.length === 0) {
       rolesSelected = [];
@@ -46,13 +38,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
           input.splice(index, 1);
         }
       }
-    }
-
-    if (isHeadquartersRoleFF && input.includes('headquarters')) {
-      index = input.indexOf('headquarters');
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
     }
 
     return input.reduce((rolesArray, role) => {

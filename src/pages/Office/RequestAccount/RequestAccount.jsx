@@ -9,6 +9,7 @@ import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAcco
 import { createOfficeAccountRequest } from 'services/ghcApi';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
       setHeadquartersRoleFF(enabled);
     });
   }, []);
-  
+
   const initialValues = {
     officeAccountRequestFirstName: '',
     officeAccountRequestMiddleInitial: '',
