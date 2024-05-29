@@ -250,7 +250,7 @@ const ShipmentDetailsMain = ({
           shipmentType: shipment.shipmentType,
           shipmentLocator: shipment.shipmentLocator,
         }}
-        handleShowDiversionModal={handleShowDiversionModal}
+        handleDivertShipment={handleDivertShipment}
         isMoveLocked={isMoveLocked}
       />
       <ShipmentWeightDetails
