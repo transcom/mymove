@@ -68,7 +68,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async customerStartsAddingAPPMShipment() {
-    await this.page.getByRole('button', { name: 'Set up your shipments' }).click();
+    await this.page.getByTestId('goToMoveBtn').click();
+    await this.page.getByTestId('shipment-selection-btn').click();
     await this.navigateForward();
 
     await this.page.locator('label[for="PPM"]').click();
