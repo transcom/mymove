@@ -469,6 +469,9 @@ definitions:
               the service item.
             x-nullable: true
             x-omitempty: false
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
         required:
           - reServiceCode
           - item
