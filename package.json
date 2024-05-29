@@ -84,7 +84,6 @@
   },
   "resolutions": {
     "dns-packet": "^5.4.0",
-    "pdfjs-dist": "1.8.357",
     "eslint-plugin-react": "^7.28",
     "immer": "^9.0.2",
     "jest-preview/postcss-load-config/yaml": "^2.2.2",
