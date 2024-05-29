@@ -33,6 +33,7 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
 
   return (
     <>
+      <hr />
       <HeaderSection
         sectionInfo={{
           type: sectionTypes.incentives,
@@ -63,11 +64,11 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
           <HeaderSection
             sectionInfo={{
               type: sectionTypes.shipmentInfo,
+              advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
               ...shipmentInfo,
             }}
           />
         </section>
-        <hr />
         {showAllFields && <GCCAndIncentiveInfo ppmShipmentInfo={ppmShipmentInfo} />}
       </div>
     </header>

@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Label, Button, Alert } from '@trussworks/react-uswds';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import classnames from 'classnames';
 
 import styles from './HeaderSection.module.scss';
 
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
+import EditPPMHeaderSummaryModal from 'components/Office/PPM/PPMHeaderSummary/EditPPMHeaderSummaryModal';
 import { formatDate, formatCents, formatWeight } from 'utils/formatters';
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { updateMTOShipment } from 'services/ghcApi';
+import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -26,12 +34,20 @@ const getSectionTitle = (sectionInfo) => {
   }
 };
 
+const OpenModalButton = ({ permission, onClick }) => (
+  <Restricted to={permission}>
+    <Button type="button" data-testid="editTextButton" className={styles['edit-btn']} onClick={onClick}>
+      <span>
+        <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
+      </span>
+    </Button>
+  </Restricted>
+);
+
 // Returns the markup needed for a specific section
-const getSectionMarkup = (sectionInfo) => {
-  const aoaRequestedValue = sectionInfo.isAdvanceRequested
-    ? `$${formatCents(sectionInfo.advanceAmountRequested)}`
-    : 'No';
-  const aoaValue = sectionInfo.isAdvanceReceived ? `$${formatCents(sectionInfo.advanceAmountReceived)}` : 'No';
+const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
+  const aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
+  const aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
 
   switch (sectionInfo.type) {
     case sectionTypes.shipmentInfo:
@@ -43,7 +59,13 @@ const getSectionMarkup = (sectionInfo) => {
           </div>
           <div>
             <Label>Actual Move Start Date</Label>
-            <span className={styles.light}>{formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}</span>
+            <span className={styles.light}>
+              {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
+              <OpenModalButton
+                permission={permissionTypes.updateSITExtension}
+                onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
+              />
+            </span>
           </div>
           <div>
             <Label>Starting ZIP</Label>
@@ -85,7 +107,13 @@ const getSectionMarkup = (sectionInfo) => {
           </div>
           <div>
             <Label>Advance Received</Label>
-            <span className={styles.light}>{aoaValue}</span>
+            <span className={styles.light}>
+              {aoaValue}
+              <OpenModalButton
+                permission={permissionTypes.updateSITExtension}
+                onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')}
+              />
+            </span>
           </div>
           <div>
             <Label>Remaining Incentive</Label>
@@ -129,16 +157,106 @@ const getSectionMarkup = (sectionInfo) => {
 };
 
 export default function PPMHeaderSummary({ sectionInfo }) {
+  const { shipmentId, moveCode } = useParams();
+  const { mtoShipment, refetchMTOShipment } = usePPMShipmentDocsQueries(shipmentId);
+  const queryClient = useQueryClient();
   const [showDetails, setShowDetails] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [sectionName, setSectionName] = useState('');
+  const [sectionType, setSectionType] = useState('');
+  const [currentSectionInfo, setCurrentSectionInfo] = useState(sectionInfo);
+  const [isUpdated, setIsUpdated] = useState(false);
+
   const showRequestDetailsButton = true;
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
   const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
   const showDetailsText = showDetails ? 'Hide details' : 'Show details';
 
+  const handleEditOnClose = () => {
+    setIsEditModalVisible(false);
+    setSectionName('');
+    setSectionType('');
+  };
+  // this is to avoid state issues
+  useEffect(() => {
+    if (!isUpdated) {
+      setCurrentSectionInfo(sectionInfo);
+    }
+  }, [isUpdated, sectionInfo]);
+
+  // fetch updated shipment data whenever edit modal is opened
+  useEffect(() => {
+    if (isEditModalVisible) {
+      refetchMTOShipment();
+    }
+  }, [isEditModalVisible, refetchMTOShipment]);
+
+  const { mtoShipments } = useEditShipmentQueries(moveCode);
+
+  const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipments) => {
+      const updatedMTOShipment = updatedMTOShipments.mtoShipments[shipmentId];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+
+      setIsUpdated(true);
+
+      setCurrentSectionInfo((prev) => ({
+        ...prev,
+        actualMoveDate: updatedMTOShipment.ppmShipment.actualMoveDate,
+        advanceAmountReceived: updatedMTOShipment.ppmShipment.advanceAmountReceived,
+      }));
+
+      handleEditOnClose();
+    },
+  });
+
+  const handleEditOnClick = (type, name) => {
+    setIsEditModalVisible(true);
+    setSectionName(name);
+    setSectionType(type);
+  };
+
+  const handleEditSubmit = (values) => {
+    let body = {};
+
+    switch (sectionName) {
+      case 'actualMoveDate':
+        body = { actualMoveDate: formatDate(values.actualMoveDate, 'DD MMM YYYY', 'YYYY-MM-DD') };
+        break;
+      case 'advanceAmountReceived':
+        if (values.advanceAmountReceived === '0') {
+          body = {
+            advanceAmountReceived: null,
+            hasReceivedAdvance: false,
+          };
+        } else {
+          body = {
+            advanceAmountReceived: values.advanceAmountReceived * 100,
+            hasReceivedAdvance: true,
+          };
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    mutateMTOShipment({
+      moveTaskOrderID: mtoShipment.moveTaskOrderID,
+      shipmentID: mtoShipment.id,
+      ifMatchETag: mtoShipment.eTag,
+      body: {
+        ppmShipment: body,
+      },
+    });
+  };
+
   return (
     <section className={classnames(styles.HeaderSection)}>
       <header>
-        <h4>{getSectionTitle(sectionInfo)}</h4>
+        <h4>{getSectionTitle(currentSectionInfo)}</h4>
       </header>
       <div className={styles.toggleDrawer}>
         {showRequestDetailsButton && (
@@ -153,7 +271,16 @@ export default function PPMHeaderSummary({ sectionInfo }) {
           </Button>
         )}
       </div>
-      {showDetails && getSectionMarkup(sectionInfo)}
+      {showDetails && getSectionMarkup(currentSectionInfo, handleEditOnClick)}
+      {isEditModalVisible && (
+        <EditPPMHeaderSummaryModal
+          onClose={handleEditOnClose}
+          onSubmit={handleEditSubmit}
+          sectionInfo={currentSectionInfo}
+          editSectionName={sectionName}
+          sectionType={sectionType}
+        />
+      )}
     </section>
   );
 }

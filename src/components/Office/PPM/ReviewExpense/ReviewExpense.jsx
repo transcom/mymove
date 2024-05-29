@@ -127,124 +127,128 @@ export default function ReviewExpense({
                   .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
               : '##';
           return (
-            <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
-              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
-              <hr />
-              <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
-              <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
-              <div className={styles.displayValue}>
-                {`${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
+            <>
+              <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
+                <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               </div>
-              <legend className={classnames('usa-label', styles.label)}>Description</legend>
-              <div className={styles.displayValue}>{description}</div>
-              <MaskedTextField
-                defaultValue="0"
-                name="amount"
-                label="Amount"
-                id="amount"
-                mask={Number}
-                scale={2} // digits after point, 0 for integers
-                radix="." // fractional delimiter
-                mapToRadix={['.']} // symbols to process as radix
-                padFractionalZeros // if true, then pads zeros at end to the length of scale
-                signed={false} // disallow negative
-                thousandsSeparator=","
-                lazy={false} // immediate masking evaluation
-                prefix="$"
-              />
-              {movingExpenseType === expenseTypes.STORAGE && (
-                <>
-                  <DatePickerInput name="sitStartDate" label="Start date" />
-                  <DatePickerInput name="sitEndDate" label="End date" />
-                  <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
-                  <div className={styles.displayValue} data-testid="days-in-sit">
-                    {daysInSIT}
+              <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
+                <hr />
+                <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
+                <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
+                <div className={styles.displayValue}>
+                  {`${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
+                </div>
+                <legend className={classnames('usa-label', styles.label)}>Description</legend>
+                <div className={styles.displayValue}>{description}</div>
+                <MaskedTextField
+                  defaultValue="0"
+                  name="amount"
+                  label="Amount"
+                  id="amount"
+                  mask={Number}
+                  scale={2} // digits after point, 0 for integers
+                  radix="." // fractional delimiter
+                  mapToRadix={['.']} // symbols to process as radix
+                  padFractionalZeros // if true, then pads zeros at end to the length of scale
+                  signed={false} // disallow negative
+                  thousandsSeparator=","
+                  lazy={false} // immediate masking evaluation
+                  prefix="$"
+                />
+                {movingExpenseType === expenseTypes.STORAGE && (
+                  <>
+                    <DatePickerInput name="sitStartDate" label="Start date" />
+                    <DatePickerInput name="sitEndDate" label="End date" />
+                    <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
+                    <div className={styles.displayValue} data-testid="days-in-sit">
+                      {daysInSIT}
+                    </div>
+                  </>
+                )}
+                <h3 className={styles.reviewHeader}>
+                  {`Review ${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
+                </h3>
+                <p>Add a review for this {allCase(expenseName)}</p>
+                <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
+                <Fieldset className={styles.statusOptions}>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, {
+                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
+                    })}
+                  >
+                    <Radio
+                      id={`accept-${expense?.id}`}
+                      checked={values.status === ppmDocumentStatus.APPROVED}
+                      value={ppmDocumentStatus.APPROVED}
+                      name="status"
+                      label="Accept"
+                      onChange={handleApprovalChange}
+                      data-testid="acceptRadio"
+                    />
                   </div>
-                </>
-              )}
-              <h3 className={styles.reviewHeader}>
-                {`Review ${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
-              </h3>
-              <p>Add a review for this {allCase(expenseName)}</p>
-              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
-              <Fieldset className={styles.statusOptions}>
-                <div
-                  className={classnames(approveRejectStyles.statusOption, {
-                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
-                  })}
-                >
-                  <Radio
-                    id={`accept-${expense?.id}`}
-                    checked={values.status === ppmDocumentStatus.APPROVED}
-                    value={ppmDocumentStatus.APPROVED}
-                    name="status"
-                    label="Accept"
-                    onChange={handleApprovalChange}
-                    data-testid="acceptRadio"
-                  />
-                </div>
-                <div
-                  className={classnames(approveRejectStyles.statusOption, styles.exclude, {
-                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.EXCLUDED,
-                  })}
-                >
-                  <Radio
-                    id={`exclude-${expense?.id}`}
-                    checked={values.status === ppmDocumentStatus.EXCLUDED}
-                    value={ppmDocumentStatus.EXCLUDED}
-                    name="status"
-                    label="Exclude"
-                    onChange={handleChange}
-                    data-testid="excludeRadio"
-                  />
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, styles.exclude, {
+                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.EXCLUDED,
+                    })}
+                  >
+                    <Radio
+                      id={`exclude-${expense?.id}`}
+                      checked={values.status === ppmDocumentStatus.EXCLUDED}
+                      value={ppmDocumentStatus.EXCLUDED}
+                      name="status"
+                      label="Exclude"
+                      onChange={handleChange}
+                      data-testid="excludeRadio"
+                    />
 
-                  {values.status === ppmDocumentStatus.EXCLUDED && (
-                    <FormGroup className={styles.reason}>
-                      <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
-                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
-                      <Textarea
-                        id={`excludeReason-${expense?.id}`}
-                        name="reason"
-                        onChange={handleChange}
-                        value={values.reason}
-                        placeholder="Type something"
-                      />
-                      <div className={styles.hint}>{500 - values.reason.length} characters</div>
-                    </FormGroup>
-                  )}
-                </div>
-                <div
-                  className={classnames(approveRejectStyles.statusOption, styles.reject, {
-                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
-                  })}
-                >
-                  <Radio
-                    id={`reject-${expense?.id}`}
-                    checked={values.status === ppmDocumentStatus.REJECTED}
-                    value={ppmDocumentStatus.REJECTED}
-                    name="status"
-                    label="Reject"
-                    onChange={handleChange}
-                    data-testid="rejectRadio"
-                  />
+                    {values.status === ppmDocumentStatus.EXCLUDED && (
+                      <FormGroup className={styles.reason}>
+                        <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
+                        <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
+                        <Textarea
+                          id={`excludeReason-${expense?.id}`}
+                          name="reason"
+                          onChange={handleChange}
+                          value={values.reason}
+                          placeholder="Type something"
+                        />
+                        <div className={styles.hint}>{500 - values.reason.length} characters</div>
+                      </FormGroup>
+                    )}
+                  </div>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, styles.reject, {
+                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
+                    })}
+                  >
+                    <Radio
+                      id={`reject-${expense?.id}`}
+                      checked={values.status === ppmDocumentStatus.REJECTED}
+                      value={ppmDocumentStatus.REJECTED}
+                      name="status"
+                      label="Reject"
+                      onChange={handleChange}
+                      data-testid="rejectRadio"
+                    />
 
-                  {values.status === ppmDocumentStatus.REJECTED && (
-                    <FormGroup className={styles.reason}>
-                      <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
-                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
-                      <Textarea
-                        id={`rejectReason-${expense?.id}`}
-                        name="reason"
-                        onChange={handleChange}
-                        value={values.reason}
-                        placeholder="Type something"
-                      />
-                      <div className={styles.hint}>{500 - values.reason.length} characters</div>
-                    </FormGroup>
-                  )}
-                </div>
-              </Fieldset>
-            </Form>
+                    {values.status === ppmDocumentStatus.REJECTED && (
+                      <FormGroup className={styles.reason}>
+                        <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
+                        <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
+                        <Textarea
+                          id={`rejectReason-${expense?.id}`}
+                          name="reason"
+                          onChange={handleChange}
+                          value={values.reason}
+                          placeholder="Type something"
+                        />
+                        <div className={styles.hint}>{500 - values.reason.length} characters</div>
+                      </FormGroup>
+                    )}
+                  </div>
+                </Fieldset>
+              </Form>
+            </>
           );
         }}
       </Formik>
