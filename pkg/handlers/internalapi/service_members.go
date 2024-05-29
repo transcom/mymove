@@ -36,6 +36,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		UpdatedAt:            handlers.FmtDateTime(serviceMember.UpdatedAt),
 		UserID:               handlers.FmtUUID(serviceMember.UserID),
 		Edipi:                serviceMember.Edipi,
+		Emplid:               serviceMember.Emplid,
 		Orders:               orders,
 		Affiliation:          (*internalmessages.Affiliation)(serviceMember.Affiliation),
 		FirstName:            serviceMember.FirstName,
@@ -213,7 +214,12 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-
+	if payload.Emplid != nil && *serviceMember.Affiliation == models.AffiliationCOASTGUARD {
+		serviceMember.Emplid = payload.Emplid
+	}
+	if serviceMember.Affiliation != nil && *serviceMember.Affiliation != models.AffiliationCOASTGUARD {
+		serviceMember.Emplid = nil
+	}
 	if payload.FirstName != nil {
 		serviceMember.FirstName = payload.FirstName
 	}

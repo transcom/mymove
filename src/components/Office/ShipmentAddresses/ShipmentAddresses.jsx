@@ -24,6 +24,7 @@ const ShipmentAddresses = ({
   destinationDutyLocation,
   handleDivertShipment,
   shipmentInfo,
+  isMoveLocked,
 }) => {
   let pickupHeader;
   let destinationHeader;
@@ -60,6 +61,7 @@ const ShipmentAddresses = ({
                       handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag, shipmentInfo.shipmentLocator)
                     }
                     unstyled
+                    disabled={isMoveLocked}
                   >
                     Request diversion
                   </Button>
