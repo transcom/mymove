@@ -19,6 +19,7 @@ const ShipmentDetails = ({
   handleEditServiceOrderNumber,
   handleEditAccountingCodes,
   handleUpdateSITServiceItemCustomerExpense,
+  isMoveLocked,
 }) => {
   const { originDutyLocation, destinationDutyLocation, entitlement } = order;
   const ordersLOA = {
@@ -43,6 +44,7 @@ const ShipmentDetails = ({
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}
         handleUpdateSITServiceItemCustomerExpense={handleUpdateSITServiceItemCustomerExpense}
+        isMoveLocked={isMoveLocked}
       />
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
@@ -51,6 +53,7 @@ const ShipmentDetails = ({
         handleEditFacilityInfo={handleEditFacilityInfo}
         handleEditServiceOrderNumber={handleEditServiceOrderNumber}
         handleEditAccountingCodes={handleEditAccountingCodes}
+        isMoveLocked={isMoveLocked}
       />
     </div>
   );
