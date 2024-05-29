@@ -12,15 +12,15 @@
             @include u-margin-right(1);
         }
     }
-    
+
     section {
         color: $base-darker;
     }
-    
+
     h4 {
         @include u-margin-y(2.5);
     }
-    
+
     .light {
         @include u-font('body', '3xs');
     }
