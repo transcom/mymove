@@ -5512,6 +5512,13 @@ definitions:
   UpdateMovingExpense:
     type: object
     properties:
+      movingExpenseType:
+        $ref: '#/definitions/OmittableMovingExpenseType'
+      description:
+        description: A brief description of the expense.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
         type: integer
@@ -7303,7 +7310,7 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAllowanceEndDate:
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
@@ -8393,6 +8400,12 @@ definitions:
         x-nullable: true
         readOnly: true
         example: 1K43AR-01
+      originSitAuthEndDate:
+        format: date-time
+        type: string
+      destinationSitAuthEndDate:
+        format: date-time
+        type: string
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string

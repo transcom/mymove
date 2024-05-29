@@ -268,8 +268,19 @@ const ServicesCounselingQueue = () => {
     fetchData();
   }, [setErrorState]);
 
-  const handleClick = (values) => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+  const handleEditProfileClick = (locator) => {
+    navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
+  };
+
+  const handleClick = (values, e) => {
+    // if the user clicked the profile icon to edit, we want to route them elsewhere
+    // since we don't have innerText, we are using the data-label property
+    const editProfileDiv = e.target.closest('div[data-label="editProfile"]');
+    if (editProfileDiv) {
+      navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else {
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
 
   const handleCustomerSearchClick = (values) => {
@@ -390,6 +401,7 @@ const ServicesCounselingQueue = () => {
             disableSortBy={false}
             title="Results"
             handleClick={handleClick}
+            handleEditProfileClick={handleEditProfileClick}
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}

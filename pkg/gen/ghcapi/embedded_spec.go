@@ -7382,6 +7382,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -7429,6 +7433,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -9993,7 +10001,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -10825,6 +10833,15 @@ func init() {
         "amount": {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
+        },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
@@ -20375,6 +20392,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -20422,6 +20443,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -22991,7 +23016,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -23049,7 +23074,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "sitAllowanceEndDate": {
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -23876,6 +23901,15 @@ func init() {
         "amount": {
           "description": "The total amount of the expense as indicated on the receipt",
           "type": "integer"
+        },
+        "description": {
+          "description": "A brief description of the expense.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "movingExpenseType": {
+          "$ref": "#/definitions/OmittableMovingExpenseType"
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
