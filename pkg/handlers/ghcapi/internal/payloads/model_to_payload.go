@@ -985,6 +985,11 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		payload.WeightStored = handlers.FmtPoundPtr(movingExpense.WeightStored)
 	}
 
+	if movingExpense.SITLocation != nil {
+		sitLocation := ghcmessages.SITLocationType(*movingExpense.SITLocation)
+		payload.SitLocation = &sitLocation
+	}
+
 	return payload
 }
 
