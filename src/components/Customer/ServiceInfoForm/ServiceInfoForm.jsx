@@ -35,9 +35,11 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled })
     last_name: Yup.string().required('Required'),
     suffix: Yup.string(),
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string()
-      .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
-      .required('Required'),
+    edipi: isDodidDisabled
+      ? Yup.string().notRequired()
+      : Yup.string()
+          .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
+          .required('Required'),
     emplid: Yup.string().when('showEmplid', () => {
       if (showEmplid && isEmplidEnabled)
         return Yup.string()
