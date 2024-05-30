@@ -37,7 +37,6 @@ jest.mock('services/internalApi', () => ({
   deleteUpload: jest.fn(),
   patchProGearWeightTicket: jest.fn(),
   getResponseError: jest.fn(),
-  patchMTOShipment: jest.fn(),
 }));
 
 const mockMTOShipment = {
@@ -100,21 +99,6 @@ const mockProGearWeightTicketWithUploads = {
     uploads: mockUploads,
   },
   eTag: mockProGearWeightTicketETag,
-};
-
-const belongsToSelf = 'true';
-const testPayload = {
-  belongsToSelf,
-  ppmShipment: {
-    id: mockMTOShipment.ppmShipment.id,
-    document: {
-      uploads: mockUploads,
-    },
-  },
-  shipmentType: mockMTOShipment.shipmentType,
-  actualSpouseProGearWeight: 10,
-  actualProGearWeight: 10,
-  shipmentLocator: 'TESTER-01',
 };
 
 const mockEmptyProGearWeightTicketAndIndex = {
@@ -223,7 +207,7 @@ describe('Pro-gear page', () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);
     selectProGearWeightTicketAndIndexById.mockReturnValue({ proGearWeightTicket: mockProGearWeightTicket, index: 0 });
 
-    renderProGearPage({ testPayload });
+    renderProGearPage();
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
