@@ -29,9 +29,7 @@ import { permissionTypes } from 'constants/permissions';
  * @returns {React.ReactElement}
  */
 const OpenModalButton = ({ permission, onClick, className, title, isMoveLocked }) => (
-const OpenModalButton = ({ permission, onClick, className, title, isMoveLocked }) => (
   <Restricted to={permission}>
-    <Button type="button" onClick={onClick} unstyled className={className} disabled={isMoveLocked}>
     <Button type="button" onClick={onClick} unstyled className={className} disabled={isMoveLocked}>
       {title}
     </Button>

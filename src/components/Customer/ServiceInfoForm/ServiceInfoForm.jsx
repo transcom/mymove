@@ -16,7 +16,6 @@ import { DutyLocationShape } from 'types/dutyLocation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled }) => {
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
