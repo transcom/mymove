@@ -77,7 +77,10 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 <legend className="usa-label">
                   Is the customer a non-CAC user or do they need to bypass CAC validation?
                 </legend>
-                <Hint>If this is checked yes, then they have already validated with CAC</Hint>
+                <Hint>
+                  If this is checked yes, then the customer has already validated their CAC or their identity has been
+                  validated by a trusted office user.
+                </Hint>
                 <div className="grid-row grid-gap">
                   <Field
                     as={Radio}
