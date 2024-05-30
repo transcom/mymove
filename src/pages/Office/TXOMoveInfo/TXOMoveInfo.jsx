@@ -39,21 +39,27 @@ const TXOMoveInfo = () => {
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
   const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
+  const officeUserID = data?.office_user?.id;
 
+  // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
   useEffect(() => {
     const fetchData = async () => {
       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
       setMoveLockFlag(lockedMoveFlag);
+      const now = new Date();
+      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt) && moveLockFlag) {
+        setIsMoveLocked(true);
+      }
     };
-
     fetchData();
-  }, []);
+  }, [move, officeUserID, moveLockFlag]);
 
   const hideNav =
     matchPath(
@@ -98,9 +104,9 @@ const TXOMoveInfo = () => {
   // this locked move banner will display if the current user is not the one who has it locked
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
-    const officeUser = data?.office_user;
-    if (move?.lockedByOfficeUserID && moveLockFlag) {
-      if (move?.lockedByOfficeUserID !== officeUser?.id) {
+    const now = new Date();
+    if (move?.lockedByOfficeUserID && move?.lockExpiresAt && moveLockFlag) {
+      if (move?.lockedByOfficeUserID !== officeUserID && now < new Date(move?.lockExpiresAt)) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
             This move is locked by {move.lockedByOfficeUser?.firstName} {move.lockedByOfficeUser?.lastName} at{' '}
@@ -163,6 +169,7 @@ const TXOMoveInfo = () => {
                 }
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -178,6 +185,7 @@ const TXOMoveInfo = () => {
                 setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -190,11 +198,16 @@ const TXOMoveInfo = () => {
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
                 setPendingPaymentRequestCount={setPendingPaymentRequestCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
           <Route path="billable-weight" end element={<ReviewBillableWeight />} />
-          <Route path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} end element={<CustomerSupportRemarks />} />
+          <Route
+            path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
+            end
+            element={<CustomerSupportRemarks isMoveLocked={isMoveLocked} />}
+          />
 
           {/* WARN: MB-15562 captured this as a potential bug. An error was reported */}
           {/* that `order` was returned from `useTXOMoveInfoQueries` as a null value and */}
@@ -210,6 +223,7 @@ const TXOMoveInfo = () => {
                   customerInfo={customerData}
                   grade={order.grade}
                   destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  isMoveLocked={isMoveLocked}
                 />
               }
             />

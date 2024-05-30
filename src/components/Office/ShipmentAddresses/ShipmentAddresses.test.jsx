@@ -191,4 +191,15 @@ describe('ShipmentAddresses', () => {
     expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
     expect(screen.getByText('Authorized addresses')).toBeInTheDocument();
   });
+
+  it('renders with disabled request diversion button', async () => {
+    const isMoveLocked = true;
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentAddresses {...testProps} isMoveLocked={isMoveLocked} />
+      </MockProviders>,
+    );
+    const requestDiversionBtn = screen.getByRole('button', { name: 'Request diversion' });
+    expect(requestDiversionBtn).toBeDisabled();
+  });
 });
