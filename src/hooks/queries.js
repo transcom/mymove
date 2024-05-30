@@ -53,7 +53,7 @@ import {
   SHIPMENTS_PAYMENT_SIT_BALANCE,
   PRIME_SIMULATOR_MOVE,
   CUSTOMER_SUPPORT_REMARKS,
-  QAE_CSR_MOVE_SEARCH,
+  QAE_MOVE_SEARCH,
   SHIPMENT_EVALUATION_REPORTS,
   COUNSELING_EVALUATION_REPORTS,
   EVALUATION_REPORT,
@@ -861,7 +861,7 @@ export const useMoveSearchQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const queryResult = useQuery(
-    [QAE_CSR_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
+    [QAE_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
     ({ queryKey }) => searchMoves(...queryKey),
     {
       enabled: filters.length > 0,
