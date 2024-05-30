@@ -1,8 +1,8 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { Checkbox } from '@trussworks/react-uswds';
+import { Checkbox, Radio, FormGroup, Grid } from '@trussworks/react-uswds';
 
 import styles from './CustomerContactInfoForm.module.scss';
 
@@ -15,6 +15,7 @@ import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { phoneSchema, requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
+import Hint from 'components/Hint';
 
 const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -38,50 +39,86 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       .required('Required'), // min 12 includes hyphens
     phoneIsPreferred: Yup.boolean(),
     emailIsPreferred: Yup.boolean(),
+    cacUser: Yup.boolean().required('Required'),
   });
-
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, handleSubmit }) => {
-        return (
-          <Form className={formStyles.form}>
-            <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
-              <CustomerAltContactInfoFields
-                render={(fields) => (
-                  <>
-                    <h2>Contact info</h2>
-                    <Checkbox
-                      data-testid="useCurrentResidence"
-                      label="This is not the person named on the orders."
-                      name="useCurrentResidence"
-                      id="useCurrentResidenceCheckbox"
+    <Grid row>
+      <Grid col>
+        <div className={styles.customerContactForm}>
+          <h1 className={styles.title}>Customer Info</h1>
+          <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
+            {({ isValid, handleSubmit }) => {
+              return (
+                <Form className={formStyles.form}>
+                  <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
+                    <CustomerAltContactInfoFields
+                      render={(fields) => (
+                        <>
+                          <h2>Contact info</h2>
+                          <Checkbox
+                            data-testid="useCurrentResidence"
+                            label="This is not the person named on the orders."
+                            name="useCurrentResidence"
+                            id="useCurrentResidenceCheckbox"
+                          />
+                          {fields}
+                        </>
+                      )}
                     />
-                    {fields}
-                  </>
-                )}
-              />
-              <h3 className={styles.sectionHeader}>Current Address</h3>
-              <AddressFields name="customerAddress" />
-              <h3 className={styles.sectionHeader}>Backup Address</h3>
-              <AddressFields name="backupAddress" />
-            </SectionWrapper>
-            <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
-              <h2 className={styles.sectionHeader}>Backup contact</h2>
+                    <h3 className={styles.sectionHeader}>Current Address</h3>
+                    <AddressFields name="customerAddress" />
+                    <h3 className={styles.sectionHeader}>Backup Address</h3>
+                    <AddressFields name="backupAddress" />
+                  </SectionWrapper>
+                  <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
+                    <h2 className={styles.sectionHeader}>Backup contact</h2>
 
-              <BackupContactInfoFields />
-            </SectionWrapper>
-            <div className={formStyles.formActions}>
-              <WizardNavigation
-                editMode
-                disableNext={!isValid || isSubmitting}
-                onCancelClick={onBack}
-                onNextClick={handleSubmit}
-              />
-            </div>
-          </Form>
-        );
-      }}
-    </Formik>
+                    <BackupContactInfoFields />
+                  </SectionWrapper>
+                  <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
+                    <h3>CAC Validation</h3>
+                    <FormGroup>
+                      <legend className="usa-label">
+                        Is the customer a non-CAC user or do they need to bypass CAC validation?
+                      </legend>
+                      <Hint>If this is checked yes, then they have already validated with CAC</Hint>
+                      <div className="grid-row grid-gap">
+                        <Field
+                          as={Radio}
+                          id="yesCacUser"
+                          label="Yes"
+                          name="cacUser"
+                          value="true"
+                          data-testid="cac-user-yes"
+                          type="radio"
+                        />
+                        <Field
+                          as={Radio}
+                          id="NonCacUser"
+                          label="No"
+                          name="cacUser"
+                          value="false"
+                          data-testid="cac-user-no"
+                          type="radio"
+                        />
+                      </div>
+                    </FormGroup>
+                  </SectionWrapper>
+                  <div className={formStyles.formActions}>
+                    <WizardNavigation
+                      editMode
+                      disableNext={!isValid}
+                      onCancelClick={onBack}
+                      onNextClick={handleSubmit}
+                    />
+                  </div>
+                </Form>
+              );
+            }}
+          </Formik>
+        </div>
+      </Grid>
+    </Grid>
   );
 };
 
@@ -97,6 +134,7 @@ CustomerContactInfoForm.propTypes = {
     telephone: PropTypes.string,
     email: PropTypes.string,
     customerAddress: ResidentialAddressShape,
+    cacUser: PropTypes.bool,
   }).isRequired,
   onSubmit: PropTypes.func,
   onBack: PropTypes.func,

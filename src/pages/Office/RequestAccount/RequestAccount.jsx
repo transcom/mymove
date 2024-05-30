@@ -62,6 +62,18 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'qae_csr',
       });
     }
+    if (values.headquartersCheckBox) {
+      requestedRoles.push({
+        name: 'Headquarters',
+        roleType: 'headquarters',
+      });
+    }
+    if (values.customerSupportRepresentativeCheckBox) {
+      requestedRoles.push({
+        name: 'Customer Service Representative',
+        roleType: 'customer_service_representative',
+      });
+    }
 
     let body = {
       email: values.officeAccountRequestEmail,
