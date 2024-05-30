@@ -124,7 +124,12 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 		if movingExpenseReceiptType == models.MovingExpenseReceiptTypeStorage {
 			mergedMovingExpense.SITStartDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITStartDate, mergedMovingExpense.SITStartDate)
 			mergedMovingExpense.SITEndDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITEndDate, mergedMovingExpense.SITEndDate)
-			mergedMovingExpense.WeightStored = services.SetOptionalPoundField(updatedMovingExpense.WeightStored, mergedMovingExpense.WeightStored)
+
+			// if weightStored was omitted we check for the zero value that is passed in and don't update it since we don't want to null out
+			// a previous value
+			if *updatedMovingExpense.WeightStored != 0 {
+				mergedMovingExpense.WeightStored = services.SetOptionalPoundField(updatedMovingExpense.WeightStored, mergedMovingExpense.WeightStored)
+			}
 
 			if updatedMovingExpense.SITLocation != nil {
 				mergedMovingExpense.SITLocation = updatedMovingExpense.SITLocation
