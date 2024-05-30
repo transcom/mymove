@@ -363,6 +363,7 @@ test.describe('Services counselor user', () => {
     await expect(page.getByText('Edit Shipment Info')).toBeVisible();
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
+    await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
