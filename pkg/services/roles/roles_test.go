@@ -30,11 +30,11 @@ func (suite *RolesServiceSuite) TestFetchRoles() {
 		roleTypes = append(roleTypes, r.RoleType)
 	}
 	urc := usersroles.NewUsersRolesCreator()
-	_, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, roleTypes)
+	_, _, err = urc.UpdateUserRoles(suite.AppContextForTest(), *officeUser.UserID, roleTypes)
 	suite.NoError(err)
 	// Fetch roles
 	rf := NewRolesFetcher()
-	frs, err := rf.FetchRoles(suite.AppContextForTest(), *officeUser.UserID)
+	frs, err := rf.FetchRolesForUser(suite.AppContextForTest(), *officeUser.UserID)
 	suite.NoError(err)
 	suite.Len(frs, 2)
 }

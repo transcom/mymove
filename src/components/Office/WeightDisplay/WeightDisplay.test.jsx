@@ -29,6 +29,18 @@ describe('WeightDisplay', () => {
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
+  it('renders with disabled edit button when move is locked', () => {
+    const isMoveLocked = true;
+    render(
+      <MockProviders permissions={[permissionTypes.updateBillableWeight, permissionTypes.updateMTOPage]}>
+        <WeightDisplay heading="heading test" value={1234} onEdit={jest.fn()} isMoveLocked={isMoveLocked} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByRole('button')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
+
   it('edit button is clicked', () => {
     const mockEditBtn = jest.fn();
     render(

@@ -430,13 +430,14 @@ definitions:
       sitStartDate:
         description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
         type: string
-        example: "2022-04-26"
         format: date
       sitEndDate:
         description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
         type: string
-        example: "2018-05-26"
         format: date
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
     required:
       - movingExpenseType
       - description
@@ -621,6 +622,14 @@ definitions:
         maxLength: 10
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: '^\d{7}$'
+        minLength: 7
+        maxLength: 7
+        example: "5789345"
+        x-nullable: true
+        title: USCG EMPLID
       orders:
         type: array
         items:
@@ -799,6 +808,14 @@ definitions:
         example: "5789345789"
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: '^\d{7}$'
+        minLength: 7
+        maxLength: 7
+        example: "5789345"
+        x-nullable: true
+        title: USCG EMPLID
       affiliation:
         $ref: "definitions/Affiliation.yaml"
       first_name:
@@ -4024,7 +4041,7 @@ paths:
   /addresses/{addressId}:
     get:
       summary: Returns an address
-      description: Returns an address
+      description: Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.
       operationId: showAddress
       tags:
         - addresses
