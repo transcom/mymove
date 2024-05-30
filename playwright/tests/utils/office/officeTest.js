@@ -17,7 +17,7 @@ export const { expect } = base;
  */
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
-export const QAECSROfficeUserType = 'QAE/CSR office';
+export const QAEOfficeUserType = 'QAE office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
 export const MultiRoleOfficeUserType = 'Multi role office';
@@ -120,7 +120,7 @@ export class OfficePage extends BaseTestPage {
    * Use devlocal auth to sign in as office user with qaecsr role
    */
   async signInAsNewQAECSRUser() {
-    await this.signInAsNewUser(QAECSROfficeUserType);
+    await this.signInAsNewUser(QAEOfficeUserType);
     await this.page.getByRole('heading', { name: 'Search for a move' }).waitFor();
   }
 
