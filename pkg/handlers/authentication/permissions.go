@@ -103,7 +103,7 @@ var ServicesCounselor = RolePermissions{
 }
 
 var QAECSR = RolePermissions{
-	RoleType: roles.RoleTypeQaeCsr,
+	RoleType: roles.RoleTypeQae,
 	Permissions: []string{
 		"create.reportViolation",
 		"create.evaluationReport",

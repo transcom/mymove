@@ -115,8 +115,8 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		},
 		{
 			userType:  QaeOfficeUserType,
-			roleTypes: []roles.RoleType{roles.RoleTypeQaeCsr},
-			email:     "qae_csr_office_user@example.com",
+			roleTypes: []roles.RoleType{roles.RoleTypeQae},
+			email:     "qae_office_user@example.com",
 		},
 		{
 			userType:  CustomerServiceRepresentativeOfficeUserType,

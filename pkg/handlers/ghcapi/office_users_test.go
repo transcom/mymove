@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQae})
 		request := httptest.NewRequest("POST", "/requested-office-users", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := officeuserop.CreateRequestedOfficeUserParams{
@@ -231,7 +231,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQae})
 		request := httptest.NewRequest("POST", "/requested-office-users", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		// EDIPI and other unique ID missing

@@ -8585,7 +8585,7 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 
 func createQaeCsr(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	email := "qae_csr_role@office.mil"
+	email := "qae_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
@@ -8598,7 +8598,7 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 
 	/* A user with tio role */
 	qaeCsrRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaeCsrRole)
+	err = db.Where("role_type = $1", roles.RoleTypeQae).First(&qaeCsrRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
 	}
