@@ -7,7 +7,7 @@ import { v4 } from 'uuid';
 import { MockProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import ProGear from 'pages/MyMove/PPM/Closeout/ProGear/ProGear';
-import { createProGearWeightTicket, deleteUpload, patchMTOShipment, patchProGearWeightTicket } from 'services/internalApi';
+import { createProGearWeightTicket, deleteUpload, patchProGearWeightTicket } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { selectMTOShipmentById, selectProGearWeightTicketAndIndexById } from 'store/entities/selectors';
 
@@ -102,17 +102,20 @@ const mockProGearWeightTicketWithUploads = {
   eTag: mockProGearWeightTicketETag,
 };
 
-let belongsToSelf = 'true';
+const belongsToSelf = 'true';
 const testPayload = {
   belongsToSelf,
   ppmShipment: {
     id: mockMTOShipment.ppmShipment.id,
+    document: {
+      uploads: mockUploads,
+    },
   },
   shipmentType: mockMTOShipment.shipmentType,
   actualSpouseProGearWeight: 10,
   actualProGearWeight: 10,
   shipmentLocator: 'TESTER-01',
-}
+};
 
 const mockEmptyProGearWeightTicketAndIndex = {
   proGearWeightTicket: null,
@@ -136,14 +139,11 @@ beforeEach(() => {
 });
 
 const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
+
 const proGearWeightTicketsEditPath = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
   proGearId: mockProGearWeightTicketId,
-});
-const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-  moveId: mockMoveId,
-  mtoShipmentId: mockMTOShipmentId,
 });
 
 const renderProGearPage = () => {
@@ -223,62 +223,13 @@ describe('Pro-gear page', () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);
     selectProGearWeightTicketAndIndexById.mockReturnValue({ proGearWeightTicket: mockProGearWeightTicket, index: 0 });
 
-    renderProGearPage();
+    renderProGearPage({ testPayload });
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockNavigate).toHaveBeenCalledWith(movePath);
-  });
-
-  it('calls patchMtoShipment with the appropriate paylaod', async () => {
-    createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicketWithUploads);
-    selectProGearWeightTicketAndIndexById.mockReturnValue({
-      proGearWeightTicket: mockProGearWeightTicketWithUploads,
-      index: 1,
-    });
-
-    patchMTOShipment.mockResolvedValue(testPayload);
-
-    renderProGearPage();
-    await userEvent.click(screen.getByLabelText('My spouse'));
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Set 2');
-    });
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/^Brief description of the pro-gear/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/I don't have weight tickets/)).toBeInTheDocument();
-    });
-    await userEvent.type(screen.getByLabelText(/^Brief description of the pro-gear/), 'Professional gear');
-    await userEvent.type(screen.getByLabelText(/^Shipment's pro-gear weight/), '100');
-    await userEvent.click(screen.getByLabelText(/I don't have weight tickets/));
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeVisible();
-    });
-
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
-
-    await waitFor(() => {
-      expect(patchMTOShipment).toHaveBeenCalledWith(
-        mockMTOShipment.id,
-        {
-          belongsToSelf: false,
-          ppmShipment: {
-            id: testPayload.ppmShipment.id,
-          },
-          shipmentType: testPayload.shipmentType,
-          actualProGearWeight: NaN,
-          actualSpouseProGearWeight: 100,
-          shipmentLocator: undefined,
-        },
-        mockMTOShipment.eTag
-      );
-    });
-
-    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls patchProGearWeightTicket with the appropriate payload', async () => {
@@ -324,7 +275,7 @@ describe('Pro-gear page', () => {
       );
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
+    expect(mockNavigate).toHaveBeenCalledWith(proGearWeightTicketsEditPath, { replace: true });
   });
 
   it('calls the delete handler when removing an existing upload', async () => {
