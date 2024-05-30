@@ -1,11 +1,18 @@
 import { React } from 'react';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import AdditionalDocuments from './AdditionalDocuments';
 
 import { renderWithProviders } from 'testUtils';
 import { getMove } from 'services/internalApi';
 import { selectCurrentMove } from 'store/entities/selectors';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
@@ -15,6 +22,7 @@ jest.mock('store/entities/selectors', () => ({
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getMove: jest.fn().mockImplementation(() => Promise.resolve()),
+  submitAdditionalDocuments: jest.fn(),
 }));
 
 const testMove = {
@@ -67,16 +75,34 @@ const testMove = {
   updated_at: '2024-05-29T19:14:39.104Z',
 };
 
-describe('Additional Documents component', () => {
+describe('Additional Documents page', () => {
   const testProps = {
     move: testMove,
     updateMove: jest.fn(),
   };
-  it('renders all content of AdditionalDocuments', () => {
+
+  it('renders all content of AdditionalDocuments', async () => {
+    selectCurrentMove.mockImplementation(() => testMove);
+    getMove.mockResolvedValue(testMove);
+
+    renderWithProviders(<AdditionalDocuments {...testProps} />);
+
+    await screen.findByRole('heading', { level: 1, name: 'Additional Documents' });
+    expect(screen.getByTestId('upload-info-container')).toBeInTheDocument();
+  });
+
+  it('navigates user when cancel button is clicked', async () => {
     selectCurrentMove.mockImplementation(() => testMove);
     getMove.mockResolvedValue(testMove);
     renderWithProviders(<AdditionalDocuments {...testProps} />);
 
-    expect(screen.getByLabelText('Upload')).toBeInTheDocument();
+    const cancelButton = await screen.findByRole('button', { name: 'Back' });
+    expect(cancelButton).toBeInTheDocument();
+
+    await userEvent.click(cancelButton);
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenLastCalledWith(-1);
+    });
   });
 });
