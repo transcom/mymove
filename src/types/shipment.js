@@ -214,6 +214,8 @@ export const ExpenseShape = shape({
   paidWithGtcc: bool,
   sitStartDate: string,
   sitEndDate: string,
+  sitLocation: string,
+  sitWeight: number,
 });
 
 export const StorageFacilityShape = shape({

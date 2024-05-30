@@ -20,7 +20,7 @@ import Fieldset from 'shared/Fieldset';
 import FileUpload from 'components/FileUpload/FileUpload';
 import formStyles from 'styles/form.module.scss';
 import { uploadShape } from 'types/uploads';
-import { CheckboxField, DatePickerInput, DropdownInput, RadioField } from 'components/form/fields';
+import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 
@@ -43,6 +43,14 @@ const validationSchema = Yup.object().shape({
       is: ppmExpenseTypes.STORAGE,
       then: (schema) => schema.required('Required'),
     }),
+  sitLocation: Yup.string().when('expenseType', {
+    is: ppmExpenseTypes.STORAGE,
+    then: (schema) => schema.required('Required'),
+  }),
+  sitWeight: Yup.string().when('expenseType', {
+    is: ppmExpenseTypes.STORAGE,
+    then: (schema) => schema.required('Required'),
+  }),
 });
 
 const ExpenseForm = ({
@@ -54,8 +62,18 @@ const ExpenseForm = ({
   onUploadComplete,
   onUploadDelete,
 }) => {
-  const { movingExpenseType, description, paidWithGtcc, amount, missingReceipt, document, sitStartDate, sitEndDate } =
-    expense || {};
+  const {
+    movingExpenseType,
+    description,
+    paidWithGtcc,
+    amount,
+    missingReceipt,
+    document,
+    sitStartDate,
+    sitEndDate,
+    sitLocation,
+    weightStored,
+  } = expense || {};
 
   const initialValues = {
     expenseType: movingExpenseType || '',
@@ -66,6 +84,8 @@ const ExpenseForm = ({
     document: document?.uploads || [],
     sitStartDate: sitStartDate || '',
     sitEndDate: sitEndDate || '',
+    sitLocation: sitLocation || '',
+    sitWeight: weightStored ? `${weightStored}` : '',
   };
 
   const documentRef = createRef();
@@ -89,31 +109,29 @@ const ExpenseForm = ({
                       <Hint>Add a brief description of the expense.</Hint>
                       {values.expenseType === 'STORAGE' && (
                         <FormGroup>
-                          <Label className={styles.Label}>Where did you store your items?</Label>
-                          <RadioField
-                            id="approveAdvanceRequest"
+                          <legend className="usa-label">Where did you store your items?</legend>
+                          <Field
+                            as={Radio}
+                            id="sitLocationOrigin"
                             label="Origin"
-                            name="storageLocation"
-                            // value={ADVANCE_STATUSES.APPROVED.apiValue}
-                            title="Approve"
-                            // checked={!!statusInput.value && advanceRequestStatus} // defaults to false if advanceStatus has a null value
-                            // onChange={handleAdvanceRequestStatusChange}
+                            name="sitLocation"
+                            value="ORIGIN"
+                            checked={values.sitLocation === 'ORIGIN'}
                           />
-                          <RadioField
-                            id="rejectAdvanceRequest"
+                          <Field
+                            as={Radio}
+                            id="sitLocationDestination"
                             label="Destination"
-                            name="storageLocation"
-                            // value={ADVANCE_STATUSES.REJECTED.apiValue}
-                            title="Reject"
-                            // checked={!!statusInput.value && !advanceRequestStatus} // defaults to false if advanceStatus has a null value
-                            // onChange={handleAdvanceRequestStatusChange}
+                            name="sitLocation"
+                            value="DESTINATION"
+                            checked={values.sitLocation === 'DESTINATION'}
                           />
                           <MaskedTextField
-                            data-testid="totalStorageWeightInput"
+                            data-testid="sitWeightInput"
                             defaultValue="0"
-                            name="totalStorageWeight"
+                            name="sitWeight"
                             label="What was the total storage weight?"
-                            id="totalStorageWeightInput"
+                            id="sitWeightInput"
                             mask={Number}
                             scale={0} // digits after point, 0 for integers
                             signed={false} // disallow negative
