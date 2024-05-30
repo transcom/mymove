@@ -22,7 +22,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const moveSearchColumns = (moveLockFlag) => [
+const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
@@ -42,6 +42,15 @@ const moveSearchColumns = (moveLockFlag) => [
   createHeader('DOD ID', 'dodID', {
     id: 'dodID',
     isFilterable: false,
+  }),
+  createHeader('  ', (row) => {
+    return (
+      <div className={styles.editProfile} data-label="editProfile" data-testid="editProfileBtn">
+        <Button unstyled type="button" onClick={() => handleEditProfileClick(row.locator)}>
+          <FontAwesomeIcon icon={['far', 'user']} />
+        </Button>
+      </div>
+    );
   }),
   createHeader(
     'Customer name',
@@ -248,6 +257,7 @@ const SearchResultsTable = (props) => {
     defaultSortedColumns,
     defaultHiddenColumns,
     handleClick,
+    handleEditProfileClick,
     useQueries,
     showFilters,
     showPagination,
@@ -293,8 +303,10 @@ const SearchResultsTable = (props) => {
 
   const tableData = useMemo(() => data, [data]);
   const tableColumns = useMemo(() => {
-    return searchType === 'customer' ? customerSearchColumns() : moveSearchColumns(moveLockFlag);
-  }, [searchType, moveLockFlag]);
+    return searchType === 'customer'
+      ? customerSearchColumns()
+      : moveSearchColumns(moveLockFlag, handleEditProfileClick);
+  }, [searchType, moveLockFlag, handleEditProfileClick]);
 
   const {
     getTableProps,

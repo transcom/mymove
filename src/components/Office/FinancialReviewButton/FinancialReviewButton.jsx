@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import styles from './FinancialReviewButton.module.scss';
 
-function FinancialReviewButton({ onClick, reviewRequested }) {
+function FinancialReviewButton({ onClick, reviewRequested, isMoveLocked }) {
   return (
     <div>
       {reviewRequested ? (
@@ -15,6 +15,7 @@ function FinancialReviewButton({ onClick, reviewRequested }) {
             type="Button"
             className={classnames(styles.EditFinancialReviewButton, ['usa-button--unstyled'])}
             onClick={onClick}
+            disabled={isMoveLocked}
           >
             Edit
           </Button>
@@ -24,6 +25,7 @@ function FinancialReviewButton({ onClick, reviewRequested }) {
           type="Button"
           className={classnames(styles.FinancialReviewButton, ['usa-button--unstyled'])}
           onClick={onClick}
+          disabled={isMoveLocked}
         >
           Flag move for financial review
         </Button>

@@ -1275,6 +1275,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -1514,6 +1518,12 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -1553,6 +1563,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -4740,6 +4756,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -4979,6 +4999,12 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -5018,6 +5044,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
