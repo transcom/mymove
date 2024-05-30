@@ -312,7 +312,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns a 403 when user is not a service counselor or TOO", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeQae})
 		uuid := uuid.Must(uuid.NewV4())
 		deleter := &mocks.ShipmentDeleter{}
 

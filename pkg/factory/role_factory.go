@@ -101,7 +101,7 @@ func GetTraitQaeCsrRole() []Customization {
 	return []Customization{
 		{
 			Model: roles.Role{
-				RoleType: roles.RoleTypeQaeCsr,
+				RoleType: roles.RoleTypeQae,
 				RoleName: "Quality Assurance and Customer Service",
 			},
 		},

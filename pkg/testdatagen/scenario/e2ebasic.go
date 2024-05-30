@@ -238,7 +238,7 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 
 func userWithQAECSRRole(appCtx appcontext.AppContext, userID uuid.UUID, email string) {
 	qaecsrRole := roles.Role{}
-	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
+	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeQae).First(&qaecsrRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
 	}
@@ -334,7 +334,7 @@ func userWithTOOandTIOandQAECSRRole(appCtx appcontext.AppContext) {
 	}
 
 	qaecsrRole := roles.Role{}
-	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaecsrRole)
+	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeQae).First(&qaecsrRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
 	}

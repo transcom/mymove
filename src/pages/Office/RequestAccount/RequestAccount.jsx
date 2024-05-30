@@ -58,8 +58,8 @@ export const RequestAccount = ({ setFlashMessage }) => {
     }
     if (values.qualityAssuranceAndCustomerSupportCheckBox) {
       requestedRoles.push({
-        name: 'Quality Assurance and Customer Service',
-        roleType: 'qae_csr',
+        name: 'Quality Assurance',
+        roleType: 'qae',
       });
     }
 

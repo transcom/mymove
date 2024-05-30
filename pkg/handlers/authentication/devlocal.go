@@ -772,9 +772,9 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = appCtx.DB().Where("role_type = $1", roles.RoleTypeQaeCsr).First(&role)
+		err = appCtx.DB().Where("role_type = $1", roles.RoleTypeQae).First(&role)
 		if err != nil {
-			appCtx.Logger().Error("could not fetch role qae_csr", zap.Error(err))
+			appCtx.Logger().Error("could not fetch role qae", zap.Error(err))
 		}
 
 		usersRole := models.UsersRoles{

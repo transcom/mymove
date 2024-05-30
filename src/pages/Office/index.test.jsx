@@ -208,7 +208,7 @@ describe('Office App', () => {
     });
 
     it('renders the 404 component when the route is not found', async () => {
-      renderOfficeAppAtRoute('/not-a-real-route', roleTypes.QAE_CSR);
+      renderOfficeAppAtRoute('/not-a-real-route', roleTypes.QAE);
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -254,12 +254,12 @@ describe('Office App', () => {
         '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
         roleTypes.PRIME_SIMULATOR,
       ],
-      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.QAE_CSR],
+      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.QAE],
       ['TXO Move Info', '/moves/move123', roleTypes.TIO],
       ['Payment Request Queue', '/', roleTypes.TIO],
       ['Move Queue', '/', roleTypes.TOO],
       ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
-      ['QAE CSR Move Search', '/', roleTypes.QAE_CSR],
+      ['QAE CSR Move Search', '/', roleTypes.QAE],
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
       ['Services Counseling Move Info', '/moves/move123/shipments/:shipmentId/advance', roleTypes.TOO],
     ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {
@@ -278,31 +278,31 @@ describe('Office App', () => {
       ['Move Queue', '/moves/queue', roleTypes.PRIME_SIMULATOR],
       ['Payment Request Queue', '/invoicing/queue', roleTypes.PRIME_SIMULATOR],
       ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.PRIME_SIMULATOR],
-      ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.QAE_CSR],
-      ['Edit Shipment Details', '/moves/test123/shipments/ship123', roleTypes.QAE_CSR],
-      ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.QAE_CSR],
-      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', roleTypes.QAE_CSR],
+      ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.QAE],
+      ['Edit Shipment Details', '/moves/test123/shipments/ship123', roleTypes.QAE],
+      ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.QAE],
+      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', roleTypes.QAE],
       [
         'Prime Simulator Shipment Update Address',
         '/simulator/moves/test123/shipments/ship123/addresses/update',
-        roleTypes.QAE_CSR,
+        roleTypes.QAE,
       ],
-      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.QAE_CSR],
-      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE_CSR],
+      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.QAE],
+      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE],
       [
         'Prime Simulator Upload Payment Request Documents',
         '/simulator/moves/test123/payment-requests/req123/upload',
-        roleTypes.QAE_CSR,
+        roleTypes.QAE,
       ],
       [
         'Prime Simulator Create Service Item',
         '/simulator/moves/test123/shipments/ship123/service-items/new',
-        roleTypes.QAE_CSR,
+        roleTypes.QAE,
       ],
       [
         'Prime Simulator Shipment Update Reweigh',
         '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
-        roleTypes.QAE_CSR,
+        roleTypes.QAE,
       ],
       ['QAE CSR Move Search', '/qaecsr/search', roleTypes.TIO],
       ['TXO Move Info', '/moves/move123', roleTypes.PRIME_SIMULATOR],
