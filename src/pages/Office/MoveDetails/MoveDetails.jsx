@@ -56,7 +56,6 @@ const MoveDetails = ({
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
   isMoveLocked,
-  isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
