@@ -1,15 +1,36 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { futureSITShipment, noSITShipment, SITShipment } from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
+import {
+  futureSITShipment,
+  noSITShipment,
+  SITShipment,
+  futureSITShipmentSITExtension,
+} from '../ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 import ShipmentDetailsMain from './ShipmentDetailsMain';
 
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { MockProviders } from 'testUtils';
 import { formatDateWithUTC } from 'shared/dates';
+import { permissionTypes } from 'constants/permissions';
 
 const shipmentDetailsMainParams = {
+  handleDivertShipment: () => {},
+  handleRequestReweighModal: () => {},
+  handleReviewSITExtension: () => {},
+  handleSubmitSITExtension: () => {},
+  dutyLocationAddresses: {
+    originDutyLocationAddress: {
+      address: null,
+    },
+    destinationDutyLocationAddress: {
+      address: null,
+    },
+  },
+};
+
+const shipmentDetailsMainParamsSITExtension = {
   handleDivertShipment: () => {},
   handleRequestReweighModal: () => {},
   handleReviewSITExtension: () => {},
@@ -51,6 +72,29 @@ describe('Shipment Details Main', () => {
     );
 
     expect(screen.queryByText('SIT (STORAGE IN TRANSIT)')).not.toBeInTheDocument();
+  });
+  it('renders disabled edit button on SIT panel when move is locked', () => {
+    const isMoveLocked = true;
+    render(
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={futureSITShipment} isMoveLocked={isMoveLocked} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeDisabled();
+  });
+  it('renders disabled review request button on SIT panel when move is locked', () => {
+    const isMoveLocked = true;
+    render(
+      <MockProviders permissions={[permissionTypes.createSITExtension]}>
+        <ShipmentDetailsMain
+          {...shipmentDetailsMainParamsSITExtension}
+          shipment={futureSITShipmentSITExtension}
+          isMoveLocked={isMoveLocked}
+        />
+      </MockProviders>,
+    );
+    expect(screen.getByRole('button', { name: 'Review request' })).toBeDisabled();
   });
 });
 it('does display PPM shipment', () => {

@@ -71,6 +71,7 @@ const ServiceItemsTable = ({
   handleShowEditSitAddressModal,
   handleShowEditSitEntryDateModal,
   shipment,
+  isMoveLocked,
 }) => {
   const getServiceItemDisplayDate = (item) => {
     const prefix = selectDatePrefixByStatus(statusForTableType);
@@ -241,6 +242,7 @@ const ServiceItemsTable = ({
                       className="usa-button--icon usa-button--small acceptButton"
                       data-testid="acceptButton"
                       onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="check" />
@@ -253,6 +255,7 @@ const ServiceItemsTable = ({
                       className="usa-button--small usa-button--icon margin-left-1 rejectButton"
                       data-testid="rejectButton"
                       onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="times" />
@@ -272,6 +275,7 @@ const ServiceItemsTable = ({
                       data-testid="rejectTextButton"
                       className="text-blue usa-button--unstyled margin-left-1"
                       onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="times" />
@@ -284,7 +288,7 @@ const ServiceItemsTable = ({
                           type="button"
                           data-testid="editTextButton"
                           className="text-blue usa-button--unstyled margin-left-1"
-                          disabled={hasPaymentRequestBeenMade}
+                          disabled={hasPaymentRequestBeenMade || isMoveLocked}
                           onClick={() => {
                             if (code === 'DDFSIT' || code === 'DOFSIT') {
                               handleShowEditSitEntryDateModal(id, mtoShipmentID);
@@ -313,6 +317,7 @@ const ServiceItemsTable = ({
                       data-testid="approveTextButton"
                       className="text-blue usa-button--unstyled"
                       onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="check" />

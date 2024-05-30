@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, NavLink, useParams, Navigate } from 'react-router-dom';
+import { useNavigate, NavLink, useParams, Navigate, generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MoveQueue.module.scss';
@@ -166,8 +166,19 @@ const MoveQueue = () => {
   // eslint-disable-next-line camelcase
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
-  const handleClick = (values) => {
-    navigate(`/moves/${values.locator}/details`);
+  const handleEditProfileClick = (locator) => {
+    navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
+  };
+
+  const handleClick = (values, e) => {
+    // if the user clicked the profile icon to edit, we want to route them elsewhere
+    // since we don't have innerText, we are using the data-label property
+    const editProfileDiv = e.target.closest('div[data-label="editProfile"]');
+    if (editProfileDiv) {
+      navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else {
+      navigate(generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
+    }
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -213,6 +224,7 @@ const MoveQueue = () => {
             disableSortBy={false}
             title="Results"
             handleClick={handleClick}
+            handleEditProfileClick={handleEditProfileClick}
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}

@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import EvaluationReports from './EvaluationReports';
 
-import { renderWithProviders } from 'testUtils';
+import { MockProviders, renderWithProviders } from 'testUtils';
 import { useEvaluationReportsQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
+import { permissionTypes } from 'constants/permissions';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -76,6 +77,26 @@ describe('EvaluationReports', () => {
 
       expect(await screen.getByRole('heading', { name: 'Counseling QAE reports (0)', level: 2 })).toBeInTheDocument();
       expect(await screen.getByRole('heading', { name: 'Shipment QAE reports (0)', level: 2 })).toBeInTheDocument();
+    });
+
+    it('create report button is disabled when move is locked', async () => {
+      useEvaluationReportsQueries.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        shipmentEvaluationReports: [],
+        counselingEvaluationReports: [],
+        shipments: [],
+      });
+      const isMoveLocked = true;
+
+      render(
+        <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
+          <EvaluationReports customerInfo={{}} grade="" isMoveLocked={isMoveLocked} />,
+        </MockProviders>,
+      );
+
+      const createReportBtn = screen.getByRole('button', { name: 'Create report' });
+      expect(createReportBtn).toBeInTheDocument();
     });
   });
 

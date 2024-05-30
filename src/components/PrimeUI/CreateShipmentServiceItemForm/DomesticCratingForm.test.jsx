@@ -67,12 +67,12 @@ const approvedMoveTaskOrder = {
 describe('DomesticCratingForm component', () => {
   it.each([
     ['Service item code', 'reServiceCode'],
-    ['Item length (ft)', 'itemLength'],
-    ['Item width (ft)', 'itemWidth'],
-    ['Item height (ft)', 'itemHeight'],
-    ['Crate length (ft)', 'crateLength'],
-    ['Crate width (ft)', 'crateWidth'],
-    ['Crate height (ft)', 'crateHeight'],
+    ['Item length (thousandths of an inch)', 'itemLength'],
+    ['Item width (thousandths of an inch)', 'itemWidth'],
+    ['Item height (thousandths of an inch)', 'itemHeight'],
+    ['Crate length (thousandths of an inch)', 'crateLength'],
+    ['Crate width (thousandths of an inch)', 'crateWidth'],
+    ['Crate height (thousandths of an inch)', 'crateHeight'],
     ['Description', 'description'],
     ['Reason', 'reason'],
   ])('renders field %s in form', (labelName, inputName) => {
