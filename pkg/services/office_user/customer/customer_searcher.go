@@ -48,15 +48,33 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	}
 
 	var query *pop.Query
+	var rawquery string
 
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query = appCtx.DB().Q().EagerPreload("Orders").
-			Join("users", "users.id = service_members.user_id").
-			LeftJoin("orders", "orders.service_member_id = service_members.id")
-	}
+		rawquery = `SELECT DISTINCT ON (id)
+			service_members.affiliation, service_members.backup_mailing_address_id,
+			service_members.cac_validated, service_members.created_at, service_members.edipi,
+			service_members.email_is_preferred, service_members.emplid,
+			service_members.first_name, service_members.id, service_members.last_name,
+			service_members.middle_name, service_members.personal_email,
+			service_members.phone_is_preferred, service_members.residential_address_id,
+			service_members.secondary_telephone, service_members.suffix,
+			service_members.telephone, service_members.updated_at, service_members.user_id
+		FROM service_members AS service_members
+			JOIN users ON users.id = service_members.user_id
+			LEFT JOIN orders ON orders.service_member_id = service_members.id`
 
-	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-		query.Where("(orders.orders_type != 'SAFETY' or orders.orders_type IS NULL)")
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			rawquery += ` WHERE ((orders.orders_type != 'SAFETY' or orders.orders_type IS NULL)`
+		}
+
+		if params.DodID != nil {
+			rawquery += ` AND service_members.edipi = $1)`
+			query = appCtx.DB().RawQuery(rawquery, params.DodID)
+		} else {
+			rawquery += ` AND f_unaccent(lower($1)) % searchable_full_name(first_name, last_name))`
+			query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
+		}
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
