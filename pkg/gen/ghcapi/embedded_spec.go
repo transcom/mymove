@@ -4527,6 +4527,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -7398,6 +7406,11 @@ func init() {
           "type": "boolean",
           "example": true
         },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
+        },
         "eTag": {
           "type": "string"
         },
@@ -9734,6 +9747,17 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ReportViolation"
+      }
+    },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
       }
     },
     "Reweigh": {
@@ -17380,6 +17404,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -20408,6 +20440,11 @@ func init() {
           "type": "boolean",
           "example": true
         },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
+        },
         "eTag": {
           "type": "string"
         },
@@ -22746,6 +22783,17 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ReportViolation"
+      }
+    },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
       }
     },
     "Reweigh": {
