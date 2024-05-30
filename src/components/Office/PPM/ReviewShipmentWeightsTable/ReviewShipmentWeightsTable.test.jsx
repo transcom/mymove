@@ -87,7 +87,7 @@ describe('ReviewShipmentWeight component', () => {
       expect(screen.getByText('Net weight')).toBeInTheDocument();
       expect(screen.getByText('5,001 lbs')).toBeInTheDocument();
       expect(screen.getByText('Departure date')).toBeInTheDocument();
-      expect(screen.getByText('04 01 2023')).toBeInTheDocument();
+      expect(screen.getByText('Apr 01 2023')).toBeInTheDocument();
     });
   });
   it('correctly renders Pro-gear table data', async () => {
@@ -119,7 +119,7 @@ describe('ReviewShipmentWeight component', () => {
       expect(screen.getByText('Billable weight')).toBeInTheDocument();
       expect(screen.getByText('3,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Delivery date')).toBeInTheDocument();
-      expect(screen.getByText('04 23 2023')).toBeInTheDocument();
+      expect(screen.getByText('Apr 23 2023')).toBeInTheDocument();
     });
   });
 });

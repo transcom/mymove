@@ -324,7 +324,7 @@ export function formatReviewShipmentWeightsDate(date) {
    * <https://momentjs.com/docs/#/parsing/string/>
    */
   const INCOMING_DATE_FORMAT = 'YYYY-MM-DD';
-  return moment(date, INCOMING_DATE_FORMAT).format('MM DD YYYY');
+  return moment(date, INCOMING_DATE_FORMAT).format('MMM DD YYYY');
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
