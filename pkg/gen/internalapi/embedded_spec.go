@@ -41,7 +41,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -4984,6 +4984,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -5838,6 +5844,15 @@ func init() {
           "title": "Email",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
+        },
         "first_name": {
           "type": "string",
           "title": "First name",
@@ -6240,6 +6255,15 @@ func init() {
           "title": "Email",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
+        },
         "first_name": {
           "type": "string",
           "title": "First name",
@@ -6463,7 +6487,7 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to \n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
@@ -6591,14 +6615,16 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -7398,7 +7424,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -12786,6 +12812,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -13640,6 +13672,15 @@ func init() {
           "title": "Email",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
+        },
         "first_name": {
           "type": "string",
           "title": "First name",
@@ -14043,6 +14084,15 @@ func init() {
           "title": "Email",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
+        },
         "first_name": {
           "type": "string",
           "title": "First name",
@@ -14266,7 +14316,7 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to \n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
@@ -14394,14 +14444,16 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },

@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.6
 
       - name: Set up node
         uses: actions/setup-node@v4
@@ -19,6 +19,10 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+
+      # This step was specifically added for npm canvas, per https://www.npmjs.com/package/canvas
+      - name: Install system level dependencies
+        run: sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 
       - name: Start Happo run
         run: yarn happo-ci-github-actions

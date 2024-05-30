@@ -138,6 +138,7 @@ describe('ServiceInfoForm', () => {
   const testPropsWithEdipi = {
     onSubmit: jest.fn(),
     onCancel: jest.fn(),
+    isEmplidEnabled: true,
     initialValues: {
       first_name: '',
       middle_name: '',
@@ -231,6 +232,70 @@ describe('ServiceInfoForm', () => {
 
     await waitFor(() => {
       expect(onCancel).toHaveBeenCalled();
+    });
+  });
+
+  describe('Coast Guard customer', () => {
+    it('renders the form inputs', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      testPropsWithEdipi.initialValues.affiliation = 'COAST_GUARD';
+      render(<ServiceInfoForm {...testPropsWithEdipi} />);
+
+      const firstNameInput = await screen.findByLabelText('First name');
+      expect(firstNameInput).toBeInstanceOf(HTMLInputElement);
+      expect(firstNameInput).toBeRequired();
+
+      expect(await screen.findByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
+
+      const lastNameInput = await screen.findByLabelText('Last name');
+      expect(lastNameInput).toBeInstanceOf(HTMLInputElement);
+      expect(lastNameInput).toBeRequired();
+
+      expect(await screen.findByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
+
+      const branchInput = await screen.findByLabelText('Branch of service');
+      expect(branchInput).toBeInstanceOf(HTMLSelectElement);
+      expect(branchInput).toBeRequired();
+
+      const dodInput = await screen.findByLabelText('DoD ID number');
+      expect(dodInput).toBeInstanceOf(HTMLInputElement);
+      expect(dodInput).toBeRequired();
+
+      const emplid = await screen.findByLabelText('EMPLID');
+      expect(emplid).toBeInstanceOf(HTMLInputElement);
+      expect(emplid).toBeRequired();
+    });
+
+    it('validates the EMPLID number on blur', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      testPropsWithEdipi.initialValues.affiliation = 'COAST_GUARD';
+      render(<ServiceInfoForm {...testPropsWithEdipi} />);
+
+      const emplid = await screen.findByLabelText('EMPLID');
+      await userEvent.type(emplid, '123');
+      await userEvent.tab();
+
+      expect(emplid).not.toBeValid();
+      expect(await screen.findByText('Enter a 7-digit EMPLID number')).toBeInTheDocument();
+    });
+
+    it('shows an error message if trying to submit an invalid form', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      testPropsWithEdipi.initialValues.affiliation = 'COAST_GUARD';
+      render(<ServiceInfoForm {...testPropsWithEdipi} />);
+
+      // Touch required fields to show validation errors
+      // Skip branch because Coast Guard needs to be selected for EMPLID to appear
+      await userEvent.click(screen.getByLabelText('First name'));
+      await userEvent.click(screen.getByLabelText('Last name'));
+      await userEvent.click(screen.getByLabelText('EMPLID'));
+
+      const submitBtn = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getAllByText('Required').length).toBe(3);
+      });
     });
   });
 

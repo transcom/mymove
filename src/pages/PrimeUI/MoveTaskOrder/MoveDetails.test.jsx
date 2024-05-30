@@ -104,10 +104,10 @@ const moveTaskOrder = {
       sitEntryDate: '2020-04-15',
       sitRequestedDelivery: '2023-04-15',
       eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45Mjk0NzNa',
-      id: '7c9b7e7c-02d9-42c2-a4f9-fa1b0586e8b4',
+      id: 'serviceItemDDDSIT',
       modelType: 'MTOServiceItemDestSIT',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
-      mtoShipmentID: '7283bfb8-30bf-42f9-b206-cdfd34ccbe45',
+      mtoShipmentID: '2',
       reServiceName: 'Domestic destination SIT delivery',
       status: 'APPROVED',
     },
@@ -128,11 +128,24 @@ const moveTaskOrder = {
       },
       sitEntryDate: '2020-04-15',
       eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45NjAwMTha',
-      id: 'b43ba1bd-9f11-4ec6-ab83-29dbd389cfe2',
+      id: 'serviceItemDDFSIT',
       modelType: 'MTOServiceItemDestSIT',
       moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
-      mtoShipmentID: '7283bfb8-30bf-42f9-b206-cdfd34ccbe45',
+      mtoShipmentID: '2',
       reServiceName: 'Domestic destination 1st day SIT',
+      status: 'APPROVED',
+    },
+    {
+      reServiceCode: 'DDASIT',
+      reason: null,
+      sitDepartureDate: '2020-04-15',
+      sitEntryDate: '2020-04-15',
+      eTag: 'MjAyMy0xMS0yOVQxNToyMjoxMy45NjAwMTha',
+      id: 'serviceItemDDASIT',
+      modelType: 'MTOServiceItemDestSIT',
+      moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+      mtoShipmentID: '2',
+      reServiceName: "Domestic destination add'l SIT",
       status: 'APPROVED',
     },
   ],
@@ -176,7 +189,7 @@ describe('PrimeUI MoveDetails page', () => {
       const paymentRequestsHeading = screen.getByRole('heading', { name: 'Payment Requests', level: 2 });
       expect(paymentRequestsHeading).toBeInTheDocument();
 
-      const uploadButton = screen.getByText(/Upload Document/, { selector: 'a.usa-button' });
+      const uploadButton = screen.getByRole('link', { name: 'Upload Document' });
       expect(uploadButton).toBeInTheDocument();
     });
 
@@ -321,6 +334,16 @@ describe('PrimeUI MoveDetails page', () => {
           download: 'test.pdf',
         }),
       );
+    });
+
+    it('shows edit button next to the right destination SIT service items', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      renderWithProviders(<MoveDetails />);
+
+      // Check for Edit buttons - there should be 2 since there are DDASIT & DDDSIT service items in the mtoServiceItems array
+      const editButtons = screen.getAllByRole('link', { name: 'Edit' });
+      expect(editButtons).toHaveLength(2);
     });
   });
 });
