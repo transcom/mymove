@@ -101,11 +101,7 @@ func (u *additionalDocumentsUploader) CreateAdditionalDocumentsUpload(
 func (u *additionalDocumentsUploader) findMoveWithAdditionalDocuments(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Move, error) {
 	var move models.Move
 
-	query := appCtx.DB().Q().Where("moves.id = ?", moveID)
-
-	// if appCtx.Session().IsMilApp() {
-	// 	query = query.Where("moves.id = ?", moveID)
-	// }
+	query := appCtx.DB().Q().EagerPreload("AdditionalDocuments").Where("moves.id = ?", moveID)
 
 	err := query.Find(&move, moveID)
 

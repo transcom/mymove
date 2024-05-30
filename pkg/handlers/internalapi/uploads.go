@@ -151,6 +151,30 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 
 				return uploadop.NewDeleteUploadNoContent(), nil
 			}
+
+			if params.MoveID != nil {
+				moveID, _ := uuid.FromString(params.MoveID.String())
+				move, e := models.FetchMoveByMoveID(appCtx.DB(), moveID)
+				fmt.Println(move)
+
+				if e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				userUploader, e := uploaderpkg.NewUserUploader(
+					h.FileStorer(),
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				)
+				if e != nil {
+					appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(e))
+				}
+				if e = userUploader.DeleteUserUpload(appCtx, &userUpload); e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				return uploadop.NewDeleteUploadNoContent(), nil
+			}
+
 			//Fetch upload information so we can retrieve the move status
 			uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
 			if err != nil {

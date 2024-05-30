@@ -18,6 +18,7 @@ import (
 type DeleteUploadURL struct {
 	UploadID strfmt.UUID
 
+	MoveID  *strfmt.UUID
 	OrderID *strfmt.UUID
 
 	_basePath string
@@ -60,6 +61,14 @@ func (o *DeleteUploadURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var moveIDQ string
+	if o.MoveID != nil {
+		moveIDQ = o.MoveID.String()
+	}
+	if moveIDQ != "" {
+		qs.Set("moveId", moveIDQ)
+	}
 
 	var orderIDQ string
 	if o.OrderID != nil {

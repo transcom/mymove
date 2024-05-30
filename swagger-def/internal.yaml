@@ -186,6 +186,8 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      additionalDocuments:
+        $ref: "definitions/Document.yaml"
     required:
       - id
       - orders_id
@@ -3030,6 +3032,11 @@ paths:
           type: string
           format: uuid
           description: ID of the order that the upload belongs to
+        - in: query
+          name: moveId
+          type: string
+          format: uuid
+          description: ID of the move that the upload belongs to
       responses:
         "204":
           description: deleted
@@ -3693,44 +3700,6 @@ paths:
           description: payload is too large
         "500":
           description: server error
-  # /moves/{moveId}/additional_documents:
-  #   patch:
-  #     summary: asdf
-  #     description: asdf
-  #     operationID: uploadAdditionalDocuments
-  #     tags:
-  #       - moves
-  #     consumes:
-  #       - multipart/form-data
-  #     parameters:
-  #       - in: path
-  #         name: moveId
-  #         type: string
-  #         format: uuid
-  #         required: true
-  #         description: UUID of the order
-  #       - in: formData
-  #         name: file
-  #         type: file
-  #         description: The file to upload.
-  #         required: true
-  #     responses:
-  #       "201":
-  #         description: created upload
-  #         schema:
-  #           $ref: "definitions/Upload.yaml"
-  #       "400":
-  #         description: invalid request
-  #         schema:
-  #           $ref: "#/definitions/InvalidRequestResponsePayload"
-  #       "403":
-  #         description: not authorized
-  #       "404":
-  #         description: not found
-  #       "413":
-  #         description: payload is too large
-  #       "500":
-  #         description: server error
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document

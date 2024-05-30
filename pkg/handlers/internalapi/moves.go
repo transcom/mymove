@@ -41,17 +41,23 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 	eTag := etag.GenerateEtag(move.UpdatedAt)
 
+	var additionalDocumentsPayload *internalmessages.Document
+	if move.AdditionalDocuments != nil {
+		additionalDocumentsPayload, _ = payloads.PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+	}
+
 	movePayload := &internalmessages.MovePayload{
-		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
-		SubmittedAt:     handlers.FmtDateTime(SubmittedAt),
-		Locator:         models.StringPointer(move.Locator),
-		ID:              handlers.FmtUUID(move.ID),
-		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
-		MtoShipments:    mtoPayloads,
-		OrdersID:        handlers.FmtUUID(order.ID),
-		ServiceMemberID: *handlers.FmtUUID(order.ServiceMemberID),
-		Status:          internalmessages.MoveStatus(move.Status),
-		ETag:            &eTag,
+		CreatedAt:           handlers.FmtDateTime(move.CreatedAt),
+		SubmittedAt:         handlers.FmtDateTime(SubmittedAt),
+		Locator:             models.StringPointer(move.Locator),
+		ID:                  handlers.FmtUUID(move.ID),
+		UpdatedAt:           handlers.FmtDateTime(move.UpdatedAt),
+		MtoShipments:        mtoPayloads,
+		OrdersID:            handlers.FmtUUID(order.ID),
+		ServiceMemberID:     *handlers.FmtUUID(order.ServiceMemberID),
+		Status:              internalmessages.MoveStatus(move.Status),
+		ETag:                &eTag,
+		AdditionalDocuments: additionalDocumentsPayload,
 	}
 
 	if move.CloseoutOffice != nil {

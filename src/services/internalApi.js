@@ -221,7 +221,6 @@ export async function createUploadForAmendedOrdersDocument(file, ordersId) {
 }
 
 export async function createUploadForAdditionalDocuments(file, moveId) {
-  debugger;
   return makeInternalRequest(
     'moves.uploadAdditionalDocuments',
     {
@@ -268,6 +267,19 @@ export async function deleteUpload(uploadId, orderId) {
     {
       uploadId,
       orderId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteAdditionalDocumentUpload(uploadId, moveId) {
+  return makeInternalRequest(
+    'uploads.deleteUpload',
+    {
+      uploadId,
+      moveId,
     },
     {
       normalize: false,

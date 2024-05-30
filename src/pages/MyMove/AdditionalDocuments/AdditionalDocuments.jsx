@@ -1,5 +1,5 @@
 import { React, createRef, useEffect, useState } from 'react';
-import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Alert, Button } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { generatePath } from 'react-router';
@@ -10,63 +10,55 @@ import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import FileUpload from 'components/FileUpload/FileUpload';
-import { createUploadForAdditionalDocuments, getMove } from 'services/internalApi';
+import { createUploadForAdditionalDocuments, deleteAdditionalDocumentUpload, getMove } from 'services/internalApi';
 import { selectCurrentMove } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
-import { updateMove } from 'store/entities/actions';
+import { updateMove as updateMoveAction } from 'store/entities/actions';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-const AdditionalDocuments = ({ locator }) => {
-  const { moveId, additionalDocumentsId } = useParams();
+const AdditionalDocuments = ({ move, updateMove }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const moveId = move?.id;
   const filePondEl = createRef();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
+  const uploads = move?.additionalDocuments?.uploads;
 
-  const uploads = [];
-
-  // useEffect(() => {
-  //   // if no existing documents create a new one
-  //   if (!additionalDocumentsId) {
-  //     createAdditionalDocuments(locator)
-  //       .then((res) => {
-  //         const path = generatePath(customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_EDIT_PATH, {
-  //           additionalDocumentsId: res.id,
-  //         });
-  //         navigate(path, { replace: true });
-  //       })
-  //       .catch(() => {});
-  //   }
-  // });
-
-  const handleDelete = async (documentId) => {
-    // return deleteAdditionalDocuments(documentId).then(() => {
-    //   getMove(moveId).then((res) => {
-    //     updateMove(res);
-    //   });
-    // });
+  const handleDelete = async (uploadId) => {
+    return deleteAdditionalDocumentUpload(uploadId, moveId).then(() => {
+      getMove(moveId).then((res) => {
+        updateMove(res);
+      });
+    });
   };
 
   const handleUpload = async (file) => {
-    return createUploadForAdditionalDocuments(file, '40b13561-349d-4e71-a051-eb2b9d69bdd4');
+    return createUploadForAdditionalDocuments(file, moveId);
   };
 
-  // const handleUploadComplete = (err) => {
-  //   if (err) {
-  //     setErrorMessage('Encountered error when completing file upload');
-  //   }
-  // };
+  const handleUploadComplete = () => {
+    getMove(moveId).then((res) => {
+      updateMove(res);
+    });
+  };
 
   const onChange = () => {
-    // filePondEl.current?.removeFiles();
-    // handleUploadComplete();
+    filePondEl.current?.removeFiles();
+    handleUploadComplete();
   };
 
-  const handleSave = () => {
+  const handleBack = () => {
     navigate(-1);
   };
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
+  useEffect(() => {
+    getMove(moveId).then((res) => {
+      updateMove(res);
+      setIsLoading(false);
+    });
+  }, [updateMove, moveId]);
+
+  if (isLoading) return <LoadingPlaceholder />;
 
   const warningMessage =
     'Documents uploaded here will not amend a customers move. Please upload new orders/amendments via the "Upload documents" link next to the Orders section of the customers move.';
@@ -102,7 +94,7 @@ const AdditionalDocuments = ({ locator }) => {
             {/* {uploads?.length > 0 && ( */}
             <>
               <br />
-              <UploadsTable uploads={uploads} onDelete={handleDelete} showDeleteButton={false} />
+              <UploadsTable uploads={uploads} onDelete={handleDelete} />
             </>
             {/* )} */}
             <div className="uploader-box">
@@ -114,7 +106,8 @@ const AdditionalDocuments = ({ locator }) => {
                 labelIdleMobile={`<span class="filepond--label-action">Upload files</span>`}
               />
             </div>
-            <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
+            <Button onClick={handleBack}>Back</Button>
+            {/* <WizardNavigation editMode disableNext={false} onBackClick={handleBack} /> */}
           </SectionWrapper>
         </Grid>
       </Grid>
@@ -123,11 +116,15 @@ const AdditionalDocuments = ({ locator }) => {
 };
 
 const mapStateToProps = (state) => {
-  const { locator } = selectCurrentMove(state);
+  const move = selectCurrentMove(state);
 
-  const props = { locator };
+  const props = { move };
 
   return props;
 };
 
-export default connect(mapStateToProps)(AdditionalDocuments);
+const mDTP = {
+  updateMove: updateMoveAction,
+};
+
+export default connect(mapStateToProps, mDTP)(AdditionalDocuments);

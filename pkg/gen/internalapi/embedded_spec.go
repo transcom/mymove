@@ -3117,6 +3117,13 @@ func init() {
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the move that the upload belongs to",
+            "name": "moveId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4686,6 +4693,9 @@ func init() {
         "eTag"
       ],
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "cancel_reason": {
           "type": "string",
           "x-nullable": true,
@@ -10975,6 +10985,13 @@ func init() {
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the move that the upload belongs to",
+            "name": "moveId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -12548,6 +12565,9 @@ func init() {
         "eTag"
       ],
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "cancel_reason": {
           "type": "string",
           "x-nullable": true,

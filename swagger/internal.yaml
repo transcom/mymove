@@ -187,6 +187,8 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
     required:
       - id
       - orders_id
@@ -4319,6 +4321,11 @@ paths:
           type: string
           format: uuid
           description: ID of the order that the upload belongs to
+        - in: query
+          name: moveId
+          type: string
+          format: uuid
+          description: ID of the move that the upload belongs to
       responses:
         '204':
           description: deleted

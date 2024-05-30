@@ -54,6 +54,7 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -83,6 +84,14 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsManageSupportingDocsEnabled(await isBooleanFlagEnabled('manage_supporting_docs'));
+    };
+    fetchData();
+  }, []);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -458,7 +467,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
               {renderAlert()}
               {renderHelper()}
               <SectionWrapper>
-                {hasSubmittedMove() && (
+                {isManageSupportingDocsEnabled && hasSubmittedMove() && (
                   <div className={styles['upload-additional-documents-button']}>
                     <Button
                       data-testid="upload-additional-documents-button"
