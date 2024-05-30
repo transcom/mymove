@@ -31,10 +31,10 @@ const (
 	ServicesCounselorOfficeUserType string = "Services Counselor office"
 	// PrimeSimulatorOfficeUserType is the type of user for an Office user
 	PrimeSimulatorOfficeUserType string = "Prime Simulator office"
-	// QaeCsrOfficeUserType is a type of user for an Office user
-	QaeCsrOfficeUserType string = "QAE/CSR office"
 	// CustomerServiceRepresentativeOfficeUserType is the Customer Service Representative type of user for an Office user
 	CustomerServiceRepresentativeOfficeUserType string = "CSR office"
+	// QaeOfficeUserType is a type of user for an Office user
+	QaeOfficeUserType string = "QAE office"
 	// MultiRoleOfficeUserType has all the Office user roles
 	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
@@ -107,7 +107,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		TIOOfficeUserType                           string
 		ServicesCounselorOfficeUserType             string
 		PrimeSimulatorOfficeUserType                string
-		QaeCsrOfficeUserType                        string
+		QaeOfficeUserType                           string
 		CustomerServiceRepresentativeOfficeUserType string
 		MultiRoleOfficeUserType                     string
 		IsAdminApp                                  bool
@@ -128,7 +128,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		TIOOfficeUserType:               TIOOfficeUserType,
 		ServicesCounselorOfficeUserType: ServicesCounselorOfficeUserType,
 		PrimeSimulatorOfficeUserType:    PrimeSimulatorOfficeUserType,
-		QaeCsrOfficeUserType:            QaeCsrOfficeUserType,
+		QaeOfficeUserType:               QaeOfficeUserType,
 		CustomerServiceRepresentativeOfficeUserType: CustomerServiceRepresentativeOfficeUserType,
 		MultiRoleOfficeUserType:                     MultiRoleOfficeUserType,
 		IsAdminApp:                                  auth.AdminApp == appCtx.Session().ApplicationName,
@@ -255,9 +255,9 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<form method="post" action="/devlocal-auth/new">
 					<p>
 					  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-					  <input type="hidden" name="userType" value="{{.QaeCsrOfficeUserType}}">
+					  <input type="hidden" name="userType" value="{{.QaeOfficeUserType}}">
 					  ` + gblocSelectHTML + `
-					  <button type="submit" data-hook="new-user-login-{{.QaeCsrOfficeUserType}}">Create a New {{.QaeCsrOfficeUserType}} User</button>
+					  <button type="submit" data-hook="new-user-login-{{.QaeOfficeUserType}}">Create a New {{.QaeOfficeUserType}} User</button>
 					</p>
 				  </form>
 
@@ -777,7 +777,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if verrs.HasAny() {
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
-	case QaeCsrOfficeUserType:
+	case QaeOfficeUserType:
 		// Now create the Truss JPPSO
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
@@ -1053,7 +1053,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType, CustomerServiceRepresentativeOfficeUserType, MultiRoleOfficeUserType, HQOfficeUserType:
+	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeOfficeUserType, CustomerServiceRepresentativeOfficeUserType, MultiRoleOfficeUserType, HQOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.AppNames().OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -1141,7 +1141,7 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
 		return true
 	}
 	return false
