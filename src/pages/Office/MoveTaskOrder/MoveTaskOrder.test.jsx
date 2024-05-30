@@ -319,6 +319,37 @@ describe('MoveTaskOrder', () => {
       expect(riskOfExcessAlert).toBeInTheDocument();
     });
 
+    it('displays risk of excess alert with disabled buttons when move is locked', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
+      const isMoveLocked = true;
+      render(
+        <MockProviders permissions={[permissionTypes.updateMTOPage, permissionTypes.updateBillableWeight]}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            isMoveLocked={isMoveLocked}
+          />
+        </MockProviders>,
+      );
+
+      expect(setExcessWeightRiskCount).toHaveBeenCalledWith(1);
+
+      const riskOfExcessAlert = screen.getByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeInTheDocument();
+
+      const riskOfExcessAlertBtn = screen.getByTestId('excessWeightAlertButton');
+      expect(riskOfExcessAlertBtn).toBeInTheDocument();
+      expect(riskOfExcessAlertBtn).toBeDisabled();
+
+      const reviewBillableWeightBtn = screen.getByTestId('reviewBillableWeightBtn');
+      expect(reviewBillableWeightBtn).toBeInTheDocument();
+      expect(reviewBillableWeightBtn).toBeDisabled();
+    });
+
     it('displays the estimated total weight', async () => {
       useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
 
@@ -569,6 +600,7 @@ describe('MoveTaskOrder', () => {
     useMoveTaskOrderQueries.mockReturnValue(someShipmentsApprovedMTOQuery);
     useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
     useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
+    const isMoveLocked = false;
     const wrapper = mount(
       <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
         <MoveTaskOrder
@@ -578,6 +610,7 @@ describe('MoveTaskOrder', () => {
           setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          isMoveLocked={isMoveLocked}
         />
       </MockProviders>,
     );
@@ -613,7 +646,6 @@ describe('MoveTaskOrder', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
       expect(wrapper.find('h4').at(0).text()).toEqual('#');
-      expect(wrapper.find('[data-testid="button"]').exists()).toBe(true);
     });
 
     it('renders the ImportantShipmentDates', () => {

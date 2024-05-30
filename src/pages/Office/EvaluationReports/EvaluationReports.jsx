@@ -21,7 +21,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
+const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalCode, isMoveLocked }) => {
   const { moveCode } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -117,7 +117,11 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
           <Grid row className={evaluationReportsStyles.counselingHeadingContainer}>
             <h2>Counseling QAE reports ({counselingEvaluationReports.length})</h2>
             <Restricted to={permissionTypes.createEvaluationReport}>
-              <Button data-testid="counselingEvaluationCreate" onClick={() => handleCounselingCreateClick()}>
+              <Button
+                data-testid="counselingEvaluationCreate"
+                onClick={() => handleCounselingCreateClick()}
+                disabled={isMoveLocked}
+              >
                 Create report
               </Button>
             </Restricted>
@@ -135,6 +139,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
               setIsDeleteModalOpen={setIsDeleteModalOpen}
               isDeleteModalOpen={isDeleteModalOpen}
               deleteReport={deleteReport}
+              isMoveLocked={isMoveLocked}
             />
           </Grid>
         </GridContainer>
@@ -152,6 +157,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
               setIsDeleteModalOpen={setIsDeleteModalOpen}
               isDeleteModalOpen={isDeleteModalOpen}
               deleteReport={deleteReport}
+              isMoveLocked={isMoveLocked}
             />
           </Grid>
         </GridContainer>

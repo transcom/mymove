@@ -19,6 +19,7 @@ const ShipmentQAEReports = ({
   deleteReport,
   isDeleteModalOpen,
   destinationDutyLocationPostalCode,
+  isMoveLocked,
 }) => {
   const sortedShipments = shipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
@@ -28,6 +29,7 @@ const ShipmentQAEReports = ({
         <ShipmentQAEReportHeader
           shipment={shipment}
           destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+          isMoveLocked={isMoveLocked}
         />
         <EvaluationReportTable
           moveCode={moveCode}

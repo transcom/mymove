@@ -17,7 +17,7 @@ import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { createCustomerSupportRemarkForMove } from 'services/ghcApi';
 
-const CustomerSupportRemarkForm = ({ officeUser }) => {
+const CustomerSupportRemarkForm = ({ officeUser, isMoveLocked }) => {
   const { moveCode } = useParams();
   const queryClient = useQueryClient();
 
@@ -68,7 +68,7 @@ const CustomerSupportRemarkForm = ({ officeUser }) => {
               error={!isValid && !isEmpty}
             />
 
-            <Button type="submit" disabled={!isValid}>
+            <Button type="submit" disabled={!isValid || isMoveLocked}>
               Save
             </Button>
           </Form>
