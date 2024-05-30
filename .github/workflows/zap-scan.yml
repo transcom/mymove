@@ -10,6 +10,7 @@ jobs:
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           target: 'https://my.move.mil'
+          allow_issue_writing: false
 
   zap_scan_office:
     runs-on: ubuntu-latest
@@ -19,6 +20,7 @@ jobs:
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           target: 'https://office.move.mil'
+          allow_issue_writing: false
 
   zap_scan_admin:
     runs-on: ubuntu-latest
@@ -28,3 +30,4 @@ jobs:
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           target: 'https://admin.move.mil'
+          allow_issue_writing: false
