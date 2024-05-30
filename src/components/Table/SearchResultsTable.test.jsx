@@ -164,6 +164,12 @@ describe('SearchResultsTable', () => {
     const createMoveButton = screen.queryByTestId('searchCreateMoveButton');
     expect(createMoveButton).not.toBeInTheDocument();
   });
+  it('renders profile button when search occurs', () => {
+    render(<SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockQueries} searchType="move" />);
+
+    const editProfileBtn = screen.queryByTestId('editProfileBtn');
+    expect(editProfileBtn).toBeInTheDocument();
+  });
   it('loading', () => {
     render(
       <SearchResultsTable handleClick={() => {}} title="Results" useQueries={mockLoadingQuery} dodID="1234567890" />,

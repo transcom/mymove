@@ -24,4 +24,13 @@ describe('FinancialReviewButton', () => {
 
     expect(tag).toHaveTextContent('Flagged for financial review');
   });
+
+  it('disables the button when the move is locked', async () => {
+    const mockOnClick = jest.fn();
+    const isMoveLocked = true;
+    render(<FinancialReviewButton onClick={mockOnClick} isMoveLocked={isMoveLocked} />);
+    const submitBtn = screen.getByText('Flag move for financial review');
+
+    expect(submitBtn).toBeDisabled();
+  });
 });

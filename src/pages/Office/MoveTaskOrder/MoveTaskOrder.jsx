@@ -24,6 +24,7 @@ import { shipmentSectionLabels } from 'content/shipments';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import RequestShipmentDiversionModal from 'components/Office/RequestShipmentDiversionModal/RequestShipmentDiversionModal';
 import RequestReweighModal from 'components/Office/RequestReweighModal/RequestReweighModal';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
@@ -96,6 +97,8 @@ export const MoveTaskOrder = (props) => {
   /* ------------------ Modals ------------------------- */
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  // Diversion
+  const [isDiversionModalVisible, setIsDiversionModalVisible] = useState(false);
   // Weights
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
@@ -132,6 +135,7 @@ export const MoveTaskOrder = (props) => {
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
+    isMoveLocked,
   } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
@@ -433,6 +437,11 @@ export const MoveTaskOrder = (props) => {
   };
 
   /* istanbul ignore next */
+  const handleShowDiversionModal = (mtoShipment) => {
+    setSelectedShipment(mtoShipment);
+    setIsDiversionModalVisible(true);
+  };
+  /* istanbul ignore next */
   const handleRequestReweighModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsReweighModalVisible(true);
@@ -442,7 +451,7 @@ export const MoveTaskOrder = (props) => {
     setIsWeightModalVisible(true);
   };
 
-  // To-do: Combine handle Acknowldge Weights and hadnle Weight alert into one one mutation function
+  // To-do: Combine handle Acknowldge Weights and handle Weight alert into one one mutation function
   const handleAcknowledgeExcessWeightRisk = () => {
     mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
@@ -537,7 +546,7 @@ export const MoveTaskOrder = (props) => {
   };
 
   /* istanbul ignore next */
-  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator) => {
+  const handleDivertShipment = (mtoShipmentID, eTag, shipmentLocator, diversionReason) => {
     mutateMTOShipmentStatus(
       {
         shipmentID: mtoShipmentID,
@@ -545,10 +554,11 @@ export const MoveTaskOrder = (props) => {
         ifMatchETag: eTag,
         onSuccessFlashMsg: `Diversion successfully requested for Shipment #${shipmentLocator}`,
         shipmentLocator,
+        diversionReason,
       },
       {
         onSuccess: (data, variables) => {
-          setIsCancelModalVisible(false);
+          setIsDiversionModalVisible(false);
           // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
           setMessage(
             `MSG_CANCEL_SUCCESS_${variables.shipmentLocator}`,
@@ -557,6 +567,11 @@ export const MoveTaskOrder = (props) => {
             '',
             true,
           );
+        },
+        onError: () => {
+          setIsDiversionModalVisible(false);
+          setAlertMessage('There was a problem requesting a diversion on this shipment. Please try again later.');
+          setAlertType('error');
         },
       },
     );
@@ -911,7 +926,13 @@ export const MoveTaskOrder = (props) => {
   }
 
   const excessWeightAlertControl = (
-    <Button type="button" onClick={handleHideWeightAlert} unstyled>
+    <Button
+      data-testid="excessWeightAlertButton"
+      type="button"
+      onClick={handleHideWeightAlert}
+      unstyled
+      disabled={isMoveLocked}
+    >
       <FontAwesomeIcon icon="times" />
     </Button>
   );
@@ -977,7 +998,13 @@ export const MoveTaskOrder = (props) => {
                 <Restricted to={permissionTypes.updateBillableWeight}>
                   <Restricted to={permissionTypes.updateMTOPage}>
                     <span className={styles.rightAlignButtonWrapper}>
-                      <Button type="button" onClick={handleShowWeightModal} unstyled>
+                      <Button
+                        data-testid="reviewBillableWeightBtn"
+                        type="button"
+                        onClick={handleShowWeightModal}
+                        unstyled
+                        disabled={isMoveLocked}
+                      >
                         Review billable weight
                       </Button>
                     </span>
@@ -1004,6 +1031,13 @@ export const MoveTaskOrder = (props) => {
               shipmentInfo={selectedShipment}
               onClose={setIsCancelModalVisible}
               onSubmit={handleUpdateMTOShipmentStatus}
+            />
+          )}
+          {isDiversionModalVisible && (
+            <RequestShipmentDiversionModal
+              shipmentInfo={selectedShipment}
+              onClose={setIsDiversionModalVisible}
+              onSubmit={handleDivertShipment}
             />
           )}
           {isReweighModalVisible && (
@@ -1051,6 +1085,7 @@ export const MoveTaskOrder = (props) => {
                     <FinancialReviewButton
                       onClick={handleShowFinancialReviewModal}
                       reviewRequested={move.financialReviewFlag}
+                      isMoveLocked={isMoveLocked}
                     />
                   </div>
                 </Restricted>
@@ -1078,6 +1113,7 @@ export const MoveTaskOrder = (props) => {
               heading="Max billable weight"
               weightValue={maxBillableWeight}
               onEdit={displayMaxBillableWeight(nonPPMShipments) ? handleShowWeightModal : null}
+              isMoveLocked={isMoveLocked}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
@@ -1134,18 +1170,20 @@ export const MoveTaskOrder = (props) => {
                     shipmentLocator: mtoShipment.shipmentLocator,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
+                  isMoveLocked={isMoveLocked}
                 />
                 <ShipmentDetails
                   shipment={mtoShipment}
                   order={order}
-                  handleDivertShipment={handleDivertShipment}
                   handleRequestReweighModal={handleRequestReweighModal}
+                  handleShowDiversionModal={handleShowDiversionModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
                   handleUpdateSITServiceItemCustomerExpense={handleUpdateSITServiceItemCustomerExpense}
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}
+                  isMoveLocked={isMoveLocked}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
@@ -1156,6 +1194,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
                 {approvedServiceItems?.length > 0 && (
@@ -1167,6 +1206,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
                 {rejectedServiceItems?.length > 0 && (
@@ -1177,6 +1217,7 @@ export const MoveTaskOrder = (props) => {
                     statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
                     shipment={mtoShipment}
                     sitStatus={mtoShipment.sitStatus}
+                    isMoveLocked={isMoveLocked}
                   />
                 )}
               </ShipmentContainer>

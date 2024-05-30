@@ -20,11 +20,11 @@ test.describe('Services counselor user', () => {
     await expect(page.locator('[data-testid="expectedDepartureDate"]')).toContainText('15 Mar 2020');
 
     await expect(page.locator('[data-testid="pickupAddress"]')).toContainText(
-      '987 New Street, P.O. Box 12345, Des Moines, IA 50309',
+      '987 New Street, P.O. Box 12345, c/o Some Person, Des Moines, IA 50309',
     );
 
     await expect(page.locator('[data-testid="destinationAddress"]')).toContainText(
-      '123 New Street, P.O. Box 12345, Fort Eisenhower, GA 30813',
+      '123 New Street, P.O. Box 12345, c/o Some Person, Fort Eisenhower, GA 30813',
     );
 
     await expect(page.locator('[data-testid="sitPlanned"]')).toContainText('No');
