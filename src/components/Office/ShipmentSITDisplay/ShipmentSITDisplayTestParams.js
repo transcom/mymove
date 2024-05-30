@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 import SERVICE_ITEM_STATUSES, { SERVICE_ITEM_CODES } from 'constants/serviceItems';
-import { SIT_EXTENSION_REASON } from 'constants/sitExtensions';
+import { SIT_EXTENSION_REASON, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { swaggerDateFormat } from 'shared/dates';
 
 const LOCATION_VALUES = {
@@ -456,6 +456,18 @@ export const futureSITShipment = {
   sitDaysAllowance: 15,
   mtoServiceItems: mtoServiceItemsWithFutureSIT,
   sitStatus: futureSITStatus,
+};
+
+export const futureSITShipmentSITExtension = {
+  ...noSITShipment,
+  sitDaysAllowance: 15,
+  mtoServiceItems: mtoServiceItemsWithFutureSIT,
+  sitStatus: futureSITStatus,
+  sitExtensions: [
+    {
+      status: SIT_EXTENSION_STATUS.PENDING,
+    },
+  ],
 };
 
 export const SITStatusExpired = {

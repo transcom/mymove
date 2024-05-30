@@ -29,10 +29,6 @@ export const SEARCH_QUEUE_STATUS_FILTER_OPTIONS = [
   { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
   { value: MOVE_STATUSES.APPROVED, label: 'Move Approved' },
 ];
-export const SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS = [
-  { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
-  { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
-];
 
 export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.NEEDS_SERVICE_COUNSELING]: 'Needs counseling',

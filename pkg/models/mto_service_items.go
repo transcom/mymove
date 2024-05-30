@@ -66,6 +66,7 @@ type MTOServiceItem struct {
 	CustomerExpenseReason             *string                        `db:"customer_expense_reason"`
 	SITDeliveryMiles                  *int                           `db:"sit_delivery_miles"`
 	PricingEstimate                   *unit.Cents                    `db:"pricing_estimate"`
+	StandaloneCrate                   *bool                          `db:"standalone_crate"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table
