@@ -1136,6 +1136,19 @@ describe('MoveDetails page', () => {
 
       expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
     });
+
+    it('does not show edit orders, edit allowances, or edit customer info buttons when move is locked', async () => {
+      const isMoveLocked = true;
+      render(
+        <MockProviders permissions={[permissionTypes.updateOrders]}>
+          <MoveDetails {...testProps} isMoveLocked={isMoveLocked} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByRole('link', { name: 'Edit orders' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+    });
   });
 
   describe('when MTO shipments are not yet defined', () => {
