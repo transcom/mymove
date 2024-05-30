@@ -15,6 +15,7 @@ import { updateCustomerInfo } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { CustomerShape } from 'types/order';
+import { formatTrueFalseInputValue } from 'utils/formatters';
 
 const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values) => {
+    const cacUser = values.cacUser === 'true';
     const {
       firstName,
       lastName,
@@ -81,9 +83,11 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       phoneIsPreferred,
       emailIsPreferred,
       secondaryTelephone: secondaryPhone,
+      cac_validated: cacUser,
     };
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
+
   const initialValues = {
     firstName: customer.first_name,
     lastName: customer.last_name,
@@ -99,12 +103,12 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     backupAddress: customer.backupAddress,
     emailIsPreferred: customer.emailIsPreferred,
     phoneIsPreferred: customer.phoneIsPreferred,
+    cacUser: formatTrueFalseInputValue(customer?.cacValidated),
   };
 
   return (
     <div className={styles.customerInfoPage}>
       <GridContainer>
-        <h1>Customer Info</h1>
         <CustomerContactInfoForm initialValues={initialValues} onBack={handleClose} onSubmit={onSubmit} />
       </GridContainer>
     </div>

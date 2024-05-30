@@ -3,7 +3,6 @@ import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'reac
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
-
 import { permissionTypes } from 'constants/permissions';
 import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
@@ -26,9 +25,9 @@ const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/Eval
 const EvaluationReport = lazy(() => import('pages/Office/EvaluationReport/EvaluationReport'));
 const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolations/EvaluationViolations'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
-const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -151,6 +150,13 @@ const TXOMoveInfo = () => {
       <Suspense fallback={<LoadingPlaceholder />}>
         <Routes>
           <Route
+            path="customer"
+            end
+            element={
+              <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
+            }
+          />
+          <Route
             path="details"
             end
             element={
@@ -249,15 +255,6 @@ const TXOMoveInfo = () => {
                     destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
                   />
                 </Restricted>
-              }
-            />
-          )}
-          {order.grade && (
-            <Route
-              path={tooRoutes.CUSTOMER_INFO_EDIT_PATH}
-              end
-              element={
-                <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
               }
             />
           )}
