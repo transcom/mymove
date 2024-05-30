@@ -12,8 +12,8 @@ const shipmentInfoProps = {
     type: 'shipmentInfo',
     plannedMoveDate: '2020-03-15',
     actualMoveDate: '2022-01-12',
-    actualPickupPostalCode: '42444',
-    actualDestinationPostalCode: '30813',
+    pickupAddress: '812 S 129th St, #123, San Antonio, TX 78234',
+    destinationAddress: '456 Oak Ln., #123, Oakland, CA 94611',
     miles: 513,
     estimatedWeight: 4000,
     actualWeight: 4200,
@@ -87,10 +87,10 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('15-Mar-2020')).toBeInTheDocument();
       expect(screen.getByText('Actual Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('12-Jan-2022')).toBeInTheDocument();
-      expect(screen.getByText('Starting ZIP')).toBeInTheDocument();
-      expect(screen.getByText('42444')).toBeInTheDocument();
-      expect(screen.getByText('Ending ZIP')).toBeInTheDocument();
-      expect(screen.getByText('30813')).toBeInTheDocument();
+      expect(screen.getByText('Starting Address')).toBeInTheDocument();
+      expect(screen.getByText('812 S 129th St, #123, San Antonio, TX 78234')).toBeInTheDocument();
+      expect(screen.getByText('Ending Address')).toBeInTheDocument();
+      expect(screen.getByText('456 Oak Ln., #123, Oakland, CA 94611')).toBeInTheDocument();
       expect(screen.getByText('Miles')).toBeInTheDocument();
       expect(screen.getByText('513')).toBeInTheDocument();
       expect(screen.getByText('Estimated Net Weight')).toBeInTheDocument();

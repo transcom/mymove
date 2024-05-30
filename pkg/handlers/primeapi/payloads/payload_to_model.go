@@ -516,6 +516,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
 		model.Description = domesticCrating.Description
 		model.Reason = domesticCrating.Reason
+		model.StandaloneCrate = domesticCrating.StandaloneCrate
 		model.Dimensions = models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
 				Type:   models.DimensionTypeItem,
@@ -528,33 +529,6 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 				Length: unit.ThousandthInches(*domesticCrating.Crate.Length),
 				Height: unit.ThousandthInches(*domesticCrating.Crate.Height),
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
-			},
-		}
-	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticStandaloneCrating:
-		standaloneCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticStandaloneCrating)
-
-		// additional validation for this specific service item type
-		verrs := validateStandaloneCrating(*standaloneCrating)
-		if verrs.HasAny() {
-			return nil, verrs
-		}
-
-		// have to get code from payload
-		model.ReService.Code = models.ReServiceCode(*standaloneCrating.ReServiceCode)
-		model.Description = standaloneCrating.Description
-		model.Reason = standaloneCrating.Reason
-		model.Dimensions = models.MTOServiceItemDimensions{
-			models.MTOServiceItemDimension{
-				Type:   models.DimensionTypeItem,
-				Length: unit.ThousandthInches(*standaloneCrating.Item.Length),
-				Height: unit.ThousandthInches(*standaloneCrating.Item.Height),
-				Width:  unit.ThousandthInches(*standaloneCrating.Item.Width),
-			},
-			models.MTOServiceItemDimension{
-				Type:   models.DimensionTypeCrate,
-				Length: unit.ThousandthInches(*standaloneCrating.Crate.Length),
-				Height: unit.ThousandthInches(*standaloneCrating.Crate.Height),
-				Width:  unit.ThousandthInches(*standaloneCrating.Crate.Width),
 			},
 		}
 	default:
@@ -738,18 +712,6 @@ func SITAddressUpdateModel(sitAddressUpdate *primemessages.CreateSITAddressUpdat
 
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
-	return validate.Validate(
-		&models.ItemCanFitInsideCrate{
-			Name:         "Item",
-			NameCompared: "Crate",
-			Item:         &m.Item.MTOServiceItemDimension,
-			Crate:        &m.Crate.MTOServiceItemDimension,
-		},
-	)
-}
-
-// validateStandaloneCrating validates this mto service item domestic crating
-func validateStandaloneCrating(m primemessages.MTOServiceItemDomesticStandaloneCrating) *validate.Errors {
 	return validate.Validate(
 		&models.ItemCanFitInsideCrate{
 			Name:         "Item",
