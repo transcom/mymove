@@ -6125,7 +6125,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -8695,6 +8696,12 @@ func init() {
           "description": "The price of the linehaul or shorthaul.",
           "type": "integer",
           "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -19162,7 +19169,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -21732,6 +21740,12 @@ func init() {
           "description": "The price of the linehaul or shorthaul.",
           "type": "integer",
           "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },

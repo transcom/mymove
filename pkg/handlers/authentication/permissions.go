@@ -115,7 +115,16 @@ var QAECSR = RolePermissions{
 	},
 }
 
-var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR, HQ}
+var CustomerServiceRepresentative = RolePermissions{
+	RoleType: roles.RoleTypeCustomerServiceRepresentative,
+	Permissions: []string{
+		"read.paymentRequest",
+		"view.closeoutOffice",
+		"read.shipmentsPaymentSITBalance",
+	},
+}
+
+var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR, HQ, CustomerServiceRepresentative}
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {

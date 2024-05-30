@@ -29,7 +29,8 @@ export const GCCFactorsShape = shape({
   originFactor: number,
   destinationServiceAreaFee: number,
   destinationFactor: number,
-  fullPackUnpackCharge: number,
+  packPrice: number,
+  unpackPrice: number,
   ppmFactor: number,
 });
 

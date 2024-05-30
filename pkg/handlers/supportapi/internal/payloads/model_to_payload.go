@@ -334,26 +334,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 				Length: crate.Length.Int32Ptr(),
 				Width:  crate.Width.Int32Ptr(),
 			},
-			Description: mtoServiceItem.Description,
-		}
-	case models.ReServiceCodeDCRTSA:
-		item := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
-		crate := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
-		payload = &supportmessages.MTOServiceItemDomesticStandaloneCrating{
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Item: &supportmessages.MTOServiceItemDimension{
-				ID:     strfmt.UUID(item.ID.String()),
-				Height: item.Height.Int32Ptr(),
-				Length: item.Length.Int32Ptr(),
-				Width:  item.Width.Int32Ptr(),
-			},
-			Crate: &supportmessages.MTOServiceItemDimension{
-				ID:     strfmt.UUID(crate.ID.String()),
-				Height: crate.Height.Int32Ptr(),
-				Length: crate.Length.Int32Ptr(),
-				Width:  crate.Width.Int32Ptr(),
-			},
-			Description: mtoServiceItem.Description,
+			Description:     mtoServiceItem.Description,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &supportmessages.MTOServiceItemShuttle{
