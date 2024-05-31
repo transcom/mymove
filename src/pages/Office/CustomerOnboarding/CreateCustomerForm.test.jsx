@@ -280,7 +280,13 @@ describe('CreateCustomerForm', () => {
 
     await userEvent.click(saveBtn);
 
-    expect(createCustomerWithOktaOption).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: false,
+        },
+      });
+    });
   }, 10000);
 });
