@@ -303,6 +303,7 @@ export const ReviewDocuments = () => {
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
+                    weightTickets={weightTickets}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
