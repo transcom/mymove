@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // RiskOfExcessThreshold is the percentage of the weight allowance that the sum of a move's shipment estimated weights
@@ -91,17 +90,24 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		}
 	}
 
-	var gradeNotExists = move.Orders.Grade == nil
-	var dependentsAuthorizedNotExists = move.Orders.Entitlement.DependentsAuthorized == nil
-	if gradeNotExists {
+	if move.Orders.Grade == nil {
 		return nil, nil, errors.New("could not determine excess weight entitlement without grade")
 	}
-	if dependentsAuthorizedNotExists {
+
+	if move.Orders.Entitlement.DependentsAuthorized == nil {
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	var estimatedWeightTotal = 0
-	var shipments = move.MTOShipments
+	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade)
+
+	weight := totalWeightAllowance.TotalWeightSelf
+	if *move.Orders.Entitlement.DependentsAuthorized {
+		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
+	}
+
+	// the shipment being updated/created potentially has not yet been saved in the database so use the weight in the
+	// incoming payload that will be saved after
+	estimatedWeightTotal := 0
 	if updatedShipment.Status == models.MTOShipmentStatusApproved {
 		if updatedShipment.PrimeEstimatedWeight != nil {
 			estimatedWeightTotal += updatedShipment.PrimeEstimatedWeight.Int()
@@ -110,43 +116,35 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 			estimatedWeightTotal += updatedShipment.PPMShipment.EstimatedWeight.Int()
 		}
 	}
-	for i := range shipments {
-		if shipments[i].ID == updatedShipment.ID {
-			continue
-		}
 
-		if shipments[i].Status == models.MTOShipmentStatusApproved {
-			if shipments[i].PrimeEstimatedWeight != nil {
-				var weightToAdd unit.Pound = *shipments[i].PrimeEstimatedWeight
-				estimatedWeightTotal += weightToAdd.Int()
-			}
-			if shipments[i].PPMShipment != nil {
-				var weightToAdd unit.Pound = *shipments[i].PPMShipment.EstimatedWeight
-				estimatedWeightTotal += weightToAdd.Int()
+	for _, shipment := range move.MTOShipments {
+		// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
+		// and cancellations factoring into the estimated weight total.
+		if shipment.Status == models.MTOShipmentStatusApproved && shipment.PrimeEstimatedWeight != nil {
+			if shipment.ID != updatedShipment.ID {
+				if shipment.PrimeEstimatedWeight != nil {
+					estimatedWeightTotal += shipment.PrimeEstimatedWeight.Int()
+				}
+				if shipment.PPMShipment != nil && shipment.PPMShipment.EstimatedWeight != nil {
+					estimatedWeightTotal += shipment.PPMShipment.EstimatedWeight.Int()
+				}
 			}
 		}
 	}
 
-	var totalWeightAllowance = models.GetWeightAllotment(*move.Orders.Grade)
+	// may need to take into account floating point precision here but should be dealing with whole numbers
+	if int(float32(weight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
+		excessWeightQualifiedAt := time.Now()
+		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 
-	var weight = totalWeightAllowance.TotalWeightSelf
-	if *move.Orders.Entitlement.DependentsAuthorized {
-		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
-	}
-
-	var now = time.Now()
-	const RiskOfExcessThreshold = .9
-	var shouldExcessWeightBecomeQualified = float32(weight)*float32(RiskOfExcessThreshold) <= float32(estimatedWeightTotal)
-	var shouldSaveMoveRecord = true
-	if shouldExcessWeightBecomeQualified && move.ExcessWeightAcknowledgedAt == nil {
-		move.ExcessWeightQualifiedAt = &now
-	} else if !shouldExcessWeightBecomeQualified {
+		verrs, err := validateAndSave(appCtx, &move)
+		if (verrs != nil && verrs.HasAny()) || err != nil {
+			return nil, verrs, err
+		}
+	} else if move.ExcessWeightQualifiedAt != nil {
+		// the move had previously qualified for excess weight but does not any longer so reset the value
 		move.ExcessWeightQualifiedAt = nil
-		move.ExcessWeightAcknowledgedAt = nil
-	} else {
-		shouldSaveMoveRecord = false
-	}
-	if shouldSaveMoveRecord {
+
 		verrs, err := validateAndSave(appCtx, &move)
 		if (verrs != nil && verrs.HasAny()) || err != nil {
 			return nil, verrs, err
