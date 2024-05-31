@@ -19,9 +19,9 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
     isAdvanceReceived: ppmShipmentInfo.hasReceivedAdvance,
     advanceAmountRequested: ppmShipmentInfo.advanceAmountRequested,
     advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
-    grossIncentive: ppmCloseout.grossIncentive,
-    gcc: ppmCloseout.gcc,
-    remainingIncentive: ppmCloseout.remainingIncentive,
+    grossIncentive: ppmCloseout.grossIncentive + ppmCloseout.SITReimbursement,
+    gcc: ppmCloseout.gcc + ppmCloseout.SITReimbursement,
+    remainingIncentive: ppmCloseout.remainingIncentive + ppmCloseout.SITReimbursement,
   };
 
   const incentiveFactors = {
