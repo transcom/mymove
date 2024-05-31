@@ -4981,6 +4981,19 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -6655,6 +6668,16 @@ func init() {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -12848,6 +12871,19 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -14523,6 +14559,16 @@ func init() {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",

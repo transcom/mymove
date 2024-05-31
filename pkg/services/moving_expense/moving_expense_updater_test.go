@@ -269,6 +269,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		storageStart := time.Now()
 		storageEnd := storageStart.Add(7 * time.Hour * 24)
 		weightStored := 2000
+		sitLocation := "ORIGIN"
 
 		expectedMovingExpense := &models.MovingExpense{
 			ID:                originalMovingExpense.ID,
@@ -280,6 +281,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			SITStartDate:      &storageStart,
 			SITEndDate:        &storageEnd,
 			WeightStored:      (*unit.Pound)(&weightStored),
+			SITLocation:       (*models.SITLocationType)(&sitLocation),
 		}
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
@@ -295,6 +297,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.SITStartDate, *updatedMovingExpense.SITStartDate)
 		suite.Equal(*expectedMovingExpense.SITEndDate, *updatedMovingExpense.SITEndDate)
 		suite.Equal(*expectedMovingExpense.WeightStored, *updatedMovingExpense.WeightStored)
+		suite.Equal(*expectedMovingExpense.SITLocation, *updatedMovingExpense.SITLocation)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
 	})
@@ -304,11 +307,13 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		storageReceiptType := models.MovingExpenseReceiptTypeStorage
 		weightStored := 2000
+		sitLocation := "ORIGIN"
 		originalMovingExpense := setupForTest(appCtx, &models.MovingExpense{
 			MovingExpenseType: &storageReceiptType,
 			SITStartDate:      models.TimePointer(time.Now()),
 			SITEndDate:        models.TimePointer(time.Now()),
 			WeightStored:      (*unit.Pound)(&weightStored),
+			SITLocation:       (*models.SITLocationType)(&sitLocation),
 		}, true)
 
 		updater := NewCustomerMovingExpenseUpdater()
@@ -336,6 +341,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Nil(updatedMovingExpense.SITStartDate)
 		suite.Nil(updatedMovingExpense.SITEndDate)
 		suite.Nil(updatedMovingExpense.WeightStored)
+		suite.Nil(updatedMovingExpense.SITLocation)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
 	})
