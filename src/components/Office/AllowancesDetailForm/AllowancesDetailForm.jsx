@@ -93,6 +93,15 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
           isDisabled={formIsDisabled}
         />
       </div>
+      <div className={styles.wrappedCheckbox}>
+        <CheckboxField
+          data-testid="gunSafeInput"
+          id="gunSafeInput"
+          name="gunSafe"
+          label="Gun safe authorized"
+          isDisabled={formIsDisabled}
+        />
+      </div>
       <dl>
         <dt>Weight allowance</dt>
         <dd data-testid="weightAllowance">{formatWeight(entitlements.authorizedWeight)}</dd>

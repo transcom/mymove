@@ -896,7 +896,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
-			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+			ExpectedErrorMessage: func(_ uuid.UUID, mtoID uuid.UUID) string {
 				return fmt.Sprintf("ID: %s is in a conflicting state unable to pick contract because move is not available to prime", mtoID)
 			},
 		},
@@ -912,7 +912,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				return mtoInvalid
 			},
 			ExpectedError: apperror.ConflictError{},
-			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+			ExpectedErrorMessage: func(_ uuid.UUID, mtoID uuid.UUID) string {
 				return fmt.Sprintf("ID: %s is in a conflicting state unable to pick contract because move is not available to prime", mtoID)
 			},
 		},

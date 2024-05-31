@@ -11,7 +11,7 @@ import { ShipmentShape } from 'types/shipment';
 const ShipmentDetails = ({
   shipment,
   order,
-  handleDivertShipment,
+  handleShowDiversionModal,
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
@@ -19,6 +19,7 @@ const ShipmentDetails = ({
   handleEditServiceOrderNumber,
   handleEditAccountingCodes,
   handleUpdateSITServiceItemCustomerExpense,
+  isMoveLocked,
 }) => {
   const { originDutyLocation, destinationDutyLocation, entitlement } = order;
   const ordersLOA = {
@@ -32,7 +33,7 @@ const ShipmentDetails = ({
     <div className={styles.ShipmentDetails}>
       <ShipmentDetailsMain
         className={styles.ShipmentDetailsMain}
-        handleDivertShipment={handleDivertShipment}
+        handleShowDiversionModal={handleShowDiversionModal}
         handleRequestReweighModal={handleRequestReweighModal}
         shipment={shipment}
         entitilement={entitlement}
@@ -43,6 +44,7 @@ const ShipmentDetails = ({
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}
         handleUpdateSITServiceItemCustomerExpense={handleUpdateSITServiceItemCustomerExpense}
+        isMoveLocked={isMoveLocked}
       />
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
@@ -51,6 +53,7 @@ const ShipmentDetails = ({
         handleEditFacilityInfo={handleEditFacilityInfo}
         handleEditServiceOrderNumber={handleEditServiceOrderNumber}
         handleEditAccountingCodes={handleEditAccountingCodes}
+        isMoveLocked={isMoveLocked}
       />
     </div>
   );
@@ -59,7 +62,7 @@ const ShipmentDetails = ({
 ShipmentDetails.propTypes = {
   shipment: ShipmentShape.isRequired,
   order: OrderShape.isRequired,
-  handleDivertShipment: PropTypes.func.isRequired,
+  handleShowDiversionModal: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,

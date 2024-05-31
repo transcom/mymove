@@ -169,8 +169,8 @@ export const formatAddressShort = (address) => {
 };
 
 export const formatPrimeAPIFullAddress = (address) => {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
-  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
+  const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = address;
+  return `${streetAddress1}, ${streetAddress2}, ${streetAddress3}, ${city}, ${state} ${postalCode}`;
 };
 
 export const formatEvaluationReportShipmentAddress = (address) => {
@@ -499,9 +499,6 @@ export function formatQAReportID(uuid) {
   return `#QA-${getUUIDFirstFive(uuid)}`;
 }
 
-export function formatShortIDWithPound(uuid) {
-  return `#${getUUIDFirstFive(uuid)}`;
-}
 export function removeCommas(inputString) {
   // Use a regular expression to replace commas with an empty string
   return inputString.replace(/,/g, '');

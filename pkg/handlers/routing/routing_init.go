@@ -560,6 +560,33 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
 			})
 		})
+		// Support API serves to support Prime API testing outside of production environments, hence why it is
+		// mounted inside the Prime sim API without client cert middleware
+		if routingConfig.ServeSupport {
+			site.Route("/support/v1", func(r chi.Router) {
+				r.Method("GET", "/swagger.yaml",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						routingConfig.SupportSwaggerPath))
+				if routingConfig.ServeSwaggerUI {
+					appCtx.Logger().Info("Support API Swagger UI serving is enabled")
+					r.Method("GET", "/docs",
+						handlers.NewFileHandler(routingConfig.FileSystem,
+							path.Join(routingConfig.BuildRoot, "swagger-ui", "support.html")))
+				} else {
+					r.Method("GET", "/docs", http.NotFoundHandler())
+				}
+
+				// Mux for support API that enforces auth
+				r.Route("/", func(rAuth chi.Router) {
+					rAuth.Use(userAuthMiddleware)
+					rAuth.Use(addAuditUserToRequestContextMiddleware)
+					rAuth.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
+					rAuth.Use(middleware.NoCache())
+					rAuth.Use(middleware.RequestLogger())
+					rAuth.Mount("/", supportapi.NewSupportAPIHandler(routingConfig.HandlerConfig))
+				})
+			})
+		}
 	}
 }
 
@@ -587,7 +614,6 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 			r.Route("/open", func(rOpen chi.Router) {
 				rOpen.Mount("/", api.Serve(tracingMiddleware))
 			})
-
 			// Mux for GHC API that enforces auth
 			r.Route("/", func(rAuth chi.Router) {
 				rAuth.Use(userAuthMiddleware)

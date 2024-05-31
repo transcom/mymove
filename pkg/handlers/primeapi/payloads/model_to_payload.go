@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -55,10 +56,11 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 }
 
 // ListMove payload
-func ListMove(move *models.Move) *primemessages.ListMove {
+func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primemessages.ListMove {
 	if move == nil {
 		return nil
 	}
+
 	payload := &primemessages.ListMove{
 		ID:                 strfmt.UUID(move.ID.String()),
 		MoveCode:           move.Locator,
@@ -68,23 +70,42 @@ func ListMove(move *models.Move) *primemessages.ListMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		Amendments: &primemessages.Amendments{
+			Total:          handlers.FmtInt64(0),
+			AvailableSince: handlers.FmtInt64(0),
+		},
 	}
 
 	if move.PPMType != nil {
 		payload.PpmType = *move.PPMType
 	}
 
+	if moveOrderAmendmentsCount != nil {
+		payload.Amendments.Total = handlers.FmtInt64(int64(moveOrderAmendmentsCount.Total))
+		payload.Amendments.AvailableSince = handlers.FmtInt64(int64(moveOrderAmendmentsCount.AvailableSinceTotal))
+	}
+
 	return payload
 }
 
 // ListMoves payload
-func ListMoves(moves *models.Moves) []*primemessages.ListMove {
+func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primemessages.ListMove {
 	payload := make(primemessages.ListMoves, len(*moves))
+
+	moveOrderAmendmentsFilterCountMap := make(map[uuid.UUID]services.MoveOrderAmendmentAvailableSinceCount, len(*moves))
+	for _, info := range moveOrderAmendmentAvailableSinceCounts {
+		moveOrderAmendmentsFilterCountMap[info.MoveID] = info
+	}
 
 	for i, m := range *moves {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListMove(&copyOfM)
+		if value, ok := moveOrderAmendmentsFilterCountMap[m.ID]; ok {
+			payload[i] = ListMove(&copyOfM, &value)
+		} else {
+			payload[i] = ListMove(&copyOfM, nil)
+		}
 	}
+
 	return payload
 }
 
@@ -179,6 +200,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
@@ -283,7 +305,7 @@ func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primemessage
 	uploads := make([]*primemessages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
 	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
-			uploads[i] = basicUpload(&primeUpload.Upload)
+			uploads[i] = basicUpload(&primeUpload.Upload) //#nosec G601
 		}
 	}
 
@@ -409,6 +431,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	return &payload
 }
 
+//nolint:gosec //G601
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primemessages.ServiceRequestDocument {
 	uploads := make([]*primemessages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
 	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
@@ -497,6 +520,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
+		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
+		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 	}
 
 	// Set up address payloads
@@ -633,9 +658,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		cratingSI := primemessages.MTOServiceItemDomesticCrating{
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Description:   mtoServiceItem.Description,
-			Reason:        mtoServiceItem.Reason,
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 		cratingSI.Item.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
 			ID:     strfmt.UUID(item.ID.String()),

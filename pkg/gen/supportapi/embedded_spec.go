@@ -1117,6 +1117,10 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1504,6 +1508,10 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -3922,6 +3930,10 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4309,6 +4321,10 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

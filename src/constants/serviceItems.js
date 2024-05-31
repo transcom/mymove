@@ -37,6 +37,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   SITScheduleOrigin: 'SITScheduleOrigin',
   SITServiceAreaDest: 'SITServiceAreaDest',
   SITServiceAreaOrigin: 'SITServiceAreaOrigin',
+  Total: 'TotalAmountRequested',
   WeightAdjusted: 'WeightAdjusted',
   WeightOriginal: 'WeightOriginal',
   WeightBilled: 'WeightBilled',
@@ -70,6 +71,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]: 'Origin SIT schedule',
   [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaDest]: 'SIT destination service area',
   [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaOrigin]: 'SIT origin service area',
+  [SERVICE_ITEM_PARAM_KEYS.Total]: 'Total',
   [SERVICE_ITEM_PARAM_KEYS.WeightAdjusted]: 'Adjusted',
   [SERVICE_ITEM_PARAM_KEYS.WeightOriginal]: 'Original',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilled]: 'Shipment weight',
@@ -110,6 +112,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
+  Total: 'Total',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -155,6 +158,7 @@ const SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM = [
 
 const SIT_SERVICE_ITEMS_ALLOWED_UPDATE = [
   SERVICE_ITEM_CODES.DDDSIT,
+  SERVICE_ITEM_CODES.DDASIT,
   SERVICE_ITEM_CODES.DOASIT,
   SERVICE_ITEM_CODES.DOFSIT,
   SERVICE_ITEM_CODES.DOPSIT,

@@ -6,7 +6,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGenerateQueryFilters() {
-	fnZero := func(c string) []services.QueryFilter {
+	fnZero := func(_ string) []services.QueryFilter {
 		return []services.QueryFilter{}
 	}
 	converters := map[string]func(string) []services.QueryFilter{"omega": fnZero}

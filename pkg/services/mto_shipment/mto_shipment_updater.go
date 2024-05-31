@@ -247,6 +247,14 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.ActualSpouseProGearWeight = requestedUpdatedShipment.ActualSpouseProGearWeight
 	}
 
+	if requestedUpdatedShipment.OriginSITAuthEndDate != nil {
+		dbShipment.OriginSITAuthEndDate = requestedUpdatedShipment.OriginSITAuthEndDate
+	}
+
+	if requestedUpdatedShipment.DestinationSITAuthEndDate != nil {
+		dbShipment.DestinationSITAuthEndDate = requestedUpdatedShipment.DestinationSITAuthEndDate
+	}
+
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		var agentsToCreateOrUpdate []models.MTOAgent
@@ -612,12 +620,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// excess weight risk depending on the weight allowance and other shipment estimated weights
 		if newShipment.PrimeEstimatedWeight != nil {
 			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
-				/*
-					TODO: If the move was already in risk of excess we need to set the status back to APPROVED if
-					the new shipment estimated weight drops it out of the range. Can potentially reuse
-					moveRouter.ApproveAmmendedOrders if we also add checks for excess weight there and orders
-					acknowledgement
-				*/
+				// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
 				move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
 				if verrs != nil && verrs.HasAny() {
 					return errors.New(verrs.Error())
@@ -627,9 +630,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 
 				existingMoveStatus := move.Status
-				err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
-				if err != nil {
-					return err
+				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
+				// this will trigger the TOO to acknowledged the excess right, which populates ExcessWeightAcknowledgedAt
+				if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+					err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
+					if err != nil {
+						return err
+					}
 				}
 
 				if existingMoveStatus != move.Status {
@@ -769,7 +776,7 @@ type mtoShipmentStatusUpdater struct {
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string) (*models.MTOShipment, error) {
 	shipment, err := fetchShipment(appCtx, shipmentID, o.builder)
 	if err != nil {
 		return nil, err
@@ -791,7 +798,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 	case models.MTOShipmentStatusCanceled:
 		err = shipmentRouter.Cancel(appCtx, shipment)
 	case models.MTOShipmentStatusDiversionRequested:
-		err = shipmentRouter.RequestDiversion(appCtx, shipment)
+		err = shipmentRouter.RequestDiversion(appCtx, shipment, diversionReason)
 	case models.MTOShipmentStatusRejected:
 		err = shipmentRouter.Reject(appCtx, shipment, rejectionReason)
 	default:
