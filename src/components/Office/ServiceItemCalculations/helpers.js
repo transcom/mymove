@@ -832,9 +832,13 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         cratingSize(params, mtoParams),
         cratingPrice(params),
         priceEscalationFactorWithoutContractYear(params),
-        standaloneCrate(params),
         totalAmountRequested(totalAmount),
       ];
+
+      if (getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params) === 'true') {
+        result.splice(result.length - 1, 0, standaloneCrate(params));
+      }
+
       break;
     // Domestic uncrating
     case SERVICE_ITEM_CODES.DUCRT:
