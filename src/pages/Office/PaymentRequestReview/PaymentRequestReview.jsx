@@ -60,7 +60,7 @@ export const PaymentRequestReview = ({ order }) => {
       const selectedShipment = normalizedShipments[item.mtoShipmentID];
 
       const normalizedServiceItems = {};
-      selectedShipment.mtoServiceItems?.forEach((serviceItem) => {
+      selectedShipment?.mtoServiceItems?.forEach((serviceItem) => {
         normalizedServiceItems[serviceItem.id] = serviceItem;
       });
       const selectedServiceItem = normalizedServiceItems[item.mtoServiceItemID];
@@ -85,7 +85,7 @@ export const PaymentRequestReview = ({ order }) => {
         mtoServiceItemCode: item.mtoServiceItemCode,
         mtoServiceItemName: item.mtoServiceItemName,
         mtoServiceItems: selectedShipment?.mtoServiceItems,
-        mtoServiceItemStandaloneCrate: selectedServiceItem.standaloneCrate,
+        mtoServiceItemStandaloneCrate: selectedServiceItem?.standaloneCrate,
         amount: item.priceCents ? item.priceCents / 100 : 0,
         createdAt: item.createdAt,
         status: item.status,
