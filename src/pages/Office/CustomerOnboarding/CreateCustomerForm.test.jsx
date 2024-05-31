@@ -25,6 +25,11 @@ jest.mock('store/flash/actions', () => ({
   setFlashMessage: jest.fn(),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 beforeEach(jest.resetAllMocks);
 
 const fakePayload = {
@@ -62,6 +67,7 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
+  is_safety_move: 'false',
 };
 
 const fakeResponse = {
@@ -206,7 +212,11 @@ describe('CreateCustomerForm', () => {
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(ordersPath);
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: false,
+        },
+      });
     });
   }, 10000);
 
