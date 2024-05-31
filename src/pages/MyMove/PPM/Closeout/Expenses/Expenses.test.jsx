@@ -350,7 +350,7 @@ describe('Expenses page', () => {
     await userEvent.type(screen.getByLabelText('Start date'), '10/10/2022');
     await userEvent.type(screen.getByLabelText('End date'), '10/11/2022');
     await userEvent.click(screen.getByLabelText('Origin'));
-    await userEvent.type(screen.getByLabelText('What was the total storage weight?'), '120');
+    await userEvent.type(screen.getByLabelText('Weight Stored'), '120');
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 

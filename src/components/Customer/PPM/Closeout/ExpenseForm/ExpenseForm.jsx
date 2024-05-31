@@ -129,7 +129,7 @@ const ExpenseForm = ({
                           <MaskedTextField
                             defaultValue="0"
                             name="sitWeight"
-                            label="What was the total storage weight?"
+                            label="Weight Stored"
                             id="sitWeightInput"
                             mask={Number}
                             scale={0} // digits after point, 0 for integers
@@ -139,6 +139,7 @@ const ExpenseForm = ({
                           >
                             {'  '} lbs
                           </MaskedTextField>
+                          <Hint>Enter the weight of the items that were stored during your PPM.</Hint>
                         </FormGroup>
                       )}
 

@@ -175,7 +175,7 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByLabelText('Origin')).toBeChecked();
       expect(screen.getByLabelText('Destination')).not.toBeChecked();
-      expect(screen.getByLabelText('What was the total storage weight?')).toHaveDisplayValue('120');
+      expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('120');
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByRole('heading', { level: 3, name: 'Dates' })).toBeInTheDocument();
       expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);
