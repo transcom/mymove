@@ -70,7 +70,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             id="taskInvoicingOfficerCheckBox"
             data-testid="taskInvoicingOfficerCheckBox"
             name="taskInvoicingOfficerCheckBox"
-            label="Tasl Invoicing Officer"
+            label="Task Invoicing Officer"
           />
           <CheckboxField
             id="transportationContractingOfficerCheckBox"
