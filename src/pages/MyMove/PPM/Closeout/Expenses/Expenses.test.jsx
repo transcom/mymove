@@ -286,8 +286,8 @@ describe('Expenses page', () => {
           SITEndDate: undefined,
           SITStartDate: undefined,
           paidWithGTCC: true,
-          WeightStored: 0,
-          SITLocation: null,
+          WeightStored: NaN,
+          SITLocation: '',
         },
         mockExpense.eTag,
       );
@@ -326,8 +326,8 @@ describe('Expenses page', () => {
           SITEndDate: undefined,
           SITStartDate: undefined,
           paidWithGTCC: false,
-          WeightStored: 0,
-          SITLocation: null,
+          WeightStored: NaN,
+          SITLocation: '',
         },
         mockExpense.eTag,
       );
@@ -349,6 +349,8 @@ describe('Expenses page', () => {
     await userEvent.selectOptions(screen.getByLabelText('Select type'), ['STORAGE']);
     await userEvent.type(screen.getByLabelText('Start date'), '10/10/2022');
     await userEvent.type(screen.getByLabelText('End date'), '10/11/2022');
+    await userEvent.click(screen.getByLabelText('Origin'));
+    await userEvent.type(screen.getByLabelText('What was the total storage weight?'), '120');
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
@@ -367,8 +369,8 @@ describe('Expenses page', () => {
           SITEndDate: '2022-10-11',
           SITStartDate: '2022-10-10',
           paidWithGTCC: false,
-          WeightStored: 0,
-          SITLocation: null,
+          SITLocation: 'ORIGIN',
+          WeightStored: 120,
         },
         mockExpense.eTag,
       );

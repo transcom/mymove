@@ -127,7 +127,6 @@ const ExpenseForm = ({
                             checked={values.sitLocation === 'DESTINATION'}
                           />
                           <MaskedTextField
-                            data-testid="sitWeightInput"
                             defaultValue="0"
                             name="sitWeight"
                             label="What was the total storage weight?"
