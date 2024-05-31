@@ -112,6 +112,11 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticCratingServiceItem(cubicFee
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dcrtTestServiceSchedule),
 			},
+			{
+				Key:     models.ServiceItemParamNameStandaloneCrate,
+				KeyType: models.ServiceItemParamTypeBoolean,
+				Value:   strconv.FormatBool(false),
+			},
 		}, nil, nil,
 	)
 }
