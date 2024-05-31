@@ -82,6 +82,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameDimensionHeight,
 	models.ServiceItemParamNameDimensionLength,
 	models.ServiceItemParamNameDimensionWidth,
+	models.ServiceItemParamNameStandaloneCrate,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -409,6 +410,10 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 
 	lookups[models.ServiceItemParamNameDimensionWidth] = DimensionWidthLookup{
 		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameStandaloneCrate] = StandaloneCrateLookup{
+		ServiceItem: serviceItem,
 	}
 
 	return lookups

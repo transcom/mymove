@@ -1,4 +1,5 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
+import { TXO_PARAMS } from 'constants/ghc/applicationParameters';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
 import { formatDateWithUTC } from 'shared/dates';
 import {
@@ -616,6 +617,21 @@ const cratingSize = (params, mtoParams) => {
   return calculation(value, label, formatDetail(description), formatDetail(formattedDimensions));
 };
 
+const standaloneCrate = (params) => {
+  const standalone = getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params)
+    : '';
+
+  const label = SERVICE_ITEM_CALCULATION_LABELS.StandaloneCrate;
+
+  if (standalone === 'true') {
+    const value = TXO_PARAMS.STANDALONE_CRATE_CAP;
+    return calculation(value, label);
+  }
+
+  return calculation(0, label);
+};
+
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
   const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}:`;
@@ -816,6 +832,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         cratingSize(params, mtoParams),
         cratingPrice(params),
         priceEscalationFactorWithoutContractYear(params),
+        standaloneCrate(params),
         totalAmountRequested(totalAmount),
       ];
       break;

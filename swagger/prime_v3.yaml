@@ -1734,6 +1734,7 @@ definitions:
       - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
+      - StandaloneCrate
   ServiceItemParamType:
     type: string
     enum:

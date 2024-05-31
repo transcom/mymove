@@ -19,7 +19,7 @@ func NewDomesticUncratingPricer() services.DomesticUncratingPricer {
 
 // Price determines the price for domestic destination first day SIT
 func (p domesticUncratingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticCrating(appCtx, models.ReServiceCodeDUCRT, contractCode, referenceDate, billedCubicFeet, serviceSchedule)
+	return priceDomesticCrating(appCtx, models.ReServiceCodeDUCRT, contractCode, referenceDate, billedCubicFeet, serviceSchedule, false)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams

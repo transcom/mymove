@@ -609,5 +609,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		CustomerSearcher: customer.NewCustomerSearcher(),
 	}
 
+	ghcAPI.ApplicationParametersGetParamHandler = ApplicationParametersParamHandler{handlerConfig}
+
 	return ghcAPI
 }
