@@ -550,7 +550,7 @@ func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *
 
 	ppmShipment.SignedCertification = &signedCert
 
-	ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 	if ppmShipment.SubmittedAt == nil {
 		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
 	}
@@ -606,7 +606,7 @@ func BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db *pop.Connectio
 	// top of those changes.
 	ppmShipment := BuildPPMShipmentThatNeedsPaymentApproval(db, userUploader, customs)
 
-	ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
+	ppmShipment.Status = models.PPMShipmentStatusCloseoutComplete
 	ppmShipment.ReviewedAt = models.TimePointer(time.Now())
 
 	approvedStatus := models.PPMDocumentStatusApproved

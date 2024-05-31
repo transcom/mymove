@@ -579,7 +579,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM := models.PPMShipment{
 				ID:                    uuid.FromStringOrNil("575c25aa-b4eb-4024-9597-43483003c773"),
 				ShipmentID:            oldPPMShipment.ShipmentID,
-				Status:                models.PPMShipmentStatusPaymentApproved,
+				Status:                models.PPMShipmentStatusCloseoutComplete,
 				ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
 				PickupAddress:         &pickupAddress,
 				DestinationAddress:    &destinationAddress,
@@ -1312,7 +1312,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, nil)
 
 			newPPM := oldPPMShipment
-			newPPM.Status = models.PPMShipmentStatusPaymentApproved
+			newPPM.Status = models.PPMShipmentStatusCloseoutComplete
 
 			finalIncentive, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)

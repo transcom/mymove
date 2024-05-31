@@ -77,7 +77,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			existingPPMShipment.ID,
 			fmt.Sprintf(
 				"PPM shipment documents cannot be submitted because it's not in the %s status.",
-				models.PPMShipmentStatusNeedsPaymentApproval,
+				models.PPMShipmentStatusNeedsCloseout,
 			),
 		)
 
@@ -107,7 +107,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 		router := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
-				ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
+				ppmShipment.Status = models.PPMShipmentStatusCloseoutComplete
 
 				return nil
 			})
@@ -124,7 +124,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
-				suite.Equal(models.PPMShipmentStatusPaymentApproved, updatedPPMShipment.Status)
+				suite.Equal(models.PPMShipmentStatusCloseoutComplete, updatedPPMShipment.Status)
 
 				router.(*mocks.PPMShipmentRouter).AssertCalled(
 					suite.T(),

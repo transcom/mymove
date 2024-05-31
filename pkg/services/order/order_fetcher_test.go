@@ -486,7 +486,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate2,
-					Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+					Status:      models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -593,7 +593,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -646,7 +646,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -683,7 +683,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -751,7 +751,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -777,7 +777,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -821,7 +821,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -846,7 +846,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -890,7 +890,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -915,7 +915,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -957,7 +957,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusPaymentApproved,
+					Status: models.PPMShipmentStatusCloseoutComplete,
 				},
 			},
 			{

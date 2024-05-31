@@ -320,7 +320,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
-		suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, ppmShipment.Status)
+		suite.Equal(models.PPMShipmentStatusNeedsCloseout, ppmShipment.Status)
 
 		suite.NotEmpty(ppmShipment.WeightTickets)
 		suite.Equal(1, len(ppmShipment.WeightTickets))
@@ -353,7 +353,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
-		suite.Equal(models.PPMShipmentStatusPaymentApproved, ppmShipment.Status)
+		suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
 
 		suite.NotEmpty(ppmShipment.WeightTickets)
 		suite.Equal(1, len(ppmShipment.WeightTickets))

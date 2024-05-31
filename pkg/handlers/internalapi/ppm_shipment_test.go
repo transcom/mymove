@@ -250,7 +250,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		expectedPPMShipment := ppmShipment
-		expectedPPMShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		expectedPPMShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		expectedPPMShipment.SubmittedAt = models.TimePointer(time.Now())
 
 		move := ppmShipment.Shipment.MoveTaskOrder
@@ -421,7 +421,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 				*errResponse.Payload.Detail,
 				fmt.Sprintf(
 					"PPM shipment can't be set to %s because it's not in the %s status.",
-					models.PPMShipmentStatusNeedsPaymentApproval,
+					models.PPMShipmentStatusNeedsCloseout,
 					models.PPMShipmentStatusWaitingOnCustomer,
 				),
 			)
@@ -455,7 +455,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
 
 			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
-			suite.Equal(string(models.PPMShipmentStatusNeedsPaymentApproval), string(returnedPPMShipment.Status))
+			suite.Equal(string(models.PPMShipmentStatusNeedsCloseout), string(returnedPPMShipment.Status))
 			suite.NotNil(returnedPPMShipment.SubmittedAt)
 
 			suite.NotNil(returnedPPMShipment.SignedCertification)
@@ -747,7 +747,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 		_, params := setUpRequestAndParams(ppmShipment, true, true)
 
 		expectedPPMShipment := ppmShipment
-		expectedPPMShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		expectedPPMShipment.Status = models.PPMShipmentStatusNeedsCloseout
 
 		suite.FatalNotNil(expectedPPMShipment.SubmittedAt)
 
@@ -901,7 +901,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 				*errResponse.Payload.Detail,
 				fmt.Sprintf(
 					"PPM shipment can't be set to %s because it's not in the %s status.",
-					models.PPMShipmentStatusNeedsPaymentApproval,
+					models.PPMShipmentStatusNeedsCloseout,
 					models.PPMShipmentStatusWaitingOnCustomer,
 				),
 			)
@@ -928,7 +928,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
 
 			suite.EqualUUID(shipmentNeedsResubmitted.ID, returnedPPMShipment.ID)
-			suite.Equal(string(models.PPMShipmentStatusNeedsPaymentApproval), string(returnedPPMShipment.Status))
+			suite.Equal(string(models.PPMShipmentStatusNeedsCloseout), string(returnedPPMShipment.Status))
 
 			if suite.NotNil(returnedPPMShipment.SubmittedAt) {
 				returnedSubmittedAt := handlers.FmtDateTimePtrToPop(returnedPPMShipment.SubmittedAt)

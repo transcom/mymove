@@ -382,7 +382,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		suite.IsType(err, apperror.NotFoundError{})
 	})
 
-	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_PAYMENT_APPROVAL\" or \"APPROVED\"", func() {
+	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_CLOSEOUT\" or \"APPROVED\"", func() {
 		appCtx := suite.AppContextForTest()
 		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildWaitingOnCustomer)
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
