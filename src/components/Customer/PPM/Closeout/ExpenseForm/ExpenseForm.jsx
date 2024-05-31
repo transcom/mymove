@@ -9,7 +9,7 @@ import styles from './ExpenseForm.module.scss';
 
 import { formatCents } from 'utils/formatters';
 import { numOfDaysBetweenDates } from 'utils/dates';
-import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
+import { expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -34,21 +34,21 @@ const validationSchema = Yup.object().shape({
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: ppmExpenseTypes.STORAGE,
+      is: expenseTypes.STORAGE,
       then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: ppmExpenseTypes.STORAGE,
+      is: expenseTypes.STORAGE,
       then: (schema) => schema.required('Required'),
     }),
   sitLocation: Yup.string().when('expenseType', {
-    is: ppmExpenseTypes.STORAGE,
+    is: expenseTypes.STORAGE,
     then: (schema) => schema.required('Required'),
   }),
   sitWeight: Yup.string().when('expenseType', {
-    is: ppmExpenseTypes.STORAGE,
+    is: expenseTypes.STORAGE,
     then: (schema) => schema.required('Required'),
   }),
 });
