@@ -171,7 +171,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
           </div>
           <div>
             <Label>SIT Reimbursement</Label>
-            <span data-testid="destinationPrice" className={styles.light}>
+            <span data-testid="sitReimbursement" className={styles.light}>
               ${formatCents(sectionInfo.sitReimbursement)}
             </span>
           </div>
