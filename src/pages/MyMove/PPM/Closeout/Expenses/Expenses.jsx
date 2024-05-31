@@ -122,7 +122,8 @@ const Expenses = () => {
       paidWithGTCC: values.paidWithGTCC === 'true',
       SITEndDate: formatDateForSwagger(values.sitEndDate),
       SITStartDate: formatDateForSwagger(values.sitStartDate),
-      WeightStored: 0,
+      WeightStored: parseInt(values.sitWeight, 10),
+      SITLocation: values.sitLocation,
     };
 
     patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)
