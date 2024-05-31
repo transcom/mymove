@@ -47,7 +47,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		return &models.Move{}, apperror.NewPreconditionFailedError(move.ID, nil)
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		// Update move status, verifying that move/shipments are in expected state.
 		err := o.moveRouter.CompleteServiceCounseling(appCtx, move)
 		if err != nil {
@@ -122,7 +122,7 @@ func (o moveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.
 		return &models.Move{}, err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		// update field for move
 		now := time.Now()
 		if move.BillableWeightsReviewedAt == nil {
@@ -158,7 +158,7 @@ func (o moveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, mov
 		return &models.Move{}, err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		// update field for move
 		move.TIORemarks = &remarks
 
@@ -314,7 +314,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCon
 		return &models.Move{}, apperror.NewConflictError(moveTaskOrderID, "Counseling is not an approved service item")
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		// Check the If-Match header against existing eTag before updating.
 		encodedUpdatedAt := etag.GenerateEtag(moveTaskOrder.UpdatedAt)
 		if encodedUpdatedAt != eTag {
@@ -401,7 +401,7 @@ func (o moveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTa
 		return nil, err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		if move.IsPPMOnly() { // Only PPM Shipments in the move
 			ppmType := models.MovePPMTypeFULL
 			move.PPMType = &ppmType

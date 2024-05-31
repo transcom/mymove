@@ -39,7 +39,7 @@ func (o evaluationReportDeleter) DeleteEvaluationReport(appCtx appcontext.AppCon
 		return apperror.NewForbiddenError("Action not allowed")
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		// Delete existing report_violations for this report
 		existingReportViolations := models.ReportViolations{}
 		err := appCtx.DB().Where("report_id in (?)", reportID).All(&existingReportViolations)

@@ -5,7 +5,7 @@ import ServiceItemDetails from './ServiceItemDetails';
 
 const sitStatus = {
   currentSIT: {
-    sitAllowanceEndDate: '2024-03-17',
+    sitAuthorizedEndDate: '2024-03-17',
   },
 };
 

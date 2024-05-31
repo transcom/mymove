@@ -29,6 +29,7 @@ const headingInfo = {
   scheduledPickupDate: '27 Mar 2020',
   shipmentStatus: 'SUBMITTED',
   ifMatchEtag: '1234',
+  shipmentLocator: 'EVLRPT-01',
 };
 
 describe('Shipment Heading with full destination address', () => {
@@ -59,6 +60,7 @@ describe('Shipment Heading with missing destination address', () => {
       />,
     );
     expect(wrapper.find('h2').text()).toEqual('Household Goods');
+    expect(wrapper.find('h4').text()).toContain(headingInfo.shipmentLocator);
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('98421');
     expect(wrapper.find('small').text()).toContain('27 Mar 2020');
@@ -174,5 +176,24 @@ describe('Shipment Heading hides cancellation button without updateMTOPage permi
 
   it('renders withour request shipment cancellation when user does not have permission', () => {
     expect(wrapper.find('button').length).toBeFalsy();
+  });
+});
+
+describe('Shipment Heading shows cancellation button but disabled when move is locked', () => {
+  const isMoveLocked = true;
+  const wrapper = mount(
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
+      <ShipmentHeading
+        shipmentInfo={headingInfo}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+        isMoveLocked={isMoveLocked}
+      />
+    </MockProviders>,
+  );
+
+  it('renders with disabled request shipment cancellation button', () => {
+    expect(wrapper.find('button').length).toEqual(1);
+    expect(wrapper.find('button[data-testid="requestCancellationBtn"]').prop('disabled')).toBe(true);
   });
 });

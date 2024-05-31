@@ -44,6 +44,7 @@ const shipments = [
     rejectionReason: 'shipment not good enough',
     requestedPickupDate: '2018-03-15',
     scheduledPickupDate: '2018-03-16',
+    shipmentLocator: 'EVLRPT-01',
     secondaryDeliveryAddress: {
       city: 'Beverly Hills',
       country: 'US',
@@ -288,6 +289,7 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find('h3').at(0).text()).toEqual('Household goods');
     expect(wrapper.find('h3').at(1).text()).toEqual('Household goods');
     expect(wrapper.find('h3').at(2).text()).toEqual('Non-temp storage release');
+    expect(wrapper.find('h5').at(0).text()).toEqual('#EVLRPT-01');
   });
   it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(
@@ -369,9 +371,14 @@ describe('Shipment preview modal', () => {
         shipmentManagementFee
       />,
     );
-    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
-      '987 Any Avenue, P.O. Box 9876, Fairfield, CA 94535',
-    );
+
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`987 Any Avenue`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`P.O. Box 9876`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`c/o Some Person`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`Fairfield`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`CA`);
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toContain(`94535`);
+
     expect(wrapper.find('[data-testid="destinationAddress"]').at(2).text()).toEqual(
       ordersInfo.newDutyLocation.address.postalCode,
     );

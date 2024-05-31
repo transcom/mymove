@@ -863,6 +863,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1251,6 +1254,9 @@ definitions:
           description:
             type: string
             example: Decorated horse head to be crated.
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
         required:
           - reServiceCode
           - item

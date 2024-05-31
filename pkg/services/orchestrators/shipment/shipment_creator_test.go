@@ -64,7 +64,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 
 						return ship
 					},
-					func(_ appcontext.AppContext, ship *models.MTOShipment) error {
+					func(_ appcontext.AppContext, _ *models.MTOShipment) error {
 						return nil
 					},
 				)
@@ -93,7 +93,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 
 						return ship
 					},
-					func(_ appcontext.AppContext, ship *models.PPMShipment) error {
+					func(_ appcontext.AppContext, _ *models.PPMShipment) error {
 						return nil
 					},
 				)

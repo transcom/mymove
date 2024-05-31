@@ -41,44 +41,6 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
-  /open/requested-office-users:
-    post:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      summary: Create an Office User
-      description: >
-        This endpoint is publicly accessible as it is utilized for individuals
-        who do not have an office account to request the creation of an office
-        account.
-
-        Request the creation of an office user. An administrator will need to
-        approve them after creation. Note on requirements: An identification
-        method must be present. The following 2 fields have an "OR" requirement.
-        - edipi - other_unique_id One of these two fields MUST be present to
-        serve as identification for the office user being created. This logic is
-        handled at the application level.
-      operationId: createRequestedOfficeUser
-      tags:
-        - Office users
-      parameters:
-        - in: body
-          name: officeUser
-          description: Office User information
-          schema:
-            $ref: '#/definitions/OfficeUserCreate'
-      responses:
-        '201':
-          description: successfully requested the creation of provided office user
-          schema:
-            $ref: '#/definitions/OfficeUser'
-        '422':
-          description: validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: internal server error
   /customer:
     post:
       summary: Creates a customer with Okta option
@@ -118,6 +80,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /open/requested-office-users:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals
+        who do not have an office account to request the creation of an office
+        account.
+
+        Request the creation of an office user. An administrator will need to
+        approve them after creation. Note on requirements: An identification
+        method must be present. The following 2 fields have an "OR" requirement.
+        - edipi - other_unique_id One of these two fields MUST be present to
+        serve as identification for the office user being created. This logic is
+        handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -191,6 +191,70 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.customer
+  /customer/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search customers by DOD ID or customer name
+      description: >
+        Search customers by DOD ID or customer name. Used by services counselors
+        to locate profiles to update, find attached moves, and to create new
+        moves.
+      operationId: searchCustomers
+      tags:
+        - customer
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+              branch:
+                description: Branch
+                type: string
+                minLength: 1
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  - customerName
+                  - dodID
+                  - branch
+                  - personalEmail
+                  - telephone
+              order:
+                type: string
+                x-nullable: true
+                enum:
+                  - asc
+                  - desc
+          description: field that results should be sorted by
+      responses:
+        '200':
+          description: Successfully returned all customers matching the criteria
+          schema:
+            $ref: '#/definitions/SearchCustomersResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /move/{locator}:
     parameters:
       - description: Code used to identify a move in the system
@@ -1030,6 +1094,11 @@ paths:
           name: If-Match
           type: string
           required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestDiversion'
       responses:
         '200':
           description: Successfully requested the shipment diversion
@@ -3726,6 +3795,8 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
       active:
         type: boolean
       roles:
@@ -3768,6 +3839,18 @@ definitions:
       - status
       - createdAt
       - updatedAt
+  LockedOfficeUser:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
   OfficeUserCreate:
     type: object
     properties:
@@ -3892,6 +3975,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   CreatedCustomer:
     type: object
     properties:
@@ -3951,6 +4036,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3995,6 +4082,8 @@ definitions:
       backupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
@@ -4047,6 +4136,52 @@ definitions:
           - $ref: '#/definitions/Address'
       createOktaAccount:
         type: boolean
+      cacUser:
+        type: boolean
+  SearchCustomersResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchCustomers:
+        $ref: '#/definitions/SearchCustomers'
+  SearchCustomers:
+    type: array
+    items:
+      $ref: '#/definitions/SearchCustomer'
+  SearchCustomer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        x-nullable: true
+      branch:
+        type: string
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
   Entitlements:
     properties:
       id:
@@ -4062,6 +4197,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -4270,6 +4408,17 @@ definitions:
         type: string
       shipmentGBLOC:
         $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -4837,6 +4986,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4908,6 +5063,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -5298,9 +5459,20 @@ definitions:
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+      hasReceivedAdvance:
+        description: |
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
       advanceAmountRequested:
         description: |
           The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceAmountReceived:
+        description: |
+          The amount received for an advance, or null if no advance is received
         type: integer
         format: cents
         x-nullable: true
@@ -5345,6 +5517,13 @@ definitions:
   UpdateMovingExpense:
     type: object
     properties:
+      movingExpenseType:
+        $ref: '#/definitions/OmittableMovingExpenseType'
+      description:
+        description: A brief description of the expense.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
         type: integer
@@ -5365,6 +5544,9 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -5563,6 +5745,13 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
+  RequestDiversion:
+    properties:
+      diversionReason:
+        type: string
+        example: Shipment route needs to change
+    required:
+      - diversionReason
   ApproveSITExtension:
     properties:
       approvedDays:
@@ -5748,6 +5937,17 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5852,6 +6052,14 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5921,6 +6129,8 @@ definitions:
         type: string
         format: date
         x-nullable: true
+      orderType:
+        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -5929,8 +6139,14 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
-      orderType:
+      lockedByOfficeUserID:
         type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:
@@ -6419,41 +6635,6 @@ definitions:
       - city
       - state
       - postalCode
-  DutyLocation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - LOCAL_MOVE
-      - RETIREMENT
-      - SEPARATION
-      - WOUNDED_WARRIOR
-      - BLUEBARK
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      LOCAL_MOVE: Local Move
-      RETIREMENT: Retirement
-      SEPARATION: Separation
-      WOUNDED_WARRIOR: Wounded Warrior
-      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:
@@ -6497,6 +6678,41 @@ definitions:
       - address
       - created_at
       - updated_at
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
+      - RETIREMENT
+      - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      LOCAL_MOVE: Local Move
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   NullableString:
     type: string
     x-go-type:
@@ -7106,7 +7322,7 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAllowanceEndDate:
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
@@ -7462,6 +7678,11 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
@@ -8078,6 +8299,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      diversionReason:
+        type: string
+        example: MTO Shipment needs rerouted
+        x-nullable: true
       distance:
         type: integer
         x-nullable: true
@@ -8191,6 +8416,12 @@ definitions:
         x-nullable: true
         readOnly: true
         example: 1K43AR-01
+      originSitAuthEndDate:
+        format: date-time
+        type: string
+      destinationSitAuthEndDate:
+        format: date-time
+        type: string
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string

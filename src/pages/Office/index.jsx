@@ -8,7 +8,6 @@ import styles from './Office.module.scss';
 
 import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
-
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
@@ -32,6 +31,7 @@ import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
+import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { RouterShape, UserRolesShape } from 'types/index';
@@ -43,6 +43,7 @@ import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLo
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const RequestAccount = lazy(() => import('pages/Office/RequestAccount/RequestAccount'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
 // TXO
 const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
@@ -88,6 +89,11 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
+const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
+const ServicesCounselingAddOrders = lazy(() =>
+  import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -190,7 +196,7 @@ export class OfficeApp extends Component {
             <CUIHeader />
             {userIsLoggedIn && activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}
+            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
               {hasRecentError && location.pathname === '/' && (
@@ -213,6 +219,7 @@ export class OfficeApp extends Component {
                   // No Auth Routes
                   <Routes>
                     <Route path="/sign-in" element={<SignIn />} />
+                    <Route path="/request-account" element={<RequestAccount />} />
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
 
                     {/* 404 */}
@@ -269,6 +276,22 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+                    <Route
+                      path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateMoveCustomerInfo />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <ServicesCounselingAddOrders />
+                        </PrivateRoute>
+                      }
+                    />
                     {activeRole === roleTypes.TIO && (
                       <Route
                         path="/:queueType/*"
@@ -310,6 +333,14 @@ export class OfficeApp extends Component {
                     />
 
                     {/* TOO */}
+                    <Route
+                      path={`${tooRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <CustomerInfo />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="tooEditShipmentDetailsRoute"
                       end

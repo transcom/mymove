@@ -60,6 +60,7 @@ describe('when given an mto shipment update with mto shipment table history reco
     context: [
       {
         shipment_type: 'PPM',
+        shipment_locator: 'RQ38D4-01',
         shipment_id_abbr: 'b4b4b',
       },
     ],
@@ -118,7 +119,7 @@ describe('when given an mto shipment update with mto shipment table history reco
     it('displays the correct label for shipment', () => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));
-      expect(screen.getByText('PPM shipment #B4B4B')).toBeInTheDocument();
+      expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
     });
   });
 });
