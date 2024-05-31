@@ -287,7 +287,7 @@ describe('Expenses page', () => {
           SITStartDate: undefined,
           paidWithGTCC: true,
           WeightStored: NaN,
-          SITLocation: '',
+          SITLocation: undefined,
         },
         mockExpense.eTag,
       );
@@ -327,7 +327,7 @@ describe('Expenses page', () => {
           SITStartDate: undefined,
           paidWithGTCC: false,
           WeightStored: NaN,
-          SITLocation: '',
+          SITLocation: undefined,
         },
         mockExpense.eTag,
       );
