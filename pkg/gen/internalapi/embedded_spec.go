@@ -3061,6 +3061,13 @@ func init() {
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional PPM shipment ID related to the upload",
+            "name": "ppmId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -10916,6 +10923,13 @@ func init() {
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional PPM shipment ID related to the upload",
+            "name": "ppmId",
             "in": "query"
           }
         ],
