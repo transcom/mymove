@@ -1094,6 +1094,11 @@ paths:
           name: If-Match
           type: string
           required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestDiversion'
       responses:
         '200':
           description: Successfully requested the shipment diversion
@@ -5780,6 +5785,13 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
+  RequestDiversion:
+    properties:
+      diversionReason:
+        type: string
+        example: Shipment route needs to change
+    required:
+      - diversionReason
   ApproveSITExtension:
     properties:
       approvedDays:
@@ -8330,6 +8342,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      diversionReason:
+        type: string
+        example: MTO Shipment needs rerouted
+        x-nullable: true
       distance:
         type: integer
         x-nullable: true
