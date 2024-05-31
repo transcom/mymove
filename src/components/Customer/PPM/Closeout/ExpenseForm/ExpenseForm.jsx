@@ -84,7 +84,7 @@ const ExpenseForm = ({
     document: document?.uploads || [],
     sitStartDate: sitStartDate || '',
     sitEndDate: sitEndDate || '',
-    sitLocation: sitLocation || '',
+    sitLocation: sitLocation || undefined,
     sitWeight: weightStored ? `${weightStored}` : '',
   };
 
