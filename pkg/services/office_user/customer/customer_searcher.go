@@ -48,10 +48,9 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	}
 
 	var query *pop.Query
-	var rawquery string
 
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		rawquery = `SELECT DISTINCT ON (id)
+		rawquery := `SELECT DISTINCT ON (id)
 			service_members.affiliation, service_members.backup_mailing_address_id,
 			service_members.cac_validated, service_members.created_at, service_members.edipi,
 			service_members.email_is_preferred, service_members.emplid,
@@ -65,14 +64,16 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 			LEFT JOIN orders ON orders.service_member_id = service_members.id`
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			rawquery += ` WHERE ((orders.orders_type != 'SAFETY' or orders.orders_type IS NULL)`
+			rawquery += ` WHERE ((orders.orders_type != 'SAFETY' or orders.orders_type IS NULL) AND`
+		} else {
+			rawquery += ` WHERE (`
 		}
 
 		if params.DodID != nil {
-			rawquery += ` AND service_members.edipi = $1)`
+			rawquery += ` service_members.edipi = $1)`
 			query = appCtx.DB().RawQuery(rawquery, params.DodID)
 		} else {
-			rawquery += ` AND f_unaccent(lower($1)) % searchable_full_name(first_name, last_name))`
+			rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name))`
 			query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
 		}
 	}
