@@ -64,6 +64,7 @@ const basicUseTXOMoveInfoQueriesValue = {
   customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
   move: {
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+    lockExpiresAt: '2099-10-15T23:48:35.420Z',
   },
   order: {
     id: '4321',
@@ -213,7 +214,7 @@ describe('TXO Move Info Container', () => {
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
 
-    it('renders a lock icon when move lock flag is on', async () => {
+    it('renders a locked move banner when move lock flag is on', async () => {
       isBooleanFlagEnabled.mockResolvedValue(true);
       useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
 
@@ -228,7 +229,7 @@ describe('TXO Move Info Container', () => {
         expect(banner).toBeInTheDocument();
       });
     });
-    it('does NOT render a lock icon when move lock flag is off', async () => {
+    it('does NOT render a locked move banner when move lock flag is off', async () => {
       isBooleanFlagEnabled.mockResolvedValue(false);
       useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
 

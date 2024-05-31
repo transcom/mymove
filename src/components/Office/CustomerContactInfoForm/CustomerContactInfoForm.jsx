@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { Checkbox } from '@trussworks/react-uswds';
+import { Checkbox, Grid } from '@trussworks/react-uswds';
 
 import styles from './CustomerContactInfoForm.module.scss';
 
@@ -41,47 +41,54 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   });
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, handleSubmit }) => {
-        return (
-          <Form className={formStyles.form}>
-            <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
-              <CustomerAltContactInfoFields
-                render={(fields) => (
-                  <>
-                    <h2>Contact info</h2>
-                    <Checkbox
-                      data-testid="useCurrentResidence"
-                      label="This is not the person named on the orders."
-                      name="useCurrentResidence"
-                      id="useCurrentResidenceCheckbox"
+    <Grid row>
+      <Grid col>
+        <div className={styles.customerContactForm}>
+          <h1 className={styles.title}>Customer Info</h1>
+          <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
+            {({ isValid, isSubmitting, handleSubmit }) => {
+              return (
+                <Form className={formStyles.form}>
+                  <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
+                    <CustomerAltContactInfoFields
+                      render={(fields) => (
+                        <>
+                          <h2>Contact info</h2>
+                          <Checkbox
+                            data-testid="useCurrentResidence"
+                            label="This is not the person named on the orders."
+                            name="useCurrentResidence"
+                            id="useCurrentResidenceCheckbox"
+                          />
+                          {fields}
+                        </>
+                      )}
                     />
-                    {fields}
-                  </>
-                )}
-              />
-              <h3 className={styles.sectionHeader}>Current Address</h3>
-              <AddressFields name="customerAddress" />
-              <h3 className={styles.sectionHeader}>Backup Address</h3>
-              <AddressFields name="backupAddress" />
-            </SectionWrapper>
-            <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
-              <h2 className={styles.sectionHeader}>Backup contact</h2>
+                    <h3 className={styles.sectionHeader}>Current Address</h3>
+                    <AddressFields name="customerAddress" />
+                    <h3 className={styles.sectionHeader}>Backup Address</h3>
+                    <AddressFields name="backupAddress" />
+                  </SectionWrapper>
+                  <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
+                    <h2 className={styles.sectionHeader}>Backup contact</h2>
 
-              <BackupContactInfoFields />
-            </SectionWrapper>
-            <div className={formStyles.formActions}>
-              <WizardNavigation
-                editMode
-                disableNext={!isValid || isSubmitting}
-                onCancelClick={onBack}
-                onNextClick={handleSubmit}
-              />
-            </div>
-          </Form>
-        );
-      }}
-    </Formik>
+                    <BackupContactInfoFields />
+                  </SectionWrapper>
+                  <div className={formStyles.formActions}>
+                    <WizardNavigation
+                      editMode
+                      disableNext={!isValid || isSubmitting}
+                      onCancelClick={onBack}
+                      onNextClick={handleSubmit}
+                    />
+                  </div>
+                </Form>
+              );
+            }}
+          </Formik>
+        </div>
+      </Grid>
+    </Grid>
   );
 };
 
