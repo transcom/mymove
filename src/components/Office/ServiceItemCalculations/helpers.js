@@ -835,7 +835,10 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
 
-      if (getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params) === 'true') {
+      if (
+        SERVICE_ITEM_PARAM_KEYS.StandaloneCrate !== null &&
+        getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params) === 'true'
+      ) {
         result.splice(result.length - 1, 0, standaloneCrate(params));
       }
 
