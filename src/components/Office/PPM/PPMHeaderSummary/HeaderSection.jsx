@@ -153,6 +153,12 @@ const getSectionMarkup = (sectionInfo) => {
               ${formatCents(sectionInfo.ddp)}
             </span>
           </div>
+          <div>
+            <Label>SIT Reimbursement</Label>
+            <span data-testid="destinationPrice" className={styles.light}>
+              ${formatCents(sectionInfo.sitReimbursement)}
+            </span>
+          </div>
         </div>
       );
 
