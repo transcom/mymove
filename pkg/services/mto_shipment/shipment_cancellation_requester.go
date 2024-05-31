@@ -1,6 +1,8 @@
 package mtoshipment
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -34,6 +36,12 @@ func (f *shipmentCancellationRequester) RequestShipmentCancellation(appCtx appco
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 	if existingETag != eTag {
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	today := time.Now()
+	// Cancellation Request can only be made before todays date
+	if shipment.ActualPickupDate.After(today) || shipment.ActualPickupDate == &today {
+		return &models.MTOShipment{}, apperror.NewUpdateError(shipmentID, "cancellation request date cannot be on or after actual pick update")
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
