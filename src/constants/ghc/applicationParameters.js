@@ -3,7 +3,7 @@ import { getParamByName } from 'services/ghcApi';
 import { milmoveLogger } from 'utils/milmoveLog';
 
 let standaloneCrateCap;
-await getParamByName('standaloneCrateCap')
+getParamByName('standaloneCrateCap')
   .then((response) => {
     if (response.parameterValue != null) {
       standaloneCrateCap = parseFloat(response.parameterValue).toFixed(2);
