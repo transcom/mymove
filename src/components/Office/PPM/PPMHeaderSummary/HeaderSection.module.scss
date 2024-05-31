@@ -16,6 +16,25 @@
   h4 {
     @include u-margin-y(2.5);
   }
+  .edit-btn-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .edit-btn {
+    margin: 0;
+    padding: 0 0 0 3px;
+    display: inline;
+    color: $primary;
+    background-color: transparent;
+    height: auto;
+
+    &:hover,
+    &:focus {
+      color: $primary;
+      background-color: transparent;
+    }
+  }
 }
 
 .Details {
