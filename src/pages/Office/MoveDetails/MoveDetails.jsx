@@ -62,9 +62,6 @@ const MoveDetails = ({
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
-  /* ------------------ Miscellaneous ------------------------- */
-  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
-  const [isAtExcessWeightRisk, setIsAtExcessWeightRisk] = useState(false);
 
   const navigate = useNavigate();
 
