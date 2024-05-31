@@ -94,7 +94,7 @@ const ProGear = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
-    deleteUpload(uploadId)
+    deleteUpload(uploadId, null, mtoShipment?.ppmShipment?.id)
       .then(() => {
         const filteredUploads = mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.filter(
           (upload) => upload.id !== uploadId,
