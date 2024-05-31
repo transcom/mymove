@@ -806,7 +806,7 @@ commands:
           at: .
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: setup hosts
           command: |
@@ -1170,14 +1170,14 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: scripts/check-generated-code yarn.lock
-      # `v3-cache-yarn-v3-{{ checksum "yarn.lock" }}` is used to cache yarn sources
+      # `v4-cache-yarn-v4-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
-          key: v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+          key: v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
       - announce_failure
@@ -1255,7 +1255,7 @@ jobs:
       - restore_cache_for_go
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -1567,7 +1567,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
@@ -1744,7 +1744,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
@@ -1902,7 +1902,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
