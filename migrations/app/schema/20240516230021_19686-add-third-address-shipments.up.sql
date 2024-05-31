@@ -15,3 +15,6 @@ ADD COLUMN IF NOT EXISTS tertiary_pickup_address_id UUID NULL,
 ADD COLUMN IF NOT EXISTS tertiary_delivery_address_id UUID NULL,
 ADD COLUMN IF NOT EXISTS has_tertiary_pickup_address bool NULL,
 ADD COLUMN IF NOT EXISTS has_tertiary_delivery_address bool NULL;
+
+ALTER TABLE mto_shipments ADD CONSTRAINT mto_shipments_tertiary_pickup_address_id_fkey FOREIGN KEY (tertiary_pickup_address_id) REFERENCES addresses(id);
+ALTER TABLE mto_shipments ADD CONSTRAINT mto_shipments_tertiary_delivery_address_id_fkey FOREIGN KEY (tertiary_delivery_address_id) REFERENCES addresses(id);
