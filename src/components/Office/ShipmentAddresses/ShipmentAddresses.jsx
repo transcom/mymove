@@ -22,7 +22,7 @@ const ShipmentAddresses = ({
   destinationAddress,
   originDutyLocation,
   destinationDutyLocation,
-  handleDivertShipment,
+  handleShowDiversionModal,
   shipmentInfo,
   isMoveLocked,
 }) => {
@@ -57,9 +57,7 @@ const ShipmentAddresses = ({
                 <Restricted to={permissionTypes.updateMTOPage}>
                   <Button
                     type="button"
-                    onClick={() =>
-                      handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag, shipmentInfo.shipmentLocator)
-                    }
+                    onClick={() => handleShowDiversionModal(shipmentInfo)}
                     unstyled
                     disabled={isMoveLocked}
                   >
@@ -94,7 +92,7 @@ ShipmentAddresses.propTypes = {
   destinationAddress: AddressShape,
   originDutyLocation: AddressShape,
   destinationDutyLocation: AddressShape,
-  handleDivertShipment: PropTypes.func.isRequired,
+  handleShowDiversionModal: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
     id: PropTypes.string.isRequired,
     eTag: PropTypes.string.isRequired,
