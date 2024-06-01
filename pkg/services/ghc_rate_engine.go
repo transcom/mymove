@@ -97,7 +97,7 @@ type DomesticDestinationShuttlingPricer interface {
 //
 //go:generate mockery --name DomesticCratingPricer
 type DomesticCratingPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleOrigin int, standaloneCrate bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleOrigin int, standaloneCrate bool, standaloneCrateCap unit.Cents) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

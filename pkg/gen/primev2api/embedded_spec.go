@@ -2636,7 +2636,8 @@ func init() {
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress",
-        "StandaloneCrate"
+        "StandaloneCrate",
+        "StandaloneCrateCap"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -6139,7 +6140,8 @@ func init() {
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress",
-        "StandaloneCrate"
+        "StandaloneCrate",
+        "StandaloneCrateCap"
       ]
     },
     "ServiceItemParamOrigin": {

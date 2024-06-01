@@ -151,6 +151,8 @@ const (
 	ServiceItemParamNameZipSITOriginHHGOriginalAddress ServiceItemParamName = "ZipSITOriginHHGOriginalAddress"
 	// ServiceItemParamNameStandaloneCrate is the param key name StandaloneCrate
 	ServiceItemParamNameStandaloneCrate ServiceItemParamName = "StandaloneCrate"
+	// ServiceItemParamNameStandaloneCrateCap is the param key name StandaloneCrateCap
+	ServiceItemParamNameStandaloneCrateCap ServiceItemParamName = "StandaloneCrateCap"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -266,6 +268,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameZipSITOriginHHGActualAddress,
 	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 	ServiceItemParamNameStandaloneCrate,
+	ServiceItemParamNameStandaloneCrateCap,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -337,6 +340,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameZipSITOriginHHGActualAddress),
 	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
 	string(ServiceItemParamNameStandaloneCrate),
+	string(ServiceItemParamNameStandaloneCrateCap),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types

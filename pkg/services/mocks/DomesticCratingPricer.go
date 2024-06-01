@@ -20,32 +20,32 @@ type DomesticCratingPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate
-func (_m *DomesticCratingPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleOrigin int, standaloneCrate bool) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate)
+// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate, standaloneCrateCap
+func (_m *DomesticCratingPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleOrigin int, standaloneCrate bool, standaloneCrateCap unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate, standaloneCrateCap)
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool, unit.Cents) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate, standaloneCrateCap)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool, unit.Cents) unit.Cents); ok {
+		r0 = rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate, standaloneCrateCap)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool, unit.Cents) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate, standaloneCrateCap)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool) error); ok {
-		r2 = rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.CubicFeet, int, bool, unit.Cents) error); ok {
+		r2 = rf(appCtx, contractCode, requestedPickupDate, billedCubicFeet, servicesScheduleOrigin, standaloneCrate, standaloneCrateCap)
 	} else {
 		r2 = ret.Error(2)
 	}

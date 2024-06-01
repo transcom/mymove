@@ -1,5 +1,4 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
-import { TXO_PARAMS } from 'constants/ghc/applicationParameters';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
 import { formatDateWithUTC } from 'shared/dates';
 import {
@@ -625,7 +624,7 @@ const standaloneCrate = (params) => {
   const label = SERVICE_ITEM_CALCULATION_LABELS.StandaloneCrate;
 
   if (standalone === 'true') {
-    const value = TXO_PARAMS.STANDALONE_CRATE_CAP;
+    const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrateCap, params);
     return calculation(value, label);
   }
 
