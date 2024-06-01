@@ -8826,6 +8826,7 @@ definitions:
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
       - StandaloneCrate
+      - StandaloneCrateCap
   ServiceItemParamType:
     type: string
     enum:

@@ -716,10 +716,6 @@ export async function createUploadForDocument(file, documentId) {
   );
 }
 
-export async function getParamByName(parameterName) {
-  return makeGHCRequest('application_parameters.getParam', { parameterName }, { normalize: false });
-}
-
 export async function searchCustomers(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const paramFilters = {};
   filters.forEach((filter) => {

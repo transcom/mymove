@@ -50,6 +50,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ZipSITOriginHHGActualAddress: 'ZipSITOriginHHGActualAddress',
   ZipSITOriginHHGOriginalAddress: 'ZipSITOriginHHGOriginalAddress',
   StandaloneCrate: 'StandaloneCrate',
+  StandaloneCrateCap: 'StandaloneCrateCap',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {

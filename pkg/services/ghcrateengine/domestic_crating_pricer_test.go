@@ -18,6 +18,7 @@ const (
 	dcrtTestBilledCubicFeet      = unit.CubicFeet(10)
 	dcrtTestPriceCents           = unit.Cents(25880)
 	dcrtTestStandaloneCrate      = false
+	dcrtTestStandaloneCrateCap   = unit.Cents(1000000)
 )
 
 var dcrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -52,7 +53,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.NoError(err)
 		suite.Equal(dcrtTestPriceCents, priceCents)
 	})
@@ -66,14 +67,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 	suite.Run("invalid crating volume", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 		badVolume := unit.CubicFeet(3.0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, badVolume, dcrtTestServiceSchedule, dcrtTestStandaloneCrate)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, badVolume, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.Error(err)
 		suite.Contains(err.Error(), "crate must be billed for a minimum of 4 cubic feet")
 	})
 
 	suite.Run("not finding a rate record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
-		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
@@ -81,7 +82,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
@@ -116,6 +117,11 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticCratingServiceItem(cubicFee
 				Key:     models.ServiceItemParamNameStandaloneCrate,
 				KeyType: models.ServiceItemParamTypeBoolean,
 				Value:   strconv.FormatBool(false),
+			},
+			{
+				Key:     models.ServiceItemParamNameStandaloneCrateCap,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.FormatInt(100000, 10),
 			},
 		}, nil, nil,
 	)

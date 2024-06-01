@@ -67,3 +67,4 @@ enum:
   - ZipSITOriginHHGActualAddress
   - ZipSITOriginHHGOriginalAddress
   - StandaloneCrate
+  - StandaloneCrateCap
