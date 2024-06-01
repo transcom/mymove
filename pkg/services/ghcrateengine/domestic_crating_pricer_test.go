@@ -120,8 +120,8 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticCratingServiceItem(cubicFee
 			},
 			{
 				Key:     models.ServiceItemParamNameStandaloneCrateCap,
-				KeyType: models.ServiceItemParamTypeDecimal,
-				Value:   strconv.FormatFloat(100000, 'f', 3, 64),
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.FormatInt(100000, 10),
 			},
 		}, nil, nil,
 	)

@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// StandaloneCrateLookup does lookup on actual pickup date
+// StandaloneCrateLookup does lookup on standaloneCrate
 type StandaloneCrateLookup struct {
 	ServiceItem models.MTOServiceItem
 }
