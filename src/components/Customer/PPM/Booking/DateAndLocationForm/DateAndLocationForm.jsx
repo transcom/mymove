@@ -19,6 +19,7 @@ import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { requiredAddressSchema } from 'utils/validation';
+import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
 
 const validationShape = {
   useCurrentResidence: Yup.boolean(),
@@ -218,41 +219,45 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           </Hint>
                         </>
                       )}
-                      {values.hasSecondaryPickupAddress === 'true' && (
-                        <div>
-                          <FormGroup>
-                            <legend className="usa-label">Will you add items to your PPM from a third address?</legend>
-                            <Fieldset>
-                              <Field
-                                as={Radio}
-                                id="yes-tertiary-pickup-address"
-                                data-testid="yes-tertiary-pickup-address"
-                                label="Yes"
-                                name="hasTertiaryPickupAddress"
-                                value="true"
-                                title="Yes, I have a third delivery location"
-                                checked={values.hasTertiaryPickupAddress === 'true'}
-                              />
-                              <Field
-                                as={Radio}
-                                id="no-tertiary-pickup-address"
-                                data-testid="no-tertiary-pickup-address"
-                                label="No"
-                                name="hasTertiaryPickupAddress"
-                                value="false"
-                                title="No, I do not have a third delivery location"
-                                checked={values.hasTertiaryPickupAddress !== 'true'}
-                              />
-                            </Fieldset>
-                          </FormGroup>
-                        </div>
-                      )}
-                      {values.hasTertiaryPickupAddress === 'true' && values.hasSecondaryPickupAddress && (
-                        <>
-                          <h3>Third pickup location</h3>
-                          <AddressFields name="tertiaryPickupAddress.address" />
-                        </>
-                      )}
+                      <FeatureFlag flagKey="third_address_available">
+                        {values.hasSecondaryPickupAddress === 'true' && (
+                          <div>
+                            <FormGroup>
+                              <legend className="usa-label">
+                                Will you add items to your PPM from a third address?
+                              </legend>
+                              <Fieldset>
+                                <Field
+                                  as={Radio}
+                                  id="yes-tertiary-pickup-address"
+                                  data-testid="yes-tertiary-pickup-address"
+                                  label="Yes"
+                                  name="hasTertiaryPickupAddress"
+                                  value="true"
+                                  title="Yes, I have a third delivery location"
+                                  checked={values.hasTertiaryPickupAddress === 'true'}
+                                />
+                                <Field
+                                  as={Radio}
+                                  id="no-tertiary-pickup-address"
+                                  data-testid="no-tertiary-pickup-address"
+                                  label="No"
+                                  name="hasTertiaryPickupAddress"
+                                  value="false"
+                                  title="No, I do not have a third delivery location"
+                                  checked={values.hasTertiaryPickupAddress !== 'true'}
+                                />
+                              </Fieldset>
+                            </FormGroup>
+                          </div>
+                        )}
+                        {values.hasTertiaryPickupAddress === 'true' && values.hasSecondaryPickupAddress && (
+                          <>
+                            <h3>Third pickup location</h3>
+                            <AddressFields name="tertiaryPickupAddress.address" />
+                          </>
+                        )}
+                      </FeatureFlag>
                     </>
                   )}
                 />
@@ -310,42 +315,46 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           </Hint>
                         </>
                       )}
-                      {values.hasSecondaryDestinationAddress === 'true' && (
-                        <div>
-                          <FormGroup>
-                            <legend className="usa-label">Will you deliver part of your PPM to a third address?</legend>
-                            <Fieldset>
-                              <Field
-                                as={Radio}
-                                id="yes-tertiary-destination-address"
-                                data-testid="yes-tertiary-destination-address"
-                                label="Yes"
-                                name="hasTertiaryDestinationAddress"
-                                value="true"
-                                title="Yes, I have a third delivery location"
-                                checked={values.hasTertiaryDestinationAddress === 'true'}
-                              />
-                              <Field
-                                as={Radio}
-                                id="no-tertiary-destination-address"
-                                data-testid="no-tertiary-destination-address"
-                                label="No"
-                                name="hasTertiaryDestinationAddress"
-                                value="false"
-                                title="No, I do not have a third delivery location"
-                                checked={values.hasTertiaryDestinationAddress !== 'true'}
-                              />
-                            </Fieldset>
-                          </FormGroup>
-                        </div>
-                      )}
-                      {values.hasTertiaryDestinationAddress === 'true' &&
-                        values.hasSecondaryDestinationAddress === 'true' && (
-                          <>
-                            <h3>Third delivery location</h3>
-                            <AddressFields name="tertiaryDestinationAddress.address" />
-                          </>
+                      <FeatureFlag flagKey="third_address_available">
+                        {values.hasSecondaryDestinationAddress === 'true' && (
+                          <div>
+                            <FormGroup>
+                              <legend className="usa-label">
+                                Will you deliver part of your PPM to a third address?
+                              </legend>
+                              <Fieldset>
+                                <Field
+                                  as={Radio}
+                                  id="yes-tertiary-destination-address"
+                                  data-testid="yes-tertiary-destination-address"
+                                  label="Yes"
+                                  name="hasTertiaryDestinationAddress"
+                                  value="true"
+                                  title="Yes, I have a third delivery location"
+                                  checked={values.hasTertiaryDestinationAddress === 'true'}
+                                />
+                                <Field
+                                  as={Radio}
+                                  id="no-tertiary-destination-address"
+                                  data-testid="no-tertiary-destination-address"
+                                  label="No"
+                                  name="hasTertiaryDestinationAddress"
+                                  value="false"
+                                  title="No, I do not have a third delivery location"
+                                  checked={values.hasTertiaryDestinationAddress !== 'true'}
+                                />
+                              </Fieldset>
+                            </FormGroup>
+                          </div>
                         )}
+                        {values.hasTertiaryDestinationAddress === 'true' &&
+                          values.hasSecondaryDestinationAddress === 'true' && (
+                            <>
+                              <h3>Third delivery location</h3>
+                              <AddressFields name="tertiaryDestinationAddress.address" />
+                            </>
+                          )}
+                      </FeatureFlag>
                     </>
                   )}
                 />

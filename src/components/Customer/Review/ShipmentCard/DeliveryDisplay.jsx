@@ -7,6 +7,7 @@ import styles from './ShipmentCard.module.scss';
 
 import { formatCustomerDate } from 'utils/formatters';
 import { formatCustomerDestination } from 'utils/shipmentDisplay';
+import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
 
 const DeliveryDisplay = ({
   destinationLocation,
@@ -32,13 +33,14 @@ const DeliveryDisplay = ({
           <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
         </div>
       )}
-      {tertiaryDeliveryAddress && (
-        <div className={styles.row}>
-          <dt>Third Destination</dt>
-          <dd>{formatCustomerDestination(tertiaryDeliveryAddress)}</dd>
-        </div>
-      )}
-
+      <FeatureFlag flagKey="third_address_available">
+        {tertiaryDeliveryAddress && (
+          <div className={styles.row}>
+            <dt>Third Destination</dt>
+            <dd>{formatCustomerDestination(tertiaryDeliveryAddress)}</dd>
+          </div>
+        )}
+      </FeatureFlag>
       {receivingAgent && (
         <div className={styles.row}>
           <dt>Receiving agent</dt>

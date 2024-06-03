@@ -6,6 +6,7 @@ import { AddressShape } from '../../../../types/address';
 import styles from './ShipmentCard.module.scss';
 
 import { formatCustomerDate } from 'utils/formatters';
+import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
 
 const PickupDisplay = ({
   pickupLocation,
@@ -40,16 +41,18 @@ const PickupDisplay = ({
           </dd>
         </div>
       )}
-      {tertiaryPickupAddress && (
-        <div className={styles.row}>
-          <dt>Third pickup location</dt>
-          <dd>
-            {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
-            <br />
-            {tertiaryPickupAddress.city}, {tertiaryPickupAddress.state} {tertiaryPickupAddress.postalCode}
-          </dd>
-        </div>
-      )}
+      <FeatureFlag flagKey="third_address_available">
+        {tertiaryPickupAddress && (
+          <div className={styles.row}>
+            <dt>Third pickup location</dt>
+            <dd>
+              {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
+              <br />
+              {tertiaryPickupAddress.city}, {tertiaryPickupAddress.state} {tertiaryPickupAddress.postalCode}
+            </dd>
+          </div>
+        )}
+      </FeatureFlag>
       {releasingAgent && (
         <div className={styles.row}>
           <dt>Releasing agent</dt>
