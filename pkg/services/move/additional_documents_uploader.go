@@ -25,11 +25,6 @@ func NewMoveAdditionalDocumentsUploader(uploadCreator services.UploadCreator) se
 	return &additionalDocumentsUploader{uploadCreator, basicChecks()}
 }
 
-// // NewPrimeMoveExcessWeightUploader returns a new excessWeightUploader
-// func NewPrimeMoveExcessWeightUploader(uploadCreator services.UploadCreator) services.MoveExcessWeightUploader {
-// 	return &excessWeightUploader{uploadCreator, primeChecks()}
-// }
-
 // CreateExcessWeightUpload uploads an excess weight document and updates the move with the new upload info
 func (u *additionalDocumentsUploader) CreateAdditionalDocumentsUpload(
 	appCtx appcontext.AppContext,
@@ -38,7 +33,6 @@ func (u *additionalDocumentsUploader) CreateAdditionalDocumentsUpload(
 	file io.ReadCloser,
 	filename string,
 	storer storage.FileStorer,
-	// ) (error) {
 ) (models.Upload, string, *validate.Errors, error) {
 	moveToUpdate, findErr := u.findMoveWithAdditionalDocuments(appCtx, moveID)
 	if findErr != nil {
@@ -73,7 +67,6 @@ func (u *additionalDocumentsUploader) findMoveWithAdditionalDocuments(appCtx app
 }
 
 func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext, userID uuid.UUID, move models.Move, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
-	// DAD
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error
 	savedAdditionalDoc := move.AdditionalDocuments
@@ -120,7 +113,6 @@ func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext
 }
 
 func (u *additionalDocumentsUploader) saveAdditionalDocumentForMove(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
-	// DAD
 	var docID uuid.UUID
 	if doc != nil {
 		docID = doc.ID
@@ -157,10 +149,6 @@ func (f *additionalDocumentsUploader) updateMove(appCtx appcontext.AppContext, m
 		return nil, uuid.Nil, transactionError
 	}
 
-	// var moveID uuid.UUID
-	// if len(order.Moves) > 0 {
-	// 	moveID = order.Moves[0].ID
-	// }
 	return returnedMove, returnedMove.ID, nil
 }
 
