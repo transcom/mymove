@@ -16,7 +16,7 @@ export const adminOfficeRoles = [
   { roleType: 'contracting_officer', name: 'Contracting Officer' },
   { roleType: 'services_counselor', name: 'Services Counselor' },
   { roleType: 'prime_simulator', name: 'Prime Simulator' },
-  { roleType: 'qae', name: 'Quality Assurance' },
+  { roleType: 'qae', name: 'Quality Assurance Evaluator' },
 ];
 
 export const officeRoles = [
