@@ -72,6 +72,10 @@ properties:
   diversion:
     type: boolean
     example: true
+  diversionReason:
+    type: string
+    example: MTO Shipment needs rerouted
+    x-nullable: true
   distance:
     type: integer
     x-nullable: true
