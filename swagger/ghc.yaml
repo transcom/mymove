@@ -6746,6 +6746,7 @@ definitions:
       - SEPARATION
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -6753,6 +6754,7 @@ definitions:
       SEPARATION: Separation
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   NullableString:
     type: string
     x-go-type:
@@ -8595,6 +8597,13 @@ definitions:
         description: The remaining reimbursement amount that is still owed to the customer.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      haulType:
+        description: >-
+          The type of haul calculation used for this shipment (shorthaul or
+          linehaul).
+        type: string
         x-nullable: true
         x-omitempty: false
       haulPrice:
