@@ -49,7 +49,9 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 	}
 
 	if appCtx.Session().IsMilApp() {
-		mergedMovingExpense.SubmittedAmount = mergedMovingExpense.Amount
+		if mergedMovingExpense.Amount != nil {
+			mergedMovingExpense.SubmittedAmount = mergedMovingExpense.Amount
+		}
 		if mergedMovingExpense.SITStartDate != nil {
 			mergedMovingExpense.SubmittedSITStartDate = mergedMovingExpense.SITStartDate
 		}
@@ -124,13 +126,23 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 		if movingExpenseReceiptType == models.MovingExpenseReceiptTypeStorage {
 			mergedMovingExpense.SITStartDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITStartDate, mergedMovingExpense.SITStartDate)
 			mergedMovingExpense.SITEndDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITEndDate, mergedMovingExpense.SITEndDate)
-			mergedMovingExpense.WeightStored = services.SetOptionalPoundField(updatedMovingExpense.WeightStored, mergedMovingExpense.WeightStored)
+
+			// if weightStored was omitted we check for the zero value that is passed in and don't update it since we don't want to null out
+			// a previous value
+			if *updatedMovingExpense.WeightStored != 0 {
+				mergedMovingExpense.WeightStored = services.SetOptionalPoundField(updatedMovingExpense.WeightStored, mergedMovingExpense.WeightStored)
+			}
+
+			if updatedMovingExpense.SITLocation != nil {
+				mergedMovingExpense.SITLocation = updatedMovingExpense.SITLocation
+			}
 		} else if originalMovingExpense.MovingExpenseType != nil && *originalMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
 			// The receipt type has been changed from storage to something else so we should clear
 			// the start and end values
 			mergedMovingExpense.SITStartDate = nil
 			mergedMovingExpense.SITEndDate = nil
 			mergedMovingExpense.WeightStored = nil
+			mergedMovingExpense.SITLocation = nil
 		}
 
 	} else {
