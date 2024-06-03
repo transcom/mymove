@@ -45,6 +45,7 @@ const ServicesCounselingMoveInfo = () => {
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
@@ -61,6 +62,11 @@ const ServicesCounselingMoveInfo = () => {
 
   // Clear the alert when route changes
   const location = useLocation();
+  const { moveCode } = useParams();
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { data } = useUserQueries();
+  const officeUserID = data?.office_user?.id;
+
   useEffect(() => {
     const fetchData = async () => {
       if (
@@ -77,14 +83,14 @@ const ServicesCounselingMoveInfo = () => {
       }
       const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
       setMoveLockFlag(lockedMoveFlag);
+      const now = new Date();
+      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt) && moveLockFlag) {
+        setIsMoveLocked(true);
+      }
     };
 
     fetchData();
-  }, [infoSavedAlert, location]);
-
-  const { moveCode } = useParams();
-  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
-  const { data } = useUserQueries();
+  }, [infoSavedAlert, location, move, officeUserID, moveLockFlag]);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -137,13 +143,13 @@ const ServicesCounselingMoveInfo = () => {
   // this locked move banner will display if the current user is not the one who has it locked
   // if the current user is the one who has it locked, it will not display
   const renderLockedBanner = () => {
-    const officeUser = data?.office_user;
-    if (move?.lockedByOfficeUserID && moveLockFlag) {
-      if (move?.lockedByOfficeUserID !== officeUser?.id) {
+    const now = new Date();
+    if (move?.lockedByOfficeUserID && move?.lockExpiresAt && moveLockFlag) {
+      if (move?.lockedByOfficeUserID !== officeUserID && now < new Date(move?.lockExpiresAt)) {
         return (
           <LockedMoveBanner data-testid="locked-move-banner">
-            This move is locked by {move.lockedByOfficeUser?.firstName} {move.lockedByOfficeUser?.lastName} at{' '}
-            {move.lockedByOfficeUser?.transportationOffice?.name}
+            This move is locked by {move?.lockedByOfficeUser?.firstName} {move?.lockedByOfficeUser?.lastName} at{' '}
+            {move?.lockedByOfficeUser?.transportationOffice?.name}
           </LockedMoveBanner>
         );
       }
@@ -195,6 +201,7 @@ const ServicesCounselingMoveInfo = () => {
               <ServicesCounselingMoveDetails
                 infoSavedAlert={infoSavedAlert}
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -207,7 +214,7 @@ const ServicesCounselingMoveInfo = () => {
           <Route
             path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
             end
-            element={<CustomerSupportRemarks />}
+            element={<CustomerSupportRemarks isMoveLocked={isMoveLocked} />}
           />
           <Route
             path={servicesCounselingRoutes.MTO_PATH}
@@ -219,6 +226,7 @@ const ServicesCounselingMoveInfo = () => {
                 setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />

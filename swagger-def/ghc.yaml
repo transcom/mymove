@@ -213,14 +213,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum:
-                  [
-                    customerName,
-                    dodID,
-                    branch,
-                    personalEmail,
-                    telephone,
-                  ]
+                enum: [customerName, dodID, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -1053,6 +1046,11 @@ paths:
           name: If-Match
           type: string
           required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestDiversion'
       responses:
         '200':
           description: Successfully requested the shipment diversion
@@ -5318,6 +5316,13 @@ definitions:
   UpdateMovingExpense:
     type: object
     properties:
+      movingExpenseType:
+        $ref: "definitions/OmittableMovingExpenseType.yaml"
+      description:
+        description: A brief description of the expense.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
         type: integer
@@ -5520,6 +5525,13 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
+  RequestDiversion:
+    properties:
+      diversionReason:
+        type: string
+        example: Shipment route needs to change
+    required:
+      - diversionReason
   ApproveSITExtension:
     properties:
       approvedDays:

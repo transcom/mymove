@@ -143,7 +143,7 @@ export function updatePrimeMTOShipment({
   body,
 }) {
   const operationPath = 'mtoShipment.updateMTOShipment';
-  return makePrimeSimulatorRequestV3(
+  return makePrimeSimulatorRequest(
     operationPath,
     {
       mtoShipmentID,
@@ -280,7 +280,7 @@ export function updatePrimeMTOShipmentStatus({
   const body = {
     status: 'CANCELED',
   };
-  return makePrimeSimulatorRequestV3(
+  return makePrimeSimulatorRequest(
     operationPath,
     {
       mtoShipmentID,
