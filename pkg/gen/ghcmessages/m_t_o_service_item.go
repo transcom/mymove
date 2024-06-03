@@ -55,6 +55,9 @@ type MTOServiceItem struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// estimated price
+	EstimatedPrice *int64 `json:"estimatedPrice,omitempty"`
+
 	// estimated weight of the shuttle service item provided by the prime
 	// Example: 2500
 	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`
