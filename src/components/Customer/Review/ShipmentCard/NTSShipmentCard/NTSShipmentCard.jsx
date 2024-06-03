@@ -116,6 +116,7 @@ NTSShipmentCard.defaultProps = {
   remarks: '',
   shipmentNumber: 0,
   secondaryPickupAddress: null,
+  tertiaryPickupAddress: null,
 };
 
 export default NTSShipmentCard;
