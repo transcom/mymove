@@ -624,7 +624,8 @@ const standaloneCrate = (params) => {
   const label = SERVICE_ITEM_CALCULATION_LABELS.StandaloneCrate;
 
   if (standalone === 'true') {
-    const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrateCap, params);
+    const centsTotal = getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrateCap, params);
+    const value = toDollarString(formatCents(centsTotal));
     return calculation(value, label);
   }
 
