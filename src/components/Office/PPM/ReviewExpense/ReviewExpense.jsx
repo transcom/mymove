@@ -11,7 +11,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate, dropdownInputOptions } from 'utils/formatters';
+import { formatCents, formatDate, dropdownInputOptions, toDollarString } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
@@ -255,7 +255,9 @@ export default function ReviewExpense({
                     options={sitLocationOptions}
                   />
                   <legend className={classnames('usa-label', styles.label)}>Cost</legend>
-                  <div className={styles.displayValue}>{sitCost}</div>
+                  <div className={styles.displayValue}>
+                    {sitCost == null ? '' : toDollarString(formatCents(sitCost))}
+                  </div>
                 </>
               )}
               <MaskedTextField
