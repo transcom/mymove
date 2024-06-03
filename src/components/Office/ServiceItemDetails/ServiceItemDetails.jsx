@@ -463,7 +463,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       detailSection = (
         <div>
           <dl>
-            {' '}
             {generateDetailText({
               'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
             })}
