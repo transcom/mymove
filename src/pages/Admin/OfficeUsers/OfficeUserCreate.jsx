@@ -30,7 +30,7 @@ const OfficeUserCreate = () => {
       values.roles.find((role) => role.roleType === roleTypes.TOO)
     ) {
       errors.roles =
-        'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.';
+        'You cannot select both Task Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.';
     }
 
     if (!values.transportationOfficeId) {
