@@ -62,6 +62,9 @@ type MTOServiceItemDomesticCrating struct {
 	//
 	// Example: Storage items need to be picked up
 	Reason *string `json:"reason"`
+
+	// standalone crate
+	StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -183,6 +186,9 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		//
 		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
+
+		// standalone crate
+		StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -248,6 +254,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	result.Item = data.Item
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
+	result.StandaloneCrate = data.StandaloneCrate
 
 	*m = result
 
@@ -286,6 +293,9 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		//
 		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
+
+		// standalone crate
+		StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
 	}{
 
 		Crate: m.Crate,
@@ -297,6 +307,8 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
+
+		StandaloneCrate: m.StandaloneCrate,
 	})
 	if err != nil {
 		return nil, err
