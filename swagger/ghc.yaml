@@ -3753,7 +3753,7 @@ definitions:
         example: customer
       roleName:
         type: string
-        example: Transportation Ordering Officer
+        example: Task Ordering Officer
       createdAt:
         type: string
         format: date-time
@@ -3910,7 +3910,7 @@ definitions:
     properties:
       name:
         type: string
-        example: Transportation Ordering Officer
+        example: Task Ordering Officer
         x-nullable: true
         title: name
       roleType:

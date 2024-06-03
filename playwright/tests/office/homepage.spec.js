@@ -72,7 +72,7 @@ test.describe('Office authorization', () => {
 
       await page.getByText('Change user role').click();
       expect(page.url()).toContain('/select-application');
-      await page.getByText('Select transportation_ordering_officer').click();
+      await page.getByText('Select task_ordering_officer').click();
       await officePage.waitForLoading();
       await expect(page.getByText('All moves')).toBeVisible();
     });

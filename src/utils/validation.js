@@ -181,7 +181,7 @@ export const middleInitialErrorMsg = 'Must be a single uppercase character';
 // Validation method for Office Account Request Form checkbox fields
 const validateRoleRequestedMethod = (value, testContext) => {
   return (
-    testContext.parent.transportationOrderingOfficerCheckBox ||
+    testContext.parent.taskOrderingOfficerCheckBox ||
     testContext.parent.transportationInvoicingOfficerCheckBox ||
     testContext.parent.servicesCounselorCheckBox ||
     testContext.parent.transportationContractingOfficerCheckBox ||
@@ -207,8 +207,8 @@ const validateEdipi = (value, testContext) => {
 
 // It is TRANSCOM policy that an individual person may only be either a TIO or TOO, never both.
 const validateOnlyOneTransportationOfficerRole = (value, testContext) => {
-  const { transportationOrderingOfficerCheckBox, transportationInvoicingOfficerCheckBox } = testContext.parent;
-  if (transportationOrderingOfficerCheckBox && transportationInvoicingOfficerCheckBox) {
+  const { taskOrderingOfficerCheckBox, transportationInvoicingOfficerCheckBox } = testContext.parent;
+  if (taskOrderingOfficerCheckBox && transportationInvoicingOfficerCheckBox) {
     return false;
   }
   return true;
@@ -235,18 +235,18 @@ export const officeAccountRequestSchema = Yup.object().shape({
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: emailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
-  transportationOrderingOfficerCheckBox: Yup.bool()
+  taskOrderingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
     .test(
       'onlyOneTransportationOfficerRole',
-      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      'You cannot select both Task Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
       validateOnlyOneTransportationOfficerRole,
     ),
   transportationInvoicingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
     .test(
       'onlyOneTransportationOfficerRole',
-      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      'You cannot select both Task Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
       validateOnlyOneTransportationOfficerRole,
     ),
   servicesCounselorCheckBox: Yup.bool().test(

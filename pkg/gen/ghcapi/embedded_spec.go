@@ -8333,7 +8333,7 @@ func init() {
           "type": "string",
           "title": "name",
           "x-nullable": true,
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
@@ -9841,7 +9841,7 @@ func init() {
         },
         "roleName": {
           "type": "string",
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
@@ -21375,7 +21375,7 @@ func init() {
           "type": "string",
           "title": "name",
           "x-nullable": true,
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
@@ -22885,7 +22885,7 @@ func init() {
         },
         "roleName": {
           "type": "string",
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
