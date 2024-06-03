@@ -163,7 +163,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				servicesCounselorSession,
 				map[models.MTOShipmentStatus]bool{
 					models.MTOShipmentStatusSubmitted:             true,
-					models.MTOShipmentStatusApproved:              false,
+					models.MTOShipmentStatusApproved:              true,
 					models.MTOShipmentStatusCancellationRequested: false,
 					models.MTOShipmentStatusCanceled:              false,
 					models.MTOShipmentStatusDiversionRequested:    false,
