@@ -43,7 +43,7 @@ const Feedback = () => {
     // format the values
     if (formattedRow.format) {
       formattedRow.value = formattedRow.format(row.value);
-      if (row.secondaryValue) {
+      if (row.secondaryValue !== undefined) {
         formattedRow.secondaryValue = formattedRow.format(row.secondaryValue);
       }
     }
@@ -60,12 +60,12 @@ const Feedback = () => {
 
     // set the secondary value/customer submitted value if
     // it differs from the final value, and note that the doc was adjusted
-    if (row.secondaryKey && doc[row.secondaryKey] !== row.value) {
+    if (row.secondaryKey && doc[row.secondaryKey] !== undefined && doc[row.secondaryKey] !== row.value) {
       docWasAdjusted = true;
       row.secondaryValue = doc[row.secondaryKey];
     }
 
-    // display the
+    // format that status for display
     if (row.key === 'status') {
       if (docWasAdjusted && row.value === 'APPROVED') row.value = 'EDITED';
       if (row.value === 'REJECTED' || row.value === 'EXCLUDED') {
@@ -133,6 +133,9 @@ const Feedback = () => {
             <SectionWrapper className={styles.aboutSection}>{ppmDetails}</SectionWrapper>
             <SectionWrapper>
               <h2>Documents</h2>
+              <div className={styles.editedFieldsLabel}>
+                *Edited fields will show their previous values in parentheses
+              </div>
               <div className={styles.headingContainer}>
                 <div className={styles.headingContent}>
                   <h3>Weight Moved</h3>

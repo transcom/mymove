@@ -25,20 +25,47 @@ const FEEDBACK_TRIP_TEMPLATE = [
     secondaryKey: 'submittedFullWeight',
   },
   { key: 'tripWeight', label: 'Trip weight: ', format: (weight) => formatWeight(weight) },
-  { key: 'ownsTrailer', label: 'Trailer: ', format: (bool) => formatYesNoInputValue(bool) },
+  {
+    key: 'ownsTrailer',
+    label: 'Trailer: ',
+    format: (bool) => formatYesNoInputValue(bool),
+    secondaryKey: 'submittedOwnsTrailer',
+  },
+  {
+    key: 'trailerMeetsCriteria',
+    label: 'Trailer meets criteria: ',
+    format: (bool) => formatYesNoInputValue(bool),
+    secondaryKey: 'submittedtrailerMeetsCriteria',
+  },
   { key: 'status' },
 ];
 
 const FEEDBACK_SET_TEMPLATE = [
-  { key: 'belongsToSelf', label: '', format: (bool) => formatProGearLabel(bool) },
+  {
+    key: 'belongsToSelf',
+    label: '',
+    format: (bool) => formatProGearLabel(bool),
+    secondaryKey: 'submittedBelongsToSelf',
+  },
   { key: 'description', label: 'Description: ' },
   { key: 'weight', label: 'Weight: ', format: (weight) => formatWeight(weight), secondaryKey: 'submittedWeight' },
+  {
+    key: 'hasWeightTickets',
+    label: 'Weight tickets: ',
+    format: (bool) => formatYesNoInputValue(bool),
+    secondaryKey: 'submittedhasWeightTickets',
+  },
   { key: 'status' },
 ];
 
 const FEEDBACK_RECEIPT_TEMPLATE = [
-  { key: 'movingExpenseType', label: 'Type: ', format: (expenseType) => getExpenseType(expenseType) },
-  { key: 'description', label: 'Description: ' },
+  {
+    key: 'movingExpenseType',
+    label: 'Type: ',
+    format: (expenseType) => getExpenseType(expenseType),
+    secondaryKey: 'submittedMovingExpenseType',
+  },
+  { key: 'description', label: 'Description: ', secondaryKey: 'submittedDescription' },
   {
     key: 'amount',
     label: 'Amount: ',

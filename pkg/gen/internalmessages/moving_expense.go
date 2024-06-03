@@ -91,6 +91,12 @@ type MovingExpense struct {
 	// Customer submitted total amount of the expense as indicated on the receipt
 	SubmittedAmount *int64 `json:"submittedAmount"`
 
+	// Customer submitted description of the expense
+	SubmittedDescription *string `json:"submittedDescription"`
+
+	// submitted moving expense type
+	SubmittedMovingExpenseType *SubmittedMovingExpenseType `json:"submittedMovingExpenseType"`
+
 	// Customer submitted date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2018-05-26
 	// Format: date
@@ -156,6 +162,10 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedMovingExpenseType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -349,6 +359,25 @@ func (m *MovingExpense) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MovingExpense) validateSubmittedMovingExpenseType(formats strfmt.Registry) error {
+	if swag.IsZero(m.SubmittedMovingExpenseType) { // not required
+		return nil
+	}
+
+	if m.SubmittedMovingExpenseType != nil {
+		if err := m.SubmittedMovingExpenseType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("submittedMovingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("submittedMovingExpenseType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MovingExpense) validateSubmittedSitEndDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SubmittedSitEndDate) { // not required
 		return nil
@@ -427,6 +456,10 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSubmittedMovingExpenseType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -578,6 +611,27 @@ func (m *MovingExpense) contextValidateStatus(ctx context.Context, formats strfm
 				return ve.ValidateName("status")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("status")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidateSubmittedMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SubmittedMovingExpenseType != nil {
+
+		if swag.IsZero(m.SubmittedMovingExpenseType) { // not required
+			return nil
+		}
+
+		if err := m.SubmittedMovingExpenseType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("submittedMovingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("submittedMovingExpenseType")
 			}
 			return err
 		}

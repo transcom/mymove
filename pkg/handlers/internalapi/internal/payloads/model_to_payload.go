@@ -320,22 +320,27 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &internalmessages.MovingExpense{
-		ID:              *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:   *handlers.FmtUUID(movingExpense.PPMShipmentID),
-		DocumentID:      *handlers.FmtUUID(movingExpense.DocumentID),
-		Document:        document,
-		CreatedAt:       strfmt.DateTime(movingExpense.CreatedAt),
-		UpdatedAt:       strfmt.DateTime(movingExpense.UpdatedAt),
-		Description:     movingExpense.Description,
-		PaidWithGtcc:    movingExpense.PaidWithGTCC,
-		Amount:          handlers.FmtCost(movingExpense.Amount),
-		SubmittedAmount: handlers.FmtCost(movingExpense.SubmittedAmount),
-		MissingReceipt:  movingExpense.MissingReceipt,
-		ETag:            etag.GenerateEtag(movingExpense.UpdatedAt),
+		ID:                   *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:        *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:           *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:             document,
+		CreatedAt:            strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:            strfmt.DateTime(movingExpense.UpdatedAt),
+		Description:          movingExpense.Description,
+		SubmittedDescription: movingExpense.SubmittedDescription,
+		PaidWithGtcc:         movingExpense.PaidWithGTCC,
+		Amount:               handlers.FmtCost(movingExpense.Amount),
+		SubmittedAmount:      handlers.FmtCost(movingExpense.SubmittedAmount),
+		MissingReceipt:       movingExpense.MissingReceipt,
+		ETag:                 etag.GenerateEtag(movingExpense.UpdatedAt),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
 		payload.MovingExpenseType = &movingExpenseType
+	}
+	if movingExpense.SubmittedMovingExpenseType != nil {
+		movingExpenseType := internalmessages.SubmittedMovingExpenseType(*movingExpense.MovingExpenseType)
+		payload.SubmittedMovingExpenseType = &movingExpenseType
 	}
 
 	if movingExpense.Status != nil {
@@ -431,7 +436,9 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
 		FullDocument:                      fullDocument,
 		OwnsTrailer:                       weightTicket.OwnsTrailer,
+		SubmittedOwnsTrailer:              weightTicket.SubmittedOwnsTrailer,
 		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		SubmittedTrailerMeetsCriteria:     weightTicket.SubmittedTrailerMeetsCriteria,
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
@@ -473,18 +480,20 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 	}
 
 	payload := &internalmessages.ProGearWeightTicket{
-		ID:               strfmt.UUID(progear.ID.String()),
-		PpmShipmentID:    ppmShipmentID,
-		CreatedAt:        *handlers.FmtDateTime(progear.CreatedAt),
-		UpdatedAt:        *handlers.FmtDateTime(progear.UpdatedAt),
-		DocumentID:       *handlers.FmtUUID(progear.DocumentID),
-		Document:         document,
-		Weight:           handlers.FmtPoundPtr(progear.Weight),
-		SubmittedWeight:  handlers.FmtPoundPtr(progear.SubmittedWeight),
-		BelongsToSelf:    progear.BelongsToSelf,
-		HasWeightTickets: progear.HasWeightTickets,
-		Description:      progear.Description,
-		ETag:             etag.GenerateEtag(progear.UpdatedAt),
+		ID:                        strfmt.UUID(progear.ID.String()),
+		PpmShipmentID:             ppmShipmentID,
+		CreatedAt:                 *handlers.FmtDateTime(progear.CreatedAt),
+		UpdatedAt:                 *handlers.FmtDateTime(progear.UpdatedAt),
+		DocumentID:                *handlers.FmtUUID(progear.DocumentID),
+		Document:                  document,
+		Weight:                    handlers.FmtPoundPtr(progear.Weight),
+		SubmittedWeight:           handlers.FmtPoundPtr(progear.SubmittedWeight),
+		BelongsToSelf:             progear.BelongsToSelf,
+		SubmittedBelongsToSelf:    progear.SubmittedBelongsToSelf,
+		HasWeightTickets:          progear.HasWeightTickets,
+		SubmittedHasWeightTickets: progear.SubmittedHasWeightTickets,
+		Description:               progear.Description,
+		ETag:                      etag.GenerateEtag(progear.UpdatedAt),
 	}
 
 	if progear.Status != nil {

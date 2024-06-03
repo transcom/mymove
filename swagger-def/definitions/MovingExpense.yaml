@@ -25,8 +25,15 @@ properties:
       - $ref: 'Document.yaml'
   movingExpenseType:
     $ref: 'OmittableMovingExpenseType.yaml'
+  submittedMovingExpenseType:
+    $ref: 'SubmittedMovingExpenseType.yaml'
   description:
     description: A brief description of the expense
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  submittedDescription:
+    description: Customer submitted description of the expense
     type: string
     x-nullable: true
     x-omitempty: false

@@ -68,6 +68,12 @@ type ProGearWeightTicket struct {
 	// status
 	Status *OmittablePPMDocumentStatus `json:"status"`
 
+	// Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
+	SubmittedBelongsToSelf *bool `json:"submittedBelongsToSelf"`
+
+	// Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.
+	SubmittedHasWeightTickets *bool `json:"submittedHasWeightTickets"`
+
 	// Customer submitted weight of the pro-gear.
 	// Minimum: 0
 	SubmittedWeight *int64 `json:"submittedWeight"`

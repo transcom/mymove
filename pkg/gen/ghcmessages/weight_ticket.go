@@ -116,6 +116,12 @@ type WeightTicket struct {
 	// Minimum: 0
 	SubmittedFullWeight *int64 `json:"submittedFullWeight"`
 
+	// Indicates if the customer used a trailer they own for the move.
+	SubmittedOwnsTrailer *bool `json:"submittedOwnsTrailer"`
+
+	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
+	SubmittedTrailerMeetsCriteria *bool `json:"submittedTrailerMeetsCriteria"`
+
 	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
 	TrailerMeetsCriteria *bool `json:"trailerMeetsCriteria"`
 

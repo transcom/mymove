@@ -84,7 +84,17 @@ properties:
     type: boolean
     x-nullable: true
     x-omitempty: false
+  submittedOwnsTrailer:
+    description: Indicates if the customer used a trailer they own for the move.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
   trailerMeetsCriteria:
+    description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  submittedTrailerMeetsCriteria:
     description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
     type: boolean
     x-nullable: true

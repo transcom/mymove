@@ -8,7 +8,7 @@ import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const FeedbackItems = ({ documents, docType }) => {
   const formatSecondaryValue = (secondaryValue) => {
-    return <span className={styles.redText}> ({secondaryValue})</span>;
+    return <span> (*{secondaryValue})</span>;
   };
 
   const formatDetails = (doc) => {
