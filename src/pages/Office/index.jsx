@@ -478,7 +478,7 @@ export class OfficeApp extends Component {
                       key="qaeCSRMoveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.QAE_CSR]}>
+                        <PrivateRoute requiredRoles={[roleTypes.QAE]}>
                           <QAECSRMoveSearch />
                         </PrivateRoute>
                       }
@@ -488,7 +488,7 @@ export class OfficeApp extends Component {
                       key="txoMoveInfoRoute"
                       path="/moves/:moveCode/*"
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR]}>
+                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE]}>
                           <TXOMoveInfo />
                         </PrivateRoute>
                       }
@@ -505,7 +505,7 @@ export class OfficeApp extends Component {
                     {activeRole === roleTypes.PRIME_SIMULATOR && (
                       <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                     )}
-                    {activeRole === roleTypes.QAE_CSR && <Route end path="/" element={<QAECSRMoveSearch />} />}
+                    {activeRole === roleTypes.QAE && <Route end path="/" element={<QAECSRMoveSearch />} />}
 
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />

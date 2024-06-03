@@ -939,3 +939,4 @@
 20240516184021_import_pricing_data_ghc.up.sql
 20240521160335_backfill_LOA_FY_TX.up.sql
 20240521184834_add_standalone_field_to_service_items.up.sql
+20240530084720_rename_qae_csr_to_just_qae.up.sql

@@ -430,7 +430,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 // role must NOT have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
-	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 
 	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.OktaID)
 
@@ -1424,7 +1424,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 			Model:    user,
 			LinkOnly: true,
 		},
-	}, []roles.RoleType{roles.RoleTypeQaeCsr})
+	}, []roles.RoleType{roles.RoleTypeQae})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -1460,9 +1460,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 	// Make sure session contains roles and permissions
 	suite.NotEmpty(session.Roles)
-	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQaeCsr)
+	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQae)
 	suite.True(hasRole)
-	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQaeCsr)
+	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQae)
 	suite.True(hasRole)
 	suite.Equal(userRole.ID, sessionRole.ID)
 	suite.NotEmpty(session.Permissions)

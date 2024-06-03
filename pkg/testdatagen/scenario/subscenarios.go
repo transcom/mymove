@@ -318,7 +318,7 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 	return func() {
 		createQaeCsr(appCtx)
 		officeUser := models.OfficeUser{}
-		email := "qae_csr_role@office.mil"
+		email := "qae_role@office.mil"
 		err := appCtx.DB().Where("email = ?", email).First(&officeUser)
 		if err != nil {
 			appCtx.Logger().Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err).Error())
