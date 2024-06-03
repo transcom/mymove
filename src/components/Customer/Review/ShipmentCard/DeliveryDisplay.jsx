@@ -12,6 +12,7 @@ const DeliveryDisplay = ({
   destinationLocation,
   destinationZIP,
   secondaryDeliveryAddress,
+  tertiaryDeliveryAddress,
   receivingAgent,
   requestedDeliveryDate,
 }) => {
@@ -29,6 +30,12 @@ const DeliveryDisplay = ({
         <div className={styles.row}>
           <dt>Second Destination</dt>
           <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
+        </div>
+      )}
+      {tertiaryDeliveryAddress && (
+        <div className={styles.row}>
+          <dt>Third Destination</dt>
+          <dd>{formatCustomerDestination(tertiaryDeliveryAddress)}</dd>
         </div>
       )}
 

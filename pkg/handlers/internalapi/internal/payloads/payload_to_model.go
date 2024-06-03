@@ -196,7 +196,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	}
 
 	if ppmShipment.TertiaryPickupAddress != nil {
-		ppmModel.TertiaryPickupAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
+		ppmModel.TertiaryPickupAddress = AddressModel(ppmShipment.TertiaryPickupAddress)
 	}
 
 	if ppmShipment.DestinationPostalCode != nil {
