@@ -1136,6 +1136,8 @@ definitions:
     enum:
       - PPM_PAYMENT
       - SHIPMENT
+      - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT
+      - CLOSEOUT_REVIEWED_PPM_PAYMENT
     x-nullable: true
   PostDocumentPayload:
     type: object
@@ -3051,10 +3053,15 @@ definitions:
             ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
             information is correct.
         - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
+        - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to
+             service-counseling-completed "Submit move details" by service counselor.
+        - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.
     type: string
     enum:
       - PPM_PAYMENT
       - SHIPMENT
+      - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT
+      - CLOSEOUT_REVIEWED_PPM_PAYMENT
     readOnly: true
   SignedCertification:
     description: Signed certification
