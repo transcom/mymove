@@ -54,7 +54,7 @@ type MovingExpense struct {
 	UpdatedAt                  time.Time                 `json:"updated_at" db:"updated_at"`
 	DeletedAt                  *time.Time                `json:"deleted_at" db:"deleted_at"`
 	MovingExpenseType          *MovingExpenseReceiptType `json:"moving_expense_type" db:"moving_expense_type"`
-	SubmittedMovingExpenseType *MovingExpenseReceiptType `json:"submitted_moving_expense_type" db:"msubmitted_moving_expense_type"`
+	SubmittedMovingExpenseType *MovingExpenseReceiptType `json:"submitted_moving_expense_type" db:"submitted_moving_expense_type"`
 	Description                *string                   `json:"description" db:"description"`
 	SubmittedDescription       *string                   `json:"submitted_description" db:"submitted_description"`
 	PaidWithGTCC               *bool                     `json:"paid_with_gtcc" db:"paid_with_gtcc"`
