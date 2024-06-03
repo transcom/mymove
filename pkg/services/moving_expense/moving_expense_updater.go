@@ -52,6 +52,12 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 		if mergedMovingExpense.Amount != nil {
 			mergedMovingExpense.SubmittedAmount = mergedMovingExpense.Amount
 		}
+		if mergedMovingExpense.MovingExpenseType != nil {
+			mergedMovingExpense.SubmittedMovingExpenseType = mergedMovingExpense.MovingExpenseType
+		}
+		if mergedMovingExpense.Description != nil {
+			mergedMovingExpense.SubmittedDescription = mergedMovingExpense.Description
+		}
 		if mergedMovingExpense.SITStartDate != nil {
 			mergedMovingExpense.SubmittedSITStartDate = mergedMovingExpense.SITStartDate
 		}
