@@ -1,6 +1,8 @@
 package mtoshipment
 
 import (
+	"math"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -14,17 +16,19 @@ import (
 )
 
 type shipmentApprover struct {
-	router    services.ShipmentRouter
-	siCreator services.MTOServiceItemCreator
-	planner   route.Planner
+	router      services.ShipmentRouter
+	siCreator   services.MTOServiceItemCreator
+	planner     route.Planner
+	moveWeights services.MoveWeights
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights) services.ShipmentApprover {
 	return &shipmentApprover{
 		router,
 		siCreator,
 		planner,
+		moveWeights,
 	}
 }
 
@@ -54,8 +58,25 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return nil, err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	// if the shipment has an estimated weight at time of approval
+	// recalculate the authorized weight to include the newly authorized shipment
+	// and check for excess weight
+	if shipment.PrimeEstimatedWeight != nil {
+		err = f.updateAuthorizedWeight(appCtx, shipment)
+		if err != nil {
+			return nil, err
+		}
 
+		_, verrs, err := f.moveWeights.CheckExcessWeight(appCtx, shipment.MoveTaskOrderID, *shipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, errors.New(verrs.Error())
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
@@ -166,6 +187,44 @@ func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppConte
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// when a TOO approves a shipment, if it was created by PRIME and an estimated weight exists
+// add that to the authorized weight
+func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	var move models.Move
+	err := appCtx.DB().EagerPreload(
+		"MTOShipments",
+		"Orders.Entitlement",
+	).Find(&move, shipment.MoveTaskOrderID)
+
+	if err != nil {
+		return apperror.NewQueryError("Move", err, "unable to find Move")
+	}
+
+	dBAuthorizedWeight := int(*shipment.PrimeEstimatedWeight)
+	if len(move.MTOShipments) != 0 {
+		for _, mtoShipment := range move.MTOShipments {
+			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
+				dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
+			}
+		}
+	}
+	dBAuthorizedWeight = int(math.Round(float64(dBAuthorizedWeight) * 1.10))
+
+	entitlement := move.Orders.Entitlement
+	entitlement.DBAuthorizedWeight = &dBAuthorizedWeight
+	verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+
+	if verrs != nil && verrs.HasAny() {
+		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+		return invalidInputError
+	}
+	if err != nil {
+		return err
 	}
 
 	return nil

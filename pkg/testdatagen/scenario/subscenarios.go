@@ -572,6 +572,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
 		createQaeCsr(appCtx)
+		createCustomerServiceRepresentative(appCtx)
 
 		// TXO Queues
 		createNTSMove(appCtx)

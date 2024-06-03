@@ -483,7 +483,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
-		CacValidated:       swag.BoolValue(&customer.CacValidated),
+		CacValidated:       &customer.CacValidated,
 	}
 	return &payload
 }
@@ -839,14 +839,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		PickupAddress:                  Address(ppmShipment.PickupAddress),
+		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
-		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -983,6 +983,11 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.WeightStored != nil {
 		payload.WeightStored = handlers.FmtPoundPtr(movingExpense.WeightStored)
+	}
+
+	if movingExpense.SITLocation != nil {
+		sitLocation := ghcmessages.SITLocationType(*movingExpense.SITLocation)
+		payload.SitLocation = &sitLocation
 	}
 
 	return payload
@@ -1509,6 +1514,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
+		StandaloneCrate:               s.StandaloneCrate,
 	}
 }
 
@@ -1927,7 +1933,6 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
-
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++

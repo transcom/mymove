@@ -7,10 +7,12 @@ import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'util
 const EstimatedIncentiveDetails = ({ shipment }) => {
   const {
     estimatedWeight,
-    pickupPostalCode,
-    secondaryPickupPostalCode,
-    destinationPostalCode,
-    secondaryDestinationPostalCode,
+    pickupAddress,
+    hasSecondaryPickupAddress,
+    secondaryPickupAddress,
+    destinationAddress,
+    hasSecondaryDestinationAddress,
+    secondaryDestinationAddress,
     expectedDepartureDate,
     estimatedIncentive,
   } = shipment?.ppmShipment || {};
@@ -23,10 +25,10 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
           <p>This is an estimate of how much you could earn by moving your PPM, based on what you have entered:</p>
           <ul>
             <li>{formatWeight(estimatedWeight)} estimated weight</li>
-            <li>Starting from {pickupPostalCode}</li>
-            {secondaryPickupPostalCode && <li>Picking up things in {secondaryPickupPostalCode}</li>}
-            {secondaryDestinationPostalCode && <li>Dropping off things in {secondaryDestinationPostalCode}</li>}
-            <li>Ending in {destinationPostalCode}</li>
+            <li>Starting from {pickupAddress.postalCode}</li>
+            {hasSecondaryPickupAddress && <li>Picking up things in {secondaryPickupAddress.postalCode}</li>}
+            {hasSecondaryDestinationAddress && <li>Dropping off things in {secondaryDestinationAddress.postalCode}</li>}
+            <li>Ending in {destinationAddress.postalCode}</li>
             <li>Starting your PPM on {formatCustomerDate(expectedDepartureDate)}</li>
           </ul>
         </div>

@@ -49,6 +49,22 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: okta_dodid_input
   name: Customer DODID input being pulled from Okta and disabling text input
   type: BOOLEAN_FLAG_TYPE

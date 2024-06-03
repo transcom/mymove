@@ -41,45 +41,6 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
-  /customer:
-    post:
-      summary: Creates a customer with Okta option
-      description: >-
-        Creates a customer with option to also create an Okta profile account
-        based on the office user's input when completing the UI form and
-        submitting.
-      operationId: createCustomerWithOktaOption
-      tags:
-        - customer
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/CreateCustomerPayload'
-      responses:
-        '200':
-          description: successfully created the customer
-          schema:
-            $ref: '#/definitions/CreatedCustomer'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /open/requested-office-users:
     post:
       consumes:
@@ -118,6 +79,42 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  /customer:
+    post:
+      summary: Creates a customer with Okta option
+      description: Creates a customer with option to create an Okta profile account
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -3687,7 +3684,47 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /application_parameters/{parameterName}:
+    get:
+      summary: Searches for an application parameter by name, returns nil if not found
+      description: Searches for an application parameter by name, returns nil if not found
+      operationId: getParam
+      tags:
+        - application_parameters
+      parameters:
+        - in: path
+          name: parameterName
+          type: string
+          format: string
+          required: true
+          description: Parameter Name
+      responses:
+        '200':
+          description: Application Parameters
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '500':
+          description: server error
 definitions:
+  ApplicationParameters:
+    type: object
+    properties:
+      validationCode:
+        type: string
+        format: string
+        x-nullable: true
+      parameterName:
+        type: string
+        format: string
+        x-nullable: true
+      parameterValue:
+        type: string
+        format: string
+        x-nullable: true
   ClientError:
     type: object
     properties:
@@ -3977,6 +4014,7 @@ definitions:
         $ref: '#/definitions/Address'
       cacValidated:
         type: boolean
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -4169,6 +4207,7 @@ definitions:
         x-nullable: true
       dodID:
         type: string
+        example: 1234567890
         x-nullable: true
       branch:
         type: string
@@ -5547,6 +5586,10 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -6125,12 +6168,12 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
         x-nullable: true
-      orderType:
-        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -6456,27 +6499,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - SPACE_FORCE
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      SPACE_FORCE: Space Force
-      OTHER: OTHER
   Address:
     description: A postal address
     type: object
@@ -6678,6 +6700,27 @@ definitions:
       - address
       - created_at
       - updated_at
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
   DutyLocation:
     type: object
     properties:
@@ -7049,6 +7092,9 @@ definitions:
       updateReason:
         type: string
         description: Reason for updating service item.
+        x-nullable: true
+      standaloneCrate:
+        type: boolean
         x-nullable: true
       serviceRequestDocuments:
         $ref: '#/definitions/ServiceRequestDocuments'
@@ -7685,6 +7731,11 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
     required:
       - id
       - createdAt
@@ -8791,6 +8842,8 @@ definitions:
       - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
+      - StandaloneCrate
+      - StandaloneCrateCap
   ServiceItemParamType:
     type: string
     enum:

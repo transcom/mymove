@@ -234,13 +234,12 @@ export class OfficeApp extends Component {
                   // Auth Routes
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-
-                    {/* TXO */}
+                    {/* TXO, HQ */}
                     <Route
                       path="/moves/queue"
                       end
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.HQ]}>
                           <MoveQueue />
                         </PrivateRoute>
                       }
@@ -277,6 +276,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+                    <Route
+                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <CreateCustomerForm userPrivileges={userPrivileges} />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
                       element={
@@ -315,14 +322,17 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
-                    <Route
-                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateCustomerForm userPrivileges={userPrivileges} />
-                        </PrivateRoute>
-                      }
-                    />
+                    {activeRole === roleTypes.HQ && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                            <MoveQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
@@ -478,7 +488,7 @@ export class OfficeApp extends Component {
                       key="qaeCSRMoveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.QAE]}>
+                        <PrivateRoute requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
                           <QAECSRMoveSearch />
                         </PrivateRoute>
                       }
@@ -488,7 +498,14 @@ export class OfficeApp extends Component {
                       key="txoMoveInfoRoute"
                       path="/moves/:moveCode/*"
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE]}>
+                        <PrivateRoute
+                          requiredRoles={[
+                            roleTypes.TOO,
+                            roleTypes.TIO,
+                            roleTypes.QAE,
+                            roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                          ]}
+                        >
                           <TXOMoveInfo />
                         </PrivateRoute>
                       }
@@ -499,13 +516,16 @@ export class OfficeApp extends Component {
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
                     {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<MoveQueue />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}
                     {activeRole === roleTypes.PRIME_SIMULATOR && (
                       <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                     )}
-                    {activeRole === roleTypes.QAE && <Route end path="/" element={<QAECSRMoveSearch />} />}
+                    {(activeRole === roleTypes.QAE || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
+                      <Route end path="/" element={<QAECSRMoveSearch />} />
+                    )}
 
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />

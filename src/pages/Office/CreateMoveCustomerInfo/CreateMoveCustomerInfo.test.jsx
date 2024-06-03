@@ -56,6 +56,7 @@ const useCustomerQueryReturnValue = {
     middle_name: 'Quincey',
     suffix: 'Jr.',
     phone: '223-444-3434',
+    cacValidated: true,
   },
 };
 
@@ -93,7 +94,6 @@ describe('CreateMoveCustomerInfo', () => {
       expect(errorMessage).toBeInTheDocument();
     });
   });
-
   it('populates initial field values', async () => {
     useCustomerQuery.mockReturnValue(useCustomerQueryReturnValue);
 
@@ -121,7 +121,6 @@ describe('CreateMoveCustomerInfo', () => {
       expect(screen.getByDisplayValue('Jane Backup').value).toEqual(customerData.backup_contact.name);
     });
   });
-
   it('calls updateCustomerInfo on submission', async () => {
     useCustomerQuery.mockReturnValue(useCustomerQueryReturnValue);
     updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));

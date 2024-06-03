@@ -251,9 +251,14 @@ export const useEditShipmentQueries = (moveCode) => {
 };
 
 export const usePPMShipmentDocsQueries = (shipmentId) => {
-  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) =>
-    getMTOShipmentByID(...queryKey),
-  );
+  const {
+    data: mtoShipment,
+    refetch: refetchMTOShipment,
+    ...mtoShipmentQuery
+  } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) => getMTOShipmentByID(...queryKey), {
+    refetchOnMount: true,
+    staleTime: 0,
+  });
 
   const { data: documents, ...documentsQuery } = useQuery(
     [DOCUMENTS, shipmentId],
@@ -277,6 +282,7 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     mtoShipment,
     documents,
     ppmActualWeight,
+    refetchMTOShipment,
     isLoading,
     isError,
     isSuccess,

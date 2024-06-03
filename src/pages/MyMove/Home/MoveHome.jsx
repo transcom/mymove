@@ -604,7 +604,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                   {` ${shipmentNumber} `}
                                 </strong>
                                 {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
-                                  // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                   <p className={styles.downloadLink}>
                                     <AsyncPacketDownloadLink
                                       id={shipment?.ppmShipment?.id}

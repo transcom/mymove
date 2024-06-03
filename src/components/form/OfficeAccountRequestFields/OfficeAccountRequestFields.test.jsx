@@ -50,5 +50,8 @@ describe('OfficeAccountRequestFields component', () => {
 
     const qaeCheckbox = await screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     expect(qaeCheckbox).toBeInstanceOf(HTMLInputElement);
+
+    const csrCheckbox = await screen.getByTestId('customerSupportRepresentativeCheckBox');
+    expect(csrCheckbox).toBeInstanceOf(HTMLInputElement);
   });
 });

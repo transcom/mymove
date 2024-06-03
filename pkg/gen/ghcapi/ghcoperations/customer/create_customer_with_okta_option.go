@@ -34,7 +34,7 @@ func NewCreateCustomerWithOktaOption(ctx *middleware.Context, handler CreateCust
 
 # Creates a customer with Okta option
 
-Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
+Creates a customer with option to create an Okta profile account
 */
 type CreateCustomerWithOktaOption struct {
 	Context *middleware.Context

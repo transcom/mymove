@@ -220,6 +220,7 @@ describe('Office App', () => {
 
     it.each([
       ['Move Queue', '/moves/queue', roleTypes.TOO],
+      ['Move Queue', '/moves/queue', roleTypes.HQ],
       ['Payment Request Queue', '/invoicing/queue', roleTypes.TIO],
       ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.SERVICES_COUNSELOR],
       ['Services Counseling Queue', '/counseling', roleTypes.SERVICES_COUNSELOR],
@@ -258,6 +259,7 @@ describe('Office App', () => {
       ['TXO Move Info', '/moves/move123', roleTypes.TIO],
       ['Payment Request Queue', '/', roleTypes.TIO],
       ['Move Queue', '/', roleTypes.TOO],
+      ['Move Queue', '/', roleTypes.HQ],
       ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
       ['QAE CSR Move Search', '/', roleTypes.QAE],
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
@@ -283,26 +285,73 @@ describe('Office App', () => {
       ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.QAE],
       ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', roleTypes.QAE],
       [
-        'Prime Simulator Shipment Update Address',
+        'Prime Simulator Shipment Update Address as QAE',
         '/simulator/moves/test123/shipments/ship123/addresses/update',
         roleTypes.QAE,
       ],
       ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.QAE],
       ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE],
       [
-        'Prime Simulator Upload Payment Request Documents',
+        'Prime Simulator Create Payment Request as QAE',
+        '/simulator/moves/test123/payment-requests/new',
+        roleTypes.QAE_CSR,
+      ],
+      [
+        'Prime Simulator Upload Payment Request Documents as QAE',
         '/simulator/moves/test123/payment-requests/req123/upload',
         roleTypes.QAE,
       ],
       [
-        'Prime Simulator Create Service Item',
+        'Prime Simulator Create Service Item as QAE',
         '/simulator/moves/test123/shipments/ship123/service-items/new',
         roleTypes.QAE,
       ],
       [
-        'Prime Simulator Shipment Update Reweigh',
+        'Prime Simulator Shipment Update Reweigh as QAE',
         '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
         roleTypes.QAE,
+      ],
+      ['Services Counseling Move Info as CSR', '/counseling/moves/test123/', roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE],
+      ['Edit Shipment Details as CSR', '/moves/test123/shipments/ship123', roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE],
+      [
+        'Prime Simulator Move Details as CSR',
+        '/simulator/moves/test123/details',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Create as CSR',
+        '/simulator/moves/test123/shipments/new',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Update Address as CSR',
+        '/simulator/moves/test123/shipments/ship123/addresses/update',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Update as CSR',
+        '/simulator/moves/test123/shipments/ship123',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Create Payment Request as CSR',
+        '/simulator/moves/test123/payment-requests/new',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Upload Payment Request Documents as CSR',
+        '/simulator/moves/test123/payment-requests/req123/upload',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Create Service Item as CSR',
+        '/simulator/moves/test123/shipments/ship123/service-items/new',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Update Reweigh as CSR',
+        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
       ],
       ['QAE CSR Move Search', '/qaecsr/search', roleTypes.TIO],
       ['TXO Move Info', '/moves/move123', roleTypes.PRIME_SIMULATOR],

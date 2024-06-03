@@ -114,7 +114,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		Naics:                          order.NAICS,
 	}
 
-	if payload.Customer.Branch == "MARINES" {
+	if payload.Customer.Branch == "Marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
 	}
 
@@ -147,6 +147,7 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),

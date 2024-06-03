@@ -8,12 +8,14 @@ const info = {
   grade: 'E_6',
   weightAllowance: 12000,
   authorizedWeight: 11000,
+  totalWeight: 12000,
   progear: 2000,
   spouseProgear: 500,
   storageInTransit: 90,
   dependents: true,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
+  gunSafe: true,
 };
 
 describe('AllowancesList', () => {
@@ -24,7 +26,7 @@ describe('AllowancesList', () => {
 
   it('renders formatted weight allowance', () => {
     render(<AllowancesList info={info} />);
-    expect(screen.getByText('11,000 lbs')).toBeInTheDocument();
+    expect(screen.getByText('12,000 lbs')).toBeInTheDocument();
   });
 
   it('renders storage in transit', () => {
@@ -62,11 +64,20 @@ describe('AllowancesList', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByTestId('ocie').textContent).toEqual('Authorized');
   });
+  it('renders authorized gun safe', () => {
+    render(<AllowancesList info={info} />);
+    expect(screen.getByTestId('gunSafe').textContent).toEqual('Authorized');
+  });
 
   it('renders unauthorized ocie', () => {
     const withUnauthorizedOcie = { ...info, organizationalClothingAndIndividualEquipment: false };
     render(<AllowancesList info={withUnauthorizedOcie} />);
     expect(screen.getByTestId('ocie').textContent).toEqual('Unauthorized');
+  });
+  it('renders unauthorized gun safe', () => {
+    const withUnauthorizedOcie = { ...info, gunSafe: false };
+    render(<AllowancesList info={withUnauthorizedOcie} />);
+    expect(screen.getByTestId('gunSafe').textContent).toEqual('Unauthorized');
   });
 
   it('renders visual cues classname', () => {
