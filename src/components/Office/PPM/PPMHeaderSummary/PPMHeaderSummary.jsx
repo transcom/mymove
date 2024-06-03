@@ -8,6 +8,7 @@ import styles from './PPMHeaderSummary.module.scss';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
+import { formatCustomerContactFullAddress } from 'utils/formatters';
 
 const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
   const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
@@ -36,14 +37,19 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
 
   return (
     <>
+      <hr />
       <HeaderSection
         sectionInfo={{
           type: sectionTypes.incentives,
           ...incentives,
         }}
+        dataTestId="incentives"
       />
       <hr />
-      <HeaderSection sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }} />
+      <HeaderSection
+        sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }}
+        dataTestId="incentiveFactors"
+      />
     </>
   );
 };
@@ -51,8 +57,12 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
   const shipmentInfo = {
     plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
     actualMoveDate: ppmShipmentInfo.actualMoveDate,
-    actualPickupPostalCode: ppmShipmentInfo.actualPickupPostalCode,
-    actualDestinationPostalCode: ppmShipmentInfo.actualDestinationPostalCode,
+    pickupAddress: ppmShipmentInfo.pickupAddress
+      ? formatCustomerContactFullAddress(ppmShipmentInfo.pickupAddress)
+      : '—',
+    destinationAddress: ppmShipmentInfo.destinationAddress
+      ? formatCustomerContactFullAddress(ppmShipmentInfo.destinationAddress)
+      : '—',
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,
@@ -66,11 +76,12 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
           <HeaderSection
             sectionInfo={{
               type: sectionTypes.shipmentInfo,
+              advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
               ...shipmentInfo,
             }}
+            dataTestId="shipmentInfo"
           />
         </section>
-        <hr />
         {showAllFields && <GCCAndIncentiveInfo ppmShipmentInfo={ppmShipmentInfo} />}
       </div>
     </header>

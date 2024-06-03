@@ -483,7 +483,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
-		CacValidated:       swag.BoolValue(&customer.CacValidated),
+		CacValidated:       &customer.CacValidated,
 	}
 	return &payload
 }
@@ -983,6 +983,11 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.WeightStored != nil {
 		payload.WeightStored = handlers.FmtPoundPtr(movingExpense.WeightStored)
+	}
+
+	if movingExpense.SITLocation != nil {
+		sitLocation := ghcmessages.SITLocationType(*movingExpense.SITLocation)
+		payload.SitLocation = &sitLocation
 	}
 
 	return payload

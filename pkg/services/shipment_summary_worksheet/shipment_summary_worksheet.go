@@ -173,7 +173,6 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 		return services.SSWMaxWeightEntitlement(sswEntitlements)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
-
 	return services.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
@@ -535,6 +534,9 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 	totals := make(map[string]float64)
 
 	for _, expense := range expenseDocuments {
+		if expense.MovingExpenseType == nil || expense.Amount == nil {
+			continue
+		} // Added quick nil check to ensure SSW returns while weight tickets are being added still
 		expenseType, addToTotal := getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 
@@ -831,8 +833,8 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 
 	var sswHeader = header{
 		Source:   "SSWPDFTemplate.pdf",
-		Version:  "pdfcpu v0.6.0 dev",
-		Creation: "2024-03-08 17:36:47 UTC",
+		Version:  "pdfcpu v0.8.0 dev",
+		Creation: "2024-05-24 18:16:45 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
