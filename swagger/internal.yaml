@@ -89,6 +89,27 @@ definitions:
     properties:
       profile:
         $ref: '#/definitions/OktaUserProfileData'
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -119,6 +140,10 @@ definitions:
         type: array
         items:
           type: string
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
     required:
       - id
   DutyLocationsPayload:
@@ -2260,6 +2285,7 @@ definitions:
       - SEPARATION
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2267,6 +2293,7 @@ definitions:
       SEPARATION: Separation
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   Address:
     description: A postal address
     type: object
