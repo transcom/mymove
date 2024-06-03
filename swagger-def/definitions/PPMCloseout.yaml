@@ -84,6 +84,12 @@ properties:
     x-nullable: true
     x-omitempty: false
 
+  haulType:
+    description: The type of haul calculation used for this shipment (shorthaul or linehaul).
+    type: string
+    x-nullable: true
+    x-omitempty: false
+
   haulPrice:
     description: The price of the linehaul or shorthaul.
     type: integer
