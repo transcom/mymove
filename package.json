@@ -142,7 +142,7 @@
     "@storybook/jest": "^0.1.0",
     "@storybook/preset-create-react-app": "^7.6.7",
     "@storybook/preview-api": "^7.6.8",
-    "@storybook/react": "^7.2.0",
+    "@storybook/react": "^8.1.5",
     "@storybook/react-webpack5": "^7.2.0",
     "@storybook/testing-library": "^0.2.2",
     "@testing-library/jest-dom": "^5.16.5",
