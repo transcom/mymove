@@ -214,6 +214,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.SubmittedEmptyWeight)
 		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.SubmittedFullWeight)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.SubmittedOwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.SubmittedTrailerMeetsCriteria)
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
@@ -261,6 +263,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.SubmittedEmptyWeight)
 		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.SubmittedFullWeight)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.SubmittedOwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.SubmittedTrailerMeetsCriteria)
 		suite.Equal(1, len(updatedWeightTicket.EmptyDocument.UserUploads))
 		suite.Equal(2, len(updatedWeightTicket.FullDocument.UserUploads))
 		suite.Equal(2, len(updatedWeightTicket.ProofOfTrailerOwnershipDocument.UserUploads))
@@ -315,6 +319,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.SubmittedEmptyWeight)
 		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.SubmittedFullWeight)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.SubmittedOwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.SubmittedTrailerMeetsCriteria)
 	})
 
 	suite.Run("Successfully updates and does not call ppmShipmentUpdater when total weight is unchanged", func() {
@@ -362,6 +368,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.SubmittedEmptyWeight)
 		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.SubmittedFullWeight)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.SubmittedOwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.SubmittedTrailerMeetsCriteria)
 	})
 
 	suite.Run("Successfully updates when total weight is changed - taking adjustedNetWeight into account", func() {
@@ -411,6 +419,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 		suite.Equal(*desiredWeightTicket.NetWeightRemarks, *updatedWeightTicket.NetWeightRemarks)
 		suite.Equal(*desiredWeightTicket.EmptyWeight, *updatedWeightTicket.SubmittedEmptyWeight)
 		suite.Equal(*desiredWeightTicket.FullWeight, *updatedWeightTicket.SubmittedFullWeight)
+		suite.Equal(*desiredWeightTicket.OwnsTrailer, *updatedWeightTicket.SubmittedOwnsTrailer)
+		suite.Equal(*desiredWeightTicket.TrailerMeetsCriteria, *updatedWeightTicket.SubmittedTrailerMeetsCriteria)
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
