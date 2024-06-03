@@ -133,3 +133,7 @@ properties:
     x-nullable: true
   serviceRequestDocuments:
     $ref: 'ServiceRequestDocuments.yaml'
+  estimatedPrice:
+    type: integer
+    format: cents
+    x-nullable: true
