@@ -66,6 +66,7 @@ type MovingExpense struct {
 	SITEndDate            *time.Time                `json:"sit_end_date" db:"sit_end_date"`
 	SubmittedSITEndDate   *time.Time                `json:"submitted_sit_end_date" db:"submitted_sit_end_date"`
 	WeightStored          *unit.Pound               `json:"weight_stored" db:"weight_stored"`
+	SITLocation           *SITLocationType          `json:"sit_location" db:"sit_location"`
 }
 
 // TableName overrides the table name used by Pop.
