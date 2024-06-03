@@ -692,11 +692,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 	dateOfContact2 := time.Now().AddDate(0, 0, 5)
 	timeMilitary2 := "1300Z"
 	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
 
 	mtoServiceItemDCRT := &models.MTOServiceItem{
-		ID:        uuid.Must(uuid.NewV4()),
-		ReService: models.ReService{Code: reServiceCode},
-		Reason:    &reason,
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
 		CustomerContacts: models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				DateOfContact:              dateOfContact1,

@@ -59,6 +59,9 @@ type PPMCloseout struct {
 	// The price of the linehaul or shorthaul.
 	HaulPrice *int64 `json:"haulPrice"`
 
+	// The type of haul calculation used for this shipment (shorthaul or linehaul).
+	HaulType *string `json:"haulType"`
+
 	// Primary auto-generated unique identifier of the PPM shipment object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
