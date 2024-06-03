@@ -77,7 +77,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		factory.GetTraitServicesCounselorRole,
 	})
 	factory.BuildRole(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitQaeCsrRole,
+		factory.GetTraitQaeRole,
 	})
 	factory.BuildRole(suite.DB(), nil, []factory.Trait{
 		factory.GetTraitPrimeSimulatorRole,

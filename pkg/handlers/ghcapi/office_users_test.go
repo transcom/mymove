@@ -34,7 +34,7 @@ func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUs
 }
 
 // Services Counselor. Task Ordering Officer (TOO), Task Invoicing Officer (TIO),
-// and Quality Assurance Evaluator (QAE)/Customer Service Representative (CSR)
+// Quality Assurance Evaluator (QAE), and Customer Service Representative (CSR)
 // Are all roles allowed to request office user (They authenticate with AuthenticateOfficeRequest)
 func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	suite.Run("Successfully requests the creation of an office user", func() {

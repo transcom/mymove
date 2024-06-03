@@ -127,9 +127,9 @@ func (suite *FactorySuite) TestBuildRoleTraits() {
 
 		role := BuildRole(suite.DB(), nil,
 			[]Trait{
-				GetTraitQaeCsrRole,
+				GetTraitQaeRole,
 			})
-		suite.Equal(roles.RoleName("Quality Assurance and Customer Service"), role.RoleName)
+		suite.Equal(roles.RoleName("Quality Assurance Evaluator "), role.RoleName)
 		suite.Equal(roles.RoleTypeQae, role.RoleType)
 	})
 

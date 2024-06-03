@@ -56,7 +56,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'services_counselor',
       });
     }
-    if (values.qualityAssuranceAndCustomerSupportCheckBox) {
+    if (values.qualityAssuranceEvaluatorCheckBox) {
       requestedRoles.push({
         name: 'Quality Assurance',
         roleType: 'qae',
