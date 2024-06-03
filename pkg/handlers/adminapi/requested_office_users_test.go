@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -109,7 +109,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -183,7 +183,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccountCreation() {
 	suite.Run("Successful update", func() {
 		user := factory.BuildDefaultUser(suite.DB())
-		tooRoleName := "Transportation Ordering Officer"
+		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 		tioRoleName := "Transportation Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
@@ -237,7 +237,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -279,7 +279,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		mockAndActivateOktaEndpoints(provider, 200)
 
 		user := factory.BuildDefaultUser(suite.DB())
-		tooRoleName := "Transportation Ordering Officer"
+		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 		tioRoleName := "Transportation Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
@@ -344,7 +344,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -386,7 +386,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		mockAndActivateOktaEndpoints(provider, 500)
 
 		user := factory.BuildDefaultUser(suite.DB())
-		tooRoleName := "Transportation Ordering Officer"
+		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 		tioRoleName := "Transportation Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
@@ -451,7 +451,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
