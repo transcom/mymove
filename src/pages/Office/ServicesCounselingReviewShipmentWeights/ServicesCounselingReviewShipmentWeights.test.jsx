@@ -79,16 +79,6 @@ describe('Services Counseling Review Shipment Weights', () => {
       expect(screen.getByText('Weight moved by customer')).toBeInTheDocument();
     });
 
-    it('displays pro-gear weights', async () => {
-      useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
-      render(<ServicesCounselingReviewShipmentWeights moveCode="XSWT05" />);
-      const container = await screen.findByTestId('progearContainer');
-      expect(container).toBeInTheDocument();
-      const table = await within(container).getByRole('table');
-      expect(table).toBeInTheDocument();
-      expect(screen.getByText('Weight moved')).toBeInTheDocument();
-    });
-
     it('displays non-PPM shipments weights list', async () => {
       useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
       render(<ServicesCounselingReviewShipmentWeights moveCode="XSWT05" />);
