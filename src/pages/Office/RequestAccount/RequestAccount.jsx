@@ -58,7 +58,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
     }
     if (values.qualityAssuranceEvaluatorCheckBox) {
       requestedRoles.push({
-        name: 'Quality Assurance',
+        name: 'Quality Assurance Evaluator',
         roleType: 'qae',
       });
     }
