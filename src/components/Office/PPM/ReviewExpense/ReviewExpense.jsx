@@ -25,7 +25,6 @@ import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
-import { getWeightTicketNetWeight } from 'utils/shipmentWeights';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -66,7 +65,6 @@ const validationSchema = (allowableWeight) => {
 };
 
 export default function ReviewExpense({
-  weightTickets,
   ppmShipmentInfo,
   expense,
   documentSets,
@@ -97,22 +95,7 @@ export default function ReviewExpense({
   });
 
   const sitCost = ppmShipmentInfo?.sitEstimatedCost || '';
-
-  const getAllowableWeight = () => {
-    let weight = 0;
-
-    for (let i = 0; i < weightTickets.length; i += 1) {
-      if (weightTickets[i].status !== 'REJECTED' && weightTickets[i].ppmShipmentId === ppmShipmentInfo.id) {
-        weight = weightTickets[i]?.allowableWeight
-          ? weightTickets[i].allowableWeight
-          : getWeightTicketNetWeight(weightTickets[i]);
-      }
-    }
-
-    return weight;
-  };
-
-  const allowableWeight = getAllowableWeight();
+  const allowableWeight = ppmShipmentInfo.estimatedWeight;
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -255,9 +238,7 @@ export default function ReviewExpense({
                     options={sitLocationOptions}
                   />
                   <legend className={classnames('usa-label', styles.label)}>Cost</legend>
-                  <div className={styles.displayValue}>
-                    {sitCost == null ? '' : toDollarString(formatCents(sitCost))}
-                  </div>
+                  <div className={styles.displayValue}>{toDollarString(formatCents(sitCost))}</div>
                 </>
               )}
               <MaskedTextField
