@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -12,5 +13,5 @@ import (
 //
 //go:generate mockery --name UserRoleAssociator
 type UserRoleAssociator interface {
-	UpdateUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, roles []roles.RoleType) ([]models.UsersRoles, error)
+	UpdateUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, roles []roles.RoleType) ([]models.UsersRoles, *validate.Errors, error)
 }

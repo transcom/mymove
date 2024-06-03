@@ -23,7 +23,7 @@ func NewShipmentDiversionRequester(router services.ShipmentRouter) services.Ship
 }
 
 // RequestShipmentDiversion Requests the shipment diversion
-func (f *shipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+func (f *shipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, diversionReason *string) (*models.MTOShipment, error) {
 	shipment, err := FindShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (f *shipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.RequestDiversion(appCtx, shipment)
+	err = f.router.RequestDiversion(appCtx, shipment, diversionReason)
 	if err != nil {
 		return nil, err
 	}

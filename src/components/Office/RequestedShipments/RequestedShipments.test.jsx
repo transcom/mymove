@@ -179,7 +179,7 @@ describe('RequestedShipments', () => {
       render(submittedRequestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
       expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
-        `${destination.streetAddress1}, ${destination.streetAddress2}, ${destination.city}, ${destination.state} ${destination.postalCode}`,
+        `${destination.streetAddress1}, ${destination.streetAddress2}, ${destination.streetAddress3}, ${destination.city}, ${destination.state} ${destination.postalCode}`,
       );
 
       expect(screen.getAllByTestId('destinationAddress').at(1)).toHaveTextContent(

@@ -125,4 +125,19 @@ describe('ShipmentQAEReportHeader', () => {
     expect(screen.getByTestId('shipmentHeader')).toHaveTextContent(ppmShipment.ppmShipment.destinationPostalCode);
     expect(screen.getByRole('button', { name: 'Create report' })).toBeVisible();
   });
+  it('renders a shipment but disables button when move is locked', () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createEvaluationReport]}>
+        <ShipmentQAEReportHeader
+          destinationDutyLocationPostalCode=""
+          shipment={hhgShipment}
+          shipmentNumber={1}
+          isMoveLocked
+        />
+      </MockProviders>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Create report' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Create report' })).toBeDisabled();
+  });
 });

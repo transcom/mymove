@@ -586,6 +586,7 @@ func MTOServiceItemModel(mtoServiceItem primev3messages.MTOServiceItem) (*models
 		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
 		model.Description = domesticCrating.Description
 		model.Reason = domesticCrating.Reason
+		model.StandaloneCrate = domesticCrating.StandaloneCrate
 		model.Dimensions = models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
 				Type:   models.DimensionTypeItem,
