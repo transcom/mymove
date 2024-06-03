@@ -129,7 +129,7 @@ func (suite *FactorySuite) TestBuildRoleTraits() {
 			[]Trait{
 				GetTraitQaeRole,
 			})
-		suite.Equal(roles.RoleName("Quality Assurance Evaluator "), role.RoleName)
+		suite.Equal(roles.RoleName("Quality Assurance Evaluator"), role.RoleName)
 		suite.Equal(roles.RoleTypeQae, role.RoleType)
 	})
 
