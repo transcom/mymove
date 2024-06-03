@@ -7,9 +7,22 @@ import styles from './PPMSummaryList.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
-import { formatCustomerDate } from 'utils/formatters';
+import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
+
+const toFromAddressDisplay = (pickupAddress, destinationAddress) => {
+  return (
+    <div className={styles.addressDisplay}>
+      <p>
+        <span className={styles.bold}>From: </span>
+        {formatAddressShort(pickupAddress)}
+        <span className={styles.bold}> To: </span>
+        {formatAddressShort(destinationAddress)}
+      </p>
+    </div>
+  );
+};
 
 const submittedContent = (
   <>
@@ -21,9 +34,10 @@ const submittedContent = (
   </>
 );
 
-const approvedContent = (approvedAt) => {
+const approvedContent = (approvedAt, pickupAddress, destinationAddress) => {
   return (
     <>
+      {toFromAddressDisplay(pickupAddress, destinationAddress)}
       <div className={styles.dateSummary}>
         <p>{`PPM approved: ${formatCustomerDate(approvedAt)}.`}</p>
       </div>
@@ -37,9 +51,10 @@ const approvedContent = (approvedAt) => {
   );
 };
 
-const paymentSubmitted = (approvedAt, submittedAt) => {
+const paymentSubmitted = (approvedAt, submittedAt, pickupAddress, destinationAddress) => {
   return (
     <>
+      {toFromAddressDisplay(pickupAddress, destinationAddress)}
       <div className={styles.dateSummary}>
         <p>{`PPM approved: ${formatCustomerDate(approvedAt)}`}</p>
         <p>{`PPM documentation submitted: ${formatCustomerDate(submittedAt)}`}</p>
@@ -54,9 +69,10 @@ const paymentSubmitted = (approvedAt, submittedAt) => {
   );
 };
 
-const paymentReviewed = (approvedAt, submittedAt, reviewedAt) => {
+const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress) => {
   return (
     <>
+      {toFromAddressDisplay(pickupAddress, destinationAddress)}
       <div className={styles.dateSummary}>
         <p>{`PPM approved: ${formatCustomerDate(approvedAt)}`}</p>
         <p>{`PPM documentation submitted: ${formatCustomerDate(submittedAt)}`}</p>
@@ -74,7 +90,7 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt) => {
 
 const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) => {
   const {
-    ppmShipment: { status, approvedAt, submittedAt, reviewedAt },
+    ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
 
   let actionButton;
@@ -87,11 +103,11 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) 
       break;
     case ppmShipmentStatuses.WAITING_ON_CUSTOMER:
       actionButton = <Button onClick={onButtonClick}>Upload PPM Documents</Button>;
-      content = approvedContent(approvedAt);
+      content = approvedContent(approvedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL:
       actionButton = <Button disabled>Download Payment Packet</Button>;
-      content = paymentSubmitted(approvedAt, submittedAt);
+      content = paymentSubmitted(approvedAt, submittedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.PAYMENT_APPROVED:
       actionButton = (
@@ -104,7 +120,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) 
         />
       );
 
-      content = paymentReviewed(approvedAt, submittedAt, reviewedAt);
+      content = paymentReviewed(approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress);
       break;
     default:
   }
