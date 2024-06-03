@@ -5546,6 +5546,10 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7684,6 +7688,11 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
     required:
       - id
       - createdAt

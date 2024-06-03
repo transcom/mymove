@@ -62,6 +62,7 @@ const MoveDetails = ({
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+
   const navigate = useNavigate();
 
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
