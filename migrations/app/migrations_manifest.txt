@@ -943,3 +943,4 @@
 20240521184834_add_standalone_field_to_service_items.up.sql
 20240522124339_add_csr_to_roles.up.sql
 20240524214247_add_sit_location_moving_expenses.up.sql
+20240531154303_add_more_submitted_columns_to_ppm_document_tables.up.sql
