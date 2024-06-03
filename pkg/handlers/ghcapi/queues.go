@@ -35,7 +35,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			if !appCtx.Session().IsOfficeUser() ||
 				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TOO office role",
+					"user is not authenticated with TOO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetMovesQueueForbidden(), forbiddenErr
@@ -177,9 +177,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TIO office role",
+					"user is not authenticated with TIO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetPaymentRequestsQueueForbidden(), forbiddenErr
@@ -270,9 +271,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with an office role",
+					"user is not authenticated with Services Counselor or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr

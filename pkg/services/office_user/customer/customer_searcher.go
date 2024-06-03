@@ -36,18 +36,16 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		return models.ServiceMembers{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
+	if !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+		return models.ServiceMembers{}, 0, apperror.NewForbiddenError("not authorized to preform this search")
+	}
+
 	err := appCtx.DB().RawQuery("SET pg_trgm.similarity_threshold = 0.1").Exec()
 	if err != nil {
 		return nil, 0, err
 	}
 
-	var query *pop.Query
-
-	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query = appCtx.DB().Q().
-			Join("users", "users.id = service_members.user_id")
-	}
-
+	query := appCtx.DB().Q().Join("users", "users.id = service_members.user_id")
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	dodIDQuery := dodIDSearch(params.DodID)
 	orderQuery := sortOrder(params.Sort, params.Order)
