@@ -95,7 +95,6 @@ describe('DodInfoForm component', () => {
 
   describe('Coast Guard Customers', () => {
     it('shows an error message if EMPLID not present ', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...coastGuardTestProps} />);
       await userEvent.click(getByLabelText('Branch of service'));
       await userEvent.click(getByLabelText('DOD ID number'));
@@ -112,7 +111,6 @@ describe('DodInfoForm component', () => {
     });
 
     it('submits the form when its valid', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       const { getByRole, getByLabelText } = render(<DodInfoForm {...testProps} />);
       const submitBtn = getByRole('button', { name: 'Next' });
 

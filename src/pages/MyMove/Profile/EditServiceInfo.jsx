@@ -15,19 +15,13 @@ import {
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMember, moveIsInDraft }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
-  const [isEmplidEnabled, setIsEmplidEnabled] = useState(false);
   const { state } = useLocation();
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsEmplidEnabled(await isBooleanFlagEnabled('coast_guard_emplid'));
-    };
-    fetchData();
     if (!moveIsInDraft) {
       // Redirect to the home page
       navigate(generalRoutes.HOME_PATH);
@@ -55,7 +49,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
       suffix: values.suffix,
       affiliation: values.affiliation,
       edipi: values.edipi,
-      emplid: values.affiliation === 'COAST_GUARD' && isEmplidEnabled ? values.emplid : null,
+      emplid: values.affiliation === 'COAST_GUARD' ? values.emplid : null,
     };
 
     patchServiceMember(payload)
@@ -93,7 +87,6 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
         newDutyLocation={currentOrders?.new_duty_location}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        isEmplidEnabled={isEmplidEnabled}
       />
     </GridContainer>
   );
