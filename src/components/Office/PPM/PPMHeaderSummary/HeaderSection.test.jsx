@@ -165,6 +165,7 @@ const incentiveFactorsProps = {
     unpackPrice: 10000,
     dop: 15640,
     ddp: 34640,
+    sitReimbursement: 30000,
   },
 };
 
@@ -178,6 +179,7 @@ const incentiveFactorsShorthaulProps = {
     unpackPrice: 10000,
     dop: 15640,
     ddp: 34640,
+    sitReimbursement: 30000,
   },
 };
 
@@ -276,6 +278,7 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
       expect(screen.getByText('Destination Price')).toBeInTheDocument();
       expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
+      expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
     });
 
     it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
@@ -300,6 +303,7 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
       expect(screen.getByText('Destination Price')).toBeInTheDocument();
       expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
+      expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
     });
   });
 
