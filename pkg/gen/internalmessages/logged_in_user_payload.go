@@ -43,6 +43,9 @@ type LoggedInUserPayload struct {
 	// permissions
 	Permissions []string `json:"permissions"`
 
+	// privileges
+	Privileges []*Privilege `json:"privileges"`
+
 	// roles
 	Roles []*Role `json:"roles"`
 
@@ -63,6 +66,10 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOfficeUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrivileges(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,6 +126,32 @@ func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) validatePrivileges(formats strfmt.Registry) error {
+	if swag.IsZero(m.Privileges) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Privileges); i++ {
+		if swag.IsZero(m.Privileges[i]) { // not required
+			continue
+		}
+
+		if m.Privileges[i] != nil {
+			if err := m.Privileges[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -185,6 +218,10 @@ func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePrivileges(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRoles(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -233,6 +270,31 @@ func (m *LoggedInUserPayload) contextValidateOfficeUser(ctx context.Context, for
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidatePrivileges(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Privileges); i++ {
+
+		if m.Privileges[i] != nil {
+
+			if swag.IsZero(m.Privileges[i]) { // not required
+				return nil
+			}
+
+			if err := m.Privileges[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
