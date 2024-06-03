@@ -1,6 +1,49 @@
 import { expenseTypeLabels } from './ppmExpenseTypes';
+import ppms from './ppms';
 
 import { formatCents, formatCustomerDate, formatWeight, formatYesNoInputValue, toDollarString } from 'utils/formatters';
+
+const feedbackDisplayHelperTrip = (documentSet) => {
+  return documentSet?.some(
+    (doc) =>
+      (doc.status !== ppms.APPROVED && doc.status !== null) ||
+      doc.submittedEmptyWeight !== doc.emptyWeight ||
+      doc.submittedFullWeight !== doc.fullWeight ||
+      doc.submittedOwnsTrailer !== doc.ownsTrailer ||
+      doc.submittedTrailerMeetsCriteria !== doc.trailerMeetsCriteria,
+  );
+};
+
+const feedbackDisplayHelperProGear = (documentSet) => {
+  return documentSet?.some(
+    (doc) =>
+      (doc.status !== ppms.APPROVED && doc.status !== null) ||
+      doc.submittedBelongsToSelf !== doc.belongsToSelf ||
+      doc.submittedHasWeightTickets !== doc.hasWeightTickets ||
+      doc.submittedWeight !== doc.weight,
+  );
+};
+
+const feedbackDisplayHelperExpense = (documentSet) => {
+  return documentSet?.some(
+    (doc) =>
+      (doc.status !== ppms.APPROVED && doc.status !== null) ||
+      doc.submittedAmount !== doc.amount ||
+      doc.submittedDescription !== doc.description ||
+      doc.submittedMovingExpenseType !== doc.movingExpenseType ||
+      doc.submittedSitEndDate !== doc.sitEndDate ||
+      doc.submittedSitStartDate !== doc.sitStartDate,
+  );
+};
+
+// feedback should only be visible if all ppm documents were accepted without edits
+export const isFeedbackAvailable = (ppmShipment) => {
+  if (!ppmShipment) return false;
+  if (feedbackDisplayHelperTrip(ppmShipment?.weightTickets)) return true;
+  if (feedbackDisplayHelperProGear(ppmShipment?.proGearWeightTickets)) return true;
+  if (feedbackDisplayHelperExpense(ppmShipment?.movingExpenses)) return true;
+  return false;
+};
 
 const getExpenseType = (label) => {
   return expenseTypeLabels[label];

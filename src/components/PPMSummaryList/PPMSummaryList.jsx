@@ -10,6 +10,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
+import { isFeedbackAvailable } from 'constants/ppmFeedback';
 
 const submittedContent = (
   <>
@@ -79,47 +80,6 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
 
   let actionButtons;
   let content;
-
-  const feedbackDisplayHelperTrip = (documentSet) => {
-    return documentSet.some(
-      (doc) =>
-        (doc.status !== 'APPROVED' && doc.status !== null) ||
-        doc.submittedEmptyWeight !== doc.emptyWeight ||
-        doc.submittedFullWeight !== doc.fullWeight ||
-        doc.submittedOwnsTrailer !== doc.ownsTrailer ||
-        doc.submittedTrailerMeetsCriteria !== doc.trailerMeetsCriteria,
-    );
-  };
-
-  const feedbackDisplayHelperProGear = (documentSet) => {
-    return documentSet.some(
-      (doc) =>
-        (doc.status !== 'APPROVED' && doc.status !== null) ||
-        doc.submittedBelongsToSelf !== doc.belongsToSelf ||
-        doc.submittedHasWeightTickets !== doc.hasWeightTickets ||
-        doc.submittedWeight !== doc.weight,
-    );
-  };
-
-  const feedbackDisplayHelperExpense = (documentSet) => {
-    return documentSet.some(
-      (doc) =>
-        (doc.status !== 'APPROVED' && doc.status !== null) ||
-        doc.submittedAmount !== doc.amount ||
-        doc.submittedDescription !== doc.description ||
-        doc.submittedMovingExpenseType !== doc.movingExpenseType ||
-        doc.submittedSitEndDate !== doc.sitEndDate ||
-        doc.submittedSitStartDate !== doc.sitStartDate,
-    );
-  };
-
-  // feedback should only be visible if all ppm documents were accepted without edits
-  const isFeedbackAvailable = (ppmShipment) => {
-    if (feedbackDisplayHelperTrip(ppmShipment.weightTickets)) return true;
-    if (feedbackDisplayHelperProGear(ppmShipment?.proGearWeightTickets)) return true;
-    if (feedbackDisplayHelperExpense(ppmShipment.movingExpenses)) return true;
-    return false;
-  };
 
   switch (status) {
     case ppmShipmentStatuses.SUBMITTED:

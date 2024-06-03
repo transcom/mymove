@@ -181,10 +181,10 @@ describe('FeedbackItems component', () => {
 
     expect(screen.getByText('SIT start date:')).toBeInstanceOf(HTMLSpanElement);
     expect(screen.getByText('02 Apr 2024')).toBeInstanceOf(HTMLSpanElement);
-    expect(screen.getByText('(01 Apr 2024)')).toBeInstanceOf(HTMLSpanElement);
+    expect(screen.getByText('(*01 Apr 2024)')).toBeInstanceOf(HTMLSpanElement);
     expect(screen.getByText('SIT end date:')).toBeInstanceOf(HTMLSpanElement);
     expect(screen.getByText('01 Jun 2024')).toBeInstanceOf(HTMLSpanElement);
-    expect(screen.getByText('(02 Jun 2024)')).toBeInstanceOf(HTMLSpanElement);
+    expect(screen.getByText('(*02 Jun 2024)')).toBeInstanceOf(HTMLSpanElement);
   });
 
   it('displays the edited status when values were edited', () => {
