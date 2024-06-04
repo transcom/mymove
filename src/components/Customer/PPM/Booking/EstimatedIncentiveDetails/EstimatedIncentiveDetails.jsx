@@ -2,6 +2,7 @@ import React from 'react';
 
 import styles from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails.module.scss';
 import { ShipmentShape } from 'types/shipment';
+import { formatAddress } from 'utils/shipmentDisplay';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 
 const EstimatedIncentiveDetails = ({ shipment }) => {
@@ -25,10 +26,12 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
           <p>This is an estimate of how much you could earn by moving your PPM, based on what you have entered:</p>
           <ul>
             <li>{formatWeight(estimatedWeight)} estimated weight</li>
-            <li>Starting from {pickupAddress.postalCode}</li>
-            {hasSecondaryPickupAddress && <li>Picking up things in {secondaryPickupAddress.postalCode}</li>}
-            {hasSecondaryDestinationAddress && <li>Dropping off things in {secondaryDestinationAddress.postalCode}</li>}
-            <li>Ending in {destinationAddress.postalCode}</li>
+            <li>Starting from {formatAddress(pickupAddress)}</li>
+            {hasSecondaryPickupAddress && <li>Picking up things at {formatAddress(secondaryPickupAddress)}</li>}
+            {hasSecondaryDestinationAddress && (
+              <li>Dropping off things at {formatAddress(secondaryDestinationAddress)}</li>
+            )}
+            <li>Ending in {formatAddress(destinationAddress)}</li>
             <li>Starting your PPM on {formatCustomerDate(expectedDepartureDate)}</li>
           </ul>
         </div>
