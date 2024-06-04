@@ -1812,7 +1812,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		year := 2021
 		day := 01
-		actualPickupDate := time.Date(year, time.March, day, 0, 0, 0, 0, nil)
+		actualPickupDate := time.Date(year, time.March, day, 0, 0, 0, 0, time.Local)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -1938,10 +1938,12 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 409 when canceler returns Conflict Error", func() {
+		day := time.Now()
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					ID: uuid.Must(uuid.NewV4()),
+					ActualPickupDate: &day,
 				},
 			},
 		}, nil)

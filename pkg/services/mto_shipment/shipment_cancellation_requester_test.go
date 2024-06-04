@@ -21,7 +21,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 	suite.Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func() {
 		year := 2021
 		day := 01
-		actualPickupDate := time.Date(year, time.March, day, 0, 0, 0, 0, nil)
+		actualPickupDate := time.Date(year, time.March, day, 0, 0, 0, 0, time.Local)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -111,7 +111,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		requester := NewShipmentCancellationRequester(shipmentRouter, moveRouter)
 		year := 2021
 		day := 01
-		actualPickupDate := time.Date(year, time.March, day, 0, 0, 0, 0, nil)
+		actualPickupDate := time.Date(year, time.March, day, 0, 0, 0, 0, time.Local)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
