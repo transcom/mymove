@@ -183,41 +183,6 @@ export const PPMReviewWeightsTableColumns = [
   ),
 ];
 
-export const proGearTableColumns = [
-  createHeader(
-    '',
-    () => {
-      return (
-        <div
-          className={`${styles['review-shipment-weights-table-row']} ${styles['review-shipment-weights-table-row-pro-gear']}`}
-        >
-          <strong>Pro-gear</strong>{' '}
-        </div>
-      );
-    },
-    {
-      id: 'shipmentType',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
-    'Pro-gear (lbs)',
-    (row) => (row.entitlement.proGearWeight > 0 ? formatWeight(row.entitlement.proGearWeight) : DASH),
-    {
-      id: 'proGear',
-      isFilterable: false,
-    },
-  ),
-  createHeader(
-    'Spouse pro-gear (lbs)',
-    (row) => (row.entitlement.proGearWeightSpouse > 0 ? formatWeight(row.entitlement.proGearWeightSpouse) : DASH),
-    {
-      id: 'spouseProGear',
-      isFilterable: false,
-    },
-  ),
-];
-
 export const nonPPMTableColumns = [
   createHeader('', (row) => <ShipmentTypeCell row={row} />, {
     id: 'shipmentType',
@@ -227,6 +192,22 @@ export const nonPPMTableColumns = [
     id: 'estimatedWeight',
     isFilterable: false,
   }),
+  createHeader(
+    'Pro-gear \n(lbs)',
+    (row) => (row.actualProGearWeight > 0 ? formatWeight(row.actualProGearWeight) : DASH),
+    {
+      id: 'actualProGear',
+      isFilterable: false,
+    },
+  ),
+  createHeader(
+    'Spouse pro-gear \n(lbs)',
+    (row) => (row.actualSpouseProGearWeight > 0 ? formatWeight(row.actualSpouseProGearWeight) : DASH),
+    {
+      id: 'actualSpouseProGear',
+      isFilterable: false,
+    },
+  ),
   createHeader('Reweigh requested', (row) => (row.reweigh ? 'Yes' : 'No'), {
     id: 'reweighRequested',
     isFilterable: false,
@@ -257,12 +238,6 @@ export const PPMReviewWeightsTableConfig = {
   tableColumns: PPMReviewWeightsTableColumns,
   noRowsMsg: NO_ROWS_MESSAGES.PPM,
   determineShipmentNumbers: true,
-};
-
-export const proGearReviewWeightsTableConfig = {
-  tableColumns: proGearTableColumns,
-  noRowsMsg: null,
-  determineShipmentNumbers: false,
 };
 
 export const nonPPMReviewWeightsTableConfig = {
