@@ -178,3 +178,22 @@ describe('Shipment Heading hides cancellation button without updateMTOPage permi
     expect(wrapper.find('button').length).toBeFalsy();
   });
 });
+
+describe('Shipment Heading shows cancellation button but disabled when move is locked', () => {
+  const isMoveLocked = true;
+  const wrapper = mount(
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
+      <ShipmentHeading
+        shipmentInfo={headingInfo}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+        isMoveLocked={isMoveLocked}
+      />
+    </MockProviders>,
+  );
+
+  it('renders with disabled request shipment cancellation button', () => {
+    expect(wrapper.find('button').length).toEqual(1);
+    expect(wrapper.find('button[data-testid="requestCancellationBtn"]').prop('disabled')).toBe(true);
+  });
+});

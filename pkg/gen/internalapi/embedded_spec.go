@@ -41,7 +41,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -4213,6 +4213,12 @@ func init() {
             "type": "string"
           }
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -5399,13 +5405,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -5932,6 +5940,34 @@ func init() {
       "format": "uuid",
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
     },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
@@ -7420,7 +7456,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -12035,6 +12071,12 @@ func init() {
             "type": "string"
           }
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -13223,13 +13265,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -13756,6 +13800,34 @@ func init() {
       "format": "uuid",
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
     },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
