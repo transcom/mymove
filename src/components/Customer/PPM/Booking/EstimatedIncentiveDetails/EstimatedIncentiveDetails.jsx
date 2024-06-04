@@ -31,7 +31,7 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
             {hasSecondaryDestinationAddress && (
               <li>Dropping off things at {formatAddress(secondaryDestinationAddress)}</li>
             )}
-            <li>Ending in {formatAddress(destinationAddress)}</li>
+            <li>Ending at {formatAddress(destinationAddress)}</li>
             <li>Starting your PPM on {formatCustomerDate(expectedDepartureDate)}</li>
           </ul>
         </div>
