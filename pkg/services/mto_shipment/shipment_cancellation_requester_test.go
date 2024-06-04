@@ -140,4 +140,33 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		// if the created shipment has a status of cancellation requested, then RequestCancellation was successful
 		suite.Equal(models.MTOShipmentStatusCancellationRequested, dbShipment.Status)
 	})
+
+	suite.Run("It calls RequestCancellation on shipment with invalid actualPickupDate", func() {
+		shipmentRouter := NewShipmentRouter()
+		moveRouter := moveservices.NewMoveRouter()
+		requester := NewShipmentCancellationRequester(shipmentRouter, moveRouter)
+		actualPickupDate := time.Now()
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					ActualPickupDate: &actualPickupDate,
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		createdShipment := models.MTOShipment{
+			ActualPickupDate: &actualPickupDate,
+		}
+		err := suite.DB().Find(&createdShipment, shipment.ID)
+		suite.FatalNoError(err)
+
+		_, err = requester.RequestShipmentCancellation(session, shipment.ID, eTag)
+
+		suite.Equal(err, apperror.NewUpdateError(shipment.ID, "cancellation request date cannot be on or after actual pick update"))
+	})
 }
