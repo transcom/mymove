@@ -210,6 +210,8 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.Amount, *updatedMovingExpense.Amount)
 		suite.Equal(*expectedMovingExpense.MissingReceipt, *updatedMovingExpense.MissingReceipt)
 		suite.Equal(*expectedMovingExpense.Amount, *updatedMovingExpense.SubmittedAmount)
+		suite.Equal(*expectedMovingExpense.MovingExpenseType, *updatedMovingExpense.SubmittedMovingExpenseType)
+		suite.Equal(*expectedMovingExpense.Description, *updatedMovingExpense.SubmittedDescription)
 		// Only the storage type receipt should be able to set these fields, would we rather reject
 		// the update outright than fail silently?
 		suite.Nil(updatedMovingExpense.SITStartDate)
