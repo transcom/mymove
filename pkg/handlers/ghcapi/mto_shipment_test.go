@@ -1812,10 +1812,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		year := 2021
+		day := 01
+		n := 0
+		actualPickupDate := time.Date(year, time.March, day, n, n, n, n, time.Local)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status: models.MTOShipmentStatusApproved,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 			{
@@ -1940,6 +1945,47 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			{
 				Model: models.MTOShipment{
 					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := RequestShipmentCancellationHandler{
+			handlerConfig,
+			canceler,
+			sitstatus.NewShipmentSITStatus(),
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationConflict{}, response)
+		payload := response.(*shipmentops.RequestShipmentCancellationConflict).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Returns 409 when canceler returns Conflict Error from invalid date", func() {
+		today := time.Now()
+		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+					ActualPickupDate: &today,
 				},
 			},
 		}, nil)
