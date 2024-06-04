@@ -68,3 +68,4 @@ enum:
   - ZipSITOriginHHGOriginalAddress
   - StandaloneCrate
   - StandaloneCrateCap
+  - UncappedRequestTotal
