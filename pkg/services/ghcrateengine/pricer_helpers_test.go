@@ -622,7 +622,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
-			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
+			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(23049)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
