@@ -208,6 +208,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   };
 
+  // check for FF and if move is submitted, can refactor once FF is removed
+  // to just use hasSubmittedMove
+  const isAdditionalDocumentsButtonAvailable = () => {
+    return isManageSupportingDocsEnabled && hasSubmittedMove();
+  };
+
   // logic that handles deleting a shipment
   // calls internal API and updates shipments
   const handleDeleteShipmentConfirmation = (shipmentId) => {
@@ -407,6 +413,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   }
 
+  const additionalDocumentsClick = () => {
+    const uploadAdditionalDocumentsPath = generatePath(customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_PATH, {
+      moveLocator: move.moveCode,
+    });
+    navigate(uploadAdditionalDocumentsPath, { state, moveId });
+  };
+
   // eslint-disable-next-line camelcase
   const { current_location } = serviceMember;
   const ordersPath = hasOrdersNoUpload() ? `/orders/upload/${orders.id}` : `/orders/upload/${orders.id}`;
@@ -467,26 +480,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
               {renderAlert()}
               {renderHelper()}
               <SectionWrapper>
-                {isManageSupportingDocsEnabled && hasSubmittedMove() && (
-                  <div className={styles['upload-additional-documents-button']}>
-                    <Button
-                      data-testid="upload-additional-documents-button"
-                      className={styles['edit-btn']}
-                      onClick={() => {
-                        const uploadAdditionalDocumentsPath = generatePath(
-                          customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_PATH,
-                          {
-                            moveLocator: move.moveCode,
-                          },
-                        );
-                        navigate(uploadAdditionalDocumentsPath, { state, moveId });
-                      }}
-                      type="button"
-                    >
-                      Upload Additional Documents
-                    </Button>
-                  </div>
-                )}
                 <Step
                   complete={serviceMember.is_profile_complete}
                   completedHeaderText="Profile complete"
@@ -494,6 +487,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   headerText="Profile complete"
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
+                  actionBtnLabel={isAdditionalDocumentsButtonAvailable() ? 'Upload Additional Documents' : null}
+                  onActionBtnClick={() => additionalDocumentsClick()}
                 >
                   <Description>Make sure to keep your personal information up to date during your move.</Description>
                 </Step>
