@@ -616,6 +616,22 @@ const cratingSize = (params, mtoParams) => {
   return calculation(value, label, formatDetail(description), formatDetail(formattedDimensions));
 };
 
+const standaloneCrate = (params) => {
+  const standalone = getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params)
+    : '';
+
+  const label = SERVICE_ITEM_CALCULATION_LABELS.StandaloneCrate;
+
+  if (standalone === 'true') {
+    const centsTotal = getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrateCap, params);
+    const value = toDollarString(formatCents(centsTotal));
+    return calculation(value, label);
+  }
+
+  return calculation(0, label);
+};
+
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
   const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}:`;
@@ -818,6 +834,14 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         priceEscalationFactorWithoutContractYear(params),
         totalAmountRequested(totalAmount),
       ];
+
+      if (
+        SERVICE_ITEM_PARAM_KEYS.StandaloneCrate !== null &&
+        getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params) === 'true'
+      ) {
+        result.splice(result.length - 1, 0, standaloneCrate(params));
+      }
+
       break;
     // Domestic uncrating
     case SERVICE_ITEM_CODES.DUCRT:
