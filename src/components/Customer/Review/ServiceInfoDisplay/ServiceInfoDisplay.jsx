@@ -11,11 +11,13 @@ const ServiceInfoDisplay = ({
   originTransportationOfficeName,
   originTransportationOfficePhone,
   edipi,
+  emplid,
   firstName,
   isEditable,
   showMessage,
   lastName,
   editURL,
+  isEmplidEnabled,
 }) => {
   const { state } = useLocation();
 
@@ -53,6 +55,13 @@ const ServiceInfoDisplay = ({
             <dt>DoD ID#</dt>
             <dd>{edipi}</dd>
           </div>
+
+          {affiliation === 'Coast Guard' && isEmplidEnabled && (
+            <div className={descriptionListStyles.row}>
+              <dt>EMPLID</dt>
+              <dd>{emplid}</dd>
+            </div>
+          )}
         </dl>
       </div>
     </div>

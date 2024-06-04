@@ -362,6 +362,7 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 
 	shipmentRouter := NewShipmentRouter()
+	diversionReason := "Test Reason"
 
 	validStatuses := []struct {
 		desc   string
@@ -380,7 +381,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 			}, nil)
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment, &diversionReason)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusDiversionRequested, shipment.Status)
@@ -409,7 +410,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 			}, nil)
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.RequestDiversion(suite.AppContextForTest(), &shipment, &diversionReason)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
