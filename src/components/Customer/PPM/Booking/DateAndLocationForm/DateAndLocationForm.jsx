@@ -165,7 +165,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         id="useCurrentResidence"
                       />
                       {fields}
-                      <h4>Second pickup location</h4>
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">
