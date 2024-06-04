@@ -326,9 +326,6 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ShipmentPickupDates = formattedShipments.PickUpDates
 	page2.TrustedAgentName = agentInfo.Name
-	page2.TrustedAgentDate = agentInfo.Date
-	page2.TrustedAgentEmail = agentInfo.Email
-	page2.TrustedAgentPhone = agentInfo.Phone
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
 	page2.SignatureDate = FormatSignatureDate(data.SignedCertification.UpdatedAt)
 	return page2
@@ -345,31 +342,11 @@ func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 }
 
 func FormatAgentInfo(agentArray []models.MTOAgent) Agent {
+	// The construction of agent objects will remain in case trusted or other agents are ever added to MilMove in the distant future
+	// However for now, they will only be added manually by the office.
 	agentObject := Agent{}
-	if len(agentArray) == 0 {
-		agentObject.Name = "No agent specified"
-		agentObject.Email = "No agent specified"
-		agentObject.Date = "No agent specified"
-		agentObject.Phone = "No agent specified"
-		return agentObject
-	}
 
-	agent := agentArray[0]
-
-	switch {
-	case agent.FirstName != nil && agent.LastName != nil:
-		agentObject.Name = fmt.Sprintf("%s, %s", *agent.LastName, *agent.FirstName)
-	case agent.FirstName == nil && agent.LastName == nil:
-		agentObject.Name = "No name specified"
-	case agent.FirstName == nil:
-		agentObject.Name = fmt.Sprintf("No first name provided, Last Name: %s", *agent.LastName)
-	case agent.LastName == nil:
-		agentObject.Name = fmt.Sprintf("First Name: %s, No last name provided", *agent.FirstName)
-	}
-
-	agentObject.Email = getOrDefault(agent.Email, "No Email Specified")
-	agentObject.Phone = getOrDefault(agent.Phone, "No Phone Specified")
-	agentObject.Date = agent.UpdatedAt.Format("20060102")
+	agentObject.Name = "Trusted Agent Requires POA \nor Letter of Authorization"
 
 	return agentObject
 }
@@ -711,7 +688,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
-		"Shipment.MTOAgents",
 		"W2Address",
 		"SignedCertification",
 		"MovingExpenses",
@@ -760,7 +736,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		PPMShipments:             ppmShipments,
 		W2Address:                ppmShipment.W2Address,
 		MovingExpenses:           ppmShipment.MovingExpenses,
-		MTOAgents:                ppmShipment.Shipment.MTOAgents,
 		SignedCertification:      *signedCertification,
 		PPMRemainingEntitlement:  ppmRemainingEntitlement,
 		MaxSITStorageEntitlement: maxSit,
