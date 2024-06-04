@@ -2522,6 +2522,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -3129,13 +3133,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -7680,6 +7686,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -8287,13 +8297,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
