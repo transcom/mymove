@@ -25,7 +25,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:           models.MTOShipmentStatusApproved,
 					ActualPickupDate: &actualPickupDate,
 				},
 			},
@@ -115,7 +115,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:           models.MTOShipmentStatusApproved,
 					ActualPickupDate: &actualPickupDate,
 				},
 			},

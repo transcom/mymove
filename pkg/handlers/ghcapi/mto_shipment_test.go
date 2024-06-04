@@ -1816,7 +1816,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:           models.MTOShipmentStatusApproved,
 					ActualPickupDate: &actualPickupDate,
 				},
 			},
