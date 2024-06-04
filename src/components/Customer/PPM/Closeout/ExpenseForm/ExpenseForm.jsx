@@ -47,9 +47,9 @@ const validationSchema = Yup.object().shape({
     is: expenseTypes.STORAGE,
     then: (schema) => schema.required('Required'),
   }),
-  sitWeight: Yup.string().when('expenseType', {
+  sitWeight: Yup.number().when('expenseType', {
     is: expenseTypes.STORAGE,
-    then: (schema) => schema.required('Required'),
+    then: (schema) => schema.required('Required').moreThan(0, 'Weight stored must be at least 1 lb.'),
   }),
 });
 
