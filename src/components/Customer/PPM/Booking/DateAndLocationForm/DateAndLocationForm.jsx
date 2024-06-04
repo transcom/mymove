@@ -214,7 +214,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="destinationAddress.address"
                   render={(fields) => (
                     <>
-                      <p>Please input your destination address</p>
+                      <p>Please input your destination address.</p>
                       <Checkbox
                         data-testid="useCurrentDestinationAddress"
                         label="Use my current destination address"
