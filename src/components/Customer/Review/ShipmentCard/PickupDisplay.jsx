@@ -8,6 +8,22 @@ import styles from './ShipmentCard.module.scss';
 import { formatCustomerDate } from 'utils/formatters';
 import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
 
+const thirdPickupAddress = (secondaryPickupAddress, tertiaryPickupAddress) => {
+  if (secondaryPickupAddress && tertiaryPickupAddress) {
+    return (
+      <div className={styles.row}>
+        <dt>Third pickup location</dt>
+        <dd>
+          {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
+          <br />
+          {tertiaryPickupAddress.city}, {tertiaryPickupAddress.state} {tertiaryPickupAddress.postalCode}
+        </dd>
+      </div>
+    );
+  }
+  return <div />;
+};
+
 const PickupDisplay = ({
   pickupLocation,
   secondaryPickupAddress,
@@ -41,18 +57,10 @@ const PickupDisplay = ({
           </dd>
         </div>
       )}
-      <FeatureFlag flagKey="third_address_available">
-        {tertiaryPickupAddress && (
-          <div className={styles.row}>
-            <dt>Third pickup location</dt>
-            <dd>
-              {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
-              <br />
-              {tertiaryPickupAddress.city}, {tertiaryPickupAddress.state} {tertiaryPickupAddress.postalCode}
-            </dd>
-          </div>
-        )}
-      </FeatureFlag>
+      <FeatureFlag
+        flagKey="third_address_available"
+        render={thirdPickupAddress(secondaryPickupAddress, tertiaryPickupAddress)}
+      />
       {releasingAgent && (
         <div className={styles.row}>
           <dt>Releasing agent</dt>

@@ -21,6 +21,30 @@ import { MoveShape } from 'types/customerShapes';
 import { isPPMShipmentComplete } from 'utils/shipments';
 import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
 
+const thirdPickupAddress = (secondaryPickupAddress, tertiaryPickupAddress) => {
+  if (secondaryPickupAddress && tertiaryPickupAddress) {
+    return (
+      <div className={styles.row}>
+        <dt>Third origin address</dt>
+        <dd>{formatCustomerContactFullAddress(tertiaryPickupAddress)}</dd>
+      </div>
+    );
+  }
+  return <div />;
+};
+
+const thirdDestinationAddress = (secondaryDestinationAddress, tertiaryDestinationAddress) => {
+  if (secondaryDestinationAddress && tertiaryDestinationAddress) {
+    return (
+      <div className={styles.row}>
+        <dt>Third origin address</dt>
+        <dd>{formatCustomerContactFullAddress(tertiaryDestinationAddress)}</dd>
+      </div>
+    );
+  }
+  return <div />;
+};
+
 const PPMShipmentCard = ({
   move,
   affiliation,
@@ -109,14 +133,10 @@ const PPMShipmentCard = ({
               <dd>{formatCustomerContactFullAddress(secondaryPickupAddress)}</dd>
             </div>
           )}
-          <FeatureFlag flagKey="third_address_available">
-            {secondaryPickupAddress && tertiaryPickupAddress && (
-              <div className={styles.row}>
-                <dt>Third origin address</dt>
-                <dd>{formatCustomerContactFullAddress(tertiaryPickupAddress)}</dd>
-              </div>
-            )}
-          </FeatureFlag>
+          <FeatureFlag
+            flagKey="third_address_available"
+            render={thirdPickupAddress(secondaryPickupAddress, tertiaryPickupAddress)}
+          />
           <div className={styles.row}>
             <dt>Destination address</dt>
             <dd>{destinationAddress ? formatCustomerContactFullAddress(destinationAddress) : '—'}</dd>
@@ -127,14 +147,10 @@ const PPMShipmentCard = ({
               <dd>{formatCustomerContactFullAddress(secondaryDestinationAddress)}</dd>
             </div>
           )}
-          <FeatureFlag flagKey="third_address_available">
-            {secondaryDestinationAddress && tertiaryDestinationAddress && (
-              <div className={styles.row}>
-                <dt>Third destination addresss</dt>
-                <dd>{formatCustomerContactFullAddress(tertiaryDestinationAddress)}</dd>
-              </div>
-            )}
-          </FeatureFlag>
+          <FeatureFlag
+            flagKey="third_address_available"
+            render={thirdDestinationAddress(secondaryDestinationAddress, tertiaryDestinationAddress)}
+          />
           {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (
             <div className={styles.row}>
               <dt>Closeout office</dt>

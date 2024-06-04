@@ -9,6 +9,18 @@ import { formatCustomerDate } from 'utils/formatters';
 import { formatCustomerDestination } from 'utils/shipmentDisplay';
 import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
 
+const ThirdAddressDelivery = (secondaryDeliveryAddress, tertiaryDeliveryAddress) => {
+  if (tertiaryDeliveryAddress && secondaryDeliveryAddress) {
+    return (
+      <div className={styles.row}>
+        <dt>Second Destination</dt>
+        <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
+      </div>
+    );
+  }
+  return <div />;
+};
+
 const DeliveryDisplay = ({
   destinationLocation,
   destinationZIP,
@@ -33,14 +45,10 @@ const DeliveryDisplay = ({
           <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
         </div>
       )}
-      <FeatureFlag flagKey="third_address_available">
-        {tertiaryDeliveryAddress && (
-          <div className={styles.row}>
-            <dt>Third Destination</dt>
-            <dd>{formatCustomerDestination(tertiaryDeliveryAddress)}</dd>
-          </div>
-        )}
-      </FeatureFlag>
+      <FeatureFlag
+        flagKey="third_address_available"
+        render={ThirdAddressDelivery(secondaryDeliveryAddress, tertiaryDeliveryAddress)}
+      />
       {receivingAgent && (
         <div className={styles.row}>
           <dt>Receiving agent</dt>
