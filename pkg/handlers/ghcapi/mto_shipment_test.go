@@ -1810,10 +1810,15 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		year := 2021
+		day := 01
+		n := 0
+		actualPickupDate := time.Date(year, time.March, day, n, n, n, n, time.Local)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status: models.MTOShipmentStatusApproved,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 			{
