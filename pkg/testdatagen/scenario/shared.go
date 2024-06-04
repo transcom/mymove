@@ -4205,7 +4205,7 @@ func createHHGWithOriginSITServiceItems(
 	).Return(400, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4467,7 +4467,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 	).Return(400, nil)
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4870,7 +4870,7 @@ func createHHGWithPaymentServiceItems(
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(123, nil).Once()
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4912,6 +4912,9 @@ func createHHGWithPaymentServiceItems(
 
 	// called for domestic destination SIT delivery service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Times(2)
+
+	// called for DLH, DSH, FSC service item estimated price calculations
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(400, nil).Times(3)
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
@@ -8619,6 +8622,50 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				Email:  email,
 				Active: true,
 				UserID: &qaeCsrUUID,
+			},
+		},
+	}, nil)
+}
+
+func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	email := "customer_service_representative_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
+	/* A user with RoleTypeCustomerServiceRepresentative role */
+	customerServiceRepresentativeRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeCustomerServiceRepresentative).First(&customerServiceRepresentativeRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomerServiceRepresentative in the DB: %w", err))
+	}
+
+	csrUUID := uuid.Must(uuid.FromString("72432922-BF2E-45DE-8837-1A458F5D1011"))
+	oktaID := uuid.Must(uuid.NewV4())
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:        csrUUID,
+				OktaID:    oktaID.String(),
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{customerServiceRepresentativeRole},
+			}},
+	}, nil)
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("4B8C0AD8-337A-407A-9E49-074D466F837A"),
+				Email:  email,
+				Active: true,
+				UserID: &csrUUID,
 			},
 		},
 	}, nil)
