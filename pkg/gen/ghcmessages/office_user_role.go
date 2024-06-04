@@ -18,7 +18,7 @@ import (
 type OfficeUserRole struct {
 
 	// name
-	// Example: Transportation Ordering Officer
+	// Example: Task Ordering Officer
 	Name *string `json:"name,omitempty"`
 
 	// roleType

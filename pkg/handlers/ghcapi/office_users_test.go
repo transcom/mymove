@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
