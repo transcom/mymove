@@ -144,13 +144,6 @@ type SSWMaxWeightEntitlement struct {
 	TotalWeight   unit.Pound
 }
 
-type Agent struct {
-	Name  string
-	Email string
-	Date  string
-	Phone string
-}
-
 // adds a line item to shipment summary worksheet SSWMaxWeightEntitlement and increments total allotment
 func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 	r := reflect.ValueOf(wa).Elem()
@@ -196,6 +189,10 @@ func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Po
 
 const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
+)
+
+const (
+	trustedAgentText = "Trusted Agent Requires POA \nor Letter of Authorization"
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
@@ -294,7 +291,6 @@ func FormatGrade(grade *internalmessages.OrderPayGrade) string {
 func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData) services.Page2Values {
 
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
-	agentInfo := FormatAgentInfo(data.MTOAgents)
 	formattedShipments := FormatAllShipments(data.PPMShipments)
 
 	page2 := services.Page2Values{}
@@ -325,7 +321,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ShipmentPickupDates = formattedShipments.PickUpDates
-	page2.TrustedAgentName = agentInfo.Name
+	page2.TrustedAgentName = trustedAgentText
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
 	page2.SignatureDate = FormatSignatureDate(data.SignedCertification.UpdatedAt)
 	return page2
@@ -339,16 +335,6 @@ func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 	maxAdvanceString := "No Incentive Found"
 	return maxAdvanceString
 
-}
-
-func FormatAgentInfo(agentArray []models.MTOAgent) Agent {
-	// The construction of agent objects will remain in case trusted or other agents are ever added to MilMove in the distant future
-	// However for now, they will only be added manually by the office.
-	agentObject := Agent{}
-
-	agentObject.Name = "Trusted Agent Requires POA \nor Letter of Authorization"
-
-	return agentObject
 }
 
 func getOrDefault(value *string, defaultValue string) string {
@@ -809,7 +795,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "SSWPDFTemplate.pdf",
 		Version:  "pdfcpu v0.8.0 dev",
-		Creation: "2024-05-24 18:16:45 UTC",
+		Creation: "2024-06-04 17:34:35 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
