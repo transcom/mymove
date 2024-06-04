@@ -129,7 +129,10 @@ const ServiceItemCard = ({
           <hr className="divider" />
           <dl>
             <dt>Service item</dt>
-            <dd data-testid="serviceItemName"> {mtoServiceItemName} </dd>
+            <dd data-testid="serviceItemName">
+              {mtoServiceItemName}
+              {mtoServiceItemStandaloneCrate && ' - Standalone'}
+            </dd>
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
           </dl>
