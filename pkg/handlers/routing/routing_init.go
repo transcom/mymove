@@ -603,6 +603,7 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 			})
 		})
 
+		// Support API serves to support Prime API testing outside of production environments, hence why it is
 		// mounted inside the Prime sim API without client cert middleware
 		if routingConfig.ServeSupport {
 			site.Route("/support/v1", func(r chi.Router) {

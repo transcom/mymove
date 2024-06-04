@@ -20,9 +20,9 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
     isAdvanceReceived: ppmShipmentInfo.hasReceivedAdvance,
     advanceAmountRequested: ppmShipmentInfo.advanceAmountRequested,
     advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
-    grossIncentive: ppmCloseout.grossIncentive,
-    gcc: ppmCloseout.gcc,
-    remainingIncentive: ppmCloseout.remainingIncentive,
+    grossIncentive: ppmCloseout.grossIncentive + ppmCloseout.SITReimbursement,
+    gcc: ppmCloseout.gcc + ppmCloseout.SITReimbursement,
+    remainingIncentive: ppmCloseout.remainingIncentive + ppmCloseout.SITReimbursement,
   };
 
   const incentiveFactors = {
@@ -33,18 +33,24 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
     unpackPrice: ppmCloseout.unpackPrice,
     dop: ppmCloseout.dop,
     ddp: ppmCloseout.ddp,
+    sitReimbursement: ppmCloseout.SITReimbursement,
   };
 
   return (
     <>
+      <hr />
       <HeaderSection
         sectionInfo={{
           type: sectionTypes.incentives,
           ...incentives,
         }}
+        dataTestId="incentives"
       />
       <hr />
-      <HeaderSection sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }} />
+      <HeaderSection
+        sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }}
+        dataTestId="incentiveFactors"
+      />
     </>
   );
 };
@@ -71,11 +77,12 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
           <HeaderSection
             sectionInfo={{
               type: sectionTypes.shipmentInfo,
+              advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
               ...shipmentInfo,
             }}
+            dataTestId="shipmentInfo"
           />
         </section>
-        <hr />
         {showAllFields && <GCCAndIncentiveInfo ppmShipmentInfo={ppmShipmentInfo} />}
       </div>
     </header>
