@@ -2617,7 +2617,9 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -3038,6 +3040,18 @@ func init() {
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4500
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4500
         },
         "counselorRemarks": {
           "type": "string",
@@ -6100,7 +6114,9 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -6523,6 +6539,18 @@ func init() {
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4500
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4500
         },
         "counselorRemarks": {
           "type": "string",
