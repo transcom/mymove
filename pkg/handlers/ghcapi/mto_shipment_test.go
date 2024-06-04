@@ -1942,7 +1942,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
+					ID:               uuid.Must(uuid.NewV4()),
 					ActualPickupDate: &day,
 				},
 			},
