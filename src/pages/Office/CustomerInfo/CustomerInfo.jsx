@@ -109,7 +109,6 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
   return (
     <div className={styles.customerInfoPage}>
       <GridContainer>
-        <h1>Customer Info</h1>
         <CustomerContactInfoForm initialValues={initialValues} onBack={handleClose} onSubmit={onSubmit} />
       </GridContainer>
     </div>

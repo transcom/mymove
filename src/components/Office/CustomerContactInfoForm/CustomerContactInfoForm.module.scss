@@ -2,7 +2,14 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
+.customerContactForm {
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+}
+
 .formSectionHeader {
+  width: 50vw;
   .sectionHeader {
     margin-bottom: 0;
     display: flex;

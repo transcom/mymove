@@ -325,6 +325,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move for QAE
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE() {
+    return this.buildDefault('HHGMoveWithServiceItemsandPaymentRequestReviewedForQAE');
+  }
+
+  /**
    * Use testharness to build hhg move needing SC approval
    * @returns {Promise<Move>}
    */

@@ -4527,6 +4527,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -7383,6 +7391,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -7394,6 +7406,11 @@ func init() {
         "diversion": {
           "type": "boolean",
           "example": true
+        },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
         },
         "eTag": {
           "type": "string"
@@ -7430,6 +7447,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -8531,13 +8552,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -8673,6 +8696,12 @@ func init() {
           "description": "The price of the linehaul or shorthaul.",
           "type": "integer",
           "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -9729,6 +9758,17 @@ func init() {
         "$ref": "#/definitions/ReportViolation"
       }
     },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
+      }
+    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "type": "object",
@@ -9994,7 +10034,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -17373,6 +17413,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -20386,6 +20434,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "destinationSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
@@ -20397,6 +20449,11 @@ func init() {
         "diversion": {
           "type": "boolean",
           "example": true
+        },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
         },
         "eTag": {
           "type": "string"
@@ -20433,6 +20490,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
+        },
+        "originSitAuthEndDate": {
+          "type": "string",
+          "format": "date-time"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -21534,13 +21595,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -21676,6 +21739,12 @@ func init() {
           "description": "The price of the linehaul or shorthaul.",
           "type": "integer",
           "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -22734,6 +22803,17 @@ func init() {
         "$ref": "#/definitions/ReportViolation"
       }
     },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
+      }
+    },
     "Reweigh": {
       "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
       "type": "object",
@@ -23002,7 +23082,7 @@ func init() {
               "format": "uuid",
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
-            "sitAllowanceEndDate": {
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -23060,7 +23140,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "sitAllowanceEndDate": {
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true

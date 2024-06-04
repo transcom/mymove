@@ -145,6 +145,9 @@ export const ordersTypeReadable = (ordersType, missingText) => {
   if (!ordersType) {
     return missingText;
   }
+  if (ordersType === 'SAFETY') {
+    return 'Safety';
+  }
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };
 
@@ -169,8 +172,8 @@ export const formatAddressShort = (address) => {
 };
 
 export const formatPrimeAPIFullAddress = (address) => {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
-  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
+  const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = address;
+  return `${streetAddress1}, ${streetAddress2}, ${streetAddress3}, ${city}, ${state} ${postalCode}`;
 };
 
 export const formatEvaluationReportShipmentAddress = (address) => {
@@ -313,15 +316,8 @@ export const formatAgeToDays = (age) => {
  * following format: `Dec 25 2023`.
  */
 export function formatReviewShipmentWeightsDate(date) {
-  /**
-   * @const INCOMING_DATE_FORMAT
-   * @description This is the format of the incoming `date` parameter. The
-   * reason this is passed into Moment is due to a quirk around browser
-   * support for parsing strings. Read more about *String + Format* here:
-   * <https://momentjs.com/docs/#/parsing/string/>
-   */
-  const INCOMING_DATE_FORMAT = 'DD-MMM-YY';
-  return moment(date, INCOMING_DATE_FORMAT).format('MMM DD YYYY');
+  if (!date) return DEFAULT_EMPTY_VALUE;
+  return moment(date).format('MMM DD YYYY');
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
