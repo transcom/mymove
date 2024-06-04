@@ -123,14 +123,11 @@ beforeEach(() => {
 });
 
 const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
+
 const proGearWeightTicketsEditPath = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
   proGearId: mockProGearWeightTicketId,
-});
-const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-  moveId: mockMoveId,
-  mtoShipmentId: mockMTOShipmentId,
 });
 
 const renderProGearPage = () => {
@@ -262,7 +259,7 @@ describe('Pro-gear page', () => {
       );
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
+    expect(mockNavigate).toHaveBeenCalledWith(proGearWeightTicketsEditPath, { replace: true });
   });
 
   it('calls the delete handler when removing an existing upload', async () => {

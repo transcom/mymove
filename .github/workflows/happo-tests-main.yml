@@ -20,10 +20,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # This step was specifically added for npm canvas, per https://www.npmjs.com/package/canvas
-      - name: Install system level dependencies
-        run: sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
-
       - name: Start Happo run
         run: yarn happo-ci-github-actions
         env:
