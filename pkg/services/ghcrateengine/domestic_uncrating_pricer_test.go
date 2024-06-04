@@ -18,6 +18,7 @@ const (
 	ducrtTestEscalationCompounded = 1.125
 	ducrtTestBilledCubicFeet      = 10
 	ducrtTestPriceCents           = unit.Cents(6690)
+	ducrtTestUncappedRequestTotal = unit.Cents(10000)
 )
 
 var ducrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -37,6 +38,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ducrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ducrtTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(ducrtTestUncappedRequestTotal)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
