@@ -1812,8 +1812,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		year := 2021
 		day := 01
-		n := 0
-		actualPickupDate := time.Date(year, time.March, day, n, n, n, n, time.Local)
+		actualPickupDate := time.Date(year, time.March, day, 0, 0, 0, 0, nil)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
