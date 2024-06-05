@@ -37,7 +37,7 @@ func (suite *TransportationAccountingCodeServiceSuite) TestFetchOrderTransportat
 		ordersIssueDate := time.Now()
 		endDate := ordersIssueDate.AddDate(1, 0, 0)
 		tacCode := "CACI"
-		loa := factory.BuildLineOfAccounting(suite.DB(), []factory.Customization{
+		loa := factory.BuildLineOfAccounting(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.LineOfAccounting{
 					LoaBgnDt:   &ordersIssueDate,
@@ -47,7 +47,7 @@ func (suite *TransportationAccountingCodeServiceSuite) TestFetchOrderTransportat
 				},
 			},
 		}, nil)
-		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+		factory.BuildTransportationAccountingCode(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
 					TAC:               tacCode,
@@ -75,6 +75,11 @@ func (suite *TransportationAccountingCodeServiceSuite) TestFetchOrderTransportat
 			}
 			suite.NotEmpty(tacs)
 			suite.Equal(tacCode, tacs[0].TAC)
+			// Assert that the TAC came back with a LOA. This is important as
+			// the line of accounting service object will need these.
+			// The LOA service object uses this service as the line of accounting
+			// is attached to a transportation accounting code.
+			suite.NotNil(tacs[0].LineOfAccounting)
 		}
 	})
 }

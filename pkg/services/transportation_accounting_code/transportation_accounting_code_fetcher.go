@@ -27,6 +27,7 @@ func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingC
 		// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
 		// then this can be revisited to weight the different LOAs similar to the other services.
 		err = appCtx.DB().Q().
+			EagerPreload("LineOfAccounting").
 			Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
 			Where("transportation_accounting_codes.tac = ?", tacCode).
 			Where("? between transportation_accounting_codes.trnsprtn_acnt_bgn_dt and transportation_accounting_codes.trnsprtn_acnt_end_dt", ordersIssueDate).
@@ -36,6 +37,7 @@ func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingC
 	default:
 		// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
 		err = appCtx.DB().Q().
+			EagerPreload("LineOfAccounting").
 			Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
 			Where("transportation_accounting_codes.tac = ?", tacCode).
 			Where("? between transportation_accounting_codes.trnsprtn_acnt_bgn_dt and transportation_accounting_codes.trnsprtn_acnt_end_dt", ordersIssueDate).
