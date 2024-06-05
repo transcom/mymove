@@ -1119,6 +1119,8 @@ definitions:
     enum:
       - PPM_PAYMENT
       - SHIPMENT
+      - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT
+      - CLOSEOUT_REVIEWED_PPM_PAYMENT
     x-nullable: true
   PostDocumentPayload:
     type: object
