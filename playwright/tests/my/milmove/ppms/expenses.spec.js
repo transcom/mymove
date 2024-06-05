@@ -102,6 +102,9 @@ test.describe('(MultiMove) Expenses', () => {
       const missingReceipt = page.locator('label[for="missingReceipt"]');
       await expect(missingReceipt).not.toBeChecked();
       await missingReceipt.click();
+      await expect(missingReceipt).toBeChecked();
+      await missingReceipt.click();
+      await expect(missingReceipt).not.toBeChecked();
 
       await page.getByRole('button', { name: 'Save & Continue' }).click();
       await expect(page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);

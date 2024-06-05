@@ -75,7 +75,7 @@ describe('RequestAccountForm component', () => {
     expect(tooCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(tooCheckbox).not.toBeChecked(false);
 
-    const tioCheckbox = screen.getByTestId('transportationInvoicingOfficerCheckBox');
+    const tioCheckbox = screen.getByTestId('taskInvoicingOfficerCheckBox');
     expect(tioCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(tioCheckbox).not.toBeChecked(false);
 
@@ -198,7 +198,7 @@ describe('RequestAccountForm component', () => {
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
     const tooCheckbox = screen.getByTestId('transportationOrderingOfficerCheckBox');
-    const tioCheckbox = screen.getByTestId('transportationInvoicingOfficerCheckBox');
+    const tioCheckbox = screen.getByTestId('taskInvoicingOfficerCheckBox');
 
     // Click both the TOO and TIO role checkboxes
     await userEvent.click(tooCheckbox);
@@ -206,7 +206,7 @@ describe('RequestAccountForm component', () => {
 
     // Check that the validation error appears
     const policyVerrs = await screen.findAllByText(
-      'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      'You cannot select both Transportation Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
     );
     expect(policyVerrs.length).toBeGreaterThan(0);
 
@@ -214,7 +214,7 @@ describe('RequestAccountForm component', () => {
     await userEvent.click(tioCheckbox);
     expect(
       screen.queryByText(
-        'You cannot select both Transportation Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+        'You cannot select both Transportation Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
       ),
     ).not.toBeInTheDocument();
   });

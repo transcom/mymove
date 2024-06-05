@@ -3,7 +3,7 @@ import { func, string, bool } from 'prop-types';
 
 import styles from './OrdersDetailForm.module.scss';
 
-import { formatLabelReportByDate } from 'utils/formatters';
+import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -74,12 +74,12 @@ const OrdersDetailForm = ({
       <DropdownInput
         name="ordersType"
         label="Orders type"
-        options={ordersTypeOptions}
+        options={formOrdersType === 'SAFETY' ? dropdownInputOptions({ SAFETY: 'Safety' }) : ordersTypeOptions}
         onChange={(e) => {
           setFormOrdersType(e.target.value);
           setFieldValue('ordersType', e.target.value);
         }}
-        isDisabled={formIsDisabled}
+        isDisabled={formIsDisabled || formOrdersType === 'SAFETY'}
       />
       {showOrdersTypeDetail && (
         <DropdownInput

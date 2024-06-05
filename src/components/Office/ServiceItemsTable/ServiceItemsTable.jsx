@@ -201,7 +201,8 @@ const ServiceItemsTable = ({
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
-              {serviceItem.serviceItem}{' '}
+              {serviceItem.serviceItem}
+              {code === 'DCRT' && serviceItem.details.standaloneCrate && ' - Standalone'}
               {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
                 <ToolTip
                   data-testid="toolTipResubmission"
