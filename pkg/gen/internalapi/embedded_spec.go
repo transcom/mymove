@@ -6592,11 +6592,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -6604,7 +6606,9 @@ func init() {
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "x-nullable": true
     },
@@ -14585,11 +14589,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -14597,7 +14603,9 @@ func init() {
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "x-nullable": true
     },
