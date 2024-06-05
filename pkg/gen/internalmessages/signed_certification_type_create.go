@@ -35,6 +35,12 @@ const (
 
 	// SignedCertificationTypeCreateSHIPMENT captures enum value "SHIPMENT"
 	SignedCertificationTypeCreateSHIPMENT SignedCertificationTypeCreate = "SHIPMENT"
+
+	// SignedCertificationTypeCreatePRECLOSEOUTREVIEWEDPPMPAYMENT captures enum value "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT"
+	SignedCertificationTypeCreatePRECLOSEOUTREVIEWEDPPMPAYMENT SignedCertificationTypeCreate = "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT"
+
+	// SignedCertificationTypeCreateCLOSEOUTREVIEWEDPPMPAYMENT captures enum value "CLOSEOUT_REVIEWED_PPM_PAYMENT"
+	SignedCertificationTypeCreateCLOSEOUTREVIEWEDPPMPAYMENT SignedCertificationTypeCreate = "CLOSEOUT_REVIEWED_PPM_PAYMENT"
 )
 
 // for schema
@@ -42,7 +48,7 @@ var signedCertificationTypeCreateEnum []interface{}
 
 func init() {
 	var res []SignedCertificationTypeCreate
-	if err := json.Unmarshal([]byte(`["PPM_PAYMENT","SHIPMENT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PPM_PAYMENT","SHIPMENT","PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT","CLOSEOUT_REVIEWED_PPM_PAYMENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
