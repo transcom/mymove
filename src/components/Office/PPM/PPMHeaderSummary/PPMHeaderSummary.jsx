@@ -14,13 +14,14 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
   const incentives = {
     isAdvanceRequested: ppmShipmentInfo.hasRequestedAdvance,
     isAdvanceReceived: ppmShipmentInfo.hasReceivedAdvance,
     advanceAmountRequested: ppmShipmentInfo.advanceAmountRequested,
     advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
     grossIncentive: ppmCloseout.grossIncentive + ppmCloseout.SITReimbursement,
-    gcc: ppmCloseout.gcc + ppmCloseout.SITReimbursement,
+    gcc: ppmCloseout.gcc,
     remainingIncentive: ppmCloseout.remainingIncentive + ppmCloseout.SITReimbursement,
   };
 
