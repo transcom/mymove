@@ -19,8 +19,8 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 	requester := NewShipmentCancellationRequester(router, moveRouter)
 
 	suite.Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func() {
-		// valid pickupdate is anytime before today's date
-		actualPickupDate := time.Now().AddDate(0, 0, -1)
+		// valid pickupdate is anytime after the request to cancel date
+		actualPickupDate := time.Now().AddDate(0, 0, 1)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -51,11 +51,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
 		rejectionReason := "extraneous shipment"
+		actualPickupDate := time.Now().AddDate(0,0,1)
 		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status:          models.MTOShipmentStatusRejected,
 					RejectionReason: &rejectionReason,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 		}, nil)
@@ -108,8 +110,8 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		shipmentRouter := NewShipmentRouter()
 		moveRouter := moveservices.NewMoveRouter()
 		requester := NewShipmentCancellationRequester(shipmentRouter, moveRouter)
-		// valid pickupdate is anytime before today's date
-		actualPickupDate := time.Now().AddDate(0, 0, -1)
+		// valid pickupdate is anytime after the request to cancel date
+		actualPickupDate := time.Now().AddDate(0, 0, 1)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -165,6 +167,6 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 		_, err = requester.RequestShipmentCancellation(session, shipment.ID, eTag)
 
-		suite.Equal(err, apperror.NewUpdateError(shipment.ID, "cancellation request date cannot be on or after actual pick update"))
+		suite.Equal(err, apperror.NewUpdateError(shipment.ID, "cancellation request date cannot be on or after actual pickup date"))
 	})
 }
