@@ -16,7 +16,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
- 
   // Since we cannot currently get feature flags while unauthenticated, we hard code the FF off until its ready
   const isHeadquartersRoleFF = false;
 

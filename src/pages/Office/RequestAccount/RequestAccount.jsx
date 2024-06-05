@@ -14,7 +14,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
   // Since we cannot currently get feature flags while unauthenticated, we hard code the FF off until its ready
-  const isHeadquartersRoleFF = false; 
+  const isHeadquartersRoleFF = false;
 
   const initialValues = {
     officeAccountRequestFirstName: '',
