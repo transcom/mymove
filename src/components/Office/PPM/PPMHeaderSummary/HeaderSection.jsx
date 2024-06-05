@@ -19,6 +19,11 @@ export const sectionTypes = {
   incentiveFactors: 'incentiveFactors',
 };
 
+const HAUL_TYPES = {
+  SHORTHAUL: 'Shorthaul',
+  LINEHAUL: 'Linehaul',
+};
+
 const getSectionTitle = (sectionInfo) => {
   switch (sectionInfo.type) {
     case sectionTypes.incentives:
@@ -28,7 +33,7 @@ const getSectionTitle = (sectionInfo) => {
     case sectionTypes.incentiveFactors:
       return `Incentive Factors`;
     default:
-      return <Alert>`Error getting section title!`</Alert>;
+      return <Alert>Error getting section title!</Alert>;
   }
 };
 
@@ -44,6 +49,10 @@ const OpenModalButton = ({ onClick }) => (
 const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
   const aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
   const aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
+
+  const renderHaulType = (haulType) => {
+    return haulType === HAUL_TYPES.LINEHAUL ? 'Linehaul' : 'Shorthaul';
+  };
 
   switch (sectionInfo.type) {
     case sectionTypes.shipmentInfo:
@@ -88,26 +97,34 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
         <div className={classnames(styles.Details)}>
           <div>
             <Label>Government Constructed Cost (GCC)</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.gcc)}</span>
+            <span data-testid="gcc" className={styles.light}>
+              ${formatCents(sectionInfo.gcc)}
+            </span>
           </div>
           <div>
             <Label>Gross Incentive</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.grossIncentive)}</span>
+            <span data-testid="grossIncentive" className={styles.light}>
+              ${formatCents(sectionInfo.grossIncentive)}
+            </span>
           </div>
           <div>
             <Label>Advance Requested</Label>
-            <span className={styles.light}>{aoaRequestedValue}</span>
+            <span data-testid="advanceRequested" className={styles.light}>
+              {aoaRequestedValue}
+            </span>
           </div>
           <div>
             <Label>Advance Received</Label>
-            <span className={styles.light}>
+            <span data-testid="advanceReceived" className={styles.light}>
               {aoaValue}
               <OpenModalButton onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')} />
             </span>
           </div>
           <div>
             <Label>Remaining Incentive</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.remainingIncentive)}</span>
+            <span data-testid="remainingIncentive" className={styles.light}>
+              ${formatCents(sectionInfo.remainingIncentive)}
+            </span>
           </div>
         </div>
       );
@@ -116,27 +133,41 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Haul Price</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.haulPrice)}</span>
+            <Label>{renderHaulType(sectionInfo.haulType)} Price</Label>
+            <span data-testid="haulPrice" className={styles.light}>
+              ${formatCents(sectionInfo.haulPrice)}
+            </span>
           </div>
           <div>
-            <Label>Haul Fuel Surcharge</Label>
-            <span className={styles.light}>
+            <Label>{renderHaulType(sectionInfo.haulType)} Fuel Rate Adjustment</Label>
+            <span data-testid="haulFSC" className={styles.light}>
               {sectionInfo.haulFSC < 0 ? '-$' : '$'}
               {formatCents(Math.abs(sectionInfo.haulFSC))}
             </span>
           </div>
           <div>
-            <Label>Full Pack/Unpack Charge</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.fullPackUnpackCharge)}</span>
+            <Label>Packing Charge</Label>
+            <span data-testid="packPrice" className={styles.light}>
+              ${formatCents(sectionInfo.packPrice)}
+            </span>
+          </div>
+          <div>
+            <Label>Unpacking Charge</Label>
+            <span data-testid="unpackPrice" className={styles.light}>
+              ${formatCents(sectionInfo.unpackPrice)}
+            </span>
           </div>
           <div>
             <Label>Origin Price</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.dop)}</span>
+            <span data-testid="originPrice" className={styles.light}>
+              ${formatCents(sectionInfo.dop)}
+            </span>
           </div>
           <div>
             <Label>Destination Price</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.ddp)}</span>
+            <span data-testid="destinationPrice" className={styles.light}>
+              ${formatCents(sectionInfo.ddp)}
+            </span>
           </div>
         </div>
       );
@@ -147,6 +178,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick) => {
 };
 
 export default function PPMHeaderSummary({ sectionInfo, dataTestId }) {
+  const requestDetailsButtonTestId = `${sectionInfo.type}-showRequestDetailsButton`;
   const { shipmentId, moveCode } = useParams();
   const { mtoShipment, refetchMTOShipment } = usePPMShipmentDocsQueries(shipmentId);
   const queryClient = useQueryClient();
@@ -252,7 +284,7 @@ export default function PPMHeaderSummary({ sectionInfo, dataTestId }) {
         {showRequestDetailsButton && (
           <Button
             aria-expanded={showDetails}
-            data-testid="showRequestDetailsButton"
+            data-testid={requestDetailsButtonTestId}
             type="button"
             unstyled
             onClick={handleToggleDetails}

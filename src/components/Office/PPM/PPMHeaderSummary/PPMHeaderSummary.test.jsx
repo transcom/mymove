@@ -162,7 +162,7 @@ describe('PPMHeaderSummary component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'PPM 1' })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByTestId('showRequestDetailsButton'));
+      fireEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
       await waitFor(() => {
         expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
       });
