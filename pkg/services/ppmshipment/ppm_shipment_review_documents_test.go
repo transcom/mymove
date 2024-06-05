@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 )
 
 func (suite *PPMShipmentSuite) TestReviewDocuments() {
@@ -28,9 +29,34 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		return mockRouter
 	}
 
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
 	suite.Run("Returns an error if PPM ID is invalid", func() {
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(nil),
+			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -50,7 +76,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		nonexistentPPMShipmentID := uuid.Must(uuid.NewV4())
 
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(nil),
+			setUpPPMShipperRouterMock(nil), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -82,7 +108,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 		)
 
 		submitter := NewPPMShipmentReviewDocuments(
-			setUpPPMShipperRouterMock(fakeErr),
+			setUpPPMShipperRouterMock(fakeErr), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
 		)
 
 		updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
@@ -101,8 +127,13 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 	suite.Run("Can route the PPMShipment properly", func() {
 		existingPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 
-		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    sm.User.ID,
+			UserID:          sm.User.ID,
+			FirstName:       "Nelson",
+			LastName:        "Muntz",
 		})
 
 		router := setUpPPMShipperRouterMock(
@@ -113,10 +144,10 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 			})
 
 		submitter := NewPPMShipmentReviewDocuments(
-			router,
+			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(),
 		)
 
-		txErr := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
+		txErr := session.NewTransaction(func(txAppCtx appcontext.AppContext) error {
 			txAppCtx.Session()
 			updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
 				txAppCtx,
@@ -135,10 +166,46 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 				return nil
 			}
-
 			return err
 		})
 
 		suite.NoError(txErr)
+
+		certs, err := models.FetchSignedCertificationPPMByType(suite.DB(), session.Session(), existingPPMShipment.Shipment.MoveTaskOrderID, existingPPMShipment.ID, models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT)
+		suite.NotNil(certs)
+		suite.Nil(err)
+		suite.True(len(certs) == 1)
+
+		// run SubmitReviewedDocuments again to test certification is only added once. will update current if exist
+		// this is to simulate N times customer and reviewer can resubmit/reconfirm
+		txErr = session.NewTransaction(func(txAppCtx appcontext.AppContext) error {
+			txAppCtx.Session()
+			updatedPPMShipment, err := submitter.SubmitReviewedDocuments(
+				txAppCtx,
+				existingPPMShipment.ID,
+			)
+
+			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
+				suite.Equal(models.PPMShipmentStatusCloseoutComplete, updatedPPMShipment.Status)
+
+				router.(*mocks.PPMShipmentRouter).AssertCalled(
+					suite.T(),
+					"SubmitReviewedDocuments",
+					txAppCtx,
+					mock.AnythingOfType("*models.PPMShipment"),
+				)
+
+				return nil
+			}
+			return err
+		})
+
+		suite.NoError(txErr)
+
+		// verfify only one certification record is present
+		certs, err = models.FetchSignedCertificationPPMByType(suite.DB(), session.Session(), existingPPMShipment.Shipment.MoveTaskOrderID, existingPPMShipment.ID, models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT)
+		suite.NotNil(certs)
+		suite.Nil(err)
+		suite.True(len(certs) == 1)
 	})
 }
