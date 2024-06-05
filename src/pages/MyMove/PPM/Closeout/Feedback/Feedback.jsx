@@ -13,7 +13,7 @@ import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { calculateTotalMovingExpensesAmount, getW2Address } from 'utils/ppmCloseout';
-import { FEEDBACK_DOCUMENT_TYPES, getFeedbackTemplate } from 'constants/ppmFeedback';
+import { FEEDBACK_DOCUMENT_TYPES, FEEDBACK_TEMPLATES } from 'constants/ppmFeedback';
 import FeedbackItems from 'components/Customer/PPM/Closeout/FeedbackItems/FeedbackItems';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
@@ -81,8 +81,7 @@ const Feedback = () => {
   const formatSingleDocForFeedbackItem = (doc, docType) => {
     docWasAdjusted = false;
 
-    // return a formatted row based off the template
-    return getFeedbackTemplate(docType).map((templateRow) => {
+    return FEEDBACK_TEMPLATES[docType]?.map((templateRow) => {
       const row = setRowValues(doc, templateRow);
       return formatRow(row);
     });
@@ -96,10 +95,12 @@ const Feedback = () => {
     });
   };
 
+  // store formatted documents to pass down to child component
   const formattedWeightTickets = formatDocuments(weightTickets, FEEDBACK_DOCUMENT_TYPES.WEIGHT);
   const formattedProGearWeightTickets = formatDocuments(proGearWeightTickets, FEEDBACK_DOCUMENT_TYPES.PRO_GEAR);
   const formattedMovingExpenses = formatDocuments(movingExpenses, FEEDBACK_DOCUMENT_TYPES.MOVING_EXPENSE);
 
+  // calculate total weights/dollars for document sets
   const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
   const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGearWeightTickets);
   const expensesTotal = calculateTotalMovingExpensesAmount(movingExpenses);

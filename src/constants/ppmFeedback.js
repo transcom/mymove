@@ -3,6 +3,12 @@ import ppms from './ppms';
 
 import { formatCents, formatCustomerDate, formatWeight, formatYesNoInputValue, toDollarString } from 'utils/formatters';
 
+export const FEEDBACK_DOCUMENT_TYPES = {
+  WEIGHT: 'Trip',
+  PRO_GEAR: 'Set',
+  MOVING_EXPENSE: 'Receipt',
+};
+
 const feedbackDisplayHelperTrip = (documentSet) => {
   return documentSet?.some(
     (doc) =>
@@ -36,7 +42,9 @@ const feedbackDisplayHelperExpense = (documentSet) => {
   );
 };
 
-// feedback should only be visible if all ppm documents were accepted without edits
+// feedback should only NOT be visible if all ppm documents were accepted without edits
+// each of the above helper functions returns true if any document is NOT approved
+// or if any customer submitted value does NOT equal the final value
 export const isFeedbackAvailable = (ppmShipment) => {
   if (!ppmShipment) return false;
   if (feedbackDisplayHelperTrip(ppmShipment?.weightTickets)) return true;
@@ -49,10 +57,16 @@ const getExpenseType = (label) => {
   return expenseTypeLabels[label];
 };
 
+// helper function to handle label with boolean value
 const formatProGearLabel = (belongsToSelf) => {
   return belongsToSelf ? 'Pro-Gear' : 'Spouse Pro-Gear';
 };
 
+// templates for feedback items are stored as arrays to allow for ordering
+// key - corresponds to the key in the document object
+// label - the label for the value in the UI
+// format - use if the value in the document needs formatting
+// secondaryKey - used for submitted_ columns so we can track changes made by closeout SC
 const FEEDBACK_TRIP_TEMPLATE = [
   { key: 'vehicleDescription', label: 'Vehicle description: ' },
   {
@@ -130,27 +144,8 @@ const FEEDBACK_RECEIPT_TEMPLATE = [
   { key: 'status' },
 ];
 
-export const FEEDBACK_DOCUMENT_TYPES = {
-  WEIGHT: 'Trip',
-  PRO_GEAR: 'Set',
-  MOVING_EXPENSE: 'Receipt',
-};
-
-// refactor?
-export const getFeedbackTemplate = (type) => {
-  let template;
-  switch (type) {
-    case 'Trip':
-      template = FEEDBACK_TRIP_TEMPLATE;
-      break;
-    case 'Set':
-      template = FEEDBACK_SET_TEMPLATE;
-      break;
-    case 'Receipt':
-      template = FEEDBACK_RECEIPT_TEMPLATE;
-      break;
-    default:
-      break;
-  }
-  return template;
+export const FEEDBACK_TEMPLATES = {
+  Trip: FEEDBACK_TRIP_TEMPLATE,
+  Set: FEEDBACK_SET_TEMPLATE,
+  Receipt: FEEDBACK_RECEIPT_TEMPLATE,
 };
