@@ -669,7 +669,7 @@ test.describe('TOO user', () => {
       await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
       await page.getByTestId('form').getByTestId('button').click();
       await page.getByRole('link', { name: 'Change user role' }).click();
-      await page.getByRole('button', { name: 'Select transportation_ordering_officer' }).click();
+      await page.getByRole('button', { name: 'Select task_ordering_officer' }).click();
     });
     test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
       await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();

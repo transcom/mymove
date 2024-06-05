@@ -2660,7 +2660,7 @@ func init() {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transportation_ordering_officer"
+          "example": "task_ordering_officer"
         }
       }
     },
@@ -5999,7 +5999,7 @@ func init() {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transportation_ordering_officer"
+          "example": "task_ordering_officer"
         }
       }
     },
