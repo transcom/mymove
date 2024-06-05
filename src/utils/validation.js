@@ -182,7 +182,7 @@ export const middleInitialErrorMsg = 'Must be a single uppercase character';
 const validateRoleRequestedMethod = (value, testContext) => {
   return (
     testContext.parent.taskOrderingOfficerCheckBox ||
-    testContext.parent.transportationInvoicingOfficerCheckBox ||
+    testContext.parent.taskInvoicingOfficerCheckBox ||
     testContext.parent.servicesCounselorCheckBox ||
     testContext.parent.transportationContractingOfficerCheckBox ||
     testContext.parent.qualityAssuranceAndCustomerSupportCheckBox
@@ -207,8 +207,8 @@ const validateEdipi = (value, testContext) => {
 
 // It is TRANSCOM policy that an individual person may only be either a TIO or TOO, never both.
 const validateOnlyOneTransportationOfficerRole = (value, testContext) => {
-  const { taskOrderingOfficerCheckBox, transportationInvoicingOfficerCheckBox } = testContext.parent;
-  if (taskOrderingOfficerCheckBox && transportationInvoicingOfficerCheckBox) {
+  const { taskOrderingOfficerCheckBox, taskInvoicingOfficerCheckBox } = testContext.parent;
+  if (taskOrderingOfficerCheckBox && taskInvoicingOfficerCheckBox) {
     return false;
   }
   return true;
@@ -239,14 +239,14 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
     .test(
       'onlyOneTransportationOfficerRole',
-      'You cannot select both Task Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
       validateOnlyOneTransportationOfficerRole,
     ),
-  transportationInvoicingOfficerCheckBox: Yup.bool()
+  taskInvoicingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
     .test(
       'onlyOneTransportationOfficerRole',
-      'You cannot select both Task Ordering Officer and Transportation Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
       validateOnlyOneTransportationOfficerRole,
     ),
   servicesCounselorCheckBox: Yup.bool().test(
