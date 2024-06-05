@@ -137,6 +137,18 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				newMTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
 				newMTOShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 			}
+
+			// Find Tertiary Pickup Address
+			tempTertiaryPickupAddressCustoms := customs
+			result = findValidCustomization(customs, Addresses.TertiaryPickupAddress)
+			if result != nil {
+				tempTertiaryPickupAddressCustoms = convertCustomizationInList(tempTertiaryPickupAddressCustoms, Addresses.TertiaryPickupAddress, Address)
+				tertiaryPickupAddress := BuildAddress(db, tempTertiaryPickupAddressCustoms, traits)
+
+				newMTOShipment.TertiaryPickupAddress = &tertiaryPickupAddress
+				newMTOShipment.TertiaryPickupAddressID = &tertiaryPickupAddress.ID
+				newMTOShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
+			}
 		}
 
 		if shipmentHasDeliveryDetails {
@@ -169,6 +181,19 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				newMTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
 				newMTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
 				newMTOShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+
+			}
+
+			// Find Tertiary Delivery Address
+			tempTertiaryDeliveryAddressCustoms := customs
+			result = findValidCustomization(customs, Addresses.TertiaryDeliveryAddress)
+			if result != nil {
+				tempTertiaryDeliveryAddressCustoms = convertCustomizationInList(tempTertiaryDeliveryAddressCustoms, Addresses.TertiaryDeliveryAddress, Address)
+				tertiaryDeliveryAddress := BuildAddress(db, tempTertiaryDeliveryAddressCustoms, traits)
+
+				newMTOShipment.TertiaryDeliveryAddress = &tertiaryDeliveryAddress
+				newMTOShipment.TertiaryDeliveryAddressID = &tertiaryDeliveryAddress.ID
+				newMTOShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
 			}
 		}
 
@@ -303,8 +328,8 @@ func BuildMTOShipmentWithMove(move *models.Move, db *pop.Connection, customs []C
 
 func BuildNTSShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	// add secondary if not already customized
-	result := findValidCustomization(customs, Addresses.SecondaryPickupAddress)
-	if result == nil {
+	secondaryAddressResult := findValidCustomization(customs, Addresses.SecondaryPickupAddress)
+	if secondaryAddressResult == nil {
 		// we already know customs do not apply
 		secondaryAddress := BuildAddress(db, nil, traits)
 		customs = append(customs, Customization{
@@ -313,20 +338,40 @@ func BuildNTSShipment(db *pop.Connection, customs []Customization, traits []Trai
 			Type:     &Addresses.SecondaryPickupAddress,
 		})
 	}
+	tertiaryAddressResult := findValidCustomization(customs, Addresses.TertiaryPickupAddress)
+	if tertiaryAddressResult == nil {
+		// we already know customs do not apply
+		tertiaryAddress := BuildAddress(db, nil, traits)
+		customs = append(customs, Customization{
+			Model:    tertiaryAddress,
+			LinkOnly: true,
+			Type:     &Addresses.TertiaryPickupAddress,
+		})
+	}
 
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentNTS)
 }
 
 func BuildNTSRShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	// add secondary if not already customized
-	result := findValidCustomization(customs, Addresses.SecondaryDeliveryAddress)
-	if result == nil {
+	secondaryAddressResult := findValidCustomization(customs, Addresses.SecondaryDeliveryAddress)
+	if secondaryAddressResult == nil {
 		// we already know customs do not apply
 		secondaryAddress := BuildAddress(db, nil, traits)
 		customs = append(customs, Customization{
 			Model:    secondaryAddress,
 			LinkOnly: true,
 			Type:     &Addresses.SecondaryDeliveryAddress,
+		})
+	}
+	tertiaryAddressResult := findValidCustomization(customs, Addresses.TertiaryDeliveryAddress)
+	if tertiaryAddressResult == nil {
+		// we already know customs do not apply
+		tertiaryAddress := BuildAddress(db, nil, traits)
+		customs = append(customs, Customization{
+			Model:    tertiaryAddress,
+			LinkOnly: true,
+			Type:     &Addresses.TertiaryDeliveryAddress,
 		})
 	}
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentNTSR)

@@ -74,8 +74,10 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	}
 
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
+	ppmShipment.TertiaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.TertiaryPickupPostalCode, ppmShipment.TertiaryPickupPostalCode)
 	ppmShipment.ActualPickupPostalCode = services.SetOptionalStringField(newPPMShipment.ActualPickupPostalCode, ppmShipment.ActualPickupPostalCode)
 	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
+	ppmShipment.TertiaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.TertiaryDestinationPostalCode, ppmShipment.TertiaryDestinationPostalCode)
 	ppmShipment.ActualDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.ActualDestinationPostalCode, ppmShipment.ActualDestinationPostalCode)
 	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
 	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
@@ -130,6 +132,17 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
 		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 	}
+	// If HasTertiaryPickupAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if newPPMShipment.HasTertiaryPickupAddress != nil && !*newPPMShipment.HasTertiaryPickupAddress {
+		ppmShipment.HasTertiaryPickupAddress = newPPMShipment.HasTertiaryPickupAddress
+		ppmShipment.TertiaryPickupAddress = nil
+		ppmShipment.TertiaryPickupAddressID = nil
+		ppmShipment.TertiaryPickupPostalCode = nil
+	} else if newPPMShipment.TertiaryPickupAddress != nil {
+		ppmShipment.TertiaryPickupAddress = newPPMShipment.TertiaryPickupAddress
+		ppmShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
+	}
 
 	if newPPMShipment.DestinationAddress != nil {
 		ppmShipment.DestinationAddress = newPPMShipment.DestinationAddress
@@ -150,6 +163,18 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	} else if newPPMShipment.SecondaryDestinationAddress != nil {
 		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
 		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
+	}
+
+	// If HasTertiaryDestinationAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if newPPMShipment.HasTertiaryDestinationAddress != nil && !*newPPMShipment.HasTertiaryDestinationAddress {
+		ppmShipment.HasTertiaryDestinationAddress = newPPMShipment.HasTertiaryDestinationAddress
+		ppmShipment.TertiaryDestinationAddress = nil
+		ppmShipment.TertiaryDestinationAddressID = nil
+		ppmShipment.TertiaryDestinationPostalCode = nil
+	} else if newPPMShipment.TertiaryDestinationAddress != nil {
+		ppmShipment.TertiaryDestinationAddress = newPPMShipment.TertiaryDestinationAddress
+		ppmShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 	}
 
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {

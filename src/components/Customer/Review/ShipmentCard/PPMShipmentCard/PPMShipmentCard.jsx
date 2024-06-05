@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useEffect, useState } from 'react';
 import { bool, func, number, oneOf } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
@@ -19,6 +19,7 @@ import { getShipmentTypeLabel, canChoosePPMLocation } from 'utils/shipmentDispla
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
 import { isPPMShipmentComplete } from 'utils/shipments';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const PPMShipmentCard = ({
   move,
@@ -34,8 +35,10 @@ const PPMShipmentCard = ({
   const {
     pickupAddress,
     secondaryPickupAddress,
+    tertiaryPickupAddress,
     destinationAddress,
     secondaryDestinationAddress,
+    tertiaryDestinationAddress,
     sitExpected,
     expectedDepartureDate,
     proGearWeight,
@@ -45,6 +48,16 @@ const PPMShipmentCard = ({
     hasRequestedAdvance,
     advanceAmountRequested,
   } = shipment?.ppmShipment || {};
+
+  const [isTertiaryAddressEnabled, setYourFFHere] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('third_address_available').then((enabled) => {
+        setYourFFHere(enabled);
+      });
+    };
+    fetchData();
+  }, []);
 
   const editPath = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId: moveTaskOrderID,
@@ -106,6 +119,12 @@ const PPMShipmentCard = ({
               <dd>{formatCustomerContactFullAddress(secondaryPickupAddress)}</dd>
             </div>
           )}
+          {isTertiaryAddressEnabled && tertiaryPickupAddress && secondaryPickupAddress && (
+            <div className={styles.row}>
+              <dt>Third origin address</dt>
+              <dd>{formatCustomerContactFullAddress(tertiaryPickupAddress)}</dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt>Destination address</dt>
             <dd>{destinationAddress ? formatCustomerContactFullAddress(destinationAddress) : '—'}</dd>
@@ -114,6 +133,12 @@ const PPMShipmentCard = ({
             <div className={styles.row}>
               <dt>Second destination address</dt>
               <dd>{formatCustomerContactFullAddress(secondaryDestinationAddress)}</dd>
+            </div>
+          )}
+          {isTertiaryAddressEnabled && tertiaryDestinationAddress && secondaryDestinationAddress && (
+            <div className={styles.row}>
+              <dt>Third destination address</dt>
+              <dd>{formatCustomerContactFullAddress(tertiaryDestinationAddress)}</dd>
             </div>
           )}
           {canChoosePPMLocation(affiliation) && closeoutOffice !== '' ? (
