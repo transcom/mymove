@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useEffect, useState } from 'react';
 import { string, shape } from 'prop-types';
 
 import { AddressShape } from '../../../../types/address';
@@ -7,19 +7,7 @@ import styles from './ShipmentCard.module.scss';
 
 import { formatCustomerDate } from 'utils/formatters';
 import { formatCustomerDestination } from 'utils/shipmentDisplay';
-import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
-
-const ThirdAddressDelivery = (secondaryDeliveryAddress, tertiaryDeliveryAddress) => {
-  if (tertiaryDeliveryAddress && secondaryDeliveryAddress) {
-    return (
-      <div className={styles.row}>
-        <dt>Second Destination</dt>
-        <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
-      </div>
-    );
-  }
-  return <div />;
-};
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const DeliveryDisplay = ({
   destinationLocation,
@@ -29,6 +17,16 @@ const DeliveryDisplay = ({
   receivingAgent,
   requestedDeliveryDate,
 }) => {
+  const [isTertiaryAddressEnabled, setYourFFHere] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('third_address_available').then((enabled) => {
+        setYourFFHere(enabled);
+      });
+    };
+    fetchData();
+  }, []);
+
   return (
     <>
       <div className={styles.row}>
@@ -45,10 +43,12 @@ const DeliveryDisplay = ({
           <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
         </div>
       )}
-      <FeatureFlag
-        flagKey="third_address_available"
-        render={ThirdAddressDelivery(secondaryDeliveryAddress, tertiaryDeliveryAddress)}
-      />
+      {isTertiaryAddressEnabled && secondaryDeliveryAddress && tertiaryDeliveryAddress && (
+        <div className={styles.row}>
+          <dt>Third Destination</dt>
+          <dd>{formatCustomerDestination(tertiaryDeliveryAddress)}</dd>
+        </div>
+      )}
       {receivingAgent && (
         <div className={styles.row}>
           <dt>Receiving agent</dt>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { string, shape } from 'prop-types';
 
 import { AddressShape } from '../../../../types/address';
@@ -6,23 +6,7 @@ import { AddressShape } from '../../../../types/address';
 import styles from './ShipmentCard.module.scss';
 
 import { formatCustomerDate } from 'utils/formatters';
-import FeatureFlag from 'components/FeatureFlag/FeatureFlag';
-
-const thirdPickupAddress = (secondaryPickupAddress, tertiaryPickupAddress) => {
-  if (secondaryPickupAddress && tertiaryPickupAddress) {
-    return (
-      <div className={styles.row}>
-        <dt>Third pickup location</dt>
-        <dd>
-          {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
-          <br />
-          {tertiaryPickupAddress.city}, {tertiaryPickupAddress.state} {tertiaryPickupAddress.postalCode}
-        </dd>
-      </div>
-    );
-  }
-  return <div />;
-};
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const PickupDisplay = ({
   pickupLocation,
@@ -31,6 +15,16 @@ const PickupDisplay = ({
   releasingAgent,
   requestedPickupDate,
 }) => {
+  const [isTertiaryAddressEnabled, setYourFFHere] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('third_address_available').then((enabled) => {
+        setYourFFHere(enabled);
+      });
+    };
+    fetchData();
+  }, []);
+
   return (
     <>
       <div className={styles.row}>
@@ -57,10 +51,16 @@ const PickupDisplay = ({
           </dd>
         </div>
       )}
-      <FeatureFlag
-        flagKey="third_address_available"
-        render={thirdPickupAddress(secondaryPickupAddress, tertiaryPickupAddress)}
-      />
+      {isTertiaryAddressEnabled && tertiaryPickupAddress && secondaryPickupAddress && (
+        <div className={styles.row}>
+          <dt>Third pickup location</dt>
+          <dd>
+            {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
+            <br />
+            {tertiaryPickupAddress.city}, {tertiaryPickupAddress.state} {tertiaryPickupAddress.postalCode}
+          </dd>
+        </div>
+      )}
       {releasingAgent && (
         <div className={styles.row}>
           <dt>Releasing agent</dt>

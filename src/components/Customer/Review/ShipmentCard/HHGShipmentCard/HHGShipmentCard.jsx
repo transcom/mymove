@@ -82,7 +82,7 @@ const HHGShipmentCard = ({
             requestedPickupDate={requestedPickupDate}
             pickupLocation={pickupLocation}
             secondaryPickupAddress={secondaryPickupAddress}
-            tertiaryDeliveryAddress={tertiaryPickupAddress}
+            tertiaryPickupAddress={tertiaryPickupAddress}
             releasingAgent={releasingAgent}
           />
           <DeliveryDisplay
