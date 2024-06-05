@@ -97,6 +97,11 @@ type MTOShipmentWithoutServiceItems struct {
 	//
 	Diversion bool `json:"diversion,omitempty"`
 
+	// The reason the TOO provided when requesting a diversion for this shipment.
+	//
+	// Read Only: true
+	DiversionReason *string `json:"diversionReason,omitempty"`
+
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
@@ -832,6 +837,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDiversionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -998,6 +1007,15 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationType(ctx cont
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateDiversionReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "diversionReason", "body", m.DiversionReason); err != nil {
+		return err
 	}
 
 	return nil

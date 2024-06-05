@@ -2790,6 +2790,12 @@ func init() {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -7969,6 +7975,12 @@ func init() {
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
+        },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
