@@ -334,7 +334,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                               <Field
                                 as={Radio}
                                 id="has-tertiary-delivery"
-                                data-testid="has-tertiary-delivery"
+                                data-testid="yes-tertiary-destination-address"
                                 label="Yes"
                                 name="hasTertiaryDestinationAddress"
                                 value="true"
@@ -344,7 +344,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                               <Field
                                 as={Radio}
                                 id="no-tertiary-delivery"
-                                data-testid="no-tertiary-delivery"
+                                data-testid="no-tertiary-destination-address"
                                 label="No"
                                 name="hasTertiaryDestinationAddress"
                                 value="false"
@@ -399,6 +399,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   <Field
                     as={Radio}
                     id="sitExpectedYes"
+                    data-testid="storePPMYes"
                     label="Yes"
                     name="sitExpected"
                     value="true"
@@ -407,6 +408,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   <Field
                     as={Radio}
                     id="sitExpectedNo"
+                    data-testid="storePPMNo"
                     label="No"
                     name="sitExpected"
                     value="false"

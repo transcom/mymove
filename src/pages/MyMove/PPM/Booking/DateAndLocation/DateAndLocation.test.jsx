@@ -11,6 +11,7 @@ import { createMTOShipment, patchMTOShipment, patchMove, searchTransportationOff
 import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { renderWithRouter } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 
@@ -55,6 +56,11 @@ jest.mock('components/LocationSearchBox/api', () => ({
       streetAddress1: 'n/a',
     }),
   ),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -858,11 +864,11 @@ describe('DateAndLocation component', () => {
 
   describe('editing an existing PPM shipment', () => {
     it('renders the heading and form with shipment values', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       renderDateAndLocation(fullShipmentProps);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
       const YesButtonSelectors = screen.getAllByLabelText('Yes');
-
       await userEvent.click(YesButtonSelectors[0]);
       await userEvent.click(YesButtonSelectors[1]);
       await userEvent.click(YesButtonSelectors[2]);
@@ -887,316 +893,349 @@ describe('DateAndLocation component', () => {
       expect(postalCodes[5]).toHaveValue('20007');
     });
 
-    it('routes back to the home page screen when back is clicked', async () => {
-      renderDateAndLocation(fullShipmentProps);
+    describe('editing an existing PPM shipment', () => {
+      it('renders the heading and form with shipment values', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+        renderDateAndLocation(fullShipmentProps);
+        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
 
-      const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
+        const YesButtonSelectors = screen.getAllByLabelText('Yes');
+        await userEvent.click(YesButtonSelectors[0]);
+        await userEvent.click(YesButtonSelectors[1]);
+        await userEvent.click(YesButtonSelectors[2]);
+        await userEvent.click(YesButtonSelectors[3]);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+        const postalCodes = screen.getAllByLabelText('ZIP');
 
-      expect(mockNavigate).toHaveBeenCalledWith(selectShipmentType);
-    });
+        expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
 
-    it('displays an error alert when the update shipment fails', async () => {
-      patchMTOShipment.mockRejectedValueOnce('fatal error');
+        await waitFor(() => {
+          expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
+        });
 
-      renderDateAndLocation(fullShipmentProps);
+        expect(postalCodes[0]).toHaveValue('20002');
+        expect(postalCodes[1]).toHaveValue('20004');
+        expect(postalCodes[2]).toHaveValue('20006');
+        expect(postalCodes[3]).toHaveValue('20003');
+        expect(postalCodes[4]).toHaveValue('20005');
+        expect(postalCodes[5]).toHaveValue('20007');
+      });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      it('routes back to the home page screen when back is clicked', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+        renderDateAndLocation(fullShipmentProps);
 
-      await waitFor(() => {
-        expect(patchMTOShipment).toHaveBeenCalledWith(
-          fullShipmentProps.mtoShipment.id,
-          {
-            id: fullShipmentProps.mtoShipment.id,
-            moveTaskOrderID: mockMoveId,
-            shipmentType: 'PPM',
-            ppmShipment: {
-              id: fullShipmentProps.mtoShipment.ppmShipment.id,
-              pickupAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20002',
+        const selectShipmentType = generatePath(generalRoutes.HOME_PATH);
+
+        await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+
+        expect(mockNavigate).toHaveBeenCalledWith(selectShipmentType);
+      });
+
+      it('displays an error alert when the update shipment fails', async () => {
+        patchMTOShipment.mockRejectedValueOnce('fatal error');
+
+        renderDateAndLocation(fullShipmentProps);
+
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+        await waitFor(() => {
+          expect(patchMTOShipment).toHaveBeenCalledWith(
+            fullShipmentProps.mtoShipment.id,
+            {
+              id: fullShipmentProps.mtoShipment.id,
+              moveTaskOrderID: mockMoveId,
+              shipmentType: 'PPM',
+              ppmShipment: {
+                id: fullShipmentProps.mtoShipment.ppmShipment.id,
+                pickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20002',
+                },
+                destinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20003',
+                },
+                secondaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20004',
+                },
+                secondaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20005',
+                },
+                tertiaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20006',
+                },
+                tertiaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20007',
+                },
+                pickupPostalCode: '20002',
+                destinationPostalCode: '20003',
+                hasSecondaryPickupAddress: true,
+                secondaryPickupPostalCode: '20004',
+                hasSecondaryDestinationAddress: true,
+                secondaryDestinationPostalCode: '20005',
+                hasTertiaryPickupAddress: true,
+                tertiaryPickupPostalCode: '20006',
+                hasTertiaryDestinationAddress: true,
+                tertiaryDestinationPostalCode: '20007',
+                sitExpected: true,
+                expectedDepartureDate: '2022-12-31',
               },
-              destinationAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20003',
-              },
-              secondaryPickupAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20004',
-              },
-              secondaryDestinationAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20005',
-              },
-              tertiaryPickupAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20006',
-              },
-              tertiaryDestinationAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20007',
-              },
-              pickupPostalCode: '20002',
-              destinationPostalCode: '20003',
-              hasSecondaryPickupAddress: true,
-              secondaryPickupPostalCode: '20004',
-              hasSecondaryDestinationAddress: true,
-              secondaryDestinationPostalCode: '20005',
-              hasTertiaryPickupAddress: true,
-              tertiaryPickupPostalCode: '20006',
-              hasTertiaryDestinationAddress: true,
-              tertiaryDestinationPostalCode: '20007',
-              sitExpected: true,
-              expectedDepartureDate: '2022-12-31',
             },
-          },
-          fullShipmentProps.mtoShipment.eTag,
-        );
+            fullShipmentProps.mtoShipment.eTag,
+          );
 
-        expect(screen.getByText('There was an error attempting to update your shipment.')).toBeInTheDocument();
+          expect(screen.getByText('There was an error attempting to update your shipment.')).toBeInTheDocument();
+        });
       });
-    });
 
-    it('calls update shipment endpoint and formats optional payload values', async () => {
-      patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
+      it('calls update shipment endpoint and formats optional payload values', async () => {
+        patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
-      renderDateAndLocation(fullShipmentProps);
+        renderDateAndLocation(fullShipmentProps);
 
-      const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
-      await userEvent.clear(expectedDepartureDate);
-      await userEvent.type(expectedDepartureDate, '04 Jul 2022');
+        const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
+        await userEvent.clear(expectedDepartureDate);
+        await userEvent.type(expectedDepartureDate, '04 Jul 2022');
 
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-      await waitFor(() => {
-        expect(patchMTOShipment).toHaveBeenCalledWith(
-          fullShipmentProps.mtoShipment.id,
-          {
-            id: fullShipmentProps.mtoShipment.id,
-            moveTaskOrderID: mockMoveId,
-            shipmentType: 'PPM',
-            ppmShipment: {
-              id: fullShipmentProps.mtoShipment.ppmShipment.id,
-              pickupAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20002',
+        await waitFor(() => {
+          expect(patchMTOShipment).toHaveBeenCalledWith(
+            fullShipmentProps.mtoShipment.id,
+            {
+              id: fullShipmentProps.mtoShipment.id,
+              moveTaskOrderID: mockMoveId,
+              shipmentType: 'PPM',
+              ppmShipment: {
+                id: fullShipmentProps.mtoShipment.ppmShipment.id,
+                pickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20002',
+                },
+                destinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20003',
+                },
+                secondaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20004',
+                },
+                secondaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20005',
+                },
+                tertiaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20006',
+                },
+                tertiaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20007',
+                },
+                pickupPostalCode: '20002',
+                destinationPostalCode: '20003',
+                hasSecondaryPickupAddress: true,
+                secondaryPickupPostalCode: '20004',
+                hasSecondaryDestinationAddress: true,
+                secondaryDestinationPostalCode: '20005',
+                hasTertiaryPickupAddress: true,
+                tertiaryPickupPostalCode: '20006',
+                hasTertiaryDestinationAddress: true,
+                tertiaryDestinationPostalCode: '20007',
+                sitExpected: true,
+                expectedDepartureDate: '2022-07-04',
               },
-              destinationAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20003',
-              },
-              secondaryPickupAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20004',
-              },
-              secondaryDestinationAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20005',
-              },
-              tertiaryPickupAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20006',
-              },
-              tertiaryDestinationAddress: {
-                streetAddress1: '234 Any St',
-                streetAddress2: '',
-                city: 'Richmond',
-                state: 'VA',
-                postalCode: '20007',
-              },
-              pickupPostalCode: '20002',
-              destinationPostalCode: '20003',
-              hasSecondaryPickupAddress: true,
-              secondaryPickupPostalCode: '20004',
-              hasSecondaryDestinationAddress: true,
-              secondaryDestinationPostalCode: '20005',
-              hasTertiaryPickupAddress: true,
-              tertiaryPickupPostalCode: '20006',
-              hasTertiaryDestinationAddress: true,
-              tertiaryDestinationPostalCode: '20007',
-              sitExpected: true,
-              expectedDepartureDate: '2022-07-04',
             },
+            fullShipmentProps.mtoShipment.eTag,
+          );
+
+          expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
+          expect(mockNavigate).toHaveBeenCalledWith(
+            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+              moveId: mockMoveId,
+              mtoShipmentId: fullShipmentProps.mtoShipment.id,
+            }),
+          );
+        });
+      });
+
+      it('calls patch move when there is a closeout office (Army/Air Force) and update shipment succeeds', async () => {
+        patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
+        patchMove.mockResolvedValueOnce(mockMove);
+        searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
+
+        renderDateAndLocation({
+          ...fullShipmentProps,
+          serviceMember: armyServiceMember,
+          move: {
+            ...mockMove,
+            closeoutOffice: mockCloseoutOffice,
           },
-          fullShipmentProps.mtoShipment.eTag,
-        );
+        });
 
-        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
-        expect(mockNavigate).toHaveBeenCalledWith(
-          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
-            moveId: mockMoveId,
-            mtoShipmentId: fullShipmentProps.mtoShipment.id,
-          }),
-        );
-      });
-    });
+        // Submit form
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-    it('calls patch move when there is a closeout office (Army/Air Force) and update shipment succeeds', async () => {
-      patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
-      patchMove.mockResolvedValueOnce(mockMove);
-      searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
+        await waitFor(() => {
+          // Shipment should get updated
+          expect(patchMTOShipment).toHaveBeenCalledTimes(1);
 
-      renderDateAndLocation({
-        ...fullShipmentProps,
-        serviceMember: armyServiceMember,
-        move: {
-          ...mockMove,
-          closeoutOffice: mockCloseoutOffice,
-        },
-      });
+          // Move patched with the closeout office
+          expect(patchMove).toHaveBeenCalledTimes(1);
+          expect(patchMove).toHaveBeenCalledWith(mockMove.id, { closeoutOfficeId: mockCloseoutId }, mockMove.eTag);
 
-      // Submit form
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+          // Redux updated with new shipment and updated move
+          expect(mockDispatch).toHaveBeenCalledTimes(3);
 
-      await waitFor(() => {
-        // Shipment should get updated
-        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
-
-        // Move patched with the closeout office
-        expect(patchMove).toHaveBeenCalledTimes(1);
-        expect(patchMove).toHaveBeenCalledWith(mockMove.id, { closeoutOfficeId: mockCloseoutId }, mockMove.eTag);
-
-        // Redux updated with new shipment and updated move
-        expect(mockDispatch).toHaveBeenCalledTimes(3);
-
-        // Finally, should get redirected to the estimated weight page
-        expect(mockNavigate).toHaveBeenCalledWith(
-          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
-            moveId: mockMoveId,
-            mtoShipmentId: fullShipmentProps.mtoShipment.id,
-          }),
-        );
-      });
-    });
-
-    it('does not call patch move when there is not a closeout office (not Army/Air Force)', async () => {
-      patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
-
-      renderDateAndLocation({ ...fullShipmentProps, serviceMember: navyServiceMember, move: mockMove });
-
-      // Submit form
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
-
-      await waitFor(() => {
-        // Shipment should get updated
-        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
-
-        // Should not try to patch the move
-        expect(patchMove).toHaveBeenCalledTimes(0);
-
-        // Redux updated with new shipment (and not a updated move)
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
-
-        // Finally, should get redirected to the estimated weight page
-        expect(mockNavigate).toHaveBeenCalledWith(
-          generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
-            moveId: mockMoveId,
-            mtoShipmentId: fullShipmentProps.mtoShipment.id,
-          }),
-        );
-      });
-    });
-
-    it('does not patch the move when patch shipment fails', async () => {
-      patchMTOShipment.mockRejectedValueOnce('fatal error');
-
-      renderDateAndLocation({
-        ...fullShipmentProps,
-        serviceMember: armyServiceMember,
-        move: {
-          ...mockMove,
-          closeoutOffice: mockCloseoutOffice,
-        },
+          // Finally, should get redirected to the estimated weight page
+          expect(mockNavigate).toHaveBeenCalledWith(
+            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+              moveId: mockMoveId,
+              mtoShipmentId: fullShipmentProps.mtoShipment.id,
+            }),
+          );
+        });
       });
 
-      // Submit form
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      it('does not call patch move when there is not a closeout office (not Army/Air Force)', async () => {
+        patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
-      await waitFor(() => {
-        // Should have called called patch shipment (set to fail above)
-        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
+        renderDateAndLocation({ ...fullShipmentProps, serviceMember: navyServiceMember, move: mockMove });
 
-        // Should not have patched the move since the patch shipment failed
-        expect(patchMove).not.toHaveBeenCalled();
+        // Submit form
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-        // Should not have done any redux updates
-        expect(mockDispatch).not.toHaveBeenCalled();
+        await waitFor(() => {
+          // Shipment should get updated
+          expect(patchMTOShipment).toHaveBeenCalledTimes(1);
 
-        // No redirect should have happened
-        expect(mockNavigate).not.toHaveBeenCalled();
+          // Should not try to patch the move
+          expect(patchMove).toHaveBeenCalledTimes(0);
 
-        // Should show appropriate error message
-        expect(screen.getByText('There was an error attempting to update your shipment.')).toBeInTheDocument();
-      });
-    });
+          // Redux updated with new shipment (and not a updated move)
+          expect(mockDispatch).toHaveBeenCalledTimes(1);
+          expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: fullShipmentProps.mtoShipment.id }));
 
-    it('displays appropriate error when patch move fails after patch shipment succeeds', async () => {
-      patchMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
-      patchMove.mockRejectedValueOnce('fatal error');
-      searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
-
-      renderDateAndLocation({
-        ...fullShipmentProps,
-        serviceMember: armyServiceMember,
-        move: {
-          ...mockMove,
-          closeoutOffice: mockCloseoutOffice,
-        },
+          // Finally, should get redirected to the estimated weight page
+          expect(mockNavigate).toHaveBeenCalledWith(
+            generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH, {
+              moveId: mockMoveId,
+              mtoShipmentId: fullShipmentProps.mtoShipment.id,
+            }),
+          );
+        });
       });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      it('does not patch the move when patch shipment fails', async () => {
+        patchMTOShipment.mockRejectedValueOnce('fatal error');
 
-      await waitFor(() => {
-        // Should have called both patch shipment and patch move
-        expect(patchMTOShipment).toHaveBeenCalledTimes(1);
-        expect(patchMove).toHaveBeenCalledTimes(1);
+        renderDateAndLocation({
+          ...fullShipmentProps,
+          serviceMember: armyServiceMember,
+          move: {
+            ...mockMove,
+            closeoutOffice: mockCloseoutOffice,
+          },
+        });
 
-        // Should have only updated the shipment in redux
-        expect(mockDispatch).toHaveBeenCalled();
-        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
+        // Submit form
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-        // No redirect should have happened
-        expect(mockNavigate).not.toHaveBeenCalled();
+        await waitFor(() => {
+          // Should have called called patch shipment (set to fail above)
+          expect(patchMTOShipment).toHaveBeenCalledTimes(1);
 
-        // Should show appropriate error message
-        expect(
-          screen.getByText('There was an error attempting to update the move closeout office.'),
-        ).toBeInTheDocument();
+          // Should not have patched the move since the patch shipment failed
+          expect(patchMove).not.toHaveBeenCalled();
+
+          // Should not have done any redux updates
+          expect(mockDispatch).not.toHaveBeenCalled();
+
+          // No redirect should have happened
+          expect(mockNavigate).not.toHaveBeenCalled();
+
+          // Should show appropriate error message
+          expect(screen.getByText('There was an error attempting to update your shipment.')).toBeInTheDocument();
+        });
+      });
+
+      it('displays appropriate error when patch move fails after patch shipment succeeds', async () => {
+        patchMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
+        patchMove.mockRejectedValueOnce('fatal error');
+        searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
+
+        renderDateAndLocation({
+          ...fullShipmentProps,
+          serviceMember: armyServiceMember,
+          move: {
+            ...mockMove,
+            closeoutOffice: mockCloseoutOffice,
+          },
+        });
+
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+        await waitFor(() => {
+          // Should have called both patch shipment and patch move
+          expect(patchMTOShipment).toHaveBeenCalledTimes(1);
+          expect(patchMove).toHaveBeenCalledTimes(1);
+
+          // Should have only updated the shipment in redux
+          expect(mockDispatch).toHaveBeenCalled();
+          expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
+
+          // No redirect should have happened
+          expect(mockNavigate).not.toHaveBeenCalled();
+
+          // Should show appropriate error message
+          expect(
+            screen.getByText('There was an error attempting to update the move closeout office.'),
+          ).toBeInTheDocument();
+        });
       });
     });
   });
