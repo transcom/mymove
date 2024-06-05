@@ -175,6 +175,9 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 	}
 	if finalIncentive != nil {
 		gcc = gcc.AddCents(*finalIncentive)
+		if ppmShipment.SITEstimatedCost != nil {
+			gcc = gcc.AddCents(*ppmShipment.SITEstimatedCost)
+		}
 	}
 	return gcc, err
 }
