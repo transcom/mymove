@@ -118,9 +118,9 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
-   * Use devlocal auth to sign in as office user with qaecsr role
+   * Use devlocal auth to sign in as office user with qae role
    */
-  async signInAsNewQAECSRUser() {
+  async signInAsNewQAEUser() {
     await this.signInAsNewUser(QAEOfficeUserType);
     await this.page.getByRole('heading', { name: 'Search for a move' }).waitFor();
   }

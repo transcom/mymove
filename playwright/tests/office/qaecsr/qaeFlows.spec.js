@@ -182,7 +182,7 @@ test.describe('Quality Evaluation Report', () => {
   test.beforeEach(async ({ officePage }) => {
     move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
 
-    await officePage.signInAsNewQAECSRUser();
+    await officePage.signInAsNewQAEUser();
     qaeFlowPage = new QaeFlowPage(officePage, move.locator);
     await qaeFlowPage.searchForAndNavigateToMoveQATab();
   });
