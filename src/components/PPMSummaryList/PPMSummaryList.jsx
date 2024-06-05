@@ -104,11 +104,11 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
       break;
     case ppmShipmentStatuses.WAITING_ON_CUSTOMER:
       actionButtons = <Button onClick={onButtonClick}>Upload PPM Documents</Button>;
-      content = approvedContent(approvedAt);
+      content = approvedContent(approvedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.NEEDS_CLOSEOUT:
       actionButtons = <Button disabled>Download Payment Packet</Button>;
-      content = paymentSubmitted(approvedAt, submittedAt);
+      content = paymentSubmitted(approvedAt, submittedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.CLOSEOUT_COMPLETE:
       actionButtons = isFeedbackAvailable(shipment?.ppmShipment) ? (
