@@ -151,6 +151,12 @@ type Agent struct {
 	Phone string
 }
 
+type Certifications struct {
+	CustomerField string
+	OfficeField   string
+	DateField     string
+}
+
 // adds a line item to shipment summary worksheet SSWMaxWeightEntitlement and increments total allotment
 func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 	r := reflect.ValueOf(wa).Elem()
@@ -295,6 +301,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
 	agentInfo := FormatAgentInfo(data.MTOAgents)
+	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID)
 	formattedShipments := FormatAllShipments(data.PPMShipments)
 
 	page2 := services.Page2Values{}
@@ -329,8 +336,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TrustedAgentDate = agentInfo.Date
 	page2.TrustedAgentEmail = agentInfo.Email
 	page2.TrustedAgentPhone = agentInfo.Phone
-	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
-	page2.SignatureDate = FormatSignatureDate(data.SignedCertification.UpdatedAt)
+	page2.ServiceMemberSignature = certificationInfo.CustomerField
+	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
+	page2.SignatureDate = certificationInfo.DateField
 	return page2
 }
 
@@ -381,17 +389,42 @@ func getOrDefault(value *string, defaultValue string) string {
 	return defaultValue
 }
 
-// FormatSignature formats a service member's signature for the Shipment Summary Worksheet
-func FormatSignature(sm models.ServiceMember) string {
-	first := derefStringTypes(sm.FirstName)
-	last := derefStringTypes(sm.LastName)
+func formatSignedCertifications(signedCertifications []*models.SignedCertification, ppmid uuid.UUID) Certifications {
+	certifications := Certifications{}
+	// Strings used to build return values
+	var customerSignature string
+	var aoaSignature string
+	var sswSignature string
+	var aoaDate string
+	var sswDate string
 
-	return fmt.Sprintf("%s %s electronically signed", first, last)
+	// This loop evaluates all certs, move-level customer signature doesn't have a ppm id, it's collected first, then office signatures with ppmids
+	for _, cert := range signedCertifications {
+		if cert.PpmID == nil { // Original move signature required, doesn't have ppmid. All others of that type do
+			if *cert.CertificationType == models.SignedCertificationTypeSHIPMENT {
+				customerSignature = cert.Signature
+			}
+		} else if *cert.PpmID == ppmid { // PPM ID needs to be checked to prevent signatures from other PPMs on the same move from populating
+			switch {
+			case *cert.CertificationType == models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT:
+				aoaSignature = cert.Signature
+				aoaDate = FormatSignatureDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
+			case *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT:
+				sswSignature = cert.Signature
+				sswDate = FormatSignatureDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
+			}
+		}
+	}
+
+	certifications.CustomerField = customerSignature
+	certifications.OfficeField = "AOA: " + aoaSignature + "\nSSW: " + sswSignature
+	certifications.DateField = "AOA: " + aoaDate + "\nSSW: " + sswDate
+	return certifications
 }
 
-// FormatSignatureDate formats the date the service member electronically signed for the Shipment Summary Worksheet
+// FormatSignatureDate formats the date the office members signed the SSW
 func FormatSignatureDate(signature time.Time) string {
-	dateLayout := "02 Jan 2006 at 3:04pm"
+	dateLayout := "02 Jan 2006" // Removed time to save space on template, per PO it's not needed
 	dt := signature.Format(dateLayout)
 	return dt
 }
@@ -704,7 +737,7 @@ func (SSWPPMComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
+func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
 
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
@@ -713,7 +746,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		"Shipment.MTOAgents",
 		"W2Address",
-		"SignedCertification",
 		"MovingExpenses",
 	).Find(&ppmShipment, ppmShipmentID)
 
@@ -740,8 +772,11 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, err
 	}
 
-	// DOES NOT INCLUDE PPPO/PPSO SIGNATURE
-	signedCertification := ppmShipment.SignedCertification
+	// Fetches all signed certifications for a move to be filtered in this file by ppmid and type
+	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
+	if err != nil {
+		return nil, err
+	}
 
 	var ppmShipments []models.PPMShipment
 
@@ -761,7 +796,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		W2Address:                ppmShipment.W2Address,
 		MovingExpenses:           ppmShipment.MovingExpenses,
 		MTOAgents:                ppmShipment.Shipment.MTOAgents,
-		SignedCertification:      *signedCertification,
+		SignedCertifications:     signedCertifications,
 		PPMRemainingEntitlement:  ppmRemainingEntitlement,
 		MaxSITStorageEntitlement: maxSit,
 	}
