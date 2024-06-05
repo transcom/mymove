@@ -291,11 +291,7 @@ describe('Office App', () => {
       ],
       ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.QAE],
       ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE],
-      [
-        'Prime Simulator Create Payment Request as QAE',
-        '/simulator/moves/test123/payment-requests/new',
-        roleTypes.QAE,
-      ],
+      ['Prime Simulator Create Payment Request as QAE', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE],
       [
         'Prime Simulator Upload Payment Request Documents as QAE',
         '/simulator/moves/test123/payment-requests/req123/upload',
