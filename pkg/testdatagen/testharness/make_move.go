@@ -267,7 +267,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				Status:               models.MTOShipmentStatusSubmitted,
 				SITDaysAllowance:     &sitDaysAllowance,
-				ActualPickupDate: 	  &actualPickupDate,
+				ActualPickupDate:     &actualPickupDate,
 			},
 		},
 		{
