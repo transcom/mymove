@@ -19,8 +19,8 @@ import (
 //   - **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
 //   - **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
 //   - **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
-//   - **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
-//   - **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
+//   - **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+//   - **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
 //
 // swagger:model PPMShipmentStatus
 type PPMShipmentStatus string
@@ -48,11 +48,11 @@ const (
 	// PPMShipmentStatusNEEDSADVANCEAPPROVAL captures enum value "NEEDS_ADVANCE_APPROVAL"
 	PPMShipmentStatusNEEDSADVANCEAPPROVAL PPMShipmentStatus = "NEEDS_ADVANCE_APPROVAL"
 
-	// PPMShipmentStatusNEEDSPAYMENTAPPROVAL captures enum value "NEEDS_PAYMENT_APPROVAL"
-	PPMShipmentStatusNEEDSPAYMENTAPPROVAL PPMShipmentStatus = "NEEDS_PAYMENT_APPROVAL"
+	// PPMShipmentStatusNEEDSCLOSEOUT captures enum value "NEEDS_CLOSEOUT"
+	PPMShipmentStatusNEEDSCLOSEOUT PPMShipmentStatus = "NEEDS_CLOSEOUT"
 
-	// PPMShipmentStatusPAYMENTAPPROVED captures enum value "PAYMENT_APPROVED"
-	PPMShipmentStatusPAYMENTAPPROVED PPMShipmentStatus = "PAYMENT_APPROVED"
+	// PPMShipmentStatusCLOSEOUTCOMPLETE captures enum value "CLOSEOUT_COMPLETE"
+	PPMShipmentStatusCLOSEOUTCOMPLETE PPMShipmentStatus = "CLOSEOUT_COMPLETE"
 )
 
 // for schema
@@ -60,7 +60,7 @@ var pPMShipmentStatusEnum []interface{}
 
 func init() {
 	var res []PPMShipmentStatus
-	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_PAYMENT_APPROVAL","PAYMENT_APPROVED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_CLOSEOUT","CLOSEOUT_COMPLETE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
