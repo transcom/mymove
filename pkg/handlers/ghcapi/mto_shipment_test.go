@@ -4268,8 +4268,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		// expect secondary addresses to be deleted
 		suite.Nil(updatedShipment.PpmShipment.SecondaryPickupAddress)
 		suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationAddress)
-		suite.Nil(updatedShipment.PpmShipment.SecondaryPickupAddress.PostalCode)
-		suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationAddress.PostalCode)
 
 		suite.False(*updatedShipment.PpmShipment.HasSecondaryPickupAddress)
 		suite.False(*updatedShipment.PpmShipment.HasSecondaryDestinationAddress)
