@@ -302,7 +302,7 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
