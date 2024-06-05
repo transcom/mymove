@@ -21,7 +21,7 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypes, ppmExpenseTypes, getExpenseTypeValue, llvmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
-import { patchExpense } from 'services/ghcApi';
+import { patchExpense, patchPPMSIT } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
@@ -65,6 +65,7 @@ const validationSchema = (allowableWeight) => {
 };
 
 export default function ReviewExpense({
+  mtoShipment,
   ppmShipmentInfo,
   expense,
   documentSets,
@@ -90,6 +91,11 @@ export default function ReviewExpense({
   } = expense || {};
 
   const { mutate: patchExpenseMutation } = useMutation(patchExpense, {
+    onSuccess,
+    onError,
+  });
+
+  const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT, {
     onSuccess,
     onError,
   });
@@ -169,6 +175,17 @@ export default function ReviewExpense({
     });
   };
 
+  const handleSITLocationChange = (values) => {
+    const payload = { ...mtoShipment.ppmShipment };
+    payload.sitLocation = values.target.value;
+
+    patchPPMSITMutation({
+      ppmShipmentId: ppmShipmentInfo.shipmentId,
+      payload,
+      eTag: ppmShipmentInfo.eTag,
+    });
+  };
+
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
   return (
@@ -236,6 +253,10 @@ export default function ReviewExpense({
                     id="sitLocationInput"
                     name="sitLocation"
                     options={sitLocationOptions}
+                    onChange={(e) => {
+                      handleChange(e);
+                      handleSITLocationChange(e);
+                    }}
                   />
                   <legend className={classnames('usa-label', styles.label)}>Cost</legend>
                   <div className={styles.displayValue}>{toDollarString(formatCents(sitCost))}</div>

@@ -1,0 +1,15 @@
+description: A personally procured move is a type of shipment that a service member moves themselves.
+x-nullable: true
+properties:
+  updatedAt:
+    description: Timestamp of when a property of this object was last updated (UTC)
+    format: date-time
+    type: string
+    readOnly: true
+  sitLocation:
+    allOf:
+      - $ref: 'SITLocationType.yaml'
+      - x-nullable: true
+      - x-omitempty: false
+required:
+  - sitLocation
