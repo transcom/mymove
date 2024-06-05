@@ -31,6 +31,19 @@ export const expenseTypeLabels = {
   OTHER: 'Other',
 };
 
+export const getExpenseTypeValue = (key) => expenseTypeLabels[key];
+
+export const llvmExpenseTypes = {
+  'Contracted expense': 'CONTRACTED_EXPENSE',
+  Oil: 'OIL',
+  'Packing materials': 'PACKING_MATERIALS',
+  'Rental equipment': 'RENTAL_EQUIPMENT',
+  Storage: 'STORAGE',
+  Tolls: 'TOLLS',
+  'Weighing fee': 'WEIGHING_FEE',
+  Other: 'OTHER',
+};
+
 export const ppmExpenseTypes = [
   { value: 'Contracted expense', key: 'CONTRACTED_EXPENSE' },
   { value: 'Oil', key: 'OIL' },

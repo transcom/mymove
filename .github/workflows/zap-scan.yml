@@ -1,0 +1,36 @@
+name: zap-scan
+on:
+  pull_request:
+    branches: [ main ]
+
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: Scan mymove
+    steps:
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: 'https://my.move.mil'
+          allow_issue_writing: 'false'
+
+  zap_scan_office:
+    runs-on: ubuntu-latest
+    name: Scan Office
+    steps:
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: 'https://office.move.mil'
+          allow_issue_writing: 'false'
+
+  zap_scan_admin:
+    runs-on: ubuntu-latest
+    name: Scan admin
+    steps:
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: 'https://admin.move.mil'
+          allow_issue_writing: 'false'

@@ -482,6 +482,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 			eTag := params.IfMatch
+			diversionReason := params.Body.DiversionReason
 
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
@@ -507,7 +508,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 				}
 			}
 
-			shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
+			shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag, diversionReason)
 			if err != nil {
 				return handleError(err)
 			}

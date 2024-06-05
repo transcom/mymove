@@ -2882,7 +2882,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
 	for i := range newmove.MTOShipments {
 		shipment := newmove.MTOShipments[i]
-		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if err != nil {
 			log.Panic("Error updating shipment status %w", err)
 		}
@@ -2986,7 +2986,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
 	for i := range newmove.MTOShipments {
 		shipment := newmove.MTOShipments[i]
-		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if err != nil {
 			log.Panic("Error updating shipment status %w", err)
 		}

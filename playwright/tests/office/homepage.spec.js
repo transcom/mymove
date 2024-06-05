@@ -66,7 +66,7 @@ test.describe('Office authorization', () => {
       await expect(page.getByText('All moves')).toBeVisible(); // TOO home
       await page.getByText('Change user role').click();
       expect(page.url()).toContain('/select-application');
-      await page.getByText('Select transportation_invoicing_officer').click();
+      await page.getByText('Select task_invoicing_officer').click();
       await officePage.waitForLoading();
       await expect(page.getByRole('heading', { name: 'Payment requests' })).toBeVisible();
 

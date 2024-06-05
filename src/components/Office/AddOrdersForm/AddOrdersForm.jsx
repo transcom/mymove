@@ -12,7 +12,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 
-const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) => {
+const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isSafetyMoveSelected }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   const validationSchema = Yup.object().shape({
@@ -40,7 +40,13 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack }) =
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
-              <DropdownInput label="Orders type" name="ordersType" options={ordersTypeOptions} required />
+              <DropdownInput
+                label="Orders type"
+                name="ordersType"
+                options={ordersTypeOptions}
+                required
+                isDisabled={isSafetyMoveSelected}
+              />
               <DatePickerInput name="issueDate" label="Orders date" required />
               <DatePickerInput name="reportByDate" label="Report by date" required />
               <FormGroup>

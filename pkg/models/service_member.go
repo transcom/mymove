@@ -290,6 +290,22 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	return newOrders, responseVErrors, responseError
 }
 
+// UpdateServiceMemberDoDID is called if Safety Move order is created to clear out the DoDID
+func UpdateServiceMemberDoDID(db *pop.Connection, serviceMember *ServiceMember, dodid *string) error {
+
+	serviceMember.Edipi = dodid
+
+	verrs, err := db.ValidateAndUpdate(serviceMember)
+	if verrs.HasAny() {
+		return verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to update service member")
+		return err
+	}
+
+	return nil
+}
+
 // IsProfileComplete checks if the profile has been completely filled out
 func (s *ServiceMember) IsProfileComplete() bool {
 

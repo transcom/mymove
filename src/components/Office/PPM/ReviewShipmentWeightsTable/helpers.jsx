@@ -140,7 +140,7 @@ export const PPMReviewWeightsTableColumns = [
   ),
   createHeader(
     'Pro-gear (lbs)',
-    (row) => (row.ppmShipment.proGearWeight > 0 ? formatWeight(row.ppmShipment.proGearWeight) : DASH),
+    (row) => (row.actualProGearWeight > 0 ? formatWeight(row.actualProGearWeight) : DASH),
     {
       id: 'proGear',
       isFilterable: false,
@@ -148,7 +148,7 @@ export const PPMReviewWeightsTableColumns = [
   ),
   createHeader(
     'Spouse pro-gear',
-    (row) => (row.ppmShipment.spouseProGearWeight > 0 ? formatWeight(row.ppmShipment.spouseProGearWeight) : DASH),
+    (row) => (row.actualSpouseProGearWeight > 0 ? formatWeight(row.actualSpouseProGearWeight) : DASH),
     {
       id: 'spouseProGear',
       isFilterable: false,
@@ -175,10 +175,7 @@ export const PPMReviewWeightsTableColumns = [
   ),
   createHeader(
     'Departure date',
-    (row) =>
-      row.ppmShipment.expectedDepartureDate
-        ? formatReviewShipmentWeightsDate(row.ppmShipment.expectedDepartureDate)
-        : DASH,
+    (row) => (row.ppmShipment.actualMoveDate ? formatReviewShipmentWeightsDate(row.ppmShipment.actualMoveDate) : DASH),
     {
       id: 'departureDate',
       isFilterable: false,
@@ -213,7 +210,7 @@ export const proGearTableColumns = [
   ),
   createHeader(
     'Spouse pro-gear (lbs)',
-    (row) => (row.entitlement.spouseProGearWeight > 0 ? formatWeight(row.entitlement.spouseProGearWeight) : DASH),
+    (row) => (row.entitlement.proGearWeightSpouse > 0 ? formatWeight(row.entitlement.proGearWeightSpouse) : DASH),
     {
       id: 'spouseProGear',
       isFilterable: false,

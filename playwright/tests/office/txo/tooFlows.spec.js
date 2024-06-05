@@ -478,6 +478,15 @@ test.describe('TOO user', () => {
 
       await page.locator('button').getByText('Request diversion').click();
 
+      // Check modal title includes shipment locator
+      const modalTitleText = await page.locator('div[data-testid="modal"] h3').textContent();
+      const modalTitlePattern = /^Request Shipment Diversion for #([A-Za-z0-9]{6}-\d{2})$/;
+      const hasValidModalTitle = modalTitlePattern.test(modalTitleText);
+      expect(hasValidModalTitle).toBeTruthy();
+
+      // Submit the diversion request
+      await page.locator('input[name="diversionReason"]').type('reasonable reason');
+      await page.locator('button[data-testid="modalSubmitButton"]').click();
       await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
 
       // Check the alert message with shipment locator

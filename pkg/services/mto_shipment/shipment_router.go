@@ -127,7 +127,7 @@ func (router shipmentRouter) Reject(_ appcontext.AppContext, shipment *models.MT
 }
 
 // RequestDiversion is called when the TOO has requested that the Prime divert the shipment.
-func (router shipmentRouter) RequestDiversion(_ appcontext.AppContext, shipment *models.MTOShipment) error {
+func (router shipmentRouter) RequestDiversion(_ appcontext.AppContext, shipment *models.MTOShipment, diversionReason *string) error {
 	if shipment.Status != models.MTOShipmentStatusApproved {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -137,6 +137,7 @@ func (router shipmentRouter) RequestDiversion(_ appcontext.AppContext, shipment 
 		}
 	}
 	shipment.Status = models.MTOShipmentStatusDiversionRequested
+	shipment.DiversionReason = diversionReason
 
 	return nil
 }

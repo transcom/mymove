@@ -135,6 +135,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(nil, internalServerErr)
 
 		response := mockHandler.Handle(setupParams(setupTestData()))

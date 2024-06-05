@@ -4527,6 +4527,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -7398,6 +7406,11 @@ func init() {
           "type": "boolean",
           "example": true
         },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
+        },
         "eTag": {
           "type": "string"
         },
@@ -8538,13 +8551,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -8680,6 +8695,12 @@ func init() {
           "description": "The price of the linehaul or shorthaul.",
           "type": "integer",
           "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -9734,6 +9755,17 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ReportViolation"
+      }
+    },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
       }
     },
     "Reweigh": {
@@ -17382,6 +17414,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestDiversion"
+            }
           }
         ],
         "responses": {
@@ -20410,6 +20450,11 @@ func init() {
           "type": "boolean",
           "example": true
         },
+        "diversionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment needs rerouted"
+        },
         "eTag": {
           "type": "string"
         },
@@ -21550,13 +21595,15 @@ func init() {
         "RETIREMENT",
         "SEPARATION",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
+        "SAFETY": "Safety",
         "SEPARATION": "Separation",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -21692,6 +21739,12 @@ func init() {
           "description": "The price of the linehaul or shorthaul.",
           "type": "integer",
           "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -22748,6 +22801,17 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ReportViolation"
+      }
+    },
+    "RequestDiversion": {
+      "required": [
+        "diversionReason"
+      ],
+      "properties": {
+        "diversionReason": {
+          "type": "string",
+          "example": "Shipment route needs to change"
+        }
       }
     },
     "Reweigh": {

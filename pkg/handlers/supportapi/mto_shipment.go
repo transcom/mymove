@@ -32,7 +32,7 @@ func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateM
 			rejectionReason := params.Body.RejectionReason
 			eTag := params.IfMatch
 
-			shipment, err := h.UpdateMTOShipmentStatus(appCtx, shipmentID, status, rejectionReason, eTag)
+			shipment, err := h.UpdateMTOShipmentStatus(appCtx, shipmentID, status, rejectionReason, nil, eTag)
 
 			if err != nil {
 				appCtx.Logger().Error("UpdateMTOShipmentStatus error: ", zap.Error(err))

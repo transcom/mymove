@@ -84,13 +84,13 @@ func (_m *ShipmentRouter) RequestCancellation(appCtx appcontext.AppContext, ship
 	return r0
 }
 
-// RequestDiversion provides a mock function with given fields: appCtx, shipment
-func (_m *ShipmentRouter) RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	ret := _m.Called(appCtx, shipment)
+// RequestDiversion provides a mock function with given fields: appCtx, shipment, diversionReason
+func (_m *ShipmentRouter) RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment, diversionReason *string) error {
+	ret := _m.Called(appCtx, shipment, diversionReason)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
-		r0 = rf(appCtx, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, *string) error); ok {
+		r0 = rf(appCtx, shipment, diversionReason)
 	} else {
 		r0 = ret.Error(0)
 	}

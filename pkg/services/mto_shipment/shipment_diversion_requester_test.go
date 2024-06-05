@@ -17,6 +17,7 @@ import (
 func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 	router := NewShipmentRouter()
 	requester := NewShipmentDiversionRequester(router)
+	diversionReason := "Test Reason"
 
 	suite.Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -33,7 +34,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 
-		divertedShipment, err := requester.RequestShipmentDiversion(session, shipment.ID, shipmentEtag)
+		divertedShipment, err := requester.RequestShipmentDiversion(session, shipment.ID, shipmentEtag, &diversionReason)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, divertedShipment.MoveTaskOrderID)
@@ -44,6 +45,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		suite.Equal(models.MTOShipmentStatusDiversionRequested, fetchedShipment.Status)
 		suite.Equal(shipment.ID, fetchedShipment.ID)
 		suite.Equal(divertedShipment.ID, fetchedShipment.ID)
+		suite.Equal(divertedShipment.DiversionReason, fetchedShipment.DiversionReason)
 	})
 
 	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
@@ -62,7 +64,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 
-		_, err := requester.RequestShipmentDiversion(session, rejectedShipment.ID, eTag)
+		_, err := requester.RequestShipmentDiversion(session, rejectedShipment.ID, eTag, &diversionReason)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -82,7 +84,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 
-		_, err := requester.RequestShipmentDiversion(session, staleShipment.ID, staleETag)
+		_, err := requester.RequestShipmentDiversion(session, staleShipment.ID, staleETag, &diversionReason)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -95,7 +97,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
-		_, err := requester.RequestShipmentDiversion(session, badShipmentID, eTag)
+		_, err := requester.RequestShipmentDiversion(session, badShipmentID, eTag, &diversionReason)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -120,9 +122,9 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		shipmentRouter.On("RequestDiversion", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
+		shipmentRouter.On("RequestDiversion", mock.AnythingOfType("*appcontext.appContext"), &createdShipment, &diversionReason).Return(nil)
 
-		_, err = requester.RequestShipmentDiversion(session, shipment.ID, eTag)
+		_, err = requester.RequestShipmentDiversion(session, shipment.ID, eTag, &diversionReason)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(suite.T(), "RequestDiversion", 1)

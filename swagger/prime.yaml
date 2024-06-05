@@ -1590,8 +1590,8 @@ paths:
         ticket or not.
 
         This will be used for partial and full deliveries and makes it easier
-        for the Transportation Invoicing Officers to locate and review service
-        item documents.
+        for the Task Invoicing Officers to locate and review service item
+        documents.
 
         If left empty, it will assume it is NOT a weight ticket.
 
@@ -3204,6 +3204,7 @@ definitions:
       - SEPARATION
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -3211,6 +3212,7 @@ definitions:
       SEPARATION: Separation
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   Order:
     type: object
     required:

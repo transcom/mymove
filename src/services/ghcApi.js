@@ -401,6 +401,7 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
 
 export function updateMTOShipmentStatus({
   shipmentID,
+  diversionReason,
   operationPath,
   ifMatchETag,
   normalize = true,
@@ -411,6 +412,9 @@ export function updateMTOShipmentStatus({
     {
       shipmentID,
       'If-Match': ifMatchETag,
+      body: {
+        diversionReason,
+      },
     },
     { schemaKey, normalize },
   );

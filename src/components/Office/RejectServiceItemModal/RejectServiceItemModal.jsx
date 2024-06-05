@@ -49,7 +49,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
             >
               {({ handleChange, values, isValid, dirty }) => {
                 return (
-                  <Form>
+                  <Form aria-label="service item rejection reason">
                     <div className={classNames('table--service-item', 'table--service-item--hasimg')}>
                       <table>
                         <thead className="table--small">

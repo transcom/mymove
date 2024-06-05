@@ -35,6 +35,7 @@ type serviceItemPrices struct {
 	storageReimbursementCosts *unit.Cents
 	haulPrice                 *unit.Cents
 	haulFSC                   *unit.Cents
+	haulType                  models.HaulType
 }
 
 func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator) services.PPMCloseoutFetcher {
@@ -115,6 +116,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.RemainingIncentive = &remainingIncentive
 	ppmCloseoutObj.HaulPrice = serviceItems.haulPrice
 	ppmCloseoutObj.HaulFSC = serviceItems.haulFSC
+	ppmCloseoutObj.HaulType = serviceItems.haulType
 	ppmCloseoutObj.DOP = serviceItems.dop
 	ppmCloseoutObj.DDP = serviceItems.ddp
 	ppmCloseoutObj.PackPrice = serviceItems.packPrice
@@ -329,6 +331,13 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	}
 
 	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment.ShipmentID)
+
+	// Change DLH to DSH if move within same Zip3
+	actualPickupPostal := *ppmShipment.ActualPickupPostalCode
+	actualDestPostal := *ppmShipment.ActualDestinationPostalCode
+	if actualPickupPostal[0:3] == actualDestPostal[0:3] {
+		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+	}
 	contractDate := ppmShipment.ExpectedDepartureDate
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 	if err != nil {
@@ -458,6 +467,21 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			destinationPrice += centsValue
 		case models.ReServiceCodeDSH, models.ReServiceCodeDLH:
 			haulPrice += centsValue
+			_, linehaulOk := pricer.(services.DomesticLinehaulPricer)
+			if linehaulOk {
+				returnPriceObj.haulType = models.HaulType(models.LINEHAUL)
+			} else {
+				_, shorthaulOk := pricer.(services.DomesticShorthaulPricer)
+				if shorthaulOk {
+					returnPriceObj.haulType = models.HaulType(models.SHORTHAUL)
+				} else { // Fallback in case pricer comparison fails
+					if ppmToMtoShipment.DestinationAddress.PostalCode[0:3] == ppmToMtoShipment.PickupAddress.PostalCode[0:3] {
+						returnPriceObj.haulType = models.HaulType(models.SHORTHAUL)
+					} else {
+						returnPriceObj.haulType = models.HaulType(models.LINEHAUL)
+					}
+				}
+			}
 		case models.ReServiceCodeFSC:
 			haulFSC += centsValue
 		}

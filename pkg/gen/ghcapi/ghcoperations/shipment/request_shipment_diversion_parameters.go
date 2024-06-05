@@ -6,12 +6,16 @@ package shipment
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
+
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewRequestShipmentDiversionParams creates a new RequestShipmentDiversionParams object
@@ -36,6 +40,11 @@ type RequestShipmentDiversionParams struct {
 	  In: header
 	*/
 	IfMatch string
+	/*
+	  Required: true
+	  In: body
+	*/
+	Body *ghcmessages.RequestDiversion
 	/*ID of the shipment
 	  Required: true
 	  In: path
@@ -54,6 +63,34 @@ func (o *RequestShipmentDiversionParams) BindRequest(r *http.Request, route *mid
 
 	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
 		res = append(res, err)
+	}
+
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body ghcmessages.RequestDiversion
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			if err == io.EOF {
+				res = append(res, errors.Required("body", "body", ""))
+			} else {
+				res = append(res, errors.NewParseError("body", "body", "", err))
+			}
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			ctx := validate.WithOperationRequest(r.Context())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			if len(res) == 0 {
+				o.Body = &body
+			}
+		}
+	} else {
+		res = append(res, errors.Required("body", "body", ""))
 	}
 
 	rShipmentID, rhkShipmentID, _ := route.Params.GetOK("shipmentID")
