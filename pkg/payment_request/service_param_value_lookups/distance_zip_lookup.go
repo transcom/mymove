@@ -53,7 +53,14 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	}
 
 	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
-		return strconv.Itoa(mtoShipment.Distance.Int()), nil
+		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate").Find(&mtoShipment, mtoShipment.ID)
+		if err != nil {
+			return "", err
+		}
+		if mtoShipment.DeliveryAddressUpdate.ID == uuid.Nil || mtoShipment.DeliveryAddressUpdate.Status != models.ShipmentAddressUpdateStatusApproved {
+			return strconv.Itoa(mtoShipment.Distance.Int()), nil
+		}
+
 	}
 
 	var distanceMiles int

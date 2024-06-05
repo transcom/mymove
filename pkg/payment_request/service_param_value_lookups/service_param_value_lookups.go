@@ -225,7 +225,7 @@ func ServiceParamLookupInitialize(
 	// ReService code for current MTO Service Item
 	serviceItemCode := mtoServiceItem.ReService.Code
 
-	paramKeyLookups := InitializeLookups(mtoShipment, mtoServiceItem)
+	paramKeyLookups := InitializeLookups(appCtx, mtoShipment, mtoServiceItem)
 
 	for _, paramKeyName := range ServiceItemParamsWithLookups {
 		lookup, ok := paramKeyLookups[paramKeyName]
@@ -252,7 +252,7 @@ func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, servic
 	return nil
 }
 
-func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
+func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
 	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
 
 	if serviceItem.SITDestinationOriginalAddress == nil {
@@ -279,10 +279,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 		MTOShipment: shipment,
 	}
 
-	lookups[models.ServiceItemParamNameDistanceZip] = DistanceZipLookup{
-		PickupAddress:      *shipment.PickupAddress,
-		DestinationAddress: *shipment.DestinationAddress,
-	}
+	lookups[models.ServiceItemParamNameDistanceZip] = validateDistanceZip(appCtx, &shipment, &serviceItem.ReService.Code)
 
 	lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier] = FSCWeightBasedDistanceMultiplierLookup{
 		MTOShipment: shipment,
@@ -312,9 +309,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 		Address: *shipment.PickupAddress,
 	}
 
-	lookups[models.ServiceItemParamNameZipDestAddress] = ZipAddressLookup{
-		Address: *shipment.DestinationAddress,
-	}
+	lookups[models.ServiceItemParamNameZipDestAddress] = validateDestination(appCtx, &shipment, &serviceItem)
 
 	lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt] = MTOAvailableToPrimeAtLookup{}
 
@@ -424,6 +419,50 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	return lookups
 }
 
+func validateDestination(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItem *models.MTOServiceItem) ServiceItemParamKeyLookup {
+	reServiceCode := &serviceItem.ReService.Code
+	switch *reServiceCode {
+	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
+		shipmentCopy := *shipment
+		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status").Find(&shipmentCopy, shipment.ID)
+		if err != nil {
+			return ZipAddressLookup{}
+		}
+
+		if shipmentCopy.DeliveryAddressUpdate.NewAddress.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+			return ZipAddressLookup{
+				Address: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+			}
+		}
+	}
+	return ZipAddressLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+}
+
+func validateDistanceZip(appCtx appcontext.AppContext, shipment *models.MTOShipment, reServiceCode *models.ReServiceCode) ServiceItemParamKeyLookup {
+	switch *reServiceCode {
+	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
+		shipmentCopy := *shipment
+		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status").Find(&shipmentCopy, shipment.ID)
+		if err != nil {
+			return DistanceZipLookup{}
+		}
+
+		if shipmentCopy.DeliveryAddressUpdate.NewAddress.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+			return DistanceZipLookup{
+				PickupAddress:      *shipment.PickupAddress,
+				DestinationAddress: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+			}
+		}
+	}
+	return DistanceZipLookup{
+		PickupAddress:      *shipment.PickupAddress,
+		DestinationAddress: *shipment.DestinationAddress,
+	}
+}
+
 // serviceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil
 // we are not using the ParamCache and all lookups will be initialized and all param lookups will run their own
 // database queries
@@ -523,7 +562,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 		// Destination address isn't needed
 		return models.Address{}, nil
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
-		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.Status", "MTOServiceItems").Find(&mtoShipment, mtoShipment.ID)
+		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status", "MTOServiceItems").Find(&mtoShipment, mtoShipment.ID)
 		if err != nil {
 			return models.Address{}, err
 		}
@@ -545,6 +584,9 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 			if i == len(mtoShipment.MTOServiceItems)-1 {
 				if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
 					return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+				}
+				if mtoShipment.DeliveryAddressUpdate.NewAddress.ID != uuid.Nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					return mtoShipment.DeliveryAddressUpdate.NewAddress, nil
 				}
 				return *ptrDestinationAddress, nil
 			}
