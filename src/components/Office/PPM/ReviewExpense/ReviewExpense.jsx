@@ -65,7 +65,6 @@ const validationSchema = (allowableWeight) => {
 };
 
 export default function ReviewExpense({
-  mtoShipment,
   ppmShipmentInfo,
   expense,
   documentSets,
@@ -95,13 +94,11 @@ export default function ReviewExpense({
     onError,
   });
 
-  const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT, {
-    onSuccess,
-    onError,
-  });
+  const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT);
 
   const sitCost = ppmShipmentInfo?.sitEstimatedCost || '';
   const allowableWeight = ppmShipmentInfo.estimatedWeight;
+  const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -114,7 +111,7 @@ export default function ReviewExpense({
     status: status || '',
     reason: reason || '',
     actualWeight: ppmShipmentInfo?.actualWeight?.toString() || '',
-    sitLocation: sitLocation?.toString() || '',
+    sitLocation: ppmSITLocation,
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
@@ -145,7 +142,7 @@ export default function ReviewExpense({
     const selectedExpenseTypeKey = llvmExpenseTypes[selectedExpenseType]; // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
     const index = computeCurrentCategoryIndex(selectedExpenseTypeKey); // Get index for number at bottom of page (e.x. "Contracted Expense #2")
     setCurrentCategoryIndex(index);
-  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage]);
+  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage, ppmSITLocation]);
 
   // If parent state updates to show that we've moved onto another document, then user must've used back or submit button
   useEffect(() => {
@@ -153,6 +150,14 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   const handleSubmit = (values) => {
+    const ppmSitPayload = {
+      sitLocation: ppmSITLocation,
+    };
+    patchPPMSITMutation({
+      ppmShipmentId: expense.ppmShipmentId,
+      payload: ppmSitPayload,
+      eTag: ppmShipmentInfo.eTag,
+    });
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
@@ -164,7 +169,7 @@ export default function ReviewExpense({
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
       weightStored: Number.parseInt(values.weightStored, 10),
-      sitLocation: values.sitLocation,
+      sitLocation: ppmSITLocation,
     };
 
     patchExpenseMutation({
@@ -172,17 +177,6 @@ export default function ReviewExpense({
       movingExpenseId: expense.id,
       payload,
       eTag: expense.eTag,
-    });
-  };
-
-  const handleSITLocationChange = (values) => {
-    const payload = { ...mtoShipment.ppmShipment };
-    payload.sitLocation = values.target.value;
-
-    patchPPMSITMutation({
-      ppmShipmentId: ppmShipmentInfo.shipmentId,
-      payload,
-      eTag: ppmShipmentInfo.eTag,
     });
   };
 
@@ -204,6 +198,13 @@ export default function ReviewExpense({
             setFieldValue('reason', '');
             setFieldTouched('reason', false, false);
             setFieldError('reason', null);
+          };
+
+          const handleSITLocationChange = (event) => {
+            setSITLocation(event.target.value);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(event.target.value);
+            setCurrentCategoryIndex(count + 1);
           };
 
           const daysInSIT =
@@ -248,13 +249,30 @@ export default function ReviewExpense({
               />
               {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                 <>
+                  {/* <div className="labelWrapper">
+                    <Label htmlFor="ppmSITLocation">SIT Location</Label>
+                  </div>
+                  <select
+                    label="SIT Location"
+                    name="ppmSITLocation"
+                    id="sitLocationInput"
+                    required
+                    className={classnames('usa-select')}
+                    value={selectedExpenseType}
+                    onChange={(e) => {
+                      handleSITLocationChange(e);
+                    }}
+                  >
+                    {sitLocationOptions.map((x) => (
+                      <option key={x.key}>{x.value}</option>
+                    ))}
+                  </select> */}
                   <DropdownInput
                     label="SIT Location"
                     id="sitLocationInput"
                     name="sitLocation"
                     options={sitLocationOptions}
                     onChange={(e) => {
-                      handleChange(e);
                       handleSITLocationChange(e);
                     }}
                   />

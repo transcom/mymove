@@ -70,7 +70,7 @@ func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middlew
 			ppmShipment.SITLocation = (*models.SITLocationType)(payload.SitLocation)
 			updatedPPMShipment, err := h.PPMShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, ppmShipment)
 
-			if err != nil && updatedPPMShipment != nil {
+			if err != nil {
 				return handleError(err)
 			}
 
