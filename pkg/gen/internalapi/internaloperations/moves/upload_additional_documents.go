@@ -30,11 +30,11 @@ func NewUploadAdditionalDocuments(ctx *middleware.Context, handler UploadAdditio
 }
 
 /*
-	UploadAdditionalDocuments swagger:route PATCH /moves/{moveId}/upload_additional_documents moves uploadAdditionalDocuments
+	UploadAdditionalDocuments swagger:route PATCH /moves/{moveId}/uploadAdditionalDocuments moves uploadAdditionalDocuments
 
-# Patch the amended orders for a given order
+# Patch the additional documents for a given move
 
-Patch the amended orders for a given order
+Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.
 */
 type UploadAdditionalDocuments struct {
 	Context *middleware.Context

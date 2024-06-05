@@ -1076,7 +1076,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/moves/{moveId}/upload_additional_documents"] = moves.NewUploadAdditionalDocuments(o.context, o.MovesUploadAdditionalDocumentsHandler)
+	o.handlers["PATCH"]["/moves/{moveId}/uploadAdditionalDocuments"] = moves.NewUploadAdditionalDocuments(o.context, o.MovesUploadAdditionalDocumentsHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

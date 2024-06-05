@@ -42,8 +42,12 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	eTag := etag.GenerateEtag(move.UpdatedAt)
 
 	var additionalDocumentsPayload *internalmessages.Document
+	var err error
 	if move.AdditionalDocuments != nil {
-		additionalDocumentsPayload, _ = payloads.PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+		additionalDocumentsPayload, err = payloads.PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	movePayload := &internalmessages.MovePayload{

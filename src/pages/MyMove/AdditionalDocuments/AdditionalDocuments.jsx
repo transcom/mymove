@@ -1,27 +1,23 @@
 import { React, createRef, useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Button } from '@trussworks/react-uswds';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { generatePath } from 'react-router';
 
-import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
-import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { createUploadForAdditionalDocuments, deleteAdditionalDocumentUpload, getMove } from 'services/internalApi';
 import { selectCurrentMove } from 'store/entities/selectors';
-import { customerRoutes } from 'constants/routes';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const AdditionalDocuments = ({ move, updateMove }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const moveId = move?.id;
   const filePondEl = createRef();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const uploads = move?.additionalDocuments?.uploads;
 
   const handleDelete = async (uploadId) => {
@@ -65,18 +61,6 @@ const AdditionalDocuments = ({ move, updateMove }) => {
 
   return (
     <GridContainer>
-      <NotificationScrollToTop dependency={errorMessage} />
-
-      {errorMessage && (
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert type="error" headingLevel="h4" heading="An error occurred">
-              {errorMessage}
-            </Alert>
-          </Grid>
-        </Grid>
-      )}
-
       <Grid row data-testid="info-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <h1>Additional Documents</h1>

@@ -32,7 +32,7 @@ type DeleteUploadParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of the move that the upload belongs to
+	/*Optional ID of the move that the upload belongs to
 	  In: query
 	*/
 	MoveID *strfmt.UUID

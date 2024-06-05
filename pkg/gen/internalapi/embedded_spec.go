@@ -1183,16 +1183,16 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/upload_additional_documents": {
+    "/moves/{moveId}/uploadAdditionalDocuments": {
       "patch": {
-        "description": "Patch the amended orders for a given order",
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
           "multipart/form-data"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "Patch the amended orders for a given order",
+        "summary": "Patch the additional documents for a given move",
         "operationId": "uploadAdditionalDocuments",
         "parameters": [
           {
@@ -3121,7 +3121,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "ID of the move that the upload belongs to",
+            "description": "Optional ID of the move that the upload belongs to",
             "name": "moveId",
             "in": "query"
           }
@@ -8677,16 +8677,16 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/upload_additional_documents": {
+    "/moves/{moveId}/uploadAdditionalDocuments": {
       "patch": {
-        "description": "Patch the amended orders for a given order",
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
           "multipart/form-data"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "Patch the amended orders for a given order",
+        "summary": "Patch the additional documents for a given move",
         "operationId": "uploadAdditionalDocuments",
         "parameters": [
           {
@@ -11043,7 +11043,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "description": "ID of the move that the upload belongs to",
+            "description": "Optional ID of the move that the upload belongs to",
             "name": "moveId",
             "in": "query"
           }

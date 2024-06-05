@@ -20,12 +20,12 @@ type additionalDocumentsUploader struct {
 	checks        []validator
 }
 
-// NewMoveExcessWeightUploader returns a new excessWeightUploader
+// NewMoveAdditionalDocumentsUploader returns a new additionalDocumentsUploader
 func NewMoveAdditionalDocumentsUploader(uploadCreator services.UploadCreator) services.MoveAdditionalDocumentsUploader {
 	return &additionalDocumentsUploader{uploadCreator, basicChecks()}
 }
 
-// CreateExcessWeightUpload uploads an excess weight document and updates the move with the new upload info
+// CreateAdditionalDocumentsUpload uploads an additional document and updates the move with the new upload info
 func (u *additionalDocumentsUploader) CreateAdditionalDocumentsUpload(
 	appCtx appcontext.AppContext,
 	userID uuid.UUID,
@@ -57,9 +57,9 @@ func (u *additionalDocumentsUploader) findMoveWithAdditionalDocuments(appCtx app
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(moveID, "while looking for order")
+			return nil, apperror.NewNotFoundError(moveID, "while looking for move")
 		default:
-			return nil, apperror.NewQueryError("Order", err, "")
+			return nil, apperror.NewQueryError("Move", err, "")
 		}
 	}
 
@@ -67,7 +67,7 @@ func (u *additionalDocumentsUploader) findMoveWithAdditionalDocuments(appCtx app
 }
 
 func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext, userID uuid.UUID, move models.Move, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
-	// If Order does not have a Document for amended orders uploads, then create a new one
+	// If move does not have a Document for additional document uploads, then create a new one
 	var err error
 	savedAdditionalDoc := move.AdditionalDocuments
 	if move.AdditionalDocuments == nil {
@@ -79,7 +79,7 @@ func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext
 			return models.UserUpload{}, "", nil, err
 		}
 
-		// save new UploadedAmendedOrdersID (document ID) to orders
+		// save new AdditionalDocumentID (document ID) to move
 		move.AdditionalDocuments = savedAdditionalDoc
 		move.AdditionalDocumentsID = &savedAdditionalDoc.ID
 		_, _, err = u.updateMove(appCtx, move)
@@ -88,7 +88,7 @@ func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext
 		}
 	}
 
-	// Create new user upload for amended order
+	// Create new user upload for additional document
 	var userUpload *models.UserUpload
 	var verrs *validate.Errors
 	var url string

@@ -48,7 +48,6 @@ export const customerRoutes = {
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
   UPLOAD_ADDITIONAL_DOCUMENTS_PATH: '/move/:moveLocator/upload-additional-documents',
-  UPLOAD_ADDITIONAL_DOCUMENTS_EDIT_PATH: '/move/:moveLocator/upload-additional-documents/:additionalDocumentsId',
 };
 
 const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';

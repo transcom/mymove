@@ -3077,7 +3077,7 @@ paths:
           name: moveId
           type: string
           format: uuid
-          description: ID of the move that the upload belongs to
+          description: Optional ID of the move that the upload belongs to
       responses:
         "204":
           description: deleted
@@ -3703,10 +3703,10 @@ paths:
           $ref: "#/responses/UnprocessableEntity"
         "500":
           $ref: "#/responses/ServerError"
-  /moves/{moveId}/upload_additional_documents:
+  /moves/{moveId}/uploadAdditionalDocuments:
     patch:
-      summary: Patch the amended orders for a given order
-      description: Patch the amended orders for a given order
+      summary: Patch the additional documents for a given move
+      description: Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.
       operationId: uploadAdditionalDocuments
       tags:
         - moves

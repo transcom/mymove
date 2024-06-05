@@ -153,9 +153,11 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 			}
 
 			if params.MoveID != nil {
-				moveID, _ := uuid.FromString(params.MoveID.String())
-				move, e := models.FetchMoveByMoveID(appCtx.DB(), moveID)
-				fmt.Println(move)
+				moveID, e := uuid.FromString(params.MoveID.String())
+				if e != nil {
+					appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", moveID.String()), zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
 
 				if e != nil {
 					return handlers.ResponseForError(appCtx.Logger(), e), e

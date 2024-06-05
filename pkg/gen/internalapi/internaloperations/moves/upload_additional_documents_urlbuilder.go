@@ -42,7 +42,7 @@ func (o *UploadAdditionalDocumentsURL) SetBasePath(bp string) {
 func (o *UploadAdditionalDocumentsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/moves/{moveId}/upload_additional_documents"
+	var _path = "/moves/{moveId}/uploadAdditionalDocuments"
 
 	moveID := o.MoveID.String()
 	if moveID != "" {

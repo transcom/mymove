@@ -99,7 +99,7 @@ func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
 		suite.NotEmpty(url, "URL is populated")
 	})
 
-	suite.Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func() {
+	suite.Run("Saves userUpload if the document already exists", func() {
 		order := setUpOrders(true)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
