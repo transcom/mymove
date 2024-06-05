@@ -13,7 +13,7 @@ test.describe('Customer Support User Flows', () => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
       const moveLocator = move.locator;
 
-      await officePage.signInAsNewQAECSRUser();
+      await officePage.signInAsNewQAEUser();
       await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
 
       // Go to Customer support remarks
@@ -103,7 +103,7 @@ test.describe('Customer Support User Flows', () => {
       await page.getByText('Sign out').click();
       await page.waitForURL('**/sign-in');
 
-      await officePage.signInAsNewQAECSRUser();
+      await officePage.signInAsNewQAEUser();
       await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
 
       // Go to Customer support remarks
@@ -122,7 +122,7 @@ test.describe('Customer Support User Flows', () => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
       const moveLocator = move.locator;
 
-      await officePage.signInAsNewQAECSRUser();
+      await officePage.signInAsNewQAEUser();
       await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
 
       // Navigate to view orders page
@@ -145,7 +145,7 @@ test.describe('Customer Support User Flows', () => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
       const moveLocator = move.locator;
 
-      await officePage.signInAsNewQAECSRUser();
+      await officePage.signInAsNewQAEUser();
       await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
 
       // Navigate to view allowances page
@@ -171,7 +171,7 @@ test.describe('Customer Support User Flows', () => {
       const move = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE();
       const moveLocator = move.locator;
 
-      await officePage.signInAsNewQAECSRUser();
+      await officePage.signInAsNewQAEUser();
       await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
 
       await page.getByText('Payment requests').click();

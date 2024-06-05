@@ -12,7 +12,7 @@ test.describe('QAE/CSR Move Search', () => {
     const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     const moveLocator = move.locator;
 
-    await officePage.signInAsNewQAECSRUser();
+    await officePage.signInAsNewQAEUser();
 
     // Type move code into search bar (move code is default search type)
     await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
@@ -24,7 +24,7 @@ test.describe('QAE/CSR Move Search', () => {
     const moveLocator = move.locator;
     const { edipi } = move.Orders.ServiceMember;
 
-    await officePage.signInAsNewQAECSRUser();
+    await officePage.signInAsNewQAEUser();
 
     // Type dodID into search bar and select DOD ID as search type
     //
@@ -61,7 +61,7 @@ test.describe('QAE/CSR Move Search', () => {
     const moveLocator = move.locator;
     const lastName = move.Orders.ServiceMember.last_name;
 
-    await officePage.signInAsNewQAECSRUser();
+    await officePage.signInAsNewQAEUser();
 
     // Type name into search bar and select name as search type
     //
@@ -94,7 +94,7 @@ test.describe('QAE/CSR Move Search', () => {
   });
 
   test('handles searches that do not return results', async ({ page, officePage }) => {
-    await officePage.signInAsNewQAECSRUser();
+    await officePage.signInAsNewQAEUser();
     // Search for a bad move code
     await page.locator('input[name="searchText"]').type('BAD_ID');
     await page.locator('input[name="searchText"]').blur();
