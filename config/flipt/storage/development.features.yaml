@@ -9,6 +9,14 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: safety_move
+  name: Safety Move feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: counselor_move_create
   name: Counselor Move Creation feature flag
   type: BOOLEAN_FLAG_TYPE

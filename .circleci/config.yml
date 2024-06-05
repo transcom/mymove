@@ -804,7 +804,7 @@ commands:
           at: .
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: setup hosts
           command: |
@@ -871,6 +871,7 @@ commands:
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_OKTA_DODID_INPUT=false
             export FEATURE_FLAG_HEADQUARTERS_ROLE=false
+            export FEATURE_FLAG_SAFETY_MOVE=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -905,6 +906,7 @@ commands:
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
             FEATURE_FLAG_HEADQUARTERS_ROLE: 'false'
+            FEATURE_FLAG_SAFETY_MOVE: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -1170,14 +1172,14 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: scripts/check-generated-code yarn.lock
-      # `v3-cache-yarn-v3-{{ checksum "yarn.lock" }}` is used to cache yarn sources
+      # `v4-cache-yarn-v4-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
-          key: v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+          key: v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
       - announce_failure
@@ -1255,7 +1257,7 @@ jobs:
       - restore_cache_for_go
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - v1-pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -1567,7 +1569,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
@@ -1744,7 +1746,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
@@ -1902,7 +1904,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+            - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
