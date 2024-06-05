@@ -65,14 +65,14 @@ func (p *ppmShipmentRouter) Submit(appCtx appcontext.AppContext, ppmShipment *mo
 
 // SendToCustomer sets the PPM shipment to the WAITING_ON_CUSTOMER status
 func (p *ppmShipmentRouter) SendToCustomer(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
-	if ppmShipment.Status != models.PPMShipmentStatusSubmitted && ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+	if ppmShipment.Status != models.PPMShipmentStatusSubmitted && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout {
 		return apperror.NewConflictError(
 			ppmShipment.ID,
 			fmt.Sprintf(
 				"PPM shipment can't be set to %s because it's not in a %s or %s status.",
 				models.PPMShipmentStatusWaitingOnCustomer,
 				models.PPMShipmentStatusSubmitted,
-				models.PPMShipmentStatusNeedsPaymentApproval,
+				models.PPMShipmentStatusNeedsCloseout,
 			),
 		)
 	}
@@ -94,20 +94,20 @@ func (p *ppmShipmentRouter) SendToCustomer(appCtx appcontext.AppContext, ppmShip
 	return nil
 }
 
-// SubmitCloseOutDocumentation sets the PPM shipment to the NEEDS_PAYMENT_APPROVAL status
+// SubmitCloseOutDocumentation sets the PPM shipment to the NEEDS_CLOSEOUT status
 func (p *ppmShipmentRouter) SubmitCloseOutDocumentation(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	if ppmShipment.Status != models.PPMShipmentStatusWaitingOnCustomer {
 		return apperror.NewConflictError(
 			ppmShipment.ID,
 			fmt.Sprintf(
 				"PPM shipment can't be set to %s because it's not in the %s status.",
-				models.PPMShipmentStatusNeedsPaymentApproval,
+				models.PPMShipmentStatusNeedsCloseout,
 				models.PPMShipmentStatusWaitingOnCustomer,
 			),
 		)
 	}
 
-	ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 
 	if ppmShipment.SubmittedAt == nil {
 		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
@@ -116,14 +116,14 @@ func (p *ppmShipmentRouter) SubmitCloseOutDocumentation(_ appcontext.AppContext,
 	return nil
 }
 
-// SubmitReviewedDocuments sets the PPM shipment status to the PAYMENT_APPROVED if all docs approved otherwise WAITING_ON_CUSTOMER
+// SubmitReviewedDocuments sets the PPM shipment status to the CLOSEOUT_COMPLETE if all docs approved otherwise WAITING_ON_CUSTOMER
 func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
-	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+	if ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout {
 		return apperror.NewConflictError(
 			ppmShipment.ID,
 			fmt.Sprintf(
 				"PPM shipment documents cannot be submitted because it's not in the %s status.",
-				models.PPMShipmentStatusNeedsPaymentApproval,
+				models.PPMShipmentStatusNeedsCloseout,
 			),
 		)
 	}
@@ -159,7 +159,7 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 	if hasRejectedDocuments {
 		ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 	} else {
-		ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
+		ppmShipment.Status = models.PPMShipmentStatusCloseoutComplete
 	}
 
 	return nil
