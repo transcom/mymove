@@ -497,7 +497,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"90210", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
 			suite.Equal(unit.Cents(70064364), *ppmEstimate)
 		})
@@ -547,9 +546,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			estimatedIncentive, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
-			suite.Equal(oldPPMShipment.PickupPostalCode, newPPM.PickupPostalCode)
 			suite.Equal(*oldPPMShipment.EstimatedWeight, *newPPM.EstimatedWeight)
-			suite.Equal(oldPPMShipment.DestinationPostalCode, newPPM.DestinationPostalCode)
 			suite.True(oldPPMShipment.ExpectedDepartureDate.Equal(newPPM.ExpectedDepartureDate))
 			suite.Equal(*oldPPMShipment.EstimatedIncentive, *estimatedIncentive)
 			suite.Equal(models.BoolPointer(true), newPPM.HasRequestedAdvance)
@@ -569,8 +566,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				ShipmentID:            oldPPMShipment.ShipmentID,
 				Status:                models.PPMShipmentStatusPaymentApproved,
 				ExpectedDepartureDate: oldPPMShipment.ExpectedDepartureDate,
-				PickupPostalCode:      oldPPMShipment.PickupPostalCode,
-				DestinationPostalCode: "94040",
 				EstimatedWeight:       oldPPMShipment.EstimatedWeight,
 				SITExpected:           oldPPMShipment.SITExpected,
 				EstimatedIncentive:    models.CentPointer(unit.Cents(600000)),
@@ -585,7 +580,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
 			newPPM := oldPPMShipment
-			newPPM.DestinationPostalCode = "94040"
 			_, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NoError(err)
 			suite.Nil(newPPM.EstimatedIncentive)
@@ -1352,7 +1346,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &originLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1391,7 +1384,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &destinationLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1430,7 +1422,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &destinationLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1591,10 +1582,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			}, nil)
 			// PPM base shipment field changes will affect SIT pricing
 			shipmentDifferentPickup := originalShipment
-			shipmentDifferentPickup.PickupPostalCode = "90211"
 
 			shipmentDifferentDestination := originalShipment
-			shipmentDifferentDestination.DestinationPostalCode = "30814"
 
 			shipmentDifferentDeparture := originalShipment
 			// original date was Mar 15th so adding 3 months should affect the date peak period pricing

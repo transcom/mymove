@@ -50,8 +50,8 @@ func (f *estimatePPM) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppConte
 
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
 	return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) &&
-		newPPMShipment.PickupPostalCode == oldPPMShipment.PickupPostalCode &&
-		newPPMShipment.DestinationPostalCode == oldPPMShipment.DestinationPostalCode &&
+		newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode &&
+		newPPMShipment.DestinationAddress.PostalCode == oldPPMShipment.DestinationAddress.PostalCode &&
 		((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
 }
 
@@ -97,8 +97,8 @@ func shouldCalculateSITCost(newPPMShipment *models.PPMShipment, oldPPMShipment *
 		*newPPMShipment.SITEstimatedWeight != *oldPPMShipment.SITEstimatedWeight ||
 		*newPPMShipment.SITEstimatedEntryDate != *oldPPMShipment.SITEstimatedEntryDate ||
 		*newPPMShipment.SITEstimatedDepartureDate != *oldPPMShipment.SITEstimatedDepartureDate ||
-		newPPMShipment.PickupPostalCode != oldPPMShipment.PickupPostalCode ||
-		newPPMShipment.DestinationPostalCode != oldPPMShipment.DestinationPostalCode ||
+		newPPMShipment.PickupAddress.PostalCode != oldPPMShipment.PickupAddress.PostalCode ||
+		newPPMShipment.DestinationAddress.PostalCode != oldPPMShipment.DestinationAddress.PostalCode ||
 		newPPMShipment.ExpectedDepartureDate != oldPPMShipment.ExpectedDepartureDate
 }
 
@@ -247,8 +247,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Check different address values for a postal code
 	if ppmShipment.ActualPickupPostalCode != nil {
 		pickupPostal = *ppmShipment.ActualPickupPostalCode
-	} else if ppmShipment.PickupPostalCode != "" {
-		pickupPostal = ppmShipment.PickupPostalCode
 	} else if ppmShipment.PickupAddress.PostalCode != "" {
 		pickupPostal = ppmShipment.PickupAddress.PostalCode
 	}
@@ -256,8 +254,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Same for destination
 	if ppmShipment.ActualDestinationPostalCode != nil {
 		destPostal = *ppmShipment.ActualDestinationPostalCode
-	} else if ppmShipment.DestinationPostalCode != "" {
-		destPostal = ppmShipment.DestinationPostalCode
 	} else if ppmShipment.DestinationAddress.PostalCode != "" {
 		destPostal = ppmShipment.DestinationAddress.PostalCode
 	}
@@ -394,9 +390,9 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 		return nil, errors.New("ppm estimate pricer for SIT service item does not implement the first day pricer interface")
 	}
 
-	serviceAreaPostalCode := ppmShipment.PickupPostalCode
+	serviceAreaPostalCode := ppmShipment.PickupAddress.PostalCode
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-		serviceAreaPostalCode = ppmShipment.DestinationPostalCode
+		serviceAreaPostalCode = ppmShipment.DestinationAddress.PostalCode
 	}
 
 	serviceAreaLookup := serviceparamvaluelookups.ServiceAreaLookup{
@@ -433,9 +429,9 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 		return nil, errors.New("ppm estimate pricer for SIT service item does not implement the additional days pricer interface")
 	}
 
-	serviceAreaPostalCode := ppmShipment.PickupPostalCode
+	serviceAreaPostalCode := ppmShipment.PickupAddress.PostalCode
 	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
-		serviceAreaPostalCode = ppmShipment.DestinationPostalCode
+		serviceAreaPostalCode = ppmShipment.DestinationAddress.PostalCode
 	}
 	serviceAreaLookup := serviceparamvaluelookups.ServiceAreaLookup{
 		Address: models.Address{PostalCode: serviceAreaPostalCode},
@@ -462,8 +458,8 @@ func MapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShi
 
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupPostalCode}
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationPostalCode}
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode}
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode}
 	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
 
 	return ppmShipment.Shipment

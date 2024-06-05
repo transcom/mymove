@@ -147,8 +147,6 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 
 	suite.Run("CheckRequiredFields()", func() {
 		expectedTime := time.Now()
-		pickupPostal := "99999"
-		destPostalcode := "99999"
 		sitExpected := false
 		shipmentID := uuid.Must(uuid.NewV4())
 
@@ -156,8 +154,6 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			newPPMShipment := models.PPMShipment{
 				ShipmentID:            shipmentID,
 				ExpectedDepartureDate: expectedTime,
-				PickupPostalCode:      pickupPostal,
-				DestinationPostalCode: destPostalcode,
 				SITExpected:           &sitExpected,
 			}
 
@@ -175,42 +171,16 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 				{
 					"Missing expected departure date",
 					models.PPMShipment{
-						ShipmentID:            shipmentID,
-						PickupPostalCode:      pickupPostal,
-						DestinationPostalCode: destPostalcode,
-						SITExpected:           &sitExpected,
+						ShipmentID:  shipmentID,
+						SITExpected: &sitExpected,
 					},
 					"expectedDepartureDate",
 					"cannot be a zero value"},
-				{
-					"Missing pickup postal code",
-					models.PPMShipment{
-						ShipmentID:            shipmentID,
-						ExpectedDepartureDate: expectedTime,
-						DestinationPostalCode: destPostalcode,
-						SITExpected:           &sitExpected,
-					},
-					"pickupPostalCode",
-					"cannot be nil or empty",
-				},
-				{
-					"Missing destination postal code",
-					models.PPMShipment{
-						ShipmentID:            shipmentID,
-						ExpectedDepartureDate: expectedTime,
-						PickupPostalCode:      pickupPostal,
-						SITExpected:           &sitExpected,
-					},
-					"destinationPostalCode",
-					"cannot be nil or empty",
-				},
 				{
 					"Missing SIT Expected value",
 					models.PPMShipment{
 						ShipmentID:            shipmentID,
 						ExpectedDepartureDate: expectedTime,
-						PickupPostalCode:      pickupPostal,
-						DestinationPostalCode: destPostalcode,
 						SITExpected:           nil,
 					},
 					"sitExpected",
