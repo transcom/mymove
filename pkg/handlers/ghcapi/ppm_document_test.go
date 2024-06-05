@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment = factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
@@ -238,7 +238,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment = factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
@@ -454,7 +454,7 @@ func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
 		_, params := setUpRequestAndParams(ppmShipment, true)
 
 		expectedPPMShipment := ppmShipment
-		expectedPPMShipment.Status = models.PPMShipmentStatusPaymentApproved
+		expectedPPMShipment.Status = models.PPMShipmentStatusCloseoutComplete
 
 		suite.FatalNotNil(expectedPPMShipment.SubmittedAt)
 
@@ -481,7 +481,32 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-	reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter)
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
 
 	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
 		endpoint := fmt.Sprintf(
@@ -519,7 +544,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not awaiting payment review", func() {
-		draftPpmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		draftPpmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		draftPpmShipment.Status = models.PPMShipmentStatusDraft
 		suite.NoError(suite.DB().Save(&draftPpmShipment))
 
@@ -531,7 +556,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
 
@@ -544,13 +569,13 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
 
 			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
-			suite.Equal(string(models.PPMShipmentStatusPaymentApproved), string(returnedPPMShipment.Status))
+			suite.Equal(string(models.PPMShipmentStatusCloseoutComplete), string(returnedPPMShipment.Status))
 		}
 	})
 
 	suite.Run("Sets PPM to await customer if there are rejected documents", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
-		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		suite.NoError(suite.DB().Save(&ppmShipment))
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
