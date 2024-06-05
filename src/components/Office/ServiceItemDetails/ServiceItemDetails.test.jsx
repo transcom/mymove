@@ -62,6 +62,7 @@ const details = {
     state: 'FL',
     streetAddress1: 'MacDill',
   },
+  estimatedPrice: 2800,
 };
 
 const submittedServiceItemDetails = {
@@ -404,4 +405,44 @@ describe('ServiceItemDetails Crating Rejected', () => {
     const downloadLink = screen.getByText('receipt.pdf');
     expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
   });
+});
+
+describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK', () => {
+  it.each([['DLH'], ['DSH'], ['FSC'], ['DOP'], ['DDP'], ['DPK'], ['DUPK']])(
+    'renders the formatted estimated price field for the service items',
+    (code) => {
+      render(
+        <ServiceItemDetails
+          id="1"
+          code={code}
+          details={details}
+          shipment={shipment}
+          serviceRequestDocs={serviceRequestDocs}
+        />,
+      );
+
+      expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
+      expect(screen.getByText('$28.00')).toBeInTheDocument();
+    },
+  );
+
+  const noEstimatePriceDetails = {};
+
+  it.each([['DLH'], ['DSH'], ['FSC'], ['DOP'], ['DDP'], ['DPK'], ['DUPK']])(
+    'renders - for estimated price when price is not in details',
+    (code) => {
+      render(
+        <ServiceItemDetails
+          id="1"
+          code={code}
+          details={noEstimatePriceDetails}
+          shipment={shipment}
+          serviceRequestDocs={serviceRequestDocs}
+        />,
+      );
+
+      expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
+      expect(screen.getByText('-')).toBeInTheDocument();
+    },
+  );
 });
