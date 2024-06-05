@@ -24,7 +24,7 @@ Default.args = {
   sectionInfo,
   onClose: action('onClose'),
   onSubmit: action('onSubmit'),
-  editSectionName: 'actualMoveDate',
+  editItemName: 'actualMoveDate',
 };
 
 export const EditShipmentInfo = Basic.bind({});
@@ -33,7 +33,7 @@ EditShipmentInfo.args = {
   sectionInfo,
   onClose: action('onClose'),
   onSubmit: action('onSubmit'),
-  editSectionName: 'actualMoveDate',
+  editItemName: 'actualMoveDate',
 };
 
 export const EditIncentives = Basic.bind({});
@@ -42,5 +42,5 @@ EditIncentives.args = {
   sectionInfo,
   onClose: action('onClose'),
   onSubmit: action('onSubmit'),
-  editSectionName: 'advanceAmountReceived',
+  editItemName: 'advanceAmountReceived',
 };
