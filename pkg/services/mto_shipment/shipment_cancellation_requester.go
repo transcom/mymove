@@ -38,10 +38,10 @@ func (f *shipmentCancellationRequester) RequestShipmentCancellation(appCtx appco
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	today := time.Now()
+	requestedCancellationDate := time.Now()
 	// Cancellation Request can only be made before the move's actual pickup date
-	if shipment.ActualPickupDate.After(today) || shipment.ActualPickupDate.Day() == today.Day() {
-		return &models.MTOShipment{}, apperror.NewUpdateError(shipmentID, "cancellation request date cannot be on or after actual pick update")
+	if shipment.ActualPickupDate.Before(requestedCancellationDate) || shipment.ActualPickupDate.Day() == requestedCancellationDate.Day() {
+		return &models.MTOShipment{}, apperror.NewUpdateError(shipmentID, "cancellation request date cannot be on or after actual pickup date")
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
