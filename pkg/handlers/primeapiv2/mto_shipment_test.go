@@ -145,10 +145,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		counselorRemarks := "Some counselor remarks"
 		expectedDepartureDate := time.Now().AddDate(0, 0, 10)
-		pickupPostalCode := "30907"
-		secondaryPickupPostalCode := "30809"
-		destinationPostalCode := "29212"
-		secondaryDestinationPostalCode := "29201"
 		sitExpected := true
 		sitLocation := primev2messages.SITLocationTypeDESTINATION
 		sitEstimatedWeight := unit.Pound(1500)
@@ -168,20 +164,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				ShipmentType:     primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypePPM),
 				CounselorRemarks: &counselorRemarks,
 				PpmShipment: &primev2messages.CreatePPMShipment{
-					ExpectedDepartureDate:          handlers.FmtDate(expectedDepartureDate),
-					PickupPostalCode:               &pickupPostalCode,
-					SecondaryPickupPostalCode:      &secondaryPickupPostalCode,
-					DestinationPostalCode:          &destinationPostalCode,
-					SecondaryDestinationPostalCode: &secondaryDestinationPostalCode,
-					SitExpected:                    &sitExpected,
-					SitLocation:                    &sitLocation,
-					SitEstimatedWeight:             handlers.FmtPoundPtr(&sitEstimatedWeight),
-					SitEstimatedEntryDate:          handlers.FmtDate(sitEstimatedEntryDate),
-					SitEstimatedDepartureDate:      handlers.FmtDate(sitEstimatedDepartureDate),
-					EstimatedWeight:                handlers.FmtPoundPtr(&estimatedWeight),
-					HasProGear:                     &hasProGear,
-					ProGearWeight:                  handlers.FmtPoundPtr(&proGearWeight),
-					SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
+					ExpectedDepartureDate:     handlers.FmtDate(expectedDepartureDate),
+					SitExpected:               &sitExpected,
+					SitLocation:               &sitLocation,
+					SitEstimatedWeight:        handlers.FmtPoundPtr(&sitEstimatedWeight),
+					SitEstimatedEntryDate:     handlers.FmtDate(sitEstimatedEntryDate),
+					SitEstimatedDepartureDate: handlers.FmtDate(sitEstimatedDepartureDate),
+					EstimatedWeight:           handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:                &hasProGear,
+					ProGearWeight:             handlers.FmtPoundPtr(&proGearWeight),
+					SpouseProGearWeight:       handlers.FmtPoundPtr(&spouseProGearWeight),
 				},
 			},
 		}
@@ -213,10 +205,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
 		suite.Equal(primev2messages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), createdPPM.ExpectedDepartureDate)
-		suite.Equal(&pickupPostalCode, createdPPM.PickupPostalCode)
-		suite.Equal(&secondaryPickupPostalCode, createdPPM.SecondaryPickupPostalCode)
-		suite.Equal(&destinationPostalCode, createdPPM.DestinationPostalCode)
-		suite.Equal(&secondaryDestinationPostalCode, createdPPM.SecondaryDestinationPostalCode)
 		suite.Equal(&sitExpected, createdPPM.SitExpected)
 		suite.Equal(&sitLocation, createdPPM.SitLocation)
 		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), createdPPM.SitEstimatedWeight)
