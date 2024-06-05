@@ -775,7 +775,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualPickupPostalCode:      models.StringPointer("50309"),
 						ActualDestinationPostalCode: models.StringPointer("30813"),
 						ActualMoveDate:              models.TimePointer(moveDate),
 						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
@@ -838,7 +838,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualPickupPostalCode:      models.StringPointer("50309"),
 						ActualDestinationPostalCode: models.StringPointer("30813"),
 						ActualMoveDate:              models.TimePointer(moveDate),
 						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
