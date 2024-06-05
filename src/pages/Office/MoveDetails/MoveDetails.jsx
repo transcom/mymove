@@ -55,12 +55,14 @@ const MoveDetails = ({
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
+  isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+
   const navigate = useNavigate();
 
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
@@ -339,6 +341,7 @@ const MoveDetails = ({
                 <FinancialReviewButton
                   onClick={handleShowFinancialReviewModal}
                   reviewRequested={move.financialReviewFlag}
+                  isMoveLocked={isMoveLocked}
                 />
               </div>
             </Restricted>
@@ -377,6 +380,7 @@ const MoveDetails = ({
                 errorIfMissing={errorIfMissing}
                 displayDestinationType={isRetirementOrSeparation}
                 mtoServiceItems={mtoServiceItems}
+                isMoveLocked={isMoveLocked}
               />
             </div>
           )}
@@ -389,6 +393,7 @@ const MoveDetails = ({
                 mtoServiceItems={mtoServiceItems}
                 moveCode={moveCode}
                 displayDestinationType={isRetirementOrSeparation}
+                isMoveLocked={isMoveLocked}
               />
             </div>
           )}
@@ -405,9 +410,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
-                    Edit orders
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
+                      Edit orders
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -427,9 +434,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
-                    Edit allowances
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
+                      Edit allowances
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -442,13 +451,15 @@ const MoveDetails = ({
               title="Customer info"
               editButton={
                 <Restricted to={permissionTypes.updateCustomer}>
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    data-testid="edit-customer-info"
-                    to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
-                  >
-                    Edit customer info
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link
+                      className="usa-button usa-button--secondary"
+                      data-testid="edit-customer-info"
+                      to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                    >
+                      Edit customer info
+                    </Link>
+                  )}
                 </Restricted>
               }
             >

@@ -15,7 +15,13 @@ import { ShipmentOptionsOneOf } from 'types/shipment';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, handleRequestReweighModal }) => {
+const ShipmentWeightDetails = ({
+  estimatedWeight,
+  initialWeight,
+  shipmentInfo,
+  handleRequestReweighModal,
+  isMoveLocked,
+}) => {
   const emDash = '\u2014';
   const lowestWeight = returnLowestValue(initialWeight, shipmentInfo.reweighWeight);
   const shipmentIsPPM = shipmentInfo.shipmentType === SHIPMENT_OPTIONS.PPM;
@@ -27,7 +33,12 @@ const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, h
         <div className={styles.rightAlignButtonWrapper}>
           <Restricted to={permissionTypes.createReweighRequest}>
             <Restricted to={permissionTypes.updateMTOPage}>
-              <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
+              <Button
+                type="button"
+                onClick={() => handleRequestReweighModal(shipmentInfo)}
+                unstyled
+                disabled={isMoveLocked}
+              >
                 Request reweigh
               </Button>
             </Restricted>

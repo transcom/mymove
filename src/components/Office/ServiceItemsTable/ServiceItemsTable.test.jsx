@@ -625,4 +625,38 @@ describe('ServiceItemsTable', () => {
 
     expect(defaultProps.handleUpdateMTOServiceItemStatus).toHaveBeenCalledWith('abc123', 'xyz789', 'APPROVED');
   });
+
+  it('disables the accept button when the move is locked', () => {
+    const serviceItems = [
+      {
+        id: 'dlh123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic linehaul',
+        code: 'DLH',
+        details: {
+          rejectionReason:
+            'Any reason other than "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."',
+        },
+      },
+    ];
+
+    const isMoveLocked = true;
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem, permissionTypes.updateMTOPage]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+          isMoveLocked={isMoveLocked}
+        />
+      </MockProviders>,
+    );
+
+    // approve button shows up but is disabled
+    const approveTextButton = wrapper.find('button[data-testid="approveTextButton"]');
+    expect(approveTextButton.length).toBeTruthy();
+    expect(wrapper.find('button[data-testid="approveTextButton"]').prop('disabled')).toBe(true);
+  });
 });
