@@ -174,7 +174,7 @@ export default function ReviewDocumentsSidePanel({
                 : null}
               {expenseTickets.length > 0
                 ? expenseSetProjection(expenseTickets).map((exp) => {
-                    if (exp.movingExpenseType !== expenseTypes.STORAGE && exp.status === PPMDocumentsStatus.APPROVED) {
+                    if (exp.status === PPMDocumentsStatus.APPROVED) {
                       total += exp.amount;
                     }
                     return (
