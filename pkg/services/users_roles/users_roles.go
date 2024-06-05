@@ -120,7 +120,7 @@ func (u usersRolesCreator) removeUserRoles(appCtx appcontext.AppContext, userID 
 	//FROM roles r
 	//		LEFT JOIN users_roles ur ON r.id = ur.role_id
 	//	AND ur.user_id = '3b9360a3-3304-4c60-90f4-83d687884079'
-	//WHERE role_type NOT IN ('transportation_ordering_officer', 'contracting_officer')
+	//WHERE role_type NOT IN ('task_ordering_officer', 'contracting_officer')
 	//	AND ur.user_id IS NOT NULL;
 	var userRolesToDelete []models.UsersRoles
 	if len(rs) > 0 {
