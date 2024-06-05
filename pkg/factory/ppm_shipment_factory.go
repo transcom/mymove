@@ -232,6 +232,8 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader, customs)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
+	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupAddress.PostalCode
+	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationAddress.PostalCode
 
 	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
 		ppmShipment.HasReceivedAdvance = models.BoolPointer(true)
