@@ -12,7 +12,7 @@ export const FEEDBACK_DOCUMENT_TYPES = {
 const feedbackDisplayHelperTrip = (documentSet) => {
   return documentSet?.some(
     (doc) =>
-      (doc.status !== ppms.APPROVED && doc.status !== null) ||
+      (doc.status !== null && doc.status !== ppms.APPROVED) ||
       doc.submittedEmptyWeight !== doc.emptyWeight ||
       doc.submittedFullWeight !== doc.fullWeight ||
       doc.submittedOwnsTrailer !== doc.ownsTrailer ||
@@ -23,7 +23,7 @@ const feedbackDisplayHelperTrip = (documentSet) => {
 const feedbackDisplayHelperProGear = (documentSet) => {
   return documentSet?.some(
     (doc) =>
-      (doc.status !== ppms.APPROVED && doc.status !== null) ||
+      (doc.status !== null && doc.status !== ppms.APPROVED) ||
       doc.submittedBelongsToSelf !== doc.belongsToSelf ||
       doc.submittedHasWeightTickets !== doc.hasWeightTickets ||
       doc.submittedWeight !== doc.weight,
@@ -33,7 +33,7 @@ const feedbackDisplayHelperProGear = (documentSet) => {
 const feedbackDisplayHelperExpense = (documentSet) => {
   return documentSet?.some(
     (doc) =>
-      (doc.status !== ppms.APPROVED && doc.status !== null) ||
+      (doc.status !== null && doc.status !== ppms.APPROVED) ||
       doc.submittedAmount !== doc.amount ||
       doc.submittedDescription !== doc.description ||
       doc.submittedMovingExpenseType !== doc.movingExpenseType ||
