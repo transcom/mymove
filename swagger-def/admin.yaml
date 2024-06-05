@@ -791,7 +791,7 @@ definitions:
         title: name
       roleType:
         type: string
-        example: 'transportation_ordering_officer'
+        example: 'task_ordering_officer'
         x-nullable: true
         title: roleType
   OfficeUserPrivilege:
