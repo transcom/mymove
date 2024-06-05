@@ -814,13 +814,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813").Return(2294, nil)
+				"50309", "30813").Return(2294, nil)
 
 			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
 
 			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813")
+				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
@@ -884,13 +884,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813").Return(2294, nil)
+				"50309", "30813").Return(2294, nil)
 
 			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
 
 			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813")
+				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
@@ -907,7 +907,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualPickupPostalCode:      models.StringPointer("50309"),
 						ActualDestinationPostalCode: models.StringPointer("30813"),
 						ActualMoveDate:              models.TimePointer(moveDate),
 						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
