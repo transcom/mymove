@@ -80,6 +80,7 @@ func (suite *TransportationAccountingCodeServiceSuite) TestFetchOrderTransportat
 			// The LOA service object uses this service as the line of accounting
 			// is attached to a transportation accounting code.
 			suite.NotNil(tacs[0].LineOfAccounting)
+			suite.Equal(loa.LoaSysID, tacs[0].LineOfAccounting.LoaSysID)
 		}
 	})
 }

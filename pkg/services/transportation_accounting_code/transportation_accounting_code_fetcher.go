@@ -1,6 +1,7 @@
 package transportationaccountingcode
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -48,6 +49,23 @@ func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingC
 	}
 	if err != nil {
 		return []models.TransportationAccountingCode{}, err
+	}
+	// Grab the associated LOAs
+	for _, tac := range tacs {
+		var loa models.LineOfAccounting
+		// Find the LOA for this TAC's loa_sys_id
+		if tac.LoaSysID != nil {
+			err = appCtx.DB().Where("loa_sys_id = ?", tac.LoaSysID).First(&loa)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					continue
+				default:
+					return []models.TransportationAccountingCode{}, err
+				}
+			}
+			*tac.LineOfAccounting = loa
+		}
 	}
 	return tacs, nil
 }
