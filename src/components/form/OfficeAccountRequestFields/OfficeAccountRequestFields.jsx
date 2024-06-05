@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { func } from 'prop-types';
 import { Fieldset } from '@trussworks/react-uswds';
 
@@ -6,7 +6,6 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField, DutyLocationInput } from 'components/form/fields';
 import { searchTransportationOfficesOpen } from 'services/ghcApi';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const OfficeAccountRequestFields = ({ render }) => {
   const firstNameFieldName = 'officeAccountRequestFirstName';
@@ -17,15 +16,9 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
-  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
-
-  useEffect(() => {
-    // checking feature flag to see if HQ role should be available
-    const fetchData = async () => {
-      setHeadquartersRoleFF(await isBooleanFlagEnabled('headquarters_role'));
-    };
-    fetchData();
-  }, []);
+ 
+  // Since we cannot currently get feature flags while unauthenticated, we hard code the FF off until its ready
+  const isHeadquartersRoleFF = false;
 
   return (
     <Fieldset>

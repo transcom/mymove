@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
@@ -9,20 +9,12 @@ import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAcco
 import { createOfficeAccountRequest } from 'services/ghcApi';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { generalRoutes } from 'constants/routes';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
-  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
-
-  useEffect(() => {
-    // checking feature flag to see if HQ role should be available
-    const fetchData = async () => {
-      setHeadquartersRoleFF(await isBooleanFlagEnabled('headquarters_role'));
-    };
-    fetchData();
-  }, []);
+  // Since we cannot currently get feature flags while unauthenticated, we hard code the FF off until its ready
+  const isHeadquartersRoleFF = false; 
 
   const initialValues = {
     officeAccountRequestFirstName: '',
