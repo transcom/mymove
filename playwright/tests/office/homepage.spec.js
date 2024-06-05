@@ -63,7 +63,7 @@ test.describe('Office authorization', () => {
   test.describe('multiple role selection', () => {
     test('can switch between TOO & TIO roles', async ({ page, officePage }) => {
       await officePage.signInAsNewTIOAndTOOUser();
-      // await expect(page.getByText('All moves')).toBeVisible(); // TOO home
+      await expect(page.getByText('All moves')).toBeVisible(); // TOO home
       await page.getByText('Change user role').click();
       expect(page.url()).toContain('/select-application');
       await page.getByText('Select task_invoicing_officer').click();
