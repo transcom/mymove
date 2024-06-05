@@ -294,7 +294,7 @@ describe('Office App', () => {
       [
         'Prime Simulator Create Payment Request as QAE',
         '/simulator/moves/test123/payment-requests/new',
-        roleTypes.QAE_CSR,
+        roleTypes.QAE,
       ],
       [
         'Prime Simulator Upload Payment Request Documents as QAE',
