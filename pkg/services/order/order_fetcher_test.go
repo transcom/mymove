@@ -1722,7 +1722,6 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
-	postalCode := "90210"
 	partialPPMType := models.MovePPMTypePARTIAL
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -1738,9 +1737,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 			},
 		},
 		{
-			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
-			},
+			Model: models.PPMShipment{},
 		},
 	}, nil)
 	// Make a TOO user.
@@ -1754,7 +1751,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	}
 
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupAddress.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
@@ -1764,7 +1761,6 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment() {
-	postalCode := "90210"
 	deletedAt := time.Now()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -1775,9 +1771,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	}, nil)
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
-			},
+			Model: models.PPMShipment{},
 		},
 	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -1815,7 +1809,6 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmentButOtherExists() {
-	postalCode := "90210"
 	deletedAt := time.Now()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -1832,8 +1825,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		},
 		{
 			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
-				CreatedAt:        time.Now(),
+				CreatedAt: time.Now(),
 			},
 		},
 	}, nil)
@@ -1845,8 +1837,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		},
 		{
 			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
-				CreatedAt:        time.Now().Add(time.Minute * time.Duration(1)),
+				CreatedAt: time.Now().Add(time.Minute * time.Duration(1)),
 			},
 		},
 	}, nil)

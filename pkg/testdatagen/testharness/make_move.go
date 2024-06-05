@@ -4327,8 +4327,6 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}

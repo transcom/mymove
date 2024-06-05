@@ -1956,9 +1956,7 @@ definitions:
         type: boolean
     required:
       - expectedDepartureDate
-      - pickupPostalCode
       - pickupAddress
-      - destinationPostalCode
       - destinationAddress
       - sitExpected
   UpdatePPMShipment:
@@ -1974,22 +1972,8 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
@@ -2006,21 +1990,8 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
@@ -3202,27 +3173,8 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      pickupPostalCode:
-        description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
@@ -3243,28 +3195,8 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
-          delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -3428,8 +3360,6 @@ definitions:
       - createdAt
       - status
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - eTag
   PpmID:

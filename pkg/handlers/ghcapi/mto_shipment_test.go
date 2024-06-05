@@ -3556,10 +3556,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.NotZero(ppmPayload.ID)
 			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
 			suite.EqualDatePtr(expectedDepartureDate, ppmPayload.ExpectedDepartureDate)
-			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupPostalCode)
-			suite.Equal(&expectedSecondaryPickupAddress.PostalCode, ppmPayload.SecondaryPickupPostalCode)
-			suite.Equal(expectedDestinationAddress.PostalCode, *ppmPayload.DestinationPostalCode)
-			suite.Equal(&expectedSecondaryDestinationAddress.PostalCode, ppmPayload.SecondaryDestinationPostalCode)
+			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupAddress.PostalCode)
+			suite.Equal(&expectedSecondaryPickupAddress.PostalCode, ppmPayload.SecondaryPickupAddress.PostalCode)
+			suite.Equal(expectedDestinationAddress.PostalCode, *ppmPayload.DestinationAddress.PostalCode)
+			suite.Equal(&expectedSecondaryDestinationAddress.PostalCode, ppmPayload.SecondaryDestinationAddress.PostalCode)
 			suite.NotNil(ppmPayload.PickupAddress)
 			suite.NotNil(ppmPayload.DestinationAddress)
 			suite.NotNil(ppmPayload.SecondaryPickupAddress)
@@ -3708,8 +3708,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.NotZero(ppmPayload.ID)
 			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
 			suite.EqualDatePtr(expectedDepartureDate, ppmPayload.ExpectedDepartureDate)
-			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupPostalCode)
-			suite.Equal(expectedDestinationAddress.PostalCode, *ppmPayload.DestinationPostalCode)
+			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupAddress.PostalCode)
+			suite.Equal(expectedDestinationAddress.PostalCode, *ppmPayload.DestinationAddress.PostalCode)
 			suite.Nil(ppmPayload.SecondaryPickupAddress)
 			suite.Nil(ppmPayload.SecondaryDestinationAddress)
 			suite.Equal(sitExpected, *ppmPayload.SitExpected)
@@ -3850,8 +3850,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			suite.NotZero(ppmPayload.ID)
 			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
 			suite.EqualDatePtr(expectedDepartureDate, ppmPayload.ExpectedDepartureDate)
-			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupPostalCode)
-			suite.Equal(expectedDestinationAddress.PostalCode, *ppmPayload.DestinationPostalCode)
+			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupAddress.PostalCode)
+			suite.Equal(expectedDestinationAddress.PostalCode, *ppmPayload.DestinationAddress.PostalCode)
 			suite.Nil(ppmPayload.SecondaryPickupAddress)
 			suite.Nil(ppmPayload.SecondaryDestinationAddress)
 			suite.Equal(sitExpected, *ppmPayload.SitExpected)
@@ -4183,10 +4183,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(expectedSecondaryPickupAddressStreet3, *updatedShipment.PpmShipment.SecondaryPickupAddress.StreetAddress3)
 		suite.Equal(expectedDestinationAddressStreet3, *updatedShipment.PpmShipment.DestinationAddress.StreetAddress3)
 		suite.Equal(expectedSecondaryDestinationAddressStreet3, *updatedShipment.PpmShipment.SecondaryDestinationAddress.StreetAddress3)
-		suite.Equal(pickupAddress.PostalCode, updatedShipment.PpmShipment.PickupPostalCode)
-		suite.Equal(secondaryPickupAddress.PostalCode, updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-		suite.Equal(destinationAddress.PostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
-		suite.Equal(secondaryDestinationAddress.PostalCode, updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+		suite.Equal(pickupAddress.PostalCode, updatedShipment.PpmShipment.PickupAddress.PostalCode)
+		suite.Equal(secondaryPickupAddress.PostalCode, updatedShipment.PpmShipment.SecondaryPickupAddress.PostalCode)
+		suite.Equal(destinationAddress.PostalCode, updatedShipment.PpmShipment.DestinationAddress.PostalCode)
+		suite.Equal(secondaryDestinationAddress.PostalCode, updatedShipment.PpmShipment.SecondaryDestinationAddress.PostalCode)
 
 		suite.Equal(sitExpected, *updatedShipment.PpmShipment.SitExpected)
 		suite.Equal(&sitLocation, updatedShipment.PpmShipment.SitLocation)
@@ -4229,8 +4229,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		// we expect initial setup data to have no secondary addresses
 		suite.NotNil(ppmShipment.SecondaryPickupAddress)
 		suite.NotNil(ppmShipment.SecondaryDestinationAddress)
-		suite.NotNil(ppmShipment.SecondaryPickupPostalCode)
-		suite.NotNil(ppmShipment.SecondaryDestinationPostalCode)
 
 		estimatedIncentive := 654321
 		sitEstimatedCost := 67500
@@ -4270,8 +4268,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		// expect secondary addresses to be deleted
 		suite.Nil(updatedShipment.PpmShipment.SecondaryPickupAddress)
 		suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationAddress)
-		suite.Nil(updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-		suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+		suite.Nil(updatedShipment.PpmShipment.SecondaryPickupAddress.PostalCode)
+		suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationAddress.PostalCode)
 
 		suite.False(*updatedShipment.PpmShipment.HasSecondaryPickupAddress)
 		suite.False(*updatedShipment.PpmShipment.HasSecondaryDestinationAddress)
@@ -4305,8 +4303,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		// we expect initial setup data to have no secondary addresses
 		suite.NotNil(ppmShipment.SecondaryPickupAddress)
 		suite.NotNil(ppmShipment.SecondaryDestinationAddress)
-		suite.NotNil(ppmShipment.SecondaryPickupPostalCode)
-		suite.NotNil(ppmShipment.SecondaryDestinationPostalCode)
 
 		estimatedIncentive := 654321
 		sitEstimatedCost := 67500
@@ -4345,8 +4341,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		// expect secondary addresses not to be deleted
 		suite.NotNil(updatedShipment.PpmShipment.SecondaryPickupAddress)
 		suite.NotNil(updatedShipment.PpmShipment.SecondaryDestinationAddress)
-		suite.NotNil(updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-		suite.NotNil(updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
+		suite.NotNil(updatedShipment.PpmShipment.SecondaryPickupAddress.PostalCode)
+		suite.NotNil(updatedShipment.PpmShipment.SecondaryDestinationAddress.PostalCode)
 
 		suite.True(*updatedShipment.PpmShipment.HasSecondaryPickupAddress)
 		suite.True(*updatedShipment.PpmShipment.HasSecondaryDestinationAddress)

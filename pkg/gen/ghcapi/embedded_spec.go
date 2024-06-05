@@ -8885,8 +8885,6 @@ func init() {
         "createdAt",
         "status",
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "eTag"
       ],
@@ -8950,14 +8948,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -9036,14 +9026,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -9077,16 +9059,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "allOf": [
             {
@@ -9099,15 +9071,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",
@@ -22021,8 +21984,6 @@ func init() {
         "createdAt",
         "status",
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "eTag"
       ],
@@ -22086,14 +22047,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -22172,14 +22125,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -22213,16 +22158,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "allOf": [
             {
@@ -22235,15 +22170,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",
