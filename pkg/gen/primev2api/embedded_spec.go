@@ -154,11 +154,9 @@ func init() {
                   "value": {
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
                     "ppmShipment": {
-                      "destinationPostalCode": "10001",
                       "estimatedWeight": 4999,
                       "expectedDepartureDate": "2022-10-01",
                       "hasProGear": false,
-                      "pickupPostalCode": "90210",
                       "sitExpected": false
                     },
                     "shipmentType": "PPM"
@@ -614,21 +612,11 @@ func init() {
       "type": "object",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "estimatedWeight": {
           "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
@@ -643,35 +631,10 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true
-        },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "secondaryPickupPostalCode": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "sitEstimatedDepartureDate": {
           "description": "The date that goods will exit the storage location.",
@@ -3195,15 +3158,6 @@ func init() {
       "description": "The PPM specific fields of the shipment with values being changed",
       "type": "object",
       "properties": {
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "estimatedWeight": {
           "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
@@ -3221,34 +3175,10 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true
-        },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "secondaryPickupPostalCode": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "sitEstimatedDepartureDate": {
           "description": "The date that goods will exit the storage location.",
@@ -3623,11 +3553,9 @@ func init() {
                   "value": {
                     "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
                     "ppmShipment": {
-                      "destinationPostalCode": "10001",
                       "estimatedWeight": 4999,
                       "expectedDepartureDate": "2022-10-01",
                       "hasProGear": false,
-                      "pickupPostalCode": "90210",
                       "sitExpected": false
                     },
                     "shipmentType": "PPM"
@@ -4120,21 +4048,11 @@ func init() {
       "type": "object",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "estimatedWeight",
         "hasProGear"
       ],
       "properties": {
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "estimatedWeight": {
           "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
@@ -4149,35 +4067,10 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
           "x-nullable": true
-        },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "secondaryPickupPostalCode": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "sitEstimatedDepartureDate": {
           "description": "The date that goods will exit the storage location.",
@@ -6703,15 +6596,6 @@ func init() {
       "description": "The PPM specific fields of the shipment with values being changed",
       "type": "object",
       "properties": {
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "estimatedWeight": {
           "description": "The estimated weight of the PPM shipment goods being moved.",
           "type": "integer",
@@ -6729,34 +6613,10 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
           "x-nullable": true
-        },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "secondaryPickupPostalCode": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "sitEstimatedDepartureDate": {
           "description": "The date that goods will exit the storage location.",
