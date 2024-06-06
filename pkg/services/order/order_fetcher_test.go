@@ -362,6 +362,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Under test: ListOrders
 		// Set up:           Make 2 moves, with different ppm types, and search for both types
 		// Expected outcome: search results should only include the move with the PPM type that was searched for
+		postalCode := "50309"
 		officeUser, partialPPMMove, session := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
 		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
@@ -370,6 +371,12 @@ func (suite *OrderServiceSuite) TestListOrders() {
 					PPMType: models.StringPointer("FULL"),
 					Locator: "FULLLL",
 				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
 		})
 		fullPPMMove := ppmShipment.Shipment.MoveTaskOrder
@@ -430,6 +437,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Set up:           Make 2 moves with PPM shipments ready for closeout, with different submitted_at times,
 		//                   and search for a specific move
 		// Expected outcome: Only the one move with the right date should be returned
+		postalCode := "50309"
 		officeUser, _, session := setupTestData()
 
 		// Create a PPM submitted on April 1st
@@ -439,6 +447,12 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
 				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
 		})
 
@@ -468,6 +482,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Set up:           Make one move with multiple ppm shipments with different closeout initiated times, and
 		//                   search for multiple different times
 		// Expected outcome: Only a search for the latest of the closeout dates should find the move
+		postalCode := "50309"
 		officeUser, _, session := setupTestData()
 
 		// Create a PPM submitted on April 1st
@@ -477,6 +492,12 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
 				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
 		})
 		// Add another PPM for the same move submitted on April 1st
@@ -1722,6 +1743,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
+	postalCode := "50309"
 	partialPPMType := models.MovePPMTypePARTIAL
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -1737,7 +1759,10 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 			},
 		},
 		{
-			Model: models.PPMShipment{},
+			Model: models.Address{
+				PostalCode: postalCode,
+			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 	// Make a TOO user.
@@ -1761,6 +1786,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment() {
+	postalCode := "50309"
 	deletedAt := time.Now()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -1771,7 +1797,10 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	}, nil)
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.PPMShipment{},
+			Model: models.Address{
+				PostalCode: postalCode,
+			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -1809,6 +1838,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmentButOtherExists() {
+	postalCode := "50309"
 	deletedAt := time.Now()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -1828,6 +1858,12 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 				CreatedAt: time.Now(),
 			},
 		},
+		{
+			Model: models.Address{
+				PostalCode: postalCode,
+			},
+			Type: &factory.Addresses.PickupAddress,
+		},
 	}, nil)
 	// This shipment is created after the first one, but not deleted
 	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -1839,6 +1875,12 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 			Model: models.PPMShipment{
 				CreatedAt: time.Now().Add(time.Minute * time.Duration(1)),
 			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: postalCode,
+			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
