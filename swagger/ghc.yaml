@@ -3581,6 +3581,41 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /lines-of-accounting:
+    post:
+      summary: Fetch line of accounting
+      description: >-
+        Fetches a line of accounting based on provided service member
+        affiliation, order issue date, and Transportation Accounting Code (TAC).
+      operationId: requestLineOfAccounting
+      tags:
+        - linesOfAccounting
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Service member affiliation, order issue date, and TAC code.
+          required: true
+          schema:
+            $ref: '#/definitions/FetchLineOfAccountingPayload'
+      responses:
+        '200':
+          description: Successfully retrieved line of accounting
+          schema:
+            $ref: '#/definitions/LineOfAccounting'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /transportation-offices:
     get:
       produces:
@@ -4138,6 +4173,18 @@ definitions:
         type: boolean
       cacUser:
         type: boolean
+  FetchLineOfAccountingPayload:
+    type: object
+    properties:
+      serviceMemberAffiliation:
+        $ref: '#/definitions/Affiliation'
+      ordersIssueDate:
+        type: string
+        format: date
+        example: '2023-01-01'
+      tacCode:
+        type: string
+        example: '123456'
   SearchCustomersResult:
     type: object
     properties:
@@ -8887,6 +8934,192 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerSupportRemark'
+  LineOfAccounting:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 123e4567-e89b-12d3-a456-426614174000
+      loaSysId:
+        type: string
+        maxLength: 20
+        example: '1234567890'
+      loaDptID:
+        type: string
+        maxLength: 2
+      loaTnsfrDptNm:
+        type: string
+        maxLength: 4
+      loaBafID:
+        type: string
+        maxLength: 4
+      loaTrsySfxTx:
+        type: string
+        maxLength: 4
+      loaMajClmNm:
+        type: string
+        maxLength: 4
+      loaOpAgncyID:
+        type: string
+        maxLength: 4
+      loaAlltSnID:
+        type: string
+        maxLength: 5
+      loaPgmElmntID:
+        type: string
+        maxLength: 12
+      loaTskBdgtSblnTx:
+        type: string
+        maxLength: 8
+      loaDfAgncyAlctnRcpntID:
+        type: string
+        maxLength: 4
+      loaJbOrdNm:
+        type: string
+        maxLength: 10
+      loaSbaltmtRcpntID:
+        type: string
+        maxLength: 1
+      loaWkCntrRcpntNm:
+        type: string
+        maxLength: 6
+      loaMajRmbsmtSrcID:
+        type: string
+        maxLength: 1
+      loaDtlRmbsmtSrcID:
+        type: string
+        maxLength: 3
+      loaCustNm:
+        type: string
+        maxLength: 6
+      loaObjClsID:
+        type: string
+        maxLength: 6
+      loaSrvSrcID:
+        type: string
+        maxLength: 1
+      loaSpclIntrID:
+        type: string
+        maxLength: 2
+      loaBdgtAcntClsNm:
+        type: string
+        maxLength: 8
+      loaDocID:
+        type: string
+        maxLength: 15
+      loaClsRefID:
+        type: string
+        maxLength: 2
+      loaInstlAcntgActID:
+        type: string
+        maxLength: 6
+      loaLclInstlID:
+        type: string
+        maxLength: 18
+      loaFmsTrnsactnID:
+        type: string
+        maxLength: 12
+      loaDscTx:
+        type: string
+      loaBgnDt:
+        type: string
+        format: date
+      loaEndDt:
+        type: string
+        format: date
+      loaFnctPrsNm:
+        type: string
+        maxLength: 255
+      loaStatCd:
+        type: string
+        maxLength: 1
+      loaHistStatCd:
+        type: string
+        maxLength: 1
+      loaHsGdsCd:
+        type: string
+        maxLength: 2
+      orgGrpDfasCd:
+        type: string
+        maxLength: 2
+      loaUic:
+        type: string
+        maxLength: 6
+      loaTrnsnID:
+        type: string
+        maxLength: 3
+      loaSubAcntID:
+        type: string
+        maxLength: 3
+      loaBetCd:
+        type: string
+        maxLength: 4
+      loaFndTyFgCd:
+        type: string
+        maxLength: 1
+      loaBgtLnItmID:
+        type: string
+        maxLength: 8
+      loaScrtyCoopImplAgncCd:
+        type: string
+        maxLength: 1
+      loaScrtyCoopDsgntrCd:
+        type: string
+        maxLength: 4
+      loaScrtyCoopLnItmID:
+        type: string
+        maxLength: 3
+      loaAgncDsbrCd:
+        type: string
+        maxLength: 6
+      loaAgncAcntngCd:
+        type: string
+        maxLength: 6
+      loaFndCntrID:
+        type: string
+        maxLength: 12
+      loaCstCntrID:
+        type: string
+        maxLength: 16
+      loaPrjID:
+        type: string
+        maxLength: 12
+      loaActvtyID:
+        type: string
+        maxLength: 11
+      loaCstCd:
+        type: string
+        maxLength: 16
+      loaWrkOrdID:
+        type: string
+        maxLength: 16
+      loaFnclArID:
+        type: string
+        maxLength: 6
+      loaScrtyCoopCustCd:
+        type: string
+        maxLength: 2
+      loaEndFyTx:
+        type: integer
+        example: '2024'
+      loaBgFyTx:
+        type: integer
+        example: '2024'
+      loaBgtRstrCd:
+        type: string
+        maxLength: 1
+      loaBgtSubActCd:
+        type: string
+        maxLength: 4
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      validHhgCodeForLoa:
+        type: boolean
 responses:
   InvalidRequest:
     description: The request payload is invalid

@@ -797,6 +797,56 @@ func init() {
         }
       ]
     },
+    "/lines-of-accounting": {
+      "post": {
+        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "linesOfAccounting"
+        ],
+        "summary": "Fetch line of accounting",
+        "operationId": "requestLineOfAccounting",
+        "parameters": [
+          {
+            "description": "Service member affiliation, order issue date, and TAC code.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FetchLineOfAccountingPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved line of accounting",
+            "schema": {
+              "$ref": "#/definitions/LineOfAccounting"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -6658,6 +6708,23 @@ func init() {
         "COUNSELING"
       ]
     },
+    "FetchLineOfAccountingPayload": {
+      "type": "object",
+      "properties": {
+        "ordersIssueDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2023-01-01"
+        },
+        "serviceMemberAffiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "tacCode": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
     "GBLOC": {
       "type": "string",
       "enum": [
@@ -6775,6 +6842,255 @@ func init() {
         "type": "String"
       },
       "example": "HHG"
+    },
+    "LineOfAccounting": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "loaActvtyID": {
+          "type": "string",
+          "maxLength": 11
+        },
+        "loaAgncAcntngCd": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaAgncDsbrCd": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaAlltSnID": {
+          "type": "string",
+          "maxLength": 5
+        },
+        "loaBafID": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaBdgtAcntClsNm": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "loaBetCd": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaBgFyTx": {
+          "type": "integer",
+          "example": "2024"
+        },
+        "loaBgnDt": {
+          "type": "string",
+          "format": "date"
+        },
+        "loaBgtLnItmID": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "loaBgtRstrCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaBgtSubActCd": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaClsRefID": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaCstCd": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "loaCstCntrID": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "loaCustNm": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaDfAgncyAlctnRcpntID": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaDocID": {
+          "type": "string",
+          "maxLength": 15
+        },
+        "loaDptID": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaDscTx": {
+          "type": "string"
+        },
+        "loaDtlRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaEndDt": {
+          "type": "string",
+          "format": "date"
+        },
+        "loaEndFyTx": {
+          "type": "integer",
+          "example": "2024"
+        },
+        "loaFmsTrnsactnID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaFnclArID": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaFnctPrsNm": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "loaFndCntrID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaFndTyFgCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaHistStatCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaHsGdsCd": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaInstlAcntgActID": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaJbOrdNm": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "loaLclInstlID": {
+          "type": "string",
+          "maxLength": 18
+        },
+        "loaMajClmNm": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaMajRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaObjClsID": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaOpAgncyID": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaPgmElmntID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaPrjID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaSbaltmtRcpntID": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaScrtyCoopCustCd": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaScrtyCoopDsgntrCd": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaScrtyCoopImplAgncCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaScrtyCoopLnItmID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaSpclIntrID": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaSrvSrcID": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaStatCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaSubAcntID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaSysId": {
+          "type": "string",
+          "maxLength": 20,
+          "example": "1234567890"
+        },
+        "loaTnsfrDptNm": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaTrnsnID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaTrsySfxTx": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaTskBdgtSblnTx": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "loaUic": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaWkCntrRcpntNm": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaWrkOrdID": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "orgGrpDfasCd": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validHhgCodeForLoa": {
+          "type": "boolean"
+        }
+      }
     },
     "ListPrimeMove": {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
@@ -12726,6 +13042,71 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/lines-of-accounting": {
+      "post": {
+        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "linesOfAccounting"
+        ],
+        "summary": "Fetch line of accounting",
+        "operationId": "requestLineOfAccounting",
+        "parameters": [
+          {
+            "description": "Service member affiliation, order issue date, and TAC code.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FetchLineOfAccountingPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved line of accounting",
+            "schema": {
+              "$ref": "#/definitions/LineOfAccounting"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
@@ -19700,6 +20081,23 @@ func init() {
         "COUNSELING"
       ]
     },
+    "FetchLineOfAccountingPayload": {
+      "type": "object",
+      "properties": {
+        "ordersIssueDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2023-01-01"
+        },
+        "serviceMemberAffiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "tacCode": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
     "GBLOC": {
       "type": "string",
       "enum": [
@@ -19817,6 +20215,255 @@ func init() {
         "type": "String"
       },
       "example": "HHG"
+    },
+    "LineOfAccounting": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "loaActvtyID": {
+          "type": "string",
+          "maxLength": 11
+        },
+        "loaAgncAcntngCd": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaAgncDsbrCd": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaAlltSnID": {
+          "type": "string",
+          "maxLength": 5
+        },
+        "loaBafID": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaBdgtAcntClsNm": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "loaBetCd": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaBgFyTx": {
+          "type": "integer",
+          "example": "2024"
+        },
+        "loaBgnDt": {
+          "type": "string",
+          "format": "date"
+        },
+        "loaBgtLnItmID": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "loaBgtRstrCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaBgtSubActCd": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaClsRefID": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaCstCd": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "loaCstCntrID": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "loaCustNm": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaDfAgncyAlctnRcpntID": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaDocID": {
+          "type": "string",
+          "maxLength": 15
+        },
+        "loaDptID": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaDscTx": {
+          "type": "string"
+        },
+        "loaDtlRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaEndDt": {
+          "type": "string",
+          "format": "date"
+        },
+        "loaEndFyTx": {
+          "type": "integer",
+          "example": "2024"
+        },
+        "loaFmsTrnsactnID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaFnclArID": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaFnctPrsNm": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "loaFndCntrID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaFndTyFgCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaHistStatCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaHsGdsCd": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaInstlAcntgActID": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaJbOrdNm": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "loaLclInstlID": {
+          "type": "string",
+          "maxLength": 18
+        },
+        "loaMajClmNm": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaMajRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaObjClsID": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaOpAgncyID": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaPgmElmntID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaPrjID": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "loaSbaltmtRcpntID": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaScrtyCoopCustCd": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaScrtyCoopDsgntrCd": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaScrtyCoopImplAgncCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaScrtyCoopLnItmID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaSpclIntrID": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "loaSrvSrcID": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaStatCd": {
+          "type": "string",
+          "maxLength": 1
+        },
+        "loaSubAcntID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaSysId": {
+          "type": "string",
+          "maxLength": 20,
+          "example": "1234567890"
+        },
+        "loaTnsfrDptNm": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaTrnsnID": {
+          "type": "string",
+          "maxLength": 3
+        },
+        "loaTrsySfxTx": {
+          "type": "string",
+          "maxLength": 4
+        },
+        "loaTskBdgtSblnTx": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "loaUic": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaWkCntrRcpntNm": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "loaWrkOrdID": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "orgGrpDfasCd": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validHhgCodeForLoa": {
+          "type": "boolean"
+        }
+      }
     },
     "ListPrimeMove": {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
