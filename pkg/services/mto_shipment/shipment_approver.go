@@ -14,17 +14,19 @@ import (
 )
 
 type shipmentApprover struct {
-	router    services.ShipmentRouter
-	siCreator services.MTOServiceItemCreator
-	planner   route.Planner
+	router      services.ShipmentRouter
+	siCreator   services.MTOServiceItemCreator
+	planner     route.Planner
+	moveWeights services.MoveWeights
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights) services.ShipmentApprover {
 	return &shipmentApprover{
 		router,
 		siCreator,
 		planner,
+		moveWeights,
 	}
 }
 
@@ -54,8 +56,19 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return nil, err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	// if the shipment has an estimated weight at time of approval
+	// and check for excess weight
+	if shipment.PrimeEstimatedWeight != nil {
+		_, verrs, err := f.moveWeights.CheckExcessWeight(appCtx, shipment.MoveTaskOrderID, *shipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, errors.New(verrs.Error())
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
 
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
