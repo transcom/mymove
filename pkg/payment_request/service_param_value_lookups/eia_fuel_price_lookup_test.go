@@ -28,6 +28,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		firstGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 06, 0, 0, 0, 0, time.UTC)
 		firstGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243699)
+		firstGHCDieselFuelPrice.EffectiveDate = firstGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 1)
+		firstGHCDieselFuelPrice.EndDate = firstGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 7)
 
 		var existingFuelPrice1 models.GHCDieselFuelPrice
 		err := suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", firstGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice1)
@@ -39,6 +41,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		secondGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 13, 0, 0, 0, 0, time.UTC)
 		secondGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243799)
+		secondGHCDieselFuelPrice.EffectiveDate = secondGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 1)
+		secondGHCDieselFuelPrice.EndDate = secondGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 7)
 
 		var existingFuelPrice2 models.GHCDieselFuelPrice
 		err = suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", secondGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice2)
@@ -50,6 +54,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		thirdGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 20, 0, 0, 0, 0, time.UTC)
 		thirdGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243299)
+		thirdGHCDieselFuelPrice.EffectiveDate = thirdGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 1)
+		thirdGHCDieselFuelPrice.EndDate = thirdGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 7)
+
 		var existingFuelPrice3 models.GHCDieselFuelPrice
 		err = suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", thirdGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice3)
 		if err == nil {
