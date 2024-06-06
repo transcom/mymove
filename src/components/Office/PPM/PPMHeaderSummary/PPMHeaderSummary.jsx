@@ -8,6 +8,7 @@ import styles from './PPMHeaderSummary.module.scss';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
+import { formatCustomerContactFullAddress } from 'utils/formatters';
 
 const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemName }) => {
   const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
@@ -62,8 +63,12 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
   const shipmentInfo = {
     plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
     actualMoveDate: ppmShipmentInfo.actualMoveDate,
-    actualPickupPostalCode: ppmShipmentInfo.actualPickupPostalCode,
-    actualDestinationPostalCode: ppmShipmentInfo.actualDestinationPostalCode,
+    pickupAddress: ppmShipmentInfo.pickupAddress
+      ? formatCustomerContactFullAddress(ppmShipmentInfo.pickupAddress)
+      : '—',
+    destinationAddress: ppmShipmentInfo.destinationAddress
+      ? formatCustomerContactFullAddress(ppmShipmentInfo.destinationAddress)
+      : '—',
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,

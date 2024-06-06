@@ -85,12 +85,12 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
             </span>
           </div>
           <div>
-            <Label>Starting ZIP</Label>
-            <span className={styles.light}>{sectionInfo.actualPickupPostalCode}</span>
+            <Label>Starting Address</Label>
+            <span className={styles.light}>{sectionInfo.pickupAddress}</span>
           </div>
           <div>
-            <Label>Ending ZIP</Label>
-            <span className={styles.light}>{sectionInfo.actualDestinationPostalCode}</span>
+            <Label>Ending Address</Label>
+            <span className={styles.light}>{sectionInfo.destinationAddress}</span>
           </div>
           <div>
             <Label>Miles</Label>
