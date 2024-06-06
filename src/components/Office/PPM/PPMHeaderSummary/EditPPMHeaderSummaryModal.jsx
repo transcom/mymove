@@ -13,7 +13,7 @@ import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
-const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editSectionName }) => {
+const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName }) => {
   const { actualMoveDate, advanceAmountReceived } = sectionInfo;
   let title = 'Edit';
   if (sectionType === 'shipmentInfo') {
@@ -22,7 +22,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
     title = 'Edit Incentives/Costs';
   }
   const initialValues = {
-    editSectionName,
+    editItemName,
     actualMoveDate: actualMoveDate || '',
     advanceAmountReceived: formatCentsTruncateWhole(advanceAmountReceived).replace(/,/g, ''),
   };
@@ -30,11 +30,11 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
   const validationSchema = Yup.object().shape({
     actualMoveDate: Yup.date()
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-      .when('editSectionName', {
+      .when('editItemName', {
         is: 'actualMoveDate',
         then: (schema) => schema.required('Required').max(new Date(), 'Date cannot be in the future'),
       }),
-    advanceAmountReceived: Yup.number().when('editSectionName', {
+    advanceAmountReceived: Yup.number().when('editItemName', {
       is: 'advanceAmountReceived',
       then: (schema) => schema.required('Required'),
     }),
@@ -54,7 +54,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
               return (
                 <Form>
                   <div>
-                    {editSectionName === 'actualMoveDate' && (
+                    {editItemName === 'actualMoveDate' && (
                       <DatePickerInput
                         name="actualMoveDate"
                         label="Actual move start date"
@@ -62,7 +62,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         disabledDays={{ after: new Date() }}
                       />
                     )}
-                    {editSectionName === 'advanceAmountReceived' && (
+                    {editItemName === 'advanceAmountReceived' && (
                       <MaskedTextField
                         label="Advance received"
                         name="advanceAmountReceived"
@@ -109,7 +109,7 @@ EditPPMHeaderSummaryModal.propTypes = {
   }),
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  editSectionName: PropTypes.string.isRequired,
+  editItemName: PropTypes.string.isRequired,
 };
 
 EditPPMHeaderSummaryModal.defaultProps = {
