@@ -256,7 +256,25 @@ export default function ReviewExpense({
               />
               {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                 <>
-                  <DropdownInput
+                  <div className="labelWrapper">
+                    <Label htmlFor="sitLocationInput">SIT Location</Label>
+                  </div>
+                  <select
+                    label="SIT Location"
+                    name="sitLocation"
+                    id="sitLocationInput"
+                    required
+                    className={classnames('usa-select')}
+                    value={ppmSITLocation}
+                    onChange={(e) => {
+                      handleSITLocationChange(e);
+                    }}
+                  >
+                    {sitLocationOptions.map((x) => (
+                      <option key={x.key}>{x.value}</option>
+                    ))}
+                  </select>
+                  {/* <DropdownInput
                     label="SIT Location"
                     id="sitLocationInput"
                     name="sitLocation"
@@ -264,7 +282,7 @@ export default function ReviewExpense({
                     onChange={(e) => {
                       handleSITLocationChange(e);
                     }}
-                  />
+                  /> */}
                   <legend className={classnames('usa-label', styles.label)}>Cost</legend>
                   <div className={styles.displayValue}>
                     {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))}
