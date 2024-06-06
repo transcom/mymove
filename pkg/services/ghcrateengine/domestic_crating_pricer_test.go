@@ -19,6 +19,7 @@ const (
 	dcrtTestPriceCents           = unit.Cents(25880)
 	dcrtTestStandaloneCrate      = false
 	dcrtTestStandaloneCrateCap   = unit.Cents(1000000)
+	dcrtTestUncappedRequestTotal = unit.Cents(25880)
 )
 
 var dcrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -38,6 +39,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})

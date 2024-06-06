@@ -350,7 +350,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     }
     case 'DCRT':
     case 'DCRTSA': {
-      const { description, itemDimensions, crateDimensions, standaloneCrate } = details;
+      const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
       )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
@@ -368,7 +368,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {standaloneCrate && generateDetailText({ 'Standalone Crate': String(standaloneCrate) }, id)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
