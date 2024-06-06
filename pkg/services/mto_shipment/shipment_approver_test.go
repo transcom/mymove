@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"math"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -546,6 +547,46 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg)
 		}
 	})
+	suite.Run("Approval of a shipment with an estimated weight will update authorized weight", func() {
+		subtestData := suite.createApproveShipmentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		planner := subtestData.planner
+		approver := subtestData.shipmentApprover
+		estimatedWeight := unit.Pound(1234)
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusSubmitted,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+		}, nil)
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(500, nil)
+
+		suite.Equal(8000, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+
+		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag)
+		suite.NoError(approverErr)
+
+		err := appCtx.DB().Reload(shipment.MoveTaskOrder.Orders.Entitlement)
+		suite.NoError(err)
+
+		estimatedWeight110 := int(math.Round(float64(*shipment.PrimeEstimatedWeight) * 1.10))
+		suite.Equal(estimatedWeight110, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+	})
+
 	suite.Run("Approval of a shipment that exceeds excess weight will flag for excess weight", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx
