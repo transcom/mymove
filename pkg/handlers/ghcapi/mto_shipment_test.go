@@ -607,6 +607,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -616,6 +617,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
 			&routemocks.Planner{},
+			moveWeights,
 		)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
