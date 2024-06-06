@@ -93,9 +93,6 @@ type Page2Values struct {
 	TotalPaidSIT                string
 	ShipmentPickupDates         string
 	TrustedAgentName            string
-	TrustedAgentDate            string
-	TrustedAgentEmail           string
-	TrustedAgentPhone           string
 	FormattedMovingExpenses
 	ServiceMemberSignature string
 	PPPOPPSORepresentative string
@@ -151,7 +148,6 @@ type ShipmentSummaryFormData struct {
 	PreparationDate          time.Time
 	Obligations              Obligations
 	MovingExpenses           models.MovingExpenses
-	MTOAgents                models.MTOAgents
 	PPMRemainingEntitlement  unit.Pound
 	SignedCertifications     []*models.SignedCertification
 	MaxSITStorageEntitlement int
