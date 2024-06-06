@@ -165,6 +165,88 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)
-		suite.Equal("Not found looking for pickup address", err.Error())
+		suite.Contains(err.Error(), "could not find actual pickup date for MTOShipment")
+	})
+}
+func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithInvalidActualPickupDate() {
+	key := models.ServiceItemParamNameEIAFuelPrice
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
+
+	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ActualPickupDate: nil,
+				},
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	suite.Run("lookup GHC diesel fuel price with nil actual pickup date", func() {
+		setupTestData()
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not find actual pickup date for MTOShipment")
+	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithNoGHCDieselFuelPriceData() {
+	key := models.ServiceItemParamNameEIAFuelPrice
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
+	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
+
+	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	suite.Run("lookup GHC diesel fuel price with no data", func() {
+		setupTestData()
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Looking for GHCDieselFuelPrice")
 	})
 }
