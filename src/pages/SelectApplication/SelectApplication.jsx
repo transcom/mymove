@@ -26,7 +26,6 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
 
       <ul className="usa-button-group">
         {[
-          roleTypes.HQ,
           roleTypes.TOO,
           roleTypes.TIO,
           roleTypes.SERVICES_COUNSELOR,

@@ -114,7 +114,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		AdminUserType                               string
 		CsrfToken                                   string
 		QueryLimit                                  int
-		HQOfficeUserType                            string
 	}
 
 	templateData := TemplateData{
@@ -133,7 +132,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MultiRoleOfficeUserType:                     MultiRoleOfficeUserType,
 		IsAdminApp:                                  auth.AdminApp == appCtx.Session().ApplicationName,
 		AdminUserType:                               AdminUserType,
-		HQOfficeUserType:                            HQOfficeUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
 		CsrfToken:  csrf.Token(r),
 		QueryLimit: limit,
@@ -1053,7 +1051,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType, CustomerServiceRepresentativeOfficeUserType, MultiRoleOfficeUserType, HQOfficeUserType:
+	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeCsrOfficeUserType, CustomerServiceRepresentativeOfficeUserType, MultiRoleOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.AppNames().OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -1141,7 +1139,7 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType {
 		return true
 	}
 	return false

@@ -51,12 +51,12 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
 		rejectionReason := "extraneous shipment"
-		actualPickupDate := time.Now().AddDate(0, 0, 1)
+		actualPickupDate := time.Now().AddDate(0,0,1)
 		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:           models.MTOShipmentStatusRejected,
-					RejectionReason:  &rejectionReason,
+					Status:          models.MTOShipmentStatusRejected,
+					RejectionReason: &rejectionReason,
 					ActualPickupDate: &actualPickupDate,
 				},
 			},

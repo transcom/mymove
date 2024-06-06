@@ -124,7 +124,7 @@ var CustomerServiceRepresentative = RolePermissions{
 	},
 }
 
-var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR, HQ, CustomerServiceRepresentative}
+var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR, CustomerServiceRepresentative}
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {

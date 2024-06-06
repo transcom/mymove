@@ -40,7 +40,8 @@ func (f *shipmentCancellationRequester) RequestShipmentCancellation(appCtx appco
 
 	requestedCancellationDate := time.Now()
 	// Cancellation Request can only be made before the move's actual pickup date
-	if shipment.ActualPickupDate.Before(requestedCancellationDate) || shipment.ActualPickupDate.Day() == requestedCancellationDate.Day() {
+	if shipment.ActualPickupDate != nil && 
+	(shipment.ActualPickupDate.Before(requestedCancellationDate) || shipment.ActualPickupDate.Day() == requestedCancellationDate.Day()) {
 		return &models.MTOShipment{}, apperror.NewUpdateError(shipmentID, "cancellation request date cannot be on or after actual pickup date")
 	}
 
