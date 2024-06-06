@@ -20,8 +20,8 @@ const (
 	RoleTypeTOO RoleType = "transportation_ordering_officer"
 	// RoleTypeCustomer is the Customer Role
 	RoleTypeCustomer RoleType = "customer"
-	// RoleTypeTIO is the Transportation Invoicing Officer Role
-	RoleTypeTIO RoleType = "transportation_invoicing_officer"
+	// RoleTypeTIO is the Task Invoicing Officer Role
+	RoleTypeTIO RoleType = "task_invoicing_officer"
 	// RoleTypeContractingOfficer is the Contracting Officer Role
 	RoleTypeContractingOfficer RoleType = "contracting_officer"
 	// RoleTypeServicesCounselor is the Services Counselor Role
