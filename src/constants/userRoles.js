@@ -10,6 +10,7 @@ export const roleTypes = {
   PRIME_SIMULATOR: 'prime_simulator',
   QAE_CSR: 'qae_csr',
   HQ: 'headquarters',
+  CUSTOMER_SERVICE_REPRESENTATIVE: 'customer_service_representative',
 };
 
 const hqRoleFF = await isBooleanFlagEnabled('headquarters_role');
@@ -32,4 +33,5 @@ export const officeRoles = [
   roleTypes.PRIME_SIMULATOR,
   roleTypes.QAE_CSR,
   hqRoleFF ? roleTypes.HQ : null,
+  roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
 ];
