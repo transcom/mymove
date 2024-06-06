@@ -7,10 +7,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// LinesOfAccountingFetcher is the exported interface for fetching lines of accounting
+// LineOfAccountingFetcher is the exported interface for fetching lines of accounting
 // based on a centralized location for business logic
 //
 //go:generate mockery --name LinesOfAccountingFetcher
-type LinesOfAccountingFetcher interface {
+type LineOfAccountingFetcher interface {
 	FetchLongLinesOfAccounting(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error)
 }

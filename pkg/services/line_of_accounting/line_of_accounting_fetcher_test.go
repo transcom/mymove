@@ -16,7 +16,7 @@ import (
 type LineOfAccountingServiceSuite struct {
 	*testingsuite.PopTestSuite
 	tacFetcher services.TransportationAccountingCodeFetcher
-	loaFetcher services.LinesOfAccountingFetcher
+	loaFetcher services.LineOfAccountingFetcher
 }
 
 func TestLineOfAccountingServiceSuite(t *testing.T) {

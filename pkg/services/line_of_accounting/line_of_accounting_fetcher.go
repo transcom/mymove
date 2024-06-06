@@ -14,7 +14,7 @@ type linesOfAccountingFetcher struct {
 }
 
 // NewLinesOfAccountingFetcher creates a new linesOfAccountingFetcher service
-func NewLinesOfAccountingFetcher(tacFetcher services.TransportationAccountingCodeFetcher) services.LinesOfAccountingFetcher {
+func NewLinesOfAccountingFetcher(tacFetcher services.TransportationAccountingCodeFetcher) services.LineOfAccountingFetcher {
 	return &linesOfAccountingFetcher{tacFetcher}
 }
 
