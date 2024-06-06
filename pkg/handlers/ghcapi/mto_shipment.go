@@ -867,8 +867,8 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			moveID := shipment.MoveTaskOrderID
 			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
-			/* Don't send emails for BLUEBARK moves */
-			if shipment.MoveTaskOrder.Orders.OrdersType != "BLUEBARK" {
+			/* Don't send emails for BLUEBARK/SAFETY moves */
+			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewReweighRequested(moveID, *shipment),
 				)
