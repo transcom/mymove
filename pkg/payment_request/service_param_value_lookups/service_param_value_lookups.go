@@ -279,7 +279,7 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 		MTOShipment: shipment,
 	}
 
-	lookups[models.ServiceItemParamNameDistanceZip] = validateDistanceZip(appCtx, &shipment, &serviceItem.ReService.Code)
+	lookups[models.ServiceItemParamNameDistanceZip] = validateDistanceZip(appCtx, &shipment, &serviceItem)
 
 	lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier] = FSCWeightBasedDistanceMultiplierLookup{
 		MTOShipment: shipment,
@@ -420,18 +420,33 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 }
 
 func validateDestination(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItem *models.MTOServiceItem) ServiceItemParamKeyLookup {
-	reServiceCode := &serviceItem.ReService.Code
-	switch *reServiceCode {
+	switch serviceItem.ReService.Code {
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
 		shipmentCopy := *shipment
-		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status").Find(&shipmentCopy, shipment.ID)
+		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status", "DeliveryAddressUpdate.UpdatedAt", "MTOServiceItems").Find(&shipmentCopy, shipment.ID)
 		if err != nil {
 			return ZipAddressLookup{}
 		}
 
-		if shipmentCopy.DeliveryAddressUpdate.NewAddress.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-			return ZipAddressLookup{
-				Address: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+		for _, si := range shipmentCopy.MTOServiceItems {
+			siCopy := si
+			err := appCtx.DB().EagerPreload("ReService.Code", "Status", "SITDestinationOriginalAddress", "SITDestinationFinalAddress", "ApprovedAt").Find(&siCopy, si.ID)
+			if err != nil {
+				return DistanceZipLookup{}
+			}
+			if siCopy.ReService.Code == models.ReServiceCodeDDASIT || siCopy.ReService.Code == models.ReServiceCodeDDDSIT || siCopy.ReService.Code == models.ReServiceCodeDDFSIT || siCopy.ReService.Code == models.ReServiceCodeDDSFSC {
+				if siCopy.Status == models.MTOServiceItemStatusApproved {
+					if shipmentCopy.DeliveryAddressUpdate.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+						if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+							return ZipAddressLookup{
+								Address: shipmentCopy.DeliveryAddressUpdate.OriginalAddress,
+							}
+						}
+						return ZipAddressLookup{
+							Address: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+						}
+					}
+				}
 			}
 		}
 	}
@@ -441,36 +456,42 @@ func validateDestination(appCtx appcontext.AppContext, shipment *models.MTOShipm
 
 }
 
-func validateDistanceZip(appCtx appcontext.AppContext, shipment *models.MTOShipment, reServiceCode *models.ReServiceCode) ServiceItemParamKeyLookup {
-	if *reServiceCode != models.ReServiceCodeDLH && *reServiceCode != models.ReServiceCodeDSH && *reServiceCode != models.ReServiceCodeFSC {
+func validateDistanceZip(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItem *models.MTOServiceItem) ServiceItemParamKeyLookup {
+	if serviceItem.ReService.Code != models.ReServiceCodeDLH && serviceItem.ReService.Code != models.ReServiceCodeDSH && serviceItem.ReService.Code != models.ReServiceCodeFSC {
 		return DistanceZipLookup{
 			PickupAddress:      *shipment.PickupAddress,
 			DestinationAddress: *shipment.DestinationAddress,
 		}
 	}
-
 	shipmentCopy := *shipment
-	err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status", "MTOServiceItems").Find(&shipmentCopy, shipment.ID)
+	err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status", "DeliveryAddressUpdate.UpdatedAt", "MTOServiceItems").Find(&shipmentCopy, shipment.ID)
 	if err != nil {
 		return DistanceZipLookup{}
 	}
 
 	for _, si := range shipmentCopy.MTOServiceItems {
 		siCopy := si
-		err := appCtx.DB().Eager("ReService.Code", "Status").Find(&siCopy, si.ID)
+		err := appCtx.DB().EagerPreload("ReService.Code", "Status", "SITDestinationOriginalAddress", "SITDestinationFinalAddress", "ApprovedAt").Find(&siCopy, si.ID)
 		if err != nil {
 			return DistanceZipLookup{}
 		}
-		if siCopy.ReService.Code == models.ReServiceCodeDDASIT || siCopy.ReService.Code == models.ReServiceCodeDDDSIT || siCopy.ReService.Code == models.ReServiceCodeDOASIT {
-			if siCopy.Status == models.MTOServiceItemStatusApproved && shipmentCopy.DeliveryAddressUpdate.NewAddress.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-				return DistanceZipLookup{
-					PickupAddress:      *shipment.PickupAddress,
-					DestinationAddress: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+		if siCopy.ReService.Code == models.ReServiceCodeDDASIT || siCopy.ReService.Code == models.ReServiceCodeDDDSIT || siCopy.ReService.Code == models.ReServiceCodeDDFSIT || siCopy.ReService.Code == models.ReServiceCodeDDSFSC {
+			if siCopy.Status == models.MTOServiceItemStatusApproved {
+				if shipmentCopy.DeliveryAddressUpdate.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						return DistanceZipLookup{
+							PickupAddress:      *shipment.PickupAddress,
+							DestinationAddress: shipmentCopy.DeliveryAddressUpdate.OriginalAddress,
+						}
+					}
+					return DistanceZipLookup{
+						PickupAddress:      *shipment.PickupAddress,
+						DestinationAddress: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+					}
 				}
 			}
 		}
 	}
-
 	return DistanceZipLookup{
 		PickupAddress:      *shipment.PickupAddress,
 		DestinationAddress: *shipment.DestinationAddress,
@@ -583,7 +604,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 
 		for i, si := range mtoShipment.MTOServiceItems {
 			siCopy := si
-			err := appCtx.DB().Eager("ReService.Code").Find(&siCopy, siCopy.ID)
+			err := appCtx.DB().Eager("ReService.Code", "Status").Find(&siCopy, siCopy.ID)
 			if err != nil {
 				return models.Address{}, err
 			}
@@ -591,7 +612,10 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 			switch siCopy.ReService.Code {
 			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 				if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					return mtoShipment.DeliveryAddressUpdate.OriginalAddress, nil
+					if siCopy.Status == models.MTOServiceItemStatusApproved {
+						return mtoShipment.DeliveryAddressUpdate.OriginalAddress, nil
+					}
+					return *mtoShipment.DestinationAddress, nil
 				}
 			}
 
