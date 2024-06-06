@@ -209,7 +209,7 @@ const PPMShipmentInfoList = ({
   const paymentPacketElement = (
     <div>
       <dt>Payment Packet</dt>
-      <dd data-testid="aoaPacketDownload">
+      <dd data-testid="paymentPacketDownload">
         <p className={styles.downloadLink}>
           <AsyncPacketDownloadLink
             id={shipment?.ppmShipment?.id}
@@ -254,8 +254,7 @@ const PPMShipmentInfoList = ({
       {hasRequestedAdvanceElement}
       {hasRequestedAdvance === true && advanceStatusElement}
       {advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && aoaPacketElement}
-      {(status === ppmShipmentStatuses.CLOSEOUT_COMPLETE || status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) &&
-        paymentPacketElement}
+      {status === ppmShipmentStatuses.CLOSEOUT_COMPLETE && paymentPacketElement}
       {counselorRemarksElement}
     </dl>
   );

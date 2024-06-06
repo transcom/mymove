@@ -1508,6 +1508,10 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -4317,6 +4321,10 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

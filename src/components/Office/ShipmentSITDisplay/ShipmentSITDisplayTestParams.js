@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 import SERVICE_ITEM_STATUSES, { SERVICE_ITEM_CODES } from 'constants/serviceItems';
-import { SIT_EXTENSION_REASON } from 'constants/sitExtensions';
+import { SIT_EXTENSION_REASON, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { swaggerDateFormat } from 'shared/dates';
 
 const LOCATION_VALUES = {
@@ -67,7 +67,7 @@ export const SITStatusOrigin = {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
     sitCustomerContacted: '2021-08-26',
     sitRequestedDelivery: '2021-08-30',
   },
@@ -81,7 +81,7 @@ export const SITStatusOriginAuthorized = {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
     sitCustomerContacted: '2021-08-26',
     sitRequestedDelivery: '2021-08-30',
   },
@@ -94,7 +94,7 @@ export const SITStatusShowConvert = {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
   },
 };
 
@@ -105,7 +105,7 @@ export const SITStatusDontShowConvert = {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
   },
 };
 
@@ -117,7 +117,7 @@ export const SITStatusDestination = {
     location: LOCATION_VALUES.DESTINATION,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
     sitCustomerContacted: '2021-08-26',
     sitRequestedDelivery: '2021-08-30',
   },
@@ -131,7 +131,7 @@ export const SITStatusDestinationWithoutCustomerDeliveryInfo = {
     location: LOCATION_VALUES.DESTINATION,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
   },
 };
 export const SITStatusOriginWithoutCustomerDeliveryInfo = {
@@ -142,7 +142,7 @@ export const SITStatusOriginWithoutCustomerDeliveryInfo = {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
   },
 };
 
@@ -154,7 +154,7 @@ export const futureSITStatus = {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 0,
     sitEntryDate: moment().add(2, 'years').format(swaggerDateFormat),
-    sitAllowanceEndDate: moment().add(3, 'years').format(swaggerDateFormat),
+    sitAuthorizedEndDate: moment().add(3, 'years').format(swaggerDateFormat),
   },
 };
 
@@ -458,6 +458,18 @@ export const futureSITShipment = {
   sitStatus: futureSITStatus,
 };
 
+export const futureSITShipmentSITExtension = {
+  ...noSITShipment,
+  sitDaysAllowance: 15,
+  mtoServiceItems: mtoServiceItemsWithFutureSIT,
+  sitStatus: futureSITStatus,
+  sitExtensions: [
+    {
+      status: SIT_EXTENSION_STATUS.PENDING,
+    },
+  ],
+};
+
 export const SITStatusExpired = {
   totalSITDaysUsed: 270,
   totalDaysRemaining: -2,
@@ -466,6 +478,6 @@ export const SITStatusExpired = {
     location: LOCATION_VALUES.DESTINATION,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
-    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-28',
   },
 };

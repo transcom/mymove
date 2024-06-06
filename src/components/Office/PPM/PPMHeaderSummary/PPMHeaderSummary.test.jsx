@@ -12,8 +12,20 @@ const defaultProps = {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     expectedDepartureDate: '2022-12-02',
     actualMoveDate: '2022-12-06',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
+    pickupAddress: {
+      streetAddress1: '812 S 129th St',
+      streetAddress2: '#123',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
+    destinationAddress: {
+      streetAddress1: '456 Oak Ln.',
+      streetAddress2: '#123',
+      city: 'Oakland',
+      state: 'CA',
+      postalCode: '94611',
+    },
     miles: 300,
     estimatedWeight: 3000,
     actualWeight: 3500,
@@ -31,7 +43,7 @@ describe('PPMHeaderSummary component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'PPM 1' })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByTestId('showRequestDetailsButton'));
+      fireEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
       await waitFor(() => {
         expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
       });
@@ -39,10 +51,10 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('02-Dec-2022')).toBeInTheDocument();
       expect(screen.getByText('Actual Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('06-Dec-2022')).toBeInTheDocument();
-      expect(screen.getByText('Starting ZIP')).toBeInTheDocument();
-      expect(screen.getByText('90210')).toBeInTheDocument();
-      expect(screen.getByText('Ending ZIP')).toBeInTheDocument();
-      expect(screen.getByText('94611')).toBeInTheDocument();
+      expect(screen.getByText('Starting Address')).toBeInTheDocument();
+      expect(screen.getByText('812 S 129th St, #123, San Antonio, TX 78234')).toBeInTheDocument();
+      expect(screen.getByText('Ending Address')).toBeInTheDocument();
+      expect(screen.getByText('456 Oak Ln., #123, Oakland, CA 94611')).toBeInTheDocument();
       expect(screen.getByText('Miles')).toBeInTheDocument();
       expect(screen.getByText('300')).toBeInTheDocument();
       expect(screen.getByText('Estimated Net Weight')).toBeInTheDocument();

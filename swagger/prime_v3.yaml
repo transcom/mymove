@@ -469,6 +469,9 @@ definitions:
               the service item.
             x-nullable: true
             x-omitempty: false
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
         required:
           - reServiceCode
           - item
@@ -1530,6 +1533,7 @@ definitions:
       - SEPARATION
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -1537,6 +1541,7 @@ definitions:
       SEPARATION: Separation
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   Order:
     type: object
     required:
@@ -2759,6 +2764,16 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
+      originSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for origin SIT.
+        x-nullable: true
+      destinationSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for destination SIT.
+        x-nullable: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

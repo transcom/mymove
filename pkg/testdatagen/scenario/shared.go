@@ -4228,7 +4228,7 @@ func createHHGWithOriginSITServiceItems(
 		"90210", "30813").Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 	}
@@ -4490,7 +4490,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		"90210", "30813").Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 	}
@@ -4915,7 +4915,7 @@ func createHHGWithPaymentServiceItems(
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 		}
@@ -8619,6 +8619,50 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				Email:  email,
 				Active: true,
 				UserID: &qaeCsrUUID,
+			},
+		},
+	}, nil)
+}
+
+func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	email := "customer_service_representative_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
+	/* A user with RoleTypeCustomerServiceRepresentative role */
+	customerServiceRepresentativeRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeCustomerServiceRepresentative).First(&customerServiceRepresentativeRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomerServiceRepresentative in the DB: %w", err))
+	}
+
+	csrUUID := uuid.Must(uuid.FromString("72432922-BF2E-45DE-8837-1A458F5D1011"))
+	oktaID := uuid.Must(uuid.NewV4())
+	factory.BuildUser(db, []factory.Customization{
+		{
+			Model: models.User{
+				ID:        csrUUID,
+				OktaID:    oktaID.String(),
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{customerServiceRepresentativeRole},
+			}},
+	}, nil)
+	factory.BuildOfficeUser(db, []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				ID:     uuid.FromStringOrNil("4B8C0AD8-337A-407A-9E49-074D466F837A"),
+				Email:  email,
+				Active: true,
+				UserID: &csrUUID,
 			},
 		},
 	}, nil)

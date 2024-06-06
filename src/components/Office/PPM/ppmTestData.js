@@ -18,6 +18,7 @@ export default {
     linehaulFuelSurcharge: 0,
     shorthaulPrice: 0,
     shorthaulFuelSurcharge: 0,
-    fullPackUnpackCharge: 16427,
+    packPrice: 3000,
+    unPackPrice: 2000,
   },
 };
