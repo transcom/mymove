@@ -416,6 +416,10 @@ func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCod
 			Key:   models.ServiceItemParamNameEscalationCompounded,
 			Value: FormatEscalation(contractYear.EscalationCompounded),
 		},
+		{
+			Key:   models.ServiceItemParamNameUncappedRequestTotal,
+			Value: FormatCents(totalCost),
+		},
 	}
 
 	if (standaloneCrate) && (totalCost > standaloneCrateCap) {
