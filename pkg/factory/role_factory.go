@@ -80,7 +80,7 @@ func GetTraitTIORole() []Customization {
 		{
 			Model: roles.Role{
 				RoleType: roles.RoleTypeTIO,
-				RoleName: "Transportation Invoicing Officer",
+				RoleName: "Task Invoicing Officer",
 			},
 		},
 	}
@@ -103,6 +103,17 @@ func GetTraitQaeCsrRole() []Customization {
 			Model: roles.Role{
 				RoleType: roles.RoleTypeQaeCsr,
 				RoleName: "Quality Assurance and Customer Service",
+			},
+		},
+	}
+}
+
+func GetTraitCustomerServiceRepresentativeRole() []Customization {
+	return []Customization{
+		{
+			Model: roles.Role{
+				RoleType: roles.RoleTypeCustomerServiceRepresentative,
+				RoleName: "Customer Service Representative",
 			},
 		},
 	}
