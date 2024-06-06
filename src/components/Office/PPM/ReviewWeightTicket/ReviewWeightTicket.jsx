@@ -60,6 +60,7 @@ function ReviewWeightTicket({
   formRef,
   updateTotalWeight,
   updateDocumentSetAllowableWeight,
+  readOnly,
 }) {
   const {
     vehicleDescription,
@@ -143,6 +144,10 @@ function ReviewWeightTicket({
   const handleSubmit = (formValues) => {
     if (currentMtoShipments !== undefined && currentMtoShipments.length > 0) {
       getNewNetWeightCalculation(currentMtoShipments, mtoShipment.id, formValues);
+    }
+    if (readOnly) {
+      onSuccess();
+      return;
     }
     const ownsTrailerSubmit = formValues.ownsTrailer === 'true';
     const trailerMeetsCriteriaSubmit = ownsTrailerSubmit ? formValues.trailerMeetsCriteria === 'true' : false;
@@ -274,6 +279,7 @@ function ReviewWeightTicket({
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
                 onBlur={handleWeightFieldsChange}
+                disabled={readOnly}
               />
 
               <MaskedTextField
@@ -290,6 +296,7 @@ function ReviewWeightTicket({
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
                 onBlur={handleWeightFieldsChange}
+                disabled={readOnly}
               />
 
               <MaskedTextField
@@ -306,11 +313,13 @@ function ReviewWeightTicket({
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
                 onBlur={handleWeightFieldsChange}
+                disabled={readOnly}
               />
               <EditPPMNetWeight
                 weightTicket={currentWeightTicket}
                 weightAllowance={weightAllowance}
                 shipments={currentMtoShipments}
+                disabled={readOnly}
               />
 
               <FormGroup>
@@ -324,6 +333,7 @@ function ReviewWeightTicket({
                     value="true"
                     checked={values.ownsTrailer === 'true'}
                     onChange={handleTrailerOwnedChange}
+                    disabled={readOnly}
                   />
                   <Field
                     as={Radio}
@@ -333,6 +343,7 @@ function ReviewWeightTicket({
                     value="false"
                     checked={values.ownsTrailer === 'false'}
                     onChange={handleTrailerOwnedChange}
+                    disabled={readOnly}
                   />
                 </Fieldset>
               </FormGroup>
@@ -351,6 +362,7 @@ function ReviewWeightTicket({
                       value="true"
                       checked={values.trailerMeetsCriteria === 'true'}
                       onChange={handleTrailerClaimableChange}
+                      disabled={readOnly}
                     />
                     <Field
                       as={Radio}
@@ -360,6 +372,7 @@ function ReviewWeightTicket({
                       value="false"
                       checked={values.trailerMeetsCriteria === 'false'}
                       onChange={handleTrailerClaimableChange}
+                      disabled={readOnly}
                     />
                     {values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument && (
                       <Alert type="info">Proof of ownership is needed to accept this item.</Alert>
@@ -384,7 +397,9 @@ function ReviewWeightTicket({
                     label="Accept"
                     onChange={handleApprovalChange}
                     data-testid="approveRadio"
-                    disabled={values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument}
+                    disabled={
+                      (values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument) || readOnly
+                    }
                   />
                 </div>
                 <div
@@ -400,6 +415,7 @@ function ReviewWeightTicket({
                     label="Reject"
                     onChange={handleApprovalChange}
                     data-testid="rejectRadio"
+                    disabled={readOnly}
                   />
 
                   {values.status === ppmDocumentStatus.REJECTED && (
@@ -422,6 +438,7 @@ function ReviewWeightTicket({
                             error={touched.rejectionReason ? errors.rejectionReason : null}
                             value={values.rejectionReason}
                             placeholder="Type something"
+                            disabled={readOnly}
                           />
                           <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                         </>
