@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"math"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -31,6 +32,7 @@ type approveShipmentSubtestData struct {
 	mockedShipmentApprover services.ShipmentApprover
 	mockedShipmentRouter   *shipmentmocks.ShipmentRouter
 	reServiceCodes         []models.ReServiceCode
+	moveWeights            services.MoveWeights
 }
 
 // Creates data for the TestApproveShipment function
@@ -90,9 +92,10 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
+	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester())
 
-	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)
-	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner)
+	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights)
+	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights)
 	subtestData.appCtx = suite.AppContextWithSessionForTest(&auth.Session{
 		ApplicationName: auth.OfficeApp,
 		OfficeUserID:    uuid.Must(uuid.NewV4()),
@@ -640,5 +643,81 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			suite.Equal(testCase.pickupLocation.PostalCode, TransitDistancePickupArg)
 			suite.Equal(testCase.destinationLocation.PostalCode, TransitDistanceDestinationArg)
 		}
+	})
+	suite.Run("Approval of a shipment with an estimated weight will update authorized weight", func() {
+		subtestData := suite.createApproveShipmentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		planner := subtestData.planner
+		approver := subtestData.shipmentApprover
+		estimatedWeight := unit.Pound(1234)
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusSubmitted,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+		}, nil)
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(500, nil)
+
+		suite.Equal(8000, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+
+		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag)
+		suite.NoError(approverErr)
+
+		err := appCtx.DB().Reload(shipment.MoveTaskOrder.Orders.Entitlement)
+		suite.NoError(err)
+
+		estimatedWeight110 := int(math.Round(float64(*shipment.PrimeEstimatedWeight) * 1.10))
+		suite.Equal(estimatedWeight110, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+	})
+
+	suite.Run("Approval of a shipment that exceeds excess weight will flag for excess weight", func() {
+		subtestData := suite.createApproveShipmentSubtestData()
+		appCtx := subtestData.appCtx
+		move := subtestData.move
+		planner := subtestData.planner
+		approver := subtestData.shipmentApprover
+		estimatedWeight := unit.Pound(100000)
+		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusSubmitted,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+		}, nil)
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(500, nil)
+
+		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag)
+		suite.NoError(approverErr)
+
+		err := appCtx.DB().Reload(&shipment.MoveTaskOrder)
+		suite.NoError(err)
+
+		suite.NotNil(shipment.MoveTaskOrder.ExcessWeightQualifiedAt)
 	})
 }
