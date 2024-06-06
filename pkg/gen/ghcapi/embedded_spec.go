@@ -3416,8 +3416,8 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/sit-estimated-cost": {
-      "post": {
+    "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
+      "get": {
         "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
         "produces": [
           "application/json"
@@ -3456,28 +3456,16 @@ func init() {
           "$ref": "#/parameters/ppmShipmentId"
         },
         {
-          "name": "body",
-          "in": "body",
-          "schema": {
-            "required": [
-              "sitLocation"
-            ],
-            "properties": {
-              "sitLocation": {
-                "allOf": [
-                  {
-                    "$ref": "#/definitions/SITLocationType"
-                  },
-                  {
-                    "x-nullable": true
-                  },
-                  {
-                    "x-omitempty": false
-                  }
-                ]
-              }
-            }
-          }
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ],
+          "type": "string",
+          "format": "string",
+          "description": "location of sit",
+          "name": "sitLocation",
+          "in": "path",
+          "required": true
         }
       ]
     },
@@ -16267,8 +16255,8 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/sit-estimated-cost": {
-      "post": {
+    "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
+      "get": {
         "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
         "produces": [
           "application/json"
@@ -16327,28 +16315,16 @@ func init() {
           "required": true
         },
         {
-          "name": "body",
-          "in": "body",
-          "schema": {
-            "required": [
-              "sitLocation"
-            ],
-            "properties": {
-              "sitLocation": {
-                "allOf": [
-                  {
-                    "$ref": "#/definitions/SITLocationType"
-                  },
-                  {
-                    "x-nullable": true
-                  },
-                  {
-                    "x-omitempty": false
-                  }
-                ]
-              }
-            }
-          }
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ],
+          "type": "string",
+          "format": "string",
+          "description": "location of sit",
+          "name": "sitLocation",
+          "in": "path",
+          "required": true
         }
       ]
     },

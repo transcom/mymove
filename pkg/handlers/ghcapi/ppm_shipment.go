@@ -57,15 +57,15 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 				return handleError(err)
 			}
 
-			payload := params.Body
+			sitLocationOrigin := models.SITLocationTypeOrigin
+			sitLocationDestination := models.SITLocationTypeDestination
 
-			// if payload == nil {
-			// 	invalidShipmentError := apperror.NewBadDataError("Invalid ppm shipment: params Body is nil")
-			// 	appCtx.Logger().Error(invalidShipmentError.Error())
-			// 	return ppmsitops.NewGetPPMSITEstimatedCostBadRequest(), invalidShipmentError
-			// }
+			if params.SitLocation == (string)(sitLocationOrigin) {
+				ppmShipment.SITLocation = &sitLocationOrigin
+			} else {
+				ppmShipment.SITLocation = &sitLocationDestination
+			}
 
-			ppmShipment.SITLocation = (*models.SITLocationType)(payload.SitLocation)
 			updatedPPMShipment, err := h.PPMEstimator.CalculatePPMSITEstimatedCost(appCtx, ppmShipment)
 
 			if err != nil {

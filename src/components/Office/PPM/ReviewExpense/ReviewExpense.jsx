@@ -25,6 +25,9 @@ import { patchExpense, patchPPMSIT } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
+import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -96,9 +99,9 @@ export default function ReviewExpense({
 
   const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT);
 
-  const sitCost = ppmShipmentInfo?.sitEstimatedCost || '';
   const allowableWeight = ppmShipmentInfo.estimatedWeight;
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
+  const { estimatedCost, isLoading, isError } = useGetPPMSITEstimatedCostQuery(ppmShipmentInfo.id, ppmSITLocation);
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -142,7 +145,7 @@ export default function ReviewExpense({
     const selectedExpenseTypeKey = llvmExpenseTypes[selectedExpenseType]; // Convert nice "stringified" value back into an enum key for ppmExpenseTypes
     const index = computeCurrentCategoryIndex(selectedExpenseTypeKey); // Get index for number at bottom of page (e.x. "Contracted Expense #2")
     setCurrentCategoryIndex(index);
-  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage, ppmSITLocation]);
+  }, [movingExpenseType, tripNumber, computeCurrentCategoryIndex, selectedExpenseType, samePage]);
 
   // If parent state updates to show that we've moved onto another document, then user must've used back or submit button
   useEffect(() => {
@@ -150,7 +153,7 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   const handleSubmit = (values) => {
-    if (values.movingExpenseType === 'Storage') {
+    if (values.movingExpenseType === 'STORAGE') {
       const ppmSitPayload = {
         sitLocation: ppmSITLocation,
       };
@@ -184,6 +187,8 @@ export default function ReviewExpense({
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -251,24 +256,6 @@ export default function ReviewExpense({
               />
               {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                 <>
-                  {/* <div className="labelWrapper">
-                    <Label htmlFor="ppmSITLocation">SIT Location</Label>
-                  </div>
-                  <select
-                    label="SIT Location"
-                    name="ppmSITLocation"
-                    id="sitLocationInput"
-                    required
-                    className={classnames('usa-select')}
-                    value={selectedExpenseType}
-                    onChange={(e) => {
-                      handleSITLocationChange(e);
-                    }}
-                  >
-                    {sitLocationOptions.map((x) => (
-                      <option key={x.key}>{x.value}</option>
-                    ))}
-                  </select> */}
                   <DropdownInput
                     label="SIT Location"
                     id="sitLocationInput"
@@ -279,7 +266,9 @@ export default function ReviewExpense({
                     }}
                   />
                   <legend className={classnames('usa-label', styles.label)}>Cost</legend>
-                  <div className={styles.displayValue}>{toDollarString(formatCents(sitCost))}</div>
+                  <div className={styles.displayValue}>
+                    {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))}
+                  </div>
                 </>
               )}
               <MaskedTextField

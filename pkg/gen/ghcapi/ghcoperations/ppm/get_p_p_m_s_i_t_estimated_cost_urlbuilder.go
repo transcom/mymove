@@ -17,6 +17,7 @@ import (
 // GetPPMSITEstimatedCostURL generates an URL for the get p p m s i t estimated cost operation
 type GetPPMSITEstimatedCostURL struct {
 	PpmShipmentID strfmt.UUID
+	SitLocation   string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,13 +43,20 @@ func (o *GetPPMSITEstimatedCostURL) SetBasePath(bp string) {
 func (o *GetPPMSITEstimatedCostURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/ppm-shipments/{ppmShipmentId}/sit-estimated-cost"
+	var _path = "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost"
 
 	ppmShipmentID := o.PpmShipmentID.String()
 	if ppmShipmentID != "" {
 		_path = strings.Replace(_path, "{ppmShipmentId}", ppmShipmentID, -1)
 	} else {
 		return nil, errors.New("ppmShipmentId is required on GetPPMSITEstimatedCostURL")
+	}
+
+	sitLocation := o.SitLocation
+	if sitLocation != "" {
+		_path = strings.Replace(_path, "{sitLocation}", sitLocation, -1)
+	} else {
+		return nil, errors.New("sitLocation is required on GetPPMSITEstimatedCostURL")
 	}
 
 	_basePath := o._basePath

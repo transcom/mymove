@@ -1127,10 +1127,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/shipments/{shipmentID}/ppm-documents"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/sit-estimated-cost"] = ppm.NewGetPPMSITEstimatedCost(o.context, o.PpmGetPPMSITEstimatedCostHandler)
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost"] = ppm.NewGetPPMSITEstimatedCost(o.context, o.PpmGetPPMSITEstimatedCostHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

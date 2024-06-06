@@ -6,16 +6,9 @@ package ppm
 // Editing this file might prove futile when you re-run the generate command
 
 import (
-	"context"
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
-
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // GetPPMSITEstimatedCostHandlerFunc turns a function with the right signature into a get p p m s i t estimated cost handler
@@ -37,7 +30,7 @@ func NewGetPPMSITEstimatedCost(ctx *middleware.Context, handler GetPPMSITEstimat
 }
 
 /*
-	GetPPMSITEstimatedCost swagger:route POST /ppm-shipments/{ppmShipmentId}/sit-estimated-cost ppm getPPMSITEstimatedCost
+	GetPPMSITEstimatedCost swagger:route GET /ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost ppm getPPMSITEstimatedCost
 
 # Get the SIT estimated cost for a PPM shipment
 
@@ -62,101 +55,4 @@ func (o *GetPPMSITEstimatedCost) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// GetPPMSITEstimatedCostBody get p p m s i t estimated cost body
-//
-// swagger:model GetPPMSITEstimatedCostBody
-type GetPPMSITEstimatedCostBody struct {
-
-	// sit location
-	// Required: true
-	SitLocation *ghcmessages.SITLocationType `json:"sitLocation"`
-}
-
-// Validate validates this get p p m s i t estimated cost body
-func (o *GetPPMSITEstimatedCostBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateSitLocation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetPPMSITEstimatedCostBody) validateSitLocation(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"sitLocation", "body", o.SitLocation); err != nil {
-		return err
-	}
-
-	if err := validate.Required("body"+"."+"sitLocation", "body", o.SitLocation); err != nil {
-		return err
-	}
-
-	if o.SitLocation != nil {
-		if err := o.SitLocation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "sitLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "sitLocation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this get p p m s i t estimated cost body based on the context it is used
-func (o *GetPPMSITEstimatedCostBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateSitLocation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetPPMSITEstimatedCostBody) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
-
-	if o.SitLocation != nil {
-
-		if err := o.SitLocation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "sitLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "sitLocation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPPMSITEstimatedCostBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPPMSITEstimatedCostBody) UnmarshalBinary(b []byte) error {
-	var res GetPPMSITEstimatedCostBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }
