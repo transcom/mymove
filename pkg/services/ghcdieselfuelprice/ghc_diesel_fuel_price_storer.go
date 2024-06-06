@@ -43,6 +43,29 @@ func (d *DieselFuelPriceInfo) RunStorer(appCtx appcontext.AppContext) error {
 	err = appCtx.DB().Where("publication_date = ?", publicationDate).First(&lastGHCDieselFuelPrice)
 	if err != nil {
 		appCtx.Logger().Info("no existing GHCDieselFuelPrice record found with", zap.String("publication_date", publicationDate.String()))
+		newGHCDieselFuelPrice.EffectiveDate = publicationDate.AddDate(0, 0, 1)
+
+		dayOfWeek := publicationDate.Weekday().String()
+		appCtx.Logger().Info("day_of_week", zap.String("day_of_week", dayOfWeek))
+		var daysAdded int
+		//fuel prices are generally published on mondays and then by business rule should expire on monday no matter what- but in case its published on a different day, we will still always expire on the following monday
+		switch dayOfWeek {
+		case "Monday":
+			daysAdded = 7
+		case "Tuesday":
+			daysAdded = 6
+		//very unlikely to get past here- monday is the noraml publish day- tuesday if monday is holiday.. but adding other weekedays just in case
+		case "Wednesday":
+			daysAdded = 6
+		case "Thursday":
+			daysAdded = 4
+		case "Friday":
+			daysAdded = 3
+		}
+
+		newGHCDieselFuelPrice.EndDate = publicationDate.AddDate(0, 0, daysAdded)
+		appCtx.Logger().Info("effective_date", zap.String("effective_date", newGHCDieselFuelPrice.EffectiveDate.String()))
+		appCtx.Logger().Info("end_date", zap.String("EndDate", newGHCDieselFuelPrice.EndDate.String()))
 
 		verrs, err := appCtx.DB().ValidateAndCreate(&newGHCDieselFuelPrice)
 		if err != nil {
@@ -52,16 +75,13 @@ func (d *DieselFuelPriceInfo) RunStorer(appCtx appcontext.AppContext) error {
 			return fmt.Errorf("failed to validate ghcDieselFuelPrice: %w", verrs)
 		}
 	} else if priceInMillicents != lastGHCDieselFuelPrice.FuelPriceInMillicents {
-		appCtx.Logger().Info("Updating existing GHCDieselFuelPrice record found with", zap.String("publication_date", publicationDate.String()))
-		lastGHCDieselFuelPrice.FuelPriceInMillicents = priceInMillicents
+		appCtx.Logger().Info("existing GHCDieselFuelPrice record found with", zap.String("publication_date", publicationDate.String()))
 
-		verrs, err := appCtx.DB().ValidateAndUpdate(&lastGHCDieselFuelPrice)
+		//no longer updating prices throughout the week- only accept the first published price per week
 		if err != nil {
 			return fmt.Errorf("failed to update ghcDieselFuelPrice: %w", err)
 		}
-		if verrs.HasAny() {
-			return fmt.Errorf("failed to validate ghcDieselFuelPrice: %w", verrs)
-		}
+
 	} else {
 		appCtx.Logger().Info(
 			"Existing GHCDieselFuelPrice record found with matching fuel prices",

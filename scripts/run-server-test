@@ -47,6 +47,7 @@ else
   gotest_args+=("-parallel" "8")
   gotest_args+=("-failfast")
 fi
+gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
 
 # Try to compile tests, but don't run them.
 if [[ "${DRY_RUN:-}" == "1" ]]; then
