@@ -157,8 +157,8 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
 				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
-				EffectiveDate:         time.Date(2020, time.March, 8, 0, 0, 0, 0, time.UTC),
-				EndDate:               time.Date(2021, time.March, 15, 0, 0, 0, 0, time.UTC),
+				EffectiveDate:         time.Date(2020, time.March, 10, 0, 0, 0, 0, time.UTC),
+				EndDate:               time.Date(2020, time.March, 16, 0, 0, 0, 0, time.UTC),
 			},
 		})
 
