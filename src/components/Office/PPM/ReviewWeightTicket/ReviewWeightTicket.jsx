@@ -257,197 +257,206 @@ function ReviewWeightTicket({
           };
 
           return (
-            <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
-              <HHGWeightSummary mtoShipments={currentMtoShipments} />
-              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
-              <hr />
-              <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
-              <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
-              <div className={styles.displayValue}>{vehicleDescription}</div>
+            <>
+              <div className={classnames(formStyles.form, styles.ReviewWeightTicket, styles.headerContainer)}>
+                <HHGWeightSummary mtoShipments={currentMtoShipments} />
+                <PPMHeaderSummary
+                  ppmShipmentInfo={ppmShipmentInfo}
+                  ppmNumber={ppmNumber}
+                  showAllFields={false}
+                  className={classnames(formStyles.form)}
+                />
+              </div>
+              <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
+                <hr />
+                <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
+                <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
+                <div className={styles.displayValue}>{vehicleDescription}</div>
 
-              <MaskedTextField
-                defaultValue="0"
-                name="emptyWeight"
-                label="Empty weight"
-                id="emptyWeight"
-                inputTestId="emptyWeight"
-                mask={Number}
-                description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
-                scale={0} // digits after point, 0 for integers
-                min={0} // disallow negative
-                thousandsSeparator=","
-                lazy={false} // immediate masking evaluation
-                suffix="lbs"
-                onBlur={handleWeightFieldsChange}
-                disabled={readOnly}
-              />
+                <MaskedTextField
+                  defaultValue="0"
+                  name="emptyWeight"
+                  label="Empty weight"
+                  id="emptyWeight"
+                  inputTestId="emptyWeight"
+                  mask={Number}
+                  description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
+                  scale={0} // digits after point, 0 for integers
+                  min={0} // disallow negative
+                  thousandsSeparator=","
+                  lazy={false} // immediate masking evaluation
+                  suffix="lbs"
+                  onBlur={handleWeightFieldsChange}
+                  disabled={readOnly}
+                />
 
-              <MaskedTextField
-                defaultValue="0"
-                name="fullWeight"
-                label="Full weight"
-                id="fullWeight"
-                inputTestId="fullWeight"
-                mask={Number}
-                description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
-                scale={0} // digits after point, 0 for integers
-                min={0} // disallow negative
-                thousandsSeparator=","
-                lazy={false} // immediate masking evaluation
-                suffix="lbs"
-                onBlur={handleWeightFieldsChange}
-                disabled={readOnly}
-              />
+                <MaskedTextField
+                  defaultValue="0"
+                  name="fullWeight"
+                  label="Full weight"
+                  id="fullWeight"
+                  inputTestId="fullWeight"
+                  mask={Number}
+                  description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
+                  scale={0} // digits after point, 0 for integers
+                  min={0} // disallow negative
+                  thousandsSeparator=","
+                  lazy={false} // immediate masking evaluation
+                  suffix="lbs"
+                  onBlur={handleWeightFieldsChange}
+                  disabled={readOnly}
+                />
 
-              <MaskedTextField
-                defaultValue="0"
-                name="allowableWeight"
-                label="Allowable weight"
-                id="allowableWeight"
-                inputTestId="allowableWeight"
-                mask={Number}
-                description="Maximum allowable weight"
-                scale={0} // digits after point, 0 for integers
-                min={0} // disallow negative
-                thousandsSeparator=","
-                lazy={false} // immediate masking evaluation
-                suffix="lbs"
-                onBlur={handleWeightFieldsChange}
-                disabled={readOnly}
-              />
-              <EditPPMNetWeight
-                weightTicket={currentWeightTicket}
-                weightAllowance={weightAllowance}
-                shipments={currentMtoShipments}
-                disabled={readOnly}
-              />
+                <MaskedTextField
+                  defaultValue="0"
+                  name="allowableWeight"
+                  label="Allowable weight"
+                  id="allowableWeight"
+                  inputTestId="allowableWeight"
+                  mask={Number}
+                  description="Maximum allowable weight"
+                  scale={0} // digits after point, 0 for integers
+                  min={0} // disallow negative
+                  thousandsSeparator=","
+                  lazy={false} // immediate masking evaluation
+                  suffix="lbs"
+                  onBlur={handleWeightFieldsChange}
+                  disabled={readOnly}
+                />
+                <EditPPMNetWeight
+                  weightTicket={currentWeightTicket}
+                  weightAllowance={weightAllowance}
+                  shipments={currentMtoShipments}
+                  disabled={readOnly}
+                />
 
-              <FormGroup>
-                <Fieldset>
-                  <legend className="usa-label">Did they use a trailer they owned?</legend>
-                  <Field
-                    as={Radio}
-                    id="ownsTrailerYes"
-                    label="Yes"
-                    name="ownsTrailer"
-                    value="true"
-                    checked={values.ownsTrailer === 'true'}
-                    onChange={handleTrailerOwnedChange}
-                    disabled={readOnly}
-                  />
-                  <Field
-                    as={Radio}
-                    id="ownsTrailerNo"
-                    label="No"
-                    name="ownsTrailer"
-                    value="false"
-                    checked={values.ownsTrailer === 'false'}
-                    onChange={handleTrailerOwnedChange}
-                    disabled={readOnly}
-                  />
-                </Fieldset>
-              </FormGroup>
-              {values.ownsTrailer === 'true' && (
                 <FormGroup>
                   <Fieldset>
-                    <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
-                    <ErrorMessage display={!!errors?.trailerMeetsCriteria && !!touched?.trailerMeetsCriteria}>
-                      {errors.trailerMeetsCriteria}
-                    </ErrorMessage>
+                    <legend className="usa-label">Did they use a trailer they owned?</legend>
                     <Field
                       as={Radio}
-                      id="trailerCriteriaYes"
+                      id="ownsTrailerYes"
                       label="Yes"
-                      name="trailerMeetsCriteria"
+                      name="ownsTrailer"
                       value="true"
-                      checked={values.trailerMeetsCriteria === 'true'}
-                      onChange={handleTrailerClaimableChange}
+                      checked={values.ownsTrailer === 'true'}
+                      onChange={handleTrailerOwnedChange}
                       disabled={readOnly}
                     />
                     <Field
                       as={Radio}
-                      id="trailerCriteriaNo"
+                      id="ownsTrailerNo"
                       label="No"
-                      name="trailerMeetsCriteria"
+                      name="ownsTrailer"
                       value="false"
-                      checked={values.trailerMeetsCriteria === 'false'}
-                      onChange={handleTrailerClaimableChange}
+                      checked={values.ownsTrailer === 'false'}
+                      onChange={handleTrailerOwnedChange}
                       disabled={readOnly}
                     />
-                    {values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument && (
-                      <Alert type="info">Proof of ownership is needed to accept this item.</Alert>
-                    )}
                   </Fieldset>
                 </FormGroup>
-              )}
-              <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
-              <p>Add a review for this Weight Ticket</p>
-              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
-              <Fieldset className={styles.statusOptions}>
-                <div
-                  className={classnames(approveRejectStyles.statusOption, {
-                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
-                  })}
-                >
-                  <Radio
-                    id={`approve-${weightTicket?.id}`}
-                    checked={values.status === ppmDocumentStatus.APPROVED}
-                    value={ppmDocumentStatus.APPROVED}
-                    name="status"
-                    label="Accept"
-                    onChange={handleApprovalChange}
-                    data-testid="approveRadio"
-                    disabled={
-                      (values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument) || readOnly
-                    }
-                  />
-                </div>
-                <div
-                  className={classnames(approveRejectStyles.statusOption, styles.reject, {
-                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
-                  })}
-                >
-                  <Radio
-                    id={`reject-${weightTicket?.id}`}
-                    checked={values.status === ppmDocumentStatus.REJECTED}
-                    value={ppmDocumentStatus.REJECTED}
-                    name="status"
-                    label="Reject"
-                    onChange={handleApprovalChange}
-                    data-testid="rejectRadio"
-                    disabled={readOnly}
-                  />
-
-                  {values.status === ppmDocumentStatus.REJECTED && (
-                    <FormGroup className={styles.reason}>
-                      <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason</Label>
-                      {!canEditRejection && (
-                        <p data-testid="rejectionReasonReadOnly">{weightTicket?.reason || values.rejectionReason}</p>
+                {values.ownsTrailer === 'true' && (
+                  <FormGroup>
+                    <Fieldset>
+                      <legend className="usa-label">{`Is the trailer's weight claimable?`}</legend>
+                      <ErrorMessage display={!!errors?.trailerMeetsCriteria && !!touched?.trailerMeetsCriteria}>
+                        {errors.trailerMeetsCriteria}
+                      </ErrorMessage>
+                      <Field
+                        as={Radio}
+                        id="trailerCriteriaYes"
+                        label="Yes"
+                        name="trailerMeetsCriteria"
+                        value="true"
+                        checked={values.trailerMeetsCriteria === 'true'}
+                        onChange={handleTrailerClaimableChange}
+                        disabled={readOnly}
+                      />
+                      <Field
+                        as={Radio}
+                        id="trailerCriteriaNo"
+                        label="No"
+                        name="trailerMeetsCriteria"
+                        value="false"
+                        checked={values.trailerMeetsCriteria === 'false'}
+                        onChange={handleTrailerClaimableChange}
+                        disabled={readOnly}
+                      />
+                      {values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument && (
+                        <Alert type="info">Proof of ownership is needed to accept this item.</Alert>
                       )}
+                    </Fieldset>
+                  </FormGroup>
+                )}
+                <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
+                <p>Add a review for this Weight Ticket</p>
+                <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
+                <Fieldset className={styles.statusOptions}>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, {
+                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
+                    })}
+                  >
+                    <Radio
+                      id={`approve-${weightTicket?.id}`}
+                      checked={values.status === ppmDocumentStatus.APPROVED}
+                      value={ppmDocumentStatus.APPROVED}
+                      name="status"
+                      label="Accept"
+                      onChange={handleApprovalChange}
+                      data-testid="approveRadio"
+                      disabled={
+                        (values.trailerMeetsCriteria === 'true' && !hasProofOfTrailerOwnershipDocument) || readOnly
+                      }
+                    />
+                  </div>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, styles.reject, {
+                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
+                    })}
+                  >
+                    <Radio
+                      id={`reject-${weightTicket?.id}`}
+                      checked={values.status === ppmDocumentStatus.REJECTED}
+                      value={ppmDocumentStatus.REJECTED}
+                      name="status"
+                      label="Reject"
+                      onChange={handleApprovalChange}
+                      data-testid="rejectRadio"
+                      disabled={readOnly}
+                    />
 
-                      {canEditRejection && (
-                        <>
-                          <ErrorMessage display={!!errors?.rejectionReason && !!touched?.rejectionReason}>
-                            {errors.rejectionReason}
-                          </ErrorMessage>
-                          <Textarea
-                            id={`rejectReason-${weightTicket?.id}`}
-                            data-testid="rejectionReasonText"
-                            name="rejectionReason"
-                            onChange={handleRejectionReasonChange}
-                            error={touched.rejectionReason ? errors.rejectionReason : null}
-                            value={values.rejectionReason}
-                            placeholder="Type something"
-                            disabled={readOnly}
-                          />
-                          <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
-                        </>
-                      )}
-                    </FormGroup>
-                  )}
-                </div>
-              </Fieldset>
-            </Form>
+                    {values.status === ppmDocumentStatus.REJECTED && (
+                      <FormGroup className={styles.reason}>
+                        <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason</Label>
+                        {!canEditRejection && (
+                          <p data-testid="rejectionReasonReadOnly">{weightTicket?.reason || values.rejectionReason}</p>
+                        )}
+
+                        {canEditRejection && (
+                          <>
+                            <ErrorMessage display={!!errors?.rejectionReason && !!touched?.rejectionReason}>
+                              {errors.rejectionReason}
+                            </ErrorMessage>
+                            <Textarea
+                              id={`rejectReason-${weightTicket?.id}`}
+                              data-testid="rejectionReasonText"
+                              name="rejectionReason"
+                              onChange={handleRejectionReasonChange}
+                              error={touched.rejectionReason ? errors.rejectionReason : null}
+                              value={values.rejectionReason}
+                              placeholder="Type something"
+                              disabled={readOnly}
+                            />
+                            <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
+                          </>
+                        )}
+                      </FormGroup>
+                    )}
+                  </div>
+                </Fieldset>
+              </Form>
+            </>
           );
         }}
       </Formik>
