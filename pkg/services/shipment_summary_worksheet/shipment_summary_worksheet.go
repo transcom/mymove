@@ -328,7 +328,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ShipmentPickupDates = formattedShipments.PickUpDates
-  page2.TrustedAgentName = trustedAgentText
+	page2.TrustedAgentName = trustedAgentText
 	page2.ServiceMemberSignature = certificationInfo.CustomerField
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
