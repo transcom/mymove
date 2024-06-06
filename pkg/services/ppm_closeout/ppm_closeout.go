@@ -138,23 +138,6 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 	}
 	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
 
-	if ppmShipment.Shipment.SITDaysAllowance != nil && ppmShipment.SITLocation != nil &&
-		ppmShipment.SITEstimatedEntryDate != nil &&
-		ppmShipment.SITEstimatedDepartureDate != nil {
-
-		contractDate := fullEntitlementPPM.ExpectedDepartureDate
-		contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-		if errFetch != nil {
-			return gcc, errFetch
-		}
-
-		sitCost, sitCalcErr := ppmshipment.CalculateSITCost(appCtx, &fullEntitlementPPM, contract)
-		if sitCalcErr != nil {
-			return gcc, sitCalcErr
-		}
-		gcc = gcc.AddCents(*sitCost)
-	}
-
 	// If SITExpected is set to true but the required fields (SITEstimatedStart, SITEstimatedEnd, SITEstimatedCost) are not set (bug/design issue with GUI workflow),
 	// then set SITExpected to false, or else the estimator will return an error.
 	if *ppmShipment.SITExpected && (ppmShipment.SITEstimatedEntryDate == nil || ppmShipment.SITEstimatedDepartureDate == nil ||
@@ -175,6 +158,9 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 	}
 	if finalIncentive != nil {
 		gcc = gcc.AddCents(*finalIncentive)
+		if ppmShipment.SITEstimatedCost != nil {
+			gcc = gcc.AddCents(*ppmShipment.SITEstimatedCost)
+		}
 	}
 	return gcc, err
 }
@@ -226,8 +212,8 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 		}
 	}
 
-	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" or "PAYMENT_APPROVED" status, if not, it's not ready for closeout
-	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval && ppmShipment.Status != models.PPMShipmentStatusPaymentApproved {
+	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status, if not, it's not ready for closeout
+	if ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
 		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
 	}
 
