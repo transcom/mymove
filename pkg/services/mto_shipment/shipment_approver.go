@@ -16,17 +16,19 @@ import (
 )
 
 type shipmentApprover struct {
-	router    services.ShipmentRouter
-	siCreator services.MTOServiceItemCreator
-	planner   route.Planner
+	router      services.ShipmentRouter
+	siCreator   services.MTOServiceItemCreator
+	planner     route.Planner
+	moveWeights services.MoveWeights
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights) services.ShipmentApprover {
 	return &shipmentApprover{
 		router,
 		siCreator,
 		planner,
+		moveWeights,
 	}
 }
 
@@ -60,6 +62,15 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	// recalculate the authorized weight to include the newly authorized shipment
 	if shipment.PrimeEstimatedWeight != nil {
 		err = f.updateAuthorizedWeight(appCtx, shipment)
+		if err != nil {
+			return nil, err
+		}
+
+		// changes to estimated weight need to run thecheck for excess weight
+		_, verrs, err := f.moveWeights.CheckExcessWeight(appCtx, shipment.MoveTaskOrderID, *shipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, errors.New(verrs.Error())
+		}
 		if err != nil {
 			return nil, err
 		}
