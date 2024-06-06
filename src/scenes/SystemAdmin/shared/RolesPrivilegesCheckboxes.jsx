@@ -24,7 +24,9 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }
     return roles.reduce((rolesArray, role) => {
       if (role.roleType) {
-        rolesArray.push(role.roleType);
+        if (isHeadquartersRoleFF || (!isHeadquartersRoleFF && role.roleType !== 'headquarters')) {
+          rolesArray.push(role.roleType);
+        }
       }
 
       rolesSelected = rolesArray;

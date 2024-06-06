@@ -1,5 +1,3 @@
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
 // eslint-disable-next-line import/prefer-default-export
 export const roleTypes = {
   TOO: 'transportation_ordering_officer',
@@ -13,8 +11,6 @@ export const roleTypes = {
   CUSTOMER_SERVICE_REPRESENTATIVE: 'customer_service_representative',
 };
 
-const hqRoleFF = await isBooleanFlagEnabled('headquarters_role');
-
 export const adminOfficeRoles = [
   { roleType: 'customer', name: 'Customer' },
   { roleType: 'transportation_ordering_officer', name: 'Transportation Ordering Officer' },
@@ -23,7 +19,7 @@ export const adminOfficeRoles = [
   { roleType: 'services_counselor', name: 'Services Counselor' },
   { roleType: 'prime_simulator', name: 'Prime Simulator' },
   { roleType: 'qae_csr', name: 'Quality Assurance and Customer Support' },
-  hqRoleFF ? { roleType: 'headquarters', name: 'Headquarters' } : null,
+  { roleType: 'headquarters', name: 'Headquarters' },
 ];
 
 export const officeRoles = [
@@ -32,6 +28,6 @@ export const officeRoles = [
   roleTypes.SERVICES_COUNSELOR,
   roleTypes.PRIME_SIMULATOR,
   roleTypes.QAE_CSR,
-  hqRoleFF ? roleTypes.HQ : null,
+  roleTypes.HQ,
   roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
 ];

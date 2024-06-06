@@ -13,8 +13,6 @@ import { generalRoutes } from 'constants/routes';
 export const RequestAccount = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
-  // Since we cannot currently get feature flags while unauthenticated, we hard code the FF off until its ready
-  const isHeadquartersRoleFF = false;
 
   const initialValues = {
     officeAccountRequestFirstName: '',
@@ -62,12 +60,6 @@ export const RequestAccount = ({ setFlashMessage }) => {
       requestedRoles.push({
         name: 'Quality Assurance and Customer Service',
         roleType: 'qae_csr',
-      });
-    }
-    if (isHeadquartersRoleFF && values.headquartersCheckBox) {
-      requestedRoles.push({
-        name: 'Headquarters',
-        roleType: 'headquarters',
       });
     }
     if (values.customerSupportRepresentativeCheckBox) {

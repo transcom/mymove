@@ -16,8 +16,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
   const edipiFieldName = 'officeAccountRequestEdipi';
   const otherUniqueIdName = 'officeAccountRequestOtherUniqueId';
   const transportationOfficeDropDown = 'officeAccountTransportationOffice';
-  // Since we cannot currently get feature flags while unauthenticated, we hard code the FF off until its ready
-  const isHeadquartersRoleFF = false;
 
   return (
     <Fieldset>
@@ -92,14 +90,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
             name="qualityAssuranceAndCustomerSupportCheckBox"
             label="Quality Assurance & Customer Support"
           />
-          {isHeadquartersRoleFF && (
-            <CheckboxField
-              id="headquartersCheckBox"
-              data-testid="headquartersCheckBox"
-              name="headquartersCheckBox"
-              label="Headquarters"
-            />
-          )}
           <CheckboxField
             id="customerSupportRepresentativeCheckBox"
             data-testid="customerSupportRepresentativeCheckBox"
