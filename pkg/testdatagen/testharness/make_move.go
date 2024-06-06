@@ -257,6 +257,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	sitDaysAllowance := 270
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
+	actualPickupDate := time.Now().AddDate(0, 0, 1)
 	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
@@ -265,6 +266,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				Status:               models.MTOShipmentStatusSubmitted,
 				SITDaysAllowance:     &sitDaysAllowance,
+				ActualPickupDate:     &actualPickupDate,
 			},
 		},
 		{
