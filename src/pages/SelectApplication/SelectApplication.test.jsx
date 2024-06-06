@@ -37,6 +37,7 @@ describe('SelectApplication component', () => {
           { roleType: roleTypes.TIO },
           { roleType: roleTypes.SERVICES_COUNSELOR },
           { roleType: roleTypes.QAE_CSR },
+          { roleType: roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE },
         ]}
         setActiveRole={mockSetActiveRole}
       />,
@@ -48,6 +49,11 @@ describe('SelectApplication component', () => {
       wrapper.containsMatchingElement(<button type="button">Select {roleTypes.SERVICES_COUNSELOR}</button>),
     ).toEqual(true);
     expect(wrapper.containsMatchingElement(<button type="button">Select {roleTypes.QAE_CSR}</button>)).toEqual(true);
+    expect(
+      wrapper.containsMatchingElement(
+        <button type="button">Select {roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE}</button>,
+      ),
+    ).toEqual(true);
   });
 
   it('handles setActiveRole with the selected role', () => {
