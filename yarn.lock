@@ -4551,7 +4551,7 @@
   version "1.2.2"
   resolved "git+https://github.com/transcom/react-file-viewer#10017b3011cee1da4483c74f2c08687de8682330"
   dependencies:
-    pdfjs-dist "^4.2.67"
+    pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
     react-visibility-sensor "^5.0.2"
     sass "^1.77.2"
