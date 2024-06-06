@@ -47,7 +47,7 @@ func (suite *TransportationAccountingCodeServiceSuite) TestFetchOrderTransportat
 				},
 			},
 		}, nil)
-		factory.BuildTransportationAccountingCode(suite.AppContextForTest().DB(), []factory.Customization{
+		factory.BuildTransportationAccountingCodeWithoutAttachedLoa(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
 					TAC:               tacCode,
@@ -75,6 +75,7 @@ func (suite *TransportationAccountingCodeServiceSuite) TestFetchOrderTransportat
 			}
 			suite.NotEmpty(tacs)
 			suite.Equal(tacCode, tacs[0].TAC)
+			suite.Len(tacs, 1)
 			// Assert that the TAC came back with a LOA. This is important as
 			// the line of accounting service object will need these.
 			// The LOA service object uses this service as the line of accounting

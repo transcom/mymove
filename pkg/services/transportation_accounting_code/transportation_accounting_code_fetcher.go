@@ -51,11 +51,11 @@ func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingC
 		return []models.TransportationAccountingCode{}, err
 	}
 	// Grab the associated LOAs
-	for _, tac := range tacs {
+	for memoryIterationOfTac := range tacs {
 		var loa models.LineOfAccounting
 		// Find the LOA for this TAC's loa_sys_id
-		if tac.LoaSysID != nil {
-			err = appCtx.DB().Where("loa_sys_id = ?", tac.LoaSysID).First(&loa)
+		if tacs[memoryIterationOfTac].LoaSysID != nil {
+			err = appCtx.DB().Where("loa_sys_id = ?", tacs[memoryIterationOfTac].LoaSysID).First(&loa)
 			if err != nil {
 				switch err {
 				case sql.ErrNoRows:
@@ -64,7 +64,17 @@ func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingC
 					return []models.TransportationAccountingCode{}, err
 				}
 			}
-			*tac.LineOfAccounting = loa
+			// If this TAC is getting a LOA from POP, that's because it's from manually imported TGET data prior to September 2023
+			// So, we need to have a conditional memory assignment here
+			if tacs[memoryIterationOfTac].LineOfAccounting == nil {
+				// This is new TGET data with no key references in the databases (Future overhaul should switch to using LoaSysId instead of ID)
+				// Since this is new, we need to assign the memory for a loa object before linking the LOA to the TAC
+				tacs[memoryIterationOfTac].LineOfAccounting = &loa
+			} else {
+				// Else, LineOfAccounting is not nil, meaning a LOA is being returned with this TAC.
+				// We want to override this with the LoaSysId pulled LOA (The loas we manually looked up)
+				*tacs[memoryIterationOfTac].LineOfAccounting = loa
+			}
 		}
 	}
 	return tacs, nil
