@@ -1515,6 +1515,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		StandaloneCrate:               s.StandaloneCrate,
+		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 	}
 }
 

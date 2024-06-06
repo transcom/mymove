@@ -12,7 +12,7 @@ import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape } from 'types/sitStatusShape';
 import { formatDateWithUTC } from 'shared/dates';
 import { formatCityStateAndPostalCode } from 'utils/shipmentDisplay';
-import { formatWeight, convertFromThousandthInchToInch } from 'utils/formatters';
+import { formatWeight, convertFromThousandthInchToInch, formatCents, toDollarString } from 'utils/formatters';
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
@@ -350,7 +350,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     }
     case 'DCRT':
     case 'DCRTSA': {
-      const { description, itemDimensions, crateDimensions, standaloneCrate } = details;
+      const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
       )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
@@ -368,7 +368,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {standaloneCrate && generateDetailText({ 'Standalone Crate': String(standaloneCrate) }, id)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
@@ -449,6 +448,24 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
                 ))}
               </div>
             ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
+    case 'DLH':
+    case 'DSH':
+    case 'FSC':
+    case 'DOP':
+    case 'DDP':
+    case 'DPK':
+    case 'DUPK': {
+      detailSection = (
+        <div>
+          <dl>
+            {generateDetailText({
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
           </dl>
         </div>
       );
