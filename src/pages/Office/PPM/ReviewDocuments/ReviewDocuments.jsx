@@ -297,6 +297,8 @@ export const ReviewDocuments = () => {
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
+                    documentSets={documentSets}
+                    documentSetIndex={documentSetIndex}
                     categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}

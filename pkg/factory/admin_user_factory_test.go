@@ -85,7 +85,7 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		tioRole := roles.Role{
 			ID:       uuid.Must(uuid.NewV4()),
 			RoleType: roles.RoleTypeTIO,
-			RoleName: "Transportation Invoicing Officer",
+			RoleName: "Task Invoicing Officer",
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&tioRole)
 		suite.NoError(err)
