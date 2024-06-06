@@ -29,7 +29,7 @@ class QaeFlowPage extends OfficePage {
    * search for and navigate to move, then QA tab
    */
   async searchForAndNavigateToMoveQATab() {
-    await this.qaeCsrSearchForAndNavigateToMove(this.moveLocator);
+    await this.qaeSearchForAndNavigateToMove(this.moveLocator);
 
     // Go to quality assurance tab
     await this.page.getByText('Quality assurance').click();

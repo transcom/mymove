@@ -14,7 +14,7 @@ test.describe('Customer Support User Flows', () => {
       const moveLocator = move.locator;
 
       await officePage.signInAsNewQAEUser();
-      await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
+      await officePage.csrSearchForAndNavigateToMove(moveLocator);
 
       // Go to Customer support remarks
       await page.getByText('Customer support remarks').click();
@@ -104,7 +104,7 @@ test.describe('Customer Support User Flows', () => {
       await page.waitForURL('**/sign-in');
 
       await officePage.signInAsNewQAEUser();
-      await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
+      await officePage.csrSearchForAndNavigateToMove(moveLocator);
 
       // Go to Customer support remarks
       await page.getByText('Customer support remarks').click();
@@ -123,7 +123,7 @@ test.describe('Customer Support User Flows', () => {
       const moveLocator = move.locator;
 
       await officePage.signInAsNewQAEUser();
-      await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
+      await officePage.csrSearchForAndNavigateToMove(moveLocator);
 
       // Navigate to view orders page
       await page.locator('[data-testid="view-orders"]').getByText('View orders').click();
@@ -146,7 +146,7 @@ test.describe('Customer Support User Flows', () => {
       const moveLocator = move.locator;
 
       await officePage.signInAsNewQAEUser();
-      await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
+      await officePage.csrSearchForAndNavigateToMove(moveLocator);
 
       // Navigate to view allowances page
       await page.locator('[data-testid="view-allowances"]').getByText('View allowances').click();
@@ -172,7 +172,7 @@ test.describe('Customer Support User Flows', () => {
       const moveLocator = move.locator;
 
       await officePage.signInAsNewQAEUser();
-      await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
+      await officePage.csrSearchForAndNavigateToMove(moveLocator);
 
       await page.getByText('Payment requests').click();
 

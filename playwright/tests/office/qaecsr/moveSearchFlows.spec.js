@@ -7,7 +7,7 @@
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
 
-test.describe('QAE/CSR Move Search', () => {
+test.describe('QAE Move Search', () => {
   test('is able to search by move code', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     const moveLocator = move.locator;
@@ -15,7 +15,7 @@ test.describe('QAE/CSR Move Search', () => {
     await officePage.signInAsNewQAEUser();
 
     // Type move code into search bar (move code is default search type)
-    await officePage.qaeCsrSearchForAndNavigateToMove(moveLocator);
+    await officePage.qaeSearchForAndNavigateToMove(moveLocator);
     await expect(page.locator('h1').getByText('Move details', { exact: true })).toBeVisible();
   });
 
