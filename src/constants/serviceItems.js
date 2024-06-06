@@ -51,6 +51,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ZipSITOriginHHGOriginalAddress: 'ZipSITOriginHHGOriginalAddress',
   StandaloneCrate: 'StandaloneCrate',
   StandaloneCrateCap: 'StandaloneCrateCap',
+  UncappedRequestTotal: 'UncappedRequestTotal',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -115,6 +116,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
   StandaloneCrate: 'Standalone Crate Cap',
+  UncappedRequestTotal: 'Uncapped Request Total',
   Total: 'Total',
 };
 
