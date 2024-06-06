@@ -8759,6 +8759,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -21856,6 +21862,12 @@ func init() {
           "description": "The price of the linehaul or shorthaul.",
           "type": "integer",
           "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulType": {
+          "description": "The type of haul calculation used for this shipment (shorthaul or linehaul).",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
