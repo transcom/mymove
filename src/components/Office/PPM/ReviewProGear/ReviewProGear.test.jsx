@@ -179,7 +179,7 @@ describe('ReviewProGear component', () => {
       });
       expect(screen.getByText('Kia Forte')).toBeInTheDocument();
       expect(screen.getByLabelText(/Shipment's pro-gear weight/)).toHaveDisplayValue('400');
-      expect(screen.getByLabelText(/Shipment's pro-gear weight/)).toBeDisabled();;
+      expect(screen.getByLabelText(/Shipment's pro-gear weight/)).toBeDisabled();
     });
 
     it('populates disabled edit form when pro-gear weight ticket is missing', async () => {
