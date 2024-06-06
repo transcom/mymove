@@ -175,7 +175,7 @@
     "react-select-event": "^5.5.1",
     "react-test-renderer": "^17.0.1",
     "source-map-explorer": "^2.5.3",
-    "storybook": "^7.6.7",
+    "storybook": "^8.1.6",
     "stream-http": "^3.2.0",
     "typescript": "^5.1.6"
   },
