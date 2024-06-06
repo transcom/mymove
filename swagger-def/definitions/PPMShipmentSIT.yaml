@@ -1,4 +1,4 @@
-description: A personally procured move is a type of shipment that a service member moves themselves.
+description: SIT related items for a PPM shipment
 x-nullable: true
 properties:
   updatedAt:

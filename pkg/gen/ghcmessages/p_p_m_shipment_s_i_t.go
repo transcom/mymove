@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// PPMShipmentSIT A personally procured move is a type of shipment that a service member moves themselves.
+// PPMShipmentSIT SIT related items for a PPM shipment
 //
 // swagger:model PPMShipmentSIT
 type PPMShipmentSIT struct {

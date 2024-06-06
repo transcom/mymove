@@ -150,14 +150,16 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   const handleSubmit = (values) => {
-    const ppmSitPayload = {
-      sitLocation: ppmSITLocation,
-    };
-    patchPPMSITMutation({
-      ppmShipmentId: expense.ppmShipmentId,
-      payload: ppmSitPayload,
-      eTag: ppmShipmentInfo.eTag,
-    });
+    if (values.movingExpenseType === 'Storage') {
+      const ppmSitPayload = {
+        sitLocation: ppmSITLocation,
+      };
+      patchPPMSITMutation({
+        ppmShipmentId: expense.ppmShipmentId,
+        payload: ppmSitPayload,
+        eTag: ppmShipmentInfo.eTag,
+      });
+    }
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],

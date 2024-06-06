@@ -1909,6 +1909,47 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/sit-estimated-cost:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+      - in: body
+        name: body
+        schema:
+          properties:
+            sitLocation:
+              allOf:
+                - $ref: '#/definitions/SITLocationType'
+                - x-nullable: true
+                - x-omitempty: false
+          required:
+            - sitLocation
+    post:
+      summary: Get the SIT estimated cost for a PPM shipment
+      description: >
+        Calculates and returns the SIT estimated cost for the specified PPM
+        shipment.
+      operationId: getPPMSITEstimatedCost
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: >-
+            Calculates and returns the SIT estimated cost for the specified PPM
+            shipment.
+          schema:
+            $ref: '#/definitions/PPMSITEstimatedCost'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
@@ -8519,9 +8560,7 @@ definitions:
       EXCLUDED: Excluded
       REJECTED: Rejected
   PPMShipmentSIT:
-    description: >-
-      A personally procured move is a type of shipment that a service member
-      moves themselves.
+    description: SIT related items for a PPM shipment
     x-nullable: true
     properties:
       updatedAt:
@@ -8679,6 +8718,18 @@ definitions:
         x-omitempty: false
     required:
       - actualWeight
+  PPMSITEstimatedCost:
+    description: >-
+      The estimated cost of SIT for a single PPM shipment. Used during document
+      review for PPM.
+    properties:
+      estimatedCost:
+        example: 2000
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - estimatedCost
   MTOServiceItemSingle:
     type: object
     properties:

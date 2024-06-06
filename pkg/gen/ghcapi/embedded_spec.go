@@ -3416,6 +3416,71 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/sit-estimated-cost": {
+      "post": {
+        "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the SIT estimated cost for a PPM shipment",
+        "operationId": "getPPMSITEstimatedCost",
+        "responses": {
+          "200": {
+            "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMSITEstimatedCost"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "sitLocation"
+            ],
+            "properties": {
+              "sitLocation": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/SITLocationType"
+                  },
+                  {
+                    "x-nullable": true
+                  },
+                  {
+                    "x-omitempty": false
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
@@ -8862,6 +8927,20 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMSITEstimatedCost": {
+      "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
+      "required": [
+        "estimatedCost"
+      ],
+      "properties": {
+        "estimatedCost": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -9182,7 +9261,7 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentSIT": {
-      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
+      "description": "SIT related items for a PPM shipment",
       "required": [
         "sitLocation"
       ],
@@ -16188,6 +16267,91 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/sit-estimated-cost": {
+      "post": {
+        "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the SIT estimated cost for a PPM shipment",
+        "operationId": "getPPMSITEstimatedCost",
+        "responses": {
+          "200": {
+            "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMSITEstimatedCost"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "sitLocation"
+            ],
+            "properties": {
+              "sitLocation": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/SITLocationType"
+                  },
+                  {
+                    "x-nullable": true
+                  },
+                  {
+                    "x-omitempty": false
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
@@ -22031,6 +22195,20 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMSITEstimatedCost": {
+      "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
+      "required": [
+        "estimatedCost"
+      ],
+      "properties": {
+        "estimatedCost": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -22351,7 +22529,7 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentSIT": {
-      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
+      "description": "SIT related items for a PPM shipment",
       "required": [
         "sitLocation"
       ],

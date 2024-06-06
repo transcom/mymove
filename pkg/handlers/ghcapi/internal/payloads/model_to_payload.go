@@ -1126,6 +1126,17 @@ func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
 	return payload
 }
 
+func PPMSITEstimatedCost(ppmSITEstimatedCost *unit.Cents) *ghcmessages.PPMSITEstimatedCost {
+	if ppmSITEstimatedCost == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMSITEstimatedCost{
+		EstimatedCost: handlers.FmtCost(ppmSITEstimatedCost),
+	}
+
+	return payload
+}
+
 // ShipmentAddressUpdate payload
 func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *ghcmessages.ShipmentAddressUpdate {
 	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {

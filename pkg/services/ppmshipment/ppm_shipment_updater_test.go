@@ -1378,7 +1378,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(state, updatedPPM.SecondaryDestinationAddress.State)
 		suite.Equal(postalCode, updatedPPM.SecondaryDestinationAddress.PostalCode)
 	})
-	suite.Run("Can successfully update a PPMShipment SIT estimated cost", func() {
+	suite.Run("Can successfully update a PPM Shipment SIT estimated cost", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		setupPricerData()
 		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
@@ -1421,5 +1421,89 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.NilOrNoVerrs(err)
 		suite.NotEqual(*updatedPPM.SITEstimatedCost, newFakeSITEstimatedCost)
+	})
+	suite.Run("Can't find contract for PPM SIT Estimated Cost calculation", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+		newFakeSITEstimatedCost := models.CentPointer(unit.Cents(62500))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
+		sitLocationDestination := models.SITLocationTypeDestination
+		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					DestinationPostalCode:     "30813",
+					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &sitLocationDestination,
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					SITEstimatedWeight:        models.PoundPointer(1000),
+					SITEstimatedCost:          newFakeSITEstimatedCost,
+				},
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		mockedPlanner := &routemocks.Planner{}
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"90210", "30813").Return(2294, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
+
+		suite.Error(err)
+		suite.Nil(updatedPPM)
+	})
+	suite.Run("Can't successfully find the PPM Shipment to update SIT estimated cost", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+		newFakeSITEstimatedCost := models.CentPointer(unit.Cents(62500))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
+		sitLocationDestination := models.SITLocationTypeDestination
+		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					DestinationPostalCode:     "30813",
+					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &sitLocationDestination,
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					SITEstimatedWeight:        models.PoundPointer(1000),
+					SITEstimatedCost:          newFakeSITEstimatedCost,
+				},
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		originalPPM.ID = uuid.Nil
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
+
+		suite.Error(err)
+		suite.Nil(updatedPPM)
 	})
 }

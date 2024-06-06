@@ -180,6 +180,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmGetPPMDocumentsHandler: ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
 		}),
+		PpmGetPPMSITEstimatedCostHandler: ppm.GetPPMSITEstimatedCostHandlerFunc(func(params ppm.GetPPMSITEstimatedCostParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMSITEstimatedCost has not yet been implemented")
+		}),
 		PwsViolationsGetPWSViolationsHandler: pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		}),
@@ -443,6 +446,8 @@ type MymoveAPI struct {
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
 	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
+	// PpmGetPPMSITEstimatedCostHandler sets the operation handler for the get p p m s i t estimated cost operation
+	PpmGetPPMSITEstimatedCostHandler ppm.GetPPMSITEstimatedCostHandler
 	// PwsViolationsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
@@ -733,6 +738,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmGetPPMDocumentsHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMDocumentsHandler")
+	}
+	if o.PpmGetPPMSITEstimatedCostHandler == nil {
+		unregistered = append(unregistered, "ppm.GetPPMSITEstimatedCostHandler")
 	}
 	if o.PwsViolationsGetPWSViolationsHandler == nil {
 		unregistered = append(unregistered, "pws_violations.GetPWSViolationsHandler")
@@ -1119,6 +1127,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/shipments/{shipmentID}/ppm-documents"] = ppm.NewGetPPMDocuments(o.context, o.PpmGetPPMDocumentsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/sit-estimated-cost"] = ppm.NewGetPPMSITEstimatedCost(o.context, o.PpmGetPPMSITEstimatedCostHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
