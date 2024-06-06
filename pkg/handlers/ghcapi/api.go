@@ -366,6 +366,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter),
 			handlerConfig.HHGPlanner(),
+			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 		),
 		shipmentSITStatus,
 	}

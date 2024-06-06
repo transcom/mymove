@@ -39,7 +39,7 @@ describe('OfficeAccountRequestFields component', () => {
     const tooCheckbox = await screen.getByTestId('transportationOrderingOfficerCheckBox');
     expect(tooCheckbox).toBeInstanceOf(HTMLInputElement);
 
-    const tioCheckbox = await screen.getByTestId('transportationInvoicingOfficerCheckBox');
+    const tioCheckbox = await screen.getByTestId('taskInvoicingOfficerCheckBox');
     expect(tioCheckbox).toBeInstanceOf(HTMLInputElement);
 
     const tcoCheckbox = await screen.getByTestId('transportationContractingOfficerCheckBox');
