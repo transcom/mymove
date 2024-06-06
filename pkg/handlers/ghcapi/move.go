@@ -72,7 +72,12 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				}
 			}
 
-			if move.Orders.OrdersType == "SAFETY" && !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			moveOrders, err := models.FetchOrder(appCtx.DB(), move.OrdersID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
+			if moveOrders.OrdersType == "SAFETY" && !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 				appCtx.Logger().Error("Invalid permissions")
 				return moveop.NewGetMoveNotFound(), nil
 			} else {
