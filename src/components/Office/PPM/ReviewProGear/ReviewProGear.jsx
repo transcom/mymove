@@ -229,7 +229,7 @@ export default function ReviewProGear({
                       data-testid="rejectRadio"
                       className={styles.rejectRadio}
                       disabled={readOnly}
-                  />
+                    />
 
                     {values.status === ppmDocumentStatus.REJECTED && (
                       <FormGroup className={styles.rejectionReason}>
