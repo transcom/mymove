@@ -1141,7 +1141,8 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeCsrOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType ||
+		userType == QaeCsrOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
 		return true
 	}
 	return false
