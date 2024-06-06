@@ -184,4 +184,18 @@ describe('CustomerSupportRemarkForm', () => {
     // Ensure the expected mutation was called with expected data
     expect(mutationSpy).toHaveBeenCalledTimes(0);
   });
+
+  it('disables the submit button when the move is locked', async () => {
+    // Spy on and mock mutation function
+    const isMoveLocked = true;
+    render(
+      <MockProviders initialState={qaeTestState}>
+        <CustomerSupportRemarkForm isMoveLocked={isMoveLocked} />
+      </MockProviders>,
+    );
+
+    // Type in the textarea, button should still be disabled
+    await userEvent.type(await screen.findByTestId('textarea'), 'Test Remark');
+    expect(screen.getByTestId('button').hasAttribute('disabled')).toBeTruthy();
+  });
 });

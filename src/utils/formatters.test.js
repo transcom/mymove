@@ -13,6 +13,9 @@ describe('formatters', () => {
     it('should format signature date to YYYY-MM-DD', () => {
       expect(formatters.formatSignatureDate('2020-09-27T00:00:00Z')).toBe('2020-09-27');
     });
+    it('should format review weights date MMM DD YYYY', () => {
+      expect(formatters.formatReviewShipmentWeightsDate('2020-09-27T00:00:00Z')).toBe('Sep 27 2020');
+    });
   });
 
   describe('formatYesNoInputValue', () => {

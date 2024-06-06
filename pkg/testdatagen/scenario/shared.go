@@ -4228,7 +4228,7 @@ func createHHGWithOriginSITServiceItems(
 		"90210", "30813").Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 	}
@@ -4490,7 +4490,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		"90210", "30813").Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 	}
@@ -4915,7 +4915,7 @@ func createHHGWithPaymentServiceItems(
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 		}
@@ -8637,11 +8637,11 @@ func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
 		return
 	}
 
-	/* A user with tio role */
+	/* A user with RoleTypeCustomerServiceRepresentative role */
 	customerServiceRepresentativeRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeCustomerServiceRepresentative).First(&customerServiceRepresentativeRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomerServiceRepresentative in the DB: %w", err))
 	}
 
 	csrUUID := uuid.Must(uuid.FromString("72432922-BF2E-45DE-8837-1A458F5D1011"))

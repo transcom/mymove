@@ -607,6 +607,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
@@ -616,6 +617,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
 			&routemocks.Planner{},
+			moveWeights,
 		)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
@@ -880,6 +882,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
+	diversionReason := "Test Reason"
+
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -914,15 +918,18 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			sitstatus.NewShipmentSITStatus(),
 		}
 
-		approveParams := shipmentops.RequestShipmentDiversionParams{
+		requestParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
+			Body: &ghcmessages.RequestDiversion{
+				DiversionReason: &diversionReason,
+			},
 		}
 
 		// Validate incoming payload: no body to validate
 
-		response := handler.Handle(approveParams)
+		response := handler.Handle(requestParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionOK{}, response)
 		payload := response.(*shipmentops.RequestShipmentDiversionOK).Payload
 
@@ -948,15 +955,18 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			requester,
 			sitstatus.NewShipmentSITStatus(),
 		}
-		approveParams := shipmentops.RequestShipmentDiversionParams{
+		requestParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(uuid),
 			IfMatch:     etag.GenerateEtag(time.Now()),
+			Body: &ghcmessages.RequestDiversion{
+				DiversionReason: &diversionReason,
+			},
 		}
 
 		// Validate incoming payload: no body to validate
 
-		response := handler.Handle(approveParams)
+		response := handler.Handle(requestParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionForbidden{}, response)
 		payload := response.(*shipmentops.RequestShipmentDiversionForbidden).Payload
 
@@ -976,7 +986,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, apperror.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -987,15 +997,18 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			requester,
 			sitstatus.NewShipmentSITStatus(),
 		}
-		approveParams := shipmentops.RequestShipmentDiversionParams{
+		requestParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
+			Body: &ghcmessages.RequestDiversion{
+				DiversionReason: &diversionReason,
+			},
 		}
 
 		// Validate incoming payload: no body to validate
 
-		response := handler.Handle(approveParams)
+		response := handler.Handle(requestParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionNotFound{}, response)
 		payload := response.(*shipmentops.RequestShipmentDiversionNotFound).Payload
 
@@ -1015,7 +1028,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, mtoshipment.ConflictStatusError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1026,15 +1039,18 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			requester,
 			sitstatus.NewShipmentSITStatus(),
 		}
-		approveParams := shipmentops.RequestShipmentDiversionParams{
+		requestParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
+			Body: &ghcmessages.RequestDiversion{
+				DiversionReason: &diversionReason,
+			},
 		}
 
 		// Validate incoming payload: no body to validate
 
-		response := handler.Handle(approveParams)
+		response := handler.Handle(requestParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionConflict{}, response)
 		payload := response.(*shipmentops.RequestShipmentDiversionConflict).Payload
 
@@ -1054,7 +1070,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, apperror.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1065,15 +1081,18 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			requester,
 			sitstatus.NewShipmentSITStatus(),
 		}
-		approveParams := shipmentops.RequestShipmentDiversionParams{
+		requestParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
+			Body: &ghcmessages.RequestDiversion{
+				DiversionReason: &diversionReason,
+			},
 		}
 
 		// Validate incoming payload: no body to validate
 
-		response := handler.Handle(approveParams)
+		response := handler.Handle(requestParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionPreconditionFailed{}, response)
 		payload := response.(*shipmentops.RequestShipmentDiversionPreconditionFailed).Payload
 
@@ -1093,7 +1112,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1104,15 +1123,18 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			requester,
 			sitstatus.NewShipmentSITStatus(),
 		}
-		approveParams := shipmentops.RequestShipmentDiversionParams{
+		requestParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
+			Body: &ghcmessages.RequestDiversion{
+				DiversionReason: &diversionReason,
+			},
 		}
 
 		// Validate incoming payload: no body to validate
 
-		response := handler.Handle(approveParams)
+		response := handler.Handle(requestParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionUnprocessableEntity{}, response)
 		payload := response.(*shipmentops.RequestShipmentDiversionUnprocessableEntity).Payload
 
@@ -1132,7 +1154,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		requester := &mocks.ShipmentDiversionRequester{}
 
-		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &diversionReason).Return(nil, errors.New("UnexpectedError"))
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -1143,15 +1165,18 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			requester,
 			sitstatus.NewShipmentSITStatus(),
 		}
-		approveParams := shipmentops.RequestShipmentDiversionParams{
+		requestParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
+			Body: &ghcmessages.RequestDiversion{
+				DiversionReason: &diversionReason,
+			},
 		}
 
 		// Validate incoming payload: no body to validate
 
-		response := handler.Handle(approveParams)
+		response := handler.Handle(requestParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionInternalServerError{}, response)
 		payload := response.(*shipmentops.RequestShipmentDiversionInternalServerError).Payload
 
@@ -2715,10 +2740,37 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+		mockSender := suite.TestNotificationSender()
+		addressUpdater := address.NewAddressUpdater()
+		addressCreator := address.NewAddressCreator()
+
+		noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
+		ppmEstimator := mocks.PPMEstimator{}
+
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+
 		handler := ApproveSITExtensionHandler{
 			handlerConfig,
 			sitExtensionApprover,
 			sitstatus.NewShipmentSITStatus(),
+			sitExtensionShipmentUpdater,
 		}
 		approvedDays := int64(10)
 		requestReason := "AWAITING_COMPLETION_OF_RESIDENCE"
@@ -2826,10 +2878,38 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+		mockSender := suite.TestNotificationSender()
+		addressUpdater := address.NewAddressUpdater()
+		addressCreator := address.NewAddressCreator()
+		moveRouter := moveservices.NewMoveRouter()
+
+		noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
+		ppmEstimator := mocks.PPMEstimator{}
+
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			approvedSITDurationUpdateCreator,
 			sitstatus.NewShipmentSITStatus(),
+			sitExtensionShipmentUpdater,
 		}
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
@@ -2879,10 +2959,38 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
 
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+
+		// Get shipment payment request recalculator service
+		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
+		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
+		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
+		mockSender := suite.TestNotificationSender()
+		addressUpdater := address.NewAddressUpdater()
+		addressCreator := address.NewAddressCreator()
+		moveRouter := moveservices.NewMoveRouter()
+
+		noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
+		ppmEstimator := mocks.PPMEstimator{}
+
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			approvedSITDurationUpdateCreator,
 			sitstatus.NewShipmentSITStatus(),
+			sitExtensionShipmentUpdater,
 		}
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"

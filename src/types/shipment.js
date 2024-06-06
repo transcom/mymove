@@ -29,7 +29,8 @@ export const GCCFactorsShape = shape({
   originFactor: number,
   destinationServiceAreaFee: number,
   destinationFactor: number,
-  fullPackUnpackCharge: number,
+  packPrice: number,
+  unpackPrice: number,
   ppmFactor: number,
 });
 
@@ -172,6 +173,8 @@ export const ShipmentShape = shape({
   }),
   ppmShipment: PPMShipmentShape,
   deliveryAddressUpdate: ShipmentAddressUpdateShape,
+  actual_pro_gear_weight: number,
+  actual_spouse_pro_gear_weight: number,
 });
 
 const DocumentShape = shape({

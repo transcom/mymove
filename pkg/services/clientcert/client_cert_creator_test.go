@@ -142,7 +142,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 			mock.Anything,
-		).Return([]models.UsersRoles{}, nil)
+		).Return([]models.UsersRoles{}, nil, nil)
 
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, verrs, _ := creator.CreateClientCert(suite.AppContextForTest(),
@@ -180,7 +180,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 			mock.Anything,
-		).Return([]models.UsersRoles{}, nil)
+		).Return([]models.UsersRoles{}, nil, nil)
 		creator := NewClientCertCreator(builder, associator, setUpMockNotificationSender())
 		_, _, err := creator.CreateClientCert(suite.AppContextForTest(),
 			"fake@example.com", &clientCertInfo)
