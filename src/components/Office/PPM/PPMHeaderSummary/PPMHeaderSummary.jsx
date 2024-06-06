@@ -1,4 +1,4 @@
-import { React } from 'react';
+import React, { useState } from 'react';
 import { number, bool } from 'prop-types';
 import classnames from 'classnames';
 
@@ -10,7 +10,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
 import { formatCustomerContactFullAddress } from 'utils/formatters';
 
-const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
+const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemName }) => {
   const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -46,16 +46,22 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
           ...incentives,
         }}
         dataTestId="incentives"
+        updatedItemName={updatedItemName}
+        setUpdatedItemName={setUpdatedItemName}
       />
       <hr />
       <HeaderSection
         sectionInfo={{ type: sectionTypes.incentiveFactors, ...incentiveFactors }}
         dataTestId="incentiveFactors"
+        updatedItemName={updatedItemName}
+        setUpdatedItemName={setUpdatedItemName}
       />
     </>
   );
 };
 export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields }) {
+  const [updatedItemName, setUpdatedItemName] = useState('');
+
   const shipmentInfo = {
     plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
     actualMoveDate: ppmShipmentInfo.actualMoveDate,
@@ -82,9 +88,17 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
               ...shipmentInfo,
             }}
             dataTestId="shipmentInfo"
+            updatedItemName={updatedItemName}
+            setUpdatedItemName={setUpdatedItemName}
           />
         </section>
-        {showAllFields && <GCCAndIncentiveInfo ppmShipmentInfo={ppmShipmentInfo} />}
+        {showAllFields && (
+          <GCCAndIncentiveInfo
+            ppmShipmentInfo={ppmShipmentInfo}
+            updatedItemName={updatedItemName}
+            setUpdatedItemName={setUpdatedItemName}
+          />
+        )}
       </div>
     </header>
   );
