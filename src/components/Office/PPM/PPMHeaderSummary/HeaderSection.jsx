@@ -155,7 +155,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
           <div>
             <Label>Remaining Incentive</Label>
             <span data-testid="remainingIncentive" className={styles.light}>
-              {isFetchingItems ? (
+              {isFetchingItems && updatedItemName ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
                 `$${formatCents(sectionInfo.remainingIncentive)}`
@@ -222,6 +222,7 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [itemName, setItemName] = useState('');
   const [sectionType, setSectionType] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const showRequestDetailsButton = true;
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
@@ -235,6 +236,7 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
     setIsEditModalVisible(false);
     setItemName('');
     setSectionType('');
+    setIsSubmitting(false);
   };
 
   useEffect(() => {
@@ -253,8 +255,10 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       queryClient.invalidateQueries([PPMCLOSEOUT, updatedMTOShipment?.ppmShipment?.id]);
       refetchMTOShipment();
-
       handleEditOnClose();
+    },
+    onSettled: () => {
+      setIsSubmitting(false);
     },
   });
 
@@ -266,6 +270,9 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
   };
 
   const handleEditSubmit = (values) => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     let body = {};
 
     switch (itemName) {

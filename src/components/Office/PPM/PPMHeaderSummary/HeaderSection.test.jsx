@@ -1,11 +1,21 @@
 import React from 'react';
-import { render, waitFor, screen, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen, fireEvent, act } from '@testing-library/react';
 
 import HeaderSection from './HeaderSection';
+
+import { MockProviders } from 'testUtils';
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
+
+const renderWithProviders = (props) => {
+  return render(
+    <MockProviders>
+      <HeaderSection {...props} />
+    </MockProviders>,
+  );
+};
 
 const shipmentInfoProps = {
   sectionInfo: {
@@ -66,22 +76,27 @@ const invalidSectionTypeProps = {
 };
 
 const clickDetailsButton = async (buttonType) => {
-  fireEvent.click(screen.getByTestId(`${buttonType}-showRequestDetailsButton`));
+  await act(async () => {
+    fireEvent.click(screen.getByTestId(`${buttonType}-showRequestDetailsButton`));
+  });
+
   await waitFor(() => {
-    expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Hide details', { exact: false })).toBeInTheDocument();
   });
 };
 
 describe('PPMHeaderSummary component', () => {
   describe('displays Shipment Info section', () => {
     it('renders Shipment Info section on load with defaults', async () => {
-      render(<HeaderSection {...shipmentInfoProps} />);
+      await act(async () => {
+        renderWithProviders(shipmentInfoProps);
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 4, name: 'Shipment Info' })).toBeInTheDocument();
       });
 
-      clickDetailsButton('shipmentInfo');
+      await clickDetailsButton('shipmentInfo');
 
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('15-Mar-2020')).toBeInTheDocument();
@@ -102,9 +117,11 @@ describe('PPMHeaderSummary component', () => {
 
   describe('displays "Incentives/Costs" section', () => {
     it('renders "Incentives/Costs" section on load with correct prop values', async () => {
-      render(<HeaderSection {...incentivesProps} />);
+      await act(async () => {
+        renderWithProviders(incentivesProps);
+      });
 
-      clickDetailsButton('incentives');
+      await clickDetailsButton('incentives');
 
       expect(screen.getByText('Government Constructed Cost (GCC)')).toBeInTheDocument();
       expect(screen.getByTestId('gcc')).toHaveTextContent('$72,312.85');
@@ -121,9 +138,11 @@ describe('PPMHeaderSummary component', () => {
 
   describe('displays "Incentive Factors" section', () => {
     it('renders "Incentive Factors" on load with correct prop values', async () => {
-      render(<HeaderSection {...incentiveFactorsProps} />);
+      await act(async () => {
+        renderWithProviders(incentiveFactorsProps);
+      });
 
-      clickDetailsButton('incentiveFactors');
+      await clickDetailsButton('incentiveFactors');
 
       expect(screen.getByText('Linehaul Price')).toBeInTheDocument();
       expect(screen.getByTestId('haulPrice')).toHaveTextContent('$68,926.68');
@@ -140,9 +159,11 @@ describe('PPMHeaderSummary component', () => {
     });
 
     it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
-      render(<HeaderSection {...incentiveFactorsShorthaulProps} />);
+      await act(async () => {
+        renderWithProviders(incentiveFactorsShorthaulProps);
+      });
 
-      clickDetailsButton('incentiveFactors');
+      await clickDetailsButton('incentiveFactors');
 
       expect(screen.getByText('Shorthaul Price')).toBeInTheDocument();
       expect(screen.getByTestId('haulPrice')).toHaveTextContent('$68,926.68');
@@ -161,7 +182,9 @@ describe('PPMHeaderSummary component', () => {
 
   describe('handles errors correctly', () => {
     it('renders an alert if an unknown section type was passed in', async () => {
-      render(<HeaderSection {...invalidSectionTypeProps} />);
+      await act(async () => {
+        renderWithProviders(invalidSectionTypeProps);
+      });
 
       const alert = screen.getByTestId('alert');
       expect(alert).toBeInTheDocument();
@@ -169,10 +192,12 @@ describe('PPMHeaderSummary component', () => {
     });
 
     it('renders an alert if an unknown section type was passed in and details are expanded', async () => {
-      render(<HeaderSection {...invalidSectionTypeProps} />);
+      await act(async () => {
+        renderWithProviders(invalidSectionTypeProps);
+      });
 
-      clickDetailsButton(invalidSectionTypeProps.sectionInfo.type);
-      expect(screen.findByText('An error occured while getting section markup!'));
+      await clickDetailsButton(invalidSectionTypeProps.sectionInfo.type);
+      expect(await screen.findByText('An error occured while getting section markup!')).toBeInTheDocument();
     });
   });
 });
