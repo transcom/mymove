@@ -35,6 +35,9 @@
       background-color: transparent;
     }
   }
+  .edit-btn:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .Details {
