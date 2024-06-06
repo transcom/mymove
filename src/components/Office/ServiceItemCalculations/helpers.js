@@ -632,6 +632,14 @@ const standaloneCrate = (params) => {
   return calculation(0, label);
 };
 
+const uncappedRequestTotal = (params) => {
+  const uncappedTotal = getParamValue(SERVICE_ITEM_PARAM_KEYS.UncappedRequestTotal, params);
+  const value = toDollarString(uncappedTotal);
+  const label = `${SERVICE_ITEM_CALCULATION_LABELS.UncappedRequestTotal}:`;
+
+  return calculation(value, label);
+};
+
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
   const label = `${SERVICE_ITEM_CALCULATION_LABELS.Total}:`;
@@ -839,6 +847,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         SERVICE_ITEM_PARAM_KEYS.StandaloneCrate !== null &&
         getParamValue(SERVICE_ITEM_PARAM_KEYS.StandaloneCrate, params) === 'true'
       ) {
+        result.splice(result.length - 1, 0, uncappedRequestTotal(params));
         result.splice(result.length - 1, 0, standaloneCrate(params));
       }
 
