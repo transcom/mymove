@@ -442,21 +442,35 @@ func validateDestination(appCtx appcontext.AppContext, shipment *models.MTOShipm
 }
 
 func validateDistanceZip(appCtx appcontext.AppContext, shipment *models.MTOShipment, reServiceCode *models.ReServiceCode) ServiceItemParamKeyLookup {
-	switch *reServiceCode {
-	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
-		shipmentCopy := *shipment
-		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status").Find(&shipmentCopy, shipment.ID)
+	if *reServiceCode != models.ReServiceCodeDLH && *reServiceCode != models.ReServiceCodeDSH && *reServiceCode != models.ReServiceCodeFSC {
+		return DistanceZipLookup{
+			PickupAddress:      *shipment.PickupAddress,
+			DestinationAddress: *shipment.DestinationAddress,
+		}
+	}
+
+	shipmentCopy := *shipment
+	err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "DeliveryAddressUpdate.Status", "MTOServiceItems").Find(&shipmentCopy, shipment.ID)
+	if err != nil {
+		return DistanceZipLookup{}
+	}
+
+	for _, si := range shipmentCopy.MTOServiceItems {
+		siCopy := si
+		err := appCtx.DB().Eager("ReService.Code", "Status").Find(&siCopy, si.ID)
 		if err != nil {
 			return DistanceZipLookup{}
 		}
-
-		if shipmentCopy.DeliveryAddressUpdate.NewAddress.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-			return DistanceZipLookup{
-				PickupAddress:      *shipment.PickupAddress,
-				DestinationAddress: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+		if siCopy.ReService.Code == models.ReServiceCodeDDASIT || siCopy.ReService.Code == models.ReServiceCodeDDDSIT || siCopy.ReService.Code == models.ReServiceCodeDOASIT {
+			if siCopy.Status == models.MTOServiceItemStatusApproved && shipmentCopy.DeliveryAddressUpdate.NewAddress.ID != uuid.Nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+				return DistanceZipLookup{
+					PickupAddress:      *shipment.PickupAddress,
+					DestinationAddress: shipmentCopy.DeliveryAddressUpdate.NewAddress,
+				}
 			}
 		}
 	}
+
 	return DistanceZipLookup{
 		PickupAddress:      *shipment.PickupAddress,
 		DestinationAddress: *shipment.DestinationAddress,
