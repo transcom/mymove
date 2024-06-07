@@ -41,7 +41,7 @@ func init() {
     "version": "0.0.1"
   },
   "host": "primelocal",
-  "basePath": "/prime/pptas",
+  "basePath": "/pptas/v1",
   "paths": {
     "/moves": {
       "get": {
@@ -207,7 +207,7 @@ func init() {
     "version": "0.0.1"
   },
   "host": "primelocal",
-  "basePath": "/prime/pptas",
+  "basePath": "/pptas/v1",
   "paths": {
     "/moves": {
       "get": {

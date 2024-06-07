@@ -15,7 +15,7 @@ info:
 
 
     All endpoints are located at `/prime/pptas/`.
-basePath: /prime/pptas
+basePath: /pptas/v1
 host: primelocal
 consumes:
   - application/json

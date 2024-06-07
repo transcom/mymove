@@ -940,3 +940,4 @@
 20240521160335_backfill_LOA_FY_TX.up.sql
 20240521184834_add_standalone_field_to_service_items.up.sql
 20240531153321_update_tio_role_name.up.sql
+20240607134224_allow_pptas_client.up.sql

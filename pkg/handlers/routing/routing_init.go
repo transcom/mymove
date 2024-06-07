@@ -105,7 +105,7 @@ type Config struct {
 
 	// Should the pptas api be served?
 	ServePPTAS bool
-	// The path to the ghc api swagger definition
+	// The path to the pptas api swagger definition
 	PPTASSwaggerPath string
 
 	// Should devlocal auth be enabled? Definitely never enabled in
@@ -357,21 +357,40 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 				tracingMiddleware := middleware.OpenAPITracing(api)
 				r.Mount("/", api.Serve(tracingMiddleware))
 			})
-			// Setup PPTAS API
-			primeRouter.Route("/pptas", func(r chi.Router) {
-				r.Method("GET", "/swagger.yaml",
-					handlers.NewFileHandler(routingConfig.FileSystem,
-						routingConfig.PPTASSwaggerPath))
-				if routingConfig.ServeSwaggerUI {
-					r.Method("GET", "/docs",
+		})
+	}
+}
+
+func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	if routingConfig.ServePPTAS {
+		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
+		site.Route("/pptas/", func(primeRouter chi.Router) {
+			if routingConfig.ServeDevlocalAuth {
+				devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
+				primeRouter.Use(devlocalClientCertMiddleware)
+			} else {
+				primeRouter.Use(clientCertMiddleware)
+			}
+			primeRouter.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
+			primeRouter.Use(middleware.NoCache())
+			primeRouter.Use(middleware.RequestLogger())
+			primeRouter.Method(
+				"GET",
+				"/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+				routingConfig.PPTASSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+					primeRouter.Method("GET", "/docs",
 						handlers.NewFileHandler(routingConfig.FileSystem,
 							path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
 				} else {
-					r.Method("GET", "/docs", http.NotFoundHandler())
+					primeRouter.Method("GET", "/docs", http.NotFoundHandler())
 				}
-				r.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
-			})
+				primeRouter.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
+
 		})
+		// Setup shared middleware
+
 	}
 }
 
@@ -607,7 +626,7 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				})
 			})
 		}
-		site.Route("/prime/pptas", func(r chi.Router) {
+		site.Route("/pptas/v1", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.PPTASSwaggerPath))
@@ -800,7 +819,7 @@ func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	mountPrimeAPI(appCtx, routingConfig, site)
 	mountSupportAPI(appCtx, routingConfig, site)
 	mountTestharnessAPI(appCtx, routingConfig, site)
-
+	mountPPTASAPI(appCtx,routingConfig,site)
 	return site
 }
 
@@ -827,7 +846,6 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 	hostRouter.Map(milServerName, milRouter)
 
 	officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
-
 	officeRouter := newOfficeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(officeServerName, officeRouter)
 

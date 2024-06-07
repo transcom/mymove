@@ -409,7 +409,29 @@ func PrimeAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Ha
 		return http.HandlerFunc(mw)
 	}
 }
+// PPTASAuthorizationMiddleware is the PPTAS authorization middleware
+func PPTASAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
+			clientCert := ClientCertFromContext(r.Context())
+			if clientCert == nil {
+				logger.Error("unauthorized user for PPTAS")
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+			if !clientCert.AllowPPTAS {
+				logger.Error("forbidden user for PPTAS")
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
 
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
+	}
+}
 // PrimeSimulatorAuthorizationMiddleware ensures only users with the
 // prime simulator role can access the simulator
 func PrimeSimulatorAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
