@@ -3481,13 +3481,6 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
           "type": "string",
@@ -3496,33 +3489,11 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "secondaryDestinationPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -5032,15 +5003,6 @@ func init() {
         "HHG"
       ],
       "x-nullable": true
-    },
-    "NullableString": {
-      "type": "string",
-      "x-go-type": {
-        "import": {
-          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
-        },
-        "type": "String"
-      }
     },
     "OfficeUser": {
       "type": "object",
@@ -11267,13 +11229,6 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
           "type": "string",
@@ -11282,33 +11237,11 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "secondaryDestinationPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -12822,15 +12755,6 @@ func init() {
         "HHG"
       ],
       "x-nullable": true
-    },
-    "NullableString": {
-      "type": "string",
-      "x-go-type": {
-        "import": {
-          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
-        },
-        "type": "String"
-      }
     },
     "OfficeUser": {
       "type": "object",
