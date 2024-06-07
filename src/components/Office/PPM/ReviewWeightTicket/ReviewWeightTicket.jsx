@@ -265,6 +265,7 @@ function ReviewWeightTicket({
                   ppmNumber={ppmNumber}
                   showAllFields={false}
                   className={classnames(formStyles.form)}
+                  readOnly={readOnly}
                 />
               </div>
               <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>

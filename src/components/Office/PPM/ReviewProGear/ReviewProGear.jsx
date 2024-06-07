@@ -125,7 +125,12 @@ export default function ReviewProGear({
           return (
             <>
               <div className={classnames(formStyles.form, styles.reviewProGear, styles.headerContainer)}>
-                <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
+                <PPMHeaderSummary
+                  ppmShipmentInfo={ppmShipmentInfo}
+                  ppmNumber={ppmNumber}
+                  showAllFields={false}
+                  readOnly={readOnly}
+                />
               </div>
               <Form className={classnames(formStyles.form, styles.reviewProGear)}>
                 <hr />
