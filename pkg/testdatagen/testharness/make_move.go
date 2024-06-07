@@ -3825,7 +3825,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -3901,7 +3901,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -3967,7 +3967,7 @@ func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppConte
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -4151,7 +4151,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -4249,7 +4249,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -4378,7 +4378,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),

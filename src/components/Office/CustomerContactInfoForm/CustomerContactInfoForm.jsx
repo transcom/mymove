@@ -44,7 +44,6 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     <Grid row>
       <Grid col>
         <div className={styles.customerContactForm}>
-          <h1 className={styles.title}>Customer Info</h1>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
             {({ isValid, isSubmitting, handleSubmit }) => {
               return (
