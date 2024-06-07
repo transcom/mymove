@@ -222,7 +222,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             })}`
           : '';
       const viewURL = // Read only view of approved documents
-        shipment?.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ||
+        shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
         (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
           ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
               moveCode,

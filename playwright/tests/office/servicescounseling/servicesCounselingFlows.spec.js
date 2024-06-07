@@ -392,20 +392,17 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+    const parentShipmentInfoElement = page.locator('[data-testid="shipmentInfo"]');
+    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
+    await page.getByTestId('editTextButton').dispatchEvent('click');
+    await expect(page.getByText('Edit Shipment Info')).toBeVisible();
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
-    const parentShipmentInfoElement = page.locator('[data-testid="shipmentInfo"]');
-    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
-
-    await page.getByTestId('editTextButton').dispatchEvent('click');
-    await expect(page.getByText('Edit Shipment Info')).toBeVisible();
-    await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
-    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
-
     const parentIncentivesElement = page.locator('[data-testid="incentives"]');
     await parentIncentivesElement.locator('[data-testid="incentives-showRequestDetailsButton"]').click();
     await page.getByTestId('editTextButton').dispatchEvent('click');
