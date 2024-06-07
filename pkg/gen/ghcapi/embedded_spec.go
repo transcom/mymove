@@ -6125,7 +6125,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -19167,7 +19168,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
