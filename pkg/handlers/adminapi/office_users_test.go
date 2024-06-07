@@ -137,7 +137,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
-	tooRoleName := "Transportation Ordering Officer"
+	tooRoleName := "Task Ordering Officer"
 	tooRoleType := string(roles.RoleTypeTOO)
 
 	tioRoleName := "Task Invoicing Officer"
