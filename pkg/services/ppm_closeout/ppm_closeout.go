@@ -224,8 +224,8 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 		}
 	}
 
-	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" or "PAYMENT_APPROVED" status, if not, it's not ready for closeout
-	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval && ppmShipment.Status != models.PPMShipmentStatusPaymentApproved {
+	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status, if not, it's not ready for closeout
+	if ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
 		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
 	}
 
@@ -255,7 +255,7 @@ func (p *ppmCloseoutFetcher) GetExpenseStoragePrice(appCtx appcontext.AppContext
 	}
 
 	for _, movingExpense := range expenseItems {
-		if movingExpense.MovingExpenseType != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
+		if movingExpense.MovingExpenseType != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage && *movingExpense.Status == models.PPMDocumentStatusApproved {
 			storageExpensePrice += *movingExpense.Amount
 		}
 	}
