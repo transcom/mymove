@@ -54,7 +54,7 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const mtoShipment = createPPMShipmentWithFinalIncentive({
-  ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+  ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT },
 });
 
 const weightTicketEmptyDocumentCreatedDate = new Date();
@@ -701,7 +701,7 @@ describe('ReviewDocuments', () => {
 
     it('displays an alert when move is over weight', async () => {
       const excessWeightPPMShipment = createPPMShipmentWithExcessWeight({
-        ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+        ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT },
       });
       const useReviewShipmentWeightsQueryReturnValueExcessWeight = {
         ...useReviewShipmentWeightsQueryReturnValueAll,
