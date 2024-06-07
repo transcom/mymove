@@ -2489,6 +2489,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		testCaseAffiliation := models.AffiliationCOASTGUARD
 		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
 		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Emplid = models.StringPointer("1234567")
 		err := suite.DB().Save(&move.Orders.ServiceMember)
 		suite.NoError(err)
 
