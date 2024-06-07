@@ -274,15 +274,6 @@ export default function ReviewExpense({
                       <option key={x.key}>{x.value}</option>
                     ))}
                   </select>
-                  {/* <DropdownInput
-                    label="SIT Location"
-                    id="sitLocationInput"
-                    name="sitLocation"
-                    options={sitLocationOptions}
-                    onChange={(e) => {
-                      handleSITLocationChange(e);
-                    }}
-                  /> */}
                   <legend className={classnames('usa-label', styles.label)}>Cost</legend>
                   <div className={styles.displayValue}>
                     {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))}

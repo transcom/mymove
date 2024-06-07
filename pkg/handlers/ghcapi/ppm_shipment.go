@@ -66,13 +66,13 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 				ppmShipment.SITLocation = &sitLocationDestination
 			}
 
-			updatedPPMShipment, err := h.PPMEstimator.CalculatePPMSITEstimatedCost(appCtx, ppmShipment)
+			calculatedCost, err := h.PPMEstimator.CalculatePPMSITEstimatedCost(appCtx, ppmShipment)
 
 			if err != nil {
 				return handleError(err)
 			}
 
-			returnPayload := payloads.PPMSITEstimatedCost(updatedPPMShipment)
+			returnPayload := payloads.PPMSITEstimatedCost(calculatedCost)
 
 			return ppmsitops.NewGetPPMSITEstimatedCostOK().WithPayload(returnPayload), nil
 		})
