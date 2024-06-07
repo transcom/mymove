@@ -37,6 +37,8 @@ const mockMTOShipment = {
   shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: mockPPMShipmentId,
+    pickupPostalCode: '10001',
+    destinationPostalCode: '10002',
     expectedDepartureDate: '2022-04-30',
     advanceRequested: true,
     advance: 598700,

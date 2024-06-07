@@ -37,6 +37,8 @@ const createBasePPMShipment = (fieldOverrides = {}) => {
       shipmentId: mtoPPMShipmentId,
       status: ppmShipmentStatuses.DRAFT,
       expectedDepartureDate: '2022-09-15',
+      pickupPostalCode: '90210',
+      destinationPostalCode: '30813',
       sitExpected: false,
       estimatedWeight: null,
       hasProGear: null,

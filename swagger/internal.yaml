@@ -1915,19 +1915,46 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
       pickupAddress:
         $ref: '#/definitions/Address'
+      secondaryPickupPostalCode:
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
       destinationAddress:
         $ref: '#/definitions/Address'
+      secondaryDestinationPostalCode:
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       sitExpected:
         type: boolean
     required:
       - expectedDepartureDate
+      - pickupPostalCode
       - pickupAddress
+      - destinationPostalCode
       - destinationAddress
       - sitExpected
   UpdatePPMShipment:
@@ -1943,8 +1970,22 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      pickupPostalCode:
+        description: zip code
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
+      secondaryPickupPostalCode:
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
@@ -1961,8 +2002,21 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      destinationPostalCode:
+        format: zip
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
       destinationAddress:
         $ref: '#/definitions/Address'
+      secondaryDestinationPostalCode:
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
@@ -3399,6 +3453,12 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+  NullableString:
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
 paths:
   /feature-flags/user-boolean/{key}:
     post:

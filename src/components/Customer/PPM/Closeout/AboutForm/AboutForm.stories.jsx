@@ -43,7 +43,10 @@ BlankWithDefaultZIPs.args = {
     id: 'f3c29ac7-823a-496a-90dd-b7ab0d4b0ece',
     moveTaskOrderId: 'e9864ee5-56e7-401d-9a7b-a5ea9a83bdea',
     shipmentType: SHIPMENT_OPTIONS.PPM,
-    ppmShipment: {},
+    ppmShipment: {
+      pickupPostalCode: '10001',
+      destinationPostalCode: '10002',
+    },
   },
   postalCodeValidator: () => {},
 };

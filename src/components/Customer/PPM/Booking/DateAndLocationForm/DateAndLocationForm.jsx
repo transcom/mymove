@@ -45,14 +45,18 @@ const validationShape = {
 
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
   const initialValues = {
+    pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
     pickupAddress: {},
     secondaryPickupAddress: {},
     hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
+    secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useCurrentDestinationAddress: false,
+    destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
     destinationAddress: {},
     secondaryDestinationAddress: {},
+    secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeoutOffice,

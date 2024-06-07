@@ -114,6 +114,8 @@ const mockPPMShipment = {
   id: '4774f99f-bc94-467a-9469-b6f81657b9ef',
   mtoShipmentId: mockMtoShipment.id,
   expectedDepartureDate: '2022-12-31',
+  pickupPostalCode: '90210',
+  destinationPostalCode: '30813',
   estimatedWeight: 2000,
   sitExpected: false,
   hasProGear: false,

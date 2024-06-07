@@ -120,8 +120,12 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	}
 
 	model := &models.PPMShipment{
-		SITExpected:           ppmShipment.SitExpected,
-		ExpectedDepartureDate: handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
+		PickupPostalCode:               *ppmShipment.PickupPostalCode,
+		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryPickupPostalCode),
+		DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
+		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryDestinationPostalCode),
+		SITExpected:                    ppmShipment.SitExpected,
+		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
 
 	if ppmShipment.PickupAddress != nil {
@@ -152,7 +156,9 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
+		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.SecondaryPickupPostalCode),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.SecondaryDestinationPostalCode),
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
@@ -173,12 +179,20 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	}
 
+	if ppmShipment.PickupPostalCode != nil {
+		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	}
+
 	if ppmShipment.PickupAddress != nil {
 		ppmModel.PickupAddress = AddressModel(ppmShipment.PickupAddress)
 	}
 
 	if ppmShipment.SecondaryPickupAddress != nil {
 		ppmModel.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
+	}
+
+	if ppmShipment.DestinationPostalCode != nil {
+		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
 	if ppmShipment.DestinationAddress != nil {

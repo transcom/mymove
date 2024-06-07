@@ -45,7 +45,10 @@ const hhgShipment = {
 const ppmShipment = {
   id: '22222',
   shipmentType: SHIPMENT_OPTIONS.PPM,
-  ppmShipment: {},
+  ppmShipment: {
+    pickupPostalCode: '89503',
+    destinationPostalCode: '90210',
+  },
 };
 
 const ntsShipment = {

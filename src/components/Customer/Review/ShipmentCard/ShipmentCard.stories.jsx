@@ -106,6 +106,8 @@ const ppmShipmentDefaultProps = {
     id: '93964f85-ae24-44a5-9e5b-73d1bc521e69',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
+      pickupPostalCode: '00000',
+      destinationPostalCode: '11111',
       estimatedWeight: 5000,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
       sitExpected: true,
@@ -130,6 +132,10 @@ const ppmShipmentSecondaryZIPProps = {
     id: '93964f85-ae24-44a5-9e5b-73d1bc521e69',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
+      pickupPostalCode: '00000',
+      secondaryPickupPostalCode: '00001',
+      destinationPostalCode: '11111',
+      secondaryDestinationPostalCode: '11112',
       estimatedWeight: 5000,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
       sitExpected: true,
@@ -144,6 +150,8 @@ const ppmShipmentProGearProps = {
     id: '93964f85-ae24-44a5-9e5b-73d1bc521e69',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
+      pickupPostalCode: '00000',
+      destinationPostalCode: '11111',
       estimatedWeight: 5000,
       hasProGear: true,
       proGearWeight: 1299,
@@ -161,6 +169,8 @@ const ppmShipmentIncompleteProps = {
     id: '93964f85-ae24-44a5-9e5b-73d1bc521e69',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
+      pickupPostalCode: '00000',
+      destinationPostalCode: '11111',
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
     },
     status: shipmentStatuses.DRAFT,

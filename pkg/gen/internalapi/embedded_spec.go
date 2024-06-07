@@ -3473,13 +3473,22 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
+        "pickupPostalCode",
         "pickupAddress",
+        "destinationPostalCode",
         "destinationAddress",
         "sitExpected"
       ],
       "properties": {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -3489,11 +3498,33 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "secondaryDestinationPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -5003,6 +5034,15 @@ func init() {
         "HHG"
       ],
       "x-nullable": true
+    },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
     },
     "OfficeUser": {
       "type": "object",
@@ -6669,6 +6709,14 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -6716,6 +6764,15 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -6723,8 +6780,22 @@ func init() {
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "secondaryDestinationPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean",
@@ -11258,13 +11329,22 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
+        "pickupPostalCode",
         "pickupAddress",
+        "destinationPostalCode",
         "destinationAddress",
         "sitExpected"
       ],
       "properties": {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -11274,11 +11354,33 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "example": "90210"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "secondaryDestinationPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -12792,6 +12894,15 @@ func init() {
         "HHG"
       ],
       "x-nullable": true
+    },
+    "NullableString": {
+      "type": "string",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
+        },
+        "type": "String"
+      }
     },
     "OfficeUser": {
       "type": "object",
@@ -14459,6 +14570,14 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "destinationPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -14506,6 +14625,15 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pickupPostalCode": {
+          "description": "zip code",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -14513,8 +14641,22 @@ func init() {
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "secondaryDestinationPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean",

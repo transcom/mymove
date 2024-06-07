@@ -222,6 +222,8 @@ const PPMShipment = {
   updated_at: '2020-09-01T22:30:00.000Z',
   ppmShipment: {
     expectedDepartureDate: '2021-06-23',
+    pickupPostalCode: '13643',
+    destinationPostalCode: '91945',
     sitExpected: false,
     estimatedWeight: 5000,
     estimatedIncentive: 1000000,
@@ -238,6 +240,8 @@ const IncompeletePPMShipment = {
   updated_at: '2020-09-01T22:30:00.000Z',
   ppmShipment: {
     expectedDepartureDate: '2021-06-23',
+    pickupPostalCode: '13643',
+    destinationPostalCode: '91945',
     sitExpected: false,
     hasRequestedAdvance: null,
   },
