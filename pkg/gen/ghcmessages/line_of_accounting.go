@@ -20,248 +20,264 @@ import (
 type LineOfAccounting struct {
 
 	// created at
+	// Example: 2023-08-03T19:17:10.050Z
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// id
-	// Example: 123e4567-e89b-12d3-a456-426614174000
+	// Example: 06254fc3-b763-484c-b555-42855d1ad5cd
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// loa actvty ID
 	// Max Length: 11
-	LoaActvtyID string `json:"loaActvtyID,omitempty"`
+	LoaActvtyID *string `json:"loaActvtyID,omitempty"`
 
 	// loa agnc acntng cd
 	// Max Length: 6
-	LoaAgncAcntngCd string `json:"loaAgncAcntngCd,omitempty"`
+	LoaAgncAcntngCd *string `json:"loaAgncAcntngCd,omitempty"`
 
 	// loa agnc dsbr cd
 	// Max Length: 6
-	LoaAgncDsbrCd string `json:"loaAgncDsbrCd,omitempty"`
+	LoaAgncDsbrCd *string `json:"loaAgncDsbrCd,omitempty"`
 
 	// loa allt sn ID
+	// Example: 123A
 	// Max Length: 5
-	LoaAlltSnID string `json:"loaAlltSnID,omitempty"`
+	LoaAlltSnID *string `json:"loaAlltSnID,omitempty"`
 
 	// loa baf ID
+	// Example: 1234
 	// Max Length: 4
-	LoaBafID string `json:"loaBafID,omitempty"`
+	LoaBafID *string `json:"loaBafID,omitempty"`
 
 	// loa bdgt acnt cls nm
+	// Example: 000000
 	// Max Length: 8
-	LoaBdgtAcntClsNm string `json:"loaBdgtAcntClsNm,omitempty"`
+	LoaBdgtAcntClsNm *string `json:"loaBdgtAcntClsNm,omitempty"`
 
 	// loa bet cd
 	// Max Length: 4
-	LoaBetCd string `json:"loaBetCd,omitempty"`
+	LoaBetCd *string `json:"loaBetCd,omitempty"`
 
 	// loa bg fy tx
-	// Example: 2024
-	LoaBgFyTx int64 `json:"loaBgFyTx,omitempty"`
+	// Example: 2006
+	LoaBgFyTx *int64 `json:"loaBgFyTx,omitempty"`
 
 	// loa bgn dt
+	// Example: 2005-10-01
 	// Format: date
-	LoaBgnDt strfmt.Date `json:"loaBgnDt,omitempty"`
+	LoaBgnDt *strfmt.Date `json:"loaBgnDt,omitempty"`
 
 	// loa bgt ln itm ID
 	// Max Length: 8
-	LoaBgtLnItmID string `json:"loaBgtLnItmID,omitempty"`
+	LoaBgtLnItmID *string `json:"loaBgtLnItmID,omitempty"`
 
 	// loa bgt rstr cd
 	// Max Length: 1
-	LoaBgtRstrCd string `json:"loaBgtRstrCd,omitempty"`
+	LoaBgtRstrCd *string `json:"loaBgtRstrCd,omitempty"`
 
 	// loa bgt sub act cd
 	// Max Length: 4
-	LoaBgtSubActCd string `json:"loaBgtSubActCd,omitempty"`
+	LoaBgtSubActCd *string `json:"loaBgtSubActCd,omitempty"`
 
 	// loa cls ref ID
 	// Max Length: 2
-	LoaClsRefID string `json:"loaClsRefID,omitempty"`
+	LoaClsRefID *string `json:"loaClsRefID,omitempty"`
 
 	// loa cst cd
 	// Max Length: 16
-	LoaCstCd string `json:"loaCstCd,omitempty"`
+	LoaCstCd *string `json:"loaCstCd,omitempty"`
 
 	// loa cst cntr ID
 	// Max Length: 16
-	LoaCstCntrID string `json:"loaCstCntrID,omitempty"`
+	LoaCstCntrID *string `json:"loaCstCntrID,omitempty"`
 
 	// loa cust nm
 	// Max Length: 6
-	LoaCustNm string `json:"loaCustNm,omitempty"`
+	LoaCustNm *string `json:"loaCustNm,omitempty"`
 
 	// loa df agncy alctn rcpnt ID
 	// Max Length: 4
-	LoaDfAgncyAlctnRcpntID string `json:"loaDfAgncyAlctnRcpntID,omitempty"`
+	LoaDfAgncyAlctnRcpntID *string `json:"loaDfAgncyAlctnRcpntID,omitempty"`
 
 	// loa doc ID
+	// Example: HHG12345678900
 	// Max Length: 15
-	LoaDocID string `json:"loaDocID,omitempty"`
+	LoaDocID *string `json:"loaDocID,omitempty"`
 
 	// loa dpt ID
+	// Example: 1
 	// Max Length: 2
-	LoaDptID string `json:"loaDptID,omitempty"`
+	LoaDptID *string `json:"loaDptID,omitempty"`
 
 	// loa dsc tx
-	LoaDscTx string `json:"loaDscTx,omitempty"`
+	// Example: PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)
+	LoaDscTx *string `json:"loaDscTx,omitempty"`
 
 	// loa dtl rmbsmt src ID
 	// Max Length: 3
-	LoaDtlRmbsmtSrcID string `json:"loaDtlRmbsmtSrcID,omitempty"`
+	LoaDtlRmbsmtSrcID *string `json:"loaDtlRmbsmtSrcID,omitempty"`
 
 	// loa end dt
+	// Example: 2015-10-01
 	// Format: date
-	LoaEndDt strfmt.Date `json:"loaEndDt,omitempty"`
+	LoaEndDt *strfmt.Date `json:"loaEndDt,omitempty"`
 
 	// loa end fy tx
-	// Example: 2024
-	LoaEndFyTx int64 `json:"loaEndFyTx,omitempty"`
+	// Example: 2016
+	LoaEndFyTx *int64 `json:"loaEndFyTx,omitempty"`
 
 	// loa fms trnsactn ID
 	// Max Length: 12
-	LoaFmsTrnsactnID string `json:"loaFmsTrnsactnID,omitempty"`
+	LoaFmsTrnsactnID *string `json:"loaFmsTrnsactnID,omitempty"`
 
 	// loa fncl ar ID
 	// Max Length: 6
-	LoaFnclArID string `json:"loaFnclArID,omitempty"`
+	LoaFnclArID *string `json:"loaFnclArID,omitempty"`
 
 	// loa fnct prs nm
 	// Max Length: 255
-	LoaFnctPrsNm string `json:"loaFnctPrsNm,omitempty"`
+	LoaFnctPrsNm *string `json:"loaFnctPrsNm,omitempty"`
 
 	// loa fnd cntr ID
 	// Max Length: 12
-	LoaFndCntrID string `json:"loaFndCntrID,omitempty"`
+	LoaFndCntrID *string `json:"loaFndCntrID,omitempty"`
 
 	// loa fnd ty fg cd
 	// Max Length: 1
-	LoaFndTyFgCd string `json:"loaFndTyFgCd,omitempty"`
+	LoaFndTyFgCd *string `json:"loaFndTyFgCd,omitempty"`
 
 	// loa hist stat cd
 	// Max Length: 1
-	LoaHistStatCd string `json:"loaHistStatCd,omitempty"`
+	LoaHistStatCd *string `json:"loaHistStatCd,omitempty"`
 
 	// loa hs gds cd
+	// Example: HT
 	// Max Length: 2
-	LoaHsGdsCd string `json:"loaHsGdsCd,omitempty"`
+	LoaHsGdsCd *string `json:"loaHsGdsCd,omitempty"`
 
 	// loa instl acntg act ID
+	// Example: 12345
 	// Max Length: 6
-	LoaInstlAcntgActID string `json:"loaInstlAcntgActID,omitempty"`
+	LoaInstlAcntgActID *string `json:"loaInstlAcntgActID,omitempty"`
 
 	// loa jb ord nm
 	// Max Length: 10
-	LoaJbOrdNm string `json:"loaJbOrdNm,omitempty"`
+	LoaJbOrdNm *string `json:"loaJbOrdNm,omitempty"`
 
 	// loa lcl instl ID
 	// Max Length: 18
-	LoaLclInstlID string `json:"loaLclInstlID,omitempty"`
+	LoaLclInstlID *string `json:"loaLclInstlID,omitempty"`
 
 	// loa maj clm nm
 	// Max Length: 4
-	LoaMajClmNm string `json:"loaMajClmNm,omitempty"`
+	LoaMajClmNm *string `json:"loaMajClmNm,omitempty"`
 
 	// loa maj rmbsmt src ID
 	// Max Length: 1
-	LoaMajRmbsmtSrcID string `json:"loaMajRmbsmtSrcID,omitempty"`
+	LoaMajRmbsmtSrcID *string `json:"loaMajRmbsmtSrcID,omitempty"`
 
 	// loa obj cls ID
+	// Example: 22NL
 	// Max Length: 6
-	LoaObjClsID string `json:"loaObjClsID,omitempty"`
+	LoaObjClsID *string `json:"loaObjClsID,omitempty"`
 
 	// loa op agncy ID
+	// Example: 1A
 	// Max Length: 4
-	LoaOpAgncyID string `json:"loaOpAgncyID,omitempty"`
+	LoaOpAgncyID *string `json:"loaOpAgncyID,omitempty"`
 
 	// loa pgm elmnt ID
+	// Example: 00000000
 	// Max Length: 12
-	LoaPgmElmntID string `json:"loaPgmElmntID,omitempty"`
+	LoaPgmElmntID *string `json:"loaPgmElmntID,omitempty"`
 
 	// loa prj ID
 	// Max Length: 12
-	LoaPrjID string `json:"loaPrjID,omitempty"`
+	LoaPrjID *string `json:"loaPrjID,omitempty"`
 
 	// loa sbaltmt rcpnt ID
 	// Max Length: 1
-	LoaSbaltmtRcpntID string `json:"loaSbaltmtRcpntID,omitempty"`
+	LoaSbaltmtRcpntID *string `json:"loaSbaltmtRcpntID,omitempty"`
 
 	// loa scrty coop cust cd
 	// Max Length: 2
-	LoaScrtyCoopCustCd string `json:"loaScrtyCoopCustCd,omitempty"`
+	LoaScrtyCoopCustCd *string `json:"loaScrtyCoopCustCd,omitempty"`
 
 	// loa scrty coop dsgntr cd
 	// Max Length: 4
-	LoaScrtyCoopDsgntrCd string `json:"loaScrtyCoopDsgntrCd,omitempty"`
+	LoaScrtyCoopDsgntrCd *string `json:"loaScrtyCoopDsgntrCd,omitempty"`
 
 	// loa scrty coop impl agnc cd
 	// Max Length: 1
-	LoaScrtyCoopImplAgncCd string `json:"loaScrtyCoopImplAgncCd,omitempty"`
+	LoaScrtyCoopImplAgncCd *string `json:"loaScrtyCoopImplAgncCd,omitempty"`
 
 	// loa scrty coop ln itm ID
 	// Max Length: 3
-	LoaScrtyCoopLnItmID string `json:"loaScrtyCoopLnItmID,omitempty"`
+	LoaScrtyCoopLnItmID *string `json:"loaScrtyCoopLnItmID,omitempty"`
 
 	// loa spcl intr ID
 	// Max Length: 2
-	LoaSpclIntrID string `json:"loaSpclIntrID,omitempty"`
+	LoaSpclIntrID *string `json:"loaSpclIntrID,omitempty"`
 
 	// loa srv src ID
 	// Max Length: 1
-	LoaSrvSrcID string `json:"loaSrvSrcID,omitempty"`
+	LoaSrvSrcID *string `json:"loaSrvSrcID,omitempty"`
 
 	// loa stat cd
+	// Example: U
 	// Max Length: 1
-	LoaStatCd string `json:"loaStatCd,omitempty"`
+	LoaStatCd *string `json:"loaStatCd,omitempty"`
 
 	// loa sub acnt ID
 	// Max Length: 3
-	LoaSubAcntID string `json:"loaSubAcntID,omitempty"`
+	LoaSubAcntID *string `json:"loaSubAcntID,omitempty"`
 
 	// loa sys Id
-	// Example: 1234567890
+	// Example: 10003
 	// Max Length: 20
-	LoaSysID string `json:"loaSysId,omitempty"`
+	LoaSysID *string `json:"loaSysId,omitempty"`
 
 	// loa tnsfr dpt nm
 	// Max Length: 4
-	LoaTnsfrDptNm string `json:"loaTnsfrDptNm,omitempty"`
+	LoaTnsfrDptNm *string `json:"loaTnsfrDptNm,omitempty"`
 
 	// loa trnsn ID
+	// Example: B1
 	// Max Length: 3
-	LoaTrnsnID string `json:"loaTrnsnID,omitempty"`
+	LoaTrnsnID *string `json:"loaTrnsnID,omitempty"`
 
 	// loa trsy sfx tx
+	// Example: 0000
 	// Max Length: 4
-	LoaTrsySfxTx string `json:"loaTrsySfxTx,omitempty"`
+	LoaTrsySfxTx *string `json:"loaTrsySfxTx,omitempty"`
 
 	// loa tsk bdgt sbln tx
 	// Max Length: 8
-	LoaTskBdgtSblnTx string `json:"loaTskBdgtSblnTx,omitempty"`
+	LoaTskBdgtSblnTx *string `json:"loaTskBdgtSblnTx,omitempty"`
 
 	// loa uic
 	// Max Length: 6
-	LoaUic string `json:"loaUic,omitempty"`
+	LoaUic *string `json:"loaUic,omitempty"`
 
 	// loa wk cntr rcpnt nm
 	// Max Length: 6
-	LoaWkCntrRcpntNm string `json:"loaWkCntrRcpntNm,omitempty"`
+	LoaWkCntrRcpntNm *string `json:"loaWkCntrRcpntNm,omitempty"`
 
 	// loa wrk ord ID
 	// Max Length: 16
-	LoaWrkOrdID string `json:"loaWrkOrdID,omitempty"`
+	LoaWrkOrdID *string `json:"loaWrkOrdID,omitempty"`
 
 	// org grp dfas cd
+	// Example: ZZ
 	// Max Length: 2
-	OrgGrpDfasCd string `json:"orgGrpDfasCd,omitempty"`
+	OrgGrpDfasCd *string `json:"orgGrpDfasCd,omitempty"`
 
 	// updated at
+	// Example: 2023-08-03T19:17:38.776Z
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
-
-	// valid hhg code for loa
-	ValidHhgCodeForLoa bool `json:"validHhgCodeForLoa,omitempty"`
 }
 
 // Validate validates this line of accounting
@@ -531,7 +547,7 @@ func (m *LineOfAccounting) validateLoaActvtyID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaActvtyID", "body", m.LoaActvtyID, 11); err != nil {
+	if err := validate.MaxLength("loaActvtyID", "body", *m.LoaActvtyID, 11); err != nil {
 		return err
 	}
 
@@ -543,7 +559,7 @@ func (m *LineOfAccounting) validateLoaAgncAcntngCd(formats strfmt.Registry) erro
 		return nil
 	}
 
-	if err := validate.MaxLength("loaAgncAcntngCd", "body", m.LoaAgncAcntngCd, 6); err != nil {
+	if err := validate.MaxLength("loaAgncAcntngCd", "body", *m.LoaAgncAcntngCd, 6); err != nil {
 		return err
 	}
 
@@ -555,7 +571,7 @@ func (m *LineOfAccounting) validateLoaAgncDsbrCd(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaAgncDsbrCd", "body", m.LoaAgncDsbrCd, 6); err != nil {
+	if err := validate.MaxLength("loaAgncDsbrCd", "body", *m.LoaAgncDsbrCd, 6); err != nil {
 		return err
 	}
 
@@ -567,7 +583,7 @@ func (m *LineOfAccounting) validateLoaAlltSnID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaAlltSnID", "body", m.LoaAlltSnID, 5); err != nil {
+	if err := validate.MaxLength("loaAlltSnID", "body", *m.LoaAlltSnID, 5); err != nil {
 		return err
 	}
 
@@ -579,7 +595,7 @@ func (m *LineOfAccounting) validateLoaBafID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaBafID", "body", m.LoaBafID, 4); err != nil {
+	if err := validate.MaxLength("loaBafID", "body", *m.LoaBafID, 4); err != nil {
 		return err
 	}
 
@@ -591,7 +607,7 @@ func (m *LineOfAccounting) validateLoaBdgtAcntClsNm(formats strfmt.Registry) err
 		return nil
 	}
 
-	if err := validate.MaxLength("loaBdgtAcntClsNm", "body", m.LoaBdgtAcntClsNm, 8); err != nil {
+	if err := validate.MaxLength("loaBdgtAcntClsNm", "body", *m.LoaBdgtAcntClsNm, 8); err != nil {
 		return err
 	}
 
@@ -603,7 +619,7 @@ func (m *LineOfAccounting) validateLoaBetCd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaBetCd", "body", m.LoaBetCd, 4); err != nil {
+	if err := validate.MaxLength("loaBetCd", "body", *m.LoaBetCd, 4); err != nil {
 		return err
 	}
 
@@ -627,7 +643,7 @@ func (m *LineOfAccounting) validateLoaBgtLnItmID(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaBgtLnItmID", "body", m.LoaBgtLnItmID, 8); err != nil {
+	if err := validate.MaxLength("loaBgtLnItmID", "body", *m.LoaBgtLnItmID, 8); err != nil {
 		return err
 	}
 
@@ -639,7 +655,7 @@ func (m *LineOfAccounting) validateLoaBgtRstrCd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaBgtRstrCd", "body", m.LoaBgtRstrCd, 1); err != nil {
+	if err := validate.MaxLength("loaBgtRstrCd", "body", *m.LoaBgtRstrCd, 1); err != nil {
 		return err
 	}
 
@@ -651,7 +667,7 @@ func (m *LineOfAccounting) validateLoaBgtSubActCd(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.MaxLength("loaBgtSubActCd", "body", m.LoaBgtSubActCd, 4); err != nil {
+	if err := validate.MaxLength("loaBgtSubActCd", "body", *m.LoaBgtSubActCd, 4); err != nil {
 		return err
 	}
 
@@ -663,7 +679,7 @@ func (m *LineOfAccounting) validateLoaClsRefID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaClsRefID", "body", m.LoaClsRefID, 2); err != nil {
+	if err := validate.MaxLength("loaClsRefID", "body", *m.LoaClsRefID, 2); err != nil {
 		return err
 	}
 
@@ -675,7 +691,7 @@ func (m *LineOfAccounting) validateLoaCstCd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaCstCd", "body", m.LoaCstCd, 16); err != nil {
+	if err := validate.MaxLength("loaCstCd", "body", *m.LoaCstCd, 16); err != nil {
 		return err
 	}
 
@@ -687,7 +703,7 @@ func (m *LineOfAccounting) validateLoaCstCntrID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaCstCntrID", "body", m.LoaCstCntrID, 16); err != nil {
+	if err := validate.MaxLength("loaCstCntrID", "body", *m.LoaCstCntrID, 16); err != nil {
 		return err
 	}
 
@@ -699,7 +715,7 @@ func (m *LineOfAccounting) validateLoaCustNm(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaCustNm", "body", m.LoaCustNm, 6); err != nil {
+	if err := validate.MaxLength("loaCustNm", "body", *m.LoaCustNm, 6); err != nil {
 		return err
 	}
 
@@ -711,7 +727,7 @@ func (m *LineOfAccounting) validateLoaDfAgncyAlctnRcpntID(formats strfmt.Registr
 		return nil
 	}
 
-	if err := validate.MaxLength("loaDfAgncyAlctnRcpntID", "body", m.LoaDfAgncyAlctnRcpntID, 4); err != nil {
+	if err := validate.MaxLength("loaDfAgncyAlctnRcpntID", "body", *m.LoaDfAgncyAlctnRcpntID, 4); err != nil {
 		return err
 	}
 
@@ -723,7 +739,7 @@ func (m *LineOfAccounting) validateLoaDocID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaDocID", "body", m.LoaDocID, 15); err != nil {
+	if err := validate.MaxLength("loaDocID", "body", *m.LoaDocID, 15); err != nil {
 		return err
 	}
 
@@ -735,7 +751,7 @@ func (m *LineOfAccounting) validateLoaDptID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaDptID", "body", m.LoaDptID, 2); err != nil {
+	if err := validate.MaxLength("loaDptID", "body", *m.LoaDptID, 2); err != nil {
 		return err
 	}
 
@@ -747,7 +763,7 @@ func (m *LineOfAccounting) validateLoaDtlRmbsmtSrcID(formats strfmt.Registry) er
 		return nil
 	}
 
-	if err := validate.MaxLength("loaDtlRmbsmtSrcID", "body", m.LoaDtlRmbsmtSrcID, 3); err != nil {
+	if err := validate.MaxLength("loaDtlRmbsmtSrcID", "body", *m.LoaDtlRmbsmtSrcID, 3); err != nil {
 		return err
 	}
 
@@ -771,7 +787,7 @@ func (m *LineOfAccounting) validateLoaFmsTrnsactnID(formats strfmt.Registry) err
 		return nil
 	}
 
-	if err := validate.MaxLength("loaFmsTrnsactnID", "body", m.LoaFmsTrnsactnID, 12); err != nil {
+	if err := validate.MaxLength("loaFmsTrnsactnID", "body", *m.LoaFmsTrnsactnID, 12); err != nil {
 		return err
 	}
 
@@ -783,7 +799,7 @@ func (m *LineOfAccounting) validateLoaFnclArID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaFnclArID", "body", m.LoaFnclArID, 6); err != nil {
+	if err := validate.MaxLength("loaFnclArID", "body", *m.LoaFnclArID, 6); err != nil {
 		return err
 	}
 
@@ -795,7 +811,7 @@ func (m *LineOfAccounting) validateLoaFnctPrsNm(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaFnctPrsNm", "body", m.LoaFnctPrsNm, 255); err != nil {
+	if err := validate.MaxLength("loaFnctPrsNm", "body", *m.LoaFnctPrsNm, 255); err != nil {
 		return err
 	}
 
@@ -807,7 +823,7 @@ func (m *LineOfAccounting) validateLoaFndCntrID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaFndCntrID", "body", m.LoaFndCntrID, 12); err != nil {
+	if err := validate.MaxLength("loaFndCntrID", "body", *m.LoaFndCntrID, 12); err != nil {
 		return err
 	}
 
@@ -819,7 +835,7 @@ func (m *LineOfAccounting) validateLoaFndTyFgCd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaFndTyFgCd", "body", m.LoaFndTyFgCd, 1); err != nil {
+	if err := validate.MaxLength("loaFndTyFgCd", "body", *m.LoaFndTyFgCd, 1); err != nil {
 		return err
 	}
 
@@ -831,7 +847,7 @@ func (m *LineOfAccounting) validateLoaHistStatCd(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaHistStatCd", "body", m.LoaHistStatCd, 1); err != nil {
+	if err := validate.MaxLength("loaHistStatCd", "body", *m.LoaHistStatCd, 1); err != nil {
 		return err
 	}
 
@@ -843,7 +859,7 @@ func (m *LineOfAccounting) validateLoaHsGdsCd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaHsGdsCd", "body", m.LoaHsGdsCd, 2); err != nil {
+	if err := validate.MaxLength("loaHsGdsCd", "body", *m.LoaHsGdsCd, 2); err != nil {
 		return err
 	}
 
@@ -855,7 +871,7 @@ func (m *LineOfAccounting) validateLoaInstlAcntgActID(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.MaxLength("loaInstlAcntgActID", "body", m.LoaInstlAcntgActID, 6); err != nil {
+	if err := validate.MaxLength("loaInstlAcntgActID", "body", *m.LoaInstlAcntgActID, 6); err != nil {
 		return err
 	}
 
@@ -867,7 +883,7 @@ func (m *LineOfAccounting) validateLoaJbOrdNm(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaJbOrdNm", "body", m.LoaJbOrdNm, 10); err != nil {
+	if err := validate.MaxLength("loaJbOrdNm", "body", *m.LoaJbOrdNm, 10); err != nil {
 		return err
 	}
 
@@ -879,7 +895,7 @@ func (m *LineOfAccounting) validateLoaLclInstlID(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaLclInstlID", "body", m.LoaLclInstlID, 18); err != nil {
+	if err := validate.MaxLength("loaLclInstlID", "body", *m.LoaLclInstlID, 18); err != nil {
 		return err
 	}
 
@@ -891,7 +907,7 @@ func (m *LineOfAccounting) validateLoaMajClmNm(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaMajClmNm", "body", m.LoaMajClmNm, 4); err != nil {
+	if err := validate.MaxLength("loaMajClmNm", "body", *m.LoaMajClmNm, 4); err != nil {
 		return err
 	}
 
@@ -903,7 +919,7 @@ func (m *LineOfAccounting) validateLoaMajRmbsmtSrcID(formats strfmt.Registry) er
 		return nil
 	}
 
-	if err := validate.MaxLength("loaMajRmbsmtSrcID", "body", m.LoaMajRmbsmtSrcID, 1); err != nil {
+	if err := validate.MaxLength("loaMajRmbsmtSrcID", "body", *m.LoaMajRmbsmtSrcID, 1); err != nil {
 		return err
 	}
 
@@ -915,7 +931,7 @@ func (m *LineOfAccounting) validateLoaObjClsID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaObjClsID", "body", m.LoaObjClsID, 6); err != nil {
+	if err := validate.MaxLength("loaObjClsID", "body", *m.LoaObjClsID, 6); err != nil {
 		return err
 	}
 
@@ -927,7 +943,7 @@ func (m *LineOfAccounting) validateLoaOpAgncyID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaOpAgncyID", "body", m.LoaOpAgncyID, 4); err != nil {
+	if err := validate.MaxLength("loaOpAgncyID", "body", *m.LoaOpAgncyID, 4); err != nil {
 		return err
 	}
 
@@ -939,7 +955,7 @@ func (m *LineOfAccounting) validateLoaPgmElmntID(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaPgmElmntID", "body", m.LoaPgmElmntID, 12); err != nil {
+	if err := validate.MaxLength("loaPgmElmntID", "body", *m.LoaPgmElmntID, 12); err != nil {
 		return err
 	}
 
@@ -951,7 +967,7 @@ func (m *LineOfAccounting) validateLoaPrjID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaPrjID", "body", m.LoaPrjID, 12); err != nil {
+	if err := validate.MaxLength("loaPrjID", "body", *m.LoaPrjID, 12); err != nil {
 		return err
 	}
 
@@ -963,7 +979,7 @@ func (m *LineOfAccounting) validateLoaSbaltmtRcpntID(formats strfmt.Registry) er
 		return nil
 	}
 
-	if err := validate.MaxLength("loaSbaltmtRcpntID", "body", m.LoaSbaltmtRcpntID, 1); err != nil {
+	if err := validate.MaxLength("loaSbaltmtRcpntID", "body", *m.LoaSbaltmtRcpntID, 1); err != nil {
 		return err
 	}
 
@@ -975,7 +991,7 @@ func (m *LineOfAccounting) validateLoaScrtyCoopCustCd(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.MaxLength("loaScrtyCoopCustCd", "body", m.LoaScrtyCoopCustCd, 2); err != nil {
+	if err := validate.MaxLength("loaScrtyCoopCustCd", "body", *m.LoaScrtyCoopCustCd, 2); err != nil {
 		return err
 	}
 
@@ -987,7 +1003,7 @@ func (m *LineOfAccounting) validateLoaScrtyCoopDsgntrCd(formats strfmt.Registry)
 		return nil
 	}
 
-	if err := validate.MaxLength("loaScrtyCoopDsgntrCd", "body", m.LoaScrtyCoopDsgntrCd, 4); err != nil {
+	if err := validate.MaxLength("loaScrtyCoopDsgntrCd", "body", *m.LoaScrtyCoopDsgntrCd, 4); err != nil {
 		return err
 	}
 
@@ -999,7 +1015,7 @@ func (m *LineOfAccounting) validateLoaScrtyCoopImplAgncCd(formats strfmt.Registr
 		return nil
 	}
 
-	if err := validate.MaxLength("loaScrtyCoopImplAgncCd", "body", m.LoaScrtyCoopImplAgncCd, 1); err != nil {
+	if err := validate.MaxLength("loaScrtyCoopImplAgncCd", "body", *m.LoaScrtyCoopImplAgncCd, 1); err != nil {
 		return err
 	}
 
@@ -1011,7 +1027,7 @@ func (m *LineOfAccounting) validateLoaScrtyCoopLnItmID(formats strfmt.Registry) 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaScrtyCoopLnItmID", "body", m.LoaScrtyCoopLnItmID, 3); err != nil {
+	if err := validate.MaxLength("loaScrtyCoopLnItmID", "body", *m.LoaScrtyCoopLnItmID, 3); err != nil {
 		return err
 	}
 
@@ -1023,7 +1039,7 @@ func (m *LineOfAccounting) validateLoaSpclIntrID(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaSpclIntrID", "body", m.LoaSpclIntrID, 2); err != nil {
+	if err := validate.MaxLength("loaSpclIntrID", "body", *m.LoaSpclIntrID, 2); err != nil {
 		return err
 	}
 
@@ -1035,7 +1051,7 @@ func (m *LineOfAccounting) validateLoaSrvSrcID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaSrvSrcID", "body", m.LoaSrvSrcID, 1); err != nil {
+	if err := validate.MaxLength("loaSrvSrcID", "body", *m.LoaSrvSrcID, 1); err != nil {
 		return err
 	}
 
@@ -1047,7 +1063,7 @@ func (m *LineOfAccounting) validateLoaStatCd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaStatCd", "body", m.LoaStatCd, 1); err != nil {
+	if err := validate.MaxLength("loaStatCd", "body", *m.LoaStatCd, 1); err != nil {
 		return err
 	}
 
@@ -1059,7 +1075,7 @@ func (m *LineOfAccounting) validateLoaSubAcntID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaSubAcntID", "body", m.LoaSubAcntID, 3); err != nil {
+	if err := validate.MaxLength("loaSubAcntID", "body", *m.LoaSubAcntID, 3); err != nil {
 		return err
 	}
 
@@ -1071,7 +1087,7 @@ func (m *LineOfAccounting) validateLoaSysID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaSysId", "body", m.LoaSysID, 20); err != nil {
+	if err := validate.MaxLength("loaSysId", "body", *m.LoaSysID, 20); err != nil {
 		return err
 	}
 
@@ -1083,7 +1099,7 @@ func (m *LineOfAccounting) validateLoaTnsfrDptNm(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.MaxLength("loaTnsfrDptNm", "body", m.LoaTnsfrDptNm, 4); err != nil {
+	if err := validate.MaxLength("loaTnsfrDptNm", "body", *m.LoaTnsfrDptNm, 4); err != nil {
 		return err
 	}
 
@@ -1095,7 +1111,7 @@ func (m *LineOfAccounting) validateLoaTrnsnID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaTrnsnID", "body", m.LoaTrnsnID, 3); err != nil {
+	if err := validate.MaxLength("loaTrnsnID", "body", *m.LoaTrnsnID, 3); err != nil {
 		return err
 	}
 
@@ -1107,7 +1123,7 @@ func (m *LineOfAccounting) validateLoaTrsySfxTx(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaTrsySfxTx", "body", m.LoaTrsySfxTx, 4); err != nil {
+	if err := validate.MaxLength("loaTrsySfxTx", "body", *m.LoaTrsySfxTx, 4); err != nil {
 		return err
 	}
 
@@ -1119,7 +1135,7 @@ func (m *LineOfAccounting) validateLoaTskBdgtSblnTx(formats strfmt.Registry) err
 		return nil
 	}
 
-	if err := validate.MaxLength("loaTskBdgtSblnTx", "body", m.LoaTskBdgtSblnTx, 8); err != nil {
+	if err := validate.MaxLength("loaTskBdgtSblnTx", "body", *m.LoaTskBdgtSblnTx, 8); err != nil {
 		return err
 	}
 
@@ -1131,7 +1147,7 @@ func (m *LineOfAccounting) validateLoaUic(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaUic", "body", m.LoaUic, 6); err != nil {
+	if err := validate.MaxLength("loaUic", "body", *m.LoaUic, 6); err != nil {
 		return err
 	}
 
@@ -1143,7 +1159,7 @@ func (m *LineOfAccounting) validateLoaWkCntrRcpntNm(formats strfmt.Registry) err
 		return nil
 	}
 
-	if err := validate.MaxLength("loaWkCntrRcpntNm", "body", m.LoaWkCntrRcpntNm, 6); err != nil {
+	if err := validate.MaxLength("loaWkCntrRcpntNm", "body", *m.LoaWkCntrRcpntNm, 6); err != nil {
 		return err
 	}
 
@@ -1155,7 +1171,7 @@ func (m *LineOfAccounting) validateLoaWrkOrdID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("loaWrkOrdID", "body", m.LoaWrkOrdID, 16); err != nil {
+	if err := validate.MaxLength("loaWrkOrdID", "body", *m.LoaWrkOrdID, 16); err != nil {
 		return err
 	}
 
@@ -1167,7 +1183,7 @@ func (m *LineOfAccounting) validateOrgGrpDfasCd(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("orgGrpDfasCd", "body", m.OrgGrpDfasCd, 2); err != nil {
+	if err := validate.MaxLength("orgGrpDfasCd", "body", *m.OrgGrpDfasCd, 2); err != nil {
 		return err
 	}
 

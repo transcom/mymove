@@ -28,7 +28,9 @@ type FetchLineOfAccountingPayload struct {
 	ServiceMemberAffiliation *Affiliation `json:"serviceMemberAffiliation,omitempty"`
 
 	// tac code
-	// Example: 123456
+	// Example: F8J1
+	// Max Length: 4
+	// Min Length: 4
 	TacCode string `json:"tacCode,omitempty"`
 }
 
@@ -41,6 +43,10 @@ func (m *FetchLineOfAccountingPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateServiceMemberAffiliation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTacCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -76,6 +82,22 @@ func (m *FetchLineOfAccountingPayload) validateServiceMemberAffiliation(formats 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *FetchLineOfAccountingPayload) validateTacCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.TacCode) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("tacCode", "body", m.TacCode, 4); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("tacCode", "body", m.TacCode, 4); err != nil {
+		return err
 	}
 
 	return nil

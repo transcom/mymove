@@ -841,6 +841,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -6721,7 +6724,9 @@ func init() {
         },
         "tacCode": {
           "type": "string",
-          "example": "123456"
+          "maxLength": 4,
+          "minLength": 4,
+          "example": "F8J1"
         }
       }
     },
@@ -6848,247 +6853,320 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "example": "2023-08-03T19:17:10.050Z"
         },
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "123e4567-e89b-12d3-a456-426614174000"
+          "example": "06254fc3-b763-484c-b555-42855d1ad5cd"
         },
         "loaActvtyID": {
           "type": "string",
-          "maxLength": 11
+          "maxLength": 11,
+          "x-nullable": true
         },
         "loaAgncAcntngCd": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaAgncDsbrCd": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaAlltSnID": {
           "type": "string",
-          "maxLength": 5
+          "maxLength": 5,
+          "x-nullable": true,
+          "example": "123A"
         },
         "loaBafID": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1234"
         },
         "loaBdgtAcntClsNm": {
           "type": "string",
-          "maxLength": 8
+          "maxLength": 8,
+          "x-nullable": true,
+          "example": "000000"
         },
         "loaBetCd": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaBgFyTx": {
           "type": "integer",
-          "example": "2024"
+          "x-nullable": true,
+          "example": 2006
         },
         "loaBgnDt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "example": "2005-10-01"
         },
         "loaBgtLnItmID": {
           "type": "string",
-          "maxLength": 8
+          "maxLength": 8,
+          "x-nullable": true
         },
         "loaBgtRstrCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaBgtSubActCd": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaClsRefID": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true
         },
         "loaCstCd": {
           "type": "string",
-          "maxLength": 16
+          "maxLength": 16,
+          "x-nullable": true
         },
         "loaCstCntrID": {
           "type": "string",
-          "maxLength": 16
+          "maxLength": 16,
+          "x-nullable": true
         },
         "loaCustNm": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaDfAgncyAlctnRcpntID": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaDocID": {
           "type": "string",
-          "maxLength": 15
+          "maxLength": 15,
+          "x-nullable": true,
+          "example": "HHG12345678900"
         },
         "loaDptID": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "1 "
         },
         "loaDscTx": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "example": "PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)"
         },
         "loaDtlRmbsmtSrcID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true
         },
         "loaEndDt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "example": "2015-10-01"
         },
         "loaEndFyTx": {
           "type": "integer",
-          "example": "2024"
+          "x-nullable": true,
+          "example": 2016
         },
         "loaFmsTrnsactnID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true
         },
         "loaFnclArID": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaFnctPrsNm": {
           "type": "string",
-          "maxLength": 255
+          "maxLength": 255,
+          "x-nullable": true
         },
         "loaFndCntrID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true
         },
         "loaFndTyFgCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaHistStatCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaHsGdsCd": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "HT"
         },
         "loaInstlAcntgActID": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "12345"
         },
         "loaJbOrdNm": {
           "type": "string",
-          "maxLength": 10
+          "maxLength": 10,
+          "x-nullable": true
         },
         "loaLclInstlID": {
           "type": "string",
-          "maxLength": 18
+          "maxLength": 18,
+          "x-nullable": true
         },
         "loaMajClmNm": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaMajRmbsmtSrcID": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaObjClsID": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "22NL"
         },
         "loaOpAgncyID": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1A"
         },
         "loaPgmElmntID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true,
+          "example": "00000000"
         },
         "loaPrjID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true
         },
         "loaSbaltmtRcpntID": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaScrtyCoopCustCd": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true
         },
         "loaScrtyCoopDsgntrCd": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaScrtyCoopImplAgncCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaScrtyCoopLnItmID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true
         },
         "loaSpclIntrID": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true
         },
         "loaSrvSrcID": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaStatCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true,
+          "example": "U"
         },
         "loaSubAcntID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true
         },
         "loaSysId": {
           "type": "string",
           "maxLength": 20,
-          "example": "1234567890"
+          "x-nullable": true,
+          "example": "10003"
         },
         "loaTnsfrDptNm": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaTrnsnID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true,
+          "example": "B1"
         },
         "loaTrsySfxTx": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "0000"
         },
         "loaTskBdgtSblnTx": {
           "type": "string",
-          "maxLength": 8
+          "maxLength": 8,
+          "x-nullable": true
         },
         "loaUic": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaWkCntrRcpntNm": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaWrkOrdID": {
           "type": "string",
-          "maxLength": 16
+          "maxLength": 16,
+          "x-nullable": true
         },
         "orgGrpDfasCd": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "ZZ"
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
-        },
-        "validHhgCodeForLoa": {
-          "type": "boolean"
+          "format": "date-time",
+          "example": "2023-08-03T19:17:38.776Z"
         }
       }
     },
@@ -13097,6 +13175,12 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -20094,7 +20178,9 @@ func init() {
         },
         "tacCode": {
           "type": "string",
-          "example": "123456"
+          "maxLength": 4,
+          "minLength": 4,
+          "example": "F8J1"
         }
       }
     },
@@ -20221,247 +20307,320 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "example": "2023-08-03T19:17:10.050Z"
         },
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "123e4567-e89b-12d3-a456-426614174000"
+          "example": "06254fc3-b763-484c-b555-42855d1ad5cd"
         },
         "loaActvtyID": {
           "type": "string",
-          "maxLength": 11
+          "maxLength": 11,
+          "x-nullable": true
         },
         "loaAgncAcntngCd": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaAgncDsbrCd": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaAlltSnID": {
           "type": "string",
-          "maxLength": 5
+          "maxLength": 5,
+          "x-nullable": true,
+          "example": "123A"
         },
         "loaBafID": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1234"
         },
         "loaBdgtAcntClsNm": {
           "type": "string",
-          "maxLength": 8
+          "maxLength": 8,
+          "x-nullable": true,
+          "example": "000000"
         },
         "loaBetCd": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaBgFyTx": {
           "type": "integer",
-          "example": "2024"
+          "x-nullable": true,
+          "example": 2006
         },
         "loaBgnDt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "example": "2005-10-01"
         },
         "loaBgtLnItmID": {
           "type": "string",
-          "maxLength": 8
+          "maxLength": 8,
+          "x-nullable": true
         },
         "loaBgtRstrCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaBgtSubActCd": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaClsRefID": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true
         },
         "loaCstCd": {
           "type": "string",
-          "maxLength": 16
+          "maxLength": 16,
+          "x-nullable": true
         },
         "loaCstCntrID": {
           "type": "string",
-          "maxLength": 16
+          "maxLength": 16,
+          "x-nullable": true
         },
         "loaCustNm": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaDfAgncyAlctnRcpntID": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaDocID": {
           "type": "string",
-          "maxLength": 15
+          "maxLength": 15,
+          "x-nullable": true,
+          "example": "HHG12345678900"
         },
         "loaDptID": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "1 "
         },
         "loaDscTx": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true,
+          "example": "PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)"
         },
         "loaDtlRmbsmtSrcID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true
         },
         "loaEndDt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "example": "2015-10-01"
         },
         "loaEndFyTx": {
           "type": "integer",
-          "example": "2024"
+          "x-nullable": true,
+          "example": 2016
         },
         "loaFmsTrnsactnID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true
         },
         "loaFnclArID": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaFnctPrsNm": {
           "type": "string",
-          "maxLength": 255
+          "maxLength": 255,
+          "x-nullable": true
         },
         "loaFndCntrID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true
         },
         "loaFndTyFgCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaHistStatCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaHsGdsCd": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "HT"
         },
         "loaInstlAcntgActID": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "12345"
         },
         "loaJbOrdNm": {
           "type": "string",
-          "maxLength": 10
+          "maxLength": 10,
+          "x-nullable": true
         },
         "loaLclInstlID": {
           "type": "string",
-          "maxLength": 18
+          "maxLength": 18,
+          "x-nullable": true
         },
         "loaMajClmNm": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaMajRmbsmtSrcID": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaObjClsID": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "22NL"
         },
         "loaOpAgncyID": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1A"
         },
         "loaPgmElmntID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true,
+          "example": "00000000"
         },
         "loaPrjID": {
           "type": "string",
-          "maxLength": 12
+          "maxLength": 12,
+          "x-nullable": true
         },
         "loaSbaltmtRcpntID": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaScrtyCoopCustCd": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true
         },
         "loaScrtyCoopDsgntrCd": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaScrtyCoopImplAgncCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaScrtyCoopLnItmID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true
         },
         "loaSpclIntrID": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true
         },
         "loaSrvSrcID": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true
         },
         "loaStatCd": {
           "type": "string",
-          "maxLength": 1
+          "maxLength": 1,
+          "x-nullable": true,
+          "example": "U"
         },
         "loaSubAcntID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true
         },
         "loaSysId": {
           "type": "string",
           "maxLength": 20,
-          "example": "1234567890"
+          "x-nullable": true,
+          "example": "10003"
         },
         "loaTnsfrDptNm": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true
         },
         "loaTrnsnID": {
           "type": "string",
-          "maxLength": 3
+          "maxLength": 3,
+          "x-nullable": true,
+          "example": "B1"
         },
         "loaTrsySfxTx": {
           "type": "string",
-          "maxLength": 4
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "0000"
         },
         "loaTskBdgtSblnTx": {
           "type": "string",
-          "maxLength": 8
+          "maxLength": 8,
+          "x-nullable": true
         },
         "loaUic": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaWkCntrRcpntNm": {
           "type": "string",
-          "maxLength": 6
+          "maxLength": 6,
+          "x-nullable": true
         },
         "loaWrkOrdID": {
           "type": "string",
-          "maxLength": 16
+          "maxLength": 16,
+          "x-nullable": true
         },
         "orgGrpDfasCd": {
           "type": "string",
-          "maxLength": 2
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "ZZ"
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
-        },
-        "validHhgCodeForLoa": {
-          "type": "boolean"
+          "format": "date-time",
+          "example": "2023-08-03T19:17:38.776Z"
         }
       }
     },

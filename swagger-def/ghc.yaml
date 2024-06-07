@@ -3464,6 +3464,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
   /transportation-offices:
@@ -4028,7 +4030,9 @@ definitions:
         example: "2023-01-01"
       tacCode:
         type: string
-        example: "123456"
+        minLength: 4
+        maxLength: 4
+        example: 'F8J1'
   SearchCustomersResult:
     type: object
     properties:

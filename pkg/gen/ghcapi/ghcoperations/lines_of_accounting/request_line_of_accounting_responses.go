@@ -238,6 +238,51 @@ func (o *RequestLineOfAccountingNotFound) WriteResponse(rw http.ResponseWriter, 
 	}
 }
 
+// RequestLineOfAccountingUnprocessableEntityCode is the HTTP code returned for type RequestLineOfAccountingUnprocessableEntity
+const RequestLineOfAccountingUnprocessableEntityCode int = 422
+
+/*
+RequestLineOfAccountingUnprocessableEntity The payload was unprocessable.
+
+swagger:response requestLineOfAccountingUnprocessableEntity
+*/
+type RequestLineOfAccountingUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewRequestLineOfAccountingUnprocessableEntity creates RequestLineOfAccountingUnprocessableEntity with default headers values
+func NewRequestLineOfAccountingUnprocessableEntity() *RequestLineOfAccountingUnprocessableEntity {
+
+	return &RequestLineOfAccountingUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the request line of accounting unprocessable entity response
+func (o *RequestLineOfAccountingUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *RequestLineOfAccountingUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the request line of accounting unprocessable entity response
+func (o *RequestLineOfAccountingUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *RequestLineOfAccountingUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // RequestLineOfAccountingInternalServerErrorCode is the HTTP code returned for type RequestLineOfAccountingInternalServerError
 const RequestLineOfAccountingInternalServerErrorCode int = 500
 
