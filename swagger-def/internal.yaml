@@ -1886,46 +1886,19 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
       pickupAddress:
-        $ref: 'definitions/Address.yaml'
-      secondaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
+        $ref: "definitions/Address.yaml"
       secondaryPickupAddress:
-        $ref: 'definitions/Address.yaml'
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
+        $ref: "definitions/Address.yaml"
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
-      secondaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
+        $ref: "definitions/Address.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       sitExpected:
         type: boolean
     required:
       - expectedDepartureDate
-      - pickupPostalCode
       - pickupAddress
-      - destinationPostalCode
       - destinationAddress
       - sitExpected
   UpdatePPMShipment:
@@ -1941,22 +1914,8 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        x-nullable: true
       pickupAddress:
         $ref: 'definitions/Address.yaml'
-      secondaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
@@ -1972,21 +1931,8 @@ definitions:
         example: "90210"
         pattern: ^(\d{5})$
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        x-nullable: true
       destinationAddress:
         $ref: 'definitions/Address.yaml'
-      secondaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
