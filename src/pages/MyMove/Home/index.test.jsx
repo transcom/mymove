@@ -996,7 +996,7 @@ describe('Home component', () => {
         mtoShipments: [
           createPPMShipmentWithFinalIncentive({
             ppmShipment: {
-              status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+              status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
               pickupAddress: {
                 streetAddress1: '1 Test Street',
                 streetAddress2: '2 Test Street',

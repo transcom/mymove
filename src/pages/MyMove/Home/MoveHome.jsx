@@ -152,7 +152,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking if a PPM shipment is waiting on payment approval
   const hasSubmittedPPMCloseout = () => {
     const finishedCloseout = mtoShipments.filter(
-      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     return !!finishedCloseout.length;
   };
@@ -324,6 +324,15 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   const handleNewPathClick = (path) => {
     navigate(path, { state });
+  };
+
+  const handlePPMFeedbackClick = (shipmentId) => {
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH, {
+      moveId: move.id,
+      mtoShipmentId: shipmentId,
+    });
+
+    navigate(path);
   };
 
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
@@ -705,6 +714,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       shipments={ppmShipments}
                       onUploadClick={handlePPMUploadClick}
                       onDownloadError={togglePPMPacketErrorModal}
+                      onFeedbackClick={handlePPMFeedbackClick}
                     />
                   </Step>
                 )}
