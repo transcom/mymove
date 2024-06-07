@@ -21,7 +21,7 @@ func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	pptasAPI := pptasops.NewMymoveAPI(pptasSpec)
 	pptasAPI.ServeError = handlers.ServeCustomError
 
-	pptasAPI.MovesListMovesHandler = ListMovesHandler{
+	pptasAPI.MovesListReportsHandler = ListReportsHandler{
 		HandlerConfig:        handlerConfig,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}

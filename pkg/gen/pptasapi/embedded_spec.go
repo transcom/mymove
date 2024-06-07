@@ -45,15 +45,15 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "Gets all reports that have been ??approved??\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "listMoves",
-        "operationId": "listMoves",
+        "summary": "listReports",
+        "operationId": "listReports",
         "parameters": [
           {
             "type": "string",
@@ -67,7 +67,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/ListMoves"
+              "$ref": "#/definitions/ListReports"
             }
           },
           "401": {
@@ -84,6 +84,30 @@ func init() {
     }
   },
   "definitions": {
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
+      },
+      "x-nullable": true
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -104,62 +128,122 @@ func init() {
         }
       }
     },
-    "ListMove": {
-      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
+    "ListReport": {
+      "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
       "type": "object",
       "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
+        "Affiliation": {
+          "$ref": "#/definitions/Affiliation"
         },
-        "createdAt": {
+        "Edipi": {
           "type": "string",
-          "format": "date-time",
-          "readOnly": true
+          "example": 1234567890
         },
-        "eTag": {
+        "EmailPrimary": {
           "type": "string",
-          "readOnly": true
+          "example": 9169876543
+        },
+        "EmailSecondary": {
+          "type": "string",
+          "example": 2101234567
+        },
+        "FirstName": {
+          "type": "string",
+          "example": "Bob"
+        },
+        "Grade": {
+          "type": "string",
+          "title": "grade",
+          "enum": [
+            "E_1",
+            "E_2",
+            "E_3",
+            "E_4",
+            "E_5",
+            "E_6",
+            "E_7",
+            "E_8",
+            "E_9",
+            "E_9_SPECIAL_SENIOR_ENLISTED",
+            "O_1_ACADEMY_GRADUATE",
+            "O_2",
+            "O_3",
+            "O_4",
+            "O_5",
+            "O_6",
+            "O_7",
+            "O_8",
+            "O_9",
+            "O_10",
+            "W_1",
+            "W_2",
+            "W_3",
+            "W_4",
+            "W_5",
+            "AVIATION_CADET",
+            "CIVILIAN_EMPLOYEE",
+            "ACADEMY_CADET",
+            "MIDSHIPMAN"
+          ],
+          "x-display-value": {
+            "ACADEMY_CADET": "Service Academy Cadet",
+            "AVIATION_CADET": "Aviation Cadet",
+            "CIVILIAN_EMPLOYEE": "Civilian Employee",
+            "E_1": "E-1",
+            "E_2": "E-2",
+            "E_3": "E-3",
+            "E_4": "E-4",
+            "E_5": "E-5",
+            "E_6": "E-6",
+            "E_7": "E-7",
+            "E_8": "E-8",
+            "E_9": "E-9",
+            "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+            "MIDSHIPMAN": "Midshipman",
+            "O_10": "O-10",
+            "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+            "O_2": "O-2",
+            "O_3": "O-3",
+            "O_4": "O-4",
+            "O_5": "O-5",
+            "O_6": "O-6",
+            "O_7": "O-7",
+            "O_8": "O-8",
+            "O_9": "O-9",
+            "W_1": "W-1",
+            "W_2": "W-2",
+            "W_3": "W-3",
+            "W_4": "W-4",
+            "W_5": "W-5"
+          },
+          "x-nullable": true
+        },
+        "LastName": {
+          "type": "string",
+          "example": "Job"
+        },
+        "MiddleInitial": {
+          "type": "string",
+          "example": "G"
+        },
+        "PhonePrimary": {
+          "type": "string",
+          "example": "a@b.com"
+        },
+        "PhoneSecondary": {
+          "type": "string",
+          "example": "a@b.com"
         },
         "id": {
           "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
+          "format": "uuid"
         }
       }
     },
-    "ListMoves": {
+    "ListReports": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ListMove"
+        "$ref": "#/definitions/ListReport"
       }
     }
   },
@@ -211,15 +295,15 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment\nrequests, is later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "Gets all reports that have been ??approved??\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "listMoves",
-        "operationId": "listMoves",
+        "summary": "listReports",
+        "operationId": "listReports",
         "parameters": [
           {
             "type": "string",
@@ -233,7 +317,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/ListMoves"
+              "$ref": "#/definitions/ListReports"
             }
           },
           "401": {
@@ -259,6 +343,30 @@ func init() {
     }
   },
   "definitions": {
+    "Affiliation": {
+      "description": "Military branch of service",
+      "type": "string",
+      "title": "Branch of service",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marine Corps",
+        "NAVY": "Navy",
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
+      },
+      "x-nullable": true
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -279,62 +387,122 @@ func init() {
         }
       }
     },
-    "ListMove": {
-      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
+    "ListReport": {
+      "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
       "type": "object",
       "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
+        "Affiliation": {
+          "$ref": "#/definitions/Affiliation"
         },
-        "createdAt": {
+        "Edipi": {
           "type": "string",
-          "format": "date-time",
-          "readOnly": true
+          "example": 1234567890
         },
-        "eTag": {
+        "EmailPrimary": {
           "type": "string",
-          "readOnly": true
+          "example": 9169876543
+        },
+        "EmailSecondary": {
+          "type": "string",
+          "example": 2101234567
+        },
+        "FirstName": {
+          "type": "string",
+          "example": "Bob"
+        },
+        "Grade": {
+          "type": "string",
+          "title": "grade",
+          "enum": [
+            "E_1",
+            "E_2",
+            "E_3",
+            "E_4",
+            "E_5",
+            "E_6",
+            "E_7",
+            "E_8",
+            "E_9",
+            "E_9_SPECIAL_SENIOR_ENLISTED",
+            "O_1_ACADEMY_GRADUATE",
+            "O_2",
+            "O_3",
+            "O_4",
+            "O_5",
+            "O_6",
+            "O_7",
+            "O_8",
+            "O_9",
+            "O_10",
+            "W_1",
+            "W_2",
+            "W_3",
+            "W_4",
+            "W_5",
+            "AVIATION_CADET",
+            "CIVILIAN_EMPLOYEE",
+            "ACADEMY_CADET",
+            "MIDSHIPMAN"
+          ],
+          "x-display-value": {
+            "ACADEMY_CADET": "Service Academy Cadet",
+            "AVIATION_CADET": "Aviation Cadet",
+            "CIVILIAN_EMPLOYEE": "Civilian Employee",
+            "E_1": "E-1",
+            "E_2": "E-2",
+            "E_3": "E-3",
+            "E_4": "E-4",
+            "E_5": "E-5",
+            "E_6": "E-6",
+            "E_7": "E-7",
+            "E_8": "E-8",
+            "E_9": "E-9",
+            "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+            "MIDSHIPMAN": "Midshipman",
+            "O_10": "O-10",
+            "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+            "O_2": "O-2",
+            "O_3": "O-3",
+            "O_4": "O-4",
+            "O_5": "O-5",
+            "O_6": "O-6",
+            "O_7": "O-7",
+            "O_8": "O-8",
+            "O_9": "O-9",
+            "W_1": "W-1",
+            "W_2": "W-2",
+            "W_3": "W-3",
+            "W_4": "W-4",
+            "W_5": "W-5"
+          },
+          "x-nullable": true
+        },
+        "LastName": {
+          "type": "string",
+          "example": "Job"
+        },
+        "MiddleInitial": {
+          "type": "string",
+          "example": "G"
+        },
+        "PhonePrimary": {
+          "type": "string",
+          "example": "a@b.com"
+        },
+        "PhoneSecondary": {
+          "type": "string",
+          "example": "a@b.com"
         },
         "id": {
           "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
+          "format": "uuid"
         }
       }
     },
-    "ListMoves": {
+    "ListReports": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ListMove"
+        "$ref": "#/definitions/ListReport"
       }
     }
   },

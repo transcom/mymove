@@ -11,14 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
-type ListMovesHandler struct {
+// ListReportsHandler lists reports with the option to filter since a particular date. Optimized ver.
+type ListReportsHandler struct {
 	handlers.HandlerConfig
 	services.MoveTaskOrderFetcher
 }
 
-// Handle fetches all moves with the option to filter since a particular date. Optimized version.
-func (h ListMovesHandler) Handle(params pptasop.ListMovesParams) middleware.Responder {
+// Handle fetches all reports with the option to filter since a particular date. Optimized version.
+func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -28,15 +28,15 @@ func (h ListMovesHandler) Handle(params pptasop.ListMovesParams) middleware.Resp
 				searchParams.Since = &since
 			}
 
-			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
+			mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
-				return pptasop.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				return pptasop.NewListReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListMoves(&mtos)
+			payload := payloads.ListReports(&mtos)
 
-			return pptasop.NewListMovesOK().WithPayload(payload), nil
+			return pptasop.NewListReportsOK().WithPayload(payload), nil
 		})
 }

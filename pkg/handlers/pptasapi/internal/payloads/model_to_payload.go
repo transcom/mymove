@@ -4,7 +4,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -25,36 +24,34 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 	return &payload
 }
 
-// ListMove payload
-func ListMove(move *models.Move) *pptasmessages.ListMove {
-	if move == nil {
+// ListReport payload
+func ListReport(pr *models.PaymentRequest) *pptasmessages.ListReport {
+	if pr == nil {
 		return nil
 	}
-	payload := &pptasmessages.ListMove{
-		ID:                 strfmt.UUID(move.ID.String()),
-		MoveCode:           move.Locator,
-		CreatedAt:          strfmt.DateTime(move.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		OrderID:            strfmt.UUID(move.OrdersID.String()),
-		ReferenceID:        *move.ReferenceID,
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
-	}
 
-	if move.PPMType != nil {
-		payload.PpmType = *move.PPMType
+	// middleInitial := move.Orders.ServiceMember.MiddleName[0]
+
+	payload := &pptasmessages.ListReport{
+		ID:            strfmt.UUID(pr.MoveTaskOrderID.String()),
+		LastName:      *pr.MoveTaskOrder.Orders.ServiceMember.LastName,
+		FirstName:     *pr.MoveTaskOrder.Orders.ServiceMember.FirstName,
+		MiddleInitial: "w",
+		Affiliation:   (*pptasmessages.Affiliation)(pr.MoveTaskOrder.Orders.ServiceMember.Affiliation),
+		Grade:         (*string)(pr.MoveTaskOrder.Orders.Grade.Pointer()),
+		Edipi:         *pr.MoveTaskOrder.Orders.ServiceMember.Edipi,
 	}
 
 	return payload
 }
 
-// ListMoves payload
-func ListMoves(moves *models.Moves) []*pptasmessages.ListMove {
-	payload := make(pptasmessages.ListMoves, len(*moves))
+// ListReports payload
+func ListReports(prs *models.PaymentRequests) []*pptasmessages.ListReport {
+	payload := make(pptasmessages.ListReports, len(*prs))
 
-	for i, m := range *moves {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListMove(&copyOfM)
+	for i, pr := range *prs {
+		copyOfPR := pr // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = ListReport(&copyOfPR)
 	}
 	return payload
 }

@@ -44,8 +44,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		MovesListMovesHandler: moves.ListMovesHandlerFunc(func(params moves.ListMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ListMoves has not yet been implemented")
+		MovesListReportsHandler: moves.ListReportsHandlerFunc(func(params moves.ListReportsParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.ListReports has not yet been implemented")
 		}),
 	}
 }
@@ -88,8 +88,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// MovesListMovesHandler sets the operation handler for the list moves operation
-	MovesListMovesHandler moves.ListMovesHandler
+	// MovesListReportsHandler sets the operation handler for the list reports operation
+	MovesListReportsHandler moves.ListReportsHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -167,8 +167,8 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.MovesListMovesHandler == nil {
-		unregistered = append(unregistered, "moves.ListMovesHandler")
+	if o.MovesListReportsHandler == nil {
+		unregistered = append(unregistered, "moves.ListReportsHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -261,7 +261,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves"] = moves.NewListMoves(o.context, o.MovesListMovesHandler)
+	o.handlers["GET"]["/moves"] = moves.NewListReports(o.context, o.MovesListReportsHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
