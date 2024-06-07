@@ -24,7 +24,7 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 
 	makePPMShipmentWithAllDocuments := func(appCtx appcontext.AppContext) *models.PPMShipment {
 		// Set up PPM shipment that is at the correct stage of processing for when we would typically use this service
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 
 		suite.NotNil(ppmShipment)
 
@@ -186,7 +186,7 @@ func (suite *PPMShipmentSuite) TestPPMDocumentFetcher() {
 		// stage using our `utilities.SoftDestroy` function because of the related SignedCertification missing the
 		// DeletedAt field, so we'll just set the PPMShipment.DeletedAt field directly.
 		now := time.Now()
-		ppmShipmentToDelete := factory.BuildPPMShipmentThatNeedsPaymentApproval(appCtx.DB(), userUploader, []factory.Customization{
+		ppmShipmentToDelete := factory.BuildPPMShipmentThatNeedsCloseout(appCtx.DB(), userUploader, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					DeletedAt: &now,
