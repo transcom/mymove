@@ -539,7 +539,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 	switch mtoShipment.ShipmentType {
 	case models.MTOShipmentTypeHHGIntoNTSDom:
 		addressType = "storage facility"
-		if mtoShipment.StorageFacility != nil {
+		if mtoShipment.StorageFacility != nil && mtoShipment.StorageFacility.Address.ID != uuid.Nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
 		}
 	default:
@@ -567,17 +567,21 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 
 			switch siCopy.ReService.Code {
 			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
-				if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					if mtoShipment.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
-						return mtoShipment.DeliveryAddressUpdate.OriginalAddress, nil
+				if mtoShipment.DeliveryAddressUpdate != nil {
+					if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+						if mtoShipment.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+							return mtoShipment.DeliveryAddressUpdate.OriginalAddress, nil
+						}
+						return mtoShipment.DeliveryAddressUpdate.NewAddress, nil
 					}
-					return mtoShipment.DeliveryAddressUpdate.NewAddress, nil
 				}
 			}
 
 			if i == len(mtoShipment.MTOServiceItems)-1 {
-				if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					return mtoShipment.DeliveryAddressUpdate.NewAddress, nil
+				if mtoShipment.DeliveryAddressUpdate != nil {
+					if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+						return mtoShipment.DeliveryAddressUpdate.NewAddress, nil
+					}
 				}
 
 				if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
