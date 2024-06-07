@@ -83,7 +83,7 @@ PaymentSubmitted.args = {
       status: shipmentStatuses.APPROVED,
       ppmShipment: {
         id: '11',
-        status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+        status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
         approvedAt: '2022-04-15T15:38:07.103Z',
         submittedAt: '2022-04-19T15:38:07.103Z',
         hasRequestedAdvance: true,
@@ -101,7 +101,7 @@ PaymentReviewed.args = {
       status: shipmentStatuses.APPROVED,
       ppmShipment: {
         id: '11',
-        status: ppmShipmentStatuses.PAYMENT_APPROVED,
+        status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
         approvedAt: '2022-04-15T15:38:07.103Z',
         submittedAt: '2022-04-19T15:38:07.103Z',
         reviewedAt: '2022-04-23T15:38:07.103Z',

@@ -139,7 +139,7 @@ export class Home extends Component {
   get hasSubmittedPPMCloseout() {
     const { mtoShipments } = this.props;
     const finishedCloseout = mtoShipments.filter(
-      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     return !!finishedCloseout.length;
   }

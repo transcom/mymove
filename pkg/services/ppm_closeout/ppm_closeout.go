@@ -228,8 +228,8 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 		weightTicket = ppmShipment.WeightTickets[0]
 	}
 
-	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" or "PAYMENT_APPROVED" status or if weight ticket was reviewed already, if not, it's not ready for closeout
-	if weightTicket.Status == nil && ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval && ppmShipment.Status != models.PPMShipmentStatusPaymentApproved {
+	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status or if weight ticket was reviewed already, if not, it's not ready for closeout
+	if weightTicket.Status == nil && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
 		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
 	}
 
