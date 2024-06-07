@@ -15,9 +15,9 @@ import { updateCustomerInfo } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { CustomerShape } from 'types/order';
+import { formatTrueFalseInputValue } from 'utils/formatters';
 
 const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
-  console.log(customer);
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -49,7 +49,6 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
 
   const onSubmit = (values) => {
     const cacUser = values.cacUser === 'true';
-    console.log(cacUser);
     const {
       firstName,
       lastName,
@@ -86,9 +85,9 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       secondaryTelephone: secondaryPhone,
       cac_validated: cacUser,
     };
-    console.log(body);
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
+
   const initialValues = {
     firstName: customer.first_name,
     lastName: customer.last_name,
@@ -104,7 +103,7 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     backupAddress: customer.backupAddress,
     emailIsPreferred: customer.emailIsPreferred,
     phoneIsPreferred: customer.phoneIsPreferred,
-    cacUser: customer.cacValidated,
+    cacUser: formatTrueFalseInputValue(customer?.cacValidated),
   };
 
   return (
