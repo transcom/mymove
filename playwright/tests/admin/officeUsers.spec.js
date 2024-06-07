@@ -173,7 +173,7 @@ test.describe('Office Users Edit Page', () => {
     await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
 
     const tooCheckbox = page.getByLabel('Transportation Ordering Officer');
-    const tioCheckbox = page.getByLabel('Transportation Invoicing Officer');
+    const tioCheckbox = page.getByLabel('Task Invoicing Officer');
 
     if (tioCheckbox.isChecked() && tooCheckbox.isChecked()) {
       await tooCheckbox.click();

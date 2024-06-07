@@ -962,7 +962,7 @@ describe('Home component', () => {
       const propsForCloseoutCompleteShipment = {
         ...props,
         mtoShipments: [
-          createPPMShipmentWithFinalIncentive({ ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL } }),
+          createPPMShipmentWithFinalIncentive({ ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT } }),
         ],
       };
 
