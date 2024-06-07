@@ -14,7 +14,7 @@ import styles from './ReviewExpense.module.scss';
 import { formatCents, formatDate, dropdownInputOptions, toDollarString } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
-import { DatePickerInput, DropdownInput } from 'components/form/fields';
+import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
@@ -61,9 +61,11 @@ const validationSchema = (allowableWeight) => {
       then: (schema) =>
         schema.required('Required').max(allowableWeight, `Enter an amount ${allowableWeight} lbs or less`),
     }),
-    sitLocation: Yup.mixed()
-      .oneOf(sitLocationOptions.map((i) => i.key))
-      .required('Required'),
+    sitLocation: Yup.mixed().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema.required('Required').oneOf(sitLocationOptions.map((i) => i.key)),
+    }),
   });
 };
 
