@@ -1323,7 +1323,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Task Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -3387,15 +3387,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -6448,7 +6448,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Task Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -8551,15 +8551,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
