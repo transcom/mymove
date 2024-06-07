@@ -755,6 +755,9 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 				case apperror.PreconditionFailedError:
 					return shipmentops.NewRequestShipmentCancellationPreconditionFailed().
 						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				case apperror.UpdateError:
+					payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+					return shipmentops.NewRequestShipmentCancellationConflict().WithPayload(payload), err
 				case mtoshipment.ConflictStatusError:
 					return shipmentops.NewRequestShipmentCancellationConflict().
 						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
@@ -864,8 +867,8 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			moveID := shipment.MoveTaskOrderID
 			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
-			/* Don't send emails for BLUEBARK moves */
-			if shipment.MoveTaskOrder.Orders.OrdersType != "BLUEBARK" {
+			/* Don't send emails for BLUEBARK/SAFETY moves */
+			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewReweighRequested(moveID, *shipment),
 				)

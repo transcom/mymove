@@ -38,10 +38,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'task_invoicing_officer',
       });
     }
-    if (values.transportationOrderingOfficerCheckBox) {
+    if (values.taskOrderingOfficerCheckBox) {
       requestedRoles.push({
-        name: 'Transportation Ordering Officer',
-        roleType: 'transportation_ordering_officer',
+        name: 'Task Ordering Officer',
+        roleType: 'task_ordering_officer',
       });
     }
     if (values.transportationContractingOfficerCheckBox) {
