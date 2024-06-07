@@ -36,6 +36,43 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/application_parameters/{parameterName}": {
+      "get": {
+        "description": "Searches for an application parameter by name, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name, returns nil if not found",
+        "operationId": "getParam",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "string",
+            "description": "Parameter Name",
+            "name": "parameterName",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -5361,6 +5398,26 @@ func init() {
       },
       "x-nullable": true
     },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -7101,6 +7158,10 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "standaloneCrate": {
+          "type": "boolean",
           "x-nullable": true
         },
         "status": {
@@ -10302,7 +10363,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -11744,6 +11808,43 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/application_parameters/{parameterName}": {
+      "get": {
+        "description": "Searches for an application parameter by name, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name, returns nil if not found",
+        "operationId": "getParam",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "string",
+            "description": "Parameter Name",
+            "name": "parameterName",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -18399,6 +18500,26 @@ func init() {
       },
       "x-nullable": true
     },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -20143,6 +20264,10 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "standaloneCrate": {
+          "type": "boolean",
           "x-nullable": true
         },
         "status": {
@@ -23396,7 +23521,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
