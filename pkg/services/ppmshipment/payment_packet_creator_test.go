@@ -66,7 +66,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 	suite.Run("generate pdf - INTERNAL", func() {
 
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 		// initial test data will have one trip(as trip #1) containing:
 		// 1 empty weight with 1 doc
 		// 1 full weight with 1 doc
@@ -469,7 +469,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 
 	suite.Run("returns a ForbiddenError if the ppmShipment does not belong to user in INTERNAL context", func() {
 		serviceMemberID := uuid.Must(uuid.NewV4())
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ServiceMemberID: serviceMemberID,
 			ApplicationName: auth.MilApp,
@@ -492,7 +492,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 			auth.AdminApp,
 		}
 
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 		suite.NotNil(ppmShipment)
 
 		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
@@ -535,7 +535,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	})
 
 	suite.Run("generate with disabled bookmark and watermark", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 		suite.NotNil(ppmShipment)
 		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
@@ -556,7 +556,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	})
 
 	suite.Run("generate with enable bookmark, disable watermark", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 		suite.NotNil(ppmShipment)
 		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
@@ -575,7 +575,7 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 	})
 
 	suite.Run("generate with disable bookmark, enable watermark", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 		suite.NotNil(ppmShipment)
 		notOwnerServiceMemberID := uuid.Must(uuid.NewV4())
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
