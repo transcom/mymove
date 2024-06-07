@@ -1,11 +1,11 @@
 package ghcapi
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -37,25 +37,6 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 				return linesofaccountingop.NewRequestLineOfAccountingBadRequest(), err
 			}
 
-			handleError := func(err error) (middleware.Responder, error) {
-				appCtx.Logger().Error("linesofaccounting.RequestLineOfAccountingHandler error", zap.Error(err))
-				switch e := err.(type) {
-				case apperror.NotFoundError:
-					payload := ghcmessages.Error{
-						Message: handlers.FmtString(err.Error()),
-					}
-					return linesofaccountingop.NewRequestLineOfAccountingNotFound().WithPayload(&payload), err
-				case apperror.QueryError:
-					if e.Unwrap() != nil {
-						// If you can unwrap, log the internal error (usually a pq error) for better debugging
-						appCtx.Logger().Error("linesofaccounting.RequestLineOfAccountingHandler query error", zap.Error(e.Unwrap()))
-					}
-					return linesofaccountingop.NewRequestLineOfAccountingInternalServerError(), err
-				default:
-					return linesofaccountingop.NewRequestLineOfAccountingInternalServerError(), err
-				}
-			}
-
 			if payload.ServiceMemberAffiliation == nil {
 				err := apperror.NewBadDataError("Invalid request for lines of accounting: service member affiliation is nil")
 				return linesofaccountingop.NewRequestLineOfAccountingBadRequest(), err
@@ -63,7 +44,19 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 
 			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.ServiceMemberAffiliation(*payload.ServiceMemberAffiliation), time.Time(payload.OrdersIssueDate), payload.TacCode, appCtx)
 			if err != nil {
-				return handleError(err)
+				if err == sql.ErrNoRows {
+					// Either TAC or LOA service objects triggered a sql err for now rows
+					// This error check will currently never be triggered, but in the case
+					// of the service object being updated in the future, this will catch it and keep the API giving good errors
+					// instead of defaulting to an internal server error
+					errMsg := "Unable to find any lines of accounting based on the provided parameters"
+					err := apperror.NewNotFoundError(uuid.Nil, errMsg)
+					errPayload := &ghcmessages.Error{Message: &errMsg}
+
+					return linesofaccountingop.NewRequestLineOfAccountingNotFound().WithPayload(errPayload), err
+
+				}
+				return linesofaccountingop.NewRequestLineOfAccountingInternalServerError(), err
 			}
 			if len(loas) == 0 {
 				// No LOAs were identified with the provided paramters

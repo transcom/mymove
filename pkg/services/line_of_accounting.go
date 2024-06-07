@@ -10,7 +10,7 @@ import (
 // LineOfAccountingFetcher is the exported interface for fetching lines of accounting
 // based on a centralized location for business logic
 //
-//go:generate mockery --name LinesOfAccountingFetcher
+//go:generate mockery --name LineOfAccountingFetcher
 type LineOfAccountingFetcher interface {
 	FetchLongLinesOfAccounting(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error)
 }
