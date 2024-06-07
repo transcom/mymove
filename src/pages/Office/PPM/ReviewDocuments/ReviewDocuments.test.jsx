@@ -6,7 +6,12 @@ import { ReviewDocuments } from './ReviewDocuments';
 
 import PPMDocumentsStatus from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
-import { usePPMShipmentDocsQueries, useReviewShipmentWeightsQuery, usePPMCloseoutQuery } from 'hooks/queries';
+import {
+  usePPMShipmentDocsQueries,
+  useReviewShipmentWeightsQuery,
+  usePPMCloseoutQuery,
+  useEditShipmentQueries,
+} from 'hooks/queries';
 import { renderWithProviders } from 'testUtils';
 import {
   createPPMShipmentWithFinalIncentive,
@@ -51,10 +56,120 @@ jest.mock('hooks/queries', () => ({
   usePPMShipmentDocsQueries: jest.fn(),
   usePPMCloseoutQuery: jest.fn(),
   useReviewShipmentWeightsQuery: jest.fn(),
+  useEditShipmentQueries: jest.fn(),
 }));
 
+const useEditShipmentQueriesReturnValue = {
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: 'NEEDS SERVICE COUNSELING',
+  },
+  order: {
+    id: '1',
+    originDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Knox',
+        state: 'KY',
+        postalCode: '40121',
+      },
+    },
+    destinationDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Irwin',
+        state: 'CA',
+        postalCode: '92310',
+      },
+    },
+    customer: {
+      agency: 'ARMY',
+      backup_contact: {
+        email: 'email@example.com',
+        name: 'name',
+        phone: '555-555-5555',
+      },
+      current_address: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
+        id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      dodID: '6833908165',
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
+      email: 'combo@ppm.hhg',
+      first_name: 'Submitted',
+      id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
+      last_name: 'Ppmhhg',
+      phone: '555-555-5555',
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
+      id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
+      nonTemporaryStorage: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+    order_number: 'ORDER3',
+    order_type: 'PERMANENT_CHANGE_OF_STATION',
+    order_type_detail: 'HHG_PERMITTED',
+    tac: '9999',
+  },
+  mtoShipments: [
+    {
+      customerRemarks: 'please treat gently',
+      destinationAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+        postalCode: '94535',
+        state: 'CA',
+        streetAddress1: '987 Any Avenue',
+        streetAddress2: 'P.O. Box 9876',
+        streetAddress3: 'c/o Some Person',
+      },
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+      id: 'shipment123',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+        id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      requestedPickupDate: '2018-03-15',
+      scheduledPickupDate: '2018-03-16',
+      requestedDeliveryDate: '2018-04-15',
+      scheduledDeliveryDate: '2014-04-16',
+      shipmentType: 'HHG',
+      status: 'SUBMITTED',
+      updatedAt: '2020-06-10T15:58:02.404031Z',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 const mtoShipment = createPPMShipmentWithFinalIncentive({
-  ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+  ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT },
 });
 
 const weightTicketEmptyDocumentCreatedDate = new Date();
@@ -190,6 +305,7 @@ describe('ReviewDocuments', () => {
     };
 
     it('renders the Loading Placeholder when the PPMCloseout query is still loading', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       usePPMCloseoutQuery.mockReturnValue(loadingReturnValue);
@@ -223,6 +339,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('renders the Loading Placeholder when the PPMShipmentDocs query is still loading', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(loadingReturnValue);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -231,6 +348,7 @@ describe('ReviewDocuments', () => {
       expect(h2).toBeInTheDocument();
     });
     it('renders the Something Went Wrong component when the PPMShipmentDocs query errors', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(errorReturnValue);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -242,6 +360,7 @@ describe('ReviewDocuments', () => {
   });
   describe('with a single weight ticket loaded', () => {
     it('renders the DocumentViewer', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -277,6 +396,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('renders and handles the Continue button with the appropriate payload', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -355,6 +475,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('renders and handles the Close button', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -372,6 +493,7 @@ describe('ReviewDocuments', () => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
 
       mockPatchWeightTicket.mockRejectedValueOnce('fatal error');
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
 
@@ -386,6 +508,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('handles navigation properly using the continue/back buttons', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -415,6 +538,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('handles navigation properly using the continue/back buttons', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -456,6 +580,7 @@ describe('ReviewDocuments', () => {
     };
 
     it('renders and handles the Accept button', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -473,6 +598,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('renders and handles the Back button', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -496,6 +622,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('only shows uploads for the document set being reviewed', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
 
@@ -524,6 +651,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('shows uploads for all documents on the summary page', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -590,6 +718,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -625,6 +754,7 @@ describe('ReviewDocuments', () => {
     };
 
     it('shows an error when submitting without a status selected', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -635,6 +765,7 @@ describe('ReviewDocuments', () => {
     });
 
     it('shows an error when pro-gear is rejected and submitted without a written reason', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -657,6 +788,7 @@ describe('ReviewDocuments', () => {
           WeightTickets: [],
         },
       };
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -678,6 +810,7 @@ describe('ReviewDocuments', () => {
           WeightTickets: [],
         },
       };
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -690,6 +823,7 @@ describe('ReviewDocuments', () => {
   });
   describe('check over weight alerts', () => {
     it('does not display an alert when move is not over weight', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
@@ -701,12 +835,13 @@ describe('ReviewDocuments', () => {
 
     it('displays an alert when move is over weight', async () => {
       const excessWeightPPMShipment = createPPMShipmentWithExcessWeight({
-        ppmShipment: { status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL },
+        ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT },
       });
       const useReviewShipmentWeightsQueryReturnValueExcessWeight = {
         ...useReviewShipmentWeightsQueryReturnValueAll,
         mtoShipments: [excessWeightPPMShipment],
       };
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueExcessWeight);
