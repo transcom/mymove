@@ -31,7 +31,16 @@ func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemP
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
+			// If no published price is found, look for the first published price after the actual pickup date
+			err = db.Where("publication_date >= ?", actualPickupDate).Order("publication_Date DESC").Last(&ghcDieselFuelPrice)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return "", apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
+				default:
+					return "", apperror.NewQueryError("GHCDieselFuelPrice", err, "")
+				}
+			}
 		default:
 			return "", apperror.NewQueryError("GHCDieselFuelPrice", err, "")
 		}
