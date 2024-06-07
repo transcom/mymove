@@ -44,7 +44,7 @@ const shipments = [
     status: shipmentStatuses.APPROVED,
     ppmShipment: {
       id: '33',
-      status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
       approvedAt: '2022-04-15T15:38:07.103Z',
       submittedAt: '2022-04-19T15:38:07.103Z',
       hasRequestedAdvance: true,
@@ -56,7 +56,7 @@ const shipments = [
     status: shipmentStatuses.APPROVED,
     ppmShipment: {
       id: '44',
-      status: ppmShipmentStatuses.PAYMENT_APPROVED,
+      status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
       approvedAt: '2022-04-15T15:38:07.103Z',
       submittedAt: '2022-04-19T15:38:07.103Z',
       reviewedAt: '2022-04-23T15:38:07.103Z',
@@ -178,7 +178,7 @@ describe('PPMSummaryList component', () => {
       response: { body: { title: 'Error title', detail: 'Error detail' } },
     });
 
-    const shipment = { ppmShipment: { status: ppmShipmentStatuses.PAYMENT_APPROVED } };
+    const shipment = { ppmShipment: { status: ppmShipmentStatuses.CLOSEOUT_COMPLETE } };
     const onErrorHandler = jest.fn();
 
     render(

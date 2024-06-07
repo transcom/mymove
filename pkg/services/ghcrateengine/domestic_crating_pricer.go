@@ -18,8 +18,8 @@ func NewDomesticCratingPricer() services.DomesticCratingPricer {
 }
 
 // Price determines the price for domestic destination first day SIT
-func (p domesticCratingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticCrating(appCtx, models.ReServiceCodeDCRT, contractCode, referenceDate, billedCubicFeet, serviceSchedule)
+func (p domesticCratingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int, standaloneCrate bool, standaloneCrateCap unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticCrating(appCtx, models.ReServiceCodeDCRT, contractCode, referenceDate, billedCubicFeet, serviceSchedule, standaloneCrate, standaloneCrateCap)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
@@ -46,5 +46,16 @@ func (p domesticCratingPricer) PriceUsingParams(appCtx appcontext.AppContext, pa
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, cubicFeetBilled, serviceScheduleDestination)
+	standaloneCrate, err := getParamBool(params, models.ServiceItemParamNameStandaloneCrate)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
+	standaloneCrateCapParam, err := getParamInt(params, models.ServiceItemParamNameStandaloneCrateCap)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+	standaloneCrateCap := unit.Cents(float64(standaloneCrateCapParam))
+
+	return p.Price(appCtx, contractCode, referenceDate, cubicFeetBilled, serviceScheduleDestination, standaloneCrate, standaloneCrateCap)
 }

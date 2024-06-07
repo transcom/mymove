@@ -205,6 +205,12 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               ${formatCents(sectionInfo.ddp)}
             </span>
           </div>
+          <div>
+            <Label>SIT Reimbursement</Label>
+            <span data-testid="sitReimbursement" className={styles.light}>
+              ${formatCents(sectionInfo.sitReimbursement)}
+            </span>
+          </div>
         </div>
       );
 
