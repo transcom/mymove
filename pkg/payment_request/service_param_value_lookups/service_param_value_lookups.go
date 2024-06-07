@@ -424,6 +424,208 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	return lookups
 }
 
+func InitializeLookupsForHHG(appCtx appcontext.AppContext, shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
+	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
+
+	if serviceItem.SITDestinationOriginalAddress == nil {
+		serviceItem.SITDestinationOriginalAddress = &models.Address{}
+	}
+
+	if serviceItem.SITDestinationFinalAddress == nil {
+		serviceItem.SITDestinationFinalAddress = &models.Address{}
+	}
+
+	if serviceItem.SITOriginHHGOriginalAddress == nil {
+		serviceItem.SITOriginHHGOriginalAddress = &models.Address{}
+	}
+
+	lookups[models.ServiceItemParamNameActualPickupDate] = ActualPickupDateLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameRequestedPickupDate] = RequestedPickupDateLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameReferenceDate] = ReferenceDateLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameDistanceZip] = DistanceZipLookup{
+		PickupAddress:      *shipment.PickupAddress,
+		DestinationAddress: GetDestinationForDistanceLookup(appCtx, shipment, serviceItem),
+	}
+
+	lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier] = FSCWeightBasedDistanceMultiplierLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightAdjusted] = WeightAdjustedLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightBilled] = WeightBilledLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightEstimated] = WeightEstimatedLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightOriginal] = WeightOriginalLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameWeightReweigh] = WeightReweighLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameZipPickupAddress] = ZipAddressLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameZipDestAddress] = ZipAddressLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt] = MTOAvailableToPrimeAtLookup{}
+
+	lookups[models.ServiceItemParamNameServiceAreaOrigin] = ServiceAreaLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameServiceAreaDest] = ServiceAreaLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameContractCode] = ContractCodeLookup{}
+
+	lookups[models.ServiceItemParamNameCubicFeetBilled] = CubicFeetBilledLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNamePSILinehaulDom] = PSILinehaulDomLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNamePSILinehaulDomPrice] = PSILinehaulDomPriceLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameEIAFuelPrice] = EIAFuelPriceLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameServicesScheduleOrigin] = ServicesScheduleLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameServicesScheduleDest] = ServicesScheduleLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITScheduleOrigin] = SITScheduleLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITScheduleDest] = SITScheduleLookup{
+		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameNumberDaysSIT] = NumberDaysSITLookup{
+		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress] = ZipAddressLookup{
+		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITServiceAreaDest] = ServiceAreaLookup{
+		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITServiceAreaOrigin] = ServiceAreaLookup{
+		Address: *serviceItem.SITOriginHHGOriginalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITDestHHGOriginalAddress] = ZipAddressLookup{
+		Address: *serviceItem.SITDestinationOriginalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITOriginHHGOriginalAddress] = ZipSITOriginHHGOriginalAddressLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameZipSITOriginHHGActualAddress] = ZipSITOriginHHGActualAddressLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameDistanceZipSITDest] = DistanceZipSITDestLookup{
+		DestinationAddress:      *serviceItem.SITDestinationOriginalAddress,
+		FinalDestinationAddress: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameDistanceZipSITOrigin] = DistanceZipSITOriginLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameCubicFeetCrating] = CubicFeetCratingLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameDimensionHeight] = DimensionHeightLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameDimensionLength] = DimensionLengthLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameDimensionWidth] = DimensionWidthLookup{
+		Dimensions: serviceItem.Dimensions,
+	}
+
+	lookups[models.ServiceItemParamNameStandaloneCrate] = StandaloneCrateLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameStandaloneCrateCap] = StandaloneCrateCapLookup{
+		ServiceItem: serviceItem,
+	}
+
+	return lookups
+}
+
+func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) models.Address {
+	shipmentCopy := mtoShipment
+	err := appCtx.DB().Eager("DeliveryAddressUpdate.Status", "DeliveryAddressUpdate.UpdatedAt", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").Find(&shipmentCopy, shipmentCopy.ID)
+	if err != nil {
+		return models.Address{}
+	}
+
+	for _, si := range shipmentCopy.MTOServiceItems {
+		siCopy := si
+		err := appCtx.DB().Eager("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
+		if err != nil {
+			return models.Address{}
+		}
+
+		switch siCopy.ReService.Code {
+		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+			if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+					return shipmentCopy.DeliveryAddressUpdate.OriginalAddress
+				}
+				return shipmentCopy.DeliveryAddressUpdate.NewAddress
+			}
+		}
+	}
+	if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+		return shipmentCopy.DeliveryAddressUpdate.NewAddress
+	}
+	return *shipmentCopy.DestinationAddress
+}
+
 // serviceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil
 // we are not using the ParamCache and all lookups will be initialized and all param lookups will run their own
 // database queries
@@ -523,14 +725,14 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 		// Destination address isn't needed
 		return models.Address{}, nil
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
-		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.Status", "MTOServiceItems").Find(&mtoShipment, mtoShipment.ID)
+		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").Find(&mtoShipment, mtoShipment.ID)
 		if err != nil {
 			return models.Address{}, err
 		}
 
 		for i, si := range mtoShipment.MTOServiceItems {
 			siCopy := si
-			err := appCtx.DB().Eager("ReService.Code").Find(&siCopy, siCopy.ID)
+			err := appCtx.DB().EagerPreload("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
 			if err != nil {
 				return models.Address{}, err
 			}
@@ -538,11 +740,18 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 			switch siCopy.ReService.Code {
 			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 				if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					return mtoShipment.DeliveryAddressUpdate.OriginalAddress, nil
+					if mtoShipment.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						return mtoShipment.DeliveryAddressUpdate.OriginalAddress, nil
+					}
+					return mtoShipment.DeliveryAddressUpdate.NewAddress, nil
 				}
 			}
 
 			if i == len(mtoShipment.MTOServiceItems)-1 {
+				if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					return mtoShipment.DeliveryAddressUpdate.NewAddress, nil
+				}
+
 				if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
 					return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
 				}
