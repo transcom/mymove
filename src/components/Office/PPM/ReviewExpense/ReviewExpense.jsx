@@ -222,6 +222,10 @@ export default function ReviewExpense({
               : '##';
 
           return (
+            <>
+              <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
+                <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
+              </div>
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
@@ -365,53 +369,54 @@ export default function ReviewExpense({
                     data-testid="excludeRadio"
                   />
 
-                  {values.status === ppmDocumentStatus.EXCLUDED && (
-                    <FormGroup className={styles.reason}>
-                      <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
-                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
-                      <Textarea
-                        id={`excludeReason-${expense?.id}`}
-                        name="reason"
-                        onChange={handleChange}
-                        value={values.reason}
-                        placeholder="Type something"
-                      />
-                      <div className={styles.hint}>{500 - values.reason.length} characters</div>
-                    </FormGroup>
-                  )}
-                </div>
-                <div
-                  className={classnames(approveRejectStyles.statusOption, styles.reject, {
-                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
-                  })}
-                >
-                  <Radio
-                    id={`reject-${expense?.id}`}
-                    checked={values.status === ppmDocumentStatus.REJECTED}
-                    value={ppmDocumentStatus.REJECTED}
-                    name="status"
-                    label="Reject"
-                    onChange={handleChange}
-                    data-testid="rejectRadio"
-                  />
+                    {values.status === ppmDocumentStatus.EXCLUDED && (
+                      <FormGroup className={styles.reason}>
+                        <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>
+                        <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
+                        <Textarea
+                          id={`excludeReason-${expense?.id}`}
+                          name="reason"
+                          onChange={handleChange}
+                          value={values.reason}
+                          placeholder="Type something"
+                        />
+                        <div className={styles.hint}>{500 - values.reason.length} characters</div>
+                      </FormGroup>
+                    )}
+                  </div>
+                  <div
+                    className={classnames(approveRejectStyles.statusOption, styles.reject, {
+                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.REJECTED,
+                    })}
+                  >
+                    <Radio
+                      id={`reject-${expense?.id}`}
+                      checked={values.status === ppmDocumentStatus.REJECTED}
+                      value={ppmDocumentStatus.REJECTED}
+                      name="status"
+                      label="Reject"
+                      onChange={handleChange}
+                      data-testid="rejectRadio"
+                    />
 
-                  {values.status === ppmDocumentStatus.REJECTED && (
-                    <FormGroup className={styles.reason}>
-                      <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
-                      <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
-                      <Textarea
-                        id={`rejectReason-${expense?.id}`}
-                        name="reason"
-                        onChange={handleChange}
-                        value={values.reason}
-                        placeholder="Type something"
-                      />
-                      <div className={styles.hint}>{500 - values.reason.length} characters</div>
-                    </FormGroup>
-                  )}
-                </div>
-              </Fieldset>
-            </Form>
+                    {values.status === ppmDocumentStatus.REJECTED && (
+                      <FormGroup className={styles.reason}>
+                        <Label htmlFor={`rejectReason-${expense?.id}`}>Reason</Label>
+                        <ErrorMessage display={!!errors?.reason && !!touched?.reason}>{errors.reason}</ErrorMessage>
+                        <Textarea
+                          id={`rejectReason-${expense?.id}`}
+                          name="reason"
+                          onChange={handleChange}
+                          value={values.reason}
+                          placeholder="Type something"
+                        />
+                        <div className={styles.hint}>{500 - values.reason.length} characters</div>
+                      </FormGroup>
+                    )}
+                  </div>
+                </Fieldset>
+              </Form>
+            </>
           );
         }}
       </Formik>
