@@ -1892,37 +1892,12 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
       pickupAddress:
         $ref: "definitions/Address.yaml"
-      secondaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       secondaryPickupAddress:
         $ref: "definitions/Address.yaml"
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
       destinationAddress:
         $ref: "definitions/Address.yaml"
-      secondaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       secondaryDestinationAddress:
         $ref: "definitions/Address.yaml"
       sitExpected:
