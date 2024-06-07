@@ -10,6 +10,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
+import { isFeedbackAvailable } from 'constants/ppmFeedback';
 
 const toFromAddressDisplay = (pickupAddress, destinationAddress) => {
   return (
@@ -88,29 +89,42 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
   );
 };
 
-const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) => {
+const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick) => {
   const {
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
 
-  let actionButton;
+  let actionButtons;
   let content;
 
   switch (status) {
     case ppmShipmentStatuses.SUBMITTED:
-      actionButton = <Button disabled>Upload PPM Documents</Button>;
+      actionButtons = <Button disabled>Upload PPM Documents</Button>;
       content = submittedContent;
       break;
     case ppmShipmentStatuses.WAITING_ON_CUSTOMER:
-      actionButton = <Button onClick={onButtonClick}>Upload PPM Documents</Button>;
+      actionButtons = <Button onClick={onButtonClick}>Upload PPM Documents</Button>;
       content = approvedContent(approvedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.NEEDS_CLOSEOUT:
-      actionButton = <Button disabled>Download Payment Packet</Button>;
+      actionButtons = <Button disabled>Download Payment Packet</Button>;
       content = paymentSubmitted(approvedAt, submittedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.CLOSEOUT_COMPLETE:
-      actionButton = (
+      actionButtons = isFeedbackAvailable(shipment?.ppmShipment) ? (
+        [
+          <div>
+            <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
+            <AsyncPacketDownloadLink
+              id={shipment?.ppmShipment?.id}
+              label="Download Payment Packet"
+              asyncRetrieval={downloadPPMPaymentPacket}
+              onFailure={onDownloadError}
+              className="styles.btn"
+            />
+          </div>,
+        ]
+      ) : (
         <AsyncPacketDownloadLink
           id={shipment?.ppmShipment?.id}
           label="Download Payment Packet"
@@ -129,14 +143,14 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError) 
     <SectionWrapper className={styles['ppm-shipment']}>
       <div className={styles['ppm-shipment__heading-section']}>
         <strong>{orderLabel}</strong>
-        {actionButton}
+        {actionButtons}
       </div>
       <div className={styles['ppm-shipment__content']}>{content}</div>
     </SectionWrapper>
   );
 };
 
-const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError }) => {
+const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick }) => {
   const { length } = shipments;
   return shipments.map((shipment, i) => {
     return (
@@ -147,15 +161,16 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError }) => {
         index={i}
         onUploadClick={() => onUploadClick(shipment.id)}
         onDownloadError={onDownloadError}
+        onFeedbackClick={() => onFeedbackClick(shipment.id)}
       />
     );
   });
 };
 
-const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError }) => {
+const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError, onFeedbackClick }) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
 
-  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError);
+  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick);
 };
 
 PPMSummaryList.propTypes = {

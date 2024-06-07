@@ -1813,10 +1813,13 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	suite.Run("Returns 200 when all validations pass", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		// valid pickupdate is anytime after the request to cancel date
+		actualPickupDate := time.Now().AddDate(0, 0, 1)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:           models.MTOShipmentStatusApproved,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 			{
@@ -1937,10 +1940,12 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 409 when canceler returns Conflict Error", func() {
+		day := time.Now()
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ID: uuid.Must(uuid.NewV4()),
+					ID:               uuid.Must(uuid.NewV4()),
+					ActualPickupDate: &day,
 				},
 			},
 		}, nil)
