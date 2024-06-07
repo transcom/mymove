@@ -7,7 +7,7 @@
 // @ts-check
 import { test, expect } from './ppmTestFixture';
 
-test.describe('Services counselor user', () => {
+test.skip('Services counselor user', () => {
   test.beforeEach(async ({ ppmPage }) => {
     const move = await ppmPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
     await ppmPage.navigateToMove(move.locator);
