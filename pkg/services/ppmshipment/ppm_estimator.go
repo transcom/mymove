@@ -161,7 +161,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 }
 
 func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
-	if newPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer && newPPMShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+	if newPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer && newPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
 		return oldPPMShipment.FinalIncentive, nil
 	}
 
