@@ -172,7 +172,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not find actual pickup date for MTOShipment")
+		suite.Equal("Not found looking for pickup address", err.Error())
 	})
 }
 func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithInvalidActualPickupDate() {
@@ -212,7 +212,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithInvalidAct
 		suite.FatalNoError(err)
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not find actual pickup date for MTOShipment")
+		suite.Contains(err.Error(), "EIAFuelPriceLookup with error Not found Looking for GHCDieselFuelPrice")
 	})
 }
 
