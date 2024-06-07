@@ -4,13 +4,271 @@ import userEvent from '@testing-library/user-event';
 
 import ReviewExpense from './ReviewExpense';
 
+import {
+  createPPMShipmentWithFinalIncentive,
+} from 'utils/test/factories/ppmShipment';
+import { ppmShipmentStatuses } from 'constants/shipments';
+import createUpload from 'utils/test/factories/upload';
 import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { MockProviders } from 'testUtils';
-
+import {
+  useGetPPMSITEstimatedCostQuery,
+  useReviewShipmentWeightsQuery,
+  usePPMCloseoutQuery,
+  useEditShipmentQueries,
+  usePPMShipmentDocsQueries,
+} from 'hooks/queries';
 beforeEach(() => {
   jest.clearAllMocks();
 });
+
+jest.mock('hooks/queries', () => ({
+  usePPMShipmentDocsQueries: jest.fn(),
+  usePPMCloseoutQuery: jest.fn(),
+  useReviewShipmentWeightsQuery: jest.fn(),
+  useEditShipmentQueries: jest.fn(),
+  useGetPPMSITEstimatedCostQuery: jest.fn(),
+}));
+
+const useEditShipmentQueriesReturnValue = {
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: 'NEEDS SERVICE COUNSELING',
+  },
+  order: {
+    id: '1',
+    originDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Knox',
+        state: 'KY',
+        postalCode: '40121',
+      },
+    },
+    destinationDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Irwin',
+        state: 'CA',
+        postalCode: '92310',
+      },
+    },
+    customer: {
+      agency: 'ARMY',
+      backup_contact: {
+        email: 'email@example.com',
+        name: 'name',
+        phone: '555-555-5555',
+      },
+      current_address: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
+        id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      dodID: '6833908165',
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
+      email: 'combo@ppm.hhg',
+      first_name: 'Submitted',
+      id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
+      last_name: 'Ppmhhg',
+      phone: '555-555-5555',
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
+      id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
+      nonTemporaryStorage: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+    order_number: 'ORDER3',
+    order_type: 'PERMANENT_CHANGE_OF_STATION',
+    order_type_detail: 'HHG_PERMITTED',
+    tac: '9999',
+  },
+  mtoShipments: [
+    {
+      customerRemarks: 'please treat gently',
+      destinationAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+        postalCode: '94535',
+        state: 'CA',
+        streetAddress1: '987 Any Avenue',
+        streetAddress2: 'P.O. Box 9876',
+        streetAddress3: 'c/o Some Person',
+      },
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+      id: 'shipment123',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+        id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      requestedPickupDate: '2018-03-15',
+      scheduledPickupDate: '2018-03-16',
+      requestedDeliveryDate: '2018-04-15',
+      scheduledDeliveryDate: '2014-04-16',
+      shipmentType: 'HHG',
+      status: 'SUBMITTED',
+      updatedAt: '2020-06-10T15:58:02.404031Z',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
+const mtoShipment = createPPMShipmentWithFinalIncentive({
+  ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT },
+});
+
+const weightTicketEmptyDocumentCreatedDate = new Date();
+// The factory used above doesn't handle overrides for uploads correctly, so we need to do it manually.
+const weightTicketEmptyDocumentUpload = createUpload({
+  fileName: 'emptyWeightTicket.pdf',
+  createdAtDate: weightTicketEmptyDocumentCreatedDate,
+});
+
+const weightTicketFullDocumentCreatedDate = new Date(weightTicketEmptyDocumentCreatedDate);
+weightTicketFullDocumentCreatedDate.setDate(weightTicketFullDocumentCreatedDate.getDate() + 1);
+const weightTicketFullDocumentUpload = createUpload(
+  { fileName: 'fullWeightTicket.xls', createdAtDate: weightTicketFullDocumentCreatedDate },
+  { contentType: 'application/vnd.ms-excel' },
+);
+
+const progearWeightTicketDocumentCreatedDate = new Date(weightTicketFullDocumentCreatedDate);
+progearWeightTicketDocumentCreatedDate.setDate(progearWeightTicketDocumentCreatedDate.getDate() + 1);
+const progearWeightTicketDocumentUpload = createUpload({
+  fileName: 'progearWeightTicket.pdf',
+  createdAtDate: progearWeightTicketDocumentCreatedDate,
+});
+
+const movingExpenseDocumentCreatedDate = new Date(progearWeightTicketDocumentCreatedDate);
+movingExpenseDocumentCreatedDate.setDate(movingExpenseDocumentCreatedDate.getDate() + 1);
+const movingExpenseDocumentUpload = createUpload(
+  { fileName: 'movingExpense.jpg', createdAtDate: movingExpenseDocumentCreatedDate },
+  { contentType: 'image/jpeg' },
+);
+
+mtoShipment.ppmShipment.weightTickets[0].emptyDocument.uploads = [weightTicketEmptyDocumentUpload];
+mtoShipment.ppmShipment.weightTickets[0].fullDocument.uploads = [weightTicketFullDocumentUpload];
+mtoShipment.ppmShipment.proGearWeightTickets[0].document.uploads = [progearWeightTicketDocumentUpload];
+mtoShipment.ppmShipment.movingExpenses[0].document.uploads = [movingExpenseDocumentUpload];
+
+const usePPMShipmentDocsQueriesReturnValueAllDocs = {
+  mtoShipment,
+  documents: {
+    MovingExpenses: [...mtoShipment.ppmShipment.movingExpenses],
+    ProGearWeightTickets: [...mtoShipment.ppmShipment.proGearWeightTickets],
+    WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
+  },
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+};
+
+const mtoShipmentWithOneWeightTicket = {
+  ...mtoShipment,
+  ppmShipment: {
+    ...mtoShipment.ppmShipment,
+    proGearWeightTickets: [],
+    movingExpenses: [],
+  },
+};
+
+const usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket = {
+  ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+  mtoShipment: mtoShipmentWithOneWeightTicket,
+  documents: {
+    MovingExpenses: [],
+    ProGearWeightTickets: [],
+    WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
+  },
+};
+
+/**
+ * @constant {Object} useReviewShipmentWeightsQueryReturnValueAll
+ * @description The mocked return values from the useReviewShipmentWeightsQuery
+ * that is being used by the EditPPMNetWeight component inside of the
+ * ReviewWeightTicket component
+ * */
+const useReviewShipmentWeightsQueryReturnValueAll = {
+  orders: {
+    orderID: {
+      entitlement: {
+        totalWeight: 1000,
+      },
+    },
+  },
+  mtoShipments: [],
+};
+
+const usePPMCloseoutQueryReturnValue = {
+  ppmCloseout: {
+    SITReimbursement: 0,
+    actualMoveDate: '2020-03-16',
+    actualWeight: 4002,
+    aoa: 340000,
+    ddp: 33297,
+    dop: 15048,
+    estimatedWeight: 4000,
+    gcc: 17102245,
+    grossIncentive: 4855170,
+    haulFSC: 403,
+    haulPrice: 4529083,
+    id: '1a719536-02ba-44cd-b97d-5a0548237dc5',
+    miles: 415,
+    packPrice: 253447,
+    plannedMoveDate: '2020-03-15',
+    proGearWeightCustomer: 500,
+    proGearWeightSpouse: 0,
+    remainingIncentive: 4515170,
+    unpackPrice: 23892,
+  },
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+};
+
+const useGetPPMSITEstimatedCostQueryReturnValue = {
+  estimatedCost: 5000,
+}
+
+const loadingReturnValue = {
+  ...useGetPPMSITEstimatedCostQueryReturnValue,
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  ...useGetPPMSITEstimatedCostQueryReturnValue,
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
 
 const defaultProps = {
   ppmShipmentInfo: {
@@ -22,6 +280,7 @@ const defaultProps = {
     miles: 300,
     estimatedWeight: 3000,
     actualWeight: 3500,
+    estimatedCost: 3000,
   },
   tripNumber: 1,
   ppmNumber: 1,
@@ -46,6 +305,8 @@ const storageProps = {
     movingExpenseType: expenseTypes.STORAGE,
     sitStartDate: '2022-12-15',
     sitEndDate: '2022-12-25',
+    weightStored: 2000,
+    sitLocation: 'ORIGIN',
   },
 };
 
@@ -173,6 +434,11 @@ const documentSetIndex = 0;
 describe('ReviewExpenseForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load with defaults', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -203,6 +469,11 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('populates edit form with existing expense values', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -224,6 +495,11 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('shows SIT fields when expense type is Storage', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -243,6 +519,11 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('populates edit form with existing storage values', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -261,6 +542,11 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('correctly displays days in SIT', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -278,6 +564,11 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('correctly updates days in SIT', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -302,6 +593,11 @@ describe('ReviewExpenseForm component', () => {
     });
 
     it('populates edit form with existing status and reason', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}

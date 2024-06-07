@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -32,6 +33,57 @@ func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator se
 		addressCreator: addressCreator,
 		addressUpdater: addressUpdater,
 	}
+}
+
+func (f *ppmShipmentUpdater) UpdatePPMShipmentSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMShipment, error) {
+	if ppmShipment == nil {
+		return nil, nil
+	}
+
+	oldPPMShipment, err := FindPPMShipment(appCtx, ppmShipment.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedPPMShipment, err := mergePPMShipment(*ppmShipment, oldPPMShipment)
+	if err != nil {
+		return nil, err
+	}
+
+	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, f.checks...)
+	if err != nil {
+		return nil, err
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		contractDate := ppmShipment.ExpectedDepartureDate
+		contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+		if err != nil {
+			return err
+		}
+
+		estimatedSITCost, err := CalculateSITCost(appCtx, updatedPPMShipment, contract)
+		if err != nil {
+			return err
+		}
+
+		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
+
+		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
+
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(updatedPPMShipment.ID, err, verrs, "Invalid input found while updating the PPMShipments.")
+		} else if err != nil {
+			return apperror.NewQueryError("PPMShipments", err, "")
+		}
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
+	}
+
+	return updatedPPMShipment, nil
 }
 
 func (f *ppmShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error) {

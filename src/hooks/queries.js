@@ -30,6 +30,7 @@ import {
   getServicesCounselingPPMQueue,
   getPrimeSimulatorAvailableMoves,
   getPPMCloseout,
+  getPPMSITEstimatedCost,
   getPPMActualWeight,
   searchCustomers,
 } from 'services/ghcApi';
@@ -65,6 +66,7 @@ import {
   PPMCLOSEOUT,
   PPMACTUALWEIGHT,
   SC_CUSTOMER_SEARCH,
+  PPMSIT_ESTIMATED_COST,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -307,6 +309,22 @@ export const usePPMCloseoutQuery = (ppmShipmentId) => {
     isError,
     isSuccess,
     isFetching,
+  };
+};
+
+export const useGetPPMSITEstimatedCostQuery = (ppmShipmentId, sitLocation) => {
+  const { data: estimatedCost, ...ppmSITEstimatedCostQuery } = useQuery(
+    [PPMSIT_ESTIMATED_COST, ppmShipmentId, sitLocation],
+    ({ queryKey }) => getPPMSITEstimatedCost(...queryKey),
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([ppmSITEstimatedCostQuery]);
+
+  return {
+    estimatedCost,
+    isLoading,
+    isError,
+    isSuccess,
   };
 };
 

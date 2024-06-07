@@ -1,0 +1,9 @@
+description: The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.
+properties:
+  estimatedCost:
+    example: 2000
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+required:
+  - estimatedCost

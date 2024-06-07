@@ -11,7 +11,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate } from 'utils/formatters';
+import { formatCents, formatDate, dropdownInputOptions, toDollarString } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -21,35 +21,53 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypes, ppmExpenseTypes, getExpenseTypeValue, llvmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
-import { patchExpense } from 'services/ghcApi';
+import { patchExpense, patchPPMSIT } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
+import { LOCATION_TYPES } from 'types/sitStatusShape';
+import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const validationSchema = Yup.object().shape({
-  amount: Yup.string()
-    .required('Enter the expense amount')
-    .notOneOf(['0', '0.00'], 'Enter an expense amount greater than $0.00'),
-  sitStartDate: Yup.date().when('movingExpenseType', {
-    is: expenseTypes.STORAGE,
-    then: (schema) =>
-      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-  }),
-  sitEndDate: Yup.date().when('movingExpenseType', {
-    is: expenseTypes.STORAGE,
-    then: (schema) =>
-      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-  }),
-  reason: Yup.string()
-    .when('status', {
-      is: ppmDocumentStatus.REJECTED,
-      then: (schema) => schema.required('Add a reason why this receipt is rejected'),
-    })
-    .when('status', {
-      is: ppmDocumentStatus.EXCLUDED,
-      then: (schema) => schema.required('Add a reason why this receipt is excluded'),
+const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
+
+const validationSchema = (allowableWeight) => {
+  return Yup.object().shape({
+    amount: Yup.string()
+      .required('Enter the expense amount')
+      .notOneOf(['0', '0.00'], 'Enter an expense amount greater than $0.00'),
+    sitStartDate: Yup.date().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
     }),
-  status: Yup.string().required('Reviewing this receipt is required'),
-});
+    sitEndDate: Yup.date().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+    }),
+    reason: Yup.string()
+      .when('status', {
+        is: ppmDocumentStatus.REJECTED,
+        then: (schema) => schema.required('Add a reason why this receipt is rejected'),
+      })
+      .when('status', {
+        is: ppmDocumentStatus.EXCLUDED,
+        then: (schema) => schema.required('Add a reason why this receipt is excluded'),
+      }),
+    status: Yup.string().required('Reviewing this receipt is required'),
+    weightStored: Yup.number().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema.required('Required').max(allowableWeight, `Enter an amount ${allowableWeight} lbs or less`),
+    }),
+    sitLocation: Yup.mixed().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema.required('Required').oneOf(sitLocationOptions.map((i) => i.key)),
+    }),
+  });
+};
 
 export default function ReviewExpense({
   ppmShipmentInfo,
@@ -63,13 +81,29 @@ export default function ReviewExpense({
   onSuccess,
   formRef,
 }) {
-  const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
-    expense || {};
+  const {
+    movingExpenseType,
+    description,
+    amount,
+    paidWithGtcc,
+    sitStartDate,
+    sitEndDate,
+    status,
+    reason,
+    weightStored,
+    sitLocation,
+  } = expense || {};
 
   const { mutate: patchExpenseMutation } = useMutation(patchExpense, {
     onSuccess,
     onError,
   });
+
+  const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT);
+
+  const allowableWeight = ppmShipmentInfo.estimatedWeight;
+  const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
+  const { estimatedCost, isLoading, isError } = useGetPPMSITEstimatedCostQuery(ppmShipmentInfo.id, ppmSITLocation);
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -78,8 +112,11 @@ export default function ReviewExpense({
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
     sitStartDate: sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
     sitEndDate: sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
+    weightStored: weightStored?.toString() || '',
     status: status || '',
     reason: reason || '',
+    actualWeight: ppmShipmentInfo?.actualWeight?.toString() || '',
+    sitLocation: ppmSITLocation,
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
@@ -118,6 +155,16 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   const handleSubmit = (values) => {
+    if (values.movingExpenseType === 'STORAGE') {
+      const ppmSitPayload = {
+        sitLocation: ppmSITLocation,
+      };
+      patchPPMSITMutation({
+        ppmShipmentId: expense.ppmShipmentId,
+        payload: ppmSitPayload,
+        eTag: ppmShipmentInfo.eTag,
+      });
+    }
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
@@ -128,6 +175,8 @@ export default function ReviewExpense({
       sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
+      weightStored: Number.parseInt(values.weightStored, 10),
+      sitLocation: ppmSITLocation,
     };
 
     patchExpenseMutation({
@@ -140,11 +189,13 @@ export default function ReviewExpense({
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
         initialValues={initialValues}
-        validationSchema={validationSchema}
+        validationSchema={() => validationSchema(allowableWeight)}
         innerRef={formRef}
         onSubmit={handleSubmit}
         enableReinitialize
@@ -156,6 +207,13 @@ export default function ReviewExpense({
             setFieldValue('reason', '');
             setFieldTouched('reason', false, false);
             setFieldError('reason', null);
+          };
+
+          const handleSITLocationChange = (event) => {
+            setSITLocation(event.target.value);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(event.target.value);
+            setCurrentCategoryIndex(count + 1);
           };
 
           const daysInSIT =
@@ -170,97 +228,148 @@ export default function ReviewExpense({
               <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
                 <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               </div>
-              <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
-                <hr />
-                <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
-                <div className="labelWrapper">
-                  <Label htmlFor="movingExpenseType">Expense Type</Label>
-                </div>
-                <select
-                  label="Expense Type"
-                  name="movingExpenseType"
-                  id="movingExpenseType"
-                  required
-                  className={classnames('usa-select')}
-                  value={selectedExpenseType}
-                  onChange={(e) => {
-                    setSelectedExpenseType(e.target.value);
-                    setSamePage(true);
-                    const count = computeCurrentCategoryIndex(e.target.value);
-                    setCurrentCategoryIndex(count + 1);
-                  }}
-                >
-                  {ppmExpenseTypes.map((x) => (
-                    <option key={x.key}>{x.value}</option>
-                  ))}
-                </select>
-                <TextField
-                  defaultValue={description}
-                  name="description"
-                  label="Description"
-                  id="description"
-                  className={styles.displayValue}
-                />
-                <MaskedTextField
-                  defaultValue="0"
-                  name="amount"
-                  label="Amount"
-                  id="amount"
-                  mask={Number}
-                  scale={2} // digits after point, 0 for integers
-                  radix="." // fractional delimiter
-                  mapToRadix={['.']} // symbols to process as radix
-                  padFractionalZeros // if true, then pads zeros at end to the length of scale
-                  signed={false} // disallow negative
-                  thousandsSeparator=","
-                  lazy={false} // immediate masking evaluation
-                  prefix="$"
-                />
-                {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
-                  <>
-                    <DatePickerInput name="sitStartDate" label="Start date" />
-                    <DatePickerInput name="sitEndDate" label="End date" />
-                    <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
-                    <div className={styles.displayValue} data-testid="days-in-sit">
-                      {daysInSIT}
-                    </div>
-                  </>
-                )}
-                <h3 className={styles.reviewHeader}>{`Review ${allCase(
-                  selectedExpenseType,
-                )} #${currentCategoryIndex}`}</h3>
-                <p>Add a review for this {allCase(selectedExpenseType)}</p>
-                <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
-                <Fieldset className={styles.statusOptions}>
-                  <div
-                    className={classnames(approveRejectStyles.statusOption, {
-                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
-                    })}
-                  >
-                    <Radio
-                      id={`accept-${expense?.id}`}
-                      checked={values.status === ppmDocumentStatus.APPROVED}
-                      value={ppmDocumentStatus.APPROVED}
-                      name="status"
-                      label="Accept"
-                      onChange={handleApprovalChange}
-                      data-testid="acceptRadio"
-                    />
+            <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
+              <hr />
+              <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
+              <div className="labelWrapper">
+                <Label htmlFor="movingExpenseType">Expense Type</Label>
+              </div>
+              <select
+                label="Expense Type"
+                name="movingExpenseType"
+                id="movingExpenseType"
+                required
+                className={classnames('usa-select')}
+                value={selectedExpenseType}
+                onChange={(e) => {
+                  setSelectedExpenseType(e.target.value);
+                  setSamePage(true);
+                  const count = computeCurrentCategoryIndex(e.target.value);
+                  setCurrentCategoryIndex(count + 1);
+                }}
+              >
+                {ppmExpenseTypes.map((x) => (
+                  <option key={x.key}>{x.value}</option>
+                ))}
+              </select>
+              <TextField
+                defaultValue={description}
+                name="description"
+                label="Description"
+                id="description"
+                className={styles.displayValue}
+              />
+              {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
+                <>
+                  <div className="labelWrapper">
+                    <Label htmlFor="sitLocationInput">SIT Location</Label>
                   </div>
-                  <div
-                    className={classnames(approveRejectStyles.statusOption, styles.exclude, {
-                      [approveRejectStyles.selected]: values.status === ppmDocumentStatus.EXCLUDED,
-                    })}
+                  <select
+                    label="SIT Location"
+                    name="sitLocation"
+                    id="sitLocationInput"
+                    required
+                    className={classnames('usa-select')}
+                    value={ppmSITLocation}
+                    onChange={(e) => {
+                      handleSITLocationChange(e);
+                    }}
                   >
-                    <Radio
-                      id={`exclude-${expense?.id}`}
-                      checked={values.status === ppmDocumentStatus.EXCLUDED}
-                      value={ppmDocumentStatus.EXCLUDED}
-                      name="status"
-                      label="Exclude"
-                      onChange={handleChange}
-                      data-testid="excludeRadio"
-                    />
+                    {sitLocationOptions.map((x) => (
+                      <option key={x.key}>{x.value}</option>
+                    ))}
+                  </select>
+                  <legend className={classnames('usa-label', styles.label)}>Cost</legend>
+                  <div className={styles.displayValue}>
+                    {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))}
+                  </div>
+                </>
+              )}
+              <MaskedTextField
+                defaultValue="0"
+                name="amount"
+                label="Amount"
+                id="amount"
+                mask={Number}
+                scale={2} // digits after point, 0 for integers
+                radix="." // fractional delimiter
+                mapToRadix={['.']} // symbols to process as radix
+                padFractionalZeros // if true, then pads zeros at end to the length of scale
+                signed={false} // disallow negative
+                thousandsSeparator=","
+                lazy={false} // immediate masking evaluation
+                prefix="$"
+              />
+              {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
+                <>
+                  <MaskedTextField
+                    defaultValue="0"
+                    name="weightStored"
+                    label="Weight Stored"
+                    id="weightStored"
+                    mask={Number}
+                    scale={0} // digits after point, 0 for integers
+                    signed={false} // disallow negative
+                    thousandsSeparator=","
+                    lazy={false} // immediate masking evaluation
+                    suffix="lbs"
+                  />
+                  <MaskedTextField
+                    defaultValue="0"
+                    name="actualWeight"
+                    label="Actual Weight"
+                    id="actualWeight"
+                    mask={Number}
+                    scale={0} // digits after point, 0 for integers
+                    signed={false} // disallow negative
+                    thousandsSeparator=","
+                    lazy={false} // immediate masking evaluation
+                    suffix="lbs"
+                  />
+                  <DatePickerInput name="sitStartDate" label="Start date" />
+                  <DatePickerInput name="sitEndDate" label="End date" />
+                  <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
+                  <div className={styles.displayValue} data-testid="days-in-sit">
+                    {daysInSIT}
+                  </div>
+                </>
+              )}
+              <h3 className={styles.reviewHeader}>{`Review ${allCase(
+                selectedExpenseType,
+              )} #${currentCategoryIndex}`}</h3>
+              <p>Add a review for this {allCase(selectedExpenseType)}</p>
+              <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
+              <Fieldset className={styles.statusOptions}>
+                <div
+                  className={classnames(approveRejectStyles.statusOption, {
+                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.APPROVED,
+                  })}
+                >
+                  <Radio
+                    id={`accept-${expense?.id}`}
+                    checked={values.status === ppmDocumentStatus.APPROVED}
+                    value={ppmDocumentStatus.APPROVED}
+                    name="status"
+                    label="Accept"
+                    onChange={handleApprovalChange}
+                    data-testid="acceptRadio"
+                  />
+                </div>
+                <div
+                  className={classnames(approveRejectStyles.statusOption, styles.exclude, {
+                    [approveRejectStyles.selected]: values.status === ppmDocumentStatus.EXCLUDED,
+                  })}
+                >
+                  <Radio
+                    id={`exclude-${expense?.id}`}
+                    checked={values.status === ppmDocumentStatus.EXCLUDED}
+                    value={ppmDocumentStatus.EXCLUDED}
+                    name="status"
+                    label="Exclude"
+                    onChange={handleChange}
+                    data-testid="excludeRadio"
+                  />
 
                     {values.status === ppmDocumentStatus.EXCLUDED && (
                       <FormGroup className={styles.reason}>
