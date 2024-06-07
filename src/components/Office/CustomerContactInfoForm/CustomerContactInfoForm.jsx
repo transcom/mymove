@@ -74,9 +74,9 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
                     <BackupContactInfoFields />
                   </SectionWrapper>
-                  <SectionWrapper className={formStyles.formSection}>
+                  <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h3>CAC Validation</h3>
-                    <FormGroup className={styles.trailerOwnershipFieldset}>
+                    <FormGroup>
                       <legend className="usa-label">
                         Is the customer a non-CAC user or do they need to bypass CAC validation?
                       </legend>
