@@ -215,7 +215,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 
 		router := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
-				ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+				ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 
 				return nil
 			})
@@ -239,7 +239,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 			)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
-				suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, updatedPPMShipment.Status)
+				suite.Equal(models.PPMShipmentStatusNeedsCloseout, updatedPPMShipment.Status)
 
 				if suite.NotNil(updatedPPMShipment.SignedCertification) {
 					suite.Equal(newSignedCertification.ID, updatedPPMShipment.SignedCertification.ID)
