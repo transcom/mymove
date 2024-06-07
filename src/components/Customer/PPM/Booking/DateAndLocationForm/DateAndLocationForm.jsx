@@ -20,7 +20,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { requiredAddressSchema } from 'utils/validation';
 
-const validationShape = {
+let validationShape = {
   useCurrentResidence: Yup.boolean(),
   hasSecondaryPickupAddress: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
@@ -86,7 +86,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   if (showCloseoutOffice) {
-    validationShape.closeoutOffice = Yup.object().required('Required');
+    validationShape = { ...validationShape, closeoutOffice: Yup.object().required('Required') };
   } else {
     delete validationShape.closeoutOffice;
   }

@@ -1748,6 +1748,7 @@ definitions:
       - ZipSITOriginHHGOriginalAddress
       - StandaloneCrate
       - StandaloneCrateCap
+      - UncappedRequestTotal
   ServiceItemParamType:
     type: string
     enum:
@@ -2545,8 +2546,8 @@ definitions:
         readOnly: true
       approvedDate:
         description: >-
-          The date when the Transportation Ordering Officer first approved this
-          shipment for the move.
+          The date when the Task Ordering Officer first approved this shipment
+          for the move.
         format: date
         type: string
         readOnly: true

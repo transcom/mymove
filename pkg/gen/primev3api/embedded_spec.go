@@ -1481,7 +1481,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -2619,7 +2619,8 @@ func init() {
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
-        "StandaloneCrateCap"
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -4978,7 +4979,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -6116,7 +6117,8 @@ func init() {
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
-        "StandaloneCrateCap"
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {

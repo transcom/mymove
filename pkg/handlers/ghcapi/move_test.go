@@ -111,7 +111,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		}, nil)
-		moveFetcher := moveservice.NewMoveFetcher()
+		mockFetcher := mocks.MoveFetcher{}
 		mockLocker := movelocker.NewMoveLocker()
 		requestOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -126,9 +126,15 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 		handler := GetMoveHandler{
 			HandlerConfig: suite.HandlerConfig(),
-			MoveFetcher:   moveFetcher,
+			MoveFetcher:   &mockFetcher,
 			MoveLocker:    mockLocker,
 		}
+
+		mockFetcher.On("FetchMove",
+			mock.AnythingOfType("*appcontext.appContext"),
+			move.Locator,
+			mock.Anything,
+		).Return(&move, nil)
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveOK{}, response)
@@ -224,6 +230,40 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&moveops.GetMoveInternalServerError{}, response)
 		payload := response.(*moveops.GetMoveInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
+
+	suite.Run("Unsuccessful move fetch - invalid privileges", func() {
+		setupTestData()
+		mockFetcher := mocks.MoveFetcher{}
+		mockLocker := movelocker.NewMoveLocker()
+
+		handler := GetMoveHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			MoveFetcher:   &mockFetcher,
+			MoveLocker:    mockLocker,
+		}
+
+		mockFetcher.On("FetchMove",
+			mock.AnythingOfType("*appcontext.appContext"),
+			move.Locator,
+			mock.Anything,
+		).Return(&models.Move{}, apperror.NotFoundError{})
+
+		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser.User)
+		params := moveops.GetMoveParams{
+			HTTPRequest: req,
+			Locator:     move.Locator,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.GetMoveNotFound{}, response)
+		payload := response.(*moveops.GetMoveNotFound).Payload
 
 		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
