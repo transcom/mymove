@@ -74,8 +74,8 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode, 
       break;
     case SHIPMENT_OPTIONS.PPM:
       heading = 'PPM';
-      pickupAddress = shipment.ppmShipment.pickupAddress.PostalCode;
-      destinationAddress = shipment.ppmShipment.destinationAddress.PostalCode;
+      pickupAddress = shipment.ppmShipment.pickupAddress.postalCode;
+      destinationAddress = shipment.ppmShipment.destinationAddress.postalCode;
       shipmentAccentStyle = styles.ppmShipmentType;
       break;
     default:
