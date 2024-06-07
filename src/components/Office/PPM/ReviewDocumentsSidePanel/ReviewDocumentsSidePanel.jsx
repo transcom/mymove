@@ -101,7 +101,7 @@ export default function ReviewDocumentsSidePanel({
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
         <div className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel, styles.PPMHeaderSummary)}>
-          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields />
+          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields readOnly={readOnly} />
         </div>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
           <hr />
