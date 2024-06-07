@@ -29,6 +29,7 @@ export default function ReviewDocumentsSidePanel({
   expenseTickets,
   proGearTickets,
   weightTickets,
+  readOnly,
 }) {
   let status;
   let showReason;
@@ -39,6 +40,10 @@ export default function ReviewDocumentsSidePanel({
   });
 
   const handleSubmit = () => {
+    if (readOnly) {
+      onSuccess();
+      return;
+    }
     patchDocumentsSetStatusMutation({
       ppmShipmentId: ppmShipment.id,
       eTag: ppmShipment.eTag,
@@ -100,7 +105,7 @@ export default function ReviewDocumentsSidePanel({
         </div>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
           <hr />
-          <h3 className={styles.send}>Send to customer?</h3>
+          <h3 className={styles.send}>{readOnly ? 'Sent to customer' : 'Send to customer?'}</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
             <ul>
               {weightTickets.length > 0
