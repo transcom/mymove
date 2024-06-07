@@ -985,6 +985,11 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		payload.WeightStored = handlers.FmtPoundPtr(movingExpense.WeightStored)
 	}
 
+	if movingExpense.SITLocation != nil {
+		sitLocation := ghcmessages.SITLocationType(*movingExpense.SITLocation)
+		payload.SitLocation = &sitLocation
+	}
+
 	return payload
 }
 
@@ -1510,6 +1515,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
+		StandaloneCrate:               s.StandaloneCrate,
 	}
 }
 

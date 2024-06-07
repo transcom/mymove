@@ -131,6 +131,9 @@ properties:
     type: string
     description: Reason for updating service item.
     x-nullable: true
+  standaloneCrate:
+    type: boolean
+    x-nullable: true
   serviceRequestDocuments:
     $ref: 'ServiceRequestDocuments.yaml'
   estimatedPrice:

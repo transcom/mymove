@@ -153,6 +153,9 @@ type MTOServiceItem struct {
 	// Format: date
 	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 
+	// standalone crate
+	StandaloneCrate *bool `json:"standaloneCrate,omitempty"`
+
 	// status
 	Status MTOServiceItemStatus `json:"status,omitempty"`
 

@@ -170,6 +170,7 @@ export const MoveTaskOrder = (props) => {
         sitDeliveryMiles: item.sitDeliveryMiles,
         status: item.status,
         estimatedPrice: item.estimatedPrice,
+        standaloneCrate: item.standaloneCrate,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
