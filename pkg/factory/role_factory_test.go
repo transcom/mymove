@@ -103,7 +103,7 @@ func (suite *FactorySuite) TestBuildRoleTraits() {
 			[]Trait{
 				GetTraitTIORole,
 			})
-		suite.Equal(roles.RoleName("Transportation Invoicing Officer"), role.RoleName)
+		suite.Equal(roles.RoleName("Task Invoicing Officer"), role.RoleName)
 		suite.Equal(roles.RoleTypeTIO, role.RoleType)
 	})
 
@@ -116,7 +116,7 @@ func (suite *FactorySuite) TestBuildRoleTraits() {
 			[]Trait{
 				GetTraitTOORole,
 			})
-		suite.Equal(roles.RoleName("Transportation Ordering Officer"), role.RoleName)
+		suite.Equal(roles.RoleName("Task Ordering Officer"), role.RoleName)
 		suite.Equal(roles.RoleTypeTOO, role.RoleType)
 	})
 

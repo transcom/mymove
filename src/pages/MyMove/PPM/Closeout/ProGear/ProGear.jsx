@@ -15,6 +15,8 @@ import {
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
+  patchMTOShipment,
+  getMTOShipmentsForMove,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -94,7 +96,7 @@ const ProGear = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
-    deleteUpload(uploadId)
+    deleteUpload(uploadId, null, mtoShipment?.ppmShipment?.id)
       .then(() => {
         const filteredUploads = mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.filter(
           (upload) => upload.id !== uploadId,
@@ -109,9 +111,39 @@ const ProGear = () => {
       });
   };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    setErrorMessage(null);
-    setErrors({});
+  const updateMtoShipment = (values) => {
+    const belongsToSelf = values.belongsToSelf === 'true';
+    let proGear;
+    let spouseProGear;
+    if (belongsToSelf) {
+      proGear = values.weight;
+    }
+    if (!belongsToSelf) {
+      spouseProGear = values.weight;
+    }
+    const payload = {
+      belongsToSelf,
+      ppmShipment: {
+        id: mtoShipment.ppmShipment.id,
+      },
+      shipmentType: mtoShipment.shipmentType,
+      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
+      actualProGearWeight: parseInt(proGear, 10),
+      shipmentLocator: values.shipmentLocator,
+      eTag: mtoShipment.eTag,
+    };
+
+    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
+      .then((response) => {
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        dispatch(updateMTOShipment(response));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to update MTO shipment due to server error.');
+      });
+  };
+
+  const updateProGearWeightTicket = (values) => {
     const hasWeightTickets = !values.missingWeightTicket;
     const belongsToSelf = values.belongsToSelf === 'true';
     const payload = {
@@ -130,15 +162,28 @@ const ProGear = () => {
       currentProGearWeightTicket.eTag,
     )
       .then((resp) => {
-        setSubmitting(false);
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex] = resp;
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(mtoShipment));
+        getMTOShipmentsForMove(moveId)
+          .then((response) => {
+            dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
+            mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
+            updateMtoShipment(values);
+            navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+          })
+          .catch(() => {
+            setErrorMessage('Failed to fetch shipment information');
+          });
       })
       .catch(() => {
-        setSubmitting(false);
         setErrorMessage('Failed to save updated trip record');
       });
+  };
+
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    setErrorMessage(null);
+    setErrors({});
+    setSubmitting(false);
+    updateProGearWeightTicket(values);
   };
 
   const renderError = () => {

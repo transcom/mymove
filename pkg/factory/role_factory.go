@@ -80,7 +80,7 @@ func GetTraitTIORole() []Customization {
 		{
 			Model: roles.Role{
 				RoleType: roles.RoleTypeTIO,
-				RoleName: "Transportation Invoicing Officer",
+				RoleName: "Task Invoicing Officer",
 			},
 		},
 	}
@@ -91,7 +91,7 @@ func GetTraitTOORole() []Customization {
 		{
 			Model: roles.Role{
 				RoleType: roles.RoleTypeTOO,
-				RoleName: "Transportation Ordering Officer",
+				RoleName: "Task Ordering Officer",
 			},
 		},
 	}

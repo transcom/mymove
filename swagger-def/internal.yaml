@@ -463,6 +463,10 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+      sitLocation:
+        allOf:
+          - $ref: 'definitions/SITLocationType.yaml'
+          - x-nullable: true
     required:
       - movingExpenseType
       - description
@@ -1115,6 +1119,8 @@ definitions:
     enum:
       - PPM_PAYMENT
       - SHIPMENT
+      - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT
+      - CLOSEOUT_REVIEWED_PPM_PAYMENT
     x-nullable: true
   PostDocumentPayload:
     type: object
@@ -3071,6 +3077,11 @@ paths:
           type: string
           format: uuid
           description: ID of the order that the upload belongs to
+        - in: query
+          name: ppmId
+          type: string
+          format: uuid
+          description: Optional PPM shipment ID related to the upload
       responses:
         "204":
           description: deleted
