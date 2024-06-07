@@ -409,6 +409,7 @@ func PrimeAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Ha
 		return http.HandlerFunc(mw)
 	}
 }
+
 // PPTASAuthorizationMiddleware is the PPTAS authorization middleware
 func PPTASAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -432,6 +433,7 @@ func PPTASAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Ha
 		return http.HandlerFunc(mw)
 	}
 }
+
 // PrimeSimulatorAuthorizationMiddleware ensures only users with the
 // prime simulator role can access the simulator
 func PrimeSimulatorAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {

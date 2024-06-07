@@ -378,15 +378,15 @@ func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 				"GET",
 				"/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
-				routingConfig.PPTASSwaggerPath))
+					routingConfig.PPTASSwaggerPath))
 			if routingConfig.ServeSwaggerUI {
-					primeRouter.Method("GET", "/docs",
-						handlers.NewFileHandler(routingConfig.FileSystem,
-							path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
-				} else {
-					primeRouter.Method("GET", "/docs", http.NotFoundHandler())
-				}
-				primeRouter.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
+				primeRouter.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
+			} else {
+				primeRouter.Method("GET", "/docs", http.NotFoundHandler())
+			}
+			primeRouter.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
 
 		})
 		// Setup shared middleware
@@ -819,7 +819,7 @@ func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	mountPrimeAPI(appCtx, routingConfig, site)
 	mountSupportAPI(appCtx, routingConfig, site)
 	mountTestharnessAPI(appCtx, routingConfig, site)
-	mountPPTASAPI(appCtx,routingConfig,site)
+	mountPPTASAPI(appCtx, routingConfig, site)
 	return site
 }
 
@@ -830,7 +830,7 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 
 	// check for missing CSRF middleware ASAP
 	if routingConfig.CSRFMiddleware == nil {
-		return nil, errors.New("Missing CSRF Middleware")
+		return nil, errors.New("missing CSRF Middleware")
 	}
 
 	// With chi, we have to register all middleware before setting up
