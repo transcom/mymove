@@ -51,6 +51,18 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 		return nil, err
 	}
 
+	if appCtx.Session().IsMilApp() {
+		if mergedProgearWeightTicket.Weight != nil {
+			mergedProgearWeightTicket.SubmittedWeight = mergedProgearWeightTicket.Weight
+		}
+		if mergedProgearWeightTicket.BelongsToSelf != nil {
+			mergedProgearWeightTicket.SubmittedBelongsToSelf = mergedProgearWeightTicket.BelongsToSelf
+		}
+		if mergedProgearWeightTicket.HasWeightTickets != nil {
+			mergedProgearWeightTicket.SubmittedHasWeightTickets = mergedProgearWeightTicket.HasWeightTickets
+		}
+	}
+
 	// update the DB record
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedProgearWeightTicket)
