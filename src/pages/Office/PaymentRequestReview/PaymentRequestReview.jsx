@@ -58,6 +58,13 @@ export const PaymentRequestReview = ({ order }) => {
 
     return Object.values(paymentServiceItems || {}).map((item) => {
       const selectedShipment = normalizedShipments[item.mtoShipmentID];
+
+      const normalizedServiceItems = {};
+      selectedShipment?.mtoServiceItems?.forEach((serviceItem) => {
+        normalizedServiceItems[serviceItem.id] = serviceItem;
+      });
+      const selectedServiceItem = normalizedServiceItems[item.mtoServiceItemID];
+
       const shipmentSITBalance = shipmentsPaymentSITBalance
         ? shipmentsPaymentSITBalance[item.mtoShipmentID]
         : undefined;
@@ -78,6 +85,7 @@ export const PaymentRequestReview = ({ order }) => {
         mtoServiceItemCode: item.mtoServiceItemCode,
         mtoServiceItemName: item.mtoServiceItemName,
         mtoServiceItems: selectedShipment?.mtoServiceItems,
+        mtoServiceItemStandaloneCrate: selectedServiceItem?.standaloneCrate,
         amount: item.priceCents ? item.priceCents / 100 : 0,
         createdAt: item.createdAt,
         status: item.status,
