@@ -72,6 +72,8 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
     destinationAddress: ppmShipmentInfo.destinationAddress
       ? formatCustomerContactFullAddress(ppmShipmentInfo.destinationAddress)
       : '—',
+    pickupAddressObj: ppmShipmentInfo.pickupAddress,
+    destinationAddressObj: ppmShipmentInfo.destinationAddress,
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,
