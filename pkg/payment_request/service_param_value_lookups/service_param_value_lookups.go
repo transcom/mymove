@@ -554,14 +554,14 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 		return nil, nil
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
 		mtoShipmentCopy := mtoShipment
-		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").Find(&mtoShipmentCopy, mtoShipment.ID)
+		err := appCtx.DB().Eager("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").Find(&mtoShipmentCopy, mtoShipment.ID)
 		if err != nil {
 			return nil, err
 		}
 
 		for i, si := range mtoShipmentCopy.MTOServiceItems {
 			siCopy := si
-			err := appCtx.DB().EagerPreload("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
+			err := appCtx.DB().Eager("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
 			if err != nil {
 				return nil, err
 			}
