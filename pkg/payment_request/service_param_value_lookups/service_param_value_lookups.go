@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -549,6 +550,44 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 		// Destination address isn't needed
 		return nil, nil
+	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
+		var mtoShipmentCopy models.MTOShipment
+		err := appCtx.DB().Transaction(func(tx *pop.Connection) error {
+			err := tx.Where("id = ?", mtoShipment.ID).
+				Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").
+				First(&mtoShipmentCopy)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, si := range mtoShipmentCopy.MTOServiceItems {
+			switch si.ReService.Code {
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+				if mtoShipmentCopy.DeliveryAddressUpdate != nil {
+					if mtoShipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+						if mtoShipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*si.ApprovedAt) {
+							return &mtoShipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
+						}
+						return &mtoShipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+					}
+				}
+			}
+
+			if mtoShipmentCopy.DeliveryAddressUpdate != nil {
+				if mtoShipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					return &mtoShipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+				}
+			}
+
+			if ptrDestinationAddress.ID == uuid.Nil {
+				return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+			}
+		}
 	default:
 		if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
 			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
