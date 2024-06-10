@@ -515,7 +515,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 			suite.NotNil(paramLookup.MTOServiceItem)
 
-			originalAddress, err := getDestinationAddressForService(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, mtoServiceItem.MTOShipment)
+			originalAddress, err := getDestinationAddressForService(models.ReServiceCodeDDDSIT, mtoServiceItem.MTOShipment)
 			suite.FatalNoError(err)
 
 			if sdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress].(ZipAddressLookup); ok {
