@@ -415,7 +415,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   const additionalDocumentsClick = () => {
     const uploadAdditionalDocumentsPath = generatePath(customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_PATH, {
-      moveLocator: move.moveCode,
+      moveId: move.id,
     });
     navigate(uploadAdditionalDocumentsPath, { state, moveId });
   };

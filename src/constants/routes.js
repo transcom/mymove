@@ -47,7 +47,7 @@ export const customerRoutes = {
   PROFILE_PATH: '/service-member/profile',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
-  UPLOAD_ADDITIONAL_DOCUMENTS_PATH: '/move/:moveLocator/upload-additional-documents',
+  UPLOAD_ADDITIONAL_DOCUMENTS_PATH: '/move/:moveId/upload-additional-documents',
 };
 
 const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';

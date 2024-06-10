@@ -1,24 +1,32 @@
 import { React, createRef, useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Button } from '@trussworks/react-uswds';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import FileUpload from 'components/FileUpload/FileUpload';
-import { createUploadForAdditionalDocuments, deleteAdditionalDocumentUpload, getMove } from 'services/internalApi';
-import { selectCurrentMove } from 'store/entities/selectors';
+import {
+  createUploadForAdditionalDocuments,
+  deleteAdditionalDocumentUpload,
+  getMove,
+  getResponseError,
+} from 'services/internalApi';
+import { selectMovesForLoggedInUser } from 'store/entities/selectors';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import scrollToTop from 'shared/scrollToTop';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
-const AdditionalDocuments = ({ move, updateMove }) => {
-  const moveId = move?.id;
+const AdditionalDocuments = ({ moves, updateMove }) => {
+  const { moveId } = useParams();
   const filePondEl = createRef();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-
-  const uploads = move?.additionalDocuments?.uploads;
+  const [serverError, setServerError] = useState(null);
+  const currentlyViewedMove = moves.find((move) => move.id === moveId);
+  const uploads = currentlyViewedMove?.additionalDocuments?.uploads;
 
   const handleDelete = async (uploadId) => {
     return deleteAdditionalDocumentUpload(uploadId, moveId).then(() => {
@@ -33,9 +41,17 @@ const AdditionalDocuments = ({ move, updateMove }) => {
   };
 
   const handleUploadComplete = () => {
-    getMove(moveId).then((res) => {
-      updateMove(res);
-    });
+    getMove(moveId)
+      .then((res) => {
+        updateMove(res);
+      })
+      .catch((e) => {
+        const { response } = e;
+        const error = getResponseError(response, 'failed to upload due to server error');
+        setServerError(error);
+
+        scrollToTop();
+      });
   };
 
   const onChange = () => {
@@ -61,6 +77,18 @@ const AdditionalDocuments = ({ move, updateMove }) => {
 
   return (
     <GridContainer>
+      <NotificationScrollToTop dependency={serverError} />
+
+      {serverError && (
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Alert type="error" headingLevel="h4" heading="An error occurred">
+              {serverError}
+            </Alert>
+          </Grid>
+        </Grid>
+      )}
+
       <Grid row data-testid="info-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <h1>Additional Documents</h1>
@@ -75,12 +103,10 @@ const AdditionalDocuments = ({ move, updateMove }) => {
           <SectionWrapper>
             <h5>Upload documents</h5>
             <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
-            {/* {uploads?.length > 0 && ( */}
             <>
               <br />
               <UploadsTable uploads={uploads} onDelete={handleDelete} />
             </>
-            {/* )} */}
             <div className="uploader-box">
               <FileUpload
                 ref={filePondEl}
@@ -91,7 +117,6 @@ const AdditionalDocuments = ({ move, updateMove }) => {
               />
             </div>
             <Button onClick={handleBack}>Back</Button>
-            {/* <WizardNavigation editMode disableNext={false} onBackClick={handleBack} /> */}
           </SectionWrapper>
         </Grid>
       </Grid>
@@ -100,9 +125,9 @@ const AdditionalDocuments = ({ move, updateMove }) => {
 };
 
 const mapStateToProps = (state) => {
-  const move = selectCurrentMove(state);
+  const moves = selectMovesForLoggedInUser(state);
 
-  const props = { move };
+  const props = { moves };
 
   return props;
 };
