@@ -164,8 +164,8 @@ func ServiceParamLookupInitialize(
 
 	// Load shipment fields for service items that need them
 	var mtoShipment models.MTOShipment
-	var pickupAddress models.Address
-	var destinationAddress models.Address
+	var pickupAddress *models.Address
+	var destinationAddress *models.Address
 
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeCS && mtoServiceItem.ReService.Code != models.ReServiceCodeMS {
 		// Make sure there's an MTOShipment since that's nullable
@@ -202,8 +202,8 @@ func ServiceParamLookupInitialize(
 		}
 	}
 
-	mtoShipment.PickupAddress = &pickupAddress
-	mtoShipment.DestinationAddress = &destinationAddress
+	mtoShipment.PickupAddress = pickupAddress
+	mtoShipment.DestinationAddress = destinationAddress
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOSFSC:
@@ -424,6 +424,36 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	return lookups
 }
 
+func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (*models.Address, error) {
+	shipmentCopy := mtoShipment
+	err := appCtx.DB().Eager("DeliveryAddressUpdate.Status", "DeliveryAddressUpdate.UpdatedAt", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
+	if err != nil {
+		return nil, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
+	}
+
+	for _, si := range shipmentCopy.MTOServiceItems {
+		siCopy := si
+		err := appCtx.DB().Eager("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
+		if err != nil {
+			return nil, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination For Distance Lookup")
+		}
+
+		switch siCopy.ReService.Code {
+		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+			if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+					return &shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
+				}
+				return &shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+			}
+		}
+	}
+	if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+		return &shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+	}
+	return shipmentCopy.DestinationAddress, nil
+}
+
 // serviceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil
 // we are not using the ParamCache and all lookups will be initialized and all param lookups will run their own
 // database queries
@@ -474,7 +504,7 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 	return "", fmt.Errorf("  ServiceParamValue <%sLookup> does not exist for key: <%s>", key, key)
 }
 
-func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
+func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (*models.Address, error) {
 	// Determine which address field we should be using for pickup based on the shipment type.
 	var ptrPickupAddress *models.Address
 	var addressType string
@@ -493,23 +523,23 @@ func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment mo
 	switch serviceCode {
 	case models.ReServiceCodeDUPK:
 		// Pickup address isn't needed
-		return models.Address{}, nil
+		return nil, nil
 	default:
 		if ptrPickupAddress == nil || ptrPickupAddress.ID == uuid.Nil {
-			return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
 		}
-		return *ptrPickupAddress, nil
+		return ptrPickupAddress, nil
 	}
 }
 
-func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
+func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (*models.Address, error) {
 	// Determine which address field we should be using for destination based on the shipment type.
 	var ptrDestinationAddress *models.Address
 	var addressType string
 	switch mtoShipment.ShipmentType {
 	case models.MTOShipmentTypeHHGIntoNTSDom:
 		addressType = "storage facility"
-		if mtoShipment.StorageFacility != nil {
+		if mtoShipment.StorageFacility != nil && mtoShipment.StorageFacility.Address.ID != uuid.Nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
 		}
 	default:
@@ -521,41 +551,53 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 	switch serviceCode {
 	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 		// Destination address isn't needed
-		return models.Address{}, nil
+		return nil, nil
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
-		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.Status", "MTOServiceItems").Find(&mtoShipment, mtoShipment.ID)
+		mtoShipmentCopy := mtoShipment
+		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").Find(&mtoShipmentCopy, mtoShipment.ID)
 		if err != nil {
-			return models.Address{}, err
+			return nil, err
 		}
 
-		for i, si := range mtoShipment.MTOServiceItems {
+		for i, si := range mtoShipmentCopy.MTOServiceItems {
 			siCopy := si
 			err := appCtx.DB().Eager("ReService.Code").Find(&siCopy, siCopy.ID)
 			if err != nil {
-				return models.Address{}, err
+				return nil, err
 			}
 
 			switch siCopy.ReService.Code {
 			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
-				if mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					return mtoShipment.DeliveryAddressUpdate.OriginalAddress, nil
+				if mtoShipmentCopy.DeliveryAddressUpdate != nil {
+					if mtoShipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+						if mtoShipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+							return &mtoShipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
+						}
+						return &mtoShipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+					}
 				}
 			}
 
-			if i == len(mtoShipment.MTOServiceItems)-1 {
-				if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
-					return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+			if i == len(mtoShipmentCopy.MTOServiceItems)-1 {
+				if mtoShipmentCopy.DeliveryAddressUpdate != nil {
+					if mtoShipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+						return &mtoShipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+					}
 				}
-				return *ptrDestinationAddress, nil
+
+				if ptrDestinationAddress.ID == uuid.Nil {
+					return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+				}
+				return ptrDestinationAddress, nil
 			}
 		}
 	default:
-		if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
-			return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+		if ptrDestinationAddress.ID == uuid.Nil {
+			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
 		}
-		return *ptrDestinationAddress, nil
+		return ptrDestinationAddress, nil
 	}
-	return *ptrDestinationAddress, nil
+	return ptrDestinationAddress, nil
 }
 
 func fetchContractForMove(appCtx appcontext.AppContext, moveID uuid.UUID) (models.ReContract, error) {
