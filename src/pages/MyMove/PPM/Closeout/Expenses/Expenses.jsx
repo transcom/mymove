@@ -123,6 +123,7 @@ const Expenses = () => {
       SITEndDate: formatDateForSwagger(values.sitEndDate),
       SITStartDate: formatDateForSwagger(values.sitStartDate),
       WeightStored: 0,
+      SITLocation: null,
     };
 
     patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)

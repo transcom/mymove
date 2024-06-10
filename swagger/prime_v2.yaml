@@ -1790,6 +1790,9 @@ definitions:
       - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
+      - StandaloneCrate
+      - StandaloneCrateCap
+      - UncappedRequestTotal
   ServiceItemParamType:
     type: string
     enum:
