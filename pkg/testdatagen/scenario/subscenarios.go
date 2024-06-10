@@ -688,10 +688,6 @@ func subScenarioPaymentRequestCalculations(
 	}
 
 	return func() {
-		if appCtx == nil || userUploader == nil || primeUploader == nil || moveRouter == nil || shipmentFetcher == nil {
-			panic("nil argument passed to subScenarioPaymentRequestCalculations")
-		}
-
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
 
