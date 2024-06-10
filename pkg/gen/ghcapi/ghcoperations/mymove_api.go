@@ -96,6 +96,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerCreateCustomerWithOktaOptionHandler: customer.CreateCustomerWithOktaOptionHandlerFunc(func(params customer.CreateCustomerWithOktaOptionParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.CreateCustomerWithOktaOption has not yet been implemented")
 		}),
+		GhcDocumentsCreateDocumentHandler: ghc_documents.CreateDocumentHandlerFunc(func(params ghc_documents.CreateDocumentParams) middleware.Responder {
+			return middleware.NotImplemented("operation ghc_documents.CreateDocument has not yet been implemented")
+		}),
 		EvaluationReportsCreateEvaluationReportHandler: evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
 		}),
@@ -104,6 +107,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrderCreateOrderHandler: order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
+		}),
+		PpmCreatePPMUploadHandler: ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		}),
 		OfficeUsersCreateRequestedOfficeUserHandler: office_users.CreateRequestedOfficeUserHandlerFunc(func(params office_users.CreateRequestedOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateRequestedOfficeUser has not yet been implemented")
@@ -384,12 +390,16 @@ type MymoveAPI struct {
 	CustomerSupportRemarksCreateCustomerSupportRemarkForMoveHandler customer_support_remarks.CreateCustomerSupportRemarkForMoveHandler
 	// CustomerCreateCustomerWithOktaOptionHandler sets the operation handler for the create customer with okta option operation
 	CustomerCreateCustomerWithOktaOptionHandler customer.CreateCustomerWithOktaOptionHandler
+	// GhcDocumentsCreateDocumentHandler sets the operation handler for the create document operation
+	GhcDocumentsCreateDocumentHandler ghc_documents.CreateDocumentHandler
 	// EvaluationReportsCreateEvaluationReportHandler sets the operation handler for the create evaluation report operation
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// OrderCreateOrderHandler sets the operation handler for the create order operation
 	OrderCreateOrderHandler order.CreateOrderHandler
+	// PpmCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
+	PpmCreatePPMUploadHandler ppm.CreatePPMUploadHandler
 	// OfficeUsersCreateRequestedOfficeUserHandler sets the operation handler for the create requested office user operation
 	OfficeUsersCreateRequestedOfficeUserHandler office_users.CreateRequestedOfficeUserHandler
 	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
@@ -645,6 +655,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.CustomerCreateCustomerWithOktaOptionHandler == nil {
 		unregistered = append(unregistered, "customer.CreateCustomerWithOktaOptionHandler")
 	}
+	if o.GhcDocumentsCreateDocumentHandler == nil {
+		unregistered = append(unregistered, "ghc_documents.CreateDocumentHandler")
+	}
 	if o.EvaluationReportsCreateEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.CreateEvaluationReportHandler")
 	}
@@ -653,6 +666,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderCreateOrderHandler == nil {
 		unregistered = append(unregistered, "order.CreateOrderHandler")
+	}
+	if o.PpmCreatePPMUploadHandler == nil {
+		unregistered = append(unregistered, "ppm.CreatePPMUploadHandler")
 	}
 	if o.OfficeUsersCreateRequestedOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateRequestedOfficeUserHandler")
@@ -1002,6 +1018,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/documents"] = ghc_documents.NewCreateDocument(o.context, o.GhcDocumentsCreateDocumentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{locator}/evaluation-reports"] = evaluation_reports.NewCreateEvaluationReport(o.context, o.EvaluationReportsCreateEvaluationReportHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1011,6 +1031,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders"] = order.NewCreateOrder(o.context, o.OrderCreateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/uploads"] = ppm.NewCreatePPMUpload(o.context, o.PpmCreatePPMUploadHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

@@ -44,6 +44,7 @@ import (
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -485,6 +486,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{handlerConfig}
+	ghcAPI.GhcDocumentsCreateDocumentHandler = CreateDocumentHandler{handlerConfig}
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		handlerConfig,
@@ -609,6 +611,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		HandlerConfig:    handlerConfig,
 		CustomerSearcher: customer.NewCustomerSearcher(),
 	}
+
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	ghcAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
 
 	return ghcAPI
 }

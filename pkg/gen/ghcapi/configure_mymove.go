@@ -61,6 +61,8 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// ppm.CreatePPMUploadMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// uploads.CreateUploadMaxParseMemory = 32 << 20
 
 	if api.OrderAcknowledgeExcessWeightRiskHandler == nil {
@@ -113,6 +115,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer.CreateCustomerWithOktaOption has not yet been implemented")
 		})
 	}
+	if api.GhcDocumentsCreateDocumentHandler == nil {
+		api.GhcDocumentsCreateDocumentHandler = ghc_documents.CreateDocumentHandlerFunc(func(params ghc_documents.CreateDocumentParams) middleware.Responder {
+			return middleware.NotImplemented("operation ghc_documents.CreateDocument has not yet been implemented")
+		})
+	}
 	if api.EvaluationReportsCreateEvaluationReportHandler == nil {
 		api.EvaluationReportsCreateEvaluationReportHandler = evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
@@ -126,6 +133,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.OrderCreateOrderHandler == nil {
 		api.OrderCreateOrderHandler = order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
+		})
+	}
+	if api.PpmCreatePPMUploadHandler == nil {
+		api.PpmCreatePPMUploadHandler = ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersCreateRequestedOfficeUserHandler == nil {

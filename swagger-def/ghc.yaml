@@ -66,40 +66,40 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   /open/requested-office-users:
-      post:
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        summary: Create an Office User
-        description: >
-          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
 
-          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
-          An identification method must be present. The following 2 fields have an "OR" requirement.
-          - edipi
-          - other_unique_id
-          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
-        operationId: createRequestedOfficeUser
-        tags:
-          - officeUsers
-        parameters:
-          - in: body
-            name: officeUser
-            description: Office User information
-            schema:
-              $ref: '#/definitions/OfficeUserCreate'
-        responses:
-          '201':
-            description: successfully requested the creation of provided office user
-            schema:
-              $ref: '#/definitions/OfficeUser'
-          '422':
-            description: validation error
-            schema:
-              $ref: '#/definitions/ValidationError'
-          '500':
-            description: internal server error
+        Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+        An identification method must be present. The following 2 fields have an "OR" requirement.
+        - edipi
+        - other_unique_id
+        One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -2959,6 +2959,30 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /documents:
+    post:
+      summary: Create a new document
+      description: Documents represent a physical artifact such as a scanned document or a PDF file
+      operationId: createDocument
+      tags:
+        - ghcDocuments
+      parameters:
+        - in: body
+          name: documentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/PostDocumentPayload'
+      responses:
+        '201':
+          description: created document
+          schema:
+            $ref: 'definitions/Document.yaml'
+        '400':
+          description: invalid request
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          description: server error
   /queues/counseling:
     get:
       produces:
@@ -3533,7 +3557,72 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /ppm-shipments/{ppmShipmentId}/uploads:
+    post:
+      summary: Create a new upload for a PPM weight ticket, pro-gear, or moving expense document
+      description: Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.
+      operationId: createPPMUpload
+      tags:
+        - ppm
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '413':
+          description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
+  PostDocumentPayload:
+    type: object
+    properties:
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
   ClientError:
     type: object
     properties:
@@ -5317,7 +5406,7 @@ definitions:
     type: object
     properties:
       movingExpenseType:
-        $ref: "definitions/OmittableMovingExpenseType.yaml"
+        $ref: 'definitions/OmittableMovingExpenseType.yaml'
       description:
         description: A brief description of the expense.
         type: string

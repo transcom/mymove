@@ -507,6 +507,43 @@ func init() {
         }
       ]
     },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/documents/{documentId}": {
       "get": {
         "description": "Returns a document and its uploads",
@@ -3355,6 +3392,80 @@ func init() {
           "$ref": "#/parameters/proGearWeightTicketId"
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
@@ -6752,6 +6863,17 @@ func init() {
       },
       "x-nullable": true
     },
+    "InvalidRequestResponsePayload": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
@@ -9405,6 +9527,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
       }
     },
     "ProGearWeightTicket": {
@@ -12340,6 +12472,46 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/documents/{documentId}": {
       "get": {
@@ -16001,6 +16173,92 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
       "patch": {
@@ -19794,6 +20052,17 @@ func init() {
       },
       "x-nullable": true
     },
+    "InvalidRequestResponsePayload": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
@@ -22448,6 +22717,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
       }
     },
     "ProGearWeightTicket": {
