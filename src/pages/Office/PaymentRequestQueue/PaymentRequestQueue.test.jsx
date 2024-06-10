@@ -8,7 +8,6 @@ import * as reactRouterDom from 'react-router-dom';
 import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
-import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 import { generalRoutes, tioRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
@@ -308,14 +307,20 @@ describe('PaymentRequestQueue', () => {
     // This pattern allows minimal test changes if the search options were ever to change.
     SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
-  it('has all payment request status options for payment request filtering', async () => {
-    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+  it('only displays payment requests with a status of Payment Requested', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
         <PaymentRequestQueue />
       </reactRouterDom.BrowserRouter>,
     );
-    PAYMENT_REQUEST_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+    // expect Payment requested status to appear in the TIO queue
+    expect(screen.queryByText('Payment requested')).toBeInTheDocument();
+    // expect other statuses NOT to appear in the TIO queue
+    expect(screen.queryByText('Deprecated')).not.toBeInTheDocument();
+    expect(screen.queryByText('Error')).not.toBeInTheDocument();
+    expect(screen.queryByText('Rejected')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reviewed')).not.toBeInTheDocument();
   });
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
