@@ -7,7 +7,7 @@ import MOVE_STATUSES from 'constants/moves';
 export const MOVE_STATUS_OPTIONS = [
   { value: MOVE_STATUSES.SUBMITTED, label: 'New move' },
   { value: MOVE_STATUSES.APPROVALS_REQUESTED, label: 'Approvals requested' },
-  { value: MOVE_STATUSES.APPROVED, label: 'Move approved' },
+  { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service Counseling Completed' },
 ];
 
 // Both moves that progressed straight from customer submission to the TOO
