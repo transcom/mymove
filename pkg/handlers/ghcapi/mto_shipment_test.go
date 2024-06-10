@@ -1940,12 +1940,12 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 409 when canceler returns Conflict Error", func() {
-		day := time.Now()
+		actualPickupDate := time.Now()
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					ID:               uuid.Must(uuid.NewV4()),
-					ActualPickupDate: &day,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 		}, nil)
