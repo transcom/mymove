@@ -29,8 +29,8 @@ import (
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	setupTestData := func() models.OfficeUsers {
 		return models.OfficeUsers{
-			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr}),
-			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 		}
 	}
 
