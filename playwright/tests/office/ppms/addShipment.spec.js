@@ -13,7 +13,7 @@ test.describe('Services counselor user', () => {
     await ppmPage.navigateToMove(move.locator);
   });
 
-  test.skip('is able to add a new PPM shipment', async ({ page, ppmPage }) => {
+  test('is able to add a new PPM shipment', async ({ page, ppmPage }) => {
     // Delete existing shipment
     await page.locator('[data-testid="ShipmentContainer"] .usa-button').click();
     await page.locator('[data-testid="grid"] button').getByText('Delete shipment').click();
