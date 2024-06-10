@@ -71,6 +71,15 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
+		testdatagen.FetchOrMakeReZip3(suite.AppContextForTest().DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originDomesticServiceArea.Contract,
+				ContractID:          originDomesticServiceArea.ContractID,
+				DomesticServiceArea: originDomesticServiceArea,
+				Zip3:                "503",
+			},
+		})
+
 		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 				Contract:              originDomesticServiceArea.Contract,
@@ -373,7 +382,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		suite.IsType(err, apperror.NotFoundError{})
 	})
 
-	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_PAYMENT_APPROVAL\" or \"APPROVED\"", func() {
+	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_CLOSEOUT\" or \"APPROVED\"", func() {
 		appCtx := suite.AppContextForTest()
 		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildWaitingOnCustomer)
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
@@ -588,7 +597,7 @@ func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest(buildType ppmBuild
 
 	var ppmShipment models.PPMShipment
 	if buildType == ppmBuildReadyForCloseout {
-		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
+		ppmShipment = factory.BuildPPMShipmentThatNeedsCloseout(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
 	} else if buildType == ppmBuildWaitingOnCustomer {
 		ppmShipment = factory.BuildPPMShipment(suite.AppContextForTest().DB(), ppmShipmentCustomization, nil)
 	}
