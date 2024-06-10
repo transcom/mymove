@@ -3338,10 +3338,6 @@ paths:
           uniqueItems: true
           items:
             type: string
-            enum:
-              - SUBMITTED
-              - APPROVALS REQUESTED
-              - APPROVED
         - in: query
           name: orderType
           type: string

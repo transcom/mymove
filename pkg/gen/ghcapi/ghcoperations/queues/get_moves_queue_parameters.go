@@ -6,7 +6,6 @@ package queues
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -486,12 +485,8 @@ func (o *GetMovesQueueParams) bindStatus(rawData []string, hasKey bool, formats 
 	}
 
 	var statusIR []string
-	for i, statusIV := range statusIC {
+	for _, statusIV := range statusIC {
 		statusI := statusIV
-
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"SUBMITTED", "APPROVALS REQUESTED", "APPROVED"}, true); err != nil {
-			return err
-		}
 
 		statusIR = append(statusIR, statusI)
 	}

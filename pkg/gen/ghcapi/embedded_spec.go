@@ -3765,11 +3765,6 @@ func init() {
             "uniqueItems": true,
             "type": "array",
             "items": {
-              "enum": [
-                "SUBMITTED",
-                "APPROVALS REQUESTED",
-                "APPROVED"
-              ],
               "type": "string"
             },
             "description": "Filtering for the status.",
@@ -16551,11 +16546,6 @@ func init() {
             "uniqueItems": true,
             "type": "array",
             "items": {
-              "enum": [
-                "SUBMITTED",
-                "APPROVALS REQUESTED",
-                "APPROVED"
-              ],
               "type": "string"
             },
             "description": "Filtering for the status.",
