@@ -164,7 +164,7 @@ func ServiceParamLookupInitialize(
 
 	// Load shipment fields for service items that need them
 	var mtoShipment models.MTOShipment
-	var pickupAddress *models.Address
+	var pickupAddress models.Address
 	var destinationAddress *models.Address
 
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeCS && mtoServiceItem.ReService.Code != models.ReServiceCodeMS {
@@ -202,7 +202,7 @@ func ServiceParamLookupInitialize(
 		}
 	}
 
-	mtoShipment.PickupAddress = pickupAddress
+	mtoShipment.PickupAddress = &pickupAddress
 	mtoShipment.DestinationAddress = destinationAddress
 
 	switch mtoServiceItem.ReService.Code {
@@ -504,7 +504,7 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 	return "", fmt.Errorf("  ServiceParamValue <%sLookup> does not exist for key: <%s>", key, key)
 }
 
-func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (*models.Address, error) {
+func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
 	// Determine which address field we should be using for pickup based on the shipment type.
 	var ptrPickupAddress *models.Address
 	var addressType string
@@ -523,12 +523,12 @@ func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment mo
 	switch serviceCode {
 	case models.ReServiceCodeDUPK:
 		// Pickup address isn't needed
-		return nil, nil
+		return models.Address{}, nil
 	default:
 		if ptrPickupAddress == nil || ptrPickupAddress.ID == uuid.Nil {
-			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+			return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
 		}
-		return ptrPickupAddress, nil
+		return *ptrPickupAddress, nil
 	}
 }
 
