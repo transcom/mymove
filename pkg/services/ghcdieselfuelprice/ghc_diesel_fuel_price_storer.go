@@ -54,7 +54,7 @@ func (d *DieselFuelPriceInfo) RunStorer(appCtx appcontext.AppContext) error {
 			daysAdded = 7
 		case "Tuesday":
 			daysAdded = 6
-		//very unlikely to get past here- monday is the noraml publish day- tuesday if monday is holiday.. but adding other weekedays just in case
+		//very unlikely to get past here- monday is the normal publish day- tuesday if monday is holiday.. but adding other weekdays just in case
 		case "Wednesday":
 			daysAdded = 6
 		case "Thursday":
