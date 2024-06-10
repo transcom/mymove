@@ -45,7 +45,20 @@ const hhgShipment = {
 const ppmShipment = {
   id: '22222',
   shipmentType: SHIPMENT_OPTIONS.PPM,
-  ppmShipment: {},
+  ppmShipment: {
+    pickupAddress: {
+      streetAddress1: '123 Any St',
+      city: 'Anytown',
+      state: 'AK',
+      postalCode: '90210',
+    },
+    destinationAddress: {
+      streetAddress1: '123 Any St',
+      city: 'Anytown',
+      state: 'AK',
+      postalCode: '90210',
+    },
+  },
 };
 
 const ntsShipment = {
