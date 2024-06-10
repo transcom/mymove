@@ -180,7 +180,7 @@ func ServiceParamLookupInitialize(
 			return nil, apperror.NewBadDataError(fmt.Sprintf("failed to get pickup address for service code %s in the lookup for shipment id %v", mtoServiceItem.ReService.Code, mtoShipment.ID))
 		}
 
-		destinationAddress, err = getDestinationAddressForService(appCtx, mtoServiceItem.ReService.Code, mtoShipment)
+		destinationAddress, err = getDestinationAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
 			return nil, apperror.NewBadDataError(fmt.Sprintf("failed to get destination address for service code %s in the lookup for shipment id %v", mtoServiceItem.ReService.Code, mtoShipment.ID))
 		}
@@ -524,7 +524,7 @@ func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment mo
 	}
 }
 
-func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
+func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (*models.Address, error) {
 	// Determine which address field we should be using for destination based on the shipment type.
 	var ptrDestinationAddress *models.Address
 	var addressType string
@@ -548,14 +548,13 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 	switch serviceCode {
 	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 		// Destination address isn't needed
-		return models.Address{}, nil
+		return nil, nil
 	default:
 		if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
-			return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
 		}
 		return *ptrDestinationAddress, nil
 	}
-	return *ptrDestinationAddress, nil
 }
 
 func fetchContractForMove(appCtx appcontext.AppContext, moveID uuid.UUID) (models.ReContract, error) {
