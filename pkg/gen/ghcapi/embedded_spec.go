@@ -7053,6 +7053,11 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "estimatedPrice": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "estimatedWeight": {
           "description": "estimated weight of the shuttle service item provided by the prime",
           "type": "integer",
@@ -20182,6 +20187,11 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "estimatedPrice": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
         },
         "estimatedWeight": {
           "description": "estimated weight of the shuttle service item provided by the prime",
