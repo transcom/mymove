@@ -71,8 +71,24 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 			return "", err
 		}
 
-	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
-		return strconv.Itoa(mtoShipment.Distance.Int()), nil
+		for _, si := range mtoShipment.MTOServiceItems {
+			siCopy := si
+			err := appCtx.DB().EagerPreload("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
+			if err != nil {
+				return "", err
+			}
+
+			switch siCopy.ReService.Code {
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+				if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					if mtoShipment.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						destinationZip = mtoShipment.DeliveryAddressUpdate.OriginalAddress.PostalCode
+					} else {
+						destinationZip = mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode
+					}
+				}
+			}
+		}
 	}
 
 	var distanceMiles int
