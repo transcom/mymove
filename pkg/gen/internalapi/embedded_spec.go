@@ -5005,6 +5005,37 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
@@ -5817,15 +5848,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -6064,6 +6095,24 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -6543,11 +6592,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -6555,7 +6606,9 @@ func init() {
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "x-nullable": true
     },
@@ -6572,6 +6625,34 @@ func init() {
           "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
+    },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "TransportationOffice": {
       "type": "object",
@@ -7262,6 +7343,30 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
@@ -12895,6 +13000,37 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
@@ -13707,15 +13843,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -13954,6 +14090,25 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -14434,11 +14589,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -14446,7 +14603,9 @@ func init() {
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "x-nullable": true
     },
@@ -14463,6 +14622,34 @@ func init() {
           "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
+    },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
     },
     "TransportationOffice": {
       "type": "object",
@@ -15165,6 +15352,32 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",

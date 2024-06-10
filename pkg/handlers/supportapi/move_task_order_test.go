@@ -174,11 +174,37 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
+
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{handlerConfig,
-		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
+		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil)),
 	}
 	response := handler.Handle(params)
 
@@ -362,12 +388,38 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
+
+		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+			mockCreator := &mocks.SignedCertificationCreator{}
+
+			mockCreator.On(
+				"CreateSignedCertification",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.SignedCertification"),
+			).Return(returnValue...)
+
+			return mockCreator
+		}
+
+		setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+			mockUpdater := &mocks.SignedCertificationUpdater{}
+
+			mockUpdater.On(
+				"UpdateSignedCertification",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.SignedCertification"),
+				mock.AnythingOfType("string"),
+			).Return(returnValue...)
+
+			return mockUpdater
+		}
+
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil)),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
 

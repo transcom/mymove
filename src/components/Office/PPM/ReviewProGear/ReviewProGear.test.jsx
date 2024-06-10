@@ -137,4 +137,72 @@ describe('ReviewProGear component', () => {
       expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
     });
   });
+
+  describe('displays disabled read only form', () => {
+    it('renders disabled blank form on load with defaults', async () => {
+      render(
+        <MockProviders>
+          <ReviewProGear {...defaultProps} readOnly />;
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 3, name: 'Pro-gear 1' })).toBeInTheDocument();
+      });
+      expect(screen.getByText('Belongs to')).toBeInTheDocument();
+      expect(screen.getByLabelText('Customer')).toBeDisabled();
+      expect(screen.getByLabelText('Spouse')).toBeDisabled();
+
+      expect(screen.getByText('Description')).toBeInTheDocument();
+
+      expect(screen.getByText('Pro-gear weight')).toBeInTheDocument();
+      expect(screen.getByLabelText('Weight tickets')).toBeDisabled();
+      expect(screen.getByLabelText('Constructed weight')).toBeDisabled();
+
+      expect(screen.getByLabelText('Constructed pro-gear weight')).toBeDisabled();
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Review pro-gear 1' })).toBeInTheDocument();
+      expect(screen.getByText('Add a review for this pro-gear')).toBeInTheDocument();
+      expect(screen.getByLabelText('Accept')).toBeDisabled();
+      expect(screen.getByLabelText('Reject')).toBeDisabled();
+    });
+
+    it('populates disabled edit form with existing pro-gear weight ticket values', async () => {
+      render(
+        <MockProviders>
+          <ReviewProGear {...defaultProps} {...proGearRequiredProps} readOnly />;
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Customer')).toBeChecked();
+      });
+      expect(screen.getByText('Kia Forte')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Shipment's pro-gear weight/)).toHaveDisplayValue('400');
+      expect(screen.getByLabelText(/Shipment's pro-gear weight/)).toBeDisabled();
+    });
+
+    it('populates disabled edit form when pro-gear weight ticket is missing', async () => {
+      render(
+        <MockProviders>
+          <ReviewProGear {...defaultProps} {...missingWeightTicketProps} readOnly />;
+        </MockProviders>,
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Constructed weight')).toBeDisabled();
+      });
+    });
+
+    it('reason field is disabled', async () => {
+      render(
+        <MockProviders>
+          <ReviewProGear {...defaultProps} {...rejectedProps} readOnly />
+        </MockProviders>,
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Reject')).toBeDisabled();
+      });
+      expect(screen.getByLabelText('Reason')).toBeDisabled();
+    });
+  });
 });

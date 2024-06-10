@@ -53,7 +53,7 @@ import {
   SHIPMENTS_PAYMENT_SIT_BALANCE,
   PRIME_SIMULATOR_MOVE,
   CUSTOMER_SUPPORT_REMARKS,
-  QAE_CSR_MOVE_SEARCH,
+  QAE_MOVE_SEARCH,
   SHIPMENT_EVALUATION_REPORTS,
   COUNSELING_EVALUATION_REPORTS,
   EVALUATION_REPORT,
@@ -277,7 +277,11 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery, ppmActualWeightQuery]);
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([
+    mtoShipmentQuery,
+    documentsQuery,
+    ppmActualWeightQuery,
+  ]);
   return {
     mtoShipment,
     documents,
@@ -286,6 +290,7 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     isLoading,
     isError,
     isSuccess,
+    isFetching,
   };
 };
 
@@ -294,13 +299,14 @@ export const usePPMCloseoutQuery = (ppmShipmentId) => {
     getPPMCloseout(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([ppmCloseoutQuery]);
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([ppmCloseoutQuery]);
 
   return {
     ppmCloseout,
     isLoading,
     isError,
     isSuccess,
+    isFetching,
   };
 };
 
@@ -867,7 +873,7 @@ export const useMoveSearchQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const queryResult = useQuery(
-    [QAE_CSR_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
+    [QAE_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
     ({ queryKey }) => searchMoves(...queryKey),
     {
       enabled: filters.length > 0,

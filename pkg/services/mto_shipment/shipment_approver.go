@@ -67,6 +67,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 			return nil, err
 		}
 
+		// changes to estimated weight need to run thecheck for excess weight
 		_, verrs, err := f.moveWeights.CheckExcessWeight(appCtx, shipment.MoveTaskOrderID, *shipment)
 		if verrs != nil && verrs.HasAny() {
 			return nil, errors.New(verrs.Error())
