@@ -14,28 +14,26 @@ import (
 // ListReportsHandler lists reports with the option to filter since a particular date. Optimized ver.
 type ListReportsHandler struct {
 	handlers.HandlerConfig
-	services.MoveTaskOrderFetcher
+	services.ReportListFetcher
 }
 
 // Handle fetches all reports with the option to filter since a particular date. Optimized version.
 func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			var searchParams services.FetchPaymentRequestListParams
+			// if params.Since != nil {
+			// 	since := handlers.FmtDateTimePtrToPop(params.Since)
+			// 	searchParams.Since = &since
+			// }
 
-			var searchParams services.MoveTaskOrderFetcherParams
-			if params.Since != nil {
-				since := handlers.FmtDateTimePtrToPop(params.Since)
-				searchParams.Since = &since
-			}
-
-			mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(appCtx, &searchParams)
-
+			reports, err := h.FetchReportList(appCtx, &searchParams)
 			if err != nil {
-				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
+				appCtx.Logger().Error("Unexpected error while fetching reports:", zap.Error(err))
 				return pptasop.NewListReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListReports(&mtos)
+			payload := payloads.ListReports(&reports)
 
 			return pptasop.NewListReportsOK().WithPayload(payload), nil
 		})

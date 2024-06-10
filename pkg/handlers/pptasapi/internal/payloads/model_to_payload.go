@@ -25,33 +25,38 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 }
 
 // ListReport payload
-func ListReport(pr *models.PaymentRequest) *pptasmessages.ListReport {
+func ListReport(pr *models.Report) *pptasmessages.ListReport {
 	if pr == nil {
 		return nil
 	}
 
 	// middleInitial := move.Orders.ServiceMember.MiddleName[0]
 
+	// payload := &pptasmessages.ListReport{
+	// 	ID:            strfmt.UUID(pr.MoveTaskOrderID.String()),
+	// 	LastName:      *pr.MoveTaskOrder.Orders.ServiceMember.LastName,
+	// 	FirstName:     *pr.MoveTaskOrder.Orders.ServiceMember.FirstName,
+	// 	MiddleInitial: "w",
+	// 	Affiliation:   (*pptasmessages.Affiliation)(pr.MoveTaskOrder.Orders.ServiceMember.Affiliation),
+	// 	Grade:         (*string)(pr.MoveTaskOrder.Orders.Grade.Pointer()),
+	// 	Edipi:         *pr.MoveTaskOrder.Orders.ServiceMember.Edipi,
+	// }
+
 	payload := &pptasmessages.ListReport{
-		ID:            strfmt.UUID(pr.MoveTaskOrderID.String()),
-		LastName:      *pr.MoveTaskOrder.Orders.ServiceMember.LastName,
-		FirstName:     *pr.MoveTaskOrder.Orders.ServiceMember.FirstName,
-		MiddleInitial: "w",
-		Affiliation:   (*pptasmessages.Affiliation)(pr.MoveTaskOrder.Orders.ServiceMember.Affiliation),
-		Grade:         (*string)(pr.MoveTaskOrder.Orders.Grade.Pointer()),
-		Edipi:         *pr.MoveTaskOrder.Orders.ServiceMember.Edipi,
+		FirstName: *pr.FirstName,
+		Edipi:     *pr.Edipi,
 	}
 
 	return payload
 }
 
 // ListReports payload
-func ListReports(prs *models.PaymentRequests) []*pptasmessages.ListReport {
-	payload := make(pptasmessages.ListReports, len(*prs))
+func ListReports(reports *models.Reports) []*pptasmessages.ListReport {
+	payload := make(pptasmessages.ListReports, len(*reports))
 
-	for i, pr := range *prs {
-		copyOfPR := pr // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListReport(&copyOfPR)
+	for i, report := range *reports {
+		copyOfReport := report // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = ListReport(&copyOfReport)
 	}
 	return payload
 }

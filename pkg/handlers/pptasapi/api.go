@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/pptasapi"
 	pptasops "github.com/transcom/mymove/pkg/gen/pptasapi/pptasoperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	report "github.com/transcom/mymove/pkg/services/report"
 )
 
 func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
@@ -22,8 +22,8 @@ func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	pptasAPI.ServeError = handlers.ServeCustomError
 
 	pptasAPI.MovesListReportsHandler = ListReportsHandler{
-		HandlerConfig:        handlerConfig,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
+		HandlerConfig:     handlerConfig,
+		ReportListFetcher: report.NewReportListFetcher(),
 	}
 
 	return pptasAPI.Serve(nil)
