@@ -1654,6 +1654,22 @@ describe('ShipmentForm component', () => {
     sitEstimatedDepartureDate: '2022-10-29',
     sitEstimatedEntryDate: '2022-08-06',
     sitExpected: true,
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42703',
+    },
   };
 
   const defaultSITProps = {
