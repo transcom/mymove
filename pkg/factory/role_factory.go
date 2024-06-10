@@ -108,6 +108,17 @@ func GetTraitQaeCsrRole() []Customization {
 	}
 }
 
+func GetTraitCustomerServiceRepresentativeRole() []Customization {
+	return []Customization{
+		{
+			Model: roles.Role{
+				RoleType: roles.RoleTypeCustomerServiceRepresentative,
+				RoleName: "Customer Service Representative",
+			},
+		},
+	}
+}
+
 func GetTraitPrimeSimulatorRole() []Customization {
 	return []Customization{
 		{

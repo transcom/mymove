@@ -185,7 +185,8 @@ const validateRoleRequestedMethod = (value, testContext) => {
     testContext.parent.taskInvoicingOfficerCheckBox ||
     testContext.parent.servicesCounselorCheckBox ||
     testContext.parent.transportationContractingOfficerCheckBox ||
-    testContext.parent.qualityAssuranceAndCustomerSupportCheckBox
+    testContext.parent.qualityAssuranceAndCustomerSupportCheckBox ||
+    testContext.parent.customerSupportRepresentativeCheckBox
   );
 };
 
@@ -260,6 +261,11 @@ export const officeAccountRequestSchema = Yup.object().shape({
     validateRoleRequestedMethod,
   ),
   qualityAssuranceAndCustomerSupportCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  customerSupportRepresentativeCheckBox: Yup.bool().test(
     'roleRequestedRequired',
     'You must select at least one role.',
     validateRoleRequestedMethod,

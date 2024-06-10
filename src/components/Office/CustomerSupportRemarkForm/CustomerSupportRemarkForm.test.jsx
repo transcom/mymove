@@ -17,7 +17,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const testState = {
+const qaeTestState = {
   auth: {
     activeRole: roleTypes.QAE_CSR,
     isLoading: false,
@@ -40,10 +40,44 @@ const testState = {
   },
 };
 
+const csrTestState = {
+  auth: {
+    activeRole: roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId123: {
+        id: 'userId123',
+        roles: [{ roleType: roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE }],
+        office_user: {
+          first_name: 'Amanda',
+          last_name: 'Gorman',
+          transportation_office: {
+            gbloc: 'ABCD',
+          },
+        },
+      },
+    },
+  },
+};
+
 describe('CustomerSupportRemarkForm', () => {
-  it('renders the form', async () => {
+  it('qae can render the form', async () => {
     render(
-      <MockProviders initialState={testState}>
+      <MockProviders initialState={qaeTestState}>
+        <CustomerSupportRemarkForm />
+      </MockProviders>,
+    );
+
+    expect(await screen.findByTestId('form')).toBeInTheDocument();
+    expect(await screen.findByTestId('textarea')).toBeInTheDocument();
+    expect(await screen.findByTestId('button')).toBeInTheDocument();
+  });
+  it('csr can render the form', async () => {
+    render(
+      <MockProviders initialState={csrTestState}>
         <CustomerSupportRemarkForm />
       </MockProviders>,
     );
@@ -53,11 +87,11 @@ describe('CustomerSupportRemarkForm', () => {
     expect(await screen.findByTestId('button')).toBeInTheDocument();
   });
 
-  it('submits the form with expected data', async () => {
+  it('qae can submit the form with expected data', async () => {
     // Spy on and mock mutation function
     const mutationSpy = jest.spyOn(api, 'createCustomerSupportRemarkForMove').mockImplementation(() => {});
     render(
-      <MockProviders initialState={testState}>
+      <MockProviders initialState={qaeTestState}>
         <CustomerSupportRemarkForm />
       </MockProviders>,
     );
@@ -83,12 +117,61 @@ describe('CustomerSupportRemarkForm', () => {
     });
   });
 
-  it('will not submit empty remarks', async () => {
+  it('csr can submit the form with expected data', async () => {
+    // Spy on and mock mutation function
+    const mutationSpy = jest.spyOn(api, 'createCustomerSupportRemarkForMove').mockImplementation(() => {});
+    render(
+      <MockProviders initialState={csrTestState}>
+        <CustomerSupportRemarkForm />
+      </MockProviders>,
+    );
+
+    // Type in the textarea
+    await userEvent.type(await screen.findByTestId('textarea'), 'Test Remark');
+    await waitFor(() => {
+      expect(screen.getByTestId('button').hasAttribute('disabled')).toBeFalsy();
+    });
+
+    // Submit the form
+    await waitFor(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    });
+
+    // Ensure the expected mutation was called with expected data
+    expect(mutationSpy).toHaveBeenCalledTimes(1);
+    expect(mutationSpy).toHaveBeenCalledWith({
+      body: {
+        content: 'Test Remark',
+      },
+      locator: 'LR4T8V',
+    });
+  });
+
+  it('qae will not submit empty remarks', async () => {
     // Spy on and mock mutation function
     const mutationSpy = jest.spyOn(api, 'createCustomerSupportRemarkForMove').mockImplementation(() => {});
 
     render(
-      <MockProviders initialState={testState}>
+      <MockProviders initialState={qaeTestState}>
+        <CustomerSupportRemarkForm />
+      </MockProviders>,
+    );
+
+    // Submit the empty form
+    await waitFor(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    });
+
+    // Ensure the expected mutation was called with expected data
+    expect(mutationSpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('csr will not submit empty remarks', async () => {
+    // Spy on and mock mutation function
+    const mutationSpy = jest.spyOn(api, 'createCustomerSupportRemarkForMove').mockImplementation(() => {});
+
+    render(
+      <MockProviders initialState={csrTestState}>
         <CustomerSupportRemarkForm />
       </MockProviders>,
     );
@@ -106,7 +189,7 @@ describe('CustomerSupportRemarkForm', () => {
     // Spy on and mock mutation function
     const isMoveLocked = true;
     render(
-      <MockProviders initialState={testState}>
+      <MockProviders initialState={qaeTestState}>
         <CustomerSupportRemarkForm isMoveLocked={isMoveLocked} />
       </MockProviders>,
     );
