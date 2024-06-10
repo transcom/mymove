@@ -165,7 +165,7 @@ func ServiceParamLookupInitialize(
 	// Load shipment fields for service items that need them
 	var mtoShipment models.MTOShipment
 	var pickupAddress models.Address
-	var destinationAddress *models.Address
+	var destinationAddress models.Address
 
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeCS && mtoServiceItem.ReService.Code != models.ReServiceCodeMS {
 		// Make sure there's an MTOShipment since that's nullable
@@ -203,7 +203,7 @@ func ServiceParamLookupInitialize(
 	}
 
 	mtoShipment.PickupAddress = &pickupAddress
-	mtoShipment.DestinationAddress = destinationAddress
+	mtoShipment.DestinationAddress = &destinationAddress
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOSFSC:
@@ -433,7 +433,7 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 
 	for _, si := range shipmentCopy.MTOServiceItems {
 		siCopy := si
-		err := appCtx.DB().Eager("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
+		err := appCtx.DB().Eager("ReService").Find(&siCopy, siCopy.ID)
 		if err != nil {
 			return nil, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination For Distance Lookup")
 		}
@@ -532,7 +532,7 @@ func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment mo
 	}
 }
 
-func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (*models.Address, error) {
+func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
 	// Determine which address field we should be using for destination based on the shipment type.
 	var ptrDestinationAddress *models.Address
 	var addressType string
@@ -551,12 +551,12 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 	switch serviceCode {
 	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 		// Destination address isn't needed
-		return nil, nil
+		return models.Address{}, nil
 	default:
 		if ptrDestinationAddress == nil || ptrDestinationAddress.ID == uuid.Nil {
-			return nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
+			return models.Address{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("looking for %s address", addressType))
 		}
-		return ptrDestinationAddress, nil
+		return *ptrDestinationAddress, nil
 	}
 }
 
