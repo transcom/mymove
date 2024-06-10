@@ -49,6 +49,18 @@ const ppmShipment = {
   shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {},
   createdAt: '2020-01-01T00:02:00.999Z',
+  pickupAddress: {
+    streetAddress1: '123 Any St',
+    city: 'Anytown',
+    state: 'AK',
+    postalCode: '90210',
+  },
+  destinationAddress: {
+    streetAddress1: '123 Any St',
+    city: 'Anytown',
+    state: 'AK',
+    postalCode: '90210',
+  },
 };
 
 const ntsShipment = {
