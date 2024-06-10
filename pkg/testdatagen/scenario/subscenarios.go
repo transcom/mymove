@@ -684,10 +684,13 @@ func subScenarioPaymentRequestCalculations(
 	shipmentFetcher services.MTOShipmentFetcher,
 ) func() {
 	return func() {
+		if appCtx == nil || userUploader == nil || primeUploader == nil || moveRouter == nil || shipmentFetcher == nil {
+			return
+		}
+
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
 
-		// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
 		createHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE,
 			models.Move{
 				Locator: "SidDLH",
@@ -696,11 +699,9 @@ func subScenarioPaymentRequestCalculations(
 				Status: models.MTOShipmentStatusApproved,
 			},
 		)
-		// Locator PARAMS
+
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
-		// Locator ORGSIT
 		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
-		// Locator DSTSIT
 		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 	}
 }
