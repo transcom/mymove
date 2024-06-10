@@ -303,7 +303,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  MTOServiceItemBasic:  # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'

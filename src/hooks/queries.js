@@ -251,9 +251,14 @@ export const useEditShipmentQueries = (moveCode) => {
 };
 
 export const usePPMShipmentDocsQueries = (shipmentId) => {
-  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) =>
-    getMTOShipmentByID(...queryKey),
-  );
+  const {
+    data: mtoShipment,
+    refetch: refetchMTOShipment,
+    ...mtoShipmentQuery
+  } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) => getMTOShipmentByID(...queryKey), {
+    refetchOnMount: true,
+    staleTime: 0,
+  });
 
   const { data: documents, ...documentsQuery } = useQuery(
     [DOCUMENTS, shipmentId],
@@ -272,14 +277,20 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery, ppmActualWeightQuery]);
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([
+    mtoShipmentQuery,
+    documentsQuery,
+    ppmActualWeightQuery,
+  ]);
   return {
     mtoShipment,
     documents,
     ppmActualWeight,
+    refetchMTOShipment,
     isLoading,
     isError,
     isSuccess,
+    isFetching,
   };
 };
 
@@ -288,13 +299,14 @@ export const usePPMCloseoutQuery = (ppmShipmentId) => {
     getPPMCloseout(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([ppmCloseoutQuery]);
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([ppmCloseoutQuery]);
 
   return {
     ppmCloseout,
     isLoading,
     isError,
     isSuccess,
+    isFetching,
   };
 };
 

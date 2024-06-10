@@ -60,10 +60,10 @@ const (
 	PPMShipmentStatusWaitingOnCustomer PPMShipmentStatus = "WAITING_ON_CUSTOMER"
 	// PPMShipmentStatusNeedsAdvanceApproval captures enum value "NEEDS_ADVANCE_APPROVAL"
 	PPMShipmentStatusNeedsAdvanceApproval PPMShipmentStatus = "NEEDS_ADVANCE_APPROVAL"
-	// PPMShipmentStatusNeedsPaymentApproval captures enum value "NEEDS_PAYMENT_APPROVAL"
-	PPMShipmentStatusNeedsPaymentApproval PPMShipmentStatus = "NEEDS_PAYMENT_APPROVAL"
-	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
-	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
+	// PPMShipmentStatusNeedsCloseout captures enum value "NEEDS_CLOSEOUT"
+	PPMShipmentStatusNeedsCloseout PPMShipmentStatus = "NEEDS_CLOSEOUT"
+	// PPMShipmentStatusCloseoutComplete captures enum value "CLOSEOUT_COMPLETE"
+	PPMShipmentStatusCloseoutComplete PPMShipmentStatus = "CLOSEOUT_COMPLETE"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
 	PPMShipmentStatusComplete PPMShipmentStatus = "COMPLETED"
 )
@@ -76,8 +76,8 @@ var AllowedPPMShipmentStatuses = []string{
 	string(PPMShipmentStatusSubmitted),
 	string(PPMShipmentStatusWaitingOnCustomer),
 	string(PPMShipmentStatusNeedsAdvanceApproval),
-	string(PPMShipmentStatusNeedsPaymentApproval),
-	string(PPMShipmentStatusPaymentApproved),
+	string(PPMShipmentStatusNeedsCloseout),
+	string(PPMShipmentStatusCloseoutComplete),
 }
 
 // PPMAdvanceStatus represents the status of an advance that can be approved, edited or rejected by a SC

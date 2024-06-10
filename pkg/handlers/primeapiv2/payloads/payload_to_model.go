@@ -267,6 +267,16 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev2messages.UpdateMTOShipment, 
 		ActualSpouseProGearWeight:  handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
+	if mtoShipment.ActualProGearWeight != nil {
+		actualProGearWeight := unit.Pound(*mtoShipment.ActualProGearWeight)
+		model.ActualProGearWeight = &actualProGearWeight
+	}
+
+	if mtoShipment.ActualSpouseProGearWeight != nil {
+		actualSpouseProGearWeight := unit.Pound(*mtoShipment.ActualSpouseProGearWeight)
+		model.ActualSpouseProGearWeight = &actualSpouseProGearWeight
+	}
+
 	if mtoShipment.PrimeActualWeight != nil {
 		actualWeight := unit.Pound(*mtoShipment.PrimeActualWeight)
 		model.PrimeActualWeight = &actualWeight
