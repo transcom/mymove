@@ -29,7 +29,7 @@ import {
   MOVE_STATUS_LABELS,
   PAYMENT_REQUEST_STATUS_OPTIONS,
   SERVICE_COUNSELING_BRANCH_OPTIONS,
-  SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS,
+  SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
@@ -299,7 +299,7 @@ const counselingColumns = (moveLockFlag) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_QUEUE_MOVE_STATUS_FILTER_OPTIONS} {...props} />
+        <MultiSelectCheckBoxFilter options={SEARCH_QUEUE_STATUS_FILTER_OPTIONS} {...props} />
       ),
     },
   ),
