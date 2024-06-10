@@ -430,7 +430,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     it('verify toggling from Yes to No to Yes restores PPM SIT prefilled values', async () => {
       useEditShipmentQueries.mockReturnValue(ppmWithSITUseEditShipmentQueriesReturnValue);
       searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
-      renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
+
+      await act(async () => {
+        renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
+      });
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
 
@@ -443,13 +446,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
 
-      act(() => {
-        const closeoutField = screen
-          .getAllByRole('combobox')
-          .find((comboBox) => comboBox.getAttribute('id') === 'closeoutOffice-input');
-
-        userEvent.click(closeoutField);
-        userEvent.keyboard('Altus{enter}');
+      await act(async () => {
+        await userEvent.tab();
+        await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+        await userEvent.click(await screen.findByText('Altus'));
       });
 
       await waitFor(() => {
@@ -460,6 +460,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       // Input invalid date format will cause form to be invalid. save must be disabled.
       await act(async () => {
         await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
 
       await waitFor(
@@ -474,7 +478,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       // schema failure is nolonger applicable.
       const sitExpected = document.getElementById('sitExpectedNo').parentElement;
       const sitExpectedNo = within(sitExpected).getByRole('radio', { name: 'No' });
-      await userEvent.click(sitExpectedNo);
+
+      await act(async () => {
+        await userEvent.click(sitExpectedNo);
+      });
 
       // Verify No is really hiding SIT related inputs
       expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
@@ -484,7 +491,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       // Verify clicking Yes again will restore persisted data for each SIT related control.
       const sitExpected2 = document.getElementById('sitExpectedYes').parentElement;
       const sitExpectedYes = within(sitExpected2).getByRole('radio', { name: 'Yes' });
-      await userEvent.click(sitExpectedYes);
+
+      await act(async () => {
+        await userEvent.click(sitExpectedYes);
+      });
 
       // Verify persisted values are restored to expected values.
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
