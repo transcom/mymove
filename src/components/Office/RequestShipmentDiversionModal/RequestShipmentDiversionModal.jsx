@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import TextField from 'components/form/fields/TextField/TextField';
+import { formatDate } from 'shared/dates';
 import { Form } from 'components/form';
 
 const diversionReasonSchema = Yup.object().shape({
@@ -14,6 +15,13 @@ const diversionReasonSchema = Yup.object().shape({
 });
 
 const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
+  let validDate = false;
+  const today = new Date();
+
+  if (formatDate(today) < formatDate(shipmentInfo.actualPickupDate)) {
+    validDate = true;
+  }
+
   return (
     <div>
       <Overlay />
@@ -49,7 +57,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
                     <Button secondary type="reset" onClick={() => onClose()} data-testid="modalBackButton">
                       Back
                     </Button>
-                    <Button type="submit" disabled={!isValid || !dirty} data-testid="modalSubmitButton">
+                    <Button type="submit" disabled={!isValid || !dirty || !validDate} data-testid="modalSubmitButton">
                       Request Diversion
                     </Button>
                   </ModalActions>
