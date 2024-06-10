@@ -1924,7 +1924,7 @@ export const reviewWeightsQuery = {
         sitEstimatedWeight: null,
         sitExpected: false,
         spouseProGearWeight: 498,
-        status: 'NEEDS_PAYMENT_APPROVAL',
+        status: 'NEEDS_CLOSEOUT',
         submittedAt: null,
         updatedAt: '2023-02-28T18:02:59.869Z',
         w2Address: {
@@ -2378,7 +2378,7 @@ export const reviewWeightsNoProGearQuery = {
         sitEstimatedWeight: null,
         sitExpected: false,
         spouseProGearWeight: 498,
-        status: 'NEEDS_PAYMENT_APPROVAL',
+        status: 'NEEDS_CLOSEOUT',
         submittedAt: null,
         updatedAt: '2023-02-28T18:02:59.869Z',
         w2Address: {
