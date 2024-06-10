@@ -205,7 +205,7 @@ describe('DateAndLocationForm component', () => {
     });
   });
 
-  it('displays the closeout office select when the service member is in the Navy', async () => {
+  it('5', async () => {
     await act(async () => {
       const navyServiceMember = {
         ...defaultProps.serviceMember,
@@ -222,13 +222,23 @@ describe('DateAndLocationForm component', () => {
 
 describe('validates form fields and displays error messages', () => {
   it('marks required inputs when left empty', async () => {
-    render(<DateAndLocationForm {...defaultProps} />);
+    await act(async () => {
+      render(<DateAndLocationForm {...defaultProps} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-    await userEvent.click(screen.getByText('Start typing a closeout office...'));
-    expect(screen.getByText('Required')).toBeVisible();
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+
+        const requiredAlerts = screen.getAllByRole('alert');
+
+        // Departure date
+        expect(requiredAlerts[0]).toHaveTextContent('Required');
+        expect(
+          within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+        ).toBeInTheDocument();
+      });
+    });
   });
   it('displays type errors when input fails validation schema', async () => {
     await act(async () => {
