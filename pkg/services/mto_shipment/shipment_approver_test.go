@@ -683,6 +683,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		estimatedWeight110 := int(math.Round(float64(*shipment.PrimeEstimatedWeight) * 1.10))
 		suite.Equal(estimatedWeight110, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
 	})
+
 	suite.Run("Approval of a shipment that exceeds excess weight will flag for excess weight", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx
