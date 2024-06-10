@@ -361,10 +361,12 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 	}
 }
 
+// PPTAS is a conditionally mounted API. Under development and staging it will be mounted under office similar to prime simulator
+// but under production it will be mounted alongside the prime
 func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServePPTAS {
 		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
-		site.Route("/pptas/", func(primeRouter chi.Router) {
+		site.Route("/pptas/v1", func(primeRouter chi.Router) {
 			if routingConfig.ServeDevlocalAuth {
 				devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
 				primeRouter.Use(devlocalClientCertMiddleware)
@@ -776,6 +778,7 @@ func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 		func(sessionRoute chi.Router) {
 			mountInternalAPI(appCtx, routingConfig, sessionRoute)
 			mountPrimeSimulatorAPI(appCtx, routingConfig, sessionRoute)
+			mountPPTASAPI(appCtx, routingConfig, site)
 			mountGHCAPI(appCtx, routingConfig, sessionRoute)
 		},
 	)
