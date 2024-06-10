@@ -16,8 +16,8 @@ type RoleType string
 type RoleName string
 
 const (
-	// RoleTypeTOO is the Transportation Ordering Officer Role
-	RoleTypeTOO RoleType = "transportation_ordering_officer"
+	// RoleTypeTOO is the Task Ordering Officer Role
+	RoleTypeTOO RoleType = "task_ordering_officer"
 	// RoleTypeCustomer is the Customer Role
 	RoleTypeCustomer RoleType = "customer"
 	// RoleTypeTIO is the Task Invoicing Officer Role
