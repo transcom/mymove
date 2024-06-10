@@ -3863,6 +3863,7 @@ definitions:
         $ref: 'definitions/Address.yaml'
       cacValidated:
         type: boolean
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -5357,7 +5358,7 @@ definitions:
     type: object
     properties:
       movingExpenseType:
-        $ref: "definitions/OmittableMovingExpenseType.yaml"
+        $ref: 'definitions/OmittableMovingExpenseType.yaml'
       description:
         description: A brief description of the expense.
         type: string
