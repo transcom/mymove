@@ -47,6 +47,7 @@ else
   gotest_args+=("-parallel" "8")
   gotest_args+=("-failfast")
 fi
+## mac users uncomment the following line to run tests with the classic linker, which clears a lot of warnings that fill the console, do not commit to repo uncommented
 #gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
 
 # Try to compile tests, but don't run them.
