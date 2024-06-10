@@ -8,7 +8,6 @@ import styles from './Office.module.scss';
 
 import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
-
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
@@ -93,6 +92,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 const ServicesCounselingAddOrders = lazy(() =>
   import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
 );
@@ -160,6 +160,7 @@ export class OfficeApp extends Component {
       },
       hasRecentError,
       traceId,
+      userPrivileges,
     } = this.props;
 
     // TODO - test login page?
@@ -298,7 +299,7 @@ export class OfficeApp extends Component {
                       path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingAddOrders />
+                          <ServicesCounselingAddOrders userPrivileges={userPrivileges} />
                         </PrivateRoute>
                       }
                     />
@@ -340,7 +341,7 @@ export class OfficeApp extends Component {
                       path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateCustomerForm />
+                          <CreateCustomerForm userPrivileges={userPrivileges} />
                         </PrivateRoute>
                       }
                     />
@@ -355,6 +356,14 @@ export class OfficeApp extends Component {
                     />
 
                     {/* TOO */}
+                    <Route
+                      path={`${tooRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <CustomerInfo />
+                        </PrivateRoute>
+                      }
+                    />
                     <Route
                       key="tooEditShipmentDetailsRoute"
                       end
@@ -492,7 +501,7 @@ export class OfficeApp extends Component {
                       key="qaeCSRMoveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.QAE_CSR]}>
+                        <PrivateRoute requiredRoles={[roleTypes.QAE_CSR, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
                           <QAECSRMoveSearch />
                         </PrivateRoute>
                       }
@@ -502,7 +511,15 @@ export class OfficeApp extends Component {
                       key="txoMoveInfoRoute"
                       path="/moves/:moveCode/*"
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.TIO, roleTypes.QAE_CSR, roleTypes.HQ]}>
+                        <PrivateRoute
+                          requiredRoles={[
+                            roleTypes.TOO,
+                            roleTypes.TIO,
+                            roleTypes.QAE_CSR,
+                            roleTypes.HQ,
+                            roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                          ]}
+                        >
                           <TXOMoveInfo />
                         </PrivateRoute>
                       }
@@ -520,7 +537,9 @@ export class OfficeApp extends Component {
                     {activeRole === roleTypes.PRIME_SIMULATOR && (
                       <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                     )}
-                    {activeRole === roleTypes.QAE_CSR && <Route end path="/" element={<QAECSRMoveSearch />} />}
+                    {(activeRole === roleTypes.QAE_CSR || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
+                      <Route end path="/" element={<QAECSRMoveSearch />} />
+                    )}
 
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />
@@ -549,6 +568,7 @@ OfficeApp.propTypes = {
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
   router: RouterShape.isRequired,
+  userPrivileges: PropTypes.arrayOf(PropTypes.string),
 };
 
 OfficeApp.defaultProps = {
@@ -558,6 +578,7 @@ OfficeApp.defaultProps = {
   userPermissions: [],
   userRoles: [],
   activeRole: null,
+  userPrivileges: [],
 };
 
 const mapStateToProps = (state) => {
@@ -573,6 +594,7 @@ const mapStateToProps = (state) => {
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
+    userPrivileges: user?.privileges || null,
   };
 };
 

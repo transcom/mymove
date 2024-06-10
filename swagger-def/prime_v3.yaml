@@ -149,19 +149,14 @@ paths:
                     'ppmShipment':
                       {
                         'pickupAddress':
-                         {
-                          'streetAddress1': '204 South Prospect Lane',
-                          'city': 'Beverly Hills',
-                          'state': 'CA',
-                          'postalCode': '90210',
-                        },
+                          {
+                            'streetAddress1': '204 South Prospect Lane',
+                            'city': 'Beverly Hills',
+                            'state': 'CA',
+                            'postalCode': '90210',
+                          },
                         'destinationAddress':
-                         {
-                          'streetAddress1': '123 Street',
-                          'city': 'NY',
-                          'state': 'NY',
-                          'postalCode': '10001',
-                        },
+                          { 'streetAddress1': '123 Street', 'city': 'NY', 'state': 'NY', 'postalCode': '10001' },
                         'expectedDepartureDate': '2022-10-01',
                         'estimatedWeight': 4999,
                         'hasProGear': false,
@@ -299,7 +294,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  MTOServiceItemBasic:  # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
@@ -412,7 +407,7 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
-        description:  An optional secondary address near the destination where goods will be dropped off.
+        description: An optional secondary address near the destination where goods will be dropped off.
         allOf:
           - $ref: 'definitions/Address.yaml'
       sitExpected:

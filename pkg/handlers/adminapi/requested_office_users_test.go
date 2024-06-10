@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			},
 		}
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			},
 		}
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			},
 		}
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -185,7 +185,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Transportation Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -249,10 +249,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -281,7 +281,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Transportation Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -356,10 +356,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)
@@ -388,7 +388,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Transportation Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -463,10 +463,10 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, nil).Once()
+		).Return(nil, nil, nil).Once()
 
 		mockRoleAssociator.On(
-			"FetchRoles",
+			"FetchRolesForUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(mockRoles, nil)

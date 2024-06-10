@@ -32,16 +32,16 @@ export const RequestAccount = ({ setFlashMessage }) => {
   const handleSubmit = async (values) => {
     const requestedRoles = [];
 
-    if (values.transportationInvoicingOfficerCheckBox) {
+    if (values.taskInvoicingOfficerCheckBox) {
       requestedRoles.push({
-        name: 'Transportation Ordering Officer',
-        roleType: 'transportation_ordering_officer',
+        name: 'Task Invoicing Officer',
+        roleType: 'task_invoicing_officer',
       });
     }
     if (values.transportationOrderingOfficerCheckBox) {
       requestedRoles.push({
-        name: 'Transportation Invoicing Officer',
-        roleType: 'transportation_invoicing_officer',
+        name: 'Transportation Ordering Officer',
+        roleType: 'transportation_ordering_officer',
       });
     }
     if (values.transportationContractingOfficerCheckBox) {
@@ -62,10 +62,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'qae_csr',
       });
     }
-    if (values.headquartersCheckBox) {
+    if (values.customerSupportRepresentativeCheckBox) {
       requestedRoles.push({
-        name: 'Headquarters',
-        roleType: 'headquarters',
+        name: 'Customer Service Representative',
+        roleType: 'customer_service_representative',
       });
     }
 

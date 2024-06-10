@@ -1094,6 +1094,11 @@ paths:
           name: If-Match
           type: string
           required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestDiversion'
       responses:
         '200':
           description: Successfully requested the shipment diversion
@@ -5737,6 +5742,13 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
+  RequestDiversion:
+    properties:
+      diversionReason:
+        type: string
+        example: Shipment route needs to change
+    required:
+      - diversionReason
   ApproveSITExtension:
     properties:
       approvedDays:
@@ -6691,6 +6703,7 @@ definitions:
       - SEPARATION
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -6698,6 +6711,7 @@ definitions:
       SEPARATION: Separation
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   NullableString:
     type: string
     x-go-type:
@@ -7307,7 +7321,7 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAllowanceEndDate:
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
@@ -8284,6 +8298,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      diversionReason:
+        type: string
+        example: MTO Shipment needs rerouted
+        x-nullable: true
       distance:
         type: integer
         x-nullable: true
@@ -8397,6 +8415,12 @@ definitions:
         x-nullable: true
         readOnly: true
         example: 1K43AR-01
+      originSitAuthEndDate:
+        format: date-time
+        type: string
+      destinationSitAuthEndDate:
+        format: date-time
+        type: string
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -8527,6 +8551,13 @@ definitions:
         description: The remaining reimbursement amount that is still owed to the customer.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      haulType:
+        description: >-
+          The type of haul calculation used for this shipment (shorthaul or
+          linehaul).
+        type: string
         x-nullable: true
         x-omitempty: false
       haulPrice:
