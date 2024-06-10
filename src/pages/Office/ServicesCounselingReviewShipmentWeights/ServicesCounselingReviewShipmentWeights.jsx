@@ -15,7 +15,6 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import ReviewShipmentWeightsTable from 'components/Office/PPM/ReviewShipmentWeightsTable/ReviewShipmentWeightsTable';
 import {
   PPMReviewWeightsTableConfig,
-  proGearReviewWeightsTableConfig,
   nonPPMReviewWeightsTableConfig,
 } from 'components/Office/PPM/ReviewShipmentWeightsTable/helpers';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -102,11 +101,6 @@ const ServicesCounselingReviewShipmentWeights = ({ moveCode }) => {
         {showWeightsMoved && (
           <div className={styles.weightMovedContainer}>
             <h2 className={styles.weightMovedHeader}>Weight moved</h2>
-            {hasProGear && (
-              <div data-testid="progearContainer">
-                <ReviewShipmentWeightsTable tableData={[order]} tableConfig={proGearReviewWeightsTableConfig} />
-              </div>
-            )}
             {sortedShipments?.hhgShipment?.length > 0 && (
               <div className={styles.shipmentContainer} data-testid="nonPpmShipmentContainer">
                 <h3 className={styles.shipmentHeader}>Shipments</h3>
