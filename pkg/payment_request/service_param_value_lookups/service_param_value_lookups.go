@@ -551,22 +551,20 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 		// Destination address isn't needed
 		return nil, nil
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
-		var mtoShipmentCopy models.MTOShipment
-		err := appCtx.DB().Transaction(func(tx *pop.Connection) error {
-			err := tx.Where("id = ?", mtoShipment.ID).
-				Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").
-				First(&mtoShipmentCopy)
-			if err != nil {
-				return err
-			}
-			return nil
-		})
+		mtoShipmentCopy := mtoShipment
+		err := appCtx.DB().Eager("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems").Find(&mtoShipmentCopy, mtoShipment.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, si := range mtoShipmentCopy.MTOServiceItems {
-			switch si.ReService.Code {
+		for i, si := range mtoShipmentCopy.MTOServiceItems {
+			siCopy := si
+			err := appCtx.DB().Eager("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
+			if err != nil {
+				return nil, err
+			}
+
+			switch siCopy.ReService.Code {
 			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 				if mtoShipmentCopy.DeliveryAddressUpdate != nil {
 					if mtoShipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
