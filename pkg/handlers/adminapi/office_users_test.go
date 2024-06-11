@@ -140,7 +140,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	tooRoleName := "Transportation Ordering Officer"
 	tooRoleType := string(roles.RoleTypeTOO)
 
-	tioRoleName := "Transportation Invoicing Officer"
+	tioRoleName := "Task Invoicing Officer"
 	tioRoleType := string(roles.RoleTypeTIO)
 
 	supervisorPrivilegeName := "Supervisor"
