@@ -364,7 +364,7 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServePPTAS {
 		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
-		site.Route("/pptas", func(r chi.Router) {
+		site.Route("/pptas/v1", func(r chi.Router) {
 			if routingConfig.ServeDevlocalAuth {
 				devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
 				r.Use(devlocalClientCertMiddleware)
@@ -392,6 +392,9 @@ func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 	}
 }
 
+// Remember that the support api is to assist inside of dev/stg for endpoints such as
+// manually invoking the EDI858 generator for a given payment request. It should never
+// be utilized in production
 func mountSupportAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeSupport {
 		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)

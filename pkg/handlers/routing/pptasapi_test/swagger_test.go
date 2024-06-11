@@ -16,7 +16,7 @@ func (suite *PPTASAPISuite) TestSwaggerYaml() {
 	siteHandler := suite.SetupCustomSiteHandler(routingConfig)
 
 	cert := factory.BuildPrimeClientCert(suite.DB())
-	req := suite.NewAuthenticatedPrimeRequest("GET", "/pptas/swagger.yaml", nil, cert)
+	req := suite.NewAuthenticatedPrimeRequest("GET", "/pptas/v1/swagger.yaml", nil, cert)
 	rr := httptest.NewRecorder()
 	siteHandler.ServeHTTP(rr, req)
 	suite.Equal(http.StatusOK, rr.Code)
