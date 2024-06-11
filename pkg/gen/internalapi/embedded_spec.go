@@ -3061,6 +3061,13 @@ func init() {
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional PPM shipment ID related to the upload",
+            "name": "ppmId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4996,6 +5003,19 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -5812,50 +5832,50 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "tertiaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
-        "tertiaryDestinationPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "tertiaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
-        "tertiaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
+		"tertiaryDestinationAddress": {
+			"allOf": [
+			  {
+				"$ref": "#/definitions/Address"
+			  },
+			  {
+				"x-nullable": true
+			  },
+			  {
+				"x-omitempty": false
+			  }
+			]
+		  },
+		  "tertiaryDestinationPostalCode": {
+			"type": "string",
+			"format": "An optional secondary pickup location near the origin where additional goods exist.",
+			"title": "ZIP",
+			"pattern": "^(\\d{5})$",
+			"x-nullable": true,
+			"x-omitempty": false,
+			"example": "90210"
+		  },
+		  "tertiaryPickupAddress": {
+			"allOf": [
+			  {
+				"$ref": "#/definitions/Address"
+			  },
+			  {
+				"x-nullable": true
+			  },
+			  {
+				"x-omitempty": false
+			  }
+			]
+		  },
+		  "tertiaryPickupPostalCode": {
+			"type": "string",
+			"format": "An optional secondary pickup location near the origin where additional goods exist.",
+			"title": "ZIP",
+			"pattern": "^(\\d{5})$",
+			"x-nullable": true,
+			"x-omitempty": false,
+			"example": "90210"
+		  },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -5873,15 +5893,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -6724,6 +6744,16 @@ func init() {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -11039,6 +11069,13 @@ func init() {
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional PPM shipment ID related to the upload",
+            "name": "ppmId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -12978,6 +13015,19 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -13795,49 +13845,49 @@ func init() {
           "x-omitempty": false
         },
         "tertiaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
-        "tertiaryDestinationPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "tertiaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
-        "tertiaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
+			"allOf": [
+			  {
+				"$ref": "#/definitions/Address"
+			  },
+			  {
+				"x-nullable": true
+			  },
+			  {
+				"x-omitempty": false
+			  }
+			]
+		  },
+		  "tertiaryDestinationPostalCode": {
+			"type": "string",
+			"format": "An optional secondary pickup location near the origin where additional goods exist.",
+			"title": "ZIP",
+			"pattern": "^(\\d{5})$",
+			"x-nullable": true,
+			"x-omitempty": false,
+			"example": "90210"
+		  },
+		  "tertiaryPickupAddress": {
+			"allOf": [
+			  {
+				"$ref": "#/definitions/Address"
+			  },
+			  {
+				"x-nullable": true
+			  },
+			  {
+				"x-omitempty": false
+			  }
+			]
+		  },
+		  "tertiaryPickupPostalCode": {
+			"type": "string",
+			"format": "An optional secondary pickup location near the origin where additional goods exist.",
+			"title": "ZIP",
+			"pattern": "^(\\d{5})$",
+			"x-nullable": true,
+			"x-omitempty": false,
+			"example": "90210"
+		  },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -13855,15 +13905,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -14707,6 +14757,16 @@ func init() {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
           "format": "date"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",

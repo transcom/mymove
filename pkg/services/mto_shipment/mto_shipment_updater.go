@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -708,16 +709,27 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// If the estimated weight was updated on an approved shipment then it would mean the move could qualify for
 		// excess weight risk depending on the weight allowance and other shipment estimated weights
 		if newShipment.PrimeEstimatedWeight != nil {
-			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
-				// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
-				move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
-				if verrs != nil && verrs.HasAny() {
-					return errors.New(verrs.Error())
-				}
+			// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
+			move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
+			if verrs != nil && verrs.HasAny() {
+				return errors.New(verrs.Error())
+			}
+			if err != nil {
+				return err
+			}
+
+			// we only want to update the authorized weight if the shipment is approved and the previous weight is nil
+			// otherwise, shipment_updater will handle updating authorized weight when a shipment is approved
+			if dbShipment.PrimeEstimatedWeight == nil && newShipment.Status == models.MTOShipmentStatusApproved {
+				// updates to prime estimated weight should change the authorized weight of the entitlement
+				// which can be manually adjusted by an office user if needed
+				err = updateAuthorizedWeight(appCtx, newShipment, move)
 				if err != nil {
 					return err
 				}
+			}
 
+			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
 				existingMoveStatus := move.Status
 				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
 				// this will trigger the TOO to acknowledged the excess right, which populates ExcessWeightAcknowledgedAt
@@ -1300,6 +1312,31 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 
 	if transactionError != nil {
 		return transactionError
+	}
+
+	return nil
+}
+
+func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOShipment, move *models.Move) error {
+	dBAuthorizedWeight := int(*shipment.PrimeEstimatedWeight)
+	if len(move.MTOShipments) != 0 {
+		for _, mtoShipment := range move.MTOShipments {
+			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
+				dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
+			}
+		}
+	}
+	dBAuthorizedWeight = int(math.Round(float64(dBAuthorizedWeight) * 1.10))
+	entitlement := move.Orders.Entitlement
+	entitlement.DBAuthorizedWeight = &dBAuthorizedWeight
+	verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+
+	if verrs != nil && verrs.HasAny() {
+		invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+		return invalidInputError
+	}
+	if err != nil {
+		return err
 	}
 
 	return nil

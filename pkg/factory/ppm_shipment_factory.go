@@ -550,13 +550,13 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connec
 	return ppmShipment
 }
 
-// BuildPPMShipmentThatNeedsPaymentApproval creates a PPMShipment that
+// BuildPPMShipmentThatNeedsCloseout creates a PPMShipment that
 // is waiting for a counselor to review after a customer has submitted
 // all the necessary documents.
 //
 // This function needs to accept customizations, but that somewhat
 // complicates the private functions above
-func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
+func BuildPPMShipmentThatNeedsCloseout(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
@@ -580,7 +580,7 @@ func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *
 
 	ppmShipment.SignedCertification = &signedCert
 
-	ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 	if ppmShipment.SubmittedAt == nil {
 		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
 	}
@@ -598,7 +598,7 @@ func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *
 	return ppmShipment
 }
 
-// BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes creates a
+// BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes creates a
 // PPMShipment that contains one of each type of customer document
 // (weight ticket, pro-gear weight ticket, and a moving expense) that
 // is waiting for a counselor to review after a customer has submitted
@@ -606,11 +606,11 @@ func BuildPPMShipmentThatNeedsPaymentApproval(db *pop.Connection, userUploader *
 //
 // This function does not accept customizations to reduce the
 // complexity of supporting different variations for tests
-func BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+func BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
-	ppmShipment := BuildPPMShipmentThatNeedsPaymentApproval(db, userUploader, nil)
+	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, nil)
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader, nil)
@@ -634,9 +634,9 @@ func BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db *pop.Connectio
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
-	ppmShipment := BuildPPMShipmentThatNeedsPaymentApproval(db, userUploader, customs)
+	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, customs)
 
-	ppmShipment.Status = models.PPMShipmentStatusPaymentApproved
+	ppmShipment.Status = models.PPMShipmentStatusCloseoutComplete
 	ppmShipment.ReviewedAt = models.TimePointer(time.Now())
 
 	approvedStatus := models.PPMDocumentStatusApproved
@@ -778,7 +778,7 @@ func BuildPPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, userUploader *
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
-	ppmShipment := BuildPPMShipmentThatNeedsPaymentApproval(db, userUploader, nil)
+	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, nil)
 
 	// Document that got rejected. This would normally already exist
 	// and would just need to be updated to change the status, but for

@@ -308,6 +308,10 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		model.MissingReceipt = handlers.FmtBool(*movingExpense.MissingReceipt)
 	}
 
+	if movingExpense.SitLocation != nil {
+		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
+	}
+
 	return model
 }
 
