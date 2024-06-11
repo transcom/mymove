@@ -6,6 +6,8 @@ import styles from './importantShipmentDates.module.scss';
 
 import DataTable from 'components/DataTable/index';
 import DataTableWrapper from 'components/DataTableWrapper/index';
+import { shipmentStatuses } from 'constants/shipments';
+import { ShipmentOptionsOneOf, ShipmentStatusesOneOf } from 'types/shipment';
 
 const ImportantShipmentDates = ({
   requestedPickupDate,
@@ -18,15 +20,21 @@ const ImportantShipmentDates = ({
   scheduledDeliveryDate,
   actualDeliveryDate,
   isPPM,
+  shipmentInfo,
 }) => {
   const headerPlannedMoveDate = isPPM ? 'Planned Move Date' : 'Requested pick up date';
   const headerActualMoveDate = isPPM ? 'Actual Move Date' : 'Scheduled pick up date';
   const headerActualPickupDate = isPPM ? '' : 'Actual pick up date';
-
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
+        {shipmentInfo.isDiversion && (
+          <DataTable columnHeaders={['Diversion Approved']} dataRow={[shipmentInfo.diversionReason || emDash]} />
+        )}
+        {!shipmentInfo.isDiversion && shipmentInfo.status === shipmentStatuses.DIVERSION_REQUESTED && (
+          <DataTable columnHeaders={['Diversion Requested']} dataRow={[shipmentInfo.diversionReason || emDash]} />
+        )}
         {!isPPM && <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />}
         {!isPPM && (
           <DataTable
@@ -75,6 +83,14 @@ ImportantShipmentDates.propTypes = {
   scheduledDeliveryDate: PropTypes.string,
   actualDeliveryDate: PropTypes.string,
   isPPM: PropTypes.bool,
+  shipmentInfo: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    eTag: PropTypes.string.isRequired,
+    status: ShipmentStatusesOneOf.isRequired,
+    shipmentType: ShipmentOptionsOneOf.isRequired,
+    isDiversion: PropTypes.bool,
+    diversionReason: PropTypes.string,
+  }).isRequired,
 };
 
 export default ImportantShipmentDates;

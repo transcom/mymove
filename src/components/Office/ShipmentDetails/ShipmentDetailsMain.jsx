@@ -236,6 +236,15 @@ const ShipmentDetailsMain = ({
           actualDeliveryDate={actualDeliveryDate ? formatDateWithUTC(actualDeliveryDate) : null}
           requiredDeliveryDate={requiredDeliveryDate ? formatDateWithUTC(requiredDeliveryDate) : null}
           isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
+          shipmentInfo={{
+            id: shipment.id,
+            eTag: shipment.eTag,
+            status: shipment.status,
+            shipmentType: shipment.shipmentType,
+            shipmentLocator: shipment.shipmentLocator,
+            isDiversion: shipment.diversion,
+            diversionReason: shipment.diversionReason,
+          }}
         />
       )}
       <ShipmentAddresses
