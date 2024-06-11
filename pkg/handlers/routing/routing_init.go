@@ -372,7 +372,7 @@ func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 			} else {
 				r.Use(clientCertMiddleware)
 			}
-			r.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
+			r.Use(authentication.PPTASAuthorizationMiddleware(appCtx.Logger()))
 			r.Use(middleware.NoCache())
 			r.Use(middleware.RequestLogger())
 			r.Method(
