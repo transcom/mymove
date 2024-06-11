@@ -51,7 +51,13 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 			}
 
 			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
-			ppmShipment, err := h.GetPPMShipment(appCtx, ppmShipmentID, nil, nil)
+			ppmEagerAssociations := []string{"PickupAddress",
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDestinationAddress",
+				"Shipment",
+			}
+			ppmShipment, err := h.GetPPMShipment(appCtx, ppmShipmentID, ppmEagerAssociations, nil)
 
 			if err != nil {
 				return handleError(err)
