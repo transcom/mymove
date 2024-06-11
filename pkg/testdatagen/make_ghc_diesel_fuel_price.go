@@ -17,8 +17,9 @@ func MakeGHCDieselFuelPrice(db *pop.Connection, assertions Assertions) models.GH
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
 		FuelPriceInMillicents: unit.Millicents(243300),
 		PublicationDate:       time.Date(GHCTestYear, time.July, 20, 0, 0, 0, 0, time.UTC),
+		EffectiveDate:         time.Date(GHCTestYear, time.July, 21, 0, 0, 0, 0, time.UTC),
+		EndDate:               time.Date(GHCTestYear, time.July, 27, 0, 0, 0, 0, time.UTC),
 	}
-
 	mergeModels(&ghcDieselFuelPrice, assertions.GHCDieselFuelPrice)
 
 	mustCreate(db, &ghcDieselFuelPrice, assertions.Stub)

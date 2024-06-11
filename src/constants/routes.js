@@ -88,6 +88,8 @@ export const servicesCounselingRoutes = {
   CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
   BASE_SHIPMENT_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/document-review`,
   SHIPMENT_REVIEW_PATH: 'shipments/:shipmentId/document-review',
+  BASE_SHIPMENT_VIEW_DOCUMENT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/view-document`,
+  SHIPMENT_VIEW_DOCUMENT_PATH: 'shipments/:shipmentId/view-document',
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
   CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
@@ -126,6 +128,7 @@ export const tooRoutes = {
   CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
+// QAE and CSR share all routes, just different permission levels
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
   BASE_EVALUATION_REPORTS_PATH: `${BASE_MOVES_PATH}/evaluation-reports`,

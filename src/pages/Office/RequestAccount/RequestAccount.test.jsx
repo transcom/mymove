@@ -136,7 +136,7 @@ describe('RequestAccount page', () => {
     const scCheckbox = screen.getByTestId('servicesCounselorCheckBox');
     await userEvent.click(scCheckbox);
 
-    const qsaCheckbox = screen.getByTestId('qualityAssuranceAndCustomerSupportCheckBox');
+    const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     await userEvent.click(qsaCheckbox);
 
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');

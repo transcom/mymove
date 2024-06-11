@@ -29,7 +29,7 @@ class QaeFlowPage extends OfficePage {
    * search for and navigate to move, then QA tab
    */
   async searchForAndNavigateToMoveQATab() {
-    await this.qaeCsrSearchForAndNavigateToMove(this.moveLocator);
+    await this.qaeSearchForAndNavigateToMove(this.moveLocator);
 
     // Go to quality assurance tab
     await this.page.getByText('Quality assurance').click();
@@ -182,7 +182,7 @@ test.describe('Quality Evaluation Report', () => {
   test.beforeEach(async ({ officePage }) => {
     move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
 
-    await officePage.signInAsNewQAECSRUser();
+    await officePage.signInAsNewQAEUser();
     qaeFlowPage = new QaeFlowPage(officePage, move.locator);
     await qaeFlowPage.searchForAndNavigateToMoveQATab();
   });
