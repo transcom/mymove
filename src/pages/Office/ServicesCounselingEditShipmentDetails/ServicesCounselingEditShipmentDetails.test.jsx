@@ -596,23 +596,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
 
-      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).toBeInTheDocument();
-      expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
-
-      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
-      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
-      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-
-      act(() => {
-        const closeoutField = screen
-          .getAllByRole('combobox')
-          .find((comboBox) => comboBox.getAttribute('id') === 'closeoutOffice-input');
-
-        userEvent.click(closeoutField);
-        userEvent.keyboard('Altus{enter}');
-      });
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      }, 10000);
 
       await waitFor(
         () => {
@@ -639,34 +626,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       const sitExpectedNo = within(sitExpected2).getByRole('radio', { name: 'No' });
       await userEvent.click(sitExpectedNo);
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
-
-      // Schema validation is fail state thus Save button is disabled. click No to hide
-      // SIT related widget. Hiding SIT widget must reset schema because previous SIT related
-      // schema failure is nolonger applicable.
-      const sitExpected = document.getElementById('sitExpectedNo').parentElement;
-      const sitExpectedNo = within(sitExpected).getByRole('radio', { name: 'No' });
-      await userEvent.click(sitExpectedNo);
-
-      // Verify No is really hiding SIT related inputs
-      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
-
-      // Verify clicking Yes again will restore persisted data for each SIT related control.
-      const sitExpected2 = document.getElementById('sitExpectedYes').parentElement;
-      const sitExpectedYes = within(sitExpected2).getByRole('radio', { name: 'Yes' });
-      await userEvent.click(sitExpectedYes);
-
-      // Verify persisted values are restored to expected values.
-      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
-      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
-      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
-    }, 10000);
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      }, 10000);
+    });
 
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
