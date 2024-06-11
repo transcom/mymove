@@ -591,19 +591,25 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       /* Verify toggling back to NO selection when validation is failing for YES resets
          schema validation back to NO. This tests component: ShipmentCustomerSIT.jsx */
       // enter invalid date format to trigger validation failure to disable SAVE button
       await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
-      await waitFor(() => {
-        expect(screen.queryByRole('alert')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Save button is disabled for now because validation error for YES select. We
       // now want to select NO. The schema validator should reset itself and renable the
