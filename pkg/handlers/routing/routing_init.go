@@ -361,6 +361,7 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 	}
 }
 
+// PPTAS API to serve under the mTLS "Api" / "Prime" API server to support Navy requests
 func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServePPTAS {
 		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
