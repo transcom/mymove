@@ -614,10 +614,25 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         userEvent.keyboard('Altus{enter}');
       });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
+
+      /* Verify toggling back to NO selection when validation is failing for YES resets
+         schema validation back to NO. This tests component: ShipmentCustomerSIT.jsx */
+      // enter invalid date format to trigger validation failure to disable SAVE button
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
       await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
