@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckboxGroupInput } from 'react-admin';
 
 import { adminOfficeRoles } from 'constants/userRoles';
 import { officeUserPrivileges } from 'constants/userPrivileges';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const RolesPrivilegesCheckboxInput = (props) => {
   let rolesSelected = [];
   let privilegesSelected = [];
+
+  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
+      setHeadquartersRoleFF(enabled);
+    });
+  }, []);
 
   const makeRoleTypeArray = (roles) => {
     if (!roles || roles.length === 0) {
@@ -15,7 +24,9 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }
     return roles.reduce((rolesArray, role) => {
       if (role.roleType) {
-        rolesArray.push(role.roleType);
+        if (isHeadquartersRoleFF || (!isHeadquartersRoleFF && role.roleType !== 'headquarters')) {
+          rolesArray.push(role.roleType);
+        }
       }
 
       rolesSelected = rolesArray;
@@ -34,6 +45,22 @@ const RolesPrivilegesCheckboxInput = (props) => {
       }
       if (input.includes('contracting_officer')) {
         index = input.indexOf('contracting_officer');
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    }
+
+    if (!isHeadquartersRoleFF && input.includes('headquarters')) {
+      if (input.includes('headquarters')) {
+        index = input.indexOf('headquarters');
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    } else if (isHeadquartersRoleFF && privilegesSelected.includes('safety')) {
+      if (input.includes('headquarters')) {
+        index = input.indexOf('headquarters');
         if (index !== -1) {
           input.splice(index, 1);
         }
@@ -71,6 +98,15 @@ const RolesPrivilegesCheckboxInput = (props) => {
         }
       }
 
+      if (input.includes('safety')) {
+        index = input.indexOf('safety');
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    }
+
+    if (isHeadquartersRoleFF && rolesSelected.includes('headquarters')) {
       if (input.includes('safety')) {
         index = input.indexOf('safety');
         if (index !== -1) {

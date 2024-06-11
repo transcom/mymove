@@ -51,6 +51,8 @@ const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
 // TIO pages
 const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
+// HQ pages
+const HeadquartersQueues = lazy(() => import('pages/Office/HeadquartersQueues/HeadquartersQueues'));
 // Services Counselor pages
 const ServicesCounselingMoveInfo = lazy(() =>
   import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
@@ -234,16 +236,17 @@ export class OfficeApp extends Component {
                   // Auth Routes
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-                    {/* TXO, HQ */}
+                    {/* TOO */}
                     <Route
                       path="/moves/queue"
                       end
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.HQ]}>
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
                           <MoveQueue />
                         </PrivateRoute>
                       }
                     />
+                    {/* TIO */}
                     <Route
                       path="/invoicing/queue"
                       element={
@@ -252,7 +255,16 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
-
+                    {/* HQ */}
+                    <Route
+                      path="/hq/queues"
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                          <HeadquartersQueues />
+                        </PrivateRoute>
+                      }
+                    />
                     {/* SERVICES_COUNSELOR */}
                     <Route
                       key="servicesCounselingAddShipment"
@@ -264,7 +276,6 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
-
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route
                         path="/:queueType/*"
@@ -322,13 +333,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+
                     {activeRole === roleTypes.HQ && (
                       <Route
                         path="/:queueType/*"
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.HQ]}>
-                            <MoveQueue />
+                            <HeadquartersQueues />
                           </PrivateRoute>
                         }
                       />
@@ -371,6 +383,7 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+
                     {/* PRIME SIMULATOR */}
                     <Route
                       key="primeSimulatorMovePath"
@@ -503,6 +516,7 @@ export class OfficeApp extends Component {
                             roleTypes.TOO,
                             roleTypes.TIO,
                             roleTypes.QAE,
+                            roleTypes.HQ,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
                           ]}
                         >
@@ -516,7 +530,7 @@ export class OfficeApp extends Component {
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
                     {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
-                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<HeadquartersQueues />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}

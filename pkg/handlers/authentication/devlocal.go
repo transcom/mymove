@@ -488,7 +488,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		}
-	case TOOOfficeUserType, HQOfficeUserType:
+	case TOOOfficeUserType:
 		// Now create the Truss JPPSO
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
@@ -922,6 +922,78 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if verrs.HasAny() {
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
+	case HQOfficeUserType:
+		address := models.Address{
+			StreetAddress1: "1333 Minna St",
+			City:           "San Francisco",
+			State:          "CA",
+			PostalCode:     "94115",
+			County:         "SAINT CLAIR",
+		}
+
+		verrs, err := appCtx.DB().ValidateAndSave(&address)
+		if err != nil {
+			appCtx.Logger().Error("could not create address", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			appCtx.Logger().Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		role := roles.Role{}
+		err = appCtx.DB().Where("role_type = $1", roles.RoleTypeHQ).First(&role)
+		if err != nil {
+			appCtx.Logger().Error("could not fetch role headquarters", zap.Error(err))
+		}
+
+		usersRole := models.UsersRoles{
+			UserID: user.ID,
+			RoleID: role.ID,
+		}
+
+		verrs, err = appCtx.DB().ValidateAndSave(&usersRole)
+		if err != nil {
+			appCtx.Logger().Error("could not create user role", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			appCtx.Logger().Error("validation errors creating user role", zap.Stringer("errors", verrs))
+		}
+
+		office := models.TransportationOffice{
+			Name:      "Truss",
+			AddressID: address.ID,
+			Latitude:  37.7678355,
+			Longitude: -122.4199298,
+			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     gbloc,
+		}
+
+		verrs, err = appCtx.DB().ValidateAndSave(&office)
+		if err != nil {
+			appCtx.Logger().Error("could not create office", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			appCtx.Logger().Error("validation errors creating office", zap.Stringer("errors", verrs))
+		}
+
+		officeUser := models.OfficeUser{
+			FirstName:              firstName,
+			LastName:               lastName,
+			Telephone:              telephone,
+			TransportationOfficeID: office.ID,
+			Email:                  email,
+			Active:                 true,
+		}
+		if user.ID != uuid.Nil {
+			officeUser.UserID = &user.ID
+		}
+
+		verrs, err = appCtx.DB().ValidateAndSave(&officeUser)
+		if err != nil {
+			appCtx.Logger().Error("could not create office user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
+		}
 	case MultiRoleOfficeUserType:
 		// Now create the Truss JPPSO
 		address := models.Address{
@@ -1141,7 +1213,8 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType ||
+		userType == QaeOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
 		return true
 	}
 	return false
