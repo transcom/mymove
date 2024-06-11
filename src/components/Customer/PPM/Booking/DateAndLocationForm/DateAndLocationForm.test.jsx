@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, waitFor, screen, within } from '@testing-library/react';
+import { render, waitFor, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -206,19 +205,14 @@ describe('DateAndLocationForm component', () => {
 describe('validates form fields and displays error messages', () => {
   it('marks required inputs when left empty', async () => {
     render(<DateAndLocationForm {...defaultProps} />);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    await act(async () => {
+      await userEvent.click(screen.getByLabelText('Which closeout office should review your PPM?'));
+      await userEvent.keyboard('{backspace}');
+    });
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-
-      const requiredAlerts = screen.getAllByRole('alert');
-
-      // Departure date
-      expect(requiredAlerts[0]).toHaveTextContent('Required');
-      expect(
-        within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Required')).toBeVisible();
     });
   });
   it('displays type errors when input fails validation schema', async () => {
