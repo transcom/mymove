@@ -431,25 +431,23 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 		return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
 	}
 
-	var result models.Address
-	for _, si := range shipmentCopy.MTOServiceItems {
-		siCopy := si
-		err := appCtx.DB().Eager("ReService").Find(&siCopy, siCopy.ID)
-		if err != nil {
-			return models.Address{}, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination For Distance Lookup")
-		}
+	if shipmentCopy.MTOServiceItems != nil {
+		for _, si := range shipmentCopy.MTOServiceItems {
+			siCopy := si
+			err := appCtx.DB().Eager("ReService").Find(&siCopy, siCopy.ID)
+			if err != nil {
+				return nil, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination For Distance Lookup")
+			}
 
-		switch siCopy.ReService.Code {
-		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
-			if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
-					result = shipmentCopy.DeliveryAddressUpdate.OriginalAddress
-					return result, nil
-				} else {
-					result = shipmentCopy.DeliveryAddressUpdate.NewAddress
-					return result, nil
+			switch siCopy.ReService.Code {
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+				if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					mtoShipment = shipmentCopy
+					if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						return &shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
+					}
+					return &shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
 				}
-				return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
 			}
 		}
 	}
