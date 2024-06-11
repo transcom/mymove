@@ -5718,6 +5718,12 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
+        },
         "firstName": {
           "type": "string",
           "example": "John"
@@ -18852,6 +18858,12 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
         },
         "firstName": {
           "type": "string",
