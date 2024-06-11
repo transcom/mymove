@@ -15,6 +15,7 @@ import { mockPage } from 'testUtils';
 mockPage('pages/SignIn/SignIn');
 mockPage('pages/InvalidPermissions/InvalidPermissions');
 mockPage('pages/Office/MoveQueue/MoveQueue');
+mockPage('pages/Office/HeadquartersQueues/HeadquartersQueues', 'Headquarters Queues');
 mockPage('pages/Office/PaymentRequestQueue/PaymentRequestQueue');
 mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment');
 mockPage('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue');
@@ -220,7 +221,7 @@ describe('Office App', () => {
 
     it.each([
       ['Move Queue', '/moves/queue', roleTypes.TOO],
-      ['Move Queue', '/moves/queue', roleTypes.HQ],
+      ['Headquarters Queues', '/hq/queues', roleTypes.HQ],
       ['Payment Request Queue', '/invoicing/queue', roleTypes.TIO],
       ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.SERVICES_COUNSELOR],
       ['Services Counseling Queue', '/counseling', roleTypes.SERVICES_COUNSELOR],
@@ -252,14 +253,14 @@ describe('Office App', () => {
       ],
       [
         'Prime Simulator Shipment Update Reweigh',
-        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
+        '/simulator/moves/test123/shipments/ship123/reweigh/req123/update',
         roleTypes.PRIME_SIMULATOR,
       ],
       ['QAE CSR Move Search', '/qaecsr/search', roleTypes.QAE_CSR],
       ['TXO Move Info', '/moves/move123', roleTypes.TIO],
       ['Payment Request Queue', '/', roleTypes.TIO],
       ['Move Queue', '/', roleTypes.TOO],
-      ['Move Queue', '/', roleTypes.HQ],
+      ['Headquarters Queues', '/', roleTypes.HQ],
       ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
       ['QAE CSR Move Search', '/', roleTypes.QAE_CSR],
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
