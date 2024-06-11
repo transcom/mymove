@@ -152,6 +152,18 @@ const approvedPPMShipment = {
     approvedAt: approvedDate.toISOString(),
     updatedAt: approvedDate.toISOString(),
     eTag: window.btoa(approvedDate.toISOString()),
+    pickupAddress: {
+      streetAddress1: '123 Any St',
+      city: 'Anytown',
+      state: 'AK',
+      postalCode: '90210',
+    },
+    destinationAddress: {
+      streetAddress1: '123 Any St',
+      city: 'Anytown',
+      state: 'AK',
+      postalCode: '90210',
+    },
   },
   updatedAt: approvedDate.toISOString(),
   eTag: window.btoa(approvedDate.toISOString()),
