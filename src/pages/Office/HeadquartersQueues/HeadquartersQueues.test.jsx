@@ -146,8 +146,26 @@ jest.mock('hooks/queries', () => ({
       },
     };
   },
-  usePaymentRequestQueueQueries: () => {},
-  useServicesCounselingQueuePPMQueries: () => {},
+  usePaymentRequestQueueQueries: () => {
+    return {
+      isLoading: false,
+      isError: false,
+      queueResult: {
+        totalCount: 0,
+        data: [],
+      },
+    };
+  },
+  useServicesCounselingQueuePPMQueries: () => {
+    return {
+      isLoading: false,
+      isError: false,
+      queueResult: {
+        totalCount: 0,
+        data: [],
+      },
+    };
+  },
 }));
 
 const GetMountedComponent = (queueTypeToMount) => {
@@ -290,32 +308,28 @@ describe('HeadquartersQueue', () => {
     expect(screen.getByText(/Moves/, { selector: 'h1' })).toBeInTheDocument();
   });
 
-  // it('renders PPM Closeout Queue when PPM Closeout Queue is selected', () => {
-  //   reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.CLOSEOUT_QUEUE });
-  //   render(
-  //     <MockProviders>
-  //       <reactRouterDom.BrowserRouter>
-  //         <HeadquartersQueue />
-  //       </reactRouterDom.BrowserRouter>
-  //     </MockProviders>,
-  //   );
-  //   expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
-  //   expect(screen.queryByTestId('ppm-type')).toBeInTheDocument();
-  //   expect(screen.getByText(/Moves/, { selector: 'h1' })).toBeInTheDocument();
-  // });
+  it('renders PPM Closeout Queue when PPM Closeout Queue is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.CLOSEOUT_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <HeadquartersQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+    expect(screen.getByText('Closeout initiated', { selector: 'th' })).toBeInTheDocument();
+    expect(screen.getByText(/Moves/, { selector: 'h1' })).toBeInTheDocument();
+  });
 
-  // it('renders Payment Requests Queue when Payment Requests Queue is selected', () => {
-  //   reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.PAYMENT_REQUEST_QUEUE });
-  //   render(
-  //     <MockProviders>
-  //       <reactRouterDom.BrowserRouter>
-  //         <HeadquartersQueue />
-  //       </reactRouterDom.BrowserRouter>
-  //     </MockProviders>,
-  //   );
-  //   expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
-  //   expect(screen.getByText(/Payment requests/, { selector: 'h1' })).toBeInTheDocument();
-  // });
+  it('renders Payment Requests Queue when Payment Requests Queue is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.PAYMENT_REQUEST_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <HeadquartersQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+    expect(screen.getByText(/Payment requests/, { selector: 'h1' })).toBeInTheDocument();
+  });
 
   it('has all options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
