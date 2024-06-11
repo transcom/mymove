@@ -1915,14 +1915,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 	})
 
 	suite.Run("shipment with complete long line of accounting for HHG Officer with 5 TACs - B-19139 I-12630, but with a duplicate LOA present that is not a 1:1 match", func() {
-		// The TAC makes it for an HHG officer
-
-		//
-		// This test will have two duplicate LOAs with all values matching, including "LoaSysID" which ties a TAC and LOA together EXCEPT for the LoaDscTx field.
-		// This way there is a discrepancy between the two loas, but due to sorting we should still be able to generate a proper EDI858.
-		// This is an edge case that will be resolved by B-19842
-		// https://www13.v1host.com/USTRANSCOM38/assetdetail.v1?number=B-19842
-		//
+		// This tests that EDI 858 generation will still pass with duplicate LOAs
 
 		var loa models.LineOfAccounting
 		// Generate the random strings prior to looping
@@ -1937,13 +1930,12 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		loaBdgtAcntClsNm := factory.MakeRandomString(6)
 		loaDocID := factory.MakeRandomString(10)
 		loaInstlAcntgActID := factory.MakeRandomString(6)
-		// loaDscTx := factory.MakeRandomString(100)
 		loaFnctPrsNm := factory.MakeRandomString(100)
 		loaStatCd := factory.MakeRandomString(1)
 		orgGrpDfasCd := factory.MakeRandomString(2)
 		loaTrnsnID := factory.MakeRandomString(2)
 
-		// Create duplicate LOA, but each will have
+		// Create duplicate LOA, but each will have different LoaDscTx so as to not "merge" together
 		for i := 0; i < 2; i++ {
 			loa = factory.BuildFullLineOfAccounting(suite.DB(), []factory.Customization{
 				{
