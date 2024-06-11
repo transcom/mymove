@@ -440,18 +440,17 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 				return nil, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination For Distance Lookup")
 			}
 
-			switch siCopy.ReService.Code {
-			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
-				if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					mtoShipment = shipmentCopy
-					if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
-						return &shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
-					}
-					return &shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+		switch siCopy.ReService.Code {
+		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+			if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+				mtoShipment = shipmentCopy
+				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+					return &shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
 				}
 			}
 		}
 	}
+	mtoShipment = shipmentCopy
 	if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
 		result = shipmentCopy.DeliveryAddressUpdate.NewAddress
 	} else {
