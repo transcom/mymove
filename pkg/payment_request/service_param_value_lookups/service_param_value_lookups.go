@@ -441,6 +441,7 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 		switch siCopy.ReService.Code {
 		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 			if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+				mtoShipment = shipmentCopy
 				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
 					return &shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
 				}
@@ -448,6 +449,7 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 			}
 		}
 	}
+	mtoShipment = shipmentCopy
 	if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
 		return &shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
 	}

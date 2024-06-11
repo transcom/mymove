@@ -49,6 +49,8 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		if errDestinationZip != nil {
 			return "", err
 		}
+	} else {
+		return "", apperror.NewNotFoundError(*mtoShipmentID, "looking for MTOServiceItem.ID on the keydata")
 	}
 	var destinationZip string
 	if destResult != nil {
