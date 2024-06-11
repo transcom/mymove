@@ -18,7 +18,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
   let validDate = false;
   const today = new Date();
 
-  if (formatDate(today) < formatDate(shipmentInfo.actualPickupDate)) {
+  if (formatDate(today) > formatDate(shipmentInfo.actualPickupDate)) {
     validDate = true;
   }
 
