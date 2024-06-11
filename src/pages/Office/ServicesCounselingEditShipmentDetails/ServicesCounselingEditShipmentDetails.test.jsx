@@ -443,10 +443,18 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
 
-      await act(async () => {
-        await userEvent.tab();
-        await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
-        await userEvent.click(await screen.findByText('Altus'));
+      act(() => {
+        const closeoutField = screen
+          .getAllByRole('combobox')
+          .find((comboBox) => comboBox.getAttribute('id') === 'closeoutOffice-input');
+
+        userEvent.click(closeoutField);
+        userEvent.keyboard('Altus{enter}');
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
 
       await waitFor(
@@ -491,12 +499,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-        },
-        { timeout: 10000 },
-      );
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      });
     });
 
     describe('Check SIT field validations', () => {
