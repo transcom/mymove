@@ -424,38 +424,40 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	return lookups
 }
 
-func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (*models.Address, error) {
+func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (models.Address, error) {
 	shipmentCopy := mtoShipment
 	err := appCtx.DB().Eager("DeliveryAddressUpdate.Status", "DeliveryAddressUpdate.UpdatedAt", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
 	if err != nil {
-		return nil, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
+		return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
 	}
 
-	if shipmentCopy.MTOServiceItems != nil {
-		for _, si := range shipmentCopy.MTOServiceItems {
-			siCopy := si
-			err := appCtx.DB().Eager("ReService").Find(&siCopy, siCopy.ID)
-			if err != nil {
-				return nil, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination For Distance Lookup")
-			}
+	var result models.Address
+	for _, si := range shipmentCopy.MTOServiceItems {
+		siCopy := si
+		err := appCtx.DB().Eager("ReService").Find(&siCopy, siCopy.ID)
+		if err != nil {
+			return models.Address{}, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination For Distance Lookup")
+		}
 
-			switch siCopy.ReService.Code {
-			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
-				if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					mtoShipment = shipmentCopy
-					if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
-						return &shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
-					}
-					return &shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+		switch siCopy.ReService.Code {
+		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+			if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+					result = shipmentCopy.DeliveryAddressUpdate.OriginalAddress
+					return result, nil
+				} else {
+					result = shipmentCopy.DeliveryAddressUpdate.NewAddress
+					return result, nil
 				}
 			}
 		}
 	}
-	mtoShipment = shipmentCopy
 	if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-		return &shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+		result = shipmentCopy.DeliveryAddressUpdate.NewAddress
+	} else {
+		result = *shipmentCopy.DestinationAddress
 	}
-	return shipmentCopy.DestinationAddress, nil
+	return result, nil
 }
 
 // serviceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil

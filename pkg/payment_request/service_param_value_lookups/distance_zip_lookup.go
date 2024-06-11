@@ -42,7 +42,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 
 	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
-	var destResult *models.Address
+	var destResult models.Address
 	var errDestinationZip error
 	if keyData.MTOServiceItem.ID != uuid.Nil {
 		destResult, errDestinationZip = GetDestinationForDistanceLookup(appCtx, mtoShipment, keyData.MTOServiceItem)
@@ -53,7 +53,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		return "", apperror.NewNotFoundError(*mtoShipmentID, "looking for MTOServiceItem.ID on the keydata")
 	}
 	var destinationZip string
-	if destResult != nil {
+	if destResult != (models.Address{}) {
 		destinationZip = destResult.PostalCode
 	}
 	errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
