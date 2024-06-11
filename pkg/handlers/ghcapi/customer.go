@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -240,7 +241,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 				if smVerrs.HasAny() || smErr != nil {
 					appCtx.Logger().Error("error creating service member", zap.Error(err))
-					return err
+					return smErr
 				}
 
 				// creating backup contact associated with service member since this is done separately
@@ -259,7 +260,13 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 			})
 
 			if transactionError != nil {
-				return nil, transactionError
+				switch transactionError.(type) {
+				case *pq.Error:
+					// handle duplicate key error for emplid
+					return customercodeop.NewCreateCustomerWithOktaOptionConflict(), transactionError
+				default:
+					return customercodeop.NewCreateCustomerWithOktaOptionBadRequest(), transactionError
+				}
 			}
 
 			// covering error returns

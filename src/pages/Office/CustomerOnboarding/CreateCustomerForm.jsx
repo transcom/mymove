@@ -136,8 +136,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
         );
       })
       .catch((e) => {
-        const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to create service member due to server error');
+        let errorMessage;
+        if (e.status === 409) errorMessage = 'This EMPLID is already in use';
+        else errorMessage = getResponseError(e?.response, 'failed to create service member due to server error');
         setServerError(errorMessage);
       });
   };
