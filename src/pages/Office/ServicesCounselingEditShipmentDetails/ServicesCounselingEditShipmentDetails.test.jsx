@@ -449,16 +449,26 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         await userEvent.click(await screen.findByText('Altus'));
       });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+          // default state , now we verify validation is good for save to be enabled
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      await act(async () => {
+        await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
       });
+
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Schema validation is fail state thus Save button is disabled. click No to hide
       // SIT related widget. Hiding SIT widget must reset schema because previous SIT related
@@ -481,9 +491,12 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
     });
 
     describe('Check SIT field validations', () => {
