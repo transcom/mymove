@@ -39,6 +39,8 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
 				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+				EffectiveDate:         time.Date(2020, time.March, 10, 0, 0, 0, 0, time.UTC),
+				EndDate:               time.Date(2020, time.March, 17, 0, 0, 0, 0, time.UTC),
 			},
 		})
 
@@ -382,7 +384,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		suite.IsType(err, apperror.NotFoundError{})
 	})
 
-	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_PAYMENT_APPROVAL\" or \"APPROVED\"", func() {
+	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_CLOSEOUT\" or \"APPROVED\"", func() {
 		appCtx := suite.AppContextForTest()
 		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildWaitingOnCustomer)
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
@@ -597,7 +599,7 @@ func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest(buildType ppmBuild
 
 	var ppmShipment models.PPMShipment
 	if buildType == ppmBuildReadyForCloseout {
-		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
+		ppmShipment = factory.BuildPPMShipmentThatNeedsCloseout(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
 	} else if buildType == ppmBuildWaitingOnCustomer {
 		ppmShipment = factory.BuildPPMShipment(suite.AppContextForTest().DB(), ppmShipmentCustomization, nil)
 	}

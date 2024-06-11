@@ -140,14 +140,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
     const submittedShipmentsNonPPM = submittedShipments.filter(
-      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
-      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const onlyPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
-      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
 
     ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
@@ -221,7 +221,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               shipmentId: shipment.id,
             })}`
           : '';
-
+      const viewURL = // Read only view of approved documents
+        shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
+        (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
+          ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
+              moveCode,
+              shipmentId: shipment.id,
+            })}`
+          : '';
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
@@ -271,6 +278,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         id: shipment.id,
         displayInfo,
         editURL,
+        viewURL,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -544,6 +552,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   <ShipmentDisplay
                     displayInfo={shipment.displayInfo}
                     editURL={shipment.editURL}
+                    viewURL={shipment.viewURL}
                     isSubmitted={false}
                     key={shipment.id}
                     shipmentId={shipment.id}
