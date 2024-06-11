@@ -222,22 +222,15 @@ describe('DateAndLocationForm component', () => {
 
 describe('validates form fields and displays error messages', () => {
   it('marks required inputs when left empty', async () => {
+    render(<DateAndLocationForm {...defaultProps} />);
     await act(async () => {
-      render(<DateAndLocationForm {...defaultProps} />);
+      await userEvent.click(screen.getByLabelText('Which closeout office should review your PPM?'));
+      await userEvent.keyboard('{backspace}');
+    });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-
-        const requiredAlerts = screen.getAllByRole('alert');
-
-        // Departure date
-        expect(requiredAlerts[0]).toHaveTextContent('Required');
-        expect(
-          within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
-        ).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      expect(screen.getByText('Required')).toBeVisible();
     });
   });
   it('displays type errors when input fails validation schema', async () => {
