@@ -399,21 +399,21 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Expected outcome: search results should only include the move with the PPM status that was searched for
 		officeUser, partialPPMMove, session := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
-		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
-		ppmShipmentWaiting := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
 
+		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		// Search for PARTIAL PPM moves
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
-			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
+			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
 		})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(moves[0].MTOShipments[0].PPMShipment.Status, ppmShipmentNeedsCloseout.Shipment.PPMShipment.Status)
 
+		ppmShipmentWaiting := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
 		// Search for FULL PPM moves
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
-			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
+			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
 		})
 
 		suite.FatalNoError(err)
