@@ -142,7 +142,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		serviceMember1 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
-					FirstName: models.StringPointer("Page1"),
+					FirstName: models.StringPointer("Page"),
 					LastName:  models.StringPointer("McConnell"),
 					Edipi:     models.StringPointer("1018231018"),
 				},
@@ -152,7 +152,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		serviceMember2 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
-					FirstName: models.StringPointer("Page2"),
+					FirstName: models.StringPointer("Page"),
 					LastName:  models.StringPointer("McConnell"),
 					Edipi:     models.StringPointer("8121581215"),
 				},
@@ -160,7 +160,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		}, nil)
 		// get first page
 		customers, totalCount, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{
-			CustomerName: models.StringPointer("Page1 McConnell"),
+			CustomerName: models.StringPointer("Page McConnell"),
 			PerPage:      1,
 			Page:         1,
 		})
@@ -171,7 +171,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 
 		// get second page
 		customers, totalCount, err = searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{
-			CustomerName: models.StringPointer("Page2 McConnell"),
+			CustomerName: models.StringPointer("Page McConnell"),
 			PerPage:      1,
 			Page:         2,
 		})
