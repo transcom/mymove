@@ -87,7 +87,7 @@ describe('RequestAccountForm component', () => {
     expect(scCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(scCheckbox).not.toBeChecked(false);
 
-    const qsaCheckbox = screen.getByTestId('qualityAssuranceAndCustomerSupportCheckBox');
+    const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     expect(qsaCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(qsaCheckbox).not.toBeChecked(false);
   });

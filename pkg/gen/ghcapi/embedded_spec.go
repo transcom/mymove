@@ -6295,7 +6295,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -7164,6 +7165,11 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "estimatedPrice": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
         },
         "estimatedWeight": {
           "description": "estimated weight of the shuttle service item provided by the prime",
@@ -19622,7 +19628,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -20491,6 +20498,11 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "estimatedPrice": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
         },
         "estimatedWeight": {
           "description": "estimated weight of the shuttle service item provided by the prime",
