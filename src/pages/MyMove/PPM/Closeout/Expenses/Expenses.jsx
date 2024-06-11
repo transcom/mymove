@@ -87,7 +87,7 @@ const Expenses = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
-    deleteUpload(uploadId)
+    deleteUpload(uploadId, null, mtoShipment?.ppmShipment?.id)
       .then(() => {
         const filteredUploads = mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.filter(
           (upload) => upload.id !== uploadId,
@@ -123,6 +123,7 @@ const Expenses = () => {
       SITEndDate: formatDateForSwagger(values.sitEndDate),
       SITStartDate: formatDateForSwagger(values.sitStartDate),
       WeightStored: 0,
+      SITLocation: null,
     };
 
     patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)

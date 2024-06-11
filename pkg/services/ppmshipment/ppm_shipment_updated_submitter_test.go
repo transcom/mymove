@@ -90,7 +90,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 	})
 
 	suite.Run("Returns an error if updating an existing signed certification fails", func() {
-		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID,
@@ -153,7 +153,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 	})
 
 	suite.Run("Can update a signed certification and route the PPMShipment properly", func() {
-		existingPPMShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		existingPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 
 		userID := existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
@@ -191,7 +191,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 
 		mockRouter := setUpPPMShipperRouterMock(
 			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
-				ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+				ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 
 				return nil
 			})
@@ -213,7 +213,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 			)
 
 			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
-				suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, updatedPPMShipment.Status)
+				suite.Equal(models.PPMShipmentStatusNeedsCloseout, updatedPPMShipment.Status)
 
 				if suite.NotNil(updatedPPMShipment.SignedCertification) {
 					suite.Equal(updatedSignedCertification.ID, updatedPPMShipment.SignedCertification.ID)

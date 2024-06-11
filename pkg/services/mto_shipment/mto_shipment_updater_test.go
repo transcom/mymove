@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -19,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mockservices "github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -1634,7 +1636,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		TransitDistancePickupArg = args.Get(1).(string)
 		TransitDistanceDestinationArg = args.Get(2).(string)
 	})
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
@@ -2315,6 +2317,43 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	addressCreator := address.NewAddressCreator()
 	mtoShipmentUpdaterPrime := NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
 
+	suite.Run("Updates to estimated weight change max billable weight", func() {
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+
+		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		suite.Equal(8000, *primeShipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+
+		estimatedWeight := unit.Pound(1234)
+		primeShipment.Status = ""
+		primeShipment.PrimeEstimatedWeight = &estimatedWeight
+
+		session := auth.Session{}
+		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
+		suite.NoError(err)
+
+		err = suite.DB().Reload(primeShipment.MoveTaskOrder.Orders.Entitlement)
+		suite.NoError(err)
+
+		estimatedWeight110 := int(math.Round(float64(*primeShipment.PrimeEstimatedWeight) * 1.10))
+		suite.Equal(estimatedWeight110, *primeShipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
+	})
+
 	suite.Run("Updating the shipment estimated weight will flag excess weight on the move and transitions move status", func() {
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
@@ -2739,7 +2778,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
 	suite.Run("Shipments with different origin/destination ZIP3 have longhaul service item", func() {
