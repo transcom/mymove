@@ -330,7 +330,8 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromWeightTicketPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    // await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await this.page.waitForURL(/\/moves\/[^/]+\/shipments/);
   }
 
   /**

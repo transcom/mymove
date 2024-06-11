@@ -46,7 +46,10 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	if err != nil {
 		return "", err
 	}
-	destinationZip := destResult.PostalCode
+	var destinationZip string
+	if destResult != nil {
+		destinationZip = destResult.PostalCode
+	}
 	errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
 	errorMsgForDestinationZip := fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip)
 	if len(pickupZip) < 5 {
