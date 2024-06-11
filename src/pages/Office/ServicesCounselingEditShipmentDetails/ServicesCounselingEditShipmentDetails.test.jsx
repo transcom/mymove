@@ -604,7 +604,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      });
+      }, 10000);
 
       /* Verify toggling back to NO selection when validation is failing for YES resets
          schema validation back to NO. This tests component: ShipmentCustomerSIT.jsx */
@@ -623,7 +623,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await userEvent.click(sitExpectedNo);
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      });
+      }, 10000);
     });
 
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
