@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
@@ -443,18 +443,19 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
 
-      await userEvent.tab();
-      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
-      await userEvent.click(await screen.findByText('Altus'));
+      act(() => {
+        const closeoutField = screen
+          .getAllByRole('combobox')
+          .find((comboBox) => comboBox.getAttribute('id') === 'closeoutOffice-input');
 
-      await waitFor(
-        () => {
-          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-          // default state , now we verify validation is good for save to be enabled
-          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-        },
-        { timeout: 10000 },
-      );
+        userEvent.click(closeoutField);
+        userEvent.keyboard('Altus{enter}');
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      });
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
       await act(async () => {
@@ -489,12 +490,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-        },
-        { timeout: 10000 },
-      );
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      });
     });
 
     describe('Check SIT field validations', () => {
