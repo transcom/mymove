@@ -363,7 +363,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Expected outcome: search results should only include the move with the PPM type that was searched for
 		officeUser, partialPPMMove, session := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					PPMType: models.StringPointer("FULL"),
@@ -405,7 +405,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				},
 			},
 		}, nil)
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					CloseoutOfficeID: &ftBragg.ID,
@@ -433,7 +433,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 1st
 		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		createdPPM := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		createdPPM := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
@@ -443,7 +443,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 2nd
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-		createdPPM2 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		createdPPM2 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate2,
@@ -471,7 +471,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 1st
 		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		createdPPM := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		createdPPM := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
@@ -485,7 +485,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate2,
-					Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+					Status:      models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -603,7 +603,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -656,7 +656,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -702,7 +702,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -770,7 +770,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -796,7 +796,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -849,7 +849,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -874,7 +874,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -927,7 +927,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -952,7 +952,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -1003,7 +1003,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusPaymentApproved,
+					Status: models.PPMShipmentStatusCloseoutComplete,
 				},
 			},
 			{
@@ -1429,7 +1429,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 
-		ppm1 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppm1 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate1,
@@ -1444,7 +1444,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 
 		// Create a PPM submitted on April 2nd
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-		ppm2 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppm2 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate2,
@@ -1491,7 +1491,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 					Name: "A",
 				},
 			}}, nil)
-		ppmShipmentA := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentA := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    locationA,
 				LinkOnly: true,
@@ -1504,7 +1504,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 					Name: "B",
 				},
 			}}, nil)
-		ppmShipmentB := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentB := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    locationB,
 				LinkOnly: true,
@@ -1553,7 +1553,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 
-		ppmShipmentA := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentA := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    dutyLocationA,
 				LinkOnly: true,
@@ -1572,7 +1572,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				},
 			},
 		}, nil)
-		ppmShipmentB := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentB := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    dutyLocationB,
 				LinkOnly: true,
@@ -1617,7 +1617,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				Model: models.TransportationOffice{Gbloc: "KKFA"},
 			},
 		}, nil)
-		ppmShipmentPartial := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentPartial := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					PPMType: models.StringPointer("Partial"),
@@ -1629,7 +1629,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
-		ppmShipmentFull := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentFull := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					PPMType: models.StringPointer("FULL"),
