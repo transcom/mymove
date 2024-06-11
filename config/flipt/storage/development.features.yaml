@@ -131,6 +131,14 @@ flags:
     distributions:
     - variant: one
       rollout: 100
+- key: third_address_available
+  name: Third Address Available
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 segments:
 - key: mil-app
   name: Mil App

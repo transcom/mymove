@@ -145,7 +145,7 @@ properties:
       - x-nullable: true
       - x-omitempty: false
   tertiaryDestinationPostalCode:
-    format: An optional secondary pickup location near the origin where additional goods exist.
+    format: An optional tertiary pickup location near the origin where additional goods exist.
     type: string
     title: ZIP
     example: '90210'
