@@ -42,9 +42,13 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 
 	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
-	destResult, err := GetDestinationForDistanceLookup(appCtx, mtoShipment, keyData.MTOServiceItem)
-	if err != nil {
-		return "", err
+	var destResult *models.Address
+	var errDestinationZip error
+	if keyData.MTOServiceItem.ID != uuid.Nil {
+		destResult, errDestinationZip = GetDestinationForDistanceLookup(appCtx, mtoShipment, keyData.MTOServiceItem)
+		if errDestinationZip != nil {
+			return "", err
+		}
 	}
 	var destinationZip string
 	if destResult != nil {
