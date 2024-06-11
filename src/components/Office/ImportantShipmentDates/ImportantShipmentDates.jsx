@@ -70,6 +70,13 @@ ImportantShipmentDates.defaultProps = {
   scheduledDeliveryDate: '',
   actualDeliveryDate: '',
   isPPM: false,
+  shipmentInfo: {
+    id: '',
+    status: '',
+    shipmentType: '',
+    isDiversion: false,
+    diversionReason: '',
+  },
 };
 
 ImportantShipmentDates.propTypes = {
@@ -84,13 +91,12 @@ ImportantShipmentDates.propTypes = {
   actualDeliveryDate: PropTypes.string,
   isPPM: PropTypes.bool,
   shipmentInfo: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    eTag: PropTypes.string.isRequired,
-    status: ShipmentStatusesOneOf.isRequired,
-    shipmentType: ShipmentOptionsOneOf.isRequired,
+    id: PropTypes.string,
+    status: ShipmentStatusesOneOf,
+    shipmentType: ShipmentOptionsOneOf,
     isDiversion: PropTypes.bool,
     diversionReason: PropTypes.string,
-  }).isRequired,
+  }),
 };
 
 export default ImportantShipmentDates;

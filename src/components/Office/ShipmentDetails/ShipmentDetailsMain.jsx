@@ -238,7 +238,6 @@ const ShipmentDetailsMain = ({
           isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
           shipmentInfo={{
             id: shipment.id,
-            eTag: shipment.eTag,
             status: shipment.status,
             shipmentType: shipment.shipmentType,
             shipmentLocator: shipment.shipmentLocator,
