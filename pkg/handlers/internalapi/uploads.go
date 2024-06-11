@@ -159,10 +159,6 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 					return handlers.ResponseForError(appCtx.Logger(), e), e
 				}
 
-				if e != nil {
-					return handlers.ResponseForError(appCtx.Logger(), e), e
-				}
-
 				userUploader, e := uploaderpkg.NewUserUploader(
 					h.FileStorer(),
 					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
