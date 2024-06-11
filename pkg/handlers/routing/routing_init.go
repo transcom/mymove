@@ -366,33 +366,31 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServePPTAS {
 		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
-		site.Route("/pptas/v1", func(primeRouter chi.Router) {
+		site.Route("/pptas", func(r chi.Router) {
 			if routingConfig.ServeDevlocalAuth {
 				devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
-				primeRouter.Use(devlocalClientCertMiddleware)
+				r.Use(devlocalClientCertMiddleware)
 			} else {
-				primeRouter.Use(clientCertMiddleware)
+				r.Use(clientCertMiddleware)
 			}
-			primeRouter.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
-			primeRouter.Use(middleware.NoCache())
-			primeRouter.Use(middleware.RequestLogger())
-			primeRouter.Method(
+			r.Use(authentication.PrimeAuthorizationMiddleware(appCtx.Logger()))
+			r.Use(middleware.NoCache())
+			r.Use(middleware.RequestLogger())
+			r.Method(
 				"GET",
 				"/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.PPTASSwaggerPath))
 			if routingConfig.ServeSwaggerUI {
-				primeRouter.Method("GET", "/docs",
+				r.Method("GET", "/docs",
 					handlers.NewFileHandler(routingConfig.FileSystem,
 						path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
 			} else {
-				primeRouter.Method("GET", "/docs", http.NotFoundHandler())
+				r.Method("GET", "/docs", http.NotFoundHandler())
 			}
-			primeRouter.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
+			r.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
 
 		})
-		// Setup shared middleware
-
 	}
 }
 
