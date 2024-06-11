@@ -39,6 +39,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 
 			if payload.ServiceMemberAffiliation == nil {
 				err := apperror.NewBadDataError("Invalid request for lines of accounting: service member affiliation is nil")
+				appCtx.Logger().Error(err.Error())
 				return linesofaccountingop.NewRequestLineOfAccountingBadRequest(), err
 			}
 
