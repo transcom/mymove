@@ -424,7 +424,10 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 	return lookups
 }
 
-func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (models.Address, error) {
+func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem *models.MTOServiceItem) (models.Address, error) {
+	if mtoServiceItem == nil {
+		return *mtoShipment.DestinationAddress, nil
+	}
 	shipmentCopy := mtoShipment
 	err := appCtx.DB().Eager("DeliveryAddressUpdate.Status", "DeliveryAddressUpdate.UpdatedAt", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
 	if err != nil {
