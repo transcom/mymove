@@ -429,10 +429,10 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 // Test permissions middleware with a user who will be DENIED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
 // role must NOT have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
-	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
-	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+	// QAE users will be denied access as they lack the proper permissions for our test - update.shipment
+	qaeOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.OktaID)
+	identity, err := models.FetchUserIdentity(suite.DB(), qaeOfficeUser.User.OktaID)
 
 	suite.NoError(err)
 
@@ -442,7 +442,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 
 	// And: the context contains the auth values
 	handlerSession := auth.Session{
-		UserID:          qaeCsrOfficeUser.User.ID,
+		UserID:          qaeOfficeUser.User.ID,
 		IDToken:         "fake Token",
 		ApplicationName: "mil",
 	}
@@ -465,7 +465,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	middleware(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusUnauthorized, rr.Code, "handler returned wrong status code")
-	suite.Equal(handlerSession.UserID, qaeCsrOfficeUser.User.ID, "the authenticated user is different from expected")
+	suite.Equal(handlerSession.UserID, qaeOfficeUser.User.ID, "the authenticated user is different from expected")
 }
 
 func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
@@ -1424,7 +1424,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 			Model:    user,
 			LinkOnly: true,
 		},
-	}, []roles.RoleType{roles.RoleTypeQaeCsr})
+	}, []roles.RoleType{roles.RoleTypeQae})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -1460,13 +1460,13 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 	// Make sure session contains roles and permissions
 	suite.NotEmpty(session.Roles)
-	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQaeCsr)
+	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQae)
 	suite.True(hasRole)
-	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQaeCsr)
+	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQae)
 	suite.True(hasRole)
 	suite.Equal(userRole.ID, sessionRole.ID)
 	suite.NotEmpty(session.Permissions)
-	suite.ElementsMatch(QAECSR.Permissions, session.Permissions)
+	suite.ElementsMatch(QAE.Permissions, session.Permissions)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
