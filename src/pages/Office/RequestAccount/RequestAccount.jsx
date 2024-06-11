@@ -38,10 +38,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'task_invoicing_officer',
       });
     }
-    if (values.transportationOrderingOfficerCheckBox) {
+    if (values.taskOrderingOfficerCheckBox) {
       requestedRoles.push({
-        name: 'Transportation Ordering Officer',
-        roleType: 'transportation_ordering_officer',
+        name: 'Task Ordering Officer',
+        roleType: 'task_ordering_officer',
       });
     }
     if (values.transportationContractingOfficerCheckBox) {
@@ -56,10 +56,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'services_counselor',
       });
     }
-    if (values.qualityAssuranceAndCustomerSupportCheckBox) {
+    if (values.qualityAssuranceEvaluatorCheckBox) {
       requestedRoles.push({
-        name: 'Quality Assurance and Customer Service',
-        roleType: 'qae_csr',
+        name: 'Quality Assurance Evaluator',
+        roleType: 'qae',
       });
     }
     if (values.headquartersCheckBox) {

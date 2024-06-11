@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	suite.Run("Returns a 403 when user is not a service counselor or TOO", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeQae})
 		uuid := uuid.Must(uuid.NewV4())
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -1940,12 +1940,12 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 
 	suite.Run("Returns 409 when canceler returns Conflict Error", func() {
-		day := time.Now()
+		actualPickupDate := time.Now()
 		shipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					ID:               uuid.Must(uuid.NewV4()),
-					ActualPickupDate: &day,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 		}, nil)

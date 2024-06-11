@@ -316,7 +316,7 @@ test.describe('Services counselor user', () => {
     });
   });
 
-  test('can complete review of PPM shipment documents', async ({ page, scPage }) => {
+  test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
@@ -345,6 +345,32 @@ test.describe('Services counselor user', () => {
     await scPage.waitForPage.moveDetails();
 
     await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
+
+    // Navigate to the "View documents" page
+    await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();
+    await page.getByRole('button', { name: 'View documents' }).click();
+
+    await scPage.waitForPage.reviewWeightTicket();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').isDisabled();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewProGear();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').isDisabled();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').isDisabled();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible();
+
+    await page.getByTestId('reviewDocumentsContinueButton').click();
+    await scPage.waitForPage.moveDetails();
+
+    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
   });
 
   test('is able to edit shipmentInfo and Incentives', async ({ page, scPage }) => {
@@ -366,20 +392,17 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+    const parentShipmentInfoElement = page.locator('[data-testid="shipmentInfo"]');
+    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
+    await page.getByTestId('editTextButton').dispatchEvent('click');
+    await expect(page.getByText('Edit Shipment Info')).toBeVisible();
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
-    const parentShipmentInfoElement = page.locator('[data-testid="shipmentInfo"]');
-    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
-
-    await page.getByTestId('editTextButton').dispatchEvent('click');
-    await expect(page.getByText('Edit Shipment Info')).toBeVisible();
-    await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
-    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
-
     const parentIncentivesElement = page.locator('[data-testid="incentives"]');
     await parentIncentivesElement.locator('[data-testid="incentives-showRequestDetailsButton"]').click();
     await page.getByTestId('editTextButton').dispatchEvent('click');
