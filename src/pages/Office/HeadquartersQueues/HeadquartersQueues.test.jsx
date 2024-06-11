@@ -146,8 +146,81 @@ jest.mock('hooks/queries', () => ({
       },
     };
   },
-  usePaymentRequestQueueQueries: () => {},
-  useServicesCounselingQueuePPMQueries: () => {},
+  usePaymentRequestQueueQueries: () => {
+    return {
+      queueResult: {
+        data: [
+          {
+            age: 0.8477863,
+            customer: {
+              agency: 'ARMY',
+              dodID: '3305957632',
+              eTag: 'MjAyMC0xMC0xNVQyMzo0ODozNC41ODQxOTZa',
+              email: 'leo_spaceman_sm@example.com',
+              first_name: 'Leo',
+              id: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+              last_name: 'Spacemen',
+              phone: '555-555-5555',
+              userID: 'c4d59e2b-bff0-4fce-a31f-26a19b1ad34a',
+            },
+            departmentIndicator: 'AIR_AND_SPACE_FORCE',
+            id: 'a2c34dba-015f-4f96-a38b-0c0b9272e208',
+            locator: 'R993T7',
+            moveID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
+            originGBLOC: 'LKNQ',
+            status: 'PENDING',
+            submittedAt: '2020-10-15T23:48:35.420Z',
+            originDutyLocation: {
+              name: 'Scott AFB',
+            },
+            lockExpiresAt: '2099-10-15T23:48:35.420Z',
+            lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+          },
+        ],
+        totalCount: 1,
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    };
+  },
+  useServicesCounselingQueuePPMQueries: () => {
+    return {
+      isLoading: false,
+      isError: false,
+      queueResult: {
+        totalCount: 1,
+        data: [
+          {
+            appearedInTooAt: '2024-06-04T15:14:48.267Z',
+            closeoutInitiated: '2024-06-04T16:35:06.681Z',
+            closeoutLocation: 'PPPO Scott AFB - USAF',
+            customer: {
+              agency: 'ARMY',
+              dodID: '3305957632',
+              eTag: 'MjAyMC0xMC0xNVQyMzo0ODozNC41ODQxOTZa',
+              email: 'leo_spaceman_sm@example.com',
+              first_name: 'Leo',
+              id: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+              last_name: 'Spacemen',
+              phone: '555-555-5555',
+              userID: 'c4d59e2b-bff0-4fce-a31f-26a19b1ad34a',
+            },
+            departmentIndicator: 'AIR_AND_SPACE_FORCE',
+            id: 'a2c34dba-015f-4f96-a38b-0c0b9272e208',
+            locator: 'R993T7',
+            moveID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
+            originGBLOC: 'AGFM',
+            status: 'PENDING',
+            submittedAt: '2020-10-15T23:48:35.420Z',
+            originDutyLocation: {
+              name: 'Scott AFB',
+            },
+          },
+        ],
+      },
+    };
+  },
 }));
 
 const GetMountedComponent = (queueTypeToMount) => {
@@ -289,32 +362,28 @@ describe('HeadquartersQueue', () => {
     expect(screen.getByText(/Moves/, { selector: 'h1' })).toBeInTheDocument();
   });
 
-  // it('renders PPM Closeout Queue when PPM Closeout Queue is selected', () => {
-  //   reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.CLOSEOUT_QUEUE });
-  //   render(
-  //     <MockProviders>
-  //       <reactRouterDom.BrowserRouter>
-  //         <HeadquartersQueue />
-  //       </reactRouterDom.BrowserRouter>
-  //     </MockProviders>,
-  //   );
-  //   expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
-  //   expect(screen.queryByTestId('ppm-type')).toBeInTheDocument();
-  //   expect(screen.getByText(/Moves/, { selector: 'h1' })).toBeInTheDocument();
-  // });
+  it('renders PPM Closeout Queue when PPM Closeout Queue is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.CLOSEOUT_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <HeadquartersQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+    expect(screen.getByText('Closeout initiated', { selector: 'th' })).toBeInTheDocument();
+    expect(screen.getByText(/Moves/, { selector: 'h1' })).toBeInTheDocument();
+  });
 
-  // it('renders Payment Requests Queue when Payment Requests Queue is selected', () => {
-  //   reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.PAYMENT_REQUEST_QUEUE });
-  //   render(
-  //     <MockProviders>
-  //       <reactRouterDom.BrowserRouter>
-  //         <HeadquartersQueue />
-  //       </reactRouterDom.BrowserRouter>
-  //     </MockProviders>,
-  //   );
-  //   expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
-  //   expect(screen.getByText(/Payment requests/, { selector: 'h1' })).toBeInTheDocument();
-  // });
+  it('renders Payment Requests Queue when Payment Requests Queue is selected', () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.PAYMENT_REQUEST_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <HeadquartersQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+    expect(screen.getByText(/Payment requests/, { selector: 'h1' })).toBeInTheDocument();
+  });
 
   it('has all options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
