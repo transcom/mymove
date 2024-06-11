@@ -4471,7 +4471,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
