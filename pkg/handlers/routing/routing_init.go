@@ -808,6 +808,8 @@ func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	return site
 }
 
+// This "Prime" router is really just the "API" router for MilMove.
+// It was initially just named under "Prime" as it was the only use of the router
 func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
 
