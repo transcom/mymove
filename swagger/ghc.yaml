@@ -3687,7 +3687,47 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /application_parameters/{parameterName}:
+    get:
+      summary: Searches for an application parameter by name, returns nil if not found
+      description: Searches for an application parameter by name, returns nil if not found
+      operationId: getParam
+      tags:
+        - application_parameters
+      parameters:
+        - in: path
+          name: parameterName
+          type: string
+          format: string
+          required: true
+          description: Parameter Name
+      responses:
+        '200':
+          description: Application Parameters
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '500':
+          description: server error
 definitions:
+  ApplicationParameters:
+    type: object
+    properties:
+      validationCode:
+        type: string
+        format: string
+        x-nullable: true
+      parameterName:
+        type: string
+        format: string
+        x-nullable: true
+      parameterValue:
+        type: string
+        format: string
+        x-nullable: true
   ClientError:
     type: object
     properties:
@@ -3977,6 +4017,7 @@ definitions:
         $ref: '#/definitions/Address'
       cacValidated:
         type: boolean
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -5547,6 +5588,10 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7050,8 +7095,15 @@ definitions:
         type: string
         description: Reason for updating service item.
         x-nullable: true
+      standaloneCrate:
+        type: boolean
+        x-nullable: true
       serviceRequestDocuments:
         $ref: '#/definitions/ServiceRequestDocuments'
+      estimatedPrice:
+        type: integer
+        format: cents
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
@@ -7685,6 +7737,11 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
     required:
       - id
       - createdAt
@@ -8791,6 +8848,9 @@ definitions:
       - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
+      - StandaloneCrate
+      - StandaloneCrateCap
+      - UncappedRequestTotal
   ServiceItemParamType:
     type: string
     enum:
