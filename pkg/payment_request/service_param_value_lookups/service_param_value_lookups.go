@@ -424,17 +424,11 @@ func InitializeLookups(mtoShipment *models.MTOShipment, mtoServiceItem *models.M
 	return lookups
 }
 
-func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem *models.MTOServiceItem) (models.Address, error) {
-	if mtoServiceItem == nil {
-		return *mtoShipment.DestinationAddress, nil
-	}
+func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (models.Address, error) {
 	shipmentCopy := mtoShipment
 	err := appCtx.DB().Eager("DeliveryAddressUpdate.Status", "DeliveryAddressUpdate.UpdatedAt", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
 	if err != nil {
 		return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
-	}
-	if shipmentCopy.MTOServiceItems == nil || len(shipmentCopy.MTOServiceItems) == 0 {
-		return *mtoShipment.DestinationAddress, nil
 	}
 
 	var result models.Address
@@ -449,7 +443,11 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 			if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
 				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
-					return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
+					result = shipmentCopy.DeliveryAddressUpdate.OriginalAddress
+					return result, nil
+				} else {
+					result = shipmentCopy.DeliveryAddressUpdate.NewAddress
+					return result, nil
 				}
 				return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
 			}
