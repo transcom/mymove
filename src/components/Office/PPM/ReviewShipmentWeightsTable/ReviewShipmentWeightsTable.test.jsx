@@ -36,6 +36,7 @@ const PPMProps = {
   ],
   tableConfig: PPMReviewWeightsTableConfig,
 };
+
 const NonPPMProps = {
   tableData: [
     {
