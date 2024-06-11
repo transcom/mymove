@@ -5308,6 +5308,94 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes a collection of uploads",
+        "operationId": "deleteUploads",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Array of UUIDs to be deleted",
+            "name": "uploadIds",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
       }
     }
   },
@@ -18581,6 +18669,94 @@ func init() {
           },
           "413": {
             "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes a collection of uploads",
+        "operationId": "deleteUploads",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Array of UUIDs to be deleted",
+            "name": "uploadIds",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
           },
           "500": {
             "description": "server error"

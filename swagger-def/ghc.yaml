@@ -3557,6 +3557,66 @@ paths:
           description: payload is too large
         '500':
           description: server error
+    delete:
+      summary: Deletes a collection of uploads
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUploads
+      tags:
+        - uploads
+      parameters:
+        - in: query
+          name: uploadIds
+          type: array
+          items:
+            type: string
+            format: uuid
+          required: true
+          description: Array of UUIDs to be deleted
+      responses:
+        '204':
+          description: deleted
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
+      responses:
+        '204':
+          description: deleted
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
   /ppm-shipments/{ppmShipmentId}/uploads:
     post:
       summary: Create a new upload for a PPM weight ticket, pro-gear, or moving expense document

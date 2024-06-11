@@ -166,6 +166,16 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		})
 	}
+	if api.UploadsDeleteUploadHandler == nil {
+		api.UploadsDeleteUploadHandler = uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")
+		})
+	}
+	if api.UploadsDeleteUploadsHandler == nil {
+		api.UploadsDeleteUploadsHandler = uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
+		})
+	}
 	if api.ShipmentDenySITExtensionHandler == nil {
 		api.ShipmentDenySITExtensionHandler = shipment.DenySITExtensionHandlerFunc(func(params shipment.DenySITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DenySITExtension has not yet been implemented")

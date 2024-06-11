@@ -249,3 +249,74 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			return ppmop.NewCreatePPMUploadCreated().WithPayload(uploadPayload), nil
 		})
 }
+
+// DeleteUploadHandler deletes an upload
+type DeleteUploadHandler struct {
+	handlers.HandlerConfig
+	services.UploadInformationFetcher
+}
+
+// Handle deletes an upload
+func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().IsOfficeApp() {
+				forbiddenError := apperror.NewForbiddenError("User is not an Office User.")
+				appCtx.Logger().Error(forbiddenError.Error())
+				return uploadop.NewDeleteUploadForbidden(), forbiddenError
+			}
+
+			uploadID, _ := uuid.FromString(params.UploadID.String())
+			userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			userUploader, err := uploaderpkg.NewUserUploader(
+				h.FileStorer(),
+				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+			)
+			if err != nil {
+				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+			}
+			if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			return uploadop.NewDeleteUploadNoContent(), nil
+
+		})
+}
+
+// DeleteUploadsHandler deletes a collection of uploads
+type DeleteUploadsHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle deletes uploads
+func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			userUploader, err := uploaderpkg.NewUserUploader(
+				h.FileStorer(),
+				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+			)
+			if err != nil {
+				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+			}
+
+			for _, uploadID := range params.UploadIds {
+				uploadUUID, _ := uuid.FromString(uploadID.String())
+				userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadUUID)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+
+				if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+			}
+
+			return uploadop.NewDeleteUploadsNoContent(), nil
+		})
+}
