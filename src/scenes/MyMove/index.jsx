@@ -53,6 +53,7 @@ import MoveHome from 'pages/MyMove/Home/MoveHome';
 import AddOrders from 'pages/MyMove/AddOrders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import SmartCardRedirect from 'shared/SmartCardRedirect/SmartCardRedirect';
+import OktaErrorBanner from 'components/OktaErrorBanner/OktaErrorBanner';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -87,6 +88,7 @@ export class CustomerApp extends Component {
       multiMoveFeatureFlag: false,
       cacValidatedFeatureFlag: false,
       validationCodeRequired: false,
+      oktaErrorBanner: false,
     };
   }
 
@@ -111,6 +113,16 @@ export class CustomerApp extends Component {
         validationCodeRequired: enabled,
       });
     });
+    // if the params "okta_error=true" are appended to the url, then we need to change state to display a banner
+    // this occurs when a user is trying to use an office user's email to access the customer application
+    // Okta config rules do not allow the same email to be used for both office & customer apps
+    const currentUrl = new URL(window.location.href);
+    const oktaErrorParam = currentUrl.searchParams.get('okta_error');
+    if (oktaErrorParam === 'true') {
+      this.setState({
+        oktaErrorBanner: true,
+      });
+    }
     document.title = generatePageTitle('Sign In');
   }
 
@@ -128,7 +140,7 @@ export class CustomerApp extends Component {
   render() {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading, cacValidated } = props;
-    const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag } = this.state;
+    const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag, oktaErrorBanner } = this.state;
     const script = document.createElement('script');
 
     script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
@@ -161,6 +173,8 @@ export class CustomerApp extends Component {
                 </div>
               )}
             </div>
+
+            {oktaErrorBanner && <OktaErrorBanner />}
 
             {hasError && <SomethingWentWrong />}
 
