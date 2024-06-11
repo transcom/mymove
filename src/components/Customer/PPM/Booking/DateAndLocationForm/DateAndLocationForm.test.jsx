@@ -189,11 +189,12 @@ describe('DateAndLocationForm component', () => {
     expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
   });
 
-  it('5', async () => {
-    const navyServiceMember = {
-      ...defaultProps.serviceMember,
-      affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
-    };
+  it('displays the closeout office select when the service member is in the Navy', async () => {
+    await act(async () => {
+      const navyServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
+      };
 
     render(<DateAndLocationForm {...defaultProps} serviceMember={navyServiceMember} />);
     expect(screen.queryByText('Closeout Office')).not.toBeInTheDocument();
@@ -205,15 +206,12 @@ describe('DateAndLocationForm component', () => {
 describe('validates form fields and displays error messages', () => {
   it('marks required inputs when left empty', async () => {
     render(<DateAndLocationForm {...defaultProps} />);
-    await act(async () => {
-      await userEvent.click(screen.getByLabelText('Which closeout office should review your PPM?'));
-      await userEvent.keyboard('{backspace}');
-    });
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeVisible();
-    });
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+    await userEvent.click(screen.getByText('Start typing a closeout office...'));
+    expect(screen.getByText('Required')).toBeVisible();
   });
   it('displays type errors when input fails validation schema', async () => {
     const invalidTypes = {
