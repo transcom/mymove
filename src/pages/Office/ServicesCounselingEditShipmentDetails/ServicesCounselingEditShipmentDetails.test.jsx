@@ -459,30 +459,30 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
 
-      // // Schema validation is fail state thus Save button is disabled. click No to hide
-      // // SIT related widget. Hiding SIT widget must reset schema because previous SIT related
-      // // schema failure is nolonger applicable.
-      // const sitExpected = document.getElementById('sitExpectedNo').parentElement;
-      // const sitExpectedNo = within(sitExpected).getByRole('radio', { name: 'No' });
-      // await userEvent.click(sitExpectedNo);
+      // Schema validation is fail state thus Save button is disabled. click No to hide
+      // SIT related widget. Hiding SIT widget must reset schema because previous SIT related
+      // schema failure is nolonger applicable.
+      const sitExpected = document.getElementById('sitExpectedNo').parentElement;
+      const sitExpectedNo = within(sitExpected).getByRole('radio', { name: 'No' });
+      await userEvent.click(sitExpectedNo);
 
-      // // Verify No is really hiding SIT related inputs
-      // expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
-      // expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
-      // expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
+      // Verify No is really hiding SIT related inputs
+      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
 
-      // // Verify clicking Yes again will restore persisted data for each SIT related control.
-      // const sitExpected2 = document.getElementById('sitExpectedYes').parentElement;
-      // const sitExpectedYes = within(sitExpected2).getByRole('radio', { name: 'Yes' });
-      // await userEvent.click(sitExpectedYes);
+      // Verify clicking Yes again will restore persisted data for each SIT related control.
+      const sitExpected2 = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected2).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
 
-      // // Verify persisted values are restored to expected values.
-      // expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
-      // expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
-      // expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-      // await waitFor(() => {
-      //   expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      // });
+      // Verify persisted values are restored to expected values.
+      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      });
     });
 
     describe('Check SIT field validations', () => {
