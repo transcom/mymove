@@ -22,31 +22,23 @@ func NewTransportationAccountingCodeFetcher() services.TransportationAccountingC
 func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingCodes(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
 	var tacs []models.TransportationAccountingCode
 	var err error
-	switch serviceMemberAffiliation {
-	case models.AffiliationCOASTGUARD:
-		// If a service member is in the Coast Guard don't filter out the household goods code of 'HS' because that is
-		// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
-		// then this can be revisited to weight the different LOAs similar to the other services.
-		err = appCtx.DB().Q().
-			EagerPreload("LineOfAccounting").
-			Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
-			Where("transportation_accounting_codes.tac = ?", tacCode).
-			Where("? between transportation_accounting_codes.trnsprtn_acnt_bgn_dt and transportation_accounting_codes.trnsprtn_acnt_end_dt", ordersIssueDate).
-			Where("? between loa.loa_bgn_dt and loa.loa_end_dt", ordersIssueDate).
-			Where("transportation_accounting_codes.tac_fn_bl_mod_cd != 'P'").
-			All(&tacs)
-	default:
-		// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
-		err = appCtx.DB().Q().
-			EagerPreload("LineOfAccounting").
-			Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
-			Where("transportation_accounting_codes.tac = ?", tacCode).
-			Where("? between transportation_accounting_codes.trnsprtn_acnt_bgn_dt and transportation_accounting_codes.trnsprtn_acnt_end_dt", ordersIssueDate).
-			Where("? between loa.loa_bgn_dt and loa.loa_end_dt", ordersIssueDate).
-			Where("transportation_accounting_codes.tac_fn_bl_mod_cd != 'P'").
-			Where("loa.loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
-			All(&tacs)
+
+	// If a service member is in the Coast Guard don't filter out the household goods code of 'HS' because that is
+	// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
+	// then this can be revisited to weight the different LOAs similar to the other services.
+	query := appCtx.DB().Q().
+		EagerPreload("LineOfAccounting").
+		Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
+		Where("transportation_accounting_codes.tac = ?", tacCode).
+		Where("? BETWEEN transportation_accounting_codes.trnsprtn_acnt_bgn_dt AND transportation_accounting_codes.trnsprtn_acnt_end_dt", ordersIssueDate).
+		Where("? BETWEEN loa.loa_bgn_dt AND loa.loa_end_dt", ordersIssueDate).
+		Where("transportation_accounting_codes.tac_fn_bl_mod_cd != 'P'")
+
+	// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
+	if serviceMemberAffiliation != models.AffiliationCOASTGUARD {
+		query = query.Where("loa.loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS)
 	}
+	err = query.All(&tacs)
 	if err != nil {
 		return []models.TransportationAccountingCode{}, err
 	}
