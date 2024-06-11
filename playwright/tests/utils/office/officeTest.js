@@ -17,7 +17,7 @@ export const { expect } = base;
  */
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
-export const QAECSROfficeUserType = 'QAE/CSR office';
+export const QAEOfficeUserType = 'QAE office';
 export const CustomerServiceRepresentativeOfficeUserType = 'CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
@@ -118,10 +118,10 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
-   * Use devlocal auth to sign in as office user with qaecsr role
+   * Use devlocal auth to sign in as office user with qae role
    */
-  async signInAsNewQAECSRUser() {
-    await this.signInAsNewUser(QAECSROfficeUserType);
+  async signInAsNewQAEUser() {
+    await this.signInAsNewUser(QAEOfficeUserType);
     await this.page.getByRole('heading', { name: 'Search for a move' }).waitFor();
   }
 
@@ -148,10 +148,31 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
-   * search for and navigate to move
+   * search for and navigate to move for QAE
    * @param {string} moveLocator
    */
-  async qaeCsrSearchForAndNavigateToMove(moveLocator) {
+  async qaeSearchForAndNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="searchText"]').type(moveLocator);
+    await this.page.locator('input[name="searchText"]').blur();
+
+    await this.page.getByRole('button', { name: 'Search' }).click();
+    await this.page.getByRole('heading', { name: 'Results' }).waitFor();
+
+    await base.expect(this.page.locator('tbody >> tr')).toHaveCount(1);
+    await base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveLocator);
+
+    // click result to navigate to move details page
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForLoading();
+
+    base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
+  }
+
+  /**
+   * search for and navigate to move for CSR
+   * @param {string} moveLocator
+   */
+  async csrSearchForAndNavigateToMove(moveLocator) {
     await this.page.locator('input[name="searchText"]').type(moveLocator);
     await this.page.locator('input[name="searchText"]').blur();
 

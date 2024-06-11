@@ -1,8 +1,8 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { Checkbox, Grid } from '@trussworks/react-uswds';
+import { Checkbox, Radio, FormGroup, Grid } from '@trussworks/react-uswds';
 
 import styles from './CustomerContactInfoForm.module.scss';
 
@@ -15,6 +15,7 @@ import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { phoneSchema, requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
+import Hint from 'components/Hint';
 
 const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
@@ -38,15 +39,14 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       .required('Required'), // min 12 includes hyphens
     phoneIsPreferred: Yup.boolean(),
     emailIsPreferred: Yup.boolean(),
+    cacUser: Yup.boolean().required('Required'),
   });
-
   return (
     <Grid row>
       <Grid col>
         <div className={styles.customerContactForm}>
-          <h1 className={styles.title}>Customer Info</h1>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-            {({ isValid, isSubmitting, handleSubmit }) => {
+            {({ isValid, handleSubmit }) => {
               return (
                 <Form className={formStyles.form}>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -74,10 +74,42 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
                     <BackupContactInfoFields />
                   </SectionWrapper>
+                  <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
+                    <h3>CAC Validation</h3>
+                    <FormGroup>
+                      <legend className="usa-label">
+                        Is the customer a non-CAC user or do they need to bypass CAC validation?
+                      </legend>
+                      <Hint>
+                        If this is checked yes, then the customer has already validated their CAC or their identity has
+                        been validated by a trusted office user.
+                      </Hint>
+                      <div className="grid-row grid-gap">
+                        <Field
+                          as={Radio}
+                          id="yesCacUser"
+                          label="Yes"
+                          name="cacUser"
+                          value="true"
+                          data-testid="cac-user-yes"
+                          type="radio"
+                        />
+                        <Field
+                          as={Radio}
+                          id="NonCacUser"
+                          label="No"
+                          name="cacUser"
+                          value="false"
+                          data-testid="cac-user-no"
+                          type="radio"
+                        />
+                      </div>
+                    </FormGroup>
+                  </SectionWrapper>
                   <div className={formStyles.formActions}>
                     <WizardNavigation
                       editMode
-                      disableNext={!isValid || isSubmitting}
+                      disableNext={!isValid}
                       onCancelClick={onBack}
                       onNextClick={handleSubmit}
                     />
@@ -104,6 +136,7 @@ CustomerContactInfoForm.propTypes = {
     telephone: PropTypes.string,
     email: PropTypes.string,
     customerAddress: ResidentialAddressShape,
+    cacUser: PropTypes.bool,
   }).isRequired,
   onSubmit: PropTypes.func,
   onBack: PropTypes.func,
