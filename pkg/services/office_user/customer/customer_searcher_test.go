@@ -177,7 +177,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		})
 		suite.NoError(err)
 		suite.Len(customers, 1)
-		suite.Equal(serviceMember2.Edipi, customers[0].Edipi)
+		suite.Equal(*serviceMember2.Edipi, *customers[0].Edipi)
 		suite.Equal(2, totalCount)
 	})
 
