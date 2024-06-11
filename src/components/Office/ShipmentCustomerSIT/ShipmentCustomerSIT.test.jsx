@@ -6,17 +6,10 @@ import { Formik } from 'formik';
 import ShipmentCustomerSIT from './ShipmentCustomerSIT';
 
 describe('components/Office/ShipmentCustomerSIT', () => {
-  const ppmShipmentInfo = {
-    sitExpected: true,
-    sitEstimatedWeight: 999,
-    sitEstimatedDepartureDate: '2022-07-13',
-    sitEstimatedEntryDate: '2022-07-05',
-  };
-
   it('defaults to customer not using SIT', () => {
     render(
       <Formik initialValues={{}}>
-        <ShipmentCustomerSIT {...ppmShipmentInfo} />
+        <ShipmentCustomerSIT />
       </Formik>,
     );
 
@@ -29,7 +22,7 @@ describe('components/Office/ShipmentCustomerSIT', () => {
   it('defaults to customer using SIT at destination', async () => {
     render(
       <Formik initialValues={{}}>
-        <ShipmentCustomerSIT {...ppmShipmentInfo} />
+        <ShipmentCustomerSIT />
       </Formik>,
     );
 
