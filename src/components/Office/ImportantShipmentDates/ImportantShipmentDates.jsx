@@ -25,15 +25,17 @@ const ImportantShipmentDates = ({
   const headerPlannedMoveDate = isPPM ? 'Planned Move Date' : 'Requested pick up date';
   const headerActualMoveDate = isPPM ? 'Actual Move Date' : 'Scheduled pick up date';
   const headerActualPickupDate = isPPM ? '' : 'Actual pick up date';
+  const headerDiversionApproved = 'Diversion Approved';
+  const headerDiversionRequested = 'Diversion Requested';
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
         {shipmentInfo.isDiversion && (
-          <DataTable columnHeaders={['Diversion Approved']} dataRow={[shipmentInfo.diversionReason || emDash]} />
+          <DataTable columnHeaders={[headerDiversionApproved]} dataRow={[shipmentInfo.diversionReason || emDash]} />
         )}
         {!shipmentInfo.isDiversion && shipmentInfo.status === shipmentStatuses.DIVERSION_REQUESTED && (
-          <DataTable columnHeaders={['Diversion Requested']} dataRow={[shipmentInfo.diversionReason || emDash]} />
+          <DataTable columnHeaders={[headerDiversionRequested]} dataRow={[shipmentInfo.diversionReason || emDash]} />
         )}
         {!isPPM && <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />}
         {!isPPM && (
