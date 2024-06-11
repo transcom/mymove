@@ -426,7 +426,7 @@ func InitializeLookups(mtoShipment *models.MTOShipment, mtoServiceItem *models.M
 }
 
 func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem *models.MTOServiceItem) (models.Address, error) {
-	if mtoServiceItem == nil || mtoShipment.ShipmentType != models.MTOShipmentTypeHHG || (mtoServiceItem.ReService.Code != models.ReServiceCodeDLH && mtoServiceItem.ReService.Code != models.ReServiceCodeDSH && mtoServiceItem.ReService.Code != models.ReServiceCodeFSC) {
+	if mtoServiceItem == nil {
 		return *mtoShipment.DestinationAddress, nil
 	}
 	shipmentCopy := mtoShipment
