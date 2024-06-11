@@ -75,8 +75,8 @@ var ServicesCounselor = RolePermissions{
 	},
 }
 
-var QAECSR = RolePermissions{
-	RoleType: roles.RoleTypeQaeCsr,
+var QAE = RolePermissions{
+	RoleType: roles.RoleTypeQae,
 	Permissions: []string{
 		"create.reportViolation",
 		"create.evaluationReport",
@@ -97,7 +97,7 @@ var CustomerServiceRepresentative = RolePermissions{
 	},
 }
 
-var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAECSR, CustomerServiceRepresentative}
+var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, CustomerServiceRepresentative}
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
