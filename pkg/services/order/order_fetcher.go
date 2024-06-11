@@ -106,9 +106,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutInitiatedQuery := closeoutInitiatedFilter(params.CloseoutInitiated)
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
+	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [15]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
+	options := [16]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -367,6 +368,14 @@ func moveStatusFilter(statuses []string) QueryOption {
 		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
 		if len(statuses) <= 0 {
 			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
+		}
+	}
+}
+
+func ppmStatusFilter(ppmStatus *string) QueryOption {
+	return func(query *pop.Query) {
+		if ppmStatus != nil {
+			query.Where("ppm_shipments.status = ?", *ppmStatus)
 		}
 	}
 }
