@@ -214,7 +214,7 @@ func branchFilter(branch *string) QueryOption {
 		if branch == nil {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		} else {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
