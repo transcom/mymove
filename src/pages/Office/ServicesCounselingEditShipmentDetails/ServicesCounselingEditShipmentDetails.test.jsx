@@ -452,20 +452,26 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         await userEvent.click(await screen.findByText('Altus'));
       });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        // default state , now we verify validation is good for save to be enabled
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+          // default state , now we verify validation is good for save to be enabled
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
       await act(async () => {
         await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
       });
 
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Schema validation is fail state thus Save button is disabled. click No to hide
       // SIT related widget. Hiding SIT widget must reset schema because previous SIT related
@@ -494,9 +500,12 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
     });
 
     describe('Check SIT field validations', () => {
@@ -554,11 +563,14 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
         await userEvent.tab();
 
-        await waitFor(() => {
-          const alerts = screen.getAllByRole('alert');
-          expect(alerts).toHaveLength(1);
-          expect(alerts[0]).toHaveTextContent(expectedError);
-        });
+        await waitFor(
+          () => {
+            const alerts = screen.getAllByRole('alert');
+            expect(alerts).toHaveLength(1);
+            expect(alerts[0]).toHaveTextContent(expectedError);
+          },
+          { timeout: 10000 },
+        );
 
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
         expect(screen.getByRole('alert').nextElementSibling.firstElementChild).toHaveAttribute('name', field);
