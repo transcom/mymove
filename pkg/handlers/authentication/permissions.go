@@ -41,7 +41,6 @@ var TOO = RolePermissions{
 	},
 }
 
-// TODO: FOR NOW HQ WILL USE SAME PERMISSIONS AS TOO, B-20014 WILL CHANGE THESE TO READ ONLY
 var HQ = RolePermissions{
 	RoleType: roles.RoleTypeHQ,
 	Permissions: []string{
