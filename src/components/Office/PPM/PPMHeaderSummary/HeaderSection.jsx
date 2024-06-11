@@ -93,7 +93,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
           </div>
           <div>
             <Label>Actual Move Start Date</Label>
-            <span className={styles.light}>
+            <span data-testid="actualMoveDate" className={styles.light}>
               {isFetchingItems && updatedItemName === 'actualMoveDate' ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
@@ -109,7 +109,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
           </div>
           <div>
             <Label>Starting Address</Label>
-            <span className={styles.light}>
+            <span data-testid="pickupAddress" className={styles.light}>
               {isFetchingItems && updatedItemName === 'pickupAddress' ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
@@ -125,7 +125,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
           </div>
           <div>
             <Label>Ending Address</Label>
-            <span className={styles.light}>
+            <span data-testid="destinationAddress" className={styles.light}>
               {isFetchingItems && updatedItemName === 'destinationAddress' ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
