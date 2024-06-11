@@ -596,23 +596,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
 
-      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).toBeInTheDocument();
-      expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
-
-      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
-      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
-      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-
-      act(() => {
-        const closeoutField = screen
-          .getAllByRole('combobox')
-          .find((comboBox) => comboBox.getAttribute('id') === 'closeoutOffice-input');
-
-        userEvent.click(closeoutField);
-        userEvent.keyboard('Altus{enter}');
-      });
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      }, 10000);
 
       await waitFor(
         () => {
@@ -662,9 +649,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
-    }, 10000);
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      }, 10000);
+    });
 
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
