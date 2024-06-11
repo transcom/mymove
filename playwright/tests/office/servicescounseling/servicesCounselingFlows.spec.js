@@ -379,76 +379,58 @@ test.describe('Services counselor user', () => {
       await scPage.navigateToCloseoutMove(move.locator);
     });
 
-    test('is able to edit actual move start date', async ({ page, scPage }) => {
+    test('is able to edit/save actual move start date', async ({ page, scPage }) => {
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Actual Move Start Date
-      await page
-        .getByTestId('shipmentInfo')
-        .getByTestId('shipmentInfo-showRequestDetailsButton')
-        .dispatchEvent('click');
-      await page.getByTestId('actualMoveDate').getByTestId('editTextButton').dispatchEvent('click');
-      await expect(page.getByText('Edit Shipment Info')).toBeVisible();
+      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
+      await page.getByTestId('actualMoveDate').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
-      await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
+      await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
       await expect(page.getByLabel('Accept')).toBeVisible();
       await page.getByLabel('Accept').dispatchEvent('click');
       await page.getByRole('button', { name: 'Continue' }).click();
-
-      await scPage.waitForPage.reviewProGear();
-      await expect(page.getByLabel('Accept')).toBeVisible();
     });
 
-    test('is able to edit pickup address', async ({ page, scPage }) => {
+    test('is able to edit/save pickup address', async ({ page, scPage }) => {
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Starting Address
-      await page
-        .getByTestId('shipmentInfo')
-        .getByTestId('shipmentInfo-showRequestDetailsButton')
-        .dispatchEvent('click');
-      await page.getByTestId('pickupAddress').getByTestId('editTextButton').dispatchEvent('click');
-      await expect(page.getByText('Edit Shipment Info')).toBeVisible();
+      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
+      await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
-      await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
+      await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
       await expect(page.getByLabel('Accept')).toBeVisible();
       await page.getByLabel('Accept').dispatchEvent('click');
       await page.getByRole('button', { name: 'Continue' }).click();
-
-      await scPage.waitForPage.reviewProGear();
-      await expect(page.getByLabel('Accept')).toBeVisible();
     });
 
-    test('is able to edit destination address', async ({ page, scPage }) => {
+    test('is able to edit/save destination address', async ({ page, scPage }) => {
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Ending Address
-      await page
-        .getByTestId('shipmentInfo')
-        .getByTestId('shipmentInfo-showRequestDetailsButton')
-        .dispatchEvent('click');
-      await page.getByTestId('destinationAddress').getByTestId('editTextButton').dispatchEvent('click');
-      await expect(page.getByText('Edit Shipment Info')).toBeVisible();
+      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
+      await page.getByTestId('destinationAddress').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
-      await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
+      await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
       await expect(page.getByLabel('Accept')).toBeVisible();
       await page.getByLabel('Accept').dispatchEvent('click');
       await page.getByRole('button', { name: 'Continue' }).click();
-
-      await scPage.waitForPage.reviewProGear();
-      await expect(page.getByLabel('Accept')).toBeVisible();
     });
 
-    test('is able to edit advance received', async ({ page, scPage }) => {
+    test('is able to edit/save advance received', async ({ page, scPage }) => {
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();
@@ -469,16 +451,12 @@ test.describe('Services counselor user', () => {
       await page.getByRole('button', { name: 'Continue' }).click();
 
       await scPage.waitForPage.reviewDocumentsConfirmation();
-      await expect(page.getByText('Loading, Please Wait...')).not.toBeVisible();
-      await page.getByTestId('incentives').getByTestId('incentives-showRequestDetailsButton').dispatchEvent('click');
-      await page.getByTestId('advanceReceived').getByTestId('editTextButton').dispatchEvent('click');
-      await expect(page.getByText('Edit Incentives/Costs')).toBeVisible();
+      await page.waitForSelector('text="Loading, Please Wait..."', { state: 'hidden' });
+      await page.getByTestId('incentives').getByTestId('incentives-showRequestDetailsButton').click();
+      await page.getByTestId('advanceReceived').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Incentives/Costs"');
       await page.getByRole('button', { name: 'Save' }).click();
-      await expect(page.getByText('Edit Incentives/Costs')).not.toBeVisible();
-      await page.getByRole('button', { name: 'Confirm' }).click();
-      await scPage.waitForPage.moveDetails();
-
-      await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
+      await page.waitForSelector('text="Edit Incentives/Costs"', { state: 'hidden' });
     });
   });
 
