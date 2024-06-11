@@ -39,7 +39,7 @@ describe('OfficeAccountRequestFields component', () => {
     const tooCheckbox = await screen.getByTestId('transportationOrderingOfficerCheckBox');
     expect(tooCheckbox).toBeInstanceOf(HTMLInputElement);
 
-    const tioCheckbox = await screen.getByTestId('transportationInvoicingOfficerCheckBox');
+    const tioCheckbox = await screen.getByTestId('taskInvoicingOfficerCheckBox');
     expect(tioCheckbox).toBeInstanceOf(HTMLInputElement);
 
     const tcoCheckbox = await screen.getByTestId('transportationContractingOfficerCheckBox');
@@ -50,5 +50,8 @@ describe('OfficeAccountRequestFields component', () => {
 
     const qaeCheckbox = await screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     expect(qaeCheckbox).toBeInstanceOf(HTMLInputElement);
+
+    const csrCheckbox = await screen.getByTestId('customerSupportRepresentativeCheckBox');
+    expect(csrCheckbox).toBeInstanceOf(HTMLInputElement);
   });
 });

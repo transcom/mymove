@@ -185,7 +185,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Transportation Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -281,7 +281,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Transportation Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -388,7 +388,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Transportation Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{

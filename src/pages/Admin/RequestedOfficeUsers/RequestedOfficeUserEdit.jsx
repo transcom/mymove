@@ -18,11 +18,44 @@ import styles from './RequestedOfficeUserShow.module.scss';
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { edipiValidator, phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { updateRequestedOfficeUser } from 'services/adminApi';
+import { roleTypes } from 'constants/userRoles';
 
 const RequestedOfficeUserShowTitle = () => {
   const record = useRecordContext();
 
   return <span>{`${record?.firstName} ${record?.lastName}`}</span>;
+};
+
+const validateForm = (values) => {
+  const errors = {};
+  if (!values.firstName) {
+    errors.firstName = 'You must enter a first name.';
+  }
+  if (!values.lastName) {
+    errors.lastName = 'You must enter a last name.';
+  }
+
+  if (!values.telephone) {
+    errors.telephone = 'You must enter a telephone number.';
+  } else if (!values.telephone.match(/^[2-9]\d{2}-\d{3}-\d{4}$/)) {
+    errors.telephone = 'Invalid phone number, should be 000-000-0000.';
+  }
+
+  if (!values.roles?.length) {
+    errors.roles = 'You must select at least one role.';
+  } else if (
+    values.roles.find((role) => role.roleType === roleTypes.TIO) &&
+    values.roles.find((role) => role.roleType === roleTypes.TOO)
+  ) {
+    errors.roles =
+      'You cannot select both Transportation Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.';
+  }
+
+  if (!values.transportationOfficeId) {
+    errors.transportationOfficeId = 'You must select a transportation office.';
+  }
+
+  return errors;
 };
 
 const RequestedOfficeUserEdit = () => {
@@ -135,7 +168,13 @@ const RequestedOfficeUserEdit = () => {
 
   return (
     <Edit title={<RequestedOfficeUserShowTitle />}>
-      <SimpleForm toolbar={renderToolBar()} sx={{ '& .MuiInputBase-input': { width: 232 } }}>
+      <SimpleForm
+        toolbar={renderToolBar()}
+        sx={{ '& .MuiInputBase-input': { width: 232 } }}
+        reValidateMode="onBlur"
+        mode="onBlur"
+        validate={validateForm}
+      >
         <TextInput source="id" disabled />
         <TextInput source="userId" label="User Id" disabled />
         <TextInput source="email" disabled />
