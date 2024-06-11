@@ -68,12 +68,6 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'customer_service_representative',
       });
     }
-    if (values.customerSupportRepresentativeCheckBox) {
-      requestedRoles.push({
-        name: 'Customer Service Representative',
-        roleType: 'customer_service_representative',
-      });
-    }
 
     let body = {
       email: values.officeAccountRequestEmail,
