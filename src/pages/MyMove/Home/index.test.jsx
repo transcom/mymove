@@ -106,6 +106,22 @@ const incompletePPMShipment = {
     createdAt: ppmShipmentCreatedDate.toISOString(),
     updatedAt: ppmShipmentCreatedDate.toISOString(),
     eTag: window.btoa(ppmShipmentCreatedDate.toISOString()),
+    pickupAddress: {
+      streetAddress1: '1 Test Street',
+      streetAddress2: '2 Test Street',
+      streetAddress3: '3 Test Street',
+      city: 'Pickup Test City',
+      state: 'NY',
+      postalCode: '10001',
+    },
+    destinationAddress: {
+      streetAddress1: '1 Test Street',
+      streetAddress2: '2 Test Street',
+      streetAddress3: '3 Test Street',
+      city: 'Destination Test City',
+      state: 'NY',
+      postalCode: '11111',
+    },
   },
   createdAt: mtoShipmentCreatedDate.toISOString(),
   updatedAt: mtoShipmentCreatedDate.toISOString(),
@@ -154,6 +170,22 @@ const approvedPPMShipment = {
     approvedAt: approvedDate.toISOString(),
     updatedAt: approvedDate.toISOString(),
     eTag: window.btoa(approvedDate.toISOString()),
+    pickupAddress: {
+      streetAddress1: '1 Test Street',
+      streetAddress2: '2 Test Street',
+      streetAddress3: '3 Test Street',
+      city: 'Pickup Test City',
+      state: 'NY',
+      postalCode: '10001',
+    },
+    destinationAddress: {
+      streetAddress1: '1 Test Street',
+      streetAddress2: '2 Test Street',
+      streetAddress3: '3 Test Street',
+      city: 'Destination Test City',
+      state: 'NY',
+      postalCode: '11111',
+    },
   },
   updatedAt: approvedDate.toISOString(),
   eTag: window.btoa(approvedDate.toISOString()),
@@ -962,7 +994,27 @@ describe('Home component', () => {
       const propsForCloseoutCompleteShipment = {
         ...props,
         mtoShipments: [
-          createPPMShipmentWithFinalIncentive({ ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT } }),
+          createPPMShipmentWithFinalIncentive({
+            ppmShipment: {
+              status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
+              pickupAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Pickup Test City',
+                state: 'NY',
+                postalCode: '10001',
+              },
+              destinationAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Destination Test City',
+                state: 'NY',
+                postalCode: '11111',
+              },
+            },
+          }),
         ],
       };
 
