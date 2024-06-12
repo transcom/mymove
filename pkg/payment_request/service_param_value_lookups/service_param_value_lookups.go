@@ -202,6 +202,17 @@ func ServiceParamLookupInitialize(
 		}
 	}
 
+	// Check if pickup address is present
+	if mtoShipment.PickupAddress == nil || mtoShipment.PickupAddress.ID == uuid.Nil {
+		/* if not present, try to get it from the db
+		 * if you can't find it in the db or pickup address is still nil, error out
+		 */
+		err := appCtx.DB().Load(&mtoShipment, "PickupAddress")
+		if err != nil || mtoShipment.PickupAddress == nil || mtoShipment.PickupAddress.ID == uuid.Nil {
+			return nil, apperror.NewNotFoundError(*mtoShipment.PickupAddressID, "looking for PickupAddress")
+		}
+	}
+
 	mtoShipment.PickupAddress = &pickupAddress
 	mtoShipment.DestinationAddress = &destinationAddress
 
