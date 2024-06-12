@@ -528,8 +528,7 @@ describe('DateAndLocation component', () => {
       });
     }, 10000);
 
-    // move and shipment successful patches are linked
-    it.skip('calls patch move when there is a closeout office (Army/Air Force) and create shipment succeeds', async () => {
+    it('calls patch move when there is a closeout office (Army/Air Force) and create shipment succeeds', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
       patchMove.mockResolvedValueOnce(mockMove);
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
@@ -681,8 +680,7 @@ describe('DateAndLocation component', () => {
       });
     });
 
-    // move and shipment patches are linked
-    it.skip('does not patch the move when create shipment fails', async () => {
+    it('does not patch the move when create shipment fails', async () => {
       // createMTOShipment.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
@@ -755,8 +753,7 @@ describe('DateAndLocation component', () => {
       });
     }, 10000);
 
-    // the shipment and move are patched at the same time so a successful shipment patch is a successful move patch
-    it.skip('displays appropriate error when patch move fails after create shipment succeeds', async () => {
+    it('displays appropriate error when patch move fails after create shipment succeeds', async () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
       patchMove.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
