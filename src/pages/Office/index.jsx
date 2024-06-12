@@ -488,7 +488,7 @@ export class OfficeApp extends Component {
                       key="qaeCSRMoveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.QAE_CSR, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
+                        <PrivateRoute requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
                           <QAECSRMoveSearch />
                         </PrivateRoute>
                       }
@@ -502,7 +502,7 @@ export class OfficeApp extends Component {
                           requiredRoles={[
                             roleTypes.TOO,
                             roleTypes.TIO,
-                            roleTypes.QAE_CSR,
+                            roleTypes.QAE,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
                           ]}
                         >
@@ -523,7 +523,7 @@ export class OfficeApp extends Component {
                     {activeRole === roleTypes.PRIME_SIMULATOR && (
                       <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                     )}
-                    {(activeRole === roleTypes.QAE_CSR || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
+                    {(activeRole === roleTypes.QAE || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
                       <Route end path="/" element={<QAECSRMoveSearch />} />
                     )}
 
