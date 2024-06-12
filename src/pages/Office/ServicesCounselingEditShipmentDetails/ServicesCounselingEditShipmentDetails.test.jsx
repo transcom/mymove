@@ -605,6 +605,17 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       // Input invalid date format will cause form to be invalid. save must be disabled.
       await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
       await waitFor(() => {
+        expect(screen.queryByRole('alert')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      });
+
+      // Save button is disabled for now because validation error for YES select. We
+      // now want to select NO. The schema validator should reset itself and renable the
+      // Save button again for NO selection.
+      const sitExpected2 = document.getElementById('sitExpectedNo').parentElement;
+      const sitExpectedNo = within(sitExpected2).getByRole('radio', { name: 'No' });
+      await userEvent.click(sitExpectedNo);
+      await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
 
