@@ -563,15 +563,15 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(screen.getAllByRole('textbox', { name: 'City' })[1], 'Norfolk');
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
       });
 
       await act(async () => {
-        await userEvent.selectOptions(screen.getAllByRole('combobox', { name: 'State' })[1], 'VA');
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
       });
 
       await act(async () => {
-        await userEvent.type(screen.getAllByRole('textbox', { name: 'ZIP' })[1], '10002');
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
@@ -681,7 +681,7 @@ describe('DateAndLocation component', () => {
     });
 
     it('does not patch the move when create shipment fails', async () => {
-      // createMTOShipment.mockRejectedValueOnce('fatal error');
+      createMTOShipment.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
       renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
@@ -758,7 +758,7 @@ describe('DateAndLocation component', () => {
       patchMove.mockRejectedValueOnce('fatal error');
       searchTransportationOffices.mockImplementation(mockSearchTransportationOffices);
 
-      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove, closeoutOffice: mockCloseoutOffice });
+      renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
       await act(async () => {
