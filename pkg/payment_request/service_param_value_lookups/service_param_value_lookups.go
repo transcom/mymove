@@ -172,7 +172,7 @@ func ServiceParamLookupInitialize(
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, apperror.NewNotFoundError(uuid.Nil, "the shipment service item is missing a MTOShipmentID")
 		}
-		err := appCtx.DB().Eager("PickupAddress", "DestinationAddress", "StorageFacility").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		err := appCtx.DB().Eager("PickupAddress", "DestinationAddress", "StorageFacility", "PPMShipment").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -193,12 +193,12 @@ func ServiceParamLookupInitialize(
 
 		pickupAddress, err = getPickupAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
-			return nil, err
+			return nil, apperror.NewBadDataError(fmt.Sprintf("failed to get pickup address for service code %s in the lookup for shipment id %v", mtoServiceItem.ReService.Code, mtoShipment.ID))
 		}
 
 		destinationAddress, err = getDestinationAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
-			return nil, err
+			return nil, apperror.NewBadDataError(fmt.Sprintf("failed to get destination address for service code %s in the lookup for shipment id %v", mtoServiceItem.ReService.Code, mtoShipment.ID))
 		}
 	}
 
@@ -550,6 +550,11 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 		addressType = "storage facility"
 		if mtoShipment.StorageFacility != nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
+		}
+	case models.MTOShipmentTypePPM:
+		if mtoShipment.PPMShipment.ID != uuid.Nil {
+			ptrDestinationAddress = mtoShipment.PPMShipment.DestinationAddress
+			ptrDestinationAddress.PostalCode = mtoShipment.PPMShipment.DestinationPostalCode
 		}
 	default:
 		addressType = "destination"
