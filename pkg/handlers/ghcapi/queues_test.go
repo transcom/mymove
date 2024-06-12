@@ -376,8 +376,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), result.Status)
 
-	// let's test for the Move approved status
-	hhgMove.Status = models.MoveStatusAPPROVED
+	// let's test for the ServiceCounselingCompleted status
+	hhgMove.Status = models.MoveStatusServiceCounselingCompleted
 	_, _ = suite.DB().ValidateAndSave(&hhgMove)
 
 	// Validate incoming payload: no body to validate
@@ -392,7 +392,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.MoveStatus("APPROVED"), result.Status)
+	suite.Equal(ghcmessages.MoveStatus("SERVICE COUNSELING COMPLETED"), result.Status)
 
 	// Now let's test Approvals requested
 	hhgMove.Status = models.MoveStatusAPPROVALSREQUESTED
@@ -463,11 +463,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		},
 	}, nil)
 
-	// Move approved
+	// Service Counseling Completed Move
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
+				Status: models.MoveStatusServiceCounselingCompleted,
 			},
 		},
 		{
@@ -515,8 +515,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			HTTPRequest: request,
 			Status: []string{
 				string(models.MoveStatusSUBMITTED),
-				string(models.MoveStatusAPPROVED),
 				string(models.MoveStatusAPPROVALSREQUESTED),
+				string(models.MoveStatusServiceCounselingCompleted),
 			},
 		}
 
@@ -540,8 +540,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 			HTTPRequest: request,
 			Status: []string{
 				string(models.MoveStatusSUBMITTED),
-				string(models.MoveStatusAPPROVED),
 				string(models.MoveStatusAPPROVALSREQUESTED),
+				string(models.MoveStatusServiceCounselingCompleted),
 			},
 			PerPage: models.Int64Pointer(1),
 			Page:    models.Int64Pointer(1),
@@ -604,7 +604,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		for _, move := range moves {
 			actualStatuses = append(actualStatuses, string(move.Status))
 		}
-		expectedStatuses := [3]string{"SUBMITTED", "APPROVED", "APPROVALS REQUESTED"}
+		expectedStatuses := [3]string{"SUBMITTED", "APPROVALS REQUESTED", "SERVICE COUNSELING COMPLETED"}
 
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
