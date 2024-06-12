@@ -160,7 +160,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimated
 		MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 	}
 
-	serviceItemLookups := InitializeLookups(mtoShipment, mtoServiceItem)
+	serviceItemLookups := InitializeLookups(&mtoShipment, &mtoServiceItem)
 	// i don't think this function gets called for PPMs, but need to verify
 	//paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	//suite.FatalNoError(err)
