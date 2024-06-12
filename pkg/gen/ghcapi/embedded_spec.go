@@ -36,6 +36,43 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/application_parameters/{parameterName}": {
+      "get": {
+        "description": "Searches for an application parameter by name, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name, returns nil if not found",
+        "operationId": "getParam",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "string",
+            "description": "Parameter Name",
+            "name": "parameterName",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -5361,6 +5398,26 @@ func init() {
       },
       "x-nullable": true
     },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -6125,7 +6182,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -6995,6 +7053,11 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "estimatedPrice": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "estimatedWeight": {
           "description": "estimated weight of the shuttle service item provided by the prime",
           "type": "integer",
@@ -7101,6 +7164,10 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "standaloneCrate": {
+          "type": "boolean",
           "x-nullable": true
         },
         "status": {
@@ -9130,15 +9197,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -10315,7 +10382,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -11767,6 +11837,43 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/application_parameters/{parameterName}": {
+      "get": {
+        "description": "Searches for an application parameter by name, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name, returns nil if not found",
+        "operationId": "getParam",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "string",
+            "description": "Parameter Name",
+            "name": "parameterName",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -18422,6 +18529,26 @@ func init() {
       },
       "x-nullable": true
     },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
+    },
     "ApproveSITExtension": {
       "required": [
         "approvedDays"
@@ -19190,7 +19317,8 @@ func init() {
           "$ref": "#/definitions/BackupContact"
         },
         "cacValidated": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "current_address": {
           "$ref": "#/definitions/Address"
@@ -20060,6 +20188,11 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "estimatedPrice": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "estimatedWeight": {
           "description": "estimated weight of the shuttle service item provided by the prime",
           "type": "integer",
@@ -20166,6 +20299,10 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "standaloneCrate": {
+          "type": "boolean",
           "x-nullable": true
         },
         "status": {
@@ -22196,15 +22333,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -23432,7 +23569,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
