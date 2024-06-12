@@ -35,14 +35,8 @@ export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'Service counseling completed',
 };
 
-export const PAYMENT_REQUEST_STATUS_OPTIONS = [
-  { value: 'PENDING', label: 'Payment requested' },
-  { value: 'REVIEWED', label: 'Reviewed' },
-  { value: 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED', label: 'Rejected' },
-  { value: 'PAID', label: 'Paid' },
-  { value: 'DEPRECATED', label: 'Deprecated' },
-  { value: 'EDI_ERROR', label: 'Error' },
-];
+export const PAYMENT_REQUEST_STATUS_OPTIONS = [{ value: 'PENDING', label: 'Payment requested' }];
+
 export const ROLE_TYPE_OPTIONS = {
   [roleTypes.SERVICES_COUNSELOR]: SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
   [roleTypes.QAE]: MOVE_STATUS_OPTIONS,
