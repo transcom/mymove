@@ -3767,8 +3767,8 @@ func init() {
             "items": {
               "enum": [
                 "SUBMITTED",
-                "APPROVALS REQUESTED",
-                "APPROVED"
+                "SERVICE COUNSELING COMPLETED",
+                "APPROVALS REQUESTED"
               ],
               "type": "string"
             },
@@ -16559,8 +16559,8 @@ func init() {
             "items": {
               "enum": [
                 "SUBMITTED",
-                "APPROVALS REQUESTED",
-                "APPROVED"
+                "SERVICE COUNSELING COMPLETED",
+                "APPROVALS REQUESTED"
               ],
               "type": "string"
             },
