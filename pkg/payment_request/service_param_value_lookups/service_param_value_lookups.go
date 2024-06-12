@@ -95,7 +95,8 @@ func ServiceParamLookupInitialize(
 	moveTaskOrderID uuid.UUID,
 	paramCache *ServiceParamsCache,
 ) (*ServiceItemParamKeyData, error) {
-	contract, err := fetchContractForMove(appCtx, moveTaskOrderID)
+	var contract models.ReContract
+	err := appCtx.DB().Q().Find(&contract, moveTaskOrderID)
 	if err != nil {
 		return nil, err
 	}
@@ -108,25 +109,8 @@ func ServiceParamLookupInitialize(
 		MoveTaskOrderID:  moveTaskOrderID,
 		paramCache:       paramCache,
 		mtoShipmentID:    mtoServiceItem.MTOShipmentID,
-		/*
-			DefaultContractCode = TRUSS_TEST is temporarily being used here because the contract
-			code is not currently accessible. This is caused by:
-				- mtoServiceItem is not linked or associated with a contract record
-				- MTO currently has a contractor_id but not a contract_id
-			In order for this lookup's query to have accesss to a contract code there must be a contract_code field created on either the mtoServiceItem or the MTO models
-			If it'll will be possible for a MTO to contain service items that are associated with different contracts
-			then it would be ideal for the mtoServiceItem records to contain a contract code that can then be passed
-			to this query. Otherwise the contract_code field could be added to the MTO.
-		*/
-		ContractCode: contract.Code,
+		ContractCode:     contract.Code,
 	}
-
-	//
-	// Query and save PickupAddress & DestinationAddress upfront
-	// s.serviceItemNeedsParamKey() could be used to check if the PickupAddress or DestinationAddress
-	// can be used but it depends on the paramCache being set (not nil). It is possible to set the
-	// paramCache to nil, especially during unit test, so not using that function for this part.
-	//
 
 	// Load data that is only used by a few service items
 	var sitDestinationFinalAddress, sitDestinationOriginalAddress models.Address
@@ -249,7 +233,6 @@ func ServiceParamLookupInitialize(
 			return nil, err
 		}
 	}
-
 	return &s, nil
 }
 
