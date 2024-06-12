@@ -64,3 +64,8 @@
     @include u-text('bold');
   }
 }
+
+.headerContainer {
+  @include u-padding-bottom(0);
+  z-index: 1;
+}
