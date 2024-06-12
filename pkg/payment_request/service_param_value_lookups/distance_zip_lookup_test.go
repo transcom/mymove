@@ -66,9 +66,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	suite.Run("Calculate zip distance lookup without a saved service item", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
-		paramKeyLookups := InitializeLookups(&ppmShipment.Shipment, nil)
-		distanceZipLookup, ok := paramKeyLookups[models.ServiceItemParamNameDistanceZip].(DistanceZipLookup)
-		suite.True(ok)
+		distanceZipLookup := DistanceZipLookup{
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
+		}
 
 		appContext := suite.AppContextForTest()
 		distance, err := distanceZipLookup.lookup(appContext, &ServiceItemParamKeyData{
@@ -96,9 +97,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 			},
 		}, nil)
-		paramKeyLookups := InitializeLookups(&ppmShipment.Shipment, nil)
-		distanceZipLookup, ok := paramKeyLookups[models.ServiceItemParamNameDistanceZip].(DistanceZipLookup)
-		suite.True(ok)
+		distanceZipLookup := DistanceZipLookup{
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
+		}
 
 		appContext := suite.AppContextForTest()
 		distance, err := distanceZipLookup.lookup(appContext, &ServiceItemParamKeyData{
@@ -127,9 +129,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				},
 			},
 		}, nil)
-		paramKeyLookups := InitializeLookups(&shipment, nil)
-		distanceZipLookup, ok := paramKeyLookups[models.ServiceItemParamNameDistanceZip].(DistanceZipLookup)
-		suite.True(ok)
+
+		distanceZipLookup := DistanceZipLookup{
+			PickupAddress:      models.Address{PostalCode: shipment.PickupAddress.PostalCode},
+			DestinationAddress: models.Address{PostalCode: shipment.DestinationAddress.PostalCode},
+		}
 
 		appContext := suite.AppContextForTest()
 		distance, err := distanceZipLookup.lookup(appContext, &ServiceItemParamKeyData{
@@ -412,9 +416,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		}, nil)
 
-		paramKeyLookups := InitializeLookups(&MTOShipment, nil)
-		distanceZipLookup, ok := paramKeyLookups[models.ServiceItemParamNameDistanceZip].(DistanceZipLookup)
-		suite.True(ok)
+		distanceZipLookup := DistanceZipLookup{
+			PickupAddress:      models.Address{PostalCode: MTOShipment.PickupAddress.PostalCode},
+			DestinationAddress: models.Address{PostalCode: MTOShipment.DestinationAddress.PostalCode},
+		}
 
 		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
 			planner:       suite.planner,

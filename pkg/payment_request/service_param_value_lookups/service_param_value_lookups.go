@@ -210,7 +210,7 @@ func ServiceParamLookupInitialize(
 	// ReService code for current MTO Service Item
 	serviceItemCode := mtoServiceItem.ReService.Code
 
-	paramKeyLookups := InitializeLookups(appCtx, mtoShipment, mtoServiceItem)
+	paramKeyLookups := InitializeLookups(mtoShipment, mtoServiceItem)
 
 	for _, paramKeyName := range ServiceItemParamsWithLookups {
 		lookup, ok := paramKeyLookups[paramKeyName]
@@ -236,10 +236,8 @@ func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, servic
 	return nil
 }
 
-func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
+func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
 	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
-	shipment := mtoShipment
-	serviceItem := mtoServiceItem
 
 	if serviceItem.SITDestinationOriginalAddress == nil {
 		serviceItem.SITDestinationOriginalAddress = &models.Address{}
@@ -254,15 +252,15 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	}
 
 	lookups[models.ServiceItemParamNameActualPickupDate] = ActualPickupDateLookup{
-		MTOShipment: *shipment,
+		MTOShipment: shipment,
 	}
 
 	lookups[models.ServiceItemParamNameRequestedPickupDate] = RequestedPickupDateLookup{
-		MTOShipment: *shipment,
+		MTOShipment: shipment,
 	}
 
 	lookups[models.ServiceItemParamNameReferenceDate] = ReferenceDateLookup{
-		MTOShipment: *shipment,
+		MTOShipment: shipment,
 	}
 
 	serviceDestinationAddress, err := GetDestinationForDistanceLookup(appCtx, shipment, &serviceItem)
