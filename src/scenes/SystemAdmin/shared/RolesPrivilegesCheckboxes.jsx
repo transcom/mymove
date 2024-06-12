@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckboxGroupInput } from 'react-admin';
 
-import { adminOfficeRoles } from 'constants/userRoles';
-import { officeUserPrivileges } from 'constants/userPrivileges';
+import { adminOfficeRoles, roleTypes } from 'constants/userRoles';
+import { officeUserPrivileges, elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const RolesPrivilegesCheckboxInput = (props) => {
   let rolesSelected = [];
   let privilegesSelected = [];
+
+  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
+      setHeadquartersRoleFF(enabled);
+    });
+  }, []);
 
   const makeRoleTypeArray = (roles) => {
     if (!roles || roles.length === 0) {
@@ -15,7 +24,9 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }
     return roles.reduce((rolesArray, role) => {
       if (role.roleType) {
-        rolesArray.push(role.roleType);
+        if (isHeadquartersRoleFF || (!isHeadquartersRoleFF && role.roleType !== roleTypes.HQ)) {
+          rolesArray.push(role.roleType);
+        }
       }
 
       rolesSelected = rolesArray;
@@ -24,16 +35,35 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parseRolesCheckboxInput = (input) => {
-    if (privilegesSelected.includes('supervisor') || privilegesSelected.includes('safety')) {
+    if (
+      privilegesSelected.includes(elevatedPrivilegeTypes.SUPERVISOR) ||
+      privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)
+    ) {
       var index;
-      if (input.includes('customer')) {
-        index = input.indexOf('customer');
+      if (input.includes(roleTypes.CUSTOMER)) {
+        index = input.indexOf(roleTypes.CUSTOMER);
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
-      if (input.includes('contracting_officer')) {
-        index = input.indexOf('contracting_officer');
+      if (input.includes(roleTypes.CONTRACTING_OFFICER)) {
+        index = input.indexOf(roleTypes.CONTRACTING_OFFICER);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    }
+
+    if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
+      if (input.includes(roleTypes.HQ)) {
+        index = input.indexOf(roleTypes.HQ);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    } else if (isHeadquartersRoleFF && privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
+      if (input.includes(roleTypes.HQ)) {
+        index = input.indexOf(roleTypes.HQ);
         if (index !== -1) {
           input.splice(index, 1);
         }
@@ -62,17 +92,26 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parsePrivilegesCheckboxInput = (input) => {
-    if (rolesSelected.includes('customer') || rolesSelected.includes('contracting_officer')) {
+    if (rolesSelected.includes(roleTypes.CUSTOMER) || rolesSelected.includes(roleTypes.CONTRACTING_OFFICER)) {
       var index;
-      if (input.includes('supervisor')) {
-        index = input.indexOf('supervisor');
+      if (input.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
+        index = input.indexOf(elevatedPrivilegeTypes.SUPERVISOR);
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
 
-      if (input.includes('safety')) {
-        index = input.indexOf('safety');
+      if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
+        index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+    }
+
+    if (isHeadquartersRoleFF && rolesSelected.includes(roleTypes.HQ)) {
+      if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
+        index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
         if (index !== -1) {
           input.splice(index, 1);
         }
