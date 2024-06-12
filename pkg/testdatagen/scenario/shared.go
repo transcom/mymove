@@ -1201,7 +1201,7 @@ func createApprovedMoveWithPPMExcessWeight(appCtx appcontext.AppContext, userUpl
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -1385,7 +1385,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 			ID:                          testdatagen.ConvertUUIDStringToUUID("defb263e-bf01-4c67-85f5-b64ab54fd4fe"),
 			ApprovedAt:                  &approvedAt,
 			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -1445,7 +1445,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 			ID:                          testdatagen.ConvertUUIDStringToUUID("08ab7a25-ef97-4134-bbb5-5be0e0de4734"),
 			ApprovedAt:                  &approvedAt,
 			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -1523,7 +1523,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 			ID:                          testdatagen.ConvertUUIDStringToUUID("645f9cd3-1aa2-4912-89fe-d0aa327226f6"),
 			ApprovedAt:                  &approvedAt,
 			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -1611,7 +1611,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 			ID:                          testdatagen.ConvertUUIDStringToUUID("1a719536-02ba-44cd-b97d-5a0548237dc5"),
 			ApprovedAt:                  &approvedAt,
 			SubmittedAt:                 models.TimePointer(approvedAt.Add(7 * time.Hour * 24)),
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -2664,7 +2664,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 		},
 		{
 			Model: models.PPMShipment{
-				Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+				Status:      models.PPMShipmentStatusNeedsCloseout,
 				SubmittedAt: models.TimePointer(time.Now()),
 			},
 		},
@@ -2773,7 +2773,7 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 		},
 		{
 			Model: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
 	}, nil)
@@ -2897,7 +2897,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 		{
 			Model: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
 	}, nil)
@@ -2913,7 +2913,7 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 		},
 		{
 			Model: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
 	}, nil)
@@ -3021,7 +3021,7 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 		},
 		{
 			Model: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
 	}, nil)
@@ -3123,7 +3123,7 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 		},
 		{
 			Model: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsPaymentApproval,
+				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
 	}, nil)
@@ -4205,7 +4205,7 @@ func createHHGWithOriginSITServiceItems(
 	).Return(400, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4467,7 +4467,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 	).Return(400, nil)
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4870,7 +4870,7 @@ func createHHGWithPaymentServiceItems(
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(123, nil).Once()
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4912,6 +4912,9 @@ func createHHGWithPaymentServiceItems(
 
 	// called for domestic destination SIT delivery service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Times(2)
+
+	// called for DLH, DSH, FSC service item estimated price calculations
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(400, nil).Times(3)
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
@@ -8580,9 +8583,9 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 }
 
-func createQaeCsr(appCtx appcontext.AppContext) {
+func createQae(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	email := "qae_csr_role@office.mil"
+	email := "qae_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
@@ -8594,22 +8597,22 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 	}
 
 	/* A user with tio role */
-	qaeCsrRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaeCsrRole)
+	qaeRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeQae).First(&qaeRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find RoleTypeQae in the DB: %w", err))
 	}
 
-	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
+	qaeUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
 	oktaID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:        qaeCsrUUID,
+				ID:        qaeUUID,
 				OktaID:    oktaID.String(),
 				OktaEmail: email,
 				Active:    true,
-				Roles:     []roles.Role{qaeCsrRole},
+				Roles:     []roles.Role{qaeRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8618,7 +8621,7 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
 				Email:  email,
 				Active: true,
-				UserID: &qaeCsrUUID,
+				UserID: &qaeUUID,
 			},
 		},
 	}, nil)
@@ -10406,7 +10409,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 		{
 			Model: models.ServiceMember{
 				Edipi:        models.StringPointer(dodID),
-				FirstName:    models.StringPointer("QAECSRTestFirst"),
+				FirstName:    models.StringPointer("QAETestFirst"),
 				CacValidated: true,
 			},
 		},
