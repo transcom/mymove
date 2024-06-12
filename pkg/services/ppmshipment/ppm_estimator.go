@@ -284,7 +284,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
-		siCopy := serviceItem
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
@@ -294,7 +293,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
 		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
 		// rather than optimizing I think.
-		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(&mtoShipment, &siCopy)
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(mtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
