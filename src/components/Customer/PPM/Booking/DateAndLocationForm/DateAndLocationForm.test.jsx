@@ -205,7 +205,7 @@ describe('DateAndLocationForm component', () => {
     });
   });
 
-  it('5', async () => {
+  it('displays the closeout office select when the service member is in the Navy', async () => {
     await act(async () => {
       const navyServiceMember = {
         ...defaultProps.serviceMember,
@@ -228,10 +228,9 @@ describe('validates form fields and displays error messages', () => {
       await userEvent.keyboard('{backspace}');
     });
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeVisible();
-    });
+    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+    await userEvent.click(screen.getByText('Start typing a closeout office...'));
+    expect(screen.getByText('Required')).toBeVisible();
   });
   it('displays type errors when input fails validation schema', async () => {
     await act(async () => {
