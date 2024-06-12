@@ -732,7 +732,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// if not, we will need the user to go to okta and sign out, adding these params will display a UI info banner
-		redirectURL := landingURL.String() + "sign-in" + "?okta_logged_out=false"
+		redirectURL := landingURL.String() + "sign-in" + "?okta_error=true"
 		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 		return
 	}
