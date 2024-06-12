@@ -8413,13 +8413,13 @@ func init() {
           "type": "string",
           "title": "name",
           "x-nullable": true,
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transportation_ordering_officer"
+          "example": "task_ordering_officer"
         }
       }
     },
@@ -9921,7 +9921,7 @@ func init() {
         },
         "roleName": {
           "type": "string",
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
@@ -21548,13 +21548,13 @@ func init() {
           "type": "string",
           "title": "name",
           "x-nullable": true,
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transportation_ordering_officer"
+          "example": "task_ordering_officer"
         }
       }
     },
@@ -23058,7 +23058,7 @@ func init() {
         },
         "roleName": {
           "type": "string",
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
