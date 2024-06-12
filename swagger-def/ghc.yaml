@@ -3205,6 +3205,10 @@ paths:
           uniqueItems: true
           items:
             type: string
+            enum:
+              - SUBMITTED
+              - SERVICE COUNSELING COMPLETED
+              - APPROVALS REQUESTED
         - in: query
           name: orderType
           type: string
