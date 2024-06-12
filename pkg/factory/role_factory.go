@@ -97,12 +97,23 @@ func GetTraitTOORole() []Customization {
 	}
 }
 
-func GetTraitQaeCsrRole() []Customization {
+func GetTraitQaeRole() []Customization {
 	return []Customization{
 		{
 			Model: roles.Role{
-				RoleType: roles.RoleTypeQaeCsr,
-				RoleName: "Quality Assurance and Customer Service",
+				RoleType: roles.RoleTypeQae,
+				RoleName: "Quality Assurance Evaluator",
+			},
+		},
+	}
+}
+
+func GetTraitCustomerServiceRepresentativeRole() []Customization {
+	return []Customization{
+		{
+			Model: roles.Role{
+				RoleType: roles.RoleTypeCustomerServiceRepresentative,
+				RoleName: "Customer Service Representative",
 			},
 		},
 	}
