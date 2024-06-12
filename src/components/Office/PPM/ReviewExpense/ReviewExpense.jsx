@@ -103,30 +103,28 @@ export default function ReviewExpense({
 
   const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT);
 
+  const [descriptionString, setDescriptionString] = React.useState(description || '');
   const allowableWeight = ppmShipmentInfo.estimatedWeight;
+  const [amountValue, setAmountValue] = React.useState(amount);
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
-  const [sitEntryDateValue, setSitEntryDateValue] = React.useState(
-    sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
-  );
-  const [sitDepartureDateValue, setSitDepartureDateValue] = React.useState(
-    sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
-  );
+  const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate);
+  const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate);
   const { estimatedCost, isLoading, isError } = useGetPPMSITEstimatedCostQuery(
     ppmShipmentInfo.id,
     ppmSITLocation,
-    sitStartDate,
-    sitEndDate,
+    sitStartDateValue,
+    sitEndDateValue,
     weightStoredValue,
   );
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
-    description: description || '',
-    amount: amount ? `${formatCents(amount)}` : '',
+    description: descriptionString,
+    amount: amountValue ? `${formatCents(amountValue)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
-    sitStartDate: sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
-    sitEndDate: sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
+    sitStartDate: sitStartDateValue,
+    sitEndDate: sitEndDateValue,
     status: status || '',
     reason: reason || '',
     weightStored: weightStoredValue?.toString() || '',
@@ -185,7 +183,7 @@ export default function ReviewExpense({
       description: values.description,
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
-      sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
+      sitStartDate: sitStartDateValue,
       sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
@@ -223,54 +221,46 @@ export default function ReviewExpense({
             setFieldError('reason', null);
           };
 
-          const handleSITLocationChange = (event) => {
-            setSITLocation(event.target.value);
-            setWeightStoredValue(weightStoredValue);
-            setSitEntryDateValue(sitStartDate);
-            setSitDepartureDateValue(sitEndDate);
+          const refreshPage = (event) => {
             setSamePage(true);
             const count = computeCurrentCategoryIndex(event.target.value);
             setCurrentCategoryIndex(count + 1);
+          };
+
+          const handleSITLocationChange = (event) => {
+            setSITLocation(event.target.value);
+            refreshPage(event);
           };
 
           const handleWeightStoredChange = (event) => {
             const weight = parseInt(removeCommas(event.target.value), 10);
             if (weight <= allowableWeight && weight > 0) {
               setWeightStoredValue(weight);
-              setSITLocation(ppmSITLocation);
-              setSitEntryDateValue(sitStartDate);
-              setSitDepartureDateValue(sitEndDate);
-              setSamePage(true);
-              const count = computeCurrentCategoryIndex(event.target.value);
-              setCurrentCategoryIndex(count + 1);
+              refreshPage(event);
             }
           };
 
-          const handleSITEntryDateChange = (value) => {
-            setSitEntryDateValue(value);
-            setSITLocation(ppmSITLocation);
-            setSitDepartureDateValue(sitEndDate);
-            setWeightStoredValue(weightStoredValue);
+          const handleSitStartDateChange = (value) => {
+            const date = formatDate(value, 'DD MMM YYYY', 'YYYY-MM-DD');
+            setSitStartDateValue(date);
             setSamePage(true);
             const count = computeCurrentCategoryIndex(value);
             setCurrentCategoryIndex(count + 1);
           };
 
-          const handleSITDepartureDateChange = (value) => {
-            setSitDepartureDateValue(value);
-            setSITLocation(ppmSITLocation);
-            setSitEntryDateValue(sitStartDate);
-            setWeightStoredValue(weightStoredValue);
+          const handleSitEndDateChange = (value) => {
+            const date = formatDate(value, 'DD MMM YYYY', 'YYYY-MM-DD');
+            setSitEndDateValue(date);
             setSamePage(true);
             const count = computeCurrentCategoryIndex(value);
             setCurrentCategoryIndex(count + 1);
           };
 
           const daysInSIT =
-            values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
-              ? moment(values.sitEndDate, 'DD MMM YYYY')
+            sitStartDateValue && sitEndDateValue
+              ? moment(sitEndDateValue, 'YYYY-MM-DD')
                   .add(1, 'days')
-                  .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
+                  .diff(moment(sitStartDateValue, 'YYYY-MM-DD'), 'days')
               : '##';
 
           return (
@@ -293,9 +283,7 @@ export default function ReviewExpense({
                   value={selectedExpenseType}
                   onChange={(e) => {
                     setSelectedExpenseType(e.target.value);
-                    setSamePage(true);
-                    const count = computeCurrentCategoryIndex(e.target.value);
-                    setCurrentCategoryIndex(count + 1);
+                    refreshPage(e);
                   }}
                 >
                   {ppmExpenseTypes.map((x) => (
@@ -308,6 +296,9 @@ export default function ReviewExpense({
                   label="Description"
                   id="description"
                   className={styles.displayValue}
+                  onBlur={(e) => {
+                    setDescriptionString(e.target.value);
+                  }}
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
@@ -349,6 +340,10 @@ export default function ReviewExpense({
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   prefix="$"
+                  onBlur={(e) => {
+                    const newAmount = e.target.value.replace(/[,.]/g, '');
+                    setAmountValue(newAmount);
+                  }}
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
@@ -367,7 +362,9 @@ export default function ReviewExpense({
                         handleWeightStoredChange(e);
                       }}
                     />
-                    <MaskedTextField
+                    <legend className={classnames('usa-label', styles.label)}>Actual PPM Weight</legend>
+                    <div className={styles.displayValue}> {values.actualWeight} </div>
+                    {/* <MaskedTextField
                       defaultValue="0"
                       name="actualWeight"
                       label="Actual PPM Weight"
@@ -378,9 +375,23 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                    /> */}
+                    <DatePickerInput
+                      name="sitStartDate"
+                      label="Start date"
+                      required
+                      onChange={(value) => {
+                        handleSitStartDateChange(value);
+                      }}
                     />
-                    <DatePickerInput name="sitStartDate" label="Start date" />
-                    <DatePickerInput name="sitEndDate" label="End date" />
+                    <DatePickerInput
+                      name="sitEndDate"
+                      label="End date"
+                      required
+                      onChange={(value) => {
+                        handleSitEndDateChange(value);
+                      }}
+                    />
                     <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
                     <div className={styles.displayValue} data-testid="days-in-sit">
                       {daysInSIT}
