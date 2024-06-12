@@ -699,6 +699,7 @@ func subScenarioPaymentRequestCalculations(
 				Status: models.MTOShipmentStatusApproved,
 			},
 		)
+
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
