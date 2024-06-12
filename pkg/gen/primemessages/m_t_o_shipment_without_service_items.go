@@ -39,7 +39,7 @@ type MTOShipmentWithoutServiceItems struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// The date when the Transportation Ordering Officer first approved this shipment for the move.
+	// The date when the Task Ordering Officer first approved this shipment for the move.
 	// Read Only: true
 	// Format: date
 	ApprovedDate *strfmt.Date `json:"approvedDate"`
