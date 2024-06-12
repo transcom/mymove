@@ -9205,7 +9205,7 @@ func init() {
         },
         "tertiaryDestinationPostalCode": {
           "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
@@ -10439,7 +10439,8 @@ func init() {
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
-        "StandaloneCrateCap"
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -22397,7 +22398,7 @@ func init() {
         },
         "tertiaryDestinationPostalCode": {
           "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
@@ -23682,7 +23683,8 @@ func init() {
         "ZipSITOriginHHGActualAddress",
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
-        "StandaloneCrateCap"
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {

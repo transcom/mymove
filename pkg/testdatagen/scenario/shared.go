@@ -530,7 +530,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 }
 
@@ -2534,7 +2534,7 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
 
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 }
 
@@ -3552,7 +3552,7 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 }
 
@@ -4073,7 +4073,7 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 
 		verrs, err := models.SaveMoveDependencies(db, &move)
 		if err != nil || verrs.HasAny() {
-			log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+			log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 		}
 	}
 }
@@ -7180,7 +7180,7 @@ func createMoveWithHHGAndNTSRMissingInfo(appCtx appcontext.AppContext, moveRoute
 
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 }
 
@@ -7239,7 +7239,7 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 }
 
@@ -8466,7 +8466,7 @@ func createTOO(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8477,7 +8477,7 @@ func createTOO(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
@@ -8510,7 +8510,7 @@ func createTIO(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8521,7 +8521,7 @@ func createTIO(appCtx appcontext.AppContext) {
 	tioRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
@@ -8554,7 +8554,7 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8565,7 +8565,7 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	servicesCounselorRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeServicesCounselor in the DB: %w", err))
 	}
 
 	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
@@ -8592,13 +8592,13 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 }
 
-func createQaeCsr(appCtx appcontext.AppContext) {
+func createQae(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	email := "qae_csr_role@office.mil"
+	email := "qae_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8606,22 +8606,22 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 	}
 
 	/* A user with tio role */
-	qaeCsrRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaeCsrRole)
+	qaeRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeQae).First(&qaeRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeQae in the DB: %w", err))
 	}
 
-	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
+	qaeUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
 	oktaID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:        qaeCsrUUID,
+				ID:        qaeUUID,
 				OktaID:    oktaID.String(),
 				OktaEmail: email,
 				Active:    true,
-				Roles:     []roles.Role{qaeCsrRole},
+				Roles:     []roles.Role{qaeRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8630,51 +8630,7 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
 				Email:  email,
 				Active: true,
-				UserID: &qaeCsrUUID,
-			},
-		},
-	}, nil)
-}
-
-func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
-	db := appCtx.DB()
-	email := "customer_service_representative_role@office.mil"
-	officeUser := models.OfficeUser{}
-	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
-	}
-	// no need to create
-	if officeUserExists {
-		return
-	}
-
-	/* A user with RoleTypeCustomerServiceRepresentative role */
-	customerServiceRepresentativeRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeCustomerServiceRepresentative).First(&customerServiceRepresentativeRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomerServiceRepresentative in the DB: %w", err))
-	}
-
-	csrUUID := uuid.Must(uuid.FromString("72432922-BF2E-45DE-8837-1A458F5D1011"))
-	oktaID := uuid.Must(uuid.NewV4())
-	factory.BuildUser(db, []factory.Customization{
-		{
-			Model: models.User{
-				ID:        csrUUID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{customerServiceRepresentativeRole},
-			}},
-	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
-		{
-			Model: models.OfficeUser{
-				ID:     uuid.FromStringOrNil("4B8C0AD8-337A-407A-9E49-074D466F837A"),
-				Email:  email,
-				Active: true,
-				UserID: &csrUUID,
+				UserID: &qaeUUID,
 			},
 		},
 	}, nil)
@@ -8687,7 +8643,7 @@ func createTXO(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8697,13 +8653,13 @@ func createTXO(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tioRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
@@ -8742,7 +8698,7 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", emailUSMC).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8753,19 +8709,19 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tioRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	transportationOfficeUSMC := models.TransportationOffice{}
 	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find transportation office USMC in the DB: %w", err))
 	}
 
 	// Makes user with both too and tio role with USMC gbloc
@@ -8805,7 +8761,7 @@ func createTXOServicesCounselor(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8816,7 +8772,7 @@ func createTXOServicesCounselor(appCtx appcontext.AppContext) {
 	var userRoles roles.Roles
 	err = db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find office user RoleType in the DB: %w", err))
 	}
 
 	tooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
@@ -8853,7 +8809,7 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", emailUSMC).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8865,14 +8821,14 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	var userRoles roles.Roles
 	err = db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find office user RoleType in the DB: %w", err))
 	}
 
 	// Makes user with too, tio, services counselor role with USMC gbloc
 	transportationOfficeUSMC := models.TransportationOffice{}
 	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find transportation office USMC in the DB: %w", err))
 	}
 	tooTioServicesWithUsmcUUID := uuid.Must(uuid.FromString("9aae1a83-6515-4c1d-84e8-f7b53dc3d5fc"))
 	oktaWithUsmcID := uuid.Must(uuid.NewV4())
@@ -9270,7 +9226,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
@@ -9325,7 +9281,7 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
@@ -9380,7 +9336,7 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
@@ -9433,7 +9389,7 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
@@ -9531,7 +9487,7 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
@@ -9630,7 +9586,7 @@ func createReweighWithShipmentEDIErrorPaymentRequest(appCtx appcontext.AppContex
 	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
-		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+		log.Panic(fmt.Errorf("failed to save move and dependencies: %w", err))
 	}
 	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
@@ -10418,7 +10374,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 		{
 			Model: models.ServiceMember{
 				Edipi:        models.StringPointer(dodID),
-				FirstName:    models.StringPointer("QAECSRTestFirst"),
+				FirstName:    models.StringPointer("QAETestFirst"),
 				CacValidated: true,
 			},
 		},
@@ -12102,14 +12058,14 @@ func createRandomMove(
 	db := appCtx.DB()
 	randDays, err := random.GetRandomInt(366)
 	if err != nil {
-		log.Panic(fmt.Errorf("Unable to generate random integer for submitted move date"), zap.Error(err))
+		log.Panic(fmt.Errorf("unable to generate random integer for submitted move date"), zap.Error(err))
 	}
 	submittedAt := time.Now().AddDate(0, 0, randDays*-1)
 
 	if serviceMemberTemplate.Affiliation == nil {
 		randomAffiliation, err := random.GetRandomInt(5)
 		if err != nil {
-			log.Panic(fmt.Errorf("Unable to generate random integer for affiliation"), zap.Error(err))
+			log.Panic(fmt.Errorf("unable to generate random integer for affiliation"), zap.Error(err))
 		}
 		serviceMemberTemplate.Affiliation = &[]models.ServiceMemberAffiliation{
 			models.AffiliationARMY,
@@ -12134,7 +12090,7 @@ func createRandomMove(
 		if *serviceMemberTemplate.Affiliation == models.AffiliationMARINES {
 			randDutyStationIndex, err := random.GetRandomInt(dutyLocationCount)
 			if err != nil {
-				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
+				log.Panic(fmt.Errorf("unable to generate random integer for duty location"), zap.Error(err))
 			}
 			customs = append(customs, factory.Customization{
 				Model:    allDutyLocations[randDutyStationIndex],
@@ -12144,7 +12100,7 @@ func createRandomMove(
 		} else {
 			randDutyStationIndex, err := random.GetRandomInt(len(dutyLocationsInGBLOC))
 			if err != nil {
-				log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
+				log.Panic(fmt.Errorf("unable to generate random integer for duty location"), zap.Error(err))
 			}
 			customs = append(customs, factory.Customization{
 				Model:    dutyLocationsInGBLOC[randDutyStationIndex],
@@ -12157,7 +12113,7 @@ func createRandomMove(
 	if orderTemplate.NewDutyLocationID == uuid.Nil {
 		randDutyStationIndex, err := random.GetRandomInt(dutyLocationCount)
 		if err != nil {
-			log.Panic(fmt.Errorf("Unable to generate random integer for duty location"), zap.Error(err))
+			log.Panic(fmt.Errorf("unable to generate random integer for duty location"), zap.Error(err))
 		}
 		customs = append(customs, factory.Customization{
 			Model:    allDutyLocations[randDutyStationIndex],
@@ -12186,7 +12142,7 @@ func createRandomMove(
 	if moveTemplate.Status == "" {
 		randStatusIndex, err := random.GetRandomInt(len(possibleStatuses))
 		if err != nil {
-			log.Panic(fmt.Errorf("Unable to generate random integer for move status"), zap.Error(err))
+			log.Panic(fmt.Errorf("unable to generate random integer for move status"), zap.Error(err))
 		}
 		moveTemplate.Status = possibleStatuses[randStatusIndex]
 

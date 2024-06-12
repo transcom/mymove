@@ -102,13 +102,13 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         pickupAddress: formatAddressForAPI(values.pickupAddress.address),
         hasSecondaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
         secondaryPickupPostalCode,
-        hasTertiaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        hasTertiaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         tertiaryPickupPostalCode,
         destinationPostalCode: values.destinationAddress.address.postalCode,
         destinationAddress: formatAddressForAPI(values.destinationAddress.address),
-        hasSecondaryDestinationAddress,
+        hasSecondaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
         secondaryDestinationPostalCode,
-        hasTertiaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        hasTertiaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         tertiaryDestinationPostalCode,
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),

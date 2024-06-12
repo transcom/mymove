@@ -15,11 +15,11 @@ const PickupDisplay = ({
   releasingAgent,
   requestedPickupDate,
 }) => {
-  const [isTertiaryAddressEnabled, setYourFFHere] = useState(false);
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       isBooleanFlagEnabled('third_address_available').then((enabled) => {
-        setYourFFHere(enabled);
+        setIsTertiaryAddressEnabled(enabled);
       });
     };
     fetchData();

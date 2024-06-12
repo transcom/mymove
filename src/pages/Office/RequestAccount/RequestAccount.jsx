@@ -56,10 +56,16 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'services_counselor',
       });
     }
-    if (values.qualityAssuranceAndCustomerSupportCheckBox) {
+    if (values.qualityAssuranceEvaluatorCheckBox) {
       requestedRoles.push({
-        name: 'Quality Assurance and Customer Service',
-        roleType: 'qae_csr',
+        name: 'Quality Assurance Evaluator',
+        roleType: 'qae',
+      });
+    }
+    if (values.customerSupportRepresentativeCheckBox) {
+      requestedRoles.push({
+        name: 'Customer Service Representative',
+        roleType: 'customer_service_representative',
       });
     }
     if (values.headquartersCheckBox) {

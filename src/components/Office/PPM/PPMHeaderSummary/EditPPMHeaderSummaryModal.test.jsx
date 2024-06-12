@@ -29,7 +29,7 @@ describe('EditPPMHeaderSummaryModal', () => {
           sectionInfo={sectionInfo}
           onClose={onClose}
           onSubmit={onSubmit}
-          editSectionName="actualMoveDate"
+          editItemName="actualMoveDate"
         />,
       );
     });
@@ -49,7 +49,7 @@ describe('EditPPMHeaderSummaryModal', () => {
           sectionInfo={sectionInfo}
           onClose={onClose}
           onSubmit={onSubmit}
-          editSectionName="actualMoveDate"
+          editItemName="actualMoveDate"
         />,
       );
     });
@@ -71,7 +71,7 @@ describe('EditPPMHeaderSummaryModal', () => {
           sectionInfo={sectionInfo}
           onClose={onClose}
           onSubmit={onSubmit}
-          editSectionName="actualMoveDate"
+          editItemName="actualMoveDate"
         />,
       );
     });
@@ -93,7 +93,7 @@ describe('EditPPMHeaderSummaryModal', () => {
           sectionInfo={sectionInfo}
           onClose={onClose}
           onSubmit={onSubmit}
-          editSectionName="actualMoveDate"
+          editItemName="actualMoveDate"
         />,
       );
     });
@@ -115,7 +115,7 @@ describe('EditPPMHeaderSummaryModal', () => {
           sectionInfo={{ ...sectionInfo, actualMoveDate: '' }}
           onClose={onClose}
           onSubmit={onSubmit}
-          editSectionName="actualMoveDate"
+          editItemName="actualMoveDate"
         />,
       );
     });
@@ -137,7 +137,7 @@ describe('EditPPMHeaderSummaryModal', () => {
           sectionInfo={sectionInfo}
           onClose={onClose}
           onSubmit={onSubmit}
-          editSectionName="advanceAmountReceived"
+          editItemName="advanceAmountReceived"
         />,
       );
     });

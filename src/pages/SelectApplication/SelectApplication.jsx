@@ -26,12 +26,11 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
 
       <ul className="usa-button-group">
         {[
-          roleTypes.HQ,
           roleTypes.TOO,
           roleTypes.TIO,
           roleTypes.SERVICES_COUNSELOR,
           roleTypes.PRIME_SIMULATOR,
-          roleTypes.QAE_CSR,
+          roleTypes.QAE,
           roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
         ]
           .filter((r) => userRoleTypes.find((role) => r === role))

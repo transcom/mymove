@@ -101,7 +101,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 
 	interchangeControlNumber, err := g.icnSequencer.NextVal(appCtx)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to get next Interchange Control Number: %w", err)
+		return ediinvoice.Invoice858C{}, fmt.Errorf("failed to get next Interchange Control Number: %w", err)
 	}
 
 	// save ICN
@@ -112,9 +112,9 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	}
 	verrs, err := appCtx.DB().ValidateAndSave(&pr2icn)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %w", err)
+		return ediinvoice.Invoice858C{}, fmt.Errorf("failed to save Interchange Control Number: %w", err)
 	} else if verrs != nil && verrs.HasAny() {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %s", verrs.String())
+		return ediinvoice.Invoice858C{}, fmt.Errorf("failed to save Interchange Control Number: %s", verrs.String())
 	}
 
 	var usageIndicator string

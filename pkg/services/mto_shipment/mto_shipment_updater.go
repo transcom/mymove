@@ -590,14 +590,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 
 			if dbShipment.TertiaryPickupAddress != nil {
-				// Secondary pickup address exists, meaning it should be updated
+				// Tertiary pickup address exists, meaning it should be updated
 				newTertiaryPickupAddress, newTertiaryPickupUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.TertiaryPickupAddress, etag.GenerateEtag(dbShipment.TertiaryPickupAddress.UpdatedAt))
 				if newTertiaryPickupUpdateErr != nil {
 					return newTertiaryPickupUpdateErr
 				}
 				newShipment.TertiaryPickupAddressID = &newTertiaryPickupAddress.ID
 			} else if newShipment.TertiaryPickupAddressID == nil {
-				// Secondary pickup address appears to not exist yet, meaning it should be created
+				// Tertiary pickup address appears to not exist yet, meaning it should be created
 				if newShipment.TertiaryPickupAddress.ID == uuid.Nil {
 					newTertiaryPickupAddress, newTertiaryPickupCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.TertiaryPickupAddress)
 					if newTertiaryPickupCreateErr != nil {
@@ -617,14 +617,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 
 			if dbShipment.TertiaryDeliveryAddress != nil {
-				// Secondary delivery address exists, meaning it should be updated
+				// Tertiary delivery address exists, meaning it should be updated
 				newTertiaryDeliveryAddress, tertiaryDeliveryUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.TertiaryDeliveryAddress, etag.GenerateEtag(dbShipment.TertiaryDeliveryAddress.UpdatedAt))
 				if tertiaryDeliveryUpdateErr != nil {
 					return tertiaryDeliveryUpdateErr
 				}
 				newShipment.TertiaryDeliveryAddressID = &newTertiaryDeliveryAddress.ID
 			} else if newShipment.TertiaryDeliveryAddressID == nil {
-				// Secondary delivery address appears to not exist yet, meaning it should be created
+				// Tertiary delivery address appears to not exist yet, meaning it should be created
 				if newShipment.TertiaryDeliveryAddress.ID == uuid.Nil {
 					newTertiaryDeliveryAddress, tertiaryDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.TertiaryDeliveryAddress)
 					if tertiaryDeliveryCreateErr != nil {

@@ -5847,7 +5847,7 @@ func init() {
         },
         "tertiaryDestinationPostalCode": {
           "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,
@@ -13863,7 +13863,7 @@ func init() {
         },
         "tertiaryDestinationPostalCode": {
           "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "x-nullable": true,

@@ -316,9 +316,9 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 
 func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 	return func() {
-		createQaeCsr(appCtx)
+		createQae(appCtx)
 		officeUser := models.OfficeUser{}
-		email := "qae_csr_role@office.mil"
+		email := "qae_role@office.mil"
 		err := appCtx.DB().Where("email = ?", email).First(&officeUser)
 		if err != nil {
 			appCtx.Logger().Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err).Error())
@@ -571,8 +571,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		createServicesCounselor(appCtx)
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
-		createQaeCsr(appCtx)
-		createCustomerServiceRepresentative(appCtx)
+		createQae(appCtx)
 
 		// TXO Queues
 		createNTSMove(appCtx)
