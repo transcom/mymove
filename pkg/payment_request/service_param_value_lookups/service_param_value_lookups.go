@@ -252,22 +252,10 @@ func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, servic
 	return nil
 }
 
-func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
-	var shipment models.MTOShipment
-	if shipmentArg != nil {
-		shipment = *shipmentArg
-	} else {
-		shipment = models.MTOShipment{}
-	}
-
-	var serviceItem models.MTOServiceItem
-	if serviceItemArg != nil {
-		serviceItem = *serviceItemArg
-	} else {
-		serviceItem = models.MTOServiceItem{}
-	}
-
+func InitializeLookups(mtoShipment *models.MTOShipment, mtoServiceItem *models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
 	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
+	shipment := mtoShipment
+	serviceItem := mtoServiceItem
 
 	if serviceItem.SITDestinationOriginalAddress == nil {
 		serviceItem.SITDestinationOriginalAddress = &models.Address{}
@@ -282,15 +270,15 @@ func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.M
 	}
 
 	lookups[models.ServiceItemParamNameActualPickupDate] = ActualPickupDateLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameRequestedPickupDate] = RequestedPickupDateLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameReferenceDate] = ReferenceDateLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameDistanceZip] = DistanceZipLookup{
@@ -299,27 +287,27 @@ func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.M
 	}
 
 	lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier] = FSCWeightBasedDistanceMultiplierLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameWeightAdjusted] = WeightAdjustedLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameWeightBilled] = WeightBilledLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameWeightEstimated] = WeightEstimatedLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameWeightOriginal] = WeightOriginalLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameWeightReweigh] = WeightReweighLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameZipPickupAddress] = ZipAddressLookup{
@@ -347,15 +335,15 @@ func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.M
 	}
 
 	lookups[models.ServiceItemParamNamePSILinehaulDom] = PSILinehaulDomLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNamePSILinehaulDomPrice] = PSILinehaulDomPriceLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameEIAFuelPrice] = EIAFuelPriceLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameServicesScheduleOrigin] = ServicesScheduleLookup{
@@ -375,7 +363,7 @@ func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.M
 	}
 
 	lookups[models.ServiceItemParamNameNumberDaysSIT] = NumberDaysSITLookup{
-		MTOShipment: shipment,
+		MTOShipment: *shipment,
 	}
 
 	lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress] = ZipAddressLookup{
@@ -395,11 +383,11 @@ func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.M
 	}
 
 	lookups[models.ServiceItemParamNameZipSITOriginHHGOriginalAddress] = ZipSITOriginHHGOriginalAddressLookup{
-		ServiceItem: serviceItem,
+		ServiceItem: *serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNameZipSITOriginHHGActualAddress] = ZipSITOriginHHGActualAddressLookup{
-		ServiceItem: serviceItem,
+		ServiceItem: *serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNameDistanceZipSITDest] = DistanceZipSITDestLookup{
@@ -408,7 +396,7 @@ func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.M
 	}
 
 	lookups[models.ServiceItemParamNameDistanceZipSITOrigin] = DistanceZipSITOriginLookup{
-		ServiceItem: serviceItem,
+		ServiceItem: *serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNameCubicFeetCrating] = CubicFeetCratingLookup{
@@ -428,11 +416,11 @@ func InitializeLookups(shipmentArg *models.MTOShipment, serviceItemArg *models.M
 	}
 
 	lookups[models.ServiceItemParamNameStandaloneCrate] = StandaloneCrateLookup{
-		ServiceItem: serviceItem,
+		ServiceItem: *serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNameStandaloneCrateCap] = StandaloneCrateCapLookup{
-		ServiceItem: serviceItem,
+		ServiceItem: *serviceItem,
 	}
 
 	return lookups
