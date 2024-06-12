@@ -36,6 +36,21 @@ const (
 	PaymentRequestStatusDeprecated PaymentRequestStatus = "DEPRECATED"
 )
 
+const (
+	// QueuePaymentRequestPaymentRequested status payment requested
+	QueuePaymentRequestPaymentRequested = "Payment requested"
+	// QueuePaymentRequestReviewed status Payment request reviewed
+	QueuePaymentRequestReviewed = "Reviewed"
+	// QueuePaymentRequestRejected status Payment request rejected
+	QueuePaymentRequestRejected = "Rejected"
+	// QueuePaymentRequestPaid status PaymentRequest paid
+	QueuePaymentRequestPaid = "Paid"
+	// QueuePaymentRequestDeprecated status PaymentRequest deprecated
+	QueuePaymentRequestDeprecated = "Deprecated"
+	// QueuePaymentRequestError status PaymentRequest error
+	QueuePaymentRequestError = "Error"
+)
+
 var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusPending),
 	string(PaymentRequestStatusReviewed),

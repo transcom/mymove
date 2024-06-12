@@ -315,3 +315,11 @@ func (o *Order) IsCompleteForGBL() bool {
 	}
 	return true
 }
+
+func (o *Order) CanSendEmailWithOrdersType() bool {
+	if o.OrdersType != "BLUEBARK" && o.OrdersType != "SAFETY" {
+		return true
+	}
+
+	return false
+}
