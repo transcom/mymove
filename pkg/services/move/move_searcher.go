@@ -135,7 +135,7 @@ func locatorFilter(locator *string) QueryOption {
 func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch != nil {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
