@@ -4473,7 +4473,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
@@ -4739,7 +4739,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
@@ -5124,7 +5124,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
