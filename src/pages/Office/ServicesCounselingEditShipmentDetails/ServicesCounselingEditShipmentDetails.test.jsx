@@ -500,13 +500,10 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-        },
-        { timeout: 10000 },
-      );
-    });
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      });
+    }, 10000);
 
     describe('Check SIT field validations', () => {
       it.each([
