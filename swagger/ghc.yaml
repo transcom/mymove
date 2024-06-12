@@ -3337,8 +3337,8 @@ paths:
             type: string
             enum:
               - SUBMITTED
+              - SERVICE COUNSELING COMPLETED
               - APPROVALS REQUESTED
-              - APPROVED
         - in: query
           name: orderType
           type: string

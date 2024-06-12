@@ -156,16 +156,9 @@ func destinationPostalCodeFilter(postalCode *string) QueryOption {
 
 func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
+		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			var translatedStatuses []string
-			for _, status := range statuses {
-				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
-				} else {
-					translatedStatuses = append(translatedStatuses, status)
-				}
-			}
-			query.Where("moves.status in (?)", translatedStatuses)
+			query.Where("moves.status IN (?)", statuses)
 		}
 	}
 }
