@@ -89,7 +89,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Make a postal code and GBLOC → AGFM
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
-
 		return officeUser, move, session
 	}
 	orderFetcher := NewOrderFetcher()
@@ -574,8 +573,19 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	orderFetcher := NewOrderFetcher()
 	showMove := true
 
+	var session auth.Session
+
 	suite.Run("office user in normal GBLOC should only see non-Navy/Marines/CoastGuard moves that need closeout in closeout tab", func() {
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		army := models.AffiliationARMY
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -656,7 +666,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		}, nil)
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -665,6 +675,15 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 	suite.Run("office user in normal GBLOC should not see moves that require closeout in counseling tab", func() {
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		// PPM moves that need closeout should not show up in counseling queue
 		army := models.AffiliationARMY
 		closeoutMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -719,7 +738,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		}, nil)
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -792,8 +811,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -861,8 +889,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -930,8 +967,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -972,8 +1018,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		var session auth.Session
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
@@ -1014,8 +1061,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
@@ -1101,6 +1157,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
 	}
+
 	orderFetcher := NewOrderFetcher()
 	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
 
@@ -1360,6 +1417,8 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	}
 	orderFetcher := NewOrderFetcher()
 
+	var session auth.Session
+
 	suite.Run("Sort by PPM closeout initiated", func() {
 		officeUser := setupTestData()
 		// Create a PPM submitted on April 1st
@@ -1399,7 +1458,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by closeout initiated date (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutInitiated"),
 			Order:            models.StringPointer("asc"),
@@ -1411,7 +1470,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppm2.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by closeout initiated date (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutInitiated"),
 			Order:            models.StringPointer("desc"),
@@ -1454,7 +1513,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by closeout location (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutLocation"),
 			Order:            models.StringPointer("asc"),
@@ -1466,7 +1525,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentB.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by closeout location (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutLocation"),
 			Order:            models.StringPointer("desc"),
@@ -1527,7 +1586,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by destination duty location (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("destinationDutyLocation"),
 			Order:            models.StringPointer("asc"),
@@ -1539,7 +1598,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentB.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by destination duty location (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("destinationDutyLocation"),
 			Order:            models.StringPointer("desc"),
@@ -1584,7 +1643,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by PPM type (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmType"),
 			Order:            models.StringPointer("asc"),
@@ -1596,7 +1655,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by PPM type (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmType"),
 			Order:            models.StringPointer("desc"),
