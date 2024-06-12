@@ -43,6 +43,11 @@ type CreateCustomerPayload struct {
 	// email is preferred
 	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
 
+	// emplid
+	// Example: 9485155
+	// Max Length: 7
+	Emplid *string `json:"emplid,omitempty"`
+
 	// first name
 	// Example: John
 	FirstName string `json:"firstName,omitempty"`
@@ -94,6 +99,10 @@ func (m *CreateCustomerPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateBackupMailingAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateEmplid(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -160,6 +169,18 @@ func (m *CreateCustomerPayload) validateBackupContact(formats strfmt.Registry) e
 func (m *CreateCustomerPayload) validateBackupMailingAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.BackupMailingAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateCustomerPayload) validateEmplid(formats strfmt.Registry) error {
+	if swag.IsZero(m.Emplid) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("emplid", "body", *m.Emplid, 7); err != nil {
+		return err
 	}
 
 	return nil
