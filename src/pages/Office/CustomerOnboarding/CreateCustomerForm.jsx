@@ -170,10 +170,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
-  // useEffect(() => {
-  //   setIsEmplidRequired(!isSafetyMove && showEmplid);
-  // }, [showEmplid, isSafetyMove]);
-
   return (
     <GridContainer>
       <NotificationScrollToTop dependency={serverError} />
