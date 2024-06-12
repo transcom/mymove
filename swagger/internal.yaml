@@ -3352,7 +3352,7 @@ definitions:
           - x-omitempty: false
       tertiaryDestinationPostalCode:
         format: >-
-          An optional secondary pickup location near the origin where additional
+          An optional tertiary pickup location near the origin where additional
           goods exist.
         type: string
         title: ZIP
