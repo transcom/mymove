@@ -20,16 +20,18 @@ const (
 	RoleTypeTOO RoleType = "transportation_ordering_officer"
 	// RoleTypeCustomer is the Customer Role
 	RoleTypeCustomer RoleType = "customer"
-	// RoleTypeTIO is the Transportation Invoicing Officer Role
-	RoleTypeTIO RoleType = "transportation_invoicing_officer"
+	// RoleTypeTIO is the Task Invoicing Officer Role
+	RoleTypeTIO RoleType = "task_invoicing_officer"
 	// RoleTypeContractingOfficer is the Contracting Officer Role
 	RoleTypeContractingOfficer RoleType = "contracting_officer"
 	// RoleTypeServicesCounselor is the Services Counselor Role
 	RoleTypeServicesCounselor RoleType = "services_counselor"
 	// RoleTypePrimeSimulator is the PrimeSimulator Role
 	RoleTypePrimeSimulator RoleType = "prime_simulator"
-	// RoleTypeQaeCsr is the Quality Assurance and Customer Support Role
-	RoleTypeQaeCsr RoleType = "qae_csr"
+	// RoleTypeQae is the Quality Assurance Evaluator Role
+	RoleTypeQae RoleType = "qae"
+	// RoleTypeCustomerServiceRepresentative is the Customer Support Representative Role
+	RoleTypeCustomerServiceRepresentative RoleType = "customer_service_representative"
 	// RoleTypePrime is the Role associated with actions performed by the Prime
 	RoleTypePrime RoleType = "prime"
 )

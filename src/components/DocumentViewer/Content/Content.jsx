@@ -43,27 +43,3 @@ DocViewerContent.propTypes = {
 };
 
 export default DocViewerContent;
-
-/**
- * TODO
- *
- * - add className prop to file viewer
- * - add rotate left/right:
- *  <Button unstyled>
-        <RotateLeft />
-        Rotate left
-      </Button>
-      <Button unstyled>
-        <RotateRight />
-        Rotate right
-      </Button>
- * - implement pagination for multi-page PDFs & nav render prop:
- *  <div className={`${styles.docArrows}`}>
-      <Button unstyled className={`${styles.arrowButton}`}>
-        <ArrowLeft />
-      </Button>
-      <Button unstyled className={`${styles.arrowButton}`}>
-        <ArrowRight />
-      </Button>
-    </div>
-*/
