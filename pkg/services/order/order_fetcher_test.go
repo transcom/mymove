@@ -1635,6 +1635,63 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 		suite.Equal(ppmShipmentFull.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 	})
+	suite.Run("Sort by PPM status", func() {
+		officeUser := setupTestData()
+		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Gbloc: "KKFA"},
+			},
+		}, nil)
+		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: models.StringPointer("FULL"),
+				},
+			},
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		})
+		ppmShipmentWaitingOnCustomer := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType: models.StringPointer("FULL"),
+				},
+			},
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		})
+		ppmShipmentWaitingOnCustomer.Status = models.PPMShipmentStatusWaitingOnCustomer
+
+		// Sort by PPM type (ascending)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Sort:             models.StringPointer("ppmStatus"),
+			Order:            models.StringPointer("asc"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(ppmShipmentNeedsCloseout.Shipment.PPMShipment.Status, moves[0].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(ppmShipmentWaitingOnCustomer.Shipment.PPMShipment.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+
+		// Sort by PPM type (descending)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Sort:             models.StringPointer("ppmStatus"),
+			Order:            models.StringPointer("desc"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(ppmShipmentWaitingOnCustomer.Shipment.PPMShipment.Status, moves[0].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(ppmShipmentNeedsCloseout.Shipment.PPMShipment.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+	})
 }
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {

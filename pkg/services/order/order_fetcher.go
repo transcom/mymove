@@ -206,6 +206,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		groupByColumms = append(groupByColumms, "closeout_to.id")
 	}
 
+	if params.Sort != nil && *params.Sort == "ppmStatus" {
+		groupByColumms = append(groupByColumms, "ppm_shipments.id")
+	}
+
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
 		return []models.Move{}, 0, err
@@ -372,14 +376,6 @@ func moveStatusFilter(statuses []string) QueryOption {
 	}
 }
 
-func ppmStatusFilter(ppmStatus *string) QueryOption {
-	return func(query *pop.Query) {
-		if ppmStatus != nil {
-			query.Where("ppm_shipments.status = ?", *ppmStatus)
-		}
-	}
-}
-
 func submittedAtFilter(submittedAt *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
@@ -424,6 +420,14 @@ func ppmTypeFilter(ppmType *string) QueryOption {
 	return func(query *pop.Query) {
 		if ppmType != nil {
 			query.Where("moves.ppm_type = ?", *ppmType)
+		}
+	}
+}
+
+func ppmStatusFilter(ppmStatus *string) QueryOption {
+	return func(query *pop.Query) {
+		if ppmStatus != nil {
+			query.Where("ppm_shipments.status = ?", *ppmStatus)
 		}
 	}
 }
@@ -504,6 +508,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"requestedMoveDate":       "LEAST(COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity'), COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity'), COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity'))",
 		"originGBLOC":             "origin_to.gbloc",
 		"ppmType":                 "moves.ppm_type",
+		"ppmStatus":               "ppm_shipments.status",
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
 	}

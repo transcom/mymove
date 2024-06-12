@@ -70,6 +70,23 @@ export const SERVICE_COUNSELING_BRANCH_OPTIONS = [
   { value: 'MARINES', label: 'Marine Corps' },
 ];
 
+export const SERVICE_COUNSELING_PPM_STATUS_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'WAITING_ON_CUSTOMER', label: 'Waiting on customer' },
+  { value: 'NEEDS_CLOSEOUT', label: 'Needs closeout' },
+];
+
+export const SERVICE_COUNSELING_PPM_STATUS_LABELS = {
+  CANCELLED: 'Cancelled',
+  DRAFT: 'Draft',
+  SUBMITTED: 'Submitted',
+  WAITING_ON_CUSTOMER: 'Waiting on customer',
+  NEEDS_ADVANCE_APPROVAL: 'Needs advance approval',
+  NEEDS_CLOSEOUT: 'Needs closeout',
+  CLOSEOUT_COMPLETE: 'Closeout complete',
+  COMPLETED: 'Completed',
+};
+
 export const SERVICE_COUNSELING_PPM_TYPE_OPTIONS = [
   { value: '', label: 'All' },
   { value: 'FULL', label: 'Full' },
