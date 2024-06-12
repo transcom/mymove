@@ -38,7 +38,7 @@ const mockEvaluationReport = {
   moveID: '551dd01f-90cf-44d6-addb-ff919433dd61',
   moveReferenceID: '4118-8295',
   officeUser: {
-    email: 'qae_csr_role@office.mil',
+    email: 'qae_role@office.mil',
     firstName: 'Leo',
     id: 'ef4f6d1f-4ac3-4159-a364-5403e7d958ff',
     lastName: 'Spaceman',
