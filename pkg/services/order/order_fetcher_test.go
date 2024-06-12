@@ -1725,7 +1725,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
-		ppmShipmentWaitingOnCustomer.Status = models.PPMShipmentStatusWaitingOnCustomer
+		ppmShipmentWaitingOnCustomer.Shipment.PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 
 		// Sort by PPM type (ascending)
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
