@@ -3,7 +3,9 @@ package internalapi
 import (
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -20,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
@@ -38,17 +41,27 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 	eTag := etag.GenerateEtag(move.UpdatedAt)
 
+	var additionalDocumentsPayload *internalmessages.Document
+	var err error
+	if move.AdditionalDocuments != nil {
+		additionalDocumentsPayload, err = payloads.PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+	}
+	if err != nil {
+		return nil, err
+	}
+
 	movePayload := &internalmessages.MovePayload{
-		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
-		SubmittedAt:     handlers.FmtDateTime(SubmittedAt),
-		Locator:         models.StringPointer(move.Locator),
-		ID:              handlers.FmtUUID(move.ID),
-		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
-		MtoShipments:    mtoPayloads,
-		OrdersID:        handlers.FmtUUID(order.ID),
-		ServiceMemberID: *handlers.FmtUUID(order.ServiceMemberID),
-		Status:          internalmessages.MoveStatus(move.Status),
-		ETag:            &eTag,
+		CreatedAt:           handlers.FmtDateTime(move.CreatedAt),
+		SubmittedAt:         handlers.FmtDateTime(SubmittedAt),
+		Locator:             models.StringPointer(move.Locator),
+		ID:                  handlers.FmtUUID(move.ID),
+		UpdatedAt:           handlers.FmtDateTime(move.UpdatedAt),
+		MtoShipments:        mtoPayloads,
+		OrdersID:            handlers.FmtUUID(order.ID),
+		ServiceMemberID:     *handlers.FmtUUID(order.ServiceMemberID),
+		Status:              internalmessages.MoveStatus(move.Status),
+		ETag:                &eTag,
+		AdditionalDocuments: additionalDocumentsPayload,
 	}
 
 	if move.CloseoutOffice != nil {
@@ -364,4 +377,79 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 
 			return moveop.NewGetAllMovesOK().WithPayload(payloadForMovesList(h.FileStorer(), previousMovesList, currentMovesList, movesList)), nil
 		})
+}
+
+type UploadAdditionalDocumentsHandler struct {
+	handlers.HandlerConfig
+	uploader services.MoveAdditionalDocumentsUploader
+}
+
+func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalDocumentsParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			file, ok := params.File.(*runtime.File)
+			if !ok {
+				errMsg := "This should always be a runtime.File, something has changed in go-swagger."
+
+				appCtx.Logger().Error(errMsg)
+
+				return moveop.NewUploadAdditionalDocumentsInternalServerError(), nil
+			}
+
+			appCtx.Logger().Info(
+				"File uploader and size",
+				zap.String("userID", appCtx.Session().UserID.String()),
+				zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
+				zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
+				zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
+				zap.Int64("size", file.Header.Size),
+			)
+
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			upload, url, verrs, err := h.uploader.CreateAdditionalDocumentsUpload(appCtx, appCtx.Session().UserID, moveID, file.Data, file.Header.Filename, h.FileStorer())
+
+			if verrs.HasAny() || err != nil {
+				switch err.(type) {
+				case uploader.ErrTooLarge:
+					return moveop.NewUploadAdditionalDocumentsRequestEntityTooLarge(), err
+				case uploader.ErrFile:
+					return moveop.NewUploadAdditionalDocumentsInternalServerError(), err
+				case uploader.ErrFailedToInitUploader:
+					return moveop.NewUploadAdditionalDocumentsInternalServerError(), err
+				case apperror.NotFoundError:
+					return moveop.NewUploadAdditionalDocumentsNotFound(), err
+				default:
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
+				}
+			}
+
+			uploadPayload, err := payloadForUploadModelFromAdditionalDocumentsUpload(h.FileStorer(), upload, url)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			return moveop.NewUploadAdditionalDocumentsCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStorer, upload models.Upload, url string) (*internalmessages.Upload, error) {
+	uploadPayload := &internalmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload, nil
 }

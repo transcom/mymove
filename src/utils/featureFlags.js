@@ -120,19 +120,6 @@ export function detectFlags(nodeEnv, host, search) {
   };
 }
 
-export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
-  return {
-    ...schema,
-    properties: {
-      ...schema.properties,
-      orders_type: {
-        ...schema.properties.orders_type,
-        enum: [schema.properties.orders_type.enum[0]],
-      },
-    },
-  };
-};
-
 // isBooleanFlagEnabled returns the Flipt feature flag value
 export function isBooleanFlagEnabled(flagKey) {
   return getBooleanFeatureFlagForUser(flagKey, {})
