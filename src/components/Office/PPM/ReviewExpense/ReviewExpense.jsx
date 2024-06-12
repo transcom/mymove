@@ -11,7 +11,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate, dropdownInputOptions, toDollarString } from 'utils/formatters';
+import { formatCents, formatDate, dropdownInputOptions, toDollarString, removeCommas } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -59,7 +59,10 @@ const validationSchema = (allowableWeight) => {
     weightStored: Yup.number().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
       then: (schema) =>
-        schema.required('Required').max(allowableWeight, `Enter an amount ${allowableWeight} lbs or less`),
+        schema
+          .required('Required')
+          .max(allowableWeight, `Enter a weight ${allowableWeight} lbs or less`)
+          .min(1, `Enter a weight greater than 0 lbs`),
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
@@ -101,8 +104,21 @@ export default function ReviewExpense({
   const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT);
 
   const allowableWeight = ppmShipmentInfo.estimatedWeight;
+  const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
-  const { estimatedCost, isLoading, isError } = useGetPPMSITEstimatedCostQuery(ppmShipmentInfo.id, ppmSITLocation);
+  const [sitEntryDateValue, setSitEntryDateValue] = React.useState(
+    sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
+  );
+  const [sitDepartureDateValue, setSitDepartureDateValue] = React.useState(
+    sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
+  );
+  const { estimatedCost, isLoading, isError } = useGetPPMSITEstimatedCostQuery(
+    ppmShipmentInfo.id,
+    ppmSITLocation,
+    sitStartDate,
+    sitEndDate,
+    weightStoredValue,
+  );
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -111,9 +127,9 @@ export default function ReviewExpense({
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
     sitStartDate: sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
     sitEndDate: sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
-    weightStored: weightStored?.toString() || '',
     status: status || '',
     reason: reason || '',
+    weightStored: weightStoredValue?.toString() || '',
     actualWeight: ppmShipmentInfo?.actualWeight?.toString() || '',
     sitLocation: ppmSITLocation,
   };
@@ -121,7 +137,6 @@ export default function ReviewExpense({
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
   const [currentCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
   const [samePage, setSamePage] = React.useState(false); // Helps track if back button was used or not
-
   /**
    * Gets the current index for the receipt type, i.e. if we've already reviewed two "Oil" expense receipts, and user chooses "Oil" for expense type,
    * then this will display "Oil #3" at bottom of page.
@@ -174,7 +189,7 @@ export default function ReviewExpense({
       sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
-      weightStored: Number.parseInt(values.weightStored, 10),
+      weightStored: weightStoredValue,
       sitLocation: ppmSITLocation,
     };
 
@@ -210,8 +225,44 @@ export default function ReviewExpense({
 
           const handleSITLocationChange = (event) => {
             setSITLocation(event.target.value);
+            setWeightStoredValue(weightStoredValue);
+            setSitEntryDateValue(sitStartDate);
+            setSitDepartureDateValue(sitEndDate);
             setSamePage(true);
             const count = computeCurrentCategoryIndex(event.target.value);
+            setCurrentCategoryIndex(count + 1);
+          };
+
+          const handleWeightStoredChange = (event) => {
+            const weight = parseInt(removeCommas(event.target.value), 10);
+            if (weight <= allowableWeight && weight > 0) {
+              setWeightStoredValue(weight);
+              setSITLocation(ppmSITLocation);
+              setSitEntryDateValue(sitStartDate);
+              setSitDepartureDateValue(sitEndDate);
+              setSamePage(true);
+              const count = computeCurrentCategoryIndex(event.target.value);
+              setCurrentCategoryIndex(count + 1);
+            }
+          };
+
+          const handleSITEntryDateChange = (value) => {
+            setSitEntryDateValue(value);
+            setSITLocation(ppmSITLocation);
+            setSitDepartureDateValue(sitEndDate);
+            setWeightStoredValue(weightStoredValue);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(value);
+            setCurrentCategoryIndex(count + 1);
+          };
+
+          const handleSITDepartureDateChange = (value) => {
+            setSitDepartureDateValue(value);
+            setSITLocation(ppmSITLocation);
+            setSitEntryDateValue(sitStartDate);
+            setWeightStoredValue(weightStoredValue);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(value);
             setCurrentCategoryIndex(count + 1);
           };
 
@@ -228,7 +279,6 @@ export default function ReviewExpense({
                 <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               </div>
               <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
-                <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
                 <hr />
                 <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
                 <div className="labelWrapper">
@@ -313,11 +363,14 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      onBlur={(e) => {
+                        handleWeightStoredChange(e);
+                      }}
                     />
                     <MaskedTextField
                       defaultValue="0"
                       name="actualWeight"
-                      label="Actual Weight"
+                      label="Actual PPM Weight"
                       id="actualWeight"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers

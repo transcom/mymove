@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -71,6 +72,10 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 			} else {
 				ppmShipment.SITLocation = &sitLocationDestination
 			}
+
+			ppmShipment.SITEstimatedEntryDate = (*time.Time)(&params.SitEntryDate)
+			ppmShipment.SITEstimatedDepartureDate = (*time.Time)(&params.SitDepartureDate)
+			ppmShipment.SITEstimatedWeight = handlers.PoundPtrFromInt64Ptr(&params.WeightStored)
 
 			calculatedCost, err := h.PPMEstimator.CalculatePPMSITEstimatedCost(appCtx, ppmShipment)
 

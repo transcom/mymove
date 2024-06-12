@@ -83,12 +83,22 @@ export async function getPPMCloseout(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
 }
 
-export async function getPPMSITEstimatedCost(key, ppmShipmentId, sitLocation) {
+export async function getPPMSITEstimatedCost(
+  key,
+  ppmShipmentId,
+  sitLocation,
+  sitEntryDate,
+  sitDepartureDate,
+  weightStored,
+) {
   return makeGHCRequest(
     'ppm.getPPMSITEstimatedCost',
     {
       ppmShipmentId,
       sitLocation,
+      sitEntryDate,
+      sitDepartureDate,
+      weightStored,
     },
     { normalize: false },
   );

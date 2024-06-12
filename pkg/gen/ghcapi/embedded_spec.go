@@ -3503,6 +3503,29 @@ func init() {
           "name": "sitLocation",
           "in": "path",
           "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date entered into SIT",
+          "name": "sitEntryDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date departed SIT",
+          "name": "sitDepartureDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "integer",
+          "description": "Weight stored in SIT",
+          "name": "weightStored",
+          "in": "query",
+          "required": true
         }
       ]
     },
@@ -16439,6 +16462,30 @@ func init() {
           "description": "location of sit",
           "name": "sitLocation",
           "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date entered into SIT",
+          "name": "sitEntryDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date departed SIT",
+          "name": "sitDepartureDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "minimum": 0,
+          "type": "integer",
+          "description": "Weight stored in SIT",
+          "name": "weightStored",
+          "in": "query",
           "required": true
         }
       ]

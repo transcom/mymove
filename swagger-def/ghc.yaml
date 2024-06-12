@@ -1847,6 +1847,24 @@ paths:
         enum:
           - ORIGIN
           - DESTINATION
+      - in: query
+        format: date-time
+        description: Date entered into SIT
+        name: sitEntryDate
+        required: true
+        type: string
+      - in: query
+        format: date-time
+        description: Date departed SIT
+        name: sitDepartureDate
+        required: true
+        type: string
+      - in: query
+        description: Weight stored in SIT
+        name: weightStored
+        required: true
+        type: integer
+        minimum: 0
     get:
       summary: Get the SIT estimated cost for a PPM shipment
       description: |

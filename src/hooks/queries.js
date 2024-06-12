@@ -312,9 +312,15 @@ export const usePPMCloseoutQuery = (ppmShipmentId) => {
   };
 };
 
-export const useGetPPMSITEstimatedCostQuery = (ppmShipmentId, sitLocation) => {
+export const useGetPPMSITEstimatedCostQuery = (
+  ppmShipmentId,
+  sitLocation,
+  sitEntryDate,
+  sitDepartureDate,
+  weightStored,
+) => {
   const { data: estimatedCost, ...ppmSITEstimatedCostQuery } = useQuery(
-    [PPMSIT_ESTIMATED_COST, ppmShipmentId, sitLocation],
+    [PPMSIT_ESTIMATED_COST, ppmShipmentId, sitLocation, sitEntryDate, sitDepartureDate, weightStored],
     ({ queryKey }) => getPPMSITEstimatedCost(...queryKey),
   );
 

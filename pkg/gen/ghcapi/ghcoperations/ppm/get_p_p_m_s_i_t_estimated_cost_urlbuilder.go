@@ -12,12 +12,17 @@ import (
 	"strings"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // GetPPMSITEstimatedCostURL generates an URL for the get p p m s i t estimated cost operation
 type GetPPMSITEstimatedCostURL struct {
 	PpmShipmentID strfmt.UUID
 	SitLocation   string
+
+	SitDepartureDate strfmt.DateTime
+	SitEntryDate     strfmt.DateTime
+	WeightStored     int64
 
 	_basePath string
 	// avoid unkeyed usage
@@ -64,6 +69,25 @@ func (o *GetPPMSITEstimatedCostURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	sitDepartureDateQ := o.SitDepartureDate.String()
+	if sitDepartureDateQ != "" {
+		qs.Set("sitDepartureDate", sitDepartureDateQ)
+	}
+
+	sitEntryDateQ := o.SitEntryDate.String()
+	if sitEntryDateQ != "" {
+		qs.Set("sitEntryDate", sitEntryDateQ)
+	}
+
+	weightStoredQ := swag.FormatInt64(o.WeightStored)
+	if weightStoredQ != "" {
+		qs.Set("weightStored", weightStoredQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }
