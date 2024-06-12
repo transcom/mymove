@@ -53,9 +53,11 @@ func (f *reportListFetcher) BuildReportListFromPaymentRequests(appCtx appcontext
 	if paymentRequests != nil {
 		for _, paymentRequest := range *paymentRequests {
 			var newReport models.Report
+			newReport.ID = paymentRequest.ID
 			newReport.FirstName = paymentRequest.MoveTaskOrder.Orders.ServiceMember.FirstName
 			newReport.Edipi = paymentRequest.MoveTaskOrder.Orders.ServiceMember.Edipi
 			newReport.Address1 = paymentRequest.MoveTaskOrder.Orders.ServiceMember.ResidentialAddress
+			newReport.Address2 = paymentRequest.MoveTaskOrder.Orders.ServiceMember.BackupMailingAddress
 			reports = append(reports, newReport)
 		}
 	} else {

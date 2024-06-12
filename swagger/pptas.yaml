@@ -86,7 +86,7 @@ definitions:
       efficiently.
     type: object
     properties:
-      id:
+      ID:
         type: string
         format: uuid
       LastName:

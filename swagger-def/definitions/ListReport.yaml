@@ -3,7 +3,7 @@ description: >
       fetch a list of reports more efficiently.
 type: object
 properties:
-  id:
+  ID:
     type: string
     format: uuid
   LastName:
@@ -96,21 +96,34 @@ properties:
   EmailSecondary:
     example: 2101234567
     type: string
+  OrdersType:
+    type: string
+  OrdersNumber:
+    type: string
+    format: date-time
+  Address:
+    $ref: 'Address.yaml'
+  OriginCity:
+    type: string
+  OriginState:
+    type: string
+  OriginZip:
+    type: string
+    format: zip
+    title: ZIP
+    example: '90210'
+    pattern: '^(\d{5}([\-]\d{4})?)$'
+  DestinationCity:
+    type: string
+  DestinationState:
+    type: string
+  DestinationZip:
+    type: string
+    format: zip
+    title: ZIP
+    example: '90210'
+    pattern: '^(\d{5}([\-]\d{4})?)$'
 
-  # ORDERS TYPE
-  # ORDERS NUMBER
-  # ORDERS DATE
-  # ADDR 1
-  # ADDR 2
-  # ADDR CITY
-  # ADDR STATE
-  # ADDR ZIP
-  # ORIG CITY
-  # ORIG STATE
-  # Origin ZIP code 
-  # DEST CITY
-  # DEST STATE
-  # DEST ZIP
   # ORIGIN GBLOC
   # DEP CD
   # TRAVEL ADVANCE

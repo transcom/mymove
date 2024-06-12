@@ -43,6 +43,7 @@ func ListReport(pr *models.Report) *pptasmessages.ListReport {
 	// }
 
 	payload := &pptasmessages.ListReport{
+		// ID: *pr.
 		FirstName: *pr.FirstName,
 		Edipi:     *pr.Edipi,
 	}

@@ -218,6 +218,10 @@ func init() {
           },
           "x-nullable": true
         },
+        "ID": {
+          "type": "string",
+          "format": "uuid"
+        },
         "LastName": {
           "type": "string",
           "example": "Job"
@@ -233,10 +237,6 @@ func init() {
         "PhoneSecondary": {
           "type": "string",
           "example": "a@b.com"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },
@@ -477,6 +477,10 @@ func init() {
           },
           "x-nullable": true
         },
+        "ID": {
+          "type": "string",
+          "format": "uuid"
+        },
         "LastName": {
           "type": "string",
           "example": "Job"
@@ -492,10 +496,6 @@ func init() {
         "PhoneSecondary": {
           "type": "string",
           "example": "a@b.com"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     },

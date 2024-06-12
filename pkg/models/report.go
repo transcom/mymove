@@ -3,10 +3,12 @@ package models
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 type Report struct {
+	ID                 uuid.UUID
 	LastName           *string
 	FirstName          *string
 	MiddleInitial      *string

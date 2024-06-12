@@ -43,6 +43,10 @@ type ListReport struct {
 	// Enum: [E_1 E_2 E_3 E_4 E_5 E_6 E_7 E_8 E_9 E_9_SPECIAL_SENIOR_ENLISTED O_1_ACADEMY_GRADUATE O_2 O_3 O_4 O_5 O_6 O_7 O_8 O_9 O_10 W_1 W_2 W_3 W_4 W_5 AVIATION_CADET CIVILIAN_EMPLOYEE ACADEMY_CADET MIDSHIPMAN]
 	Grade *string `json:"Grade,omitempty"`
 
+	// ID
+	// Format: uuid
+	ID strfmt.UUID `json:"ID,omitempty"`
+
 	// last name
 	// Example: Job
 	LastName string `json:"LastName,omitempty"`
@@ -58,10 +62,6 @@ type ListReport struct {
 	// phone secondary
 	// Example: a@b.com
 	PhoneSecondary string `json:"PhoneSecondary,omitempty"`
-
-	// id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
 }
 
 // Validate validates this list report
@@ -233,7 +233,7 @@ func (m *ListReport) validateID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+	if err := validate.FormatOf("ID", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 
