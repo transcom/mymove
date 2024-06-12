@@ -75,7 +75,7 @@ describe('RequestShipmentDiversionModal', () => {
       shipmentID: '123456',
       ifMatchEtag: 'string',
       shipmentLocator: '123456-01',
-      actualPickupDate: 6 / 11 / 3024,
+      actualPickupDate: new Date('6 / 11 / 3024'),
     };
 
     const wrapper = mount(
