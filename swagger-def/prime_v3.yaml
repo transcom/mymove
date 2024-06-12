@@ -621,6 +621,16 @@ definitions:
         x-nullable: true
   UpdateMTOShipment:
     properties:
+      actualProGearWeight:
+        description: The actual weight of any pro gear shipped during a move.
+        type: integer
+        example: 4500
+        x-nullable: true
+      actualSpouseProGearWeight:
+        description: The actual weight of any pro gear shipped during a move.
+        type: integer
+        example: 4500
+        x-nullable: true
       scheduledPickupDate:
         description: The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
         format: date
