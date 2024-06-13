@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
-import { Formik, Field } from 'formik';
+import { Formik, Field, useFormik } from 'formik';
 import classnames from 'classnames';
 import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -29,7 +29,8 @@ import SitCost from 'components/Office/PPM/SitCost/SitCost';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
-const validationSchema = (allowableWeight) => {
+const validationSchema = (actualWeight) => {
+  const maxWeight = parseInt(removeCommas(actualWeight), 10);
   return Yup.object().shape({
     amount: Yup.string()
       .required('Enter the expense amount')
@@ -59,7 +60,7 @@ const validationSchema = (allowableWeight) => {
       then: (schema) =>
         schema
           .required('Required')
-          .max(allowableWeight, `Enter a weight ${allowableWeight} lbs or less`)
+          .max(maxWeight, `Enter a weight ${maxWeight} lbs or less`)
           .min(1, `Enter a weight greater than 0 lbs`),
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
@@ -100,8 +101,8 @@ export default function ReviewExpense({
   });
 
   const [descriptionString, setDescriptionString] = React.useState(description || '');
-  const allowableWeight = ppmShipmentInfo.estimatedWeight;
   const [actualWeightValue, setActualWeightValue] = React.useState(ppmShipmentInfo?.actualWeight?.toString() || '');
+  const actualWeight = actualWeightValue;
   const [amountValue, setAmountValue] = React.useState(amount);
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
@@ -186,7 +187,7 @@ export default function ReviewExpense({
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
         initialValues={initialValues}
-        validationSchema={() => validationSchema(allowableWeight)}
+        validationSchema={() => validationSchema(actualWeight)}
         innerRef={formRef}
         onSubmit={handleSubmit}
         enableReinitialize
@@ -213,7 +214,8 @@ export default function ReviewExpense({
 
           const handleWeightStoredChange = (event) => {
             const weight = parseInt(removeCommas(event.target.value), 10);
-            if (weight <= allowableWeight && weight > 0) {
+            const maxWeight = parseInt(removeCommas(actualWeightValue), 10);
+            if (weight <= maxWeight && weight > 0) {
               setWeightStoredValue(weight);
               refreshPage(event);
             }
