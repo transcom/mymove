@@ -101,7 +101,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	fullWeightGCCShipment.ProGearWeight = &proGearCustomerMax
 	fullWeightGCCShipment.SpouseProGearWeight = &proGearSpouseMax
 	gcc, _ := p.calculateGCC(appCtx, *fullWeightGCCShipment, fullAllowableWeight)
-	gcc = gcc.AddCents(*serviceItems.storageReimbursementCosts)
+	if serviceItems.storageReimbursementCosts != nil {
+		gcc = gcc.AddCents(*serviceItems.storageReimbursementCosts)
+	}
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
