@@ -86,17 +86,11 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	}
 
 	var distanceMiles int
-	var distMilesToInt int
-	if mtoShipment.Distance != nil {
-		distMilesToInt, err = strconv.Atoi(mtoShipment.Distance.String())
-		if err != nil {
-			return "", apperror.NewBadDataError("there was a problem converting the shipment distance to int during the distance zip lookup operation")
-		}
-	}
+	distMilesToInt := int(*(mtoShipment.Distance))
 	if pickupZip == destinationZip {
 		distanceMiles = 1
 	} else if mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
-		if distMilesToInt != 0 {
+		if distMilesToInt > 0 {
 			distanceMiles = distMilesToInt
 		} else {
 			distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
