@@ -8563,10 +8563,10 @@ eslint-plugin-react@^7.27.1, eslint-plugin-react@^7.28, eslint-plugin-react@^7.3
     semver "^6.3.1"
     string.prototype.matchall "^4.0.10"
 
-eslint-plugin-security@^1.7.1:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-security/-/eslint-plugin-security-1.7.1.tgz#0e9c4a471f6e4d3ca16413c7a4a51f3966ba16e4"
-  integrity sha512-sMStceig8AFglhhT2LqlU5r+/fn9OwsA72O5bBuQVTssPCdQAOQzL+oMn/ZcpeUY6KcNfLJArgcrsSULNjYYdQ==
+eslint-plugin-security@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-security/-/eslint-plugin-security-3.0.0.tgz#fcecadcf183368a23fd541514d177b09cb92993e"
+  integrity sha512-2Ij7PkmXIF2cKwoVkEgemwoXbOnxg5UfdhdcpNxZwJxC/10dbsdhHISrTyJ/n8DUkt3yiN6P1ywEgcMGjIwHIw==
   dependencies:
     safe-regex "^2.1.1"
 
