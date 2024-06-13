@@ -1140,15 +1140,17 @@ export const MoveTaskOrder = (props) => {
             </div>
           )}
           {!isMoveLocked && (
-            <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
-              <option value="">Add a new shipment</option>
-              <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                HHG
-              </option>
-              <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-              <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-              <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-            </ButtonDropdown>
+            <Restricted to={permissionTypes.createTxoShipment}>
+              <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
+                <option value="">Add a new shipment</option>
+                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                  HHG
+                </option>
+                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+              </ButtonDropdown>
+            </Restricted>
           )}
           {mtoShipments.map((mtoShipment) => {
             if (

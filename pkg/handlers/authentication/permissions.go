@@ -39,6 +39,7 @@ var TOO = RolePermissions{
 		"view.closeoutOffice",
 		"update.closeoutOffice",
 		"update.MTOPage",
+		"create.TXOShipment",
 	},
 }
 
