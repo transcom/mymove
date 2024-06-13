@@ -125,6 +125,7 @@ export const tooRoutes = {
   CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
+// QAE and CSR share all routes, just different permission levels
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
   BASE_EVALUATION_REPORTS_PATH: `${BASE_MOVES_PATH}/evaluation-reports`,

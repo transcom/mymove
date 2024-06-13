@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 )
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
@@ -106,6 +107,26 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 			mtoShipment, err := h.mtoShipmentFetcher.GetShipment(appCtx, shipmentID, eagerAssociations...)
 			if err != nil {
 				return handleError(err)
+			}
+
+			if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+				ppmEagerAssociations := []string{"PickupAddress",
+					"DestinationAddress",
+					"SecondaryPickupAddress",
+					"SecondaryDestinationAddress",
+				}
+
+				ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
+
+				ppmShipment, err := ppmShipmentFetcher.GetPPMShipment(appCtx, mtoShipment.PPMShipment.ID, ppmEagerAssociations, nil)
+				if err != nil {
+					return handleError(err)
+				}
+
+				mtoShipment.PPMShipment.PickupAddress = ppmShipment.PickupAddress
+				mtoShipment.PPMShipment.DestinationAddress = ppmShipment.DestinationAddress
+				mtoShipment.PPMShipment.SecondaryPickupAddress = ppmShipment.SecondaryPickupAddress
+				mtoShipment.PPMShipment.SecondaryDestinationAddress = ppmShipment.SecondaryDestinationAddress
 			}
 
 			var agents []models.MTOAgent
@@ -843,8 +864,13 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			moveID := shipment.MoveTaskOrderID
 			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
-			/* Don't send emails for BLUEBARK moves */
-			if shipment.MoveTaskOrder.Orders.OrdersType != "BLUEBARK" {
+			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), shipment.MoveTaskOrderID)
+			if err != nil {
+				return nil, err
+			}
+
+			/* Don't send emails for BLUEBARK/SAFETY moves */
+			if move.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewReweighRequested(moveID, *shipment),
 				)
