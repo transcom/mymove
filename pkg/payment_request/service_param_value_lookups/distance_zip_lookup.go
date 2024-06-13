@@ -62,6 +62,11 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	serviceCode := keyData.MTOServiceItem.ReService.Code
 	switch serviceCode {
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
+		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "Distance").Find(&mtoShipment, mtoShipment.ID)
+		if err != nil {
+			return "", err
+		}
+
 		for _, si := range mtoShipment.MTOServiceItems {
 			siCopy := si
 			err := appCtx.DB().EagerPreload("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
