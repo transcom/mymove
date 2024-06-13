@@ -80,21 +80,18 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		}
 	}
 
-	var distanceMiles int
-	var distMilesToInt int
-	if mtoShipment.Distance != nil {
-		distMilesToInt, err = strconv.Atoi(mtoShipment.Distance.String())
-		if err != nil {
-			return "", apperror.NewBadDataError("there was a problem converting the shipment distance to int during the distance zip lookup operation")
-		}
+	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
+		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
+
+	var distanceMiles int
 	if pickupZip == destinationZip {
 		distanceMiles = 1
-	} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM && distMilesToInt != 0 {
+	} else {
 		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
-	}
-	if err != nil {
-		return "", err
+		if err != nil {
+			return "", err
+		}
 	}
 
 	miles := unit.Miles(distanceMiles)
