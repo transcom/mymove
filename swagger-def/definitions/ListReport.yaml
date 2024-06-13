@@ -6,18 +6,18 @@ properties:
   ID:
     type: string
     format: uuid
-  LastName:
-    example: Job
-    type: string
   FirstName:
     example: Bob
+    type: string
+  LastName:
+    example: Job
     type: string
   MiddleInitial:
     example: G
     type: string
   Affiliation:
     $ref: 'Affiliation.yaml'
-  Grade:
+  PayGrade:
     type: string
     x-nullable: true
     title: grade
@@ -85,16 +85,13 @@ properties:
     example: 1234567890
     type: string
   PhonePrimary:
-    example: a@b.com
-    type: string
-  PhoneSecondary:
-    example: a@b.com
-    type: string
-  EmailPrimary:
     example: 9169876543
     type: string
-  EmailSecondary:
-    example: 2101234567
+  PhoneSecondary:
+    example: 9169876543
+    type: string
+  EmailPrimary:
+    example: a@b.com
     type: string
   OrdersType:
     type: string
@@ -103,28 +100,81 @@ properties:
     format: date-time
   Address:
     $ref: 'Address.yaml'
-  OriginCity:
+  OriginAddress:
+    $ref: 'Address.yaml'
+  # OriginCity:
+  #   type: string
+  # OriginState:
+  #   type: string
+  # OriginZip:
+  #   type: string
+  #   format: zip
+  #   title: ZIP
+  #   example: '90210'
+  #   pattern: '^(\d{5}([\-]\d{4})?)$'
+  DestinationAddress:
+    $ref: 'Address.yaml'
+  # DestinationCity:
+  #   type: string
+  # DestinationState:
+  #   type: string
+  # DestinationZip:
+  #   type: string
+  #   format: zip
+  #   title: ZIP
+  #   example: '90210'
+  #   pattern: '^(\d{5}([\-]\d{4})?)$'
+  OriginGbloc:
     type: string
-  OriginState:
+    enum:
+      - AGFM
+      - APAT
+      - BGAC
+      - BGNC
+      - BKAS
+      - CFMQ
+      - CLPK
+      - CNNQ
+      - DMAT
+      - GSAT
+      - HAFC
+      - HBAT
+      - JEAT
+      - JENQ
+      - KKFA
+      - LHNQ
+      - LKNQ
+      - MAPK
+      - MAPS
+      - MBFL
+      - MLNQ
+      - XXXX
+  DestinationGbloc:
     type: string
-  OriginZip:
-    type: string
-    format: zip
-    title: ZIP
-    example: '90210'
-    pattern: '^(\d{5}([\-]\d{4})?)$'
-  DestinationCity:
-    type: string
-  DestinationState:
-    type: string
-  DestinationZip:
-    type: string
-    format: zip
-    title: ZIP
-    example: '90210'
-    pattern: '^(\d{5}([\-]\d{4})?)$'
+    enum:
+      - AGFM
+      - APAT
+      - BGAC
+      - BGNC
+      - BKAS
+      - CFMQ
+      - CLPK
+      - CNNQ
+      - DMAT
+      - GSAT
+      - HAFC
+      - HBAT
+      - JEAT
+      - JENQ
+      - KKFA
+      - LHNQ
+      - LKNQ
+      - MAPK
+      - MAPS
+      - MBFL
+      - MLNQ
+      - XXXX
 
-  # ORIGIN GBLOC
   # DEP CD
   # TRAVEL ADVANCE
   # MOVE DATE
@@ -140,13 +190,24 @@ properties:
   # PAA
   # COST CD
   # DD CD
-  # SHIP NUM
-  # WGT EST
+
+  ShipmentNum:
+    type: integer
+  WeightEstimate:
+    type: number
+    format: double
+
   # TRANSMIT CD
   # DD2278 ISSUE DATE
-  # MILES
-  # WGT AUTH
-  # Shipment ID (formerly GBL)
+
+  Miles:
+    type: integer
+  WeightAuthorized:
+    type: integer
+  ShipmentId:
+    type: string
+    format: uuid
+
   # SCAC
   # ORDER_NUMBER (SDN)
   # LOA

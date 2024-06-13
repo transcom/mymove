@@ -10,10 +10,10 @@ import (
 
 type Report struct {
 	ID                 uuid.UUID
-	LastName           *string
 	FirstName          *string
+	LastName           *string
 	MiddleInitial      *string
-	BranchOfService    *ServiceMemberAffiliation
+	Affiliation        *ServiceMemberAffiliation
 	PayGrade           *internalmessages.OrderPayGrade
 	Edipi              *string
 	PhonePrimary       *string
@@ -23,8 +23,6 @@ type Report struct {
 	OrdersType         internalmessages.OrdersType
 	OrdersNumber       *string
 	Address1           *Address
-	Address2           *Address
-	Address3           *Address
 	OriginAddress      *Address
 	DestinationAddress *Address
 	OriginGBLOC        *string

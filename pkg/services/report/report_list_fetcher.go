@@ -55,9 +55,20 @@ func (f *reportListFetcher) BuildReportListFromPaymentRequests(appCtx appcontext
 			var newReport models.Report
 			newReport.ID = paymentRequest.ID
 			newReport.FirstName = paymentRequest.MoveTaskOrder.Orders.ServiceMember.FirstName
+			newReport.LastName = paymentRequest.MoveTaskOrder.Orders.ServiceMember.LastName
+			newReport.MiddleInitial = paymentRequest.MoveTaskOrder.Orders.ServiceMember.MiddleName
+			newReport.Affiliation = paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation
+			newReport.PayGrade = paymentRequest.MoveTaskOrder.Orders.Grade
 			newReport.Edipi = paymentRequest.MoveTaskOrder.Orders.ServiceMember.Edipi
+			newReport.PhonePrimary = paymentRequest.MoveTaskOrder.Orders.ServiceMember.Telephone
+			newReport.PhoneSecondary = paymentRequest.MoveTaskOrder.Orders.ServiceMember.SecondaryTelephone
+			newReport.EmailPrimary = paymentRequest.MoveTaskOrder.Orders.ServiceMember.PersonalEmail
+			newReport.OrdersType = paymentRequest.MoveTaskOrder.Orders.OrdersType
+			newReport.OrdersNumber = paymentRequest.MoveTaskOrder.Orders.OrdersNumber
 			newReport.Address1 = paymentRequest.MoveTaskOrder.Orders.ServiceMember.ResidentialAddress
-			newReport.Address2 = paymentRequest.MoveTaskOrder.Orders.ServiceMember.BackupMailingAddress
+			// newReport.OriginAddress = paymentRequest.MoveTaskOrder.
+
+			// newReport.DestinationAddress = paymentRequest.MoveTaskOrder.CloseoutOffice.Address
 			reports = append(reports, newReport)
 		}
 	} else {

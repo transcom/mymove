@@ -25,8 +25,8 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 }
 
 // ListReport payload
-func ListReport(pr *models.Report) *pptasmessages.ListReport {
-	if pr == nil {
+func ListReport(report *models.Report) *pptasmessages.ListReport {
+	if report == nil {
 		return nil
 	}
 
@@ -44,8 +44,8 @@ func ListReport(pr *models.Report) *pptasmessages.ListReport {
 
 	payload := &pptasmessages.ListReport{
 		// ID: *pr.
-		FirstName: *pr.FirstName,
-		Edipi:     *pr.Edipi,
+		FirstName: *report.FirstName,
+		Edipi:     *report.Edipi,
 	}
 
 	return payload
