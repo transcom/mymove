@@ -883,7 +883,7 @@ func (suite *AuthSuite) TestCallbackThatRequiresOktaParamsRedirect() {
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code)
 
 	// this should clear the user's okta sessions and redirect them back to MM
-	suite.Equal(suite.urlForHost(appnames.OfficeServername).String()+"sign-in"+"?okta_logged_out=false",
+	suite.Equal(suite.urlForHost(appnames.OfficeServername).String()+"sign-in"+"?okta_error=true",
 		rr.Result().Header.Get("Location"))
 }
 
