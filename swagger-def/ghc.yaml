@@ -3864,6 +3864,9 @@ definitions:
       cacValidated:
         type: boolean
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:

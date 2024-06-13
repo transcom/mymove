@@ -43,6 +43,10 @@ const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
     id: 'dodID',
     isFilterable: false,
   }),
+  createHeader('EMPLID', 'emplid', {
+    id: 'emplid',
+    isFilterable: false,
+  }),
   createHeader('  ', (row) => {
     return (
       <div className={styles.editProfile} data-label="editProfile" data-testid="editProfileBtn">

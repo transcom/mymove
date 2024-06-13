@@ -64,6 +64,10 @@ const columns = (moveLockFlag, showBranchFilter = true) => [
     id: 'dodID',
     isFilterable: true,
   }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
+  }),
   createHeader(
     'Status',
     (row) => {
