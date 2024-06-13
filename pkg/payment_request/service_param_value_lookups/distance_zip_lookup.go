@@ -88,11 +88,11 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	var distanceMiles int
 	if pickupZip == destinationZip {
 		distanceMiles = 1
-	} else {
+	} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM && distMilesToInt != 0 {
 		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
-		if err != nil {
-			return "", err
-		}
+	}
+	if err != nil {
+		return "", err
 	}
 
 	miles := unit.Miles(distanceMiles)
