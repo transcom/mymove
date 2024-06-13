@@ -61,10 +61,10 @@ export const OfficeAccountRequestFields = ({ render }) => {
           />
           <h4>Requested Role(s)</h4>
           <CheckboxField
-            id="transportationOrderingOfficerCheckBox"
-            data-testid="transportationOrderingOfficerCheckBox"
-            name="transportationOrderingOfficerCheckBox"
-            label="Transportation Ordering Officer"
+            id="taskOrderingOfficerCheckBox"
+            data-testid="taskOrderingOfficerCheckBox"
+            name="taskOrderingOfficerCheckBox"
+            label="Task Ordering Officer"
           />
           <CheckboxField
             id="taskInvoicingOfficerCheckBox"
@@ -89,12 +89,6 @@ export const OfficeAccountRequestFields = ({ render }) => {
             data-testid="qualityAssuranceEvaluatorCheckBox"
             name="qualityAssuranceEvaluatorCheckBox"
             label="Quality Assurance Evaluator"
-          />
-          <CheckboxField
-            id="customerSupportRepresentativeCheckBox"
-            data-testid="customerSupportRepresentativeCheckBox"
-            name="customerSupportRepresentativeCheckBox"
-            label="Customer Support Representative"
           />
           <CheckboxField
             id="customerSupportRepresentativeCheckBox"

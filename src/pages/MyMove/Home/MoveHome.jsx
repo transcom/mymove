@@ -54,6 +54,7 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -83,6 +84,14 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsManageSupportingDocsEnabled(await isBooleanFlagEnabled('manage_supporting_docs'));
+    };
+    fetchData();
+  }, []);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -197,6 +206,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking to see if prime has completed counseling, return true
   const isPrimeCounselingComplete = () => {
     return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
+  };
+
+  // check for FF and if move is submitted, can refactor once FF is removed
+  // to just use hasSubmittedMove
+  const isAdditionalDocumentsButtonAvailable = () => {
+    return isManageSupportingDocsEnabled && hasSubmittedMove();
   };
 
   // logic that handles deleting a shipment
@@ -326,6 +341,15 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     navigate(path, { state });
   };
 
+  const handlePPMFeedbackClick = (shipmentId) => {
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH, {
+      moveId: move.id,
+      mtoShipmentId: shipmentId,
+    });
+
+    navigate(path);
+  };
+
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
   const renderAlert = () => {
     if (hasUnapprovedAmendedOrders()) {
@@ -398,6 +422,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   }
 
+  const additionalDocumentsClick = () => {
+    const uploadAdditionalDocumentsPath = generatePath(customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_PATH, {
+      moveId: move.id,
+    });
+    navigate(uploadAdditionalDocumentsPath, { state, moveId });
+  };
+
   // eslint-disable-next-line camelcase
   const { current_location } = serviceMember;
   const ordersPath = hasOrdersNoUpload() ? `/orders/upload/${orders.id}` : `/orders/upload/${orders.id}`;
@@ -465,6 +496,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   headerText="Profile complete"
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
+                  actionBtnLabel={isAdditionalDocumentsButtonAvailable() ? 'Upload Additional Documents' : null}
+                  onActionBtnClick={() => additionalDocumentsClick()}
                 >
                   <Description>Make sure to keep your personal information up to date during your move.</Description>
                 </Step>
@@ -705,6 +738,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       shipments={ppmShipments}
                       onUploadClick={handlePPMUploadClick}
                       onDownloadError={togglePPMPacketErrorModal}
+                      onFeedbackClick={handlePPMFeedbackClick}
                     />
                   </Step>
                 )}

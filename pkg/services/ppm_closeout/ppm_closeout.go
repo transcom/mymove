@@ -73,7 +73,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return &models.PPMCloseout{}, err
 	}
 	if ppmShipment.FinalIncentive != nil {
-		if *ppmShipment.HasRequestedAdvance && ppmShipment.AdvanceAmountReceived != nil {
+		if *ppmShipment.HasReceivedAdvance && ppmShipment.AdvanceAmountReceived != nil {
 			remainingIncentive = *ppmShipment.FinalIncentive - *ppmShipment.AdvanceAmountReceived
 		} else {
 			remainingIncentive = *ppmShipment.FinalIncentive
@@ -138,23 +138,6 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 	}
 	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
 
-	if ppmShipment.Shipment.SITDaysAllowance != nil && ppmShipment.SITLocation != nil &&
-		ppmShipment.SITEstimatedEntryDate != nil &&
-		ppmShipment.SITEstimatedDepartureDate != nil {
-
-		contractDate := fullEntitlementPPM.ExpectedDepartureDate
-		contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-		if errFetch != nil {
-			return gcc, errFetch
-		}
-
-		sitCost, sitCalcErr := ppmshipment.CalculateSITCost(appCtx, &fullEntitlementPPM, contract)
-		if sitCalcErr != nil {
-			return gcc, sitCalcErr
-		}
-		gcc = gcc.AddCents(*sitCost)
-	}
-
 	// If SITExpected is set to true but the required fields (SITEstimatedStart, SITEstimatedEnd, SITEstimatedCost) are not set (bug/design issue with GUI workflow),
 	// then set SITExpected to false, or else the estimator will return an error.
 	if *ppmShipment.SITExpected && (ppmShipment.SITEstimatedEntryDate == nil || ppmShipment.SITEstimatedDepartureDate == nil ||
@@ -175,6 +158,9 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 	}
 	if finalIncentive != nil {
 		gcc = gcc.AddCents(*finalIncentive)
+		if ppmShipment.SITEstimatedCost != nil {
+			gcc = gcc.AddCents(*ppmShipment.SITEstimatedCost)
+		}
 	}
 	return gcc, err
 }
@@ -225,9 +211,13 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			return nil, apperror.NewQueryError("PPMShipment", err, "while looking for PPMShipment")
 		}
 	}
+	var weightTicket models.WeightTicket
+	if len(ppmShipment.WeightTickets) >= 1 {
+		weightTicket = ppmShipment.WeightTickets[0]
+	}
 
-	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status, if not, it's not ready for closeout
-	if ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
+	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status or if weight ticket was reviewed already, if not, it's not ready for closeout
+	if weightTicket.Status == nil && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
 		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
 	}
 

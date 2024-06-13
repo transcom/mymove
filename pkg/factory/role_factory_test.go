@@ -116,8 +116,21 @@ func (suite *FactorySuite) TestBuildRoleTraits() {
 			[]Trait{
 				GetTraitTOORole,
 			})
-		suite.Equal(roles.RoleName("Transportation Ordering Officer"), role.RoleName)
+		suite.Equal(roles.RoleName("Task Ordering Officer"), role.RoleName)
 		suite.Equal(roles.RoleTypeTOO, role.RoleType)
+	})
+
+	suite.Run("Successful creation of role with HQ trait", func() {
+		// Under test:      BuildRole
+		// Set up:          Create a Role with a trait (GetTraitHQRole)
+		// Expected outcome:Role should be created with HQ RoleType and RoleName
+
+		role := BuildRole(suite.DB(), nil,
+			[]Trait{
+				GetTraitHQRole,
+			})
+		suite.Equal(roles.RoleName("Headquarters"), role.RoleName)
+		suite.Equal(roles.RoleTypeHQ, role.RoleType)
 	})
 
 	suite.Run("Successful creation of role with Qae trait", func() {

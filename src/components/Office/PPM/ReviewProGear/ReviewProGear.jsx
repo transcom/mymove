@@ -46,6 +46,7 @@ export default function ReviewProGear({
   onError,
   onSuccess,
   formRef,
+  readOnly,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
@@ -61,6 +62,11 @@ export default function ReviewProGear({
   const missingWeightTicketValue = hasWeightTickets ? 'false' : 'true';
 
   const handleSubmit = (values) => {
+    if (readOnly) {
+      onSuccess();
+      return;
+    }
+
     let hasWeightTicketValue;
     if (values.missingWeightTicket === 'true') {
       hasWeightTicketValue = false;
@@ -119,7 +125,12 @@ export default function ReviewProGear({
           return (
             <>
               <div className={classnames(formStyles.form, styles.reviewProGear, styles.headerContainer)}>
-                <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
+                <PPMHeaderSummary
+                  ppmShipmentInfo={ppmShipmentInfo}
+                  ppmNumber={ppmNumber}
+                  showAllFields={false}
+                  readOnly={readOnly}
+                />
               </div>
               <Form className={classnames(formStyles.form, styles.reviewProGear)}>
                 <hr />
@@ -134,6 +145,7 @@ export default function ReviewProGear({
                       name="belongsToSelf"
                       value="true"
                       checked={values.belongsToSelf === 'true'}
+                      disabled={readOnly}
                     />
                     <Field
                       as={Radio}
@@ -142,6 +154,7 @@ export default function ReviewProGear({
                       name="belongsToSelf"
                       value="false"
                       checked={values.belongsToSelf === 'false'}
+                      disabled={readOnly}
                     />
                   </Fieldset>
                 </FormGroup>
@@ -157,6 +170,7 @@ export default function ReviewProGear({
                       name="missingWeightTicket"
                       value="false"
                       checked={values.missingWeightTicket === 'false'}
+                      disabled={readOnly}
                     />
                     <Field
                       as={Radio}
@@ -165,6 +179,7 @@ export default function ReviewProGear({
                       name="missingWeightTicket"
                       value="true"
                       checked={values.missingWeightTicket === 'true'}
+                      disabled={readOnly}
                     />
                   </Fieldset>
                 </FormGroup>
@@ -181,6 +196,7 @@ export default function ReviewProGear({
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
+                  disabled={readOnly}
                 />
                 <h3 className={styles.reviewHeader}>Review pro-gear {tripNumber}</h3>
                 <p>Add a review for this pro-gear</p>
@@ -200,6 +216,7 @@ export default function ReviewProGear({
                       onChange={handleApprovalChange}
                       data-testid="approveRadio"
                       className={styles.acceptRadio}
+                      disabled={readOnly}
                     />
                   </div>
                   <div
@@ -216,6 +233,7 @@ export default function ReviewProGear({
                       onChange={handleChange}
                       data-testid="rejectRadio"
                       className={styles.rejectRadio}
+                      disabled={readOnly}
                     />
 
                     {values.status === ppmDocumentStatus.REJECTED && (
@@ -231,6 +249,7 @@ export default function ReviewProGear({
                               className={styles.clearStatus}
                               onClick={() => setCanEditRejection(true)}
                               aria-label="Edit reason button"
+                              disabled={readOnly}
                             >
                               <span className="icon">
                                 <FontAwesomeIcon icon="pen" title="Edit reason" alt="" />
@@ -252,6 +271,7 @@ export default function ReviewProGear({
                               error={touched.rejectionReason ? errors.rejectionReason : null}
                               value={values.rejectionReason}
                               placeholder="Type something"
+                              disabled={readOnly}
                             />
                             <div className={styles.hint}>{500 - values.rejectionReason.length} characters</div>
                           </>

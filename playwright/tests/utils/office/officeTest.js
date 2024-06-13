@@ -17,8 +17,8 @@ export const { expect } = base;
  */
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
-export const QAEOfficeUserType = 'QAE office';
 export const CustomerServiceRepresentativeOfficeUserType = 'CSR office';
+export const QAEOfficeUserType = 'QAE office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
 export const MultiRoleOfficeUserType = 'Multi role office';
@@ -106,7 +106,6 @@ export class OfficePage extends BaseTestPage {
   async signInAsNewTIOAndTOOUser() {
     const user = await this.testHarness.buildOfficeUserWithTOOAndTIO();
     await this.signInAsExistingOfficeUser(user.okta_email);
-    await this.page.getByRole('heading', { name: 'All moves' }).waitFor();
   }
 
   /**

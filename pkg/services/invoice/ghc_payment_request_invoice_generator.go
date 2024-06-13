@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
@@ -29,13 +28,15 @@ import (
 type ghcPaymentRequestInvoiceGenerator struct {
 	icnSequencer sequence.Sequencer
 	clock        clock.Clock
+	services.LineOfAccountingFetcher
 }
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
-func NewGHCPaymentRequestInvoiceGenerator(icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
+func NewGHCPaymentRequestInvoiceGenerator(icnSequencer sequence.Sequencer, clock clock.Clock, linesOfAccountingFetcher services.LineOfAccountingFetcher) services.GHCPaymentRequestInvoiceGenerator {
 	return &ghcPaymentRequestInvoiceGenerator{
-		icnSequencer: icnSequencer,
-		clock:        clock,
+		icnSequencer:            icnSequencer,
+		clock:                   clock,
+		LineOfAccountingFetcher: linesOfAccountingFetcher,
 	}
 }
 
@@ -326,14 +327,25 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentification:          string(*branch),
 	}
 
-	// dod id
-	dodID := serviceMember.Edipi
-	if dodID == nil {
-		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no dod id found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
-	}
-	header.ServiceMemberDodID = edisegment.N9{
-		ReferenceIdentificationQualifier: "4A",
-		ReferenceIdentification:          string(*dodID),
+	// dod id or emplid
+	if branch.String() == models.AffiliationCOASTGUARD.String() {
+		emplid := serviceMember.Emplid
+		if emplid == nil {
+			return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no employee id found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		}
+		header.ServiceMemberID = edisegment.N9{
+			ReferenceIdentificationQualifier: "4A",
+			ReferenceIdentification:          string(*emplid),
+		}
+	} else {
+		dodID := serviceMember.Edipi
+		if dodID == nil {
+			return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no dod id found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		}
+		header.ServiceMemberID = edisegment.N9{
+			ReferenceIdentificationQualifier: "4A",
+			ReferenceIdentification:          string(*dodID),
+		}
 	}
 
 	return nil
@@ -654,58 +666,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 	return fa1, fa2s, nil
 }
 
-// Fetches the long lines of accounting for an invoice based off a service member, tacCode, and the orders issue date.
-// There is special logic for whether or not the service member affiliation is for the US Coast Guard.
-func FetchLongLinesOfAccountingForInvoice(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
-	// Note regarding TAC:
-	// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
-	// numbers before letters. This is the behavior we get from order by.
-	var loas []models.LineOfAccounting
-	var err error
-	// If a service member is in the Coast Guard don't filter out the household goods code of 'HS' because that is
-	// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
-	// then this can be revisited to weight the different LOAs similar to the other services.
-	if serviceMemberAffiliation == models.AffiliationCOASTGUARD {
-		err = appCtx.DB().Q().
-			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
-			Where("t.tac = ?", tacCode).
-			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
-			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
-			Where("t.tac_fn_bl_mod_cd != 'P'").
-			Order("t.tac_fn_bl_mod_cd asc").
-			Order("loa_bgn_dt desc").
-			Order("t.tac_fy_txt desc").
-			All(&loas)
-
-	} else {
-		// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
-		err = appCtx.DB().Q().
-			Join("transportation_accounting_codes t", "t.loa_sys_id = lines_of_accounting.loa_sys_id").
-			Where("t.tac = ?", tacCode).
-			Where("? between t.trnsprtn_acnt_bgn_dt and t.trnsprtn_acnt_end_dt", ordersIssueDate).
-			Where("? between loa_bgn_dt and loa_end_dt", ordersIssueDate).
-			Where("t.tac_fn_bl_mod_cd != 'P'").
-			Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
-			Order("t.tac_fn_bl_mod_cd asc").
-			Order("loa_bgn_dt desc").
-			Order("t.tac_fy_txt desc").
-			All(&loas)
-	}
-
-	// Handle error
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			// If no matching rows, don't include any long lines of accounting.
-			// We do not want to error here because there are cases in which no lines of accounting are present.
-			return nil, nil
-		default:
-			return nil, err
-		}
-	}
-	return loas, nil
-}
-
 func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
 	var loas []models.LineOfAccounting
 	var loa models.LineOfAccounting
@@ -715,14 +675,16 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		return nil, apperror.NewQueryError("orders", fmt.Errorf("Could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
 	}
 
-	loas, err := FetchLongLinesOfAccountingForInvoice(*orders.ServiceMember.Affiliation, orders.IssueDate, tac, appCtx)
+	// Fetch the long lines of accounting for an invoice based off a service member, tacCode, and the orders issue date.
+	// There is special logic for whether or not the service member affiliation is for the US Coast Guard.
+	loas, err := g.LineOfAccountingFetcher.FetchLongLinesOfAccounting(*orders.ServiceMember.Affiliation, orders.IssueDate, tac, appCtx)
 	if err != nil {
 		return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
 	}
 	if len(loas) == 0 {
 		return nil, nil
 	}
-	// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt)
+	// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt) inside the service object
 	loa = loas[0]
 
 	if *orders.ServiceMember.Affiliation != models.AffiliationCOASTGUARD {

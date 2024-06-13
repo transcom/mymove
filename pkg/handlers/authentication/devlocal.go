@@ -31,10 +31,10 @@ const (
 	ServicesCounselorOfficeUserType string = "Services Counselor office"
 	// PrimeSimulatorOfficeUserType is the type of user for an Office user
 	PrimeSimulatorOfficeUserType string = "Prime Simulator office"
-	// QaeOfficeUserType is a type of user for an Office user
-	QaeOfficeUserType string = "QAE office"
 	// CustomerServiceRepresentativeOfficeUserType is the Customer Service Representative type of user for an Office user
 	CustomerServiceRepresentativeOfficeUserType string = "CSR office"
+	// QaeOfficeUserType is a type of user for an Office user
+	QaeOfficeUserType string = "QAE office"
 	// MultiRoleOfficeUserType has all the Office user roles
 	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
@@ -114,6 +114,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		AdminUserType                               string
 		CsrfToken                                   string
 		QueryLimit                                  int
+		HQOfficeUserType                            string
 	}
 
 	templateData := TemplateData{
@@ -132,6 +133,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MultiRoleOfficeUserType:                     MultiRoleOfficeUserType,
 		IsAdminApp:                                  auth.AdminApp == appCtx.Session().ApplicationName,
 		AdminUserType:                               AdminUserType,
+		HQOfficeUserType:                            HQOfficeUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
 		CsrfToken:  csrf.Token(r),
 		QueryLimit: limit,
@@ -507,7 +509,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		role := roles.Role{}
 		err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&role)
 		if err != nil {
-			appCtx.Logger().Error("could not fetch role transportation_ordering_officer", zap.Error(err))
+			appCtx.Logger().Error("could not fetch role task_ordering_officer", zap.Error(err))
 		}
 
 		usersRole := models.UsersRoles{
@@ -1051,7 +1053,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeOfficeUserType, CustomerServiceRepresentativeOfficeUserType, MultiRoleOfficeUserType:
+	case TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType, PrimeSimulatorOfficeUserType, QaeOfficeUserType, CustomerServiceRepresentativeOfficeUserType, MultiRoleOfficeUserType, HQOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.AppNames().OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -1139,7 +1141,7 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 }
 
 func isOfficeUser(userType string) bool {
-	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType {
+	if userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType || userType == QaeOfficeUserType || userType == CustomerServiceRepresentativeOfficeUserType || userType == HQOfficeUserType {
 		return true
 	}
 	return false

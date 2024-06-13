@@ -258,7 +258,27 @@ describe('PPMSummaryList component', () => {
       response: { body: { title: 'Error title', detail: 'Error detail' } },
     });
 
-    const shipment = { ppmShipment: { status: ppmShipmentStatuses.CLOSEOUT_COMPLETE } };
+    const shipment = {
+      ppmShipment: {
+        status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+        pickupAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Pickup Test City',
+          state: 'NY',
+          postalCode: '10001',
+        },
+        destinationAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Destination Test City',
+          state: 'NY',
+          postalCode: '11111',
+        },
+      },
+    };
     const onErrorHandler = jest.fn();
 
     render(

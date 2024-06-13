@@ -38,10 +38,10 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'task_invoicing_officer',
       });
     }
-    if (values.transportationOrderingOfficerCheckBox) {
+    if (values.taskOrderingOfficerCheckBox) {
       requestedRoles.push({
-        name: 'Transportation Ordering Officer',
-        roleType: 'transportation_ordering_officer',
+        name: 'Task Ordering Officer',
+        roleType: 'task_ordering_officer',
       });
     }
     if (values.transportationContractingOfficerCheckBox) {
@@ -60,12 +60,6 @@ export const RequestAccount = ({ setFlashMessage }) => {
       requestedRoles.push({
         name: 'Quality Assurance Evaluator',
         roleType: 'qae',
-      });
-    }
-    if (values.customerSupportRepresentativeCheckBox) {
-      requestedRoles.push({
-        name: 'Customer Service Representative',
-        roleType: 'customer_service_representative',
       });
     }
     if (values.headquartersCheckBox) {

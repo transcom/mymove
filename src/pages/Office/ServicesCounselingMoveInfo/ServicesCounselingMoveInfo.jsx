@@ -195,6 +195,11 @@ const ServicesCounselingMoveInfo = () => {
           {/* TODO - Routes not finalized, revisit */}
           <Route path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH} end element={<ReviewDocuments />} />
           <Route
+            path={servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH}
+            end
+            element={<ReviewDocuments readOnly />}
+          />
+          <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
             element={

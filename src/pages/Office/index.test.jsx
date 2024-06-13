@@ -349,48 +349,6 @@ describe('Office App', () => {
         '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
         roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
       ],
-      ['Services Counseling Move Info as CSR', '/counseling/moves/test123/', roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE],
-      ['Edit Shipment Details as CSR', '/moves/test123/shipments/ship123', roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE],
-      [
-        'Prime Simulator Move Details as CSR',
-        '/simulator/moves/test123/details',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
-      [
-        'Prime Simulator Shipment Create as CSR',
-        '/simulator/moves/test123/shipments/new',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
-      [
-        'Prime Simulator Shipment Update Address as CSR',
-        '/simulator/moves/test123/shipments/ship123/addresses/update',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
-      [
-        'Prime Simulator Shipment Update as CSR',
-        '/simulator/moves/test123/shipments/ship123',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
-      [
-        'Prime Simulator Create Payment Request as CSR',
-        '/simulator/moves/test123/payment-requests/new',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
-      [
-        'Prime Simulator Upload Payment Request Documents as CSR',
-        '/simulator/moves/test123/payment-requests/req123/upload',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
-      [
-        'Prime Simulator Create Service Item as CSR',
-        '/simulator/moves/test123/shipments/ship123/service-items/new',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
-      [
-        'Prime Simulator Shipment Update Reweigh as CSR',
-        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
-        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-      ],
       ['QAE CSR Move Search', '/qaecsr/search', roleTypes.TIO],
       ['TXO Move Info', '/moves/move123', roleTypes.PRIME_SIMULATOR],
     ])('denies access to %s when user has insufficient permission', async (component, path, role) => {

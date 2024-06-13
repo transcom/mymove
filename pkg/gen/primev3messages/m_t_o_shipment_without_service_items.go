@@ -31,7 +31,7 @@ type MTOShipmentWithoutServiceItems struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// The date when the Transportation Ordering Officer first approved this shipment for the move.
+	// The date when the Task Ordering Officer first approved this shipment for the move.
 	// Read Only: true
 	// Format: date
 	ApprovedDate *strfmt.Date `json:"approvedDate"`
@@ -88,6 +88,11 @@ type MTOShipmentWithoutServiceItems struct {
 	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
 	//
 	Diversion bool `json:"diversion,omitempty"`
+
+	// The reason the TOO provided when requesting a diversion for this shipment.
+	//
+	// Read Only: true
+	DiversionReason *string `json:"diversionReason,omitempty"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Read Only: true
@@ -824,6 +829,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDiversionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -990,6 +999,15 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationType(ctx cont
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateDiversionReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "diversionReason", "body", m.DiversionReason); err != nil {
+		return err
 	}
 
 	return nil

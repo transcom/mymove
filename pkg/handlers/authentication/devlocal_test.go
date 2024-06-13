@@ -80,6 +80,9 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		factory.GetTraitQaeRole,
 	})
 	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitCustomerServiceRepresentativeRole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
 		factory.GetTraitPrimeSimulatorRole,
 	})
 
@@ -114,11 +117,6 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 			userType:  QaeOfficeUserType,
 			roleTypes: []roles.RoleType{roles.RoleTypeQae},
 			email:     "qae_office_user@example.com",
-		},
-		{
-			userType:  CustomerServiceRepresentativeOfficeUserType,
-			roleTypes: []roles.RoleType{roles.RoleTypeCustomerServiceRepresentative},
-			email:     "customer_service_representative_office_user@example.com",
 		},
 		{
 			userType:  CustomerServiceRepresentativeOfficeUserType,

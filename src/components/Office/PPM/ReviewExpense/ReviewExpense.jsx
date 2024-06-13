@@ -62,6 +62,7 @@ export default function ReviewExpense({
   onError,
   onSuccess,
   formRef,
+  readOnly,
 }) {
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
@@ -118,6 +119,11 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   const handleSubmit = (values) => {
+    if (readOnly) {
+      onSuccess();
+      return;
+    }
+
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
@@ -168,7 +174,12 @@ export default function ReviewExpense({
           return (
             <>
               <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
-                <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
+                <PPMHeaderSummary
+                  ppmShipmentInfo={ppmShipmentInfo}
+                  ppmNumber={ppmNumber}
+                  showAllFields={false}
+                  readOnly={readOnly}
+                />
               </div>
               <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
                 <hr />
@@ -189,6 +200,7 @@ export default function ReviewExpense({
                     const count = computeCurrentCategoryIndex(e.target.value);
                     setCurrentCategoryIndex(count + 1);
                   }}
+                  disabled={readOnly}
                 >
                   {ppmExpenseTypes.map((x) => (
                     <option key={x.key}>{x.value}</option>
@@ -200,6 +212,7 @@ export default function ReviewExpense({
                   label="Description"
                   id="description"
                   className={styles.displayValue}
+                  disabled={readOnly}
                 />
                 <MaskedTextField
                   defaultValue="0"
@@ -215,11 +228,12 @@ export default function ReviewExpense({
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   prefix="$"
+                  disabled={readOnly}
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
-                    <DatePickerInput name="sitStartDate" label="Start date" />
-                    <DatePickerInput name="sitEndDate" label="End date" />
+                    <DatePickerInput name="sitStartDate" label="Start date" disabled={readOnly} />
+                    <DatePickerInput name="sitEndDate" label="End date" disabled={readOnly} />
                     <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
                     <div className={styles.displayValue} data-testid="days-in-sit">
                       {daysInSIT}
@@ -245,6 +259,7 @@ export default function ReviewExpense({
                       label="Accept"
                       onChange={handleApprovalChange}
                       data-testid="acceptRadio"
+                      disabled={readOnly}
                     />
                   </div>
                   <div
@@ -260,6 +275,7 @@ export default function ReviewExpense({
                       label="Exclude"
                       onChange={handleChange}
                       data-testid="excludeRadio"
+                      disabled={readOnly}
                     />
 
                     {values.status === ppmDocumentStatus.EXCLUDED && (
@@ -272,6 +288,7 @@ export default function ReviewExpense({
                           onChange={handleChange}
                           value={values.reason}
                           placeholder="Type something"
+                          disabled={readOnly}
                         />
                         <div className={styles.hint}>{500 - values.reason.length} characters</div>
                       </FormGroup>
@@ -290,6 +307,7 @@ export default function ReviewExpense({
                       label="Reject"
                       onChange={handleChange}
                       data-testid="rejectRadio"
+                      disabled={readOnly}
                     />
 
                     {values.status === ppmDocumentStatus.REJECTED && (
@@ -302,6 +320,7 @@ export default function ReviewExpense({
                           onChange={handleChange}
                           value={values.reason}
                           placeholder="Type something"
+                          disabled={readOnly}
                         />
                         <div className={styles.hint}>{500 - values.reason.length} characters</div>
                       </FormGroup>
