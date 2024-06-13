@@ -189,6 +189,16 @@ describe('ShipmentAddresses', () => {
     expect(screen.getByText('Authorized addresses')).toBeInTheDocument();
   });
 
+  it('does not show request diversion for PPM', () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentAddresses {...ppmShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByText('Request diversion')).not.toBeInTheDocument();
+  });
+
   it('renders with disabled request diversion button', async () => {
     const isMoveLocked = true;
     render(
