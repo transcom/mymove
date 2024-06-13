@@ -225,7 +225,7 @@ func ServiceParamLookupInitialize(
 	// ReService code for current MTO Service Item
 	serviceItemCode := mtoServiceItem.ReService.Code
 
-	paramKeyLookups := InitializeLookups(mtoShipment, mtoServiceItem)
+	paramKeyLookups := InitializeLookups(appCtx, mtoShipment, mtoServiceItem)
 
 	for _, paramKeyName := range ServiceItemParamsWithLookups {
 		lookup, ok := paramKeyLookups[paramKeyName]
@@ -252,7 +252,7 @@ func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, servic
 	return nil
 }
 
-func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
+func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment, serviceItem models.MTOServiceItem) map[models.ServiceItemParamName]ServiceItemParamKeyLookup {
 	lookups := map[models.ServiceItemParamName]ServiceItemParamKeyLookup{}
 
 	if serviceItem.SITDestinationOriginalAddress == nil {
@@ -279,9 +279,13 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 		MTOShipment: shipment,
 	}
 
+	serviceDestinationAddress, err := GetDestinationForDistanceLookup(appCtx, shipment, &serviceItem)
+	if err != nil {
+		return nil
+	}
 	lookups[models.ServiceItemParamNameDistanceZip] = DistanceZipLookup{
 		PickupAddress:      *shipment.PickupAddress,
-		DestinationAddress: *shipment.DestinationAddress,
+		DestinationAddress: serviceDestinationAddress,
 	}
 
 	lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier] = FSCWeightBasedDistanceMultiplierLookup{
