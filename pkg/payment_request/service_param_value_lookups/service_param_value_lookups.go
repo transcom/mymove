@@ -196,7 +196,7 @@ func ServiceParamLookupInitialize(
 			return nil, apperror.NewBadDataError(fmt.Sprintf("failed to get pickup address for service code %s in the lookup for shipment id %v", mtoServiceItem.ReService.Code, mtoShipment.ID))
 		}
 
-		destinationAddress, err = getDestinationAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
+		destinationAddress, err = getDestinationAddressForService(appCtx, mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
 			return nil, err
 		}
@@ -425,7 +425,7 @@ func InitializeLookups(shipment models.MTOShipment, serviceItem models.MTOServic
 }
 
 func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem *models.MTOServiceItem) (models.Address, error) {
-	if mtoServiceItem == nil {
+	if mtoServiceItem == nil || mtoShipment.ShipmentType != models.MTOShipmentTypeHHG || (mtoServiceItem.ReService.Code != models.ReServiceCodeDLH && mtoServiceItem.ReService.Code != models.ReServiceCodeDSH && mtoServiceItem.ReService.Code != models.ReServiceCodeFSC) {
 		return *mtoShipment.DestinationAddress, nil
 	}
 	shipmentCopy := mtoShipment
@@ -446,12 +446,9 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 			if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
 				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
-					result = shipmentCopy.DeliveryAddressUpdate.OriginalAddress
-					return result, nil
-				} else {
-					result = shipmentCopy.DeliveryAddressUpdate.NewAddress
-					return result, nil
+					return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
 				}
+				return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
 			}
 		}
 	}
@@ -541,7 +538,7 @@ func getPickupAddressForService(serviceCode models.ReServiceCode, mtoShipment mo
 	}
 }
 
-func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
+func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, mtoShipment models.MTOShipment) (models.Address, error) {
 	// Determine which address field we should be using for destination based on the shipment type.
 	var ptrDestinationAddress *models.Address
 	var addressType string
@@ -555,6 +552,34 @@ func getDestinationAddressForService(serviceCode models.ReServiceCode, mtoShipme
 		if mtoShipment.PPMShipment.ID != uuid.Nil {
 			ptrDestinationAddress = mtoShipment.PPMShipment.DestinationAddress
 			ptrDestinationAddress.PostalCode = mtoShipment.PPMShipment.DestinationPostalCode
+		}
+	case models.MTOShipmentTypeHHG:
+		shipmentCopy := mtoShipment
+		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
+		if err != nil {
+			return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination Address For service")
+		}
+		for _, si := range shipmentCopy.MTOServiceItems {
+			siCopy := si
+			err := appCtx.DB().Eager("ReService").Find(&siCopy, siCopy.ID)
+			if err != nil {
+				return models.Address{}, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination Address For service")
+			}
+
+			switch siCopy.ReService.Code {
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+				if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
+					}
+					return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+				}
+			}
+		}
+		if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+			return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+		} else {
+			return *shipmentCopy.DestinationAddress, nil
 		}
 	default:
 		addressType = "destination"
