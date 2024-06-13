@@ -81,26 +81,18 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 			}
 		}
 
-		if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-			distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode)
-			if err != nil {
-				return "", err
-			}
-			return strconv.Itoa(distanceMiles), nil
-		}
-	}
-
 	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
 
+	var distanceMiles int
 	if pickupZip == destinationZip {
 		distanceMiles = 1
-	} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM && mtoShipment.Distance != nil && *mtoShipment.Distance != 0 {
+	} else {
 		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
-	}
-	if err != nil {
-		return "", err
+		if err != nil {
+			return "", err
+		}
 	}
 
 	miles := unit.Miles(distanceMiles)
