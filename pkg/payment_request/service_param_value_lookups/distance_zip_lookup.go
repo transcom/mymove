@@ -42,19 +42,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 
 	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
-	var destinationZip string
-	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHG {
-		var destResult models.Address
-		var errDestinationZip error
-		destResult, errDestinationZip = GetDestinationForDistanceLookup(appCtx, mtoShipment, &keyData.MTOServiceItem)
-		if errDestinationZip != nil {
-			return "", err
-		}
-		destinationZip = destResult.PostalCode
-	} else {
-		destinationZip = r.DestinationAddress.PostalCode
-	}
-
+	destinationZip := r.DestinationAddress.PostalCode
 	errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
 	errorMsgForDestinationZip := fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip)
 	if len(pickupZip) < 5 {
@@ -95,7 +83,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	var distanceMiles int
 	if pickupZip == destinationZip {
 		distanceMiles = 1
-	} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM && mtoShipment.Distance != nil && *mtoShipment.Distance != 0 {
+	} else {
 		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
 	}
 
