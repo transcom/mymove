@@ -19,6 +19,8 @@ import (
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
+	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
+	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 )
 
 // GexSendError is returned when there is an error sending an EDI to GEX
@@ -58,7 +60,9 @@ func NewPaymentRequestReviewedProcessor(
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
 func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendToSyncada bool, icnSequencer sequence.Sequencer, gexSender services.GexSender) (services.PaymentRequestReviewedProcessor, error) {
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
+	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
+	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
 	var sftpSession services.SyncadaSFTPSender
 	if gexSender == nil {
 		var err error

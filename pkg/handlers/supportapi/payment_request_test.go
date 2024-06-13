@@ -26,9 +26,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
+	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/unit"
@@ -330,12 +332,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		return paymentServiceItem.PaymentRequest
 	}
 
+	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
+	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
+
 	setupHandler := func() GetPaymentRequestEDIHandler {
 		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		return GetPaymentRequestEDIHandler{
 			HandlerConfig:                     suite.HandlerConfig(),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
-			GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock()),
+			GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock(), loaFetcher),
 		}
 	}
 

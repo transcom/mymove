@@ -1149,6 +1149,77 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	return payload
 }
 
+// LineOfAccounting payload
+func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.LineOfAccounting {
+	// Nil check
+	if lineOfAccounting == nil {
+		return nil
+	}
+
+	return &ghcmessages.LineOfAccounting{
+		ID:                     strfmt.UUID(lineOfAccounting.ID.String()),
+		LoaActvtyID:            lineOfAccounting.LoaActvtyID,
+		LoaAgncAcntngCd:        lineOfAccounting.LoaAgncAcntngCd,
+		LoaAgncDsbrCd:          lineOfAccounting.LoaAgncDsbrCd,
+		LoaAlltSnID:            lineOfAccounting.LoaAlltSnID,
+		LoaBafID:               lineOfAccounting.LoaBafID,
+		LoaBdgtAcntClsNm:       lineOfAccounting.LoaBdgtAcntClsNm,
+		LoaBetCd:               lineOfAccounting.LoaBetCd,
+		LoaBgFyTx:              handlers.FmtIntPtrToInt64(lineOfAccounting.LoaBgFyTx),
+		LoaBgnDt:               handlers.FmtDatePtr(lineOfAccounting.LoaBgnDt),
+		LoaBgtLnItmID:          lineOfAccounting.LoaBgtLnItmID,
+		LoaBgtRstrCd:           lineOfAccounting.LoaBgtRstrCd,
+		LoaBgtSubActCd:         lineOfAccounting.LoaBgtSubActCd,
+		LoaClsRefID:            lineOfAccounting.LoaClsRefID,
+		LoaCstCd:               lineOfAccounting.LoaCstCd,
+		LoaCstCntrID:           lineOfAccounting.LoaCstCntrID,
+		LoaCustNm:              lineOfAccounting.LoaCustNm,
+		LoaDfAgncyAlctnRcpntID: lineOfAccounting.LoaDfAgncyAlctnRcpntID,
+		LoaDocID:               lineOfAccounting.LoaDocID,
+		LoaDptID:               lineOfAccounting.LoaDptID,
+		LoaDscTx:               lineOfAccounting.LoaDscTx,
+		LoaDtlRmbsmtSrcID:      lineOfAccounting.LoaDtlRmbsmtSrcID,
+		LoaEndDt:               handlers.FmtDatePtr(lineOfAccounting.LoaEndDt),
+		LoaEndFyTx:             handlers.FmtIntPtrToInt64(lineOfAccounting.LoaEndFyTx),
+		LoaFmsTrnsactnID:       lineOfAccounting.LoaFmsTrnsactnID,
+		LoaFnclArID:            lineOfAccounting.LoaFnclArID,
+		LoaFnctPrsNm:           lineOfAccounting.LoaFnctPrsNm,
+		LoaFndCntrID:           lineOfAccounting.LoaFndCntrID,
+		LoaFndTyFgCd:           lineOfAccounting.LoaFndTyFgCd,
+		LoaHistStatCd:          lineOfAccounting.LoaHistStatCd,
+		LoaHsGdsCd:             lineOfAccounting.LoaHsGdsCd,
+		LoaInstlAcntgActID:     lineOfAccounting.LoaInstlAcntgActID,
+		LoaJbOrdNm:             lineOfAccounting.LoaJbOrdNm,
+		LoaLclInstlID:          lineOfAccounting.LoaLclInstlID,
+		LoaMajClmNm:            lineOfAccounting.LoaMajClmNm,
+		LoaMajRmbsmtSrcID:      lineOfAccounting.LoaMajRmbsmtSrcID,
+		LoaObjClsID:            lineOfAccounting.LoaObjClsID,
+		LoaOpAgncyID:           lineOfAccounting.LoaOpAgncyID,
+		LoaPgmElmntID:          lineOfAccounting.LoaPgmElmntID,
+		LoaPrjID:               lineOfAccounting.LoaPrjID,
+		LoaSbaltmtRcpntID:      lineOfAccounting.LoaSbaltmtRcpntID,
+		LoaScrtyCoopCustCd:     lineOfAccounting.LoaScrtyCoopCustCd,
+		LoaScrtyCoopDsgntrCd:   lineOfAccounting.LoaScrtyCoopDsgntrCd,
+		LoaScrtyCoopImplAgncCd: lineOfAccounting.LoaScrtyCoopImplAgncCd,
+		LoaScrtyCoopLnItmID:    lineOfAccounting.LoaScrtyCoopLnItmID,
+		LoaSpclIntrID:          lineOfAccounting.LoaSpclIntrID,
+		LoaSrvSrcID:            lineOfAccounting.LoaSrvSrcID,
+		LoaStatCd:              lineOfAccounting.LoaStatCd,
+		LoaSubAcntID:           lineOfAccounting.LoaSubAcntID,
+		LoaSysID:               lineOfAccounting.LoaSysID,
+		LoaTnsfrDptNm:          lineOfAccounting.LoaTnsfrDptNm,
+		LoaTrnsnID:             lineOfAccounting.LoaTrnsnID,
+		LoaTrsySfxTx:           lineOfAccounting.LoaTrsySfxTx,
+		LoaTskBdgtSblnTx:       lineOfAccounting.LoaTskBdgtSblnTx,
+		LoaUic:                 lineOfAccounting.LoaUic,
+		LoaWkCntrRcpntNm:       lineOfAccounting.LoaWkCntrRcpntNm,
+		LoaWrkOrdID:            lineOfAccounting.LoaWrkOrdID,
+		OrgGrpDfasCd:           lineOfAccounting.OrgGrpDfasCd,
+		UpdatedAt:              strfmt.DateTime(lineOfAccounting.UpdatedAt),
+		CreatedAt:              strfmt.DateTime(lineOfAccounting.CreatedAt),
+	}
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 

@@ -20,6 +20,8 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
+	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
+	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 )
 
 // Call this from command line with go run ./cmd/generate-payment-request-edi/ --payment-request-number <paymentRequestNumber>
@@ -111,7 +113,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
+	// Create TAC and LOA services
+	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
+	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
+
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
 	isProd := false

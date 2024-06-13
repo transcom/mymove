@@ -1,0 +1,10 @@
+@import 'shared/styles/colors';
+
+.oktaErrorBanner {
+  font-size: 16px;
+  background-color: $warning-light;
+  margin-top: -1.5rem;
+  padding: 1rem;
+  line-height: 20px;
+  text-align: center;
+}

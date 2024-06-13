@@ -90,6 +90,8 @@ type Move struct {
 	LockedByOfficeUserID         *uuid.UUID            `json:"locked_by" db:"locked_by"`
 	LockedByOfficeUser           *OfficeUser           `belongs_to:"office_users" fk_id:"locked_by"`
 	LockExpiresAt                *time.Time            `json:"lock_expires_at" db:"lock_expires_at"`
+	AdditionalDocumentsID        *uuid.UUID            `json:"additional_documents_id" db:"additional_documents_id"`
+	AdditionalDocuments          *Document             `belongs_to:"documents" fk_id:"additional_documents_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -127,6 +129,8 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"Orders.UploadedAmendedOrders",
 		"CloseoutOffice",
 		"LockedByOfficeUser",
+		"AdditionalDocuments",
+		"AdditionalDocuments.UserUploads",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
@@ -158,6 +162,18 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		shipments[i].MTOAgents = agents
 	}
 	move.MTOShipments = shipments
+
+	if move.AdditionalDocumentsID != nil {
+		var additionalDocumentUploads UserUploads
+		err = db.Q().
+			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", move.AdditionalDocumentsID).
+			All(&additionalDocumentUploads)
+		if err != nil {
+			return &move, err
+		}
+		move.AdditionalDocuments.UserUploads = additionalDocumentUploads
+	}
 
 	// Ensure that the logged-in user is authorized to access this move
 	if session.IsMilApp() && move.Orders.ServiceMember.ID != session.ServiceMemberID {

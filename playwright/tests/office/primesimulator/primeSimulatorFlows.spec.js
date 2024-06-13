@@ -102,9 +102,67 @@ test.describe('Prime simulator user', () => {
     await expect(page.getByText('Estimated Weight:7500')).toBeVisible();
     await expect(page.getByText('Actual Weight:8000')).toBeVisible();
     await expect(page.getByText('Destination Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
+  });
+
+  test('is able to create payment requests for shipment-level service items', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    const moveLocator = move.locator;
+    const moveID = move.id;
+
+    // wait for the the available moves page to load
+    // select the move from the list
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
+    await officePage.waitForLoading();
+    await expect(page.getByText(moveLocator)).toBeVisible();
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
+    // waits for the move details page to load
+    await expect(page.getByText('SUBMITTED')).toHaveCount(1);
+    await page.getByRole('link', { name: 'Update Shipment', exact: true }).click();
+
+    // waits for the update shipment page to load
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/shipments`);
+
+    const { relativeDate: scheduledDeliveryDate, formattedDate: formattedScheduledDeliveryDate } =
+      formatRelativeDate(11);
+    await page.locator('input[name="scheduledDeliveryDate"]').type(formattedScheduledDeliveryDate);
+    await page.locator('input[name="scheduledDeliveryDate"]').blur();
+    const { relativeDate: actualDeliveryDate, formattedDate: formattedActualDeliveryDate } = formatRelativeDate(12);
+    await page.locator('input[name="actualDeliveryDate"]').type(formattedActualDeliveryDate);
+    await page.locator('input[name="actualDeliveryDate"]').blur();
+    // there must be sufficient time prior to the pickup dates to update the estimated weight
+    const { relativeDate: scheduledPickupDate, formattedDate: formattedScheduledPickupDate } = formatRelativeDate(11);
+    await page.locator('input[name="scheduledPickupDate"]').type(formattedScheduledPickupDate);
+    await page.locator('input[name="scheduledPickupDate"]').blur();
+    const { relativeDate: actualPickupDate, formattedDate: formattedActualPickupDate } = formatRelativeDate(12);
+    await page.locator('input[name="actualPickupDate"]').type(formattedActualPickupDate);
+    await page.locator('input[name="actualPickupDate"]').blur();
+    // update shipment does not require these fields but we need actual weight to create a payment request, we could
+    // perform multiple updates.
+    await page.locator('input[name="estimatedWeight"]').type('{backspace}7500');
+    await page.locator('input[name="actualWeight"]').type('{backspace}8000');
+    await page.locator('input[name="destinationAddress.streetAddress1"]').type('142 E Barrel Hoop Circle');
+    await page.locator('input[name="destinationAddress.city"]').type('Joshua Tree');
+    await page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'CA' });
+    await page.locator('input[name="destinationAddress.postalCode"]').type('92252');
+    await page.getByTestId('dropdown').nth(1).selectOption('Home of record (HOR)');
+
+    await page.getByText('Save').click();
+    await expect(page.getByText('Successfully updated shipment')).toHaveCount(1);
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
+    // If you added another shipment to the move you would want to scope these with within()
+    await expect(page.getByText(`Scheduled Pickup Date:${formatNumericDate(scheduledPickupDate)}`)).toBeVisible();
+    await expect(page.getByText(`Actual Pickup Date:${formatNumericDate(actualPickupDate)}`)).toBeVisible();
+    await expect(page.getByText(`Scheduled Delivery Date:${formatNumericDate(scheduledDeliveryDate)}`)).toBeVisible();
+    await expect(page.getByText(`Actual Delivery Date:${formatNumericDate(actualDeliveryDate)}`)).toBeVisible();
+    await expect(page.getByText('Estimated Weight:7500')).toBeVisible();
+    await expect(page.getByText('Actual Weight:8000')).toBeVisible();
+    await expect(page.getByText('Destination Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
 
     // Can only create a payment request if there is a destination
-
     // waits for the create page to load
     await page.getByText('Create Payment Request').click();
     await expect(page.locator('input[name="serviceItems"]')).not.toHaveCount(0);
@@ -125,7 +183,14 @@ test.describe('Prime simulator user', () => {
     const serviceItemCount = await serviceItems.count();
     expect(serviceItemCount).toBeGreaterThan(0);
     for (let i = 0; i < serviceItemCount; i += 1) {
-      await serviceItems.nth(i).click();
+      if (
+        (await serviceItems.nth(i).locator('..').locator('..').locator('h3').textContent()).includes(
+          'Domestic linehaul',
+        ) ||
+        (await serviceItems.nth(i).locator('..').locator('..').locator('h3').textContent()).includes('Fuel surcharge')
+      ) {
+        await serviceItems.nth(i).click();
+      }
     }
 
     await page.getByText('Submit Payment Request').click();

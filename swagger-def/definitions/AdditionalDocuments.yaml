@@ -1,0 +1,42 @@
+description: Additional Documents for a move.
+type: object
+properties:
+  id:
+    description: Unique primary identifier of the Additional Documents object
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  moveId:
+    description: TheMove id that this Additional Document belongs to
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  documentId:
+    description: The id of the Document that contains all file uploads for this additional document
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  document:
+    allOf:
+      - description: The Document object that contains all file uploads for this additional document
+      - $ref: 'Document.yaml'
+  createdAt:
+    description: Timestamp the moving expense object was initially created in the system (UTC)
+    type: string
+    format: date-time
+    readOnly: true
+  updatedAt:
+    description: Timestamp when a property of this moving expense object was last modified (UTC)
+    type: string
+    format: date-time
+    readOnly: true
+required:
+  - id
+  - createdAt
+  - updatedAt
+  - moveId
+  - documentId
+  - document

@@ -748,7 +748,8 @@ test.describe('TOO user', () => {
 
     await page.locator('input[name="locator"]').type(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
     await page.locator('input[name="locator"]').blur();
-    await expect(page.getByText('Move approved')).toBeVisible();
+    // once the move is in the Move approved status, it will no longer show up in the TOO queue
+    await expect(page.getByText('Move approved')).not.toBeVisible();
     await expect(page.getByText('Approvals requested')).not.toBeVisible();
   });
 });

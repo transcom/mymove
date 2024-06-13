@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
@@ -225,6 +226,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
+		}),
+		LinesOfAccountingRequestLineOfAccountingHandler: lines_of_accounting.RequestLineOfAccountingHandlerFunc(func(params lines_of_accounting.RequestLineOfAccountingParams) middleware.Responder {
+			return middleware.NotImplemented("operation lines_of_accounting.RequestLineOfAccounting has not yet been implemented")
 		}),
 		ShipmentRequestShipmentCancellationHandler: shipment.RequestShipmentCancellationHandlerFunc(func(params shipment.RequestShipmentCancellationParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentCancellation has not yet been implemented")
@@ -474,6 +478,8 @@ type MymoveAPI struct {
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
+	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
+	LinesOfAccountingRequestLineOfAccountingHandler lines_of_accounting.RequestLineOfAccountingHandler
 	// ShipmentRequestShipmentCancellationHandler sets the operation handler for the request shipment cancellation operation
 	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
 	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
@@ -779,6 +785,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
+	}
+	if o.LinesOfAccountingRequestLineOfAccountingHandler == nil {
+		unregistered = append(unregistered, "lines_of_accounting.RequestLineOfAccountingHandler")
 	}
 	if o.ShipmentRequestShipmentCancellationHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentCancellationHandler")
@@ -1180,6 +1189,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/lines-of-accounting"] = lines_of_accounting.NewRequestLineOfAccounting(o.context, o.LinesOfAccountingRequestLineOfAccountingHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

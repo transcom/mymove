@@ -50,6 +50,13 @@ fi
 ## mac users uncomment the following line to run tests with the classic linker, which clears a lot of warnings that fill the console, do not commit to repo uncommented
 #gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
 
+# Check if the operating system is macOS before running command
+# this uses the classic linker when running make server_test aka go test
+# this addresses issues we were having with the default linker on macOS
+if [[ "$(uname)" == "Darwin" ]]; then
+    gotest_args+=("-ldflags=-extldflags=-Wl,-ld_classic")
+fi
+
 # Try to compile tests, but don't run them.
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   echo "Compiling tests only, not running"

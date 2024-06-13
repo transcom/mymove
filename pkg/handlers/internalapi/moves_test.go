@@ -10,6 +10,7 @@
 package internalapi
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"time"
 
@@ -20,11 +21,15 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	move "github.com/transcom/mymove/pkg/services/move"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
@@ -531,6 +536,64 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		suite.Greater(len(okResponse.Payload.PreviousMoves), 0)
 		suite.Equal(okResponse.Payload.CurrentMove[0].ID.String(), move.ID.String())
 		suite.Equal(okResponse.Payload.PreviousMoves[0].ID.String(), move2.ID.String())
+
+	})
+}
+
+func (suite *HandlerSuite) TestUploadAdditionalDocumentsHander() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	uploadCreator := upload.NewUploadCreator(fakeS3)
+	additionalDocumentsUploader := move.NewMoveAdditionalDocumentsUploader(uploadCreator)
+
+	setupRequestAndParams := func(move models.Move) *moveop.UploadAdditionalDocumentsParams {
+		endpoint := fmt.Sprintf("/moves/%v/upload_additional_documents", move.ID)
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+		params := moveop.UploadAdditionalDocumentsParams{
+			HTTPRequest: req,
+			File:        suite.Fixture("filled-out-orders.pdf"),
+			MoveID:      *handlers.FmtUUID(move.ID),
+		}
+
+		return &params
+	}
+
+	setupHandler := func() UploadAdditionalDocumentsHandler {
+		return UploadAdditionalDocumentsHandler{
+			suite.createS3HandlerConfig(),
+			additionalDocumentsUploader,
+		}
+	}
+
+	suite.Run("Returns 201 if the additional documents uploaded successfully", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		params := setupRequestAndParams(move)
+		handler := setupHandler()
+		response := handler.Handle(*params)
+
+		if suite.IsType(&moveop.UploadAdditionalDocumentsCreated{}, response) {
+			payload := response.(*moveop.UploadAdditionalDocumentsCreated).Payload
+
+			suite.NoError(payload.Validate(strfmt.Default))
+
+			suite.NotEqual("", string(payload.ID))
+			suite.Equal("filled-out-orders.pdf", payload.Filename)
+			suite.Equal(uploader.FileTypePDF, payload.ContentType)
+			suite.NotEqual("", string(payload.URL))
+		}
+	})
+
+	suite.Run("Returns 400 - Bad Request if there is an issue with the file being uploaded", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		params := setupRequestAndParams(move)
+		params.File = factory.FixtureOpen("empty.pdf")
+
+		handler := setupHandler()
+		response := handler.Handle(*params)
+
+		suite.IsType(&moveop.UploadAdditionalDocumentsInternalServerError{}, response)
 
 	})
 }

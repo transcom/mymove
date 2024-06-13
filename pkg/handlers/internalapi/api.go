@@ -53,6 +53,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
+	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
@@ -133,6 +134,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.MovesSubmitAmendedOrdersHandler = SubmitAmendedOrdersHandler{
 		handlerConfig,
 		moveRouter,
+	}
+	internalAPI.MovesUploadAdditionalDocumentsHandler = UploadAdditionalDocumentsHandler{
+		handlerConfig,
+		move.NewMoveAdditionalDocumentsUploader(uploadCreator),
 	}
 
 	internalAPI.OktaProfileShowOktaInfoHandler = GetOktaProfileHandler{handlerConfig}

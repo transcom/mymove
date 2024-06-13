@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
@@ -327,6 +328,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentRejectShipmentHandler == nil {
 		api.ShipmentRejectShipmentHandler = shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
+		})
+	}
+	if api.LinesOfAccountingRequestLineOfAccountingHandler == nil {
+		api.LinesOfAccountingRequestLineOfAccountingHandler = lines_of_accounting.RequestLineOfAccountingHandlerFunc(func(params lines_of_accounting.RequestLineOfAccountingParams) middleware.Responder {
+			return middleware.NotImplemented("operation lines_of_accounting.RequestLineOfAccounting has not yet been implemented")
 		})
 	}
 	if api.ShipmentRequestShipmentCancellationHandler == nil {

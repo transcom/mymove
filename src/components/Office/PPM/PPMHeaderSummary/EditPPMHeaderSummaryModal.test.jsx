@@ -19,6 +19,27 @@ describe('EditPPMHeaderSummaryModal', () => {
   const sectionInfo = {
     actualMoveDate: '2022-01-01',
     advanceAmountReceived: 50000,
+    destinationAddressObj: {
+      city: 'Fairfield',
+      country: 'US',
+      id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+      postalCode: '94535',
+      state: 'CA',
+      streetAddress1: '987 Any Avenue',
+      streetAddress2: 'P.O. Box 9876',
+      streetAddress3: 'c/o Some Person',
+    },
+    pickupAddressObj: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
   };
 
   it('renders the component', async () => {
@@ -36,6 +57,46 @@ describe('EditPPMHeaderSummaryModal', () => {
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
     expect(screen.getByLabelText('Actual move start date')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('renders pickup address', async () => {
+    await act(async () => {
+      render(
+        <EditPPMHeaderSummaryModal
+          sectionType="shipmentInfo"
+          sectionInfo={sectionInfo}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          editItemName="pickupAddress"
+        />,
+      );
+    });
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
+    expect(screen.getByText('Pickup Address')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('renders destination address', async () => {
+    await act(async () => {
+      render(
+        <EditPPMHeaderSummaryModal
+          sectionType="shipmentInfo"
+          sectionInfo={sectionInfo}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          editItemName="destinationAddress"
+        />,
+      );
+    });
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
+    expect(screen.getByText('Destination Address')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
@@ -134,7 +195,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="incentives"
-          sectionInfo={sectionInfo}
+          sectionInfo={{ advanceAmountReceived: '' }}
           onClose={onClose}
           onSubmit={onSubmit}
           editItemName="advanceAmountReceived"

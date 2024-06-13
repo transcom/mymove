@@ -284,7 +284,7 @@ SubmittedRequestedShipments.propTypes = {
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
     grade: PropTypes.string,
-    totalWeight: PropTypes.string,
+    totalWeight: PropTypes.number,
     progear: PropTypes.number,
     spouseProgear: PropTypes.number,
     storageInTransit: PropTypes.number,
