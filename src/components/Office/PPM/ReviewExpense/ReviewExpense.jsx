@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -11,7 +11,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate, dropdownInputOptions, toDollarString, removeCommas } from 'utils/formatters';
+import { formatCents, formatDate, dropdownInputOptions, removeCommas } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -25,9 +25,7 @@ import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
-import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
+import SitCost from 'components/Office/PPM/SitCost/SitCost';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -108,13 +106,6 @@ export default function ReviewExpense({
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
   const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate);
   const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate);
-  const { estimatedCost, isLoading, isError } = useGetPPMSITEstimatedCostQuery(
-    ppmShipmentInfo.id,
-    ppmSITLocation,
-    sitStartDateValue,
-    sitEndDateValue,
-    weightStoredValue,
-  );
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -189,8 +180,7 @@ export default function ReviewExpense({
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -293,25 +283,35 @@ export default function ReviewExpense({
                     <div className="labelWrapper">
                       <Label htmlFor="sitLocationInput">SIT Location</Label>
                     </div>
-                    <select
-                      label="SIT Location"
+                    <Field
+                      as={Radio}
+                      id="sitLocationOrigin"
+                      label="Origin"
                       name="sitLocation"
-                      id="sitLocationInput"
-                      required
-                      className={classnames('usa-select')}
-                      value={ppmSITLocation}
+                      value="ORIGIN"
+                      checked={values.sitLocation === 'ORIGIN'}
                       onChange={(e) => {
                         handleSITLocationChange(e);
                       }}
-                    >
-                      {sitLocationOptions.map((x) => (
-                        <option key={x.key}>{x.value}</option>
-                      ))}
-                    </select>
-                    <legend className={classnames('usa-label', styles.label)}>Cost</legend>
-                    <div className={styles.displayValue}>
-                      {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))}
-                    </div>
+                    />
+                    <Field
+                      as={Radio}
+                      id="sitLocationDestination"
+                      label="Destination"
+                      name="sitLocation"
+                      value="DESTINATION"
+                      checked={values.sitLocation === 'DESTINATION'}
+                      onChange={(e) => {
+                        handleSITLocationChange(e);
+                      }}
+                    />
+                    <SitCost
+                      ppmShipmentInfo={ppmShipmentInfo}
+                      ppmSITLocation={ppmSITLocation}
+                      sitStartDate={sitStartDateValue}
+                      sitEndDate={sitEndDateValue}
+                      weightStored={weightStoredValue}
+                    />
                   </>
                 )}
                 <MaskedTextField
@@ -350,9 +350,7 @@ export default function ReviewExpense({
                         handleWeightStoredChange(e);
                       }}
                     />
-                    <legend className={classnames('usa-label', styles.label)}>Actual PPM Weight</legend>
-                    <div className={styles.displayValue}> {values.actualWeight} </div>
-                    {/* <MaskedTextField
+                    <MaskedTextField
                       defaultValue="0"
                       name="actualWeight"
                       label="Actual PPM Weight"
@@ -363,7 +361,7 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
-                    /> */}
+                    />
                     <DatePickerInput
                       name="sitStartDate"
                       label="Start date"
