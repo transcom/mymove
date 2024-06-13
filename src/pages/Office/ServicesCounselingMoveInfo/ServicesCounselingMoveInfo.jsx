@@ -35,6 +35,7 @@ const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/Revi
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
+const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
 const ServicesCounselingMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -231,6 +232,11 @@ const ServicesCounselingMoveInfo = () => {
             }
           />
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
+          <Route
+            path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
+            end
+            element={<SupportingDocuments moveCode={moveCode} />}
+          />
           <Route
             path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
             end
