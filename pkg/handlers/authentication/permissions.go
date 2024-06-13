@@ -37,6 +37,7 @@ var TOO = RolePermissions{
 		"update.excessWeightRisk",
 		"update.customer",
 		"view.closeoutOffice",
+		"update.closeoutOffice",
 		"update.MTOPage",
 	},
 }
