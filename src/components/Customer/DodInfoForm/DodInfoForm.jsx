@@ -13,7 +13,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const DodInfoForm = ({ initialValues, onSubmit, onBack, isEmplidEnabled }) => {
+const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
@@ -27,7 +27,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack, isEmplidEnabled }) => {
           .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
           .required('Required'),
     emplid: Yup.string().when('showEmplid', () => {
-      if (showEmplid && isEmplidEnabled)
+      if (showEmplid)
         return Yup.string()
           .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
           .required('Required');
@@ -87,7 +87,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack, isEmplidEnabled }) => {
                 pattern="[0-9]{10}"
                 isDisabled={isDodidDisabled}
               />
-              {showEmplid && isEmplidEnabled && (
+              {showEmplid && (
                 <TextField
                   label="EMPLID"
                   name="emplid"
