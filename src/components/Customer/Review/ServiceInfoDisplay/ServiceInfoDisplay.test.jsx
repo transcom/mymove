@@ -20,7 +20,6 @@ describe('ServiceInfoDisplay component', () => {
     emplid: '1234567',
     originTransportationOfficeName: 'Buckley AFB',
     originTransportationOfficePhone: '555-555-5555',
-    isEmplidEnabled: true,
   };
 
   it('renders the data', async () => {
