@@ -101,6 +101,7 @@ export default function ReviewExpense({
 
   const [descriptionString, setDescriptionString] = React.useState(description || '');
   const allowableWeight = ppmShipmentInfo.estimatedWeight;
+  const [actualWeightValue, setActualWeightValue] = React.useState(ppmShipmentInfo?.actualWeight?.toString() || '');
   const [amountValue, setAmountValue] = React.useState(amount);
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
@@ -117,7 +118,7 @@ export default function ReviewExpense({
     status: status || '',
     reason: reason || '',
     weightStored: weightStoredValue?.toString() || '',
-    actualWeight: ppmShipmentInfo?.actualWeight?.toString() || '',
+    actualWeight: actualWeightValue,
     sitLocation: ppmSITLocation,
   };
 
@@ -361,6 +362,9 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      onBlur={(e) => {
+                        setActualWeightValue(e.target.value);
+                      }}
                     />
                     <DatePickerInput
                       name="sitStartDate"
