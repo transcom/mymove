@@ -21,7 +21,7 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypes, ppmExpenseTypes, getExpenseTypeValue, llvmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
-import { patchExpense, patchPPMSIT } from 'services/ghcApi';
+import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
@@ -101,8 +101,6 @@ export default function ReviewExpense({
     onError,
   });
 
-  const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT);
-
   const [descriptionString, setDescriptionString] = React.useState(description || '');
   const allowableWeight = ppmShipmentInfo.estimatedWeight;
   const [amountValue, setAmountValue] = React.useState(amount);
@@ -167,16 +165,6 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   const handleSubmit = (values) => {
-    if (values.movingExpenseType === 'STORAGE') {
-      const ppmSitPayload = {
-        sitLocation: ppmSITLocation,
-      };
-      patchPPMSITMutation({
-        ppmShipmentId: expense.ppmShipmentId,
-        payload: ppmSitPayload,
-        eTag: ppmShipmentInfo.eTag,
-      });
-    }
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
