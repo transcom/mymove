@@ -703,6 +703,9 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 		if mtoShipment.StorageFacility != nil && mtoShipment.StorageFacility.Address.ID != uuid.Nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
 		}
+	// case models.MTOShipmentTypePPM:
+	// 	ptrDestinationAddress = mtoShipment.PPMShipment.DestinationAddress
+	// 	ptrDestinationAddress.PostalCode = mtoShipment.PPMShipment.DestinationPostalCode
 	case models.MTOShipmentTypeHHG:
 		shipmentCopy := mtoShipment
 		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
