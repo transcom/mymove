@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -28,6 +29,34 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 	}
 	// Now that we have our TACs and LOAs, we need to sort accordingly
 	linesOfAccounting := sortTransportationAccountingCodesAndLinesOfAccounting(tacs)
+
+	var validHHGProgramCodeForLOA bool
+	for currLoaIndex, loa := range linesOfAccounting {
+		// if LOA Household Goods Program Code isn't null, it's valid
+		if loa.LoaHsGdsCd != nil {
+			validHHGProgramCodeForLOA = true
+		} else {
+			validHHGProgramCodeForLOA = false
+		}
+		linesOfAccounting[currLoaIndex].ValidHhgProgramCodeForLoa = &validHHGProgramCodeForLOA
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		for currLoaIndex := range linesOfAccounting {
+			// update line of accounting validHHGProgramCodeForLOA field in the database
+			verrs, err := txnCtx.DB().ValidateAndUpdate(&linesOfAccounting[currLoaIndex])
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(linesOfAccounting[currLoaIndex].ID, err, verrs, "invalid input found while updating final destination address of service item")
+			} else if err != nil {
+				return apperror.NewQueryError("Service item", err, "")
+			}
+		}
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
+	}
 
 	return linesOfAccounting, nil
 }

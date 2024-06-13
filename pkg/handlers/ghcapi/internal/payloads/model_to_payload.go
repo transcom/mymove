@@ -1217,6 +1217,8 @@ func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.Li
 		OrgGrpDfasCd:           lineOfAccounting.OrgGrpDfasCd,
 		UpdatedAt:              strfmt.DateTime(lineOfAccounting.UpdatedAt),
 		CreatedAt:              strfmt.DateTime(lineOfAccounting.CreatedAt),
+		// ValidLoaForTac:         lineOfAccounting.ValidLoaForTac,
+		ValidHhgProgramCodeForLoa: lineOfAccounting.ValidHhgProgramCodeForLoa,
 	}
 }
 

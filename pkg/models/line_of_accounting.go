@@ -76,6 +76,8 @@ type LineOfAccounting struct {
 	LoaBgtSubActCd         *string    `json:"loa_bgt_sub_act_cd" db:"loa_bgt_sub_act_cd" pipe:"LOA_BGT_SUB_ACT_CD"`
 	CreatedAt              time.Time  `json:"created_at" db:"created_at" pipe:"-"`
 	UpdatedAt              time.Time  `json:"updated_at" db:"updated_at" pipe:"-"`
+	// ValidLoaForTac		   *bool		  `json:"valid_loa_for_tac" db:"valid_loa_for_tac"`
+	ValidHhgProgramCodeForLoa *bool `json:"valid_hhg_code_for_loa" db:"valid_hhg_code_for_loa"`
 }
 
 // TableName overrides the table name used by Pop.

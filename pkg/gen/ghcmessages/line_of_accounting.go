@@ -278,6 +278,12 @@ type LineOfAccounting struct {
 	// Example: 2023-08-03T19:17:38.776Z
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+
+	// valid hhg program code for loa
+	ValidHhgProgramCodeForLoa *bool `json:"validHhgProgramCodeForLoa,omitempty"`
+
+	// valid loa for tac
+	ValidLoaForTac *bool `json:"validLoaForTac,omitempty"`
 }
 
 // Validate validates this line of accounting
