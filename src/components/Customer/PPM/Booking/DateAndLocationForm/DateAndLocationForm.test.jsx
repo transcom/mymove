@@ -232,7 +232,6 @@ describe('validates form fields and displays error messages', () => {
     expect(screen.getByText('Required')).toBeVisible();
   });
   it('displays type errors when input fails validation schema', async () => {
-
     await act(async () => {
       const invalidTypes = {
         ...defaultProps,
@@ -240,6 +239,7 @@ describe('validates form fields and displays error messages', () => {
           ppmShipment: {},
         },
       };
+
       render(<DateAndLocationForm {...invalidTypes} />);
 
       await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '1000');
