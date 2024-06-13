@@ -52,9 +52,13 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf(errorMsgForDestinationZip), nil, errorMsgForDestinationZip)
 	}
 
-	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
-		return strconv.Itoa(mtoShipment.Distance.Int()), nil
-	}
+	serviceCode := keyData.MTOServiceItem.ReService.Code
+	switch serviceCode {
+	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
+		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "Distance").Find(&mtoShipment, mtoShipment.ID)
+		if err != nil {
+			return "", err
+		}
 
 	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
