@@ -152,7 +152,7 @@ const errorReturnValue = {
 
 const renderWithMocks = () => {
   render(
-    <MockProviders path={tooRoutes.BASE_SHIPMENT_ADD_PATH} params={{ moveCode: 'move123', shipmentType: 'HHG' }}>
+    <MockProviders path={tooRoutes.SHIPMENT_ADD_PATH} params={{ moveCode: 'move123', shipmentType: 'HHG' }}>
       <AddShipment />
     </MockProviders>,
   );
