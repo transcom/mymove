@@ -5387,6 +5387,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryDeliveryAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -5728,20 +5742,34 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryPickupAddress:
+      tertiaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -8073,7 +8101,7 @@ definitions:
           - $ref: '#/definitions/Address'
           - x-nullable: true
           - x-omitempty: false
-            tertiaryDestinationPostalCode:
+      tertiaryDestinationPostalCode:
         format: >-
           An optional tertiary pickup location near the origin where additional
           goods exist.

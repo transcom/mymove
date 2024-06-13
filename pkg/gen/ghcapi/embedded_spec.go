@@ -6027,6 +6027,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -6083,6 +6093,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -9191,49 +9215,49 @@ func init() {
           "x-omitempty": false
         },
         "tertiaryDestinationAddress": {
-			"allOf": [
-			  {
-				"$ref": "#/definitions/Address"
-			  },
-			  {
-				"x-nullable": true
-			  },
-			  {
-				"x-omitempty": false
-			  }
-			]
-		  },
-		  "tertiaryDestinationPostalCode": {
-			"type": "string",
-			"format": "An optional secondary pickup location near the origin where additional goods exist.",
-			"title": "ZIP",
-			"pattern": "^(\\d{5})$",
-			"x-nullable": true,
-			"x-omitempty": false,
-			"example": "90210"
-		  },
-		  "tertiaryPickupAddress": {
-			"allOf": [
-			  {
-				"$ref": "#/definitions/Address"
-			  },
-			  {
-				"x-nullable": true
-			  },
-			  {
-				"x-omitempty": false
-			  }
-			]
-		  },
-		  "tertiaryPickupPostalCode": {
-			"type": "string",
-			"format": "An optional secondary pickup location near the origin where additional goods exist.",
-			"title": "ZIP",
-			"pattern": "^(\\d{5})$",
-			"x-nullable": true,
-			"x-omitempty": false,
-			"example": "90210"
-		  },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryDestinationPostalCode": {
+          "type": "string",
+          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupPostalCode": {
+          "type": "string",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -11377,6 +11401,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -11434,6 +11468,20 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "tertiaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -19216,6 +19264,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -19272,6 +19330,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -22381,49 +22453,49 @@ func init() {
           "x-omitempty": false
         },
         "tertiaryDestinationAddress": {
-			"allOf": [
-			  {
-				"$ref": "#/definitions/Address"
-			  },
-			  {
-				"x-nullable": true
-			  },
-			  {
-				"x-omitempty": false
-			  }
-			]
-		  },
-		  "tertiaryDestinationPostalCode": {
-			"type": "string",
-			"format": "An optional secondary pickup location near the origin where additional goods exist.",
-			"title": "ZIP",
-			"pattern": "^(\\d{5})$",
-			"x-nullable": true,
-			"x-omitempty": false,
-			"example": "90210"
-		  },
-		  "tertiaryPickupAddress": {
-			"allOf": [
-			  {
-				"$ref": "#/definitions/Address"
-			  },
-			  {
-				"x-nullable": true
-			  },
-			  {
-				"x-omitempty": false
-			  }
-			]
-		  },
-		  "tertiaryPickupPostalCode": {
-			"type": "string",
-			"format": "An optional secondary pickup location near the origin where additional goods exist.",
-			"title": "ZIP",
-			"pattern": "^(\\d{5})$",
-			"x-nullable": true,
-			"x-omitempty": false,
-			"example": "90210"
-		  },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryDestinationPostalCode": {
+          "type": "string",
+          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupPostalCode": {
+          "type": "string",
+          "format": "An optional secondary pickup location near the origin where additional goods exist.",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "90210"
+        },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -24625,6 +24697,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -24682,6 +24764,20 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "tertiaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",

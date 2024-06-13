@@ -31,7 +31,7 @@ COMMENT ON COLUMN mto_shipments.tertiary_delivery_postal_code IS 'Tertiary posta
 COMMENT ON COLUMN mto_shipments.tertiary_pickup_address_id IS 'The secondary pickup address for this shipment.';
 COMMENT ON COLUMN mto_shipments.tertiary_delivery_address_id IS 'The secondary delivery address for this shipment.';
 COMMENT ON COLUMN mto_shipments.has_tertiary_pickup_address IS 'False if the ppm shipment does not have a tertiary pickup address. This column exists to make it possible to tell whether a shipment update should delete an address or not modify it.';
-COMMENT ON COLUMN mto_shipments.has_tertiary_destination_address IS 'False if the ppm shipment does not have a tertiary pickup address. This column exists to make it possible to tell whether a shipment update should delete an address or not modify it.';
+COMMENT ON COLUMN mto_shipments.has_tertiary_delivery_address IS 'False if the ppm shipment does not have a tertiary pickup address. This column exists to make it possible to tell whether a shipment update should delete an address or not modify it.';
 
 ALTER TABLE mto_shipments ADD CONSTRAINT mto_shipments_pickup_postal_address_id_fkey FOREIGN KEY (tertiary_pickup_address_id) REFERENCES addresses(id);
 ALTER TABLE mto_shipments ADD CONSTRAINT mto_shipments_destination_postal_address_id_fkey FOREIGN KEY (tertiary_delivery_address_id) REFERENCES addresses(id);

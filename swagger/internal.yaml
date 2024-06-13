@@ -1968,6 +1968,32 @@ definitions:
         $ref: '#/definitions/NullableString'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupPostalCode:
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationPostalCode:
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        $ref: '#/definitions/NullableString'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
     required:

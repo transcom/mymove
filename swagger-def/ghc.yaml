@@ -5191,6 +5191,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryDeliveryAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -5508,20 +5522,34 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
-      secondaryPickupAddress:
+      tertiaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
