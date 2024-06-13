@@ -588,6 +588,9 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 	if err != nil {
 		return models.Address{}
 	}
+	if shipmentCopy.MTOServiceItems == nil || len(shipmentCopy.MTOServiceItems) == 0 {
+		return *mtoShipment.DestinationAddress, nil
+	}
 
 	for _, si := range shipmentCopy.MTOServiceItems {
 		siCopy := si
