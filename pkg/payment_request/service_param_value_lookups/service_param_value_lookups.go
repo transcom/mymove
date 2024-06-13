@@ -437,6 +437,9 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 	if err != nil {
 		return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
 	}
+	if shipmentCopy.MTOServiceItems == nil || len(shipmentCopy.MTOServiceItems) == 0 {
+		return *mtoShipment.DestinationAddress, nil
+	}
 
 	var result models.Address
 	for _, si := range shipmentCopy.MTOServiceItems {
@@ -552,9 +555,6 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 		if mtoShipment.StorageFacility != nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
 		}
-	// case models.MTOShipmentTypePPM:
-	// 	ptrDestinationAddress = mtoShipment.PPMShipment.DestinationAddress
-	// 	ptrDestinationAddress.PostalCode = mtoShipment.PPMShipment.DestinationPostalCode
 	case models.MTOShipmentTypeHHG:
 		shipmentCopy := mtoShipment
 		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
