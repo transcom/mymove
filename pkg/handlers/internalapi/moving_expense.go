@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 )
 
 // CreateMovingExpenseHandler
@@ -113,7 +114,15 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 
 			movingExpense := payloads.MovingExpenseModelFromUpdate(payload)
 			movingExpense.ID = uuid.FromStringOrNil(params.MovingExpenseID.String())
+			movingExpense.PPMShipmentID = uuid.FromStringOrNil(params.PpmShipmentID.String())
+			ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
+			ppmShipment, ppmShipmentErr := ppmShipmentFetcher.GetPPMShipment(appCtx, movingExpense.PPMShipmentID, nil, nil)
 
+			if ppmShipmentErr != nil {
+				return nil, ppmShipmentErr
+			}
+
+			movingExpense.PPMShipment = *ppmShipment
 			updateMovingExpense, err := h.movingExpenseUpdater.UpdateMovingExpense(appCtx, *movingExpense, params.IfMatch)
 
 			if err != nil {

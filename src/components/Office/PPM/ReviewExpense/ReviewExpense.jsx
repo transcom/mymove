@@ -184,7 +184,7 @@ export default function ReviewExpense({
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
       sitStartDate: sitStartDateValue,
-      sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
+      sitEndDate: sitEndDateValue,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
       weightStored: weightStoredValue,
