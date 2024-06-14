@@ -305,6 +305,7 @@ export const ReviewDocuments = () => {
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
+                    key={documentSetIndex}
                     expense={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
                     documentSets={documentSets}
