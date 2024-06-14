@@ -132,7 +132,11 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
     const { tac, issueDate, departmentIndicator } = formikValues;
     // Only run validation if a 4 length TAC is present, and department and issue date are also present
     if (tac && tac.length === 4 && departmentIndicator && issueDate) {
-      validateLoa({ tacCode: tac, serviceMemberAffiliation: departmentIndicator, ordersIssueDate: issueDate });
+      validateLoa({
+        tacCode: tac,
+        serviceMemberAffiliation: departmentIndicator,
+        ordersIssueDate: formatSwaggerDate(issueDate),
+      });
     }
   };
 
@@ -174,7 +178,7 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
     ) {
       validateLoa({
         tacCode: order?.tac,
-        ordersIssueDate: order?.date_issued,
+        ordersIssueDate: formatSwaggerDate(order?.date_issued),
         serviceMemberAffiliation: order?.department_indicator,
       });
     }
