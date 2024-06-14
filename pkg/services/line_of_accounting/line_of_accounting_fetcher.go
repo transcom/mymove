@@ -4,6 +4,8 @@ import (
 	"sort"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
@@ -30,15 +32,122 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 	// Now that we have our TACs and LOAs, we need to sort accordingly
 	linesOfAccounting := sortTransportationAccountingCodesAndLinesOfAccounting(tacs)
 
-	var validHHGProgramCodeForLOA bool
+	var validHhgProgramCodeForLoa bool
+	var validLoaForTac bool
 	for currLoaIndex, loa := range linesOfAccounting {
-		// if LOA Household Goods Program Code isn't null, it's valid
-		if loa.LoaHsGdsCd != nil {
-			validHHGProgramCodeForLOA = true
+		// if LOA Household Goods Program Code is null, invalid
+		if loa.LoaHsGdsCd == nil {
+			validHhgProgramCodeForLoa = false
 		} else {
-			validHHGProgramCodeForLOA = false
+			validHhgProgramCodeForLoa = true
 		}
-		linesOfAccounting[currLoaIndex].ValidHhgProgramCodeForLoa = &validHHGProgramCodeForLOA
+		linesOfAccounting[currLoaIndex].ValidHhgProgramCodeForLoa = &validHhgProgramCodeForLoa
+
+		var missingLoaFields []string
+		if loa.LoaSysID == nil {
+			missingLoaFields = append(missingLoaFields, "loa.LoaSysID")
+		}
+		if loa.LoaDptID == nil { // Department Indicator
+			missingLoaFields = append(missingLoaFields, "loa.LoaDptID")
+		}
+		if loa.LoaTnsfrDptNm == nil { // Transfer from Department
+			missingLoaFields = append(missingLoaFields, "loa.LoaTnsfrDptNm")
+		}
+		if loa.LoaBafID == nil { // Basic Symbol Number
+			missingLoaFields = append(missingLoaFields, "loa.LoaBafID")
+		}
+		if loa.LoaTrsySfxTx == nil { // Subhead/Limit
+			missingLoaFields = append(missingLoaFields, "loa.LoaTrsySfxTx")
+		}
+		if loa.LoaMajClmNm == nil { // Fund Code/MC
+			missingLoaFields = append(missingLoaFields, "loa.LoaMajClmNm")
+		}
+		if loa.LoaOpAgncyID == nil { // Operating Agency Code/Fund Admin
+			missingLoaFields = append(missingLoaFields, "loa.LoaOpAgncyID")
+			validLoaForTac = false
+		}
+		if loa.LoaAlltSnID == nil { // Allotment Serial Number
+			missingLoaFields = append(missingLoaFields, "loa.LoaAlltSnID")
+		}
+		if loa.LoaPgmElmntID == nil { // Program Element
+			missingLoaFields = append(missingLoaFields, "loa.LoaPgmElmntID")
+		}
+		if loa.LoaTskBdgtSblnTx == nil { // Project Task or Budget Sub line
+			missingLoaFields = append(missingLoaFields, "loa.LoaTskBdgtSblnTx")
+		}
+		if loa.LoaDfAgncyAlctnRcpntID == nil { // Defense Agency Allocation Recipient
+			missingLoaFields = append(missingLoaFields, "loa.LoaDfAgncyAlctnRcpntID")
+		}
+		if loa.LoaJbOrdNm == nil { // Job Order/Work Order Code
+			missingLoaFields = append(missingLoaFields, "loa.LoaJbOrdNm")
+		}
+		if loa.LoaSbaltmtRcpntID == nil { // Sub-allotment Recipient
+			missingLoaFields = append(missingLoaFields, "loa.LoaSbaltmtRcpntID")
+		}
+		if loa.LoaWkCntrRcpntNm == nil { // Work Center Recipient
+			missingLoaFields = append(missingLoaFields, "loa.LoaWkCntrRcpntNm")
+		}
+		if loa.LoaMajRmbsmtSrcID == nil { // Major Reimbursement Source Code
+			missingLoaFields = append(missingLoaFields, "loa.LoaMajRmbsmtSrcID")
+		}
+		if loa.LoaDtlRmbsmtSrcID == nil { // Detail Reimbursement Source Code
+			missingLoaFields = append(missingLoaFields, "loa.LoaDtlRmbsmtSrcID")
+			validLoaForTac = false
+		}
+		if loa.LoaCustNm == nil { // Customer Indicator/MPC
+			missingLoaFields = append(missingLoaFields, "loa.LoaCustNm")
+		}
+		if loa.LoaObjClsID == nil { // Object Class
+			missingLoaFields = append(missingLoaFields, "loa.LoaObjClsID")
+		}
+		if loa.LoaSrvSrcID == nil { // Government or Public Sector Identifier
+			missingLoaFields = append(missingLoaFields, "loa.LoaSrvSrcID")
+		}
+		if loa.LoaSpclIntrID == nil { // Special Interest Code or Special Program Cost Code
+			missingLoaFields = append(missingLoaFields, "loa.LoaSpclIntrID")
+		}
+		if loa.LoaBdgtAcntClsNm == nil { // Abbreviated Department of Defense (DoD) Budget and Accounting
+			missingLoaFields = append(missingLoaFields, "loa.LoaBdgtAcntClsNm")
+		}
+		if loa.LoaDocID == nil { // (SDN) Document or Record Reference Number
+			missingLoaFields = append(missingLoaFields, "loa.LoaDocID")
+		}
+		if loa.LoaClsRefID == nil { // (ACRN) Accounting Classification Reference Code
+			missingLoaFields = append(missingLoaFields, "loa.LoaClsRefID")
+		}
+		if loa.LoaInstlAcntgActID == nil { // Accounting Installation Number
+			missingLoaFields = append(missingLoaFields, "loa.LoaInstlAcntgActID")
+		}
+		if loa.LoaLclInstlID == nil { // Local Installation Data
+			missingLoaFields = append(missingLoaFields, "loa.LoaLclInstlID")
+		}
+		if loa.LoaFmsTrnsactnID == nil { // Transaction Type
+			missingLoaFields = append(missingLoaFields, "loa.LoaFmsTrnsactnID")
+		}
+		if loa.LoaDscTx == nil { // Foreign Military Sales (FMS) Line Item Number
+			missingLoaFields = append(missingLoaFields, "loa.LoaDscTx")
+		}
+		if loa.LoaUic == nil { // Activity Address Code/UIC
+			missingLoaFields = append(missingLoaFields, "loa.LoaUic")
+		}
+
+		if missingLoaFields != nil {
+			validLoaForTac = false
+
+			var errMessage string
+			if len(missingLoaFields) == 1 {
+				errMessage += missingLoaFields[1]
+			} else {
+				for i := range missingLoaFields {
+					errMessage += missingLoaFields[i] + ", "
+				}
+			}
+			appCtx.Logger().Info("LOA with ID "+loa.ID.String()+" missing information: "+errMessage, zap.Error(err))
+		} else {
+			validLoaForTac = true
+		}
+
+		linesOfAccounting[currLoaIndex].ValidLoaForTac = &validLoaForTac
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
@@ -46,9 +155,9 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 			// update line of accounting validHHGProgramCodeForLOA field in the database
 			verrs, err := txnCtx.DB().ValidateAndUpdate(&linesOfAccounting[currLoaIndex])
 			if verrs != nil && verrs.HasAny() {
-				return apperror.NewInvalidInputError(linesOfAccounting[currLoaIndex].ID, err, verrs, "invalid input found while updating final destination address of service item")
+				return apperror.NewInvalidInputError(linesOfAccounting[currLoaIndex].ID, err, verrs, "invalid input found while updating validLoaForTac or ValidHhgProgramCodeForLoa for LOA")
 			} else if err != nil {
-				return apperror.NewQueryError("Service item", err, "")
+				return apperror.NewQueryError("LOA", err, "")
 			}
 		}
 		return nil
