@@ -78,7 +78,7 @@ const Orders = () => {
       // The server decides if this is a valid LOA or not
       const isValid = (data?.validHhgProgramCodeForLoa ?? false) && (data?.validLoaForTac ?? false);
       // Construct the long line of accounting string
-      const longLoa = buildFullLineOfAccountingString(data);
+      const longLoa = data ? buildFullLineOfAccountingString(data) : '';
       loaValidationDispatch({
         type: LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
         payload: {
