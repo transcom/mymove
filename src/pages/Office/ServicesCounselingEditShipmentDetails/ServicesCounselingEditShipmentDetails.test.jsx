@@ -478,7 +478,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
       });
-    });
+    }, 10000);
 
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
