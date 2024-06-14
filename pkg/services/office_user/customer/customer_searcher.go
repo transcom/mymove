@@ -139,7 +139,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 			sortTerm := parameters[*sort]
 			query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 		} else {
-			query.Order("service_members.last_name ASC, service_members.first_name ASC, service_members.id ASC")
+			query.Order("service_members.last_name ASC")
 		}
 	}
 }
