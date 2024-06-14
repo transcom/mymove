@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -288,6 +289,16 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			SITLocation:       (*models.SITLocationType)(&sitLocation),
 		}
 
+		sitEstimatedCost := models.CentPointer(unit.Cents(62500))
+		ppmEstimator = mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"CalculatePPMSITEstimatedCost",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(sitEstimatedCost, nil)
+
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
 
 		suite.Nil(updateErr)
@@ -331,6 +342,16 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			MissingReceipt:    models.BoolPointer(true),
 			Amount:            models.CentPointer(unit.Cents(67899)),
 		}
+
+		sitEstimatedCost := models.CentPointer(unit.Cents(62500))
+		ppmEstimator = mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"CalculatePPMSITEstimatedCost",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(sitEstimatedCost, nil)
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
 
