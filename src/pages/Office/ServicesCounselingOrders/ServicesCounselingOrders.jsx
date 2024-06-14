@@ -242,8 +242,6 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
           // Conditionally set the LOA warning message based on off if it is missing or just invalid
-          // Currently this condition is not possible to be met, and is "getting ahead of development"
-          // by being ready to catch the `isValid` attribute from a LOA table row.
           const isLoaMissing = loaValidationState.loa === null || loaValidationState.loa === undefined;
           let loaWarning = '';
           // Making a nested ternary here goes against linter rules
