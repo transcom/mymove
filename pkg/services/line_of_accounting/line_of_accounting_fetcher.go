@@ -32,9 +32,49 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 	// Now that we have our TACs and LOAs, we need to sort accordingly
 	linesOfAccounting := sortTransportationAccountingCodesAndLinesOfAccounting(tacs)
 
+	linesOfAccounting, err = checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting, appCtx)
+	if err != nil {
+		return []models.LineOfAccounting{}, err
+	}
+
+	return linesOfAccounting, nil
+}
+
+// Sort the lines of accounting according to business logic. See confluence articles, for example here is one article (Of many)
+// https://dp3.atlassian.net/wiki/spaces/MT/pages/2232680449/2023-08-14+TTV+EDI+Sync
+// The result of the sorted lines of accounting will allow us to select the first item in the array
+// as the first item post sorting is the correct line of counting to utilize for proper EDI858 invoicing
+func sortTransportationAccountingCodesAndLinesOfAccounting(tacs []models.TransportationAccountingCode) []models.LineOfAccounting {
+
+	// Sort TACs in memory
+	sort.SliceStable(tacs, func(i, j int) bool {
+		// Order by tac_fn_bl_mod_cd ascending
+		if *tacs[i].TacFnBlModCd != *tacs[j].TacFnBlModCd {
+			return *tacs[i].TacFnBlModCd < *tacs[j].TacFnBlModCd
+		}
+		// On a tie break, sort by loa_bgn_dt descending
+		if tacs[i].LineOfAccounting.LoaBgnDt != tacs[j].LineOfAccounting.LoaBgnDt {
+			return tacs[i].LineOfAccounting.LoaBgnDt.After(*tacs[j].LineOfAccounting.LoaBgnDt)
+		}
+		// On a tie break, sort by tac_fy_txt descending
+		return *tacs[i].TacFyTxt > *tacs[j].TacFyTxt
+	})
+
+	// Extract the LOAs from the sorted TACs
+	var linesOfAccounting []models.LineOfAccounting
+	for _, tac := range tacs {
+		linesOfAccounting = append(linesOfAccounting, *tac.LineOfAccounting)
+	}
+
+	return linesOfAccounting
+}
+
+func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []models.LineOfAccounting, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
+	var err error
 	var validHhgProgramCodeForLoa bool
 	var validLoaForTac bool
 	for currLoaIndex, loa := range linesOfAccounting {
+
 		// if LOA Household Goods Program Code is null, invalid
 		if loa.LoaHsGdsCd == nil {
 			validHhgProgramCodeForLoa = false
@@ -43,6 +83,7 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 		}
 		linesOfAccounting[currLoaIndex].ValidHhgProgramCodeForLoa = &validHhgProgramCodeForLoa
 
+		// if any LOA DFAS elements are missing, invalid
 		var missingLoaFields []string
 		if loa.LoaSysID == nil {
 			missingLoaFields = append(missingLoaFields, "loa.LoaSysID")
@@ -134,13 +175,13 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 
 			var errMessage string
 			if len(missingLoaFields) == 1 {
-				errMessage += missingLoaFields[1]
+				errMessage += missingLoaFields[0]
 			} else {
 				for i := range missingLoaFields {
 					errMessage += missingLoaFields[i] + ", "
 				}
 			}
-			// If any LOA is missing, log it for informational purposes
+			// If any LOA DFAS elements are missing, log it for informational purposes
 			appCtx.Logger().Info("LOA with ID "+loa.ID.String()+" missing information: "+errMessage, zap.Error(err))
 		} else {
 			validLoaForTac = true
@@ -151,7 +192,7 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		for currLoaIndex := range linesOfAccounting {
-			// update line of accounting validHHGProgramCodeForLOA field in the database
+			// update line of accounting validHHGProgramCodeForLOA and ValidLoaForTac fields
 			verrs, err := txnCtx.DB().ValidateAndUpdate(&linesOfAccounting[currLoaIndex])
 			if verrs != nil && verrs.HasAny() {
 				return apperror.NewInvalidInputError(linesOfAccounting[currLoaIndex].ID, err, verrs, "invalid input found while updating ValidLoaForTac or ValidHhgProgramCodeForLoa for LOA")
@@ -166,34 +207,5 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 		return nil, transactionError
 	}
 
-	return linesOfAccounting, nil
-}
-
-// Sort the lines of accounting according to business logic. See confluence articles, for example here is one article (Of many)
-// https://dp3.atlassian.net/wiki/spaces/MT/pages/2232680449/2023-08-14+TTV+EDI+Sync
-// The result of the sorted lines of accounting will allow us to select the first item in the array
-// as the first item post sorting is the correct line of counting to utilize for proper EDI858 invoicing
-func sortTransportationAccountingCodesAndLinesOfAccounting(tacs []models.TransportationAccountingCode) []models.LineOfAccounting {
-
-	// Sort TACs in memory
-	sort.SliceStable(tacs, func(i, j int) bool {
-		// Order by tac_fn_bl_mod_cd ascending
-		if *tacs[i].TacFnBlModCd != *tacs[j].TacFnBlModCd {
-			return *tacs[i].TacFnBlModCd < *tacs[j].TacFnBlModCd
-		}
-		// On a tie break, sort by loa_bgn_dt descending
-		if tacs[i].LineOfAccounting.LoaBgnDt != tacs[j].LineOfAccounting.LoaBgnDt {
-			return tacs[i].LineOfAccounting.LoaBgnDt.After(*tacs[j].LineOfAccounting.LoaBgnDt)
-		}
-		// On a tie break, sort by tac_fy_txt descending
-		return *tacs[i].TacFyTxt > *tacs[j].TacFyTxt
-	})
-
-	// Extract the LOAs from the sorted TACs
-	var linesOfAccounting []models.LineOfAccounting
-	for _, tac := range tacs {
-		linesOfAccounting = append(linesOfAccounting, *tac.LineOfAccounting)
-	}
-
-	return linesOfAccounting
+	return linesOfAccounting, err
 }
