@@ -14,7 +14,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { calculateTotalMovingExpensesAmount, getW2Address } from 'utils/ppmCloseout';
 import { FEEDBACK_DOCUMENT_TYPES, FEEDBACK_TEMPLATES } from 'constants/ppmFeedback';
-import FeedbackItems from 'components/Customer/PPM/Closeout/Feedback/FeedbackItems';
+import FeedbackItems from 'components/Customer/PPM/Closeout/FeedbackItems/FeedbackItems';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
