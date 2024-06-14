@@ -66,40 +66,40 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   /open/requested-office-users:
-      post:
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        summary: Create an Office User
-        description: >
-          This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
 
-          Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
-          An identification method must be present. The following 2 fields have an "OR" requirement.
-          - edipi
-          - other_unique_id
-          One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
-        operationId: createRequestedOfficeUser
-        tags:
-          - officeUsers
-        parameters:
-          - in: body
-            name: officeUser
-            description: Office User information
-            schema:
-              $ref: '#/definitions/OfficeUserCreate'
-        responses:
-          '201':
-            description: successfully requested the creation of provided office user
-            schema:
-              $ref: '#/definitions/OfficeUser'
-          '422':
-            description: validation error
-            schema:
-              $ref: '#/definitions/ValidationError'
-          '500':
-            description: internal server error
+        Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+        An identification method must be present. The following 2 fields have an "OR" requirement.
+        - edipi
+        - other_unique_id
+        One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -3207,8 +3207,8 @@ paths:
             type: string
             enum:
               - SUBMITTED
+              - SERVICE COUNSELING COMPLETED
               - APPROVALS REQUESTED
-              - APPROVED
         - in: query
           name: orderType
           type: string
@@ -3545,15 +3545,15 @@ paths:
           required: true
           description: Parameter Name
       responses:
-        "200":
+        '200':
           description: Application Parameters
           schema:
-            $ref: "#/definitions/ApplicationParameters"
-        "400":
+            $ref: '#/definitions/ApplicationParameters'
+        '400':
           description: invalid request
-        "401":
+        '401':
           description: request requires user authentication
-        "500":
+        '500':
           description: server error
 definitions:
   ApplicationParameters:
