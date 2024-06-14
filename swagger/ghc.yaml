@@ -7496,6 +7496,12 @@ definitions:
         type: integer
         minimum: 0
         x-nullable: true
+        x-omitempty: null
+      submittedEmptyWeight:
+        description: Customer submitted weight of the vehicle when empty.
+        type: integer
+        minimum: 0
+        x-nullable: true
         x-omitempty: false
       missingEmptyWeightTicket:
         description: >-
@@ -7519,6 +7525,12 @@ definitions:
           - $ref: '#/definitions/Document'
       fullWeight:
         description: The weight of the vehicle when full.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedFullWeight:
+        description: Customer submitted weight of the vehicle when full.
         type: integer
         minimum: 0
         x-nullable: true
@@ -7549,7 +7561,19 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedOwnsTrailer:
+        description: Indicates if the customer used a trailer they own for the move.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       trailerMeetsCriteria:
+        description: >-
+          Indicates if the trailer that the customer used meets all the criteria
+          to be claimable.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      submittedTrailerMeetsCriteria:
         description: >-
           Indicates if the trailer that the customer used meets all the criteria
           to be claimable.
@@ -7636,6 +7660,31 @@ definitions:
       WEIGHING_FEE: Weighing fee
     x-nullable: true
     x-omitempty: false
+  SubmittedMovingExpenseType:
+    type: string
+    description: Customer Submitted Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEE
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEE: Weighing fee
+    x-nullable: true
+    x-omitempty: false
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
@@ -7668,8 +7717,15 @@ definitions:
           - $ref: '#/definitions/Document'
       movingExpenseType:
         $ref: '#/definitions/OmittableMovingExpenseType'
+      submittedMovingExpenseType:
+        $ref: '#/definitions/SubmittedMovingExpenseType'
       description:
         description: A brief description of the expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      submittedDescription:
+        description: Customer submitted description of the expense
         type: string
         x-nullable: true
         x-omitempty: false
@@ -7682,6 +7738,13 @@ definitions:
         x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      submittedAmount:
+        description: >-
+          Customer submitted total amount of the expense as indicated on the
+          receipt
         type: integer
         x-nullable: true
         x-omitempty: false
@@ -7705,10 +7768,28 @@ definitions:
         format: date
         x-nullable: true
         x-omitempty: false
+      submittedSitStartDate:
+        description: >-
+          Customer submitted date the shipment entered storage, applicable for
+          the `STORAGE` movingExpenseType only
+        type: string
+        example: '2022-04-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
+        type: string
+        example: '2018-05-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      submittedSitEndDate:
+        description: >-
+          Customer submitted date the shipment exited storage, applicable for
+          the `STORAGE` movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -7782,6 +7863,13 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedBelongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       description:
         description: Describes the pro-gear that was moved.
         type: string
@@ -7794,8 +7882,21 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedHasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       weight:
         description: Weight of the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedWeight:
+        description: Customer submitted weight of the pro-gear.
         type: integer
         minimum: 0
         x-nullable: true
