@@ -10,6 +10,7 @@ export const getQueriesStatus = (queries) => {
   return {
     // isIntialLoading is the react-query key designated for loading states (https://tanstack.com/query/v4/docs/guides/migrating-to-react-query-4#disabled-queries)
     isLoading: queries.some((q) => q.isInitialLoading),
+    isFetching: queries.some((q) => q.isFetching),
     isError: queries.some((q) => q.isError),
     isSuccess: queries.every((q) => q.isSuccess),
     errors: queries.reduce((errors, q) => (q.error ? [...errors, q.error] : errors), []),
