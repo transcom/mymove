@@ -82,6 +82,7 @@ type SearchMovesParams struct {
 	Branch                *string
 	Locator               *string
 	DodID                 *string
+	Emplid                *string
 	CustomerName          *string
 	DestinationPostalCode *string
 	OriginPostalCode      *string

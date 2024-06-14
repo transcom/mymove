@@ -78,6 +78,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
+	emplidQuery := emplidFilter(params.Emplid)
 	branchQuery := branchFilter(params.Branch)
 	originPostalCodeQuery := originPostalCodeFilter(params.OriginPostalCode)
 	destinationPostalCodeQuery := destinationPostalCodeFilter(params.DestinationPostalCode)
@@ -87,8 +88,8 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	scheduledDeliveryDateQuery := scheduledDeliveryDateFilter(params.DeliveryDate)
 	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
 
-	options := [11]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
-		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery}
+	options := [12]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
+		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery, emplidQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -108,6 +109,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 var parameters = map[string]string{
 	"customerName":          "service_members.last_name",
 	"dodID":                 "service_members.edipi",
+	"emplid":                "service_members.emplid",
 	"branch":                "service_members.affiliation",
 	"locator":               "moves.locator",
 	"status":                "moves.status",
@@ -120,6 +122,14 @@ func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
 			query.Where("service_members.edipi = ?", dodID)
+		}
+	}
+}
+
+func emplidFilter(emplid *string) QueryOption {
+	return func(query *pop.Query) {
+		if emplid != nil {
+			query.Where("service_members.emplid = ?", emplid)
 		}
 	}
 }

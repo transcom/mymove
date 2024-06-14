@@ -3498,6 +3498,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               customerName:
                 description: Customer Name
                 type: string
@@ -3542,6 +3548,7 @@ paths:
                 enum:
                   - customerName
                   - dodID
+                  - emplid
                   - branch
                   - locator
                   - status

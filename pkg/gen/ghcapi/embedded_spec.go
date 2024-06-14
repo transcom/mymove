@@ -1765,6 +1765,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -1805,6 +1812,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -14078,6 +14086,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -14118,6 +14133,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",

@@ -1991,6 +1991,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
 			DodID:                             customer.Edipi,
+			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
 			ID:                                *handlers.FmtUUID(move.ID),
@@ -2005,7 +2006,6 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			DestinationGBLOC:                  destinationGBLOC,
 			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockExpiresAt:                     handlers.FmtDateTimePtr(move.LockExpiresAt),
-			Emplid:                            customer.Emplid,
 		}
 	}
 	return &searchMoves
