@@ -427,10 +427,9 @@ const mileageFactor = (params, itemCode) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
   }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params), 3)}`;
 
-  const baselineRateDifference = `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}: ${formatCents(
-    parseFloat(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params)),
-    1,
-    1,
+  const baselineRateDifference = `${SERVICE_ITEM_CALCULATION_LABELS.FSCPriceDifferenceInCents}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents,
+    params,
   )} \u00A2`;
 
   return calculation(
