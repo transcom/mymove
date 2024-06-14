@@ -29,7 +29,7 @@ import SitCost from 'components/Office/PPM/SitCost/SitCost';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
-const validationSchema = (actualWeight) => {
+const validationSchema = (maxWeight) => {
   return Yup.object().shape({
     amount: Yup.string()
       .required('Enter the expense amount')
@@ -59,8 +59,12 @@ const validationSchema = (actualWeight) => {
       then: (schema) =>
         schema
           .required('Required')
-          .max(parseInt(removeCommas(actualWeight), 10), `Enter a weight ${actualWeight} lbs or less`)
+          .max(maxWeight, `Enter a weight ${maxWeight} lbs or less`)
           .min(1, `Enter a weight greater than 0 lbs`),
+    }),
+    actualWeight: Yup.number().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) => schema.required('Required').min(1, `Enter a weight greater than 0 lbs`),
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
@@ -119,7 +123,7 @@ export default function ReviewExpense({
     status: status || '',
     reason: reason || '',
     weightStored: weightStoredValue?.toString() || '',
-    actualWeight: actualWeightValue,
+    actualWeight: actualWeightValue?.toString() || '',
     sitLocation: ppmSITLocation,
   };
 
@@ -214,11 +218,14 @@ export default function ReviewExpense({
 
           const handleWeightStoredChange = (event) => {
             const weight = parseInt(removeCommas(event.target.value), 10);
-            const maxWeight = parseInt(removeCommas(actualWeightValue), 10);
-            if (weight <= maxWeight && weight > 0) {
-              setWeightStoredValue(weight);
-              refreshPage(event);
-            }
+            setWeightStoredValue(weight);
+            refreshPage(event);
+          };
+
+          const handleActualWeightChange = (event) => {
+            const weight = parseInt(removeCommas(event.target.value), 10);
+            setActualWeightValue(weight);
+            refreshPage(event);
           };
 
           const handleSitStartDateChange = (value) => {
@@ -367,7 +374,7 @@ export default function ReviewExpense({
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
                       onBlur={(e) => {
-                        setActualWeightValue(e.target.value);
+                        handleActualWeightChange(e);
                       }}
                     />
                     <DatePickerInput
