@@ -127,7 +127,7 @@ describe('PPMShipmentInfoList', () => {
     };
     downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(mockResponse));
 
-    renderWithPermissions({ ppmShipment: { status: ppmShipmentStatuses.PAYMENT_APPROVED } });
+    renderWithPermissions({ ppmShipment: { status: ppmShipmentStatuses.CLOSEOUT_COMPLETE } });
 
     expect(screen.getByText('Download Payment Packet (PDF)', { exact: false })).toBeInTheDocument();
 
@@ -146,7 +146,7 @@ describe('PPMShipmentInfoList', () => {
       response: { body: { title: 'Error title', detail: 'Error detail' } },
     });
 
-    const shipment = { ppmShipment: { status: ppmShipmentStatuses.PAYMENT_APPROVED } };
+    const shipment = { ppmShipment: { status: ppmShipmentStatuses.CLOSEOUT_COMPLETE } };
     const onErrorHandler = jest.fn();
 
     render(

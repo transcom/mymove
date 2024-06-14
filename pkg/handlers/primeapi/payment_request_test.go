@@ -716,6 +716,8 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
 		PublicationDate:       publicationDate,
 		FuelPriceInMillicents: unit.Millicents(277600),
+		EffectiveDate:         publicationDate.AddDate(0, 0, 1),
+		EndDate:               publicationDate.AddDate(0, 0, 7),
 	}
 	suite.MustSave(&ghcDieselFuelPrice)
 

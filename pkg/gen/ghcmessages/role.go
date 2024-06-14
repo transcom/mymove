@@ -32,7 +32,7 @@ type Role struct {
 	ID *strfmt.UUID `json:"id"`
 
 	// role name
-	// Example: Transportation Ordering Officer
+	// Example: Task Ordering Officer
 	// Required: true
 	RoleName *string `json:"roleName"`
 

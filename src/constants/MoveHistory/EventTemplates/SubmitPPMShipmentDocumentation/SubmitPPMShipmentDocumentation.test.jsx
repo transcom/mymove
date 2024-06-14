@@ -11,7 +11,7 @@ describe('when given a PPM shipment update', () => {
     eventName: o.submitPPMShipmentDocumentation,
     tableName: t.ppm_shipments,
     changedValues: {
-      status: 'NEEDS_PAYMENT_APPROVAL',
+      status: 'NEEDS_CLOSEOUT',
     },
     context: [
       {
@@ -32,6 +32,6 @@ describe('when given a PPM shipment update', () => {
     const result = getTemplate(historyRecord);
     render(result.getDetails(historyRecord));
     expect(screen.getByText('Status')).toBeInTheDocument();
-    expect(screen.getByText(': NEEDS_PAYMENT_APPROVAL')).toBeInTheDocument();
+    expect(screen.getByText(': NEEDS_CLOSEOUT')).toBeInTheDocument();
   });
 });

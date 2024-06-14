@@ -56,6 +56,7 @@ const ExpandableServiceItemRow = ({
               <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} />
             )}
           {serviceItem.mtoServiceItemName}
+          {additionalServiceItemData.standaloneCrate && ' - Standalone'}
         </td>
         <td data-testid="serviceItemAmount">{toDollarString(formatCents(serviceItem.priceCents))}</td>
         <td data-testid="serviceItemStatus">

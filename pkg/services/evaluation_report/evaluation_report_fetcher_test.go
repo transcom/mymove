@@ -203,7 +203,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// successful fetch
 	suite.Run("fetch for a submitted evaluation report that exists should be successful", func() {
 		fetcher := NewEvaluationReportFetcher()
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 		report := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
 			{
 				Model:    officeUser,
@@ -223,8 +223,8 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// forbidden if they don't own the draft
 	suite.Run("fetch for a draft evaluation report should return a forbidden if the requester isn't the owner", func() {
 		fetcher := NewEvaluationReportFetcher()
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
-		officeUserOwner := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		officeUserOwner := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 		report := factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
 			{
 				Model:    officeUserOwner,
@@ -238,7 +238,7 @@ func (suite *EvaluationReportSuite) TestFetchEvaluationReportByID() {
 	// not found error if the ID is wrong
 	suite.Run("fetch should return a not found error if the reportID doesn't exist", func() {
 		fetcher := NewEvaluationReportFetcher()
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 		factory.BuildEvaluationReport(suite.DB(), []factory.Customization{
 			{
 				Model:    officeUser,

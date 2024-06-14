@@ -100,7 +100,7 @@ const ShipmentDisplay = ({
               <Tag>cancellation requested</Tag>
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
-            {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ||
+            {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
               displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}

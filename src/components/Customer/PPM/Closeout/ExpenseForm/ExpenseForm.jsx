@@ -9,7 +9,7 @@ import styles from './ExpenseForm.module.scss';
 
 import { formatCents } from 'utils/formatters';
 import { numOfDaysBetweenDates } from 'utils/dates';
-import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
+import { expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -34,15 +34,23 @@ const validationSchema = Yup.object().shape({
   sitStartDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: ppmExpenseTypes.STORAGE,
+      is: expenseTypes.STORAGE,
       then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
-      is: ppmExpenseTypes.STORAGE,
+      is: expenseTypes.STORAGE,
       then: (schema) => schema.required('Required'),
     }),
+  sitLocation: Yup.string().when('expenseType', {
+    is: expenseTypes.STORAGE,
+    then: (schema) => schema.required('Required'),
+  }),
+  sitWeight: Yup.number().when('expenseType', {
+    is: expenseTypes.STORAGE,
+    then: (schema) => schema.required('Required').moreThan(0, 'Weight stored must be at least 1 lb.'),
+  }),
 });
 
 const ExpenseForm = ({
@@ -54,8 +62,18 @@ const ExpenseForm = ({
   onUploadComplete,
   onUploadDelete,
 }) => {
-  const { movingExpenseType, description, paidWithGtcc, amount, missingReceipt, document, sitStartDate, sitEndDate } =
-    expense || {};
+  const {
+    movingExpenseType,
+    description,
+    paidWithGtcc,
+    amount,
+    missingReceipt,
+    document,
+    sitStartDate,
+    sitEndDate,
+    sitLocation,
+    weightStored,
+  } = expense || {};
 
   const initialValues = {
     expenseType: movingExpenseType || '',
@@ -66,6 +84,8 @@ const ExpenseForm = ({
     document: document?.uploads || [],
     sitStartDate: sitStartDate || '',
     sitEndDate: sitEndDate || '',
+    sitLocation: sitLocation || undefined,
+    sitWeight: weightStored ? `${weightStored}` : '',
   };
 
   const documentRef = createRef();
@@ -87,6 +107,42 @@ const ExpenseForm = ({
                       <h3>Description</h3>
                       <TextField label="What did you buy?" id="description" name="description" />
                       <Hint>Add a brief description of the expense.</Hint>
+                      {values.expenseType === 'STORAGE' && (
+                        <FormGroup>
+                          <legend className="usa-label">Where did you store your items?</legend>
+                          <Field
+                            as={Radio}
+                            id="sitLocationOrigin"
+                            label="Origin"
+                            name="sitLocation"
+                            value="ORIGIN"
+                            checked={values.sitLocation === 'ORIGIN'}
+                          />
+                          <Field
+                            as={Radio}
+                            id="sitLocationDestination"
+                            label="Destination"
+                            name="sitLocation"
+                            value="DESTINATION"
+                            checked={values.sitLocation === 'DESTINATION'}
+                          />
+                          <MaskedTextField
+                            defaultValue="0"
+                            name="sitWeight"
+                            label="Weight Stored"
+                            id="sitWeightInput"
+                            mask={Number}
+                            scale={0} // digits after point, 0 for integers
+                            signed={false} // disallow negative
+                            thousandsSeparator=","
+                            lazy={false} // immediate masking evaluation
+                          >
+                            {'  '} lbs
+                          </MaskedTextField>
+                          <Hint>Enter the weight of the items that were stored during your PPM.</Hint>
+                        </FormGroup>
+                      )}
+
                       <Fieldset>
                         <legend className="usa-label">
                           Did you pay with your GTCC (Government Travel Charge Card)?

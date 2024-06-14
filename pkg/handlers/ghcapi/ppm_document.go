@@ -140,7 +140,7 @@ func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocument
 				return nil, err
 			}
 
-			if move.Orders.OrdersType != "BLUEBARK" {
+			if move.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewPpmPacketEmail(ppmShipment.ID),
 				)

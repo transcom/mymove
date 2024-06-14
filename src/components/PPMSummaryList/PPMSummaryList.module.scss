@@ -36,6 +36,15 @@
     @include u-margin-bottom(2);
   }
 
+  .addressDisplay {
+    @include u-margin-top(2);
+    @include u-margin-bottom(2);
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
   &:last-of-type {
     @include u-margin-bottom(0);
   }

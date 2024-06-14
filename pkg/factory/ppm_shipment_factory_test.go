@@ -306,12 +306,12 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 	})
 
 	suite.Run("PPM Shipment that needs approval with all doc types", func() {
-		// Under test:       BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes
+		// Under test:       BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes
 		// Set up:           build without custom user uploader
 		// Expected outcome: New PPMShipment should be created with
 		// Weight Ticket, Progear Weight Ticket, and Moving Expense
 
-		ppmShipment := BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(suite.DB(), nil)
+		ppmShipment := BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes(suite.DB(), nil)
 
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
 		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
@@ -320,7 +320,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
-		suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, ppmShipment.Status)
+		suite.Equal(models.PPMShipmentStatusNeedsCloseout, ppmShipment.Status)
 
 		suite.NotEmpty(ppmShipment.WeightTickets)
 		suite.Equal(1, len(ppmShipment.WeightTickets))
@@ -339,7 +339,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 	})
 
 	suite.Run("PPM Shipment that is missing payment packet", func() {
-		// Under test:       BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes
+		// Under test:       BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes
 		// Set up:           build without custom user uploader
 		// Expected outcome: New PPMShipment should be created with
 		// Weight Ticket, Progear Weight Ticket, and Moving Expense
@@ -353,7 +353,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			*ppmShipment.ActualDestinationPostalCode)
 		suite.NotNil(ppmShipment.AOAPacket)
 		suite.NotNil(ppmShipment.AOAPacketID)
-		suite.Equal(models.PPMShipmentStatusPaymentApproved, ppmShipment.Status)
+		suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
 
 		suite.NotEmpty(ppmShipment.WeightTickets)
 		suite.Equal(1, len(ppmShipment.WeightTickets))

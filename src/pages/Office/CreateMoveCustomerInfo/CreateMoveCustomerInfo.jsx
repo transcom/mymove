@@ -11,6 +11,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useCustomerQuery } from 'hooks/queries';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { formatTrueFalseInputValue } from 'utils/formatters';
 
 const CreateMoveCustomerInfo = () => {
   const { customerId } = useParams();
@@ -45,6 +46,7 @@ const CreateMoveCustomerInfo = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values) => {
+    const cacUser = values.cacUser === 'true';
     const {
       firstName,
       lastName,
@@ -79,6 +81,7 @@ const CreateMoveCustomerInfo = () => {
       phoneIsPreferred,
       emailIsPreferred,
       secondaryTelephone: secondaryPhone || null,
+      cac_validated: cacUser,
     };
     mutateCustomerInfo({ customerId: customerData.id, ifMatchETag: customerData.eTag, body });
   };
@@ -97,6 +100,7 @@ const CreateMoveCustomerInfo = () => {
     backupAddress: customerData?.backupAddress || '',
     emailIsPreferred: customerData?.emailIsPreferred || false,
     phoneIsPreferred: customerData?.phoneIsPreferred || false,
+    cacUser: formatTrueFalseInputValue(customerData?.cacValidated),
   };
 
   return (

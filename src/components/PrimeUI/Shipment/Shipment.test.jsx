@@ -187,6 +187,14 @@ describe('Shipment details component', () => {
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
 
+    field = screen.getByText('Diversion:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('no');
+
+    field = screen.getByText('Diversion Reason:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('—');
+
     field = screen.getByText('Counselor Remarks:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.counselorRemarks);
@@ -220,6 +228,30 @@ describe('Shipment details component fields and values are present', () => {
     render(mockedComponent);
     await expect(screen.getByText(shipmentField)).toBeVisible();
     await expect(screen.getByText(shipmentFieldValue)).toBeVisible();
+  });
+});
+
+const divertedShipment = {
+  ...approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0],
+  diversion: true,
+  diversionReason: 'Reasonable reason',
+};
+
+describe('Shipment has been diverted', () => {
+  it('renders the component with missing reweigh error', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={divertedShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    let field = screen.getByText('Diversion:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('yes');
+
+    field = screen.getByText('Diversion Reason:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(divertedShipment.diversionReason);
   });
 });
 

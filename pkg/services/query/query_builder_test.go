@@ -441,7 +441,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 
 	suite.Run("counts with time filter", func() {
 		user := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+		factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 		filters := []services.QueryFilter{
 			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
 		}

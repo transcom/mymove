@@ -82,6 +82,11 @@ properties:
     type: integer
     x-nullable: true
     x-omitempty: false
+  sitLocation:
+    allOf:
+      - $ref: 'SITLocationType.yaml'
+      - x-nullable: true
+      - x-omitempty: false
 required:
   - id
   - createdAt

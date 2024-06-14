@@ -381,7 +381,7 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	return totalCost, params, nil
 }
 
-func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCode, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCode, contractCode string, referenceDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int, standaloneCrate bool, standaloneCrateCap unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
 	if code != models.ReServiceCodeDCRT && code != models.ReServiceCodeDUCRT {
 		return 0, nil, fmt.Errorf("unsupported domestic crating code of %s", code)
 	}
@@ -416,7 +416,16 @@ func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCod
 			Key:   models.ServiceItemParamNameEscalationCompounded,
 			Value: FormatEscalation(contractYear.EscalationCompounded),
 		},
+		{
+			Key:   models.ServiceItemParamNameUncappedRequestTotal,
+			Value: FormatCents(totalCost),
+		},
 	}
+
+	if (standaloneCrate) && (totalCost > standaloneCrateCap) {
+		totalCost = standaloneCrateCap
+	}
+
 	return totalCost, params, nil
 }
 

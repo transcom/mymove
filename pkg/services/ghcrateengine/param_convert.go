@@ -93,6 +93,25 @@ func getParamTime(params models.PaymentServiceItemParams, name models.ServiceIte
 	return timeValue, nil
 }
 
+func getParamBool(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (bool, error) {
+	paymentServiceItemParam := getPaymentServiceItemParam(params, name)
+	if paymentServiceItemParam == nil {
+		return false, fmt.Errorf("could not find param with key %s", name)
+	}
+
+	paramType := paymentServiceItemParam.ServiceItemParamKey.Type
+	if paramType != models.ServiceItemParamTypeBoolean {
+		return false, fmt.Errorf("trying to convert %s to an bool, but param is of type %s", name, paramType)
+	}
+
+	value, err := strconv.ParseBool(paymentServiceItemParam.Value)
+	if err != nil {
+		return false, fmt.Errorf("could not convert value %s to an bool: %w", paymentServiceItemParam.Value, err)
+	}
+
+	return value, nil
+}
+
 func getPaymentServiceItemParam(params models.PaymentServiceItemParams, name models.ServiceItemParamName) *models.PaymentServiceItemParam {
 	for _, param := range params {
 		if param.ServiceItemParamKey.Key == name {

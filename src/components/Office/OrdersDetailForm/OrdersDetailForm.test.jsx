@@ -164,4 +164,21 @@ describe('OrdersDetailForm', () => {
     expect(await screen.findByLabelText('Date of separation')).toBeInTheDocument();
     expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
   });
+
+  it('has orders type dropdown disabled if safety move', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
+      showOrdersAcknowledgement: false,
+      ordersType: 'SAFETY',
+    });
+
+    // correct labels are visible
+    expect(await screen.findByLabelText('Orders type')).toBeDisabled();
+  });
 });

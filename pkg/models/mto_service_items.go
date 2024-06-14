@@ -65,7 +65,7 @@ type MTOServiceItem struct {
 	CustomerExpense                   bool                           `db:"customer_expense"`
 	CustomerExpenseReason             *string                        `db:"customer_expense_reason"`
 	SITDeliveryMiles                  *int                           `db:"sit_delivery_miles"`
-	PricingEstimate                   *int                           `db:"pricing_estimate"`
+	PricingEstimate                   *unit.Cents                    `db:"pricing_estimate"`
 	StandaloneCrate                   *bool                          `db:"standalone_crate"`
 }
 
@@ -98,6 +98,7 @@ type MTOServiceItemSingle struct {
 	CustomerExpense                 bool                 `db:"customer_expense"`
 	CustomerExpenseReason           *string              `db:"customer_expense_reason"`
 	SITDeliveryMiles                *unit.Miles          `db:"sit_delivery_miles"`
+	PricingEstimate                 *unit.Cents          `db:"pricing_estimate"`
 }
 
 // TableName overrides the table name used by Pop.

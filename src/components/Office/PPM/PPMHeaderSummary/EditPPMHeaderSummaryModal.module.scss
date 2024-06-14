@@ -1,0 +1,36 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+.EditPPMHeaderSummaryModal {
+  max-height: 90vh;
+
+  .ModalPanel {
+    @include u-border('base-lighter');
+    @include u-border('1px');
+    @include u-radius('05');
+    @include u-padding(3);
+    display: flex;
+
+    .reasonDropdown label {
+      @include u-margin-top(0);
+    }
+  }
+
+  .CancelButton {
+    @include u-bg('transparent');
+  }
+  .errors {
+    margin-top: 0;
+    color: #b50909;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 4px 0px;
+  }
+
+  .ModalTitle {
+    h2 {
+      font-size: 1.87rem;
+      color: $base-darker;
+    }
+  }
+}

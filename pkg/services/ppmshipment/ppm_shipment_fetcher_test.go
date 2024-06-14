@@ -637,7 +637,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		}
 
 		suite.Run("Excludes deleted uploads", func() {
-			ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(
+			ppmShipment := factory.BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes(
 				suite.DB(),
 				userUploader,
 			)

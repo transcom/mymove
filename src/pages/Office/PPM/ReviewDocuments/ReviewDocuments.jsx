@@ -42,6 +42,8 @@ export const ReviewDocuments = () => {
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
+  const [ppmShipmentInfo, setPpmShipmentInfo] = useState({});
+
   let documentSets = useMemo(() => [], []);
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
@@ -64,6 +66,18 @@ export const ReviewDocuments = () => {
   useEffect(() => {
     setCurrentMtoShipments(mtoShipments);
   }, [mtoShipments]);
+
+  useEffect(() => {
+    if (mtoShipment) {
+      const updatedPpmShipmentInfo = {
+        ...mtoShipment.ppmShipment,
+        miles: mtoShipment.distance,
+        actualWeight: currentTotalWeight,
+      };
+      setPpmShipmentInfo(updatedPpmShipmentInfo);
+    }
+  }, [mtoShipment, currentTotalWeight]);
+
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
@@ -200,10 +214,6 @@ export const ReviewDocuments = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  const ppmShipmentInfo = mtoShipment.ppmShipment;
-  ppmShipmentInfo.miles = mtoShipment.distance;
-  ppmShipmentInfo.actualWeight = currentTotalWeight;
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const updateDocumentSetAllowableWeight = (newWeight) => {

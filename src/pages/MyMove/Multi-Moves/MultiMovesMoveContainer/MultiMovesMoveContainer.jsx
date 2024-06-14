@@ -74,11 +74,11 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
 
     if (
       ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue &&
-      ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED
+      ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE
     ) {
       dropdownOptions['AOA Packet'] = 'AOA Paperwork (PDF)';
       dropdownOptions['PPM Packet'] = 'PPM Packet';
-    } else if (ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED) {
+    } else if (ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE) {
       dropdownOptions['PPM Packet'] = 'PPM Packet';
     } else {
       dropdownOptions['AOA Packet'] = 'AOA Paperwork (PDF)';
@@ -172,7 +172,7 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
                           <div className={styles.shipmentTypeHeading}>
                             <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
                             {s?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
-                            s?.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ? (
+                            s?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ? (
                               <ButtonDropdownMenu
                                 data-testid="ppmDownloadBtn"
                                 title="Download"

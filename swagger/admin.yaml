@@ -793,12 +793,12 @@ definitions:
     properties:
       name:
         type: string
-        example: Transportation Ordering Officer
+        example: Task Ordering Officer
         x-nullable: true
         title: name
       roleType:
         type: string
-        example: transportation_ordering_officer
+        example: task_ordering_officer
         x-nullable: true
         title: roleType
   OfficeUserPrivilege:
@@ -914,7 +914,7 @@ definitions:
         example: customer
       roleName:
         type: string
-        example: Transportation Ordering Officer
+        example: Task Ordering Officer
       createdAt:
         type: string
         format: date-time

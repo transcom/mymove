@@ -470,9 +470,13 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 
 	// FSC price data (needs actual pickup date from move created above)
 	publicationDate := moveTaskOrder.MTOShipments[0].ActualPickupDate.AddDate(0, 0, -3) // 3 days earlier
+	effectiveDate := publicationDate.AddDate(0, 0, 1)
+	endDate := publicationDate.AddDate(0, 0, 7)
 	ghcDieselFuelPrice := models.GHCDieselFuelPrice{
 		PublicationDate:       publicationDate,
 		FuelPriceInMillicents: recalculateTestFSCPrice,
+		EffectiveDate:         effectiveDate,
+		EndDate:               endDate,
 	}
 	suite.MustSave(&ghcDieselFuelPrice)
 

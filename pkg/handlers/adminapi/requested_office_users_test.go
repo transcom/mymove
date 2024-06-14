@@ -29,8 +29,8 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 	suite.Run("requested users result in ok response", func() {
 		// building two office user with requested status
 		requestedOfficeUsers := models.OfficeUsers{
-			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr}),
-			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr})}
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})}
 		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
 		}
@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 	// test that everything is wired up
 	suite.Run("integration test ok response", func() {
-		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr})
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
 		params := requestedofficeuserop.GetRequestedOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", requestedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 	})
 
 	suite.Run("successful response", func() {
-		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr})
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
 		params := requestedofficeuserop.GetRequestedOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", requestedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
@@ -109,7 +109,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -135,7 +135,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 	})
 
 	suite.Run("unsuccessful response when fetch fails", func() {
-		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQaeCsr})
+		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeQae})
 		params := requestedofficeuserop.GetRequestedOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", requestedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -183,9 +183,9 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccountCreation() {
 	suite.Run("Successful update", func() {
 		user := factory.BuildDefaultUser(suite.DB())
-		tooRoleName := "Transportation Ordering Officer"
+		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -237,7 +237,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithoutOktaAccoun
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -279,9 +279,9 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		mockAndActivateOktaEndpoints(provider, 200)
 
 		user := factory.BuildDefaultUser(suite.DB())
-		tooRoleName := "Transportation Ordering Officer"
+		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -344,7 +344,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -386,9 +386,9 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		mockAndActivateOktaEndpoints(provider, 500)
 
 		user := factory.BuildDefaultUser(suite.DB())
-		tooRoleName := "Transportation Ordering Officer"
+		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
-		tioRoleName := "Transportation Invoicing Officer"
+		tioRoleName := "Task Invoicing Officer"
 		tioRoleType := string(roles.RoleTypeTIO)
 		requestedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -451,7 +451,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},

@@ -243,8 +243,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			/* Don't send Move Creation email if orders type is BLUEBARK */
-			if move.Orders.OrdersType != "BLUEBARK" {
+			/* Don't send Move Creation email if orders type is BLUEBARK/SAFETY */
+			if move.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewMoveSubmitted(moveID),
 				)

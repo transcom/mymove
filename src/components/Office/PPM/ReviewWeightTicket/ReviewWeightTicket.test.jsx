@@ -192,7 +192,7 @@ const fullShipmentProps = {
       sitEstimatedWeight: null,
       sitExpected: false,
       spouseProGearWeight: 498,
-      status: 'NEEDS_PAYMENT_APPROVAL',
+      status: 'NEEDS_CLOSEOUT',
       submittedAt: null,
       updatedAt: '2023-12-20T17:33:50.101Z',
       w2Address: {
@@ -330,7 +330,7 @@ const fullShipmentProps = {
         sitEstimatedWeight: null,
         sitExpected: false,
         spouseProGearWeight: 498,
-        status: 'NEEDS_PAYMENT_APPROVAL',
+        status: 'NEEDS_CLOSEOUT',
         submittedAt: null,
         updatedAt: '2023-12-20T17:33:50.101Z',
         w2Address: {

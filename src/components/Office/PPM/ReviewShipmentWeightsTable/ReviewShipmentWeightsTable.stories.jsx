@@ -4,11 +4,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
 import ReviewShipmentWeightsTable from './ReviewShipmentWeightsTable';
-import {
-  PPMReviewWeightsTableConfig,
-  proGearReviewWeightsTableConfig,
-  nonPPMReviewWeightsTableConfig,
-} from './helpers';
+import { PPMReviewWeightsTableConfig, nonPPMReviewWeightsTableConfig } from './helpers';
 
 export default {
   title: 'Office Components / PPM / Review Shipment Weights Table',
@@ -102,19 +98,6 @@ PPMShipmentsNoRows.args = {
   tableConfig: PPMReviewWeightsTableConfig,
 };
 
-export const ProGearWeights = Template.bind({});
-ProGearWeights.args = {
-  tableData: [
-    {
-      entitlement: {
-        proGearWeight: 2000,
-        spouseProGearWeight: 500,
-      },
-    },
-  ],
-  tableConfig: proGearReviewWeightsTableConfig,
-};
-
 export const NonPPMShipments = Template.bind({});
 NonPPMShipments.args = {
   tableData: [
@@ -123,6 +106,8 @@ NonPPMShipments.args = {
       primeEstimatedWeight: 2500,
       calculatedBillableWeight: 3000,
       primeActualWeight: 3500,
+      proGearWeight: 2000,
+      spouseProGearWeight: 500,
       reweigh: {
         id: 'rw01',
         weight: 3200,

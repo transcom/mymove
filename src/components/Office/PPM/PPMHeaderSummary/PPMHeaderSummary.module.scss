@@ -2,6 +2,8 @@
 @import 'shared/styles/colors';
 
 .PPMHeaderSummary {
+    padding: 0 !important;
+
     .header {
         :global(.usa-label) {
             width: auto;

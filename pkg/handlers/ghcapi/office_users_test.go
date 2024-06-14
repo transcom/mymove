@@ -34,7 +34,7 @@ func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUs
 }
 
 // Services Counselor. Task Ordering Officer (TOO), Task Invoicing Officer (TIO),
-// and Quality Assurance Evaluator (QAE)/Customer Service Representative (CSR)
+// Quality Assurance Evaluator (QAE), and Customer Service Representative (CSR)
 // Are all roles allowed to request office user (They authenticate with AuthenticateOfficeRequest)
 func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 	suite.Run("Successfully requests the creation of an office user", func() {
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQae})
 		request := httptest.NewRequest("POST", "/requested-office-users", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := officeuserop.CreateRequestedOfficeUserParams{
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 			roles.Role{
 				ID:        uuid.Must(uuid.NewV4()),
 				RoleType:  roles.RoleTypeTOO,
-				RoleName:  "Transportation Ordering Officer",
+				RoleName:  "Task Ordering Officer",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -231,7 +231,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQaeCsr})
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeServicesCounselor, roles.RoleTypeTIO, roles.RoleTypeQae})
 		request := httptest.NewRequest("POST", "/requested-office-users", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		// EDIPI and other unique ID missing

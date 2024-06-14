@@ -7,7 +7,7 @@ require (
 	github.com/XSAM/otelsql v0.23.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.1
-	github.com/aws/aws-sdk-go-v2 v1.27.0
+	github.com/aws/aws-sdk-go-v2 v1.27.2
 	github.com/aws/aws-sdk-go-v2/config v1.27.14
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.14
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.4.6
@@ -15,7 +15,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.28.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.41.11
 	github.com/aws/aws-sdk-go-v2/service/rds v1.78.2
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.54.1
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.55.1
 	github.com/aws/aws-sdk-go-v2/service/ses v1.22.7
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.50.2
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.8
@@ -25,7 +25,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/gabriel-vasile/mimetype v1.4.2
+	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-logr/zapr v1.3.0
@@ -36,7 +36,7 @@ require (
 	github.com/go-openapi/strfmt v0.22.0
 	github.com/go-openapi/swag v0.23.0
 	github.com/go-openapi/validate v0.23.0
-	github.com/go-playground/validator/v10 v10.15.4
+	github.com/go-playground/validator/v10 v10.21.0
 	github.com/go-swagger/go-swagger v0.30.5
 	github.com/gobuffalo/envy v1.10.2
 	github.com/gobuffalo/fizz v1.14.4
@@ -135,14 +135,14 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.2 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.2 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.7 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.9 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.0 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.6 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.9 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.11.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.3.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.17.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.3.11 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.11 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.17.9 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.20.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.24.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
@@ -210,7 +210,7 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/leodido/go-urn v1.2.4 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lithammer/fuzzysearch v1.1.8 // indirect
 	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

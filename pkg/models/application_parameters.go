@@ -36,3 +36,18 @@ func FetchParameterValue(db *pop.Connection, param string, value string) (Applic
 
 	return parameter, nil
 }
+
+// FetchParameterValue returns a specific parameter value from the db
+func FetchParameterValueByName(db *pop.Connection, param string) (ApplicationParameters, error) {
+	var parameter ApplicationParameters
+	err := db.Q().Where(`parameter_name=$1`, param).First(&parameter)
+	// if it isn't found, we'll return an empty object
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return ApplicationParameters{}, nil
+		}
+		return ApplicationParameters{}, err
+	}
+
+	return parameter, nil
+}

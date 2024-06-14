@@ -11,6 +11,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { configureStore } from 'shared/store';
 import { roleTypes } from 'constants/userRoles';
 import { mockPage } from 'testUtils';
+import OktaErrorBanner from 'components/OktaErrorBanner/OktaErrorBanner';
 
 // Mock lazy loaded pages
 mockPage('pages/SignIn/SignIn');
@@ -225,6 +226,10 @@ describe('CustomerApp tests', () => {
     it('renders the fail whale', () => {
       wrapper.setState({ hasError: true });
       expect(wrapper.find(SomethingWentWrong)).toHaveLength(1);
+    });
+    it('renders the error banner when redirected from Okta', () => {
+      wrapper.setState({ oktaErrorBanner: true });
+      expect(wrapper.find(OktaErrorBanner)).toHaveLength(1);
     });
   });
 });

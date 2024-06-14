@@ -12,6 +12,7 @@ describe('getQueriesStatus', () => {
       isLoading: true,
       isError: false,
       isSuccess: false,
+      isFetching: false,
       errors: [],
     };
 
@@ -29,6 +30,7 @@ describe('getQueriesStatus', () => {
       isLoading: false,
       isError: false,
       isSuccess: false,
+      isFetching: false,
       errors: [],
     };
 
@@ -46,6 +48,7 @@ describe('getQueriesStatus', () => {
       isLoading: false,
       isError: true,
       isSuccess: false,
+      isFetching: false,
       errors: ['Test error'],
     };
 
@@ -63,6 +66,7 @@ describe('getQueriesStatus', () => {
       isLoading: false,
       isError: false,
       isSuccess: false,
+      isFetching: false,
       errors: [],
     };
 
@@ -80,6 +84,7 @@ describe('getQueriesStatus', () => {
       isLoading: false,
       isError: true,
       isSuccess: false,
+      isFetching: false,
       errors: ['Test error'],
     };
 
@@ -97,6 +102,7 @@ describe('getQueriesStatus', () => {
       isLoading: false,
       isError: false,
       isSuccess: false,
+      isFetching: false,
       errors: [],
     };
 
@@ -114,6 +120,7 @@ describe('getQueriesStatus', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      isFetching: false,
       errors: [],
     };
 
@@ -143,6 +150,7 @@ describe('getQueriesStatus', () => {
       isLoading: false,
       isError: true,
       isSuccess: false,
+      isFetching: false,
       errors: [testQueries[0].error, testQueries[2].error],
     };
 

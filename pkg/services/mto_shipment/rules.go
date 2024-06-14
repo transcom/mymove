@@ -86,7 +86,7 @@ func checkUpdateAllowed() validator {
 					return nil
 				}
 			case models.MTOShipmentStatusApproved:
-				if isTIO || isTOO {
+				if isTIO || isTOO || isServiceCounselor {
 					return nil
 				}
 			case models.MTOShipmentStatusCancellationRequested:

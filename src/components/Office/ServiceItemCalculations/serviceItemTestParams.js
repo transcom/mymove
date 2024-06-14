@@ -466,7 +466,15 @@ const NTSPackingFactor = {
   type: 'DECIMAL',
   value: '1.35',
 };
-
+const StandaloneCrate = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'StandaloneCrate',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'BOOLEAN',
+  value: 'FALSE',
+};
 const testParams = {
   DomesticLongHaul: [
     ContractCode,
@@ -725,6 +733,7 @@ const testParams = {
     DimensionWidth,
     DimensionHeight,
     DimensionLength,
+    StandaloneCrate,
   ],
   DomesticUncrating: [
     ReferenceDate,

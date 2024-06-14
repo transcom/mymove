@@ -3493,6 +3493,17 @@
     telejson "^7.2.0"
     tiny-invariant "^1.3.1"
 
+"@storybook/channels@8.1.8":
+  version "8.1.8"
+  resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-8.1.8.tgz#b7fb6bb67460dc9e00585928d39ab06aa2dc3f73"
+  integrity sha512-mEjg72jmB7hBSDUIpSzQL+MC61kUn4D9CCH1EK5K6Cfr1dmmHaCyDPCtBXSvuVSKn1VbF3JfT429v+iYeBrHlA==
+  dependencies:
+    "@storybook/client-logger" "8.1.8"
+    "@storybook/core-events" "8.1.8"
+    "@storybook/global" "^5.0.0"
+    telejson "^7.2.0"
+    tiny-invariant "^1.3.1"
+
 "@storybook/cli@7.6.7":
   version "7.6.7"
   resolved "https://registry.yarnpkg.com/@storybook/cli/-/cli-7.6.7.tgz#51f12a6cb2cdd10b78f255caca61ef12ffccebc6"
@@ -3573,6 +3584,13 @@
   version "7.6.8"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-7.6.8.tgz#72a86260080c09727c54f03c5279eb673255ac1a"
   integrity sha512-WyK+RNSYk+sy0pxk8np1MnUXSWFdy54WqtT7u64vDFs9Jxfa1oMZ+Vl6XhaFQYR++tKC7VabLcI6vZ0pOoE9Jw==
+  dependencies:
+    "@storybook/global" "^5.0.0"
+
+"@storybook/client-logger@8.1.8":
+  version "8.1.8"
+  resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-8.1.8.tgz#a89e03a6c391d8dce9c10a23db2c54ae1d7ae306"
+  integrity sha512-VABFR6jHtORRuRcm+q49T0F3z6LY46+qjkvETafMIy3jcXnLTKubaLVMZBxUyYbh6H4RYv8YjnkYcrUszgZCEQ==
   dependencies:
     "@storybook/global" "^5.0.0"
 
@@ -3698,6 +3716,14 @@
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-7.6.8.tgz#580b373755eb40fdd94263ebaa78aeaaa124b9bd"
   integrity sha512-c1onJHG71JKbU4hMZC31rVTSbcfhcXaB0ikGnb7rJzlUZ1YkWnb0wf0/ikQR0seDOpR3HS+WQ0M3FIpqANyETg==
   dependencies:
+    ts-dedent "^2.0.0"
+
+"@storybook/core-events@8.1.8":
+  version "8.1.8"
+  resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-8.1.8.tgz#2873060351064fd91e3af910cfbe195a9153431f"
+  integrity sha512-ZJWPeqBLFKRlRN1MitYNEXpNL+7vACXy14d6ja3zYW39htSSPlQYI1RXMURk+qTvGfxy1ZlAeyN62WeYXhTqLA==
+  dependencies:
+    "@storybook/csf" "^0.1.7"
     ts-dedent "^2.0.0"
 
 "@storybook/core-server@7.6.7":
@@ -3907,18 +3933,17 @@
   resolved "https://registry.yarnpkg.com/@storybook/postinstall/-/postinstall-7.2.0.tgz#81c7d2f57b7d284912c48e6075b5624d65d7c1be"
   integrity sha512-E/hhZmbo0G7sv/Wq4dW9b27+n9883DY8Md3ju8AVB3Q1DPvKClmgpA6MRbEJtcj0Qh8LgPOnrbxfLsVbJwHpTg==
 
-"@storybook/preset-create-react-app@^7.6.7":
-  version "7.6.7"
-  resolved "https://registry.yarnpkg.com/@storybook/preset-create-react-app/-/preset-create-react-app-7.6.7.tgz#67e4f6708a55ef469b45f470b95d72f1d9e03a92"
-  integrity sha512-49m7yeyo1DiRoMqNk87UFg179C4+MYFPAy935K0WUwAlGKZ3/69ipYi8xYbtdAaBCXX5V86BI8HypEMLujWBVw==
+"@storybook/preset-create-react-app@^8.1.8":
+  version "8.1.8"
+  resolved "https://registry.yarnpkg.com/@storybook/preset-create-react-app/-/preset-create-react-app-8.1.8.tgz#6e68e028da6ee1c52a5adeba9a5eb3ba90a1f8b4"
+  integrity sha512-DVchayeJDlFR40g0EEP5R4UkAx81iWIBxr4Ms7liSP5drOiZwXeM4DrbqG/snqHVUMbK7r7DshXjGaS6IKWPuw==
   dependencies:
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.1"
     "@storybook/react-docgen-typescript-plugin" "1.0.6--canary.9.0c3f3b7.0"
-    "@storybook/types" "7.6.7"
-    "@types/babel__core" "^7.1.7"
-    "@types/semver" "^7.3.4"
+    "@storybook/types" "8.1.8"
+    "@types/semver" "^7.5.6"
     pnp-webpack-plugin "^1.7.0"
-    semver "^7.3.5"
+    semver "^7.5.4"
 
 "@storybook/preset-react-webpack@7.2.0":
   version "7.2.0"
@@ -4170,6 +4195,15 @@
   dependencies:
     "@storybook/channels" "7.6.8"
     "@types/babel__core" "^7.0.0"
+    "@types/express" "^4.7.0"
+    file-system-cache "2.3.0"
+
+"@storybook/types@8.1.8":
+  version "8.1.8"
+  resolved "https://registry.yarnpkg.com/@storybook/types/-/types-8.1.8.tgz#baba9695b20419fb9174f71c61a534ff5df742f8"
+  integrity sha512-bWg6WkhnhkWBIu03lUKlX2eOYSjDzpzoulzLh1H4Tl1JReGed+cHbIpdIU6lke2aJyb2BNyzoyudUHKBBGaOzg==
+  dependencies:
+    "@storybook/channels" "8.1.8"
     "@types/express" "^4.7.0"
     file-system-cache "2.3.0"
 
@@ -4577,7 +4611,7 @@
   resolved "https://registry.yarnpkg.com/@types/aria-query/-/aria-query-5.0.1.tgz#3286741fb8f1e1580ac28784add4c7a1d49bdfbc"
   integrity sha512-XTIieEY+gvJ39ChLcB4If5zHtPxt3Syj5rgZR+e1ctpmK8NjPf0zFqsz4JpLJT0xla9GFDKjy8Cpu331nrmE1Q==
 
-"@types/babel__core@^7.0.0", "@types/babel__core@^7.1.14", "@types/babel__core@^7.1.7":
+"@types/babel__core@^7.0.0", "@types/babel__core@^7.1.14":
   version "7.1.19"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.19.tgz#7b497495b7d1b4812bdb9d02804d0576f43ee460"
   integrity sha512-WEOTgRsbYkvA/KCsDwVEGkd7WAr1e3g31VHQ8zy5gul/V1qKullU/BU5I68X5v7V3GnB9eotmom4v5a5gjxorw==
@@ -5013,10 +5047,10 @@
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
 
-"@types/semver@^7.3.12", "@types/semver@^7.3.4":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.5.0.tgz#591c1ce3a702c45ee15f47a42ade72c2fd78978a"
-  integrity sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==
+"@types/semver@^7.3.12", "@types/semver@^7.3.4", "@types/semver@^7.5.6":
+  version "7.5.8"
+  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.5.8.tgz#8268a8c57a3e4abd25c165ecd36237db7948a55e"
+  integrity sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==
 
 "@types/send@*":
   version "0.17.1"
@@ -6388,11 +6422,11 @@ brace-expansion@^2.0.1:
     balanced-match "^1.0.0"
 
 braces@^3.0.1, braces@~3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/braces/-/braces-3.0.2.tgz#3454e1a462ee8d599e236df336cd9ea4f8afe107"
-  integrity sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/braces/-/braces-3.0.3.tgz#490332f40919452272d55a8480adc0c441358789"
+  integrity sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==
   dependencies:
-    fill-range "^7.0.1"
+    fill-range "^7.1.1"
 
 broadcast-channel@^3.4.1:
   version "3.7.0"
@@ -9025,10 +9059,10 @@ filesize@^8.0.6:
   resolved "https://registry.yarnpkg.com/filesize/-/filesize-8.0.7.tgz#695e70d80f4e47012c132d57a059e80c6b580bd8"
   integrity sha512-pjmC+bkIF8XI7fWaH8KxHcZL3DPybs1roSKP4rKDvy20tAWwIObE4+JIseG2byfGKhud5ZnM4YSGKBz7Sh0ndQ==
 
-fill-range@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/fill-range/-/fill-range-7.0.1.tgz#1919a6a7c75fe38b2c7c77e5198535da9acdda40"
-  integrity sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==
+fill-range@^7.1.1:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/fill-range/-/fill-range-7.1.1.tgz#44265d3cac07e3ea7dc247516380643754a05292"
+  integrity sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==
   dependencies:
     to-regex-range "^5.0.1"
 
@@ -15412,7 +15446,7 @@ semver-diff@^3.1.1:
   dependencies:
     semver "^6.3.0"
 
-"semver@2 || 3 || 4 || 5", semver@^5.6.0, semver@^6.0.0, semver@^6.1.1, semver@^6.1.2, semver@^6.2.0, semver@^6.3.0, semver@^6.3.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8, semver@^7.5.2, semver@^7.5.3:
+"semver@2 || 3 || 4 || 5", semver@^5.6.0, semver@^6.0.0, semver@^6.1.1, semver@^6.1.2, semver@^6.2.0, semver@^6.3.0, semver@^6.3.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8, semver@^7.5.2, semver@^7.5.3, semver@^7.5.4:
   version "7.5.4"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.4.tgz#483986ec4ed38e1c6c48c34894a9182dbff68a6e"
   integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==

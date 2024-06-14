@@ -44,6 +44,7 @@ const mockCustomer = {
   suffix: 'Jr.',
   phone: '223-444-3434',
   secondaryTelephone: '234-567-8901',
+  cacValidated: true,
 };
 
 const loadingReturnValue = {

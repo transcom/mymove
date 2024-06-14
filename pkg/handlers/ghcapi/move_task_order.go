@@ -112,8 +112,8 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 					return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
 				}
 
-				/* Do not send TOO approving and submitting service items email if BLUEBARK */
-				if availableAfter && mto.Orders.OrdersType != "BLUEBARK" {
+				/* Do not send TOO approving and submitting service items email if BLUEBARK/SAFETY */
+				if availableAfter && mto.Orders.CanSendEmailWithOrdersType() {
 					emailErr := h.NotificationSender().SendNotification(appCtx,
 						notifications.NewMoveIssuedToPrime(moveTaskOrderID),
 					)
@@ -219,8 +219,8 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc could not generate the event")
 			}
 
-			/* Do not send SC Move Details Submitted email if orders type is BLUEBARK */
-			if mto.Orders.OrdersType != "BLUEBARK" {
+			/* Do not send SC Move Details Submitted email if orders type is BLUEBARK/SAFETY */
+			if mto.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
 				if err != nil {
 					appCtx.Logger().Error("problem sending email to user", zap.Error(err))

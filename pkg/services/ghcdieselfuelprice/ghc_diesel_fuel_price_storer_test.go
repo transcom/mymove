@@ -30,41 +30,11 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 		suite.NoError(err)
 
 		var ghcDieselFuelPrice models.GHCDieselFuelPrice
-
 		err = suite.DB().Last(&ghcDieselFuelPrice)
 		suite.NoError(err)
-
 		suite.Equal("2020-06-22T00:00:00Z", ghcDieselFuelPrice.PublicationDate.Format(time.RFC3339))
 		suite.Equal(unit.Millicents(265900), ghcDieselFuelPrice.FuelPriceInMillicents)
-	})
 
-	suite.Run("run storer for existing publication date", func() {
-		// Under test: RunStorer function (creates or updates fuel price data for a specific publication date)
-		// Mocked: None
-		// Set up: Create a fuel price object for 20200622 then try to update it
-		// Expected outcome: fuel price is updated
-		dieselFuelPriceInfo := defaultDieselFuelPriceInfo
-		err := dieselFuelPriceInfo.RunStorer(suite.AppContextForTest())
-		suite.NoError(err)
-
-		updatedDieselFuelPriceInfo := defaultDieselFuelPriceInfo
-		updatedDieselFuelPriceInfo.dieselFuelPriceData.price = 2.420
-
-		err = updatedDieselFuelPriceInfo.RunStorer(suite.AppContextForTest())
-		suite.NoError(err)
-
-		var ghcDieselFuelPrice models.GHCDieselFuelPrice
-
-		err = suite.DB().Last(&ghcDieselFuelPrice)
-		suite.NoError(err)
-
-		suite.Equal("2020-06-22T00:00:00Z", ghcDieselFuelPrice.PublicationDate.Format(time.RFC3339))
-		suite.Equal(unit.Millicents(242000), ghcDieselFuelPrice.FuelPriceInMillicents)
-
-		count, err := suite.DB().Count(models.GHCDieselFuelPrice{})
-		suite.NoError(err)
-
-		suite.Equal(1, count)
 	})
 
 	suite.Run("test publication date in time", func() {

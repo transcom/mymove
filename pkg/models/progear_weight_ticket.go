@@ -12,20 +12,23 @@ import (
 )
 
 type ProgearWeightTicket struct {
-	ID               uuid.UUID          `json:"id" db:"id"`
-	PPMShipmentID    uuid.UUID          `json:"ppm_shipment_id" db:"ppm_shipment_id"`
-	PPMShipment      PPMShipment        `belongs_to:"ppm_shipments" fk_id:"ppm_shipment_id"`
-	BelongsToSelf    *bool              `json:"belongs_to_self" db:"belongs_to_self"`
-	Description      *string            `json:"description" db:"description"`
-	HasWeightTickets *bool              `json:"has_weight_tickets" db:"has_weight_tickets"`
-	Weight           *unit.Pound        `json:"weight" db:"weight"`
-	DocumentID       uuid.UUID          `json:"document_id" db:"document_id"`
-	Document         Document           `belongs_to:"documents" fk_id:"document_id"`
-	Status           *PPMDocumentStatus `json:"status" db:"status"`
-	Reason           *string            `json:"reason" db:"reason"`
-	CreatedAt        time.Time          `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time          `json:"updated_at" db:"updated_at"`
-	DeletedAt        *time.Time         `json:"deleted_at" db:"deleted_at"`
+	ID                        uuid.UUID          `json:"id" db:"id"`
+	PPMShipmentID             uuid.UUID          `json:"ppm_shipment_id" db:"ppm_shipment_id"`
+	PPMShipment               PPMShipment        `belongs_to:"ppm_shipments" fk_id:"ppm_shipment_id"`
+	BelongsToSelf             *bool              `json:"belongs_to_self" db:"belongs_to_self"`
+	SubmittedBelongsToSelf    *bool              `json:"submitted_belongs_to_self" db:"submitted_belongs_to_self"`
+	Description               *string            `json:"description" db:"description"`
+	HasWeightTickets          *bool              `json:"has_weight_tickets" db:"has_weight_tickets"`
+	SubmittedHasWeightTickets *bool              `json:"submitted_has_weight_tickets" db:"submitted_has_weight_tickets"`
+	Weight                    *unit.Pound        `json:"weight" db:"weight"`
+	SubmittedWeight           *unit.Pound        `json:"submitted_weight" db:"submitted_weight"`
+	DocumentID                uuid.UUID          `json:"document_id" db:"document_id"`
+	Document                  Document           `belongs_to:"documents" fk_id:"document_id"`
+	Status                    *PPMDocumentStatus `json:"status" db:"status"`
+	Reason                    *string            `json:"reason" db:"reason"`
+	CreatedAt                 time.Time          `json:"created_at" db:"created_at"`
+	UpdatedAt                 time.Time          `json:"updated_at" db:"updated_at"`
+	DeletedAt                 *time.Time         `json:"deleted_at" db:"deleted_at"`
 }
 
 // TableName overrides the table name used by Pop.

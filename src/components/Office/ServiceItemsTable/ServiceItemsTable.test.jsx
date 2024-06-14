@@ -22,7 +22,7 @@ describe('ServiceItemsTable', () => {
     },
   };
 
-  it('renders with no details', () => {
+  it('renders with no estimated price when no estimated price exists', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -41,7 +41,31 @@ describe('ServiceItemsTable', () => {
         />
       </MockProviders>,
     );
-    expect(wrapper.find('td').at(1).text()).toBe('—');
+    expect(wrapper.find('td').at(1).text()).toBe('Estimated Price: -');
+  });
+
+  it('renders with estimated price shown when estimated price', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Fuel Surcharge',
+        code: 'FSC',
+        details: {
+          estimatedPrice: 2314,
+        },
+      },
+    ];
+    const wrapper = mount(
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+          serviceItems={serviceItems}
+        />
+      </MockProviders>,
+    );
+    expect(wrapper.find('td').at(1).text()).toBe('Estimated Price: $23.14');
   });
 
   it('renders a thumbnail image with dimensions for item and crating', () => {

@@ -72,6 +72,21 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 		}
 	}
 
+	if appCtx.Session().IsMilApp() {
+		if mergedWeightTicket.EmptyWeight != nil {
+			mergedWeightTicket.SubmittedEmptyWeight = mergedWeightTicket.EmptyWeight
+		}
+		if mergedWeightTicket.FullWeight != nil {
+			mergedWeightTicket.SubmittedFullWeight = mergedWeightTicket.FullWeight
+		}
+		if mergedWeightTicket.OwnsTrailer != nil {
+			mergedWeightTicket.SubmittedOwnsTrailer = mergedWeightTicket.OwnsTrailer
+		}
+		if mergedWeightTicket.TrailerMeetsCriteria != nil {
+			mergedWeightTicket.SubmittedTrailerMeetsCriteria = mergedWeightTicket.TrailerMeetsCriteria
+		}
+	}
+
 	// update the DB record
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		// if weight changes call update PPMShipment with new weightTicket

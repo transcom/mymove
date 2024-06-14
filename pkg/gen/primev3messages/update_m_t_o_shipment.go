@@ -27,6 +27,14 @@ type UpdateMTOShipment struct {
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
+	// The actual weight of any pro gear shipped during a move.
+	// Example: 4500
+	ActualProGearWeight *int64 `json:"actualProGearWeight,omitempty"`
+
+	// The actual weight of any pro gear shipped during a move.
+	// Example: 4500
+	ActualSpouseProGearWeight *int64 `json:"actualSpouseProGearWeight,omitempty"`
+
 	// counselor remarks
 	// Example: counselor approved
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`

@@ -94,6 +94,22 @@ const createSubmittedPPMShipment = (fieldOverrides = {}) => {
     {
       ppmShipment: {
         status: ppmShipmentStatuses.SUBMITTED,
+        pickupAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Pickup Test City',
+          state: 'NY',
+          postalCode: '10001',
+        },
+        destinationAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Destination Test City',
+          state: 'NY',
+          postalCode: '11111',
+        },
       },
     },
     fieldOverrides,

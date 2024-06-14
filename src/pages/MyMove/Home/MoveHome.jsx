@@ -152,7 +152,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking if a PPM shipment is waiting on payment approval
   const hasSubmittedPPMCloseout = () => {
     const finishedCloseout = mtoShipments.filter(
-      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     return !!finishedCloseout.length;
   };

@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerUnit() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment = factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
@@ -238,7 +238,7 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 		suite.FatalNoError(err)
 
-		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), userUploader, nil)
+		ppmShipment = factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), userUploader, nil)
 
 		ppmShipment.WeightTickets = append(
 			ppmShipment.WeightTickets,
@@ -454,7 +454,7 @@ func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
 		_, params := setUpRequestAndParams(ppmShipment, true)
 
 		expectedPPMShipment := ppmShipment
-		expectedPPMShipment.Status = models.PPMShipmentStatusPaymentApproved
+		expectedPPMShipment.Status = models.PPMShipmentStatusCloseoutComplete
 
 		suite.FatalNotNil(expectedPPMShipment.SubmittedAt)
 
@@ -519,7 +519,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not awaiting payment review", func() {
-		draftPpmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		draftPpmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		draftPpmShipment.Status = models.PPMShipmentStatusDraft
 		suite.NoError(suite.DB().Save(&draftPpmShipment))
 
@@ -531,7 +531,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
 
@@ -544,13 +544,13 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
 
 			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
-			suite.Equal(string(models.PPMShipmentStatusPaymentApproved), string(returnedPPMShipment.Status))
+			suite.Equal(string(models.PPMShipmentStatusCloseoutComplete), string(returnedPPMShipment.Status))
 		}
 	})
 
 	suite.Run("Sets PPM to await customer if there are rejected documents", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
-		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		suite.NoError(suite.DB().Save(&ppmShipment))
 
 		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)

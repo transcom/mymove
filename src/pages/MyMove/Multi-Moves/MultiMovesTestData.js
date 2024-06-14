@@ -1095,7 +1095,7 @@ export const mockMovesPPMWithAdvanceOptions = {
           status: 'APPROVED',
           created_at: '2024-01-03 15:28:28.468 -0600',
           ppmShipment: {
-            status: ppmShipmentStatuses.PAYMENT_APPROVED,
+            status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
             advanceStatus: ADVANCE_STATUSES.APPROVED.apiValue,
           },
         },
@@ -1105,7 +1105,7 @@ export const mockMovesPPMWithAdvanceOptions = {
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
           ppmShipment: {
-            status: ppmShipmentStatuses.PAYMENT_APPROVED,
+            status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
             advanceStatus: ADVANCE_STATUSES.RECEIVED.apiValue,
           },
         },
@@ -1115,7 +1115,7 @@ export const mockMovesPPMWithAdvanceOptions = {
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
           ppmShipment: {
-            status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+            status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
             advanceStatus: ADVANCE_STATUSES.APPROVED.apiValue,
           },
         },
@@ -1125,7 +1125,7 @@ export const mockMovesPPMWithAdvanceOptions = {
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
           ppmShipment: {
-            status: ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+            status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
             advanceStatus: ADVANCE_STATUSES.RECEIVED.apiValue,
           },
         },

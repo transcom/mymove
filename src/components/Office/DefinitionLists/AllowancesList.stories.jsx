@@ -16,7 +16,7 @@ export default {
 const info = {
   branch: 'NAVY',
   grade: 'E_6',
-  weightAllowance: 11000,
+  totalWeight: 11000,
   authorizedWeight: 11000,
   progear: 2000,
   spouseProgear: 500,

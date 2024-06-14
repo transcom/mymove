@@ -18,6 +18,8 @@ type GHCDieselFuelPrice struct {
 	UpdatedAt             time.Time       `json:"updated_at" db:"updated_at"`
 	FuelPriceInMillicents unit.Millicents `json:"fuel_price_in_millicents" db:"fuel_price_in_millicents"`
 	PublicationDate       time.Time       `json:"publication_date" db:"publication_date"`
+	EffectiveDate         time.Time       `json:"effective_date" db:"effective_date"`
+	EndDate               time.Time       `json:"end_date" db:"end_date"`
 }
 
 // TableName overrides the table name used by Pop.

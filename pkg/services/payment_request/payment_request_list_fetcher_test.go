@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -57,9 +58,19 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	var expectedMove models.Move
 	var paymentRequest models.PaymentRequest
 
+	var session auth.Session
+
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		expectedMove = factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		// We need a payment request with a move that has a shipment that's within the GBLOC
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
@@ -114,7 +125,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	})
 
 	suite.Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func() {
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 
 		suite.NoError(err)
@@ -127,7 +138,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	suite.Run("Returns payment request matching an arbitrary filter", func() {
 		// Locator
 		locator := paymentRequest.MoveTaskOrder.Locator
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), Locator: &locator})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -142,7 +153,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		suite.NoError(err)
 
 		branch := serviceMember.Affiliation.String()
-		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), Branch: &branch})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -153,7 +164,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	suite.Run("Returns payment request matching the originDutyLocation filter", func() {
 		locationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Name
 
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), OriginDutyLocation: &locationName})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
@@ -169,8 +180,18 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	var allPaymentRequests models.PaymentRequests
 	var pendingPaymentRequest, reviewedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, rejectedPaymentRequest, paidPaymentRequest, deprecatedPaymentRequest, errorPaymentRequest models.PaymentRequest
 
+	var session auth.Session
+
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -279,28 +300,28 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	})
 
 	suite.Run("Returns all payment requests when no status filter is specified", func() {
-		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
 
 	suite.Run("Returns all payment requests when all status filters are selected", func() {
-		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested", "Reviewed", "Rejected", "Paid", "Deprecated", "Error"}})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
 
 	suite.Run("Returns only those payment requests with the exact status", func() {
-		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested"}})
 		pending := *pendingPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, pendingCount)
 		suite.Equal(pendingPaymentRequest.ID, pending[0].ID)
 
-		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Reviewed"}})
 		reviewed := *reviewedPaymentRequests
 		suite.NoError(err)
@@ -311,21 +332,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 			suite.Contains(reviewedIDs, pr.ID)
 		}
 
-		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Rejected"}})
 		rejected := *rejectedPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, rejectedCount)
 		suite.Equal(rejectedPaymentRequest.ID, rejected[0].ID)
 
-		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Paid"}})
 		paid := *paidPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, paidCount)
 		suite.Equal(paidPaymentRequest.ID, paid[0].ID)
 
-		deprecatedPaymentRequests, deprecatedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		deprecatedPaymentRequests, deprecatedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Deprecated"}})
 
 		deprecated := *deprecatedPaymentRequests
@@ -333,7 +354,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		suite.Equal(1, deprecatedCount)
 		suite.Equal(deprecatedPaymentRequest.ID, deprecated[0].ID)
 
-		errorPaymentRequests, errorCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		errorPaymentRequests, errorCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Error"}})
 
 		errorPR := *errorPaymentRequests
@@ -347,11 +368,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 	var officeUser, officeUserUSMC models.OfficeUser
 	var paymentRequestUSMC, paymentRequestUSMC2 models.PaymentRequest
 
+	var session auth.Session
+
 	suite.PreloadData(func() {
 		officeUUID, _ := uuid.NewV4()
 		marines := models.AffiliationMARINES
 		army := models.AffiliationARMY
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		expectedMoveNotUSMC := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
@@ -433,7 +464,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 	suite.Run("returns USMC payment requests", func() {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUserUSMC.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUserUSMC.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 		paymentRequests := *expectedPaymentRequests
 
@@ -441,7 +472,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation)
-		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 		paymentRequests = *expectedPaymentRequests
 
@@ -452,7 +483,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 	suite.Run("returns USMC payment requests for move", func() {
 		paymentRequestListFetcher := NewPaymentRequestListFetcher()
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextForTest(), paymentRequestUSMC.MoveTaskOrder.Locator)
+		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(suite.AppContextWithSessionForTest(&session), paymentRequestUSMC.MoveTaskOrder.Locator)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -467,6 +498,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 
 	suite.Run("No results when GBLOC does not match", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -485,7 +524,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 			},
 		}, nil)
 
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2)})
 
 		suite.NoError(err)
@@ -510,6 +549,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListFailure() {
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPagination() {
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Roles:           officeUser.User.Roles,
+		OfficeUserID:    officeUser.ID,
+		IDToken:         "fake_token",
+		AccessToken:     "fakeAccessToken",
+	}
 
 	expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -537,7 +584,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 		},
 	}, nil)
 
-	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(1)})
+	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(1)})
 
 	suite.NoError(err)
 	suite.Equal(1, len(*expectedPaymentRequests))
@@ -555,6 +602,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	var expectedBranchOrder []string
 	var expectedOriginDutyLocation []string
 	var officeUser models.OfficeUser
+	var session auth.Session
 
 	branchNavy := models.AffiliationNAVY
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
@@ -562,6 +610,14 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	//
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
 		originDutyLocation1 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
@@ -671,7 +727,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedNameOrder)
 
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -685,7 +741,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		// Sort by service member name
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -699,7 +755,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		// Sort by dodID
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -712,7 +768,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedDodIDOrder)
 
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -723,7 +779,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by status ASC", func() {
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -734,7 +790,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	suite.Run("Sort by status DESC", func() {
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("status"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -746,7 +802,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by age ASC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("age"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -758,7 +814,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by age DESC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("age"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -770,7 +826,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by submittedAt ASC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("submittedAt"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -782,7 +838,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by submittedAt DESC", func() {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("submittedAt"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -794,7 +850,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by locator ASC", func() {
 		sort.Strings(expectedLocatorOrder)
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -807,7 +863,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedLocatorOrder)
 
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -819,7 +875,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by branch ASC", func() {
 		sort.Strings(expectedBranchOrder)
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -831,7 +887,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by branch DESC", func() {
 		sort.Strings(expectedBranchOrder)
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
@@ -843,7 +899,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by originDutyLocation ASC", func() {
 		sort.Strings(expectedOriginDutyLocation)
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("originDutyLocation"), Order: models.StringPointer("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
 
 		paymentRequests := *expectedPaymentRequests
@@ -856,7 +912,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedOriginDutyLocation)
 
 		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("originDutyLocation"), Order: models.StringPointer("desc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextForTest(), officeUser.ID, &params)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)

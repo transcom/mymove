@@ -153,8 +153,8 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
 			return factory.BuildPPMShipment(nil, nil, nil)
 		},
-		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil, nil)
+		models.PPMShipmentStatusNeedsCloseout: func() models.PPMShipment {
+			return factory.BuildPPMShipmentThatNeedsCloseout(nil, nil, nil)
 		},
 	}
 
@@ -226,7 +226,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 						"PPM shipment can't be set to %s because it's not in a %s or %s status.",
 						models.PPMShipmentStatusWaitingOnCustomer,
 						models.PPMShipmentStatusSubmitted,
-						models.PPMShipmentStatusNeedsPaymentApproval,
+						models.PPMShipmentStatusNeedsCloseout,
 					),
 				)
 
@@ -301,7 +301,7 @@ func (suite *PPMShipmentSuite) TestSendToCustomer() {
 func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	mtoShipmentRouterMethodToMock := ""
 
-	suite.Run(fmt.Sprintf("Can set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusWaitingOnCustomer), func() {
+	suite.Run(fmt.Sprintf("Can set status to %s if it is currently %s", models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusWaitingOnCustomer), func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
 
 		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
@@ -309,7 +309,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		err := ppmShipmentRouter.SubmitCloseOutDocumentation(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusNeedsCloseout, ppmShipment.Status)
 
 			suite.NotNil(ppmShipment.SubmittedAt)
 		}
@@ -334,7 +334,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		err := ppmShipmentRouter.SubmitCloseOutDocumentation(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusNeedsPaymentApproval, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusNeedsCloseout, ppmShipment.Status)
 
 			suite.True(originalSubmittedAt.Equal(*ppmShipment.SubmittedAt), "SubmittedAt should not have changed")
 		}
@@ -353,8 +353,8 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		models.PPMShipmentStatusSubmitted: func() models.PPMShipment {
 			return factory.BuildPPMShipment(nil, nil, nil)
 		},
-		models.PPMShipmentStatusNeedsPaymentApproval: func() models.PPMShipment {
-			return factory.BuildPPMShipmentThatNeedsPaymentApproval(nil, nil, nil)
+		models.PPMShipmentStatusNeedsCloseout: func() models.PPMShipment {
+			return factory.BuildPPMShipmentThatNeedsCloseout(nil, nil, nil)
 		},
 	}
 
@@ -362,7 +362,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 		currentStatus := currentStatus
 		makePPMShipment := makePPMShipment
 
-		suite.Run(fmt.Sprintf("Can't set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, currentStatus), func() {
+		suite.Run(fmt.Sprintf("Can't set status to %s if it is currently %s", models.PPMShipmentStatusNeedsCloseout, currentStatus), func() {
 			ppmShipment := makePPMShipment()
 
 			ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
@@ -375,7 +375,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 					err.Error(),
 					fmt.Sprintf(
 						"PPM shipment can't be set to %s because it's not in the %s status.",
-						models.PPMShipmentStatusNeedsPaymentApproval,
+						models.PPMShipmentStatusNeedsCloseout,
 						models.PPMShipmentStatusWaitingOnCustomer,
 					),
 				)
@@ -399,7 +399,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 				},
 			},
 		}, nil)
-		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
 		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 
@@ -416,7 +416,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  progear weight tickets", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
-		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		rejected := models.PPMDocumentStatusRejected
 		progear := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
 			{
@@ -441,7 +441,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 
 	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  moving expenses", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
-		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		rejected := models.PPMDocumentStatusRejected
 		movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
 			{
@@ -464,9 +464,9 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		}
 	})
 
-	suite.Run("Update PPMShipment Status to PAYMENT_APPROVED when there are no rejected PPM Documents", func() {
+	suite.Run("Update PPMShipment Status to CLOSEOUT_COMPLETE when there are no rejected PPM Documents", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
-		ppmShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
 		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
@@ -478,7 +478,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusPaymentApproved, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
 		}
 	})
 
@@ -498,11 +498,11 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		models.PPMShipmentStatusWaitingOnCustomer: func() models.PPMShipment {
 			return factory.BuildPPMShipment(nil, nil, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
 		},
-		models.PPMShipmentStatusPaymentApproved: func() models.PPMShipment {
+		models.PPMShipmentStatusCloseoutComplete: func() models.PPMShipment {
 			return factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						Status: models.PPMShipmentStatusPaymentApproved,
+						Status: models.PPMShipmentStatusCloseoutComplete,
 					},
 				},
 			}, []factory.Trait{factory.GetTraitApprovedPPMWithActualInfo})
@@ -522,7 +522,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		currentStatus := currentStatus
 		makePPMShipment := makePPMShipment
 
-		suite.Run(fmt.Sprintf("Can't set status to %s if it is currently %s", models.PPMShipmentStatusNeedsPaymentApproval, currentStatus), func() {
+		suite.Run(fmt.Sprintf("Can't set status to %s if it is currently %s", models.PPMShipmentStatusNeedsCloseout, currentStatus), func() {
 			ppmShipment := makePPMShipment()
 
 			ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
@@ -535,7 +535,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 					err.Error(),
 					fmt.Sprintf(
 						"PPM shipment documents cannot be submitted because it's not in the %s status.",
-						models.PPMShipmentStatusNeedsPaymentApproval,
+						models.PPMShipmentStatusNeedsCloseout,
 					),
 				)
 

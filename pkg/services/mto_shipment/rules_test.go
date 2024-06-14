@@ -163,7 +163,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				servicesCounselorSession,
 				map[models.MTOShipmentStatus]bool{
 					models.MTOShipmentStatusSubmitted:             true,
-					models.MTOShipmentStatusApproved:              false,
+					models.MTOShipmentStatusApproved:              true,
 					models.MTOShipmentStatusCancellationRequested: false,
 					models.MTOShipmentStatusCanceled:              false,
 					models.MTOShipmentStatusDiversionRequested:    false,
@@ -381,8 +381,8 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 			models.PPMShipmentStatusSubmitted:            true,
 			models.PPMShipmentStatusWaitingOnCustomer:    false,
 			models.PPMShipmentStatusNeedsAdvanceApproval: true,
-			models.PPMShipmentStatusNeedsPaymentApproval: true,
-			models.PPMShipmentStatusPaymentApproved:      true,
+			models.PPMShipmentStatusNeedsCloseout:        true,
+			models.PPMShipmentStatusCloseoutComplete:     true,
 		}
 
 		for status, allowed := range testCases {

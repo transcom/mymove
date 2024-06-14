@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -41,11 +42,40 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		return nil, 0, err
 	}
 
+	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+	}
+
 	var query *pop.Query
 
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query = appCtx.DB().Q().
-			Join("users", "users.id = service_members.user_id")
+		rawquery := `SELECT DISTINCT ON (id)
+			service_members.affiliation, service_members.backup_mailing_address_id,
+			service_members.cac_validated, service_members.created_at, service_members.edipi,
+			service_members.email_is_preferred, service_members.emplid,
+			service_members.first_name, service_members.id, service_members.last_name,
+			service_members.middle_name, service_members.personal_email,
+			service_members.phone_is_preferred, service_members.residential_address_id,
+			service_members.secondary_telephone, service_members.suffix,
+			service_members.telephone, service_members.updated_at, service_members.user_id
+		FROM service_members AS service_members
+			JOIN users ON users.id = service_members.user_id
+			LEFT JOIN orders ON orders.service_member_id = service_members.id`
+
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			rawquery += ` WHERE ((orders.orders_type != 'SAFETY' or orders.orders_type IS NULL) AND`
+		} else {
+			rawquery += ` WHERE (`
+		}
+
+		if params.DodID != nil {
+			rawquery += ` service_members.edipi = $1)`
+			query = appCtx.DB().RawQuery(rawquery, params.DodID)
+		} else {
+			rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name))`
+			query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
+		}
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)

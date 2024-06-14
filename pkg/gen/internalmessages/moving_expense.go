@@ -77,6 +77,9 @@ type MovingExpense struct {
 	// Format: date
 	SitEndDate *strfmt.Date `json:"sitEndDate"`
 
+	// sit location
+	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
+
 	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Example: 2022-04-26
 	// Format: date
@@ -128,6 +131,10 @@ func (m *MovingExpense) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -271,6 +278,25 @@ func (m *MovingExpense) validateSitEndDate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MovingExpense) validateSitLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitLocation) { // not required
+		return nil
+	}
+
+	if m.SitLocation != nil {
+		if err := m.SitLocation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MovingExpense) validateSitStartDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitStartDate) { // not required
 		return nil
@@ -348,6 +374,10 @@ func (m *MovingExpense) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := m.contextValidateReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -461,6 +491,27 @@ func (m *MovingExpense) contextValidateReason(ctx context.Context, formats strfm
 				return ve.ValidateName("reason")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("reason")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MovingExpense) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitLocation != nil {
+
+		if swag.IsZero(m.SitLocation) { // not required
+			return nil
+		}
+
+		if err := m.SitLocation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
 			}
 			return err
 		}

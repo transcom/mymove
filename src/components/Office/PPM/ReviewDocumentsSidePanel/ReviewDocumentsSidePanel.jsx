@@ -95,8 +95,10 @@ export default function ReviewDocumentsSidePanel({
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
-        <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
+        <div className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel, styles.PPMHeaderSummary)}>
           <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields />
+        </div>
+        <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -174,7 +176,7 @@ export default function ReviewDocumentsSidePanel({
                 : null}
               {expenseTickets.length > 0
                 ? expenseSetProjection(expenseTickets).map((exp) => {
-                    if (exp.movingExpenseType !== expenseTypes.STORAGE && exp.status === PPMDocumentsStatus.APPROVED) {
+                    if (exp.status === PPMDocumentsStatus.APPROVED) {
                       total += exp.amount;
                     }
                     return (

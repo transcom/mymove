@@ -581,6 +581,10 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 		model.Description = movingExpense.Description
 	}
 
+	if movingExpense.SitLocation != nil {
+		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
+	}
+
 	model.Amount = handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount)
 	model.SITStartDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate)
 	model.SITEndDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate)

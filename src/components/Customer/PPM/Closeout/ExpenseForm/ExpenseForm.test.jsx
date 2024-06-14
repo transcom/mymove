@@ -75,6 +75,8 @@ const sitExpenseProps = {
     amount: 16099,
     sitStartDate: '2022-09-24',
     sitEndDate: '2022-12-26',
+    sitLocation: 'ORIGIN',
+    weightStored: '120',
     document: {
       uploads: [
         {
@@ -171,6 +173,9 @@ describe('ExpenseForm component', () => {
       expect(screen.getByText('200KB')).toBeInTheDocument();
       expect(screen.getByText('Uploaded 10 Aug 2022 12:59 PM')).toBeInTheDocument();
 
+      expect(screen.getByLabelText('Origin')).toBeChecked();
+      expect(screen.getByLabelText('Destination')).not.toBeChecked();
+      expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('120');
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByRole('heading', { level: 3, name: 'Dates' })).toBeInTheDocument();
       expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);

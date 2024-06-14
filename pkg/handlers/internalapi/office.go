@@ -112,8 +112,8 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 				return handlers.ResponseForVErrors(logger, verrs, err), err
 			}
 
-			/* Don't send emails to BLUEBARK moves */
-			if move.Orders.OrdersType != "BLUEBARK" {
+			/* Don't send emails to BLUEBARK/SAFETY moves */
+			if move.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewMoveCanceled(moveID),
 				)
