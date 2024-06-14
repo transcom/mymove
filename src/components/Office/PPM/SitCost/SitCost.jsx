@@ -4,8 +4,6 @@ import classnames from 'classnames';
 import styles from './SitCost.module.scss';
 
 import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { formatCents, toDollarString } from 'utils/formatters';
 
 export default function SitCost({ ppmShipmentInfo, ppmSITLocation, sitStartDate, sitEndDate, weightStored }) {
@@ -17,8 +15,15 @@ export default function SitCost({ ppmShipmentInfo, ppmSITLocation, sitStartDate,
     weightStored,
   );
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isLoading || isError) {
+    return (
+      <div>
+        <legend className={classnames('usa-label', styles.label)}>Cost</legend>
+        <div className={styles.displayValue}> {toDollarString(0)} </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <legend className={classnames('usa-label', styles.label)}>Cost</legend>

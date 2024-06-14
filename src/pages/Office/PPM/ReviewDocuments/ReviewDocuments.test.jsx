@@ -661,7 +661,6 @@ describe('ReviewDocuments', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 

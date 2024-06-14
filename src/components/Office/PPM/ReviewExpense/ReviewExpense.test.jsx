@@ -256,20 +256,6 @@ const useGetPPMSITEstimatedCostQueryReturnValue = {
   estimatedCost: 5000,
 }
 
-const loadingReturnValue = {
-  ...useGetPPMSITEstimatedCostQueryReturnValue,
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
-};
-
-const errorReturnValue = {
-  ...useGetPPMSITEstimatedCostQueryReturnValue,
-  isLoading: false,
-  isError: true,
-  isSuccess: false,
-};
-
 const defaultProps = {
   ppmShipmentInfo: {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
@@ -307,6 +293,7 @@ const storageProps = {
     sitEndDate: '2022-12-25',
     weightStored: 2000,
     sitLocation: 'ORIGIN',
+    sitEstimatedCost: 5000,
   },
 };
 

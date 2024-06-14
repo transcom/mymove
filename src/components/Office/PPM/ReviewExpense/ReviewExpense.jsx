@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
-import { Formik, Field, useFormik } from 'formik';
+import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -30,7 +30,6 @@ import SitCost from 'components/Office/PPM/SitCost/SitCost';
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
 const validationSchema = (actualWeight) => {
-  const maxWeight = parseInt(removeCommas(actualWeight), 10);
   return Yup.object().shape({
     amount: Yup.string()
       .required('Enter the expense amount')
@@ -60,7 +59,7 @@ const validationSchema = (actualWeight) => {
       then: (schema) =>
         schema
           .required('Required')
-          .max(maxWeight, `Enter a weight ${maxWeight} lbs or less`)
+          .max(parseInt(removeCommas(actualWeight), 10), `Enter a weight ${actualWeight} lbs or less`)
           .min(1, `Enter a weight greater than 0 lbs`),
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
@@ -106,9 +105,10 @@ export default function ReviewExpense({
   const [amountValue, setAmountValue] = React.useState(amount);
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
-  const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate);
-  const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate);
-
+  const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
+  const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate != null ? sitEndDate : '');
+  const displaySitCost =
+    ppmSITLocation !== '' && sitStartDateValue !== '' && sitEndDateValue !== '' && weightStoredValue !== '';
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
     description: descriptionString,
@@ -164,12 +164,12 @@ export default function ReviewExpense({
       description: values.description,
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
-      sitStartDate: sitStartDateValue,
-      sitEndDate: sitEndDateValue,
+      sitStartDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitStartDateValue : undefined,
+      sitEndDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitEndDateValue : undefined,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
-      weightStored: weightStoredValue,
-      sitLocation: ppmSITLocation,
+      weightStored: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? weightStoredValue : undefined,
+      sitLocation: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? ppmSITLocation : undefined,
     };
 
     patchExpenseMutation({
@@ -308,13 +308,15 @@ export default function ReviewExpense({
                         handleSITLocationChange(e);
                       }}
                     />
-                    <SitCost
-                      ppmShipmentInfo={ppmShipmentInfo}
-                      ppmSITLocation={ppmSITLocation}
-                      sitStartDate={sitStartDateValue}
-                      sitEndDate={sitEndDateValue}
-                      weightStored={weightStoredValue}
-                    />
+                    {displaySitCost && (
+                      <SitCost
+                        ppmShipmentInfo={ppmShipmentInfo}
+                        ppmSITLocation={ppmSITLocation}
+                        sitStartDate={sitStartDateValue}
+                        sitEndDate={sitEndDateValue}
+                        weightStored={weightStoredValue}
+                      />
+                    )}
                   </>
                 )}
                 <MaskedTextField
