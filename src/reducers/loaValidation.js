@@ -8,6 +8,7 @@ export const reducer = (state, action) => {
       return {
         ...state,
         isValid: action.payload.isValid,
+        longLineOfAccounting: action.payload.longLineOfAccounting,
         loa: action.payload.loa,
       };
     }
@@ -19,6 +20,7 @@ export const reducer = (state, action) => {
 export const initialState = () => {
   return {
     isValid: false,
+    longLineOfAccounting: '',
     loa: null,
   };
 };

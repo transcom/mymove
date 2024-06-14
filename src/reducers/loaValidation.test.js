@@ -4,6 +4,7 @@ describe('reducers/loaValidation', () => {
   it('creates an initialState', () => {
     expect(initialState()).toEqual({
       isValid: false,
+      longLineOfAccounting: '',
       loa: null,
     });
   });
@@ -17,6 +18,7 @@ describe('reducers/loaValidation', () => {
           isValid: true,
           loa: {
             id: '1234',
+            longLineOfAccounting: '1234',
             loaSysId: '5678',
           },
         },
@@ -25,6 +27,7 @@ describe('reducers/loaValidation', () => {
       isValid: true,
       loa: {
         id: '1234',
+        longLineOfAccounting: '1234',
         loaSysId: '5678',
       },
     });
@@ -37,11 +40,13 @@ describe('reducers/loaValidation', () => {
         type: LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
         payload: {
           isValid: false,
+          longLineOfAccounting: '',
           loa: null,
         },
       }),
     ).toEqual({
       isValid: false,
+      longLineOfAccounting: '',
       loa: null,
     });
   });

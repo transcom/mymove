@@ -31,7 +31,8 @@ const OrdersDetailForm = ({
   ordersType,
   setFieldValue,
   payGradeOptions,
-  formIsDisabled, // TODO: Add in the LOA DFAS concat (From the parent)
+  formIsDisabled,
+  longLineOfAccounting,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -144,14 +145,16 @@ const OrdersDetailForm = ({
 
       {showLoa && <h3>Line of Accounting Preview</h3>}
       {showLoa && (
-        <MaskedTextField
+        <TextField
           name="loa"
           label="LOA"
           id="loaTextField"
           mask="****"
           inputTestId="loaTextField"
+          data-testid="loaTextField"
           warning={loaWarning}
           validate={validateLOA}
+          value={longLineOfAccounting}
           isDisabled
         />
       )}
@@ -192,6 +195,7 @@ OrdersDetailForm.propTypes = {
   setFieldValue: func.isRequired,
   payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
+  longLineOfAccounting: string,
 };
 
 OrdersDetailForm.defaultProps = {
@@ -213,6 +217,7 @@ OrdersDetailForm.defaultProps = {
   showOrdersAcknowledgement: false,
   payGradeOptions: null,
   formIsDisabled: false,
+  longLineOfAccounting: '',
 };
 
 export default OrdersDetailForm;

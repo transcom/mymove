@@ -65,3 +65,36 @@ export const LineOfAccountingShape = PropTypes.shape({
   ValidHhgProgramCodeForLoa: PropTypes.bool,
   ValidLoaForTac: PropTypes.bool,
 });
+
+// This is the order of DFAS elements in which to be concatenated into
+// a "long line of accounting"
+export const LineOfAccountingDfasElementOrder = [
+  'loaDptID', // A1
+  'loaTnsfrDptNm', // A2
+  'loaEndFyTx', // A3
+  'loaBafID', // A4
+  'loaTrsySfxTx', // A5
+  'loaMajClmNm', // A6
+  'loaOpAgncyID', // B1
+  'loaAlltSnID', // B2
+  'loaUic', // B3
+  'loaPgmElmntID', // C1
+  'loaTskBdgtSblnTx', // C2
+  'loaDfAgncyAlctnRcpntID', // D1
+  'loaJbOrdNm', // D4
+  'loaSbaltmtRcpntID', // D6
+  'loaWkCntrRcpntNm', // D7
+  'loaMajRmbsmtSrcID', // E1
+  'loaDtlRmbsmtSrcID', // E2
+  'loaCustNm', // E3
+  'loaObjClsID', // F1
+  'loaSrvSrcID', // F3
+  'loaSpclIntrID', // G2
+  'loaBdgtAcntClsNm', // I1
+  'loaDocID', // J1
+  'loaClsRefID', // K6
+  'loaInstlAcntgActID', // L1
+  'loaLclInstlID', // M1
+  'loaFmsTrnsactnID', // N1
+  'loaDscTx', // P5
+];

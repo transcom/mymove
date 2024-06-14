@@ -370,4 +370,25 @@ describe('Orders page', () => {
       });
     });
   });
+  describe('LOA concatenation', () => {
+    it('concatenates the LOA string correctly', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      const hhgTacInput = screen.getByTestId('hhgTacInput');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '1111');
+
+      const expectedLongLineOfAccounting =
+        '1**2016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345***PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)';
+
+      const loaTextField = screen.getByTestId('loaTextField');
+      expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
+    });
+  });
 });

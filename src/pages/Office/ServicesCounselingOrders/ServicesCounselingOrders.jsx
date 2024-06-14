@@ -20,6 +20,7 @@ import { getTacValid, getLoa, counselingUpdateOrder, createUploadForDocument } f
 import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
 import { LOA_TYPE } from 'shared/constants';
@@ -87,15 +88,22 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
     },
   });
 
+  const buildFullLineOfAccountingString = (loa) => {
+    const dfasMap = LineOfAccountingDfasElementOrder.map((key) => loa[key] || '');
+    return dfasMap.join('*');
+  };
+
   const { mutate: validateLoa } = useMutation(getLoa, {
     onSuccess: (data) => {
-      // TODO: DFAT concat logic
       // The server decides if this is a valid LOA or not
       const isValid = (data?.validHhgProgramCodeForLoa ?? false) && (data?.validLoaForTac ?? false);
+      // Construct the long line of accounting string
+      const longLoa = buildFullLineOfAccountingString(data);
       loaValidationDispatch({
         type: LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
         payload: {
           loa: data,
+          longLineOfAccounting: longLoa,
           isValid,
         },
       });
@@ -224,9 +232,8 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
   const tacWarningMsg =
     'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
   const loaMissingWarningMsg =
-    'Unable to find a LOA based on the provided details. Please ensure an orders issue date, department indicator, and TAC is present on this form.';
-  const loaInvalidWarningMsg =
-    'The LOA identified based on the provided details appears to be invalid. No action is required on your part, this will be sent to Advana for further handling.';
+    'Unable to find a LOA based on the provided details. Please ensure an orders issue date, department indicator, and TAC are present on this form.';
+  const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
 
   return (
     <div className={styles.sidebar}>
@@ -302,7 +309,7 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
                     } /* loa validation requires access to the formik values scope */
                     validateNTSTac={handleNTSTacValidation}
                     payGradeOptions={payGradeDropdownOptions}
-                    loa={loaValidationState.loa} // TODO: DFAS concat logic
+                    longLineOfAccounting={loaValidationState.longLineOfAccounting}
                   />
                 </div>
                 <div className={styles.bottom}>
