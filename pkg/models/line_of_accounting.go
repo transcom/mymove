@@ -79,10 +79,6 @@ type LineOfAccounting struct {
 	ValidLoaForTac            *bool      `json:"valid_loa_for_tac" db:"valid_loa_for_tac"`
 	ValidHhgProgramCodeForLoa *bool      `json:"valid_hhg_code_for_loa" db:"valid_hhg_code_for_loa"`
 }
-type DFASElementsForLineOfAccounting struct {
-	LoaSysID *string
-	LoaDptID *string
-}
 
 // TableName overrides the table name used by Pop.
 func (l LineOfAccounting) TableName() string {

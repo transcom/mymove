@@ -64,7 +64,6 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 		}
 		if loa.LoaOpAgncyID == nil { // Operating Agency Code/Fund Admin
 			missingLoaFields = append(missingLoaFields, "loa.LoaOpAgncyID")
-			validLoaForTac = false
 		}
 		if loa.LoaAlltSnID == nil { // Allotment Serial Number
 			missingLoaFields = append(missingLoaFields, "loa.LoaAlltSnID")
@@ -92,7 +91,6 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 		}
 		if loa.LoaDtlRmbsmtSrcID == nil { // Detail Reimbursement Source Code
 			missingLoaFields = append(missingLoaFields, "loa.LoaDtlRmbsmtSrcID")
-			validLoaForTac = false
 		}
 		if loa.LoaCustNm == nil { // Customer Indicator/MPC
 			missingLoaFields = append(missingLoaFields, "loa.LoaCustNm")
@@ -142,6 +140,7 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 					errMessage += missingLoaFields[i] + ", "
 				}
 			}
+			// If any LOA is missing, log it for informational purposes
 			appCtx.Logger().Info("LOA with ID "+loa.ID.String()+" missing information: "+errMessage, zap.Error(err))
 		} else {
 			validLoaForTac = true
@@ -155,7 +154,7 @@ func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffili
 			// update line of accounting validHHGProgramCodeForLOA field in the database
 			verrs, err := txnCtx.DB().ValidateAndUpdate(&linesOfAccounting[currLoaIndex])
 			if verrs != nil && verrs.HasAny() {
-				return apperror.NewInvalidInputError(linesOfAccounting[currLoaIndex].ID, err, verrs, "invalid input found while updating validLoaForTac or ValidHhgProgramCodeForLoa for LOA")
+				return apperror.NewInvalidInputError(linesOfAccounting[currLoaIndex].ID, err, verrs, "invalid input found while updating ValidLoaForTac or ValidHhgProgramCodeForLoa for LOA")
 			} else if err != nil {
 				return apperror.NewQueryError("LOA", err, "")
 			}
