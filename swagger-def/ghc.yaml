@@ -2985,6 +2985,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3019,6 +3020,10 @@ paths:
           name: dodID
           type: string
           description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
         - in: query
           name: requestedMoveDate
           type: string
@@ -3158,6 +3163,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3183,6 +3189,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: originDutyLocation
@@ -3270,6 +3279,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: destinationDutyLocation
@@ -5959,6 +5971,9 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
   SearchMovesResult:
     type: object

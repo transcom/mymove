@@ -102,6 +102,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
+	emplidQuery := emplidFilter(params.Emplid)
 	lastNameQuery := lastNameFilter(params.LastName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
@@ -114,7 +115,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [15]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
+	options := [16]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -337,6 +338,14 @@ func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
 			query.Where("service_members.edipi = ?", dodID)
+		}
+	}
+}
+
+func emplidFilter(emplid *string) QueryOption {
+	return func(query *pop.Query) {
+		if emplid != nil {
+			query.Where("service_members.emplid = ?", emplid)
 		}
 	}
 }

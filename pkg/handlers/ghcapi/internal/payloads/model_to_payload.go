@@ -2005,6 +2005,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			DestinationGBLOC:                  destinationGBLOC,
 			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockExpiresAt:                     handlers.FmtDateTimePtr(move.LockExpiresAt),
+			Emplid:                            customer.Emplid,
 		}
 	}
 	return &searchMoves

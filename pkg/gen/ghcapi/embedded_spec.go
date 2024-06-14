@@ -3520,6 +3520,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3569,6 +3570,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -3696,6 +3703,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3737,6 +3745,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -3878,6 +3891,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -10237,6 +10255,10 @@ func init() {
           "x-nullable": true,
           "example": 1234567890
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -16310,6 +16332,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -16359,6 +16382,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -16492,6 +16521,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -16533,6 +16563,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -16680,6 +16715,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -23427,6 +23467,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
