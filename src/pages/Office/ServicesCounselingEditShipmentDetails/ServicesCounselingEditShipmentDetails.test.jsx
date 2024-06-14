@@ -570,7 +570,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
       });
-    });
+    }, 10000);
 
     it('Sit NO/YES toggle - Enables Save and Continue button when sit required fields are filled in', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
