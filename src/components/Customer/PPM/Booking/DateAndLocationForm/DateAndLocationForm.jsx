@@ -53,16 +53,22 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     pickupAddress: {},
     secondaryPickupAddress: {},
     hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
+    hasTertiaryPickupAddress: mtoShipment?.ppmShipment?.tertiaryPickupAddress ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useCurrentDestinationAddress: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
+    hasTertiaryDestinationAddress: mtoShipment?.ppmShipment?.tertiaryDestinationAddress ? 'true' : 'false',
     destinationAddress: {},
     secondaryDestinationAddress: {},
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
-    closeoutOffice: move?.closeoutOffice || {},
+    closeoutOffice: move?.closeoutOffice,
+    tertiaryPickupAddress: {},
+    tertiaryDestinationAddress: {},
+    tertiaryPickupPostalCode: mtoShipment?.ppmShipment?.tertiaryPickupPostalCode,
+    tertiaryDestinationPostalCode: mtoShipment?.ppmShipment?.tertiaryDestinationPostalCode,
   };
 
   if (mtoShipment?.ppmShipment?.pickupAddress) {

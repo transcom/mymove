@@ -3565,6 +3565,16 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -3598,6 +3608,34 @@ func init() {
         },
         "sitExpected": {
           "type": "boolean"
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryDestinationPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
         }
       }
     },
@@ -11744,6 +11782,16 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -11777,6 +11825,34 @@ func init() {
         },
         "sitExpected": {
           "type": "boolean"
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryDestinationPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupPostalCode": {
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "$ref": "#/definitions/NullableString",
+          "example": "90210"
         }
       }
     },
