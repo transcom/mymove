@@ -88,7 +88,7 @@ describe('RequestAccount page', () => {
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
-    const tooCheckbox = screen.getByTestId('transportationOrderingOfficerCheckBox');
+    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
     await userEvent.click(tooCheckbox);
 
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');
@@ -136,7 +136,7 @@ describe('RequestAccount page', () => {
     const scCheckbox = screen.getByTestId('servicesCounselorCheckBox');
     await userEvent.click(scCheckbox);
 
-    const qsaCheckbox = screen.getByTestId('qualityAssuranceAndCustomerSupportCheckBox');
+    const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     await userEvent.click(qsaCheckbox);
 
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');

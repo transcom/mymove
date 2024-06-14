@@ -169,6 +169,8 @@ export const MoveTaskOrder = (props) => {
         sitRequestedDelivery: item.sitRequestedDelivery,
         sitDeliveryMiles: item.sitDeliveryMiles,
         status: item.status,
+        estimatedPrice: item.estimatedPrice,
+        standaloneCrate: item.standaloneCrate,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -621,6 +623,13 @@ export const MoveTaskOrder = (props) => {
           setIsCancelModalVisible(false);
           // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
           setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+        },
+        onError: (data, error) => {
+          const errorMsg = error?.response?.body;
+          milmoveLogger.error(errorMsg);
+          setIsCancelModalVisible(false);
+          setAlertMessage(`${data.response.body.message}`);
+          setAlertType('error');
         },
       },
     );

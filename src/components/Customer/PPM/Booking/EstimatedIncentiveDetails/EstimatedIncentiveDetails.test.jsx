@@ -7,8 +7,20 @@ const defaultProps = {
   shipment: {
     id: '1234',
     ppmShipment: {
-      pickupPostalCode: '10001',
-      destinationPostalCode: '10002',
+      pickupAddress: {
+        streetAddress1: '812 S 129th St',
+        streetAddress2: '#123',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '813 S 129th St',
+        streetAddress2: '#124',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10002',
+      },
       expectedDepartureDate: '2022-07-04',
       estimatedWeight: 3456,
       proGearWeight: 1333,
@@ -22,10 +34,36 @@ const optionalSecondaryProps = {
   shipment: {
     id: '1234',
     ppmShipment: {
-      pickupPostalCode: '10001',
-      destinationPostalCode: '10002',
-      secondaryPickupPostalCode: '10003',
-      secondaryDestinationPostalCode: '10004',
+      pickupAddress: {
+        streetAddress1: '812 S 129th St',
+        streetAddress2: '#123',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '813 S 129th St',
+        streetAddress2: '#124',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10002',
+      },
+      secondaryPickupAddress: {
+        streetAddress1: '813 S 129th St',
+        streetAddress2: '#125',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10003',
+      },
+      secondaryDestinationAddress: {
+        streetAddress1: '814 S 129th St',
+        streetAddress2: '#126',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10004',
+      },
+      hasSecondaryPickupAddress: true,
+      hasSecondaryDestinationAddress: true,
       expectedDepartureDate: '2022-07-04',
       estimatedWeight: 3456,
       proGearWeight: 1333,
@@ -49,8 +87,8 @@ describe('EstimatedIncentiveDetails component', () => {
     const incentiveListItems = screen.getAllByRole('listitem');
     expect(incentiveListItems).toHaveLength(4);
     expect(incentiveListItems[0]).toHaveTextContent('3,456 lbs estimated weight');
-    expect(incentiveListItems[1]).toHaveTextContent('Starting from 10001');
-    expect(incentiveListItems[2]).toHaveTextContent('Ending in 10002');
+    expect(incentiveListItems[1]).toHaveTextContent('Starting from 812 S 129th St, #123, San Antonio, TX 10001');
+    expect(incentiveListItems[2]).toHaveTextContent('Ending at 813 S 129th St, #124, San Antonio, TX 10002');
     expect(incentiveListItems[3]).toHaveTextContent('Starting your PPM on 04 Jul 2022');
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Your actual incentive amount will vary');
@@ -74,10 +112,12 @@ describe('EstimatedIncentiveDetails component', () => {
     const incentiveListItems = screen.getAllByRole('listitem');
     expect(incentiveListItems).toHaveLength(6);
     expect(incentiveListItems[0]).toHaveTextContent('3,456 lbs estimated weight');
-    expect(incentiveListItems[1]).toHaveTextContent('Starting from 10001');
-    expect(incentiveListItems[2]).toHaveTextContent('Picking up things in 10003');
-    expect(incentiveListItems[3]).toHaveTextContent('Dropping off things in 10004');
-    expect(incentiveListItems[4]).toHaveTextContent('Ending in 10002');
+    expect(incentiveListItems[1]).toHaveTextContent('Starting from 812 S 129th St, #123, San Antonio, TX 10001');
+    expect(incentiveListItems[2]).toHaveTextContent('Picking up things at 813 S 129th St, #125, San Antonio, TX 10003');
+    expect(incentiveListItems[3]).toHaveTextContent(
+      'Dropping off things at 814 S 129th St, #126, San Antonio, TX 10004',
+    );
+    expect(incentiveListItems[4]).toHaveTextContent('Ending at 813 S 129th St, #124, San Antonio, TX 10002');
     expect(incentiveListItems[5]).toHaveTextContent('Starting your PPM on 04 Jul 2022');
   });
 });
