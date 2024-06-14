@@ -580,7 +580,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 		}
 		if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
 			return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
-		} else if serviceCode == models.ReServiceCodeDUPK || serviceCode == models.ReServiceCodeDPK {
+		} else if serviceCode == models.ReServiceCodeDPK || serviceCode == models.ReServiceCodeDNPK {
 			return models.Address{}, nil
 		} else {
 			return *shipmentCopy.DestinationAddress, nil
