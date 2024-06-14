@@ -512,6 +512,36 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 		if mtoShipment.StorageFacility != nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
 		}
+	case models.MTOShipmentTypeHHG:
+		shipmentCopy := mtoShipment
+		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "DestinationAddress").Find(&shipmentCopy, mtoShipment.ID)
+		if err != nil {
+			return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination Address For service")
+		}
+		for _, si := range shipmentCopy.MTOServiceItems {
+			siCopy := si
+			err := appCtx.DB().Eager("ReService").Find(&siCopy, siCopy.ID)
+			if err != nil {
+				return models.Address{}, apperror.NewNotFoundError(siCopy.ID, "MTOServiceItem not found in Destination Address For service")
+			}
+
+			switch siCopy.ReService.Code {
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+				if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
+					}
+					return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+				}
+			}
+		}
+		if shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+			return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
+		} else if serviceCode == models.ReServiceCodeDPK || serviceCode == models.ReServiceCodeDNPK {
+			return models.Address{}, nil
+		} else {
+			return *shipmentCopy.DestinationAddress, nil
+		}
 	default:
 		addressType = "destination"
 		ptrDestinationAddress = mtoShipment.DestinationAddress
