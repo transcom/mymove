@@ -14,9 +14,11 @@ const OrdersDetailForm = ({
   ordersTypeOptions,
   ordersTypeDetailOptions,
   hhgTacWarning,
+  loaWarning,
   ntsTacWarning,
   validateHHGTac,
   validateNTSTac,
+  validateLOA,
   showDepartmentIndicator,
   showOrdersNumber,
   showOrdersTypeDetail,
@@ -24,11 +26,12 @@ const OrdersDetailForm = ({
   showHHGSac,
   showNTSTac,
   showNTSSac,
+  showLoa,
   showOrdersAcknowledgement,
   ordersType,
   setFieldValue,
   payGradeOptions,
-  formIsDisabled,
+  formIsDisabled, // TODO: Add in the LOA DFAS concat (From the parent)
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -139,6 +142,20 @@ const OrdersDetailForm = ({
         />
       )}
 
+      {showLoa && <h3>Line of Accounting Preview</h3>}
+      {showLoa && (
+        <MaskedTextField
+          name="loa"
+          label="LOA"
+          id="loaTextField"
+          mask="****"
+          inputTestId="loaTextField"
+          warning={loaWarning}
+          validate={validateLOA}
+          isDisabled
+        />
+      )}
+
       {showOrdersAcknowledgement && (
         <div className={styles.wrappedCheckbox}>
           <CheckboxField
@@ -159,6 +176,7 @@ OrdersDetailForm.propTypes = {
   ordersTypeDetailOptions: DropdownArrayOf,
   hhgTacWarning: string,
   ntsTacWarning: string,
+  loaWarning: string,
   validateHHGTac: func,
   validateNTSTac: func,
   showDepartmentIndicator: bool,
@@ -167,6 +185,7 @@ OrdersDetailForm.propTypes = {
   showHHGTac: bool,
   showHHGSac: bool,
   showNTSTac: bool,
+  showLoa: bool,
   showNTSSac: bool,
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
@@ -178,6 +197,7 @@ OrdersDetailForm.propTypes = {
 OrdersDetailForm.defaultProps = {
   hhgTacWarning: '',
   ntsTacWarning: '',
+  loaWarning: '',
   deptIndicatorOptions: null,
   ordersTypeDetailOptions: null,
   validateHHGTac: null,
@@ -188,6 +208,7 @@ OrdersDetailForm.defaultProps = {
   showHHGTac: true,
   showHHGSac: true,
   showNTSTac: true,
+  showLoa: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
   payGradeOptions: null,
