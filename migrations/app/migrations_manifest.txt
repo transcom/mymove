@@ -955,3 +955,4 @@
 20240603152949_update_too_role_name.up.sql
 20240604203456_add_effective_expiraton_date_ghc_fuel.up.sql
 20240606195706_adding_uncapped_request_total.up.sql
+20240613192433_move_valid_loa_for_tac_col_to_lines_of_accounting_table.up.sql
