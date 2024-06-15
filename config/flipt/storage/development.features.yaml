@@ -1,6 +1,14 @@
 version: "1.2"
 namespace: development
 flags:
+- key: headquarters_role
+  name: Headquarters Role feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: safety_move
   name: Safety Move feature flag
   type: BOOLEAN_FLAG_TYPE
@@ -97,14 +105,14 @@ flags:
   - segment:
       key: mil-app
       value: true
-- key: coast_guard_emplid
-  name: USCG EMPLID feature flag
+- key: manage_supporting_docs
+  name: Additional doc upload feature flag
   type: BOOLEAN_FLAG_TYPE
-  enabled: true
+  enabled: false
   rollouts:
   - segment:
       key: mil-app
-      value: true
+      value: false
 - key: boolean_flag
   name: Boolean Flag
   type: BOOLEAN_FLAG_TYPE
