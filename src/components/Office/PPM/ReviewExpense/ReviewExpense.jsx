@@ -162,6 +162,11 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   const handleSubmit = (values) => {
+    if (readOnly) {
+      onSuccess();
+      return;
+    }
+
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
@@ -269,6 +274,7 @@ export default function ReviewExpense({
                   required
                   className={classnames('usa-select')}
                   value={selectedExpenseType}
+                  disabled={readOnly}
                   onChange={(e) => {
                     setSelectedExpenseType(e.target.value);
                     refreshPage(e);
@@ -284,6 +290,7 @@ export default function ReviewExpense({
                   label="Description"
                   id="description"
                   className={styles.displayValue}
+                  disabled={readOnly}
                   onBlur={(e) => {
                     setDescriptionString(e.target.value);
                   }}
@@ -300,6 +307,7 @@ export default function ReviewExpense({
                       name="sitLocation"
                       value="ORIGIN"
                       checked={values.sitLocation === 'ORIGIN'}
+                      disabled={readOnly}
                       onChange={(e) => {
                         handleSITLocationChange(e);
                       }}
@@ -311,6 +319,7 @@ export default function ReviewExpense({
                       name="sitLocation"
                       value="DESTINATION"
                       checked={values.sitLocation === 'DESTINATION'}
+                      disabled={readOnly}
                       onChange={(e) => {
                         handleSITLocationChange(e);
                       }}
@@ -340,6 +349,7 @@ export default function ReviewExpense({
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   prefix="$"
+                  isDisabled={readOnly}
                   onBlur={(e) => {
                     const newAmount = e.target.value.replace(/[,.]/g, '');
                     setAmountValue(newAmount);
@@ -358,6 +368,7 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      isDisabled={readOnly}
                       onBlur={(e) => {
                         handleWeightStoredChange(e);
                       }}
@@ -373,6 +384,7 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
+                      isDisabled={readOnly}
                       onBlur={(e) => {
                         handleActualWeightChange(e);
                       }}
@@ -381,6 +393,7 @@ export default function ReviewExpense({
                       name="sitStartDate"
                       label="Start date"
                       required
+                      disabled={readOnly}
                       onChange={(value) => {
                         handleSitStartDateChange(value);
                       }}
@@ -389,6 +402,7 @@ export default function ReviewExpense({
                       name="sitEndDate"
                       label="End date"
                       required
+                      disabled={readOnly}
                       onChange={(value) => {
                         handleSitEndDateChange(value);
                       }}
@@ -418,6 +432,7 @@ export default function ReviewExpense({
                       label="Accept"
                       onChange={handleApprovalChange}
                       data-testid="acceptRadio"
+                      disabled={readOnly}
                     />
                   </div>
                   <div
@@ -433,6 +448,7 @@ export default function ReviewExpense({
                       label="Exclude"
                       onChange={handleChange}
                       data-testid="excludeRadio"
+                      disabled={readOnly}
                     />
                     {values.status === ppmDocumentStatus.EXCLUDED && (
                       <FormGroup className={styles.reason}>
@@ -444,6 +460,7 @@ export default function ReviewExpense({
                           onChange={handleChange}
                           value={values.reason}
                           placeholder="Type something"
+                          disabled={readOnly}
                         />
                         <div className={styles.hint}>{500 - values.reason.length} characters</div>
                       </FormGroup>
@@ -462,6 +479,7 @@ export default function ReviewExpense({
                       label="Reject"
                       onChange={handleChange}
                       data-testid="rejectRadio"
+                      disabled={readOnly}
                     />
 
                     {values.status === ppmDocumentStatus.REJECTED && (
@@ -474,6 +492,7 @@ export default function ReviewExpense({
                           onChange={handleChange}
                           value={values.reason}
                           placeholder="Type something"
+                          disabled={readOnly}
                         />
                         <div className={styles.hint}>{500 - values.reason.length} characters</div>
                       </FormGroup>
