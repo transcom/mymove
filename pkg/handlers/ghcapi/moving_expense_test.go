@@ -312,9 +312,11 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 	}
 
 	setUpHandler := func() UpdateMovingExpenseHandler {
+		ppmEstimator := mocks.PPMEstimator{}
+
 		return UpdateMovingExpenseHandler{
 			suite.createS3HandlerConfig(),
-			movingexpenseservice.NewOfficeMovingExpenseUpdater(),
+			movingexpenseservice.NewOfficeMovingExpenseUpdater(&ppmEstimator),
 		}
 	}
 

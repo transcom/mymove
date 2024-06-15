@@ -9,8 +9,10 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
@@ -36,11 +38,27 @@ type GetPPMSITEstimatedCostParams struct {
 	  In: path
 	*/
 	PpmShipmentID strfmt.UUID
+	/*Date departed SIT
+	  Required: true
+	  In: query
+	*/
+	SitDepartureDate strfmt.DateTime
+	/*Date entered into SIT
+	  Required: true
+	  In: query
+	*/
+	SitEntryDate strfmt.DateTime
 	/*location of sit
 	  Required: true
 	  In: path
 	*/
 	SitLocation string
+	/*Weight stored in SIT
+	  Required: true
+	  Minimum: 0
+	  In: query
+	*/
+	WeightStored int64
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -52,13 +70,30 @@ func (o *GetPPMSITEstimatedCostParams) BindRequest(r *http.Request, route *middl
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
 	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
 	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
+	qSitDepartureDate, qhkSitDepartureDate, _ := qs.GetOK("sitDepartureDate")
+	if err := o.bindSitDepartureDate(qSitDepartureDate, qhkSitDepartureDate, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qSitEntryDate, qhkSitEntryDate, _ := qs.GetOK("sitEntryDate")
+	if err := o.bindSitEntryDate(qSitEntryDate, qhkSitEntryDate, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	rSitLocation, rhkSitLocation, _ := route.Params.GetOK("sitLocation")
 	if err := o.bindSitLocation(rSitLocation, rhkSitLocation, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qWeightStored, qhkWeightStored, _ := qs.GetOK("weightStored")
+	if err := o.bindWeightStored(qWeightStored, qhkWeightStored, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -100,6 +135,86 @@ func (o *GetPPMSITEstimatedCostParams) validatePpmShipmentID(formats strfmt.Regi
 	return nil
 }
 
+// bindSitDepartureDate binds and validates parameter SitDepartureDate from query.
+func (o *GetPPMSITEstimatedCostParams) bindSitDepartureDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("sitDepartureDate", "query", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+
+	if err := validate.RequiredString("sitDepartureDate", "query", raw); err != nil {
+		return err
+	}
+
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("sitDepartureDate", "query", "strfmt.DateTime", raw)
+	}
+	o.SitDepartureDate = *(value.(*strfmt.DateTime))
+
+	if err := o.validateSitDepartureDate(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateSitDepartureDate carries on validations for parameter SitDepartureDate
+func (o *GetPPMSITEstimatedCostParams) validateSitDepartureDate(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("sitDepartureDate", "query", "date-time", o.SitDepartureDate.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindSitEntryDate binds and validates parameter SitEntryDate from query.
+func (o *GetPPMSITEstimatedCostParams) bindSitEntryDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("sitEntryDate", "query", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+
+	if err := validate.RequiredString("sitEntryDate", "query", raw); err != nil {
+		return err
+	}
+
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("sitEntryDate", "query", "strfmt.DateTime", raw)
+	}
+	o.SitEntryDate = *(value.(*strfmt.DateTime))
+
+	if err := o.validateSitEntryDate(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateSitEntryDate carries on validations for parameter SitEntryDate
+func (o *GetPPMSITEstimatedCostParams) validateSitEntryDate(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("sitEntryDate", "query", "date-time", o.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
 // bindSitLocation binds and validates parameter SitLocation from path.
 func (o *GetPPMSITEstimatedCostParams) bindSitLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -122,6 +237,46 @@ func (o *GetPPMSITEstimatedCostParams) bindSitLocation(rawData []string, hasKey 
 func (o *GetPPMSITEstimatedCostParams) validateSitLocation(formats strfmt.Registry) error {
 
 	if err := validate.EnumCase("sitLocation", "path", o.SitLocation, []interface{}{"ORIGIN", "DESTINATION"}, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// bindWeightStored binds and validates parameter WeightStored from query.
+func (o *GetPPMSITEstimatedCostParams) bindWeightStored(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("weightStored", "query", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+
+	if err := validate.RequiredString("weightStored", "query", raw); err != nil {
+		return err
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("weightStored", "query", "int64", raw)
+	}
+	o.WeightStored = value
+
+	if err := o.validateWeightStored(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateWeightStored carries on validations for parameter WeightStored
+func (o *GetPPMSITEstimatedCostParams) validateWeightStored(formats strfmt.Registry) error {
+
+	if err := validate.MinimumInt("weightStored", "query", o.WeightStored, 0, false); err != nil {
 		return err
 	}
 

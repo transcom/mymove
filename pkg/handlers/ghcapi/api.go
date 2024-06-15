@@ -566,7 +566,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{
 		handlerConfig,
-		movingexpense.NewOfficeMovingExpenseUpdater(),
+		movingexpense.NewOfficeMovingExpenseUpdater(ppmEstimator),
 	}
 
 	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{

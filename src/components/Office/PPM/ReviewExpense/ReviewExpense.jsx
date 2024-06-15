@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -11,7 +11,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate, dropdownInputOptions, toDollarString } from 'utils/formatters';
+import { formatCents, formatDate, dropdownInputOptions, removeCommas } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -21,17 +21,15 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypes, ppmExpenseTypes, getExpenseTypeValue, llvmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
-import { patchExpense, patchPPMSIT } from 'services/ghcApi';
+import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
-import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
+import SitCost from 'components/Office/PPM/SitCost/SitCost';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
-const validationSchema = (allowableWeight) => {
+const validationSchema = (maxWeight) => {
   return Yup.object().shape({
     amount: Yup.string()
       .required('Enter the expense amount')
@@ -59,7 +57,14 @@ const validationSchema = (allowableWeight) => {
     weightStored: Yup.number().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
       then: (schema) =>
-        schema.required('Required').max(allowableWeight, `Enter an amount ${allowableWeight} lbs or less`),
+        schema
+          .required('Required')
+          .max(maxWeight, `Enter a weight ${maxWeight} lbs or less`)
+          .min(1, `Enter a weight greater than 0 lbs`),
+    }),
+    actualWeight: Yup.number().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) => schema.required('Required').min(1, `Enter a weight greater than 0 lbs`),
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
@@ -99,30 +104,33 @@ export default function ReviewExpense({
     onError,
   });
 
-  const { mutate: patchPPMSITMutation } = useMutation(patchPPMSIT);
-
-  const allowableWeight = ppmShipmentInfo.estimatedWeight;
+  const [descriptionString, setDescriptionString] = React.useState(description || '');
+  const [actualWeightValue, setActualWeightValue] = React.useState(ppmShipmentInfo?.actualWeight?.toString() || '');
+  const actualWeight = actualWeightValue;
+  const [amountValue, setAmountValue] = React.useState(amount);
+  const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
-  const { estimatedCost, isLoading, isError } = useGetPPMSITEstimatedCostQuery(ppmShipmentInfo.id, ppmSITLocation);
-
+  const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
+  const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate != null ? sitEndDate : '');
+  const displaySitCost =
+    ppmSITLocation !== '' && sitStartDateValue !== '' && sitEndDateValue !== '' && weightStoredValue !== '';
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
-    description: description || '',
-    amount: amount ? `${formatCents(amount)}` : '',
+    description: descriptionString,
+    amount: amountValue ? `${formatCents(amountValue)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
-    sitStartDate: sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
-    sitEndDate: sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
-    weightStored: weightStored?.toString() || '',
+    sitStartDate: sitStartDateValue,
+    sitEndDate: sitEndDateValue,
     status: status || '',
     reason: reason || '',
-    actualWeight: ppmShipmentInfo?.actualWeight?.toString() || '',
+    weightStored: weightStoredValue?.toString() || '',
+    actualWeight: actualWeightValue?.toString() || '',
     sitLocation: ppmSITLocation,
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
   const [currentCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
   const [samePage, setSamePage] = React.useState(false); // Helps track if back button was used or not
-
   /**
    * Gets the current index for the receipt type, i.e. if we've already reviewed two "Oil" expense receipts, and user chooses "Oil" for expense type,
    * then this will display "Oil #3" at bottom of page.
@@ -160,28 +168,18 @@ export default function ReviewExpense({
       return;
     }
 
-    if (values.movingExpenseType === 'STORAGE') {
-      const ppmSitPayload = {
-        sitLocation: ppmSITLocation,
-      };
-      patchPPMSITMutation({
-        ppmShipmentId: expense.ppmShipmentId,
-        payload: ppmSitPayload,
-        eTag: ppmShipmentInfo.eTag,
-      });
-    }
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
       description: values.description,
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
-      sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
-      sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
+      sitStartDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitStartDateValue : undefined,
+      sitEndDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitEndDateValue : undefined,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
-      weightStored: Number.parseInt(values.weightStored, 10),
-      sitLocation: ppmSITLocation,
+      weightStored: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? weightStoredValue : undefined,
+      sitLocation: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? ppmSITLocation : undefined,
     };
 
     patchExpenseMutation({
@@ -194,13 +192,12 @@ export default function ReviewExpense({
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
         initialValues={initialValues}
-        validationSchema={() => validationSchema(allowableWeight)}
+        validationSchema={() => validationSchema(actualWeight)}
         innerRef={formRef}
         onSubmit={handleSubmit}
         enableReinitialize
@@ -214,18 +211,50 @@ export default function ReviewExpense({
             setFieldError('reason', null);
           };
 
-          const handleSITLocationChange = (event) => {
-            setSITLocation(event.target.value);
+          const refreshPage = (event) => {
             setSamePage(true);
             const count = computeCurrentCategoryIndex(event.target.value);
             setCurrentCategoryIndex(count + 1);
           };
 
+          const handleSITLocationChange = (event) => {
+            setSITLocation(event.target.value);
+            refreshPage(event);
+          };
+
+          const handleWeightStoredChange = (event) => {
+            const weight = parseInt(removeCommas(event.target.value), 10);
+            setWeightStoredValue(weight);
+            refreshPage(event);
+          };
+
+          const handleActualWeightChange = (event) => {
+            const weight = parseInt(removeCommas(event.target.value), 10);
+            setActualWeightValue(weight);
+            refreshPage(event);
+          };
+
+          const handleSitStartDateChange = (value) => {
+            const date = formatDate(value, 'DD MMM YYYY', 'YYYY-MM-DD');
+            setSitStartDateValue(date);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(value);
+            setCurrentCategoryIndex(count + 1);
+          };
+
+          const handleSitEndDateChange = (value) => {
+            const date = formatDate(value, 'DD MMM YYYY', 'YYYY-MM-DD');
+            setSitEndDateValue(date);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(value);
+            setCurrentCategoryIndex(count + 1);
+          };
+
           const daysInSIT =
-            values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
-              ? moment(values.sitEndDate, 'DD MMM YYYY')
+            sitStartDateValue && sitEndDateValue
+              ? moment(sitEndDateValue, 'YYYY-MM-DD')
                   .add(1, 'days')
-                  .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
+                  .diff(moment(sitStartDateValue, 'YYYY-MM-DD'), 'days')
               : '##';
 
           return (
@@ -251,13 +280,11 @@ export default function ReviewExpense({
                   required
                   className={classnames('usa-select')}
                   value={selectedExpenseType}
+                  disabled={readOnly}
                   onChange={(e) => {
                     setSelectedExpenseType(e.target.value);
-                    setSamePage(true);
-                    const count = computeCurrentCategoryIndex(e.target.value);
-                    setCurrentCategoryIndex(count + 1);
+                    refreshPage(e);
                   }}
-                  disabled={readOnly}
                 >
                   {ppmExpenseTypes.map((x) => (
                     <option key={x.key}>{x.value}</option>
@@ -270,32 +297,48 @@ export default function ReviewExpense({
                   id="description"
                   className={styles.displayValue}
                   disabled={readOnly}
+                  onBlur={(e) => {
+                    setDescriptionString(e.target.value);
+                  }}
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
                     <div className="labelWrapper">
                       <Label htmlFor="sitLocationInput">SIT Location</Label>
                     </div>
-                    <select
-                      label="SIT Location"
+                    <Field
+                      as={Radio}
+                      id="sitLocationOrigin"
+                      label="Origin"
                       name="sitLocation"
-                      id="sitLocationInput"
-                      required
-                      className={classnames('usa-select')}
-                      value={ppmSITLocation}
+                      value="ORIGIN"
+                      checked={values.sitLocation === 'ORIGIN'}
+                      disabled={readOnly}
                       onChange={(e) => {
                         handleSITLocationChange(e);
                       }}
+                    />
+                    <Field
+                      as={Radio}
+                      id="sitLocationDestination"
+                      label="Destination"
+                      name="sitLocation"
+                      value="DESTINATION"
+                      checked={values.sitLocation === 'DESTINATION'}
                       disabled={readOnly}
-                    >
-                      {sitLocationOptions.map((x) => (
-                        <option key={x.key}>{x.value}</option>
-                      ))}
-                    </select>
-                    <legend className={classnames('usa-label', styles.label)}>Cost</legend>
-                    <div className={styles.displayValue}>
-                      {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))}
-                    </div>
+                      onChange={(e) => {
+                        handleSITLocationChange(e);
+                      }}
+                    />
+                    {displaySitCost && (
+                      <SitCost
+                        ppmShipmentInfo={ppmShipmentInfo}
+                        ppmSITLocation={ppmSITLocation}
+                        sitStartDate={sitStartDateValue}
+                        sitEndDate={sitEndDateValue}
+                        weightStored={weightStoredValue}
+                      />
+                    )}
                   </>
                 )}
                 <MaskedTextField
@@ -312,7 +355,11 @@ export default function ReviewExpense({
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   prefix="$"
-                  disabled={readOnly}
+                  isDisabled={readOnly}
+                  onBlur={(e) => {
+                    const newAmount = e.target.value.replace(/[,.]/g, '');
+                    setAmountValue(newAmount);
+                  }}
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
@@ -327,12 +374,15 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
-                      disabled={readOnly}
+                      isDisabled={readOnly}
+                      onBlur={(e) => {
+                        handleWeightStoredChange(e);
+                      }}
                     />
                     <MaskedTextField
                       defaultValue="0"
                       name="actualWeight"
-                      label="Actual Weight"
+                      label="Actual PPM Weight"
                       id="actualWeight"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
@@ -340,10 +390,29 @@ export default function ReviewExpense({
                       thousandsSeparator=","
                       lazy={false} // immediate masking evaluation
                       suffix="lbs"
-                      disabled={readOnly}
+                      isDisabled={readOnly}
+                      onBlur={(e) => {
+                        handleActualWeightChange(e);
+                      }}
                     />
-                    <DatePickerInput name="sitStartDate" label="Start date" />
-                    <DatePickerInput name="sitEndDate" label="End date" />
+                    <DatePickerInput
+                      name="sitStartDate"
+                      label="Start date"
+                      required
+                      disabled={readOnly}
+                      onChange={(value) => {
+                        handleSitStartDateChange(value);
+                      }}
+                    />
+                    <DatePickerInput
+                      name="sitEndDate"
+                      label="End date"
+                      required
+                      disabled={readOnly}
+                      onChange={(value) => {
+                        handleSitEndDateChange(value);
+                      }}
+                    />
                     <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
                     <div className={styles.displayValue} data-testid="days-in-sit">
                       {daysInSIT}

@@ -1918,6 +1918,24 @@ paths:
         enum:
           - ORIGIN
           - DESTINATION
+      - in: query
+        format: date-time
+        description: Date entered into SIT
+        name: sitEntryDate
+        required: true
+        type: string
+      - in: query
+        format: date-time
+        description: Date departed SIT
+        name: sitDepartureDate
+        required: true
+        type: string
+      - in: query
+        description: Weight stored in SIT
+        name: weightStored
+        required: true
+        type: integer
+        minimum: 0
     get:
       summary: Get the SIT estimated cost for a PPM shipment
       description: >
@@ -5739,6 +5757,15 @@ definitions:
         allOf:
           - $ref: '#/definitions/SITLocationType'
           - x-nullable: true
+      sitEstimatedCost:
+        description: >-
+          The estimated amount that the government will pay the service member
+          to put their goods into storage. This estimated storage cost is
+          separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7970,6 +7997,15 @@ definitions:
           - $ref: '#/definitions/SITLocationType'
           - x-nullable: true
           - x-omitempty: false
+      sitEstimatedCost:
+        description: >-
+          The estimated amount that the government will pay the service member
+          to put their goods into storage. This estimated storage cost is
+          separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
