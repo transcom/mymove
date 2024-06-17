@@ -7,4 +7,4 @@ ALTER TABLE lines_of_accounting
 ADD COLUMN IF NOT EXISTS valid_loa_for_tac boolean DEFAULT NULL;
 
 -- Column comments
-COMMENT ON COLUMN lines_of_accounting.valid_loa_for_tac IS 'Result of LOA lookup for a TAC.';
+COMMENT ON COLUMN lines_of_accounting.valid_loa_for_tac IS 'Result of LOA service object validation that occurs whenever new LOAs are fetched by the client.';
