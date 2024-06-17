@@ -69,7 +69,22 @@ const Orders = () => {
   });
 
   const buildFullLineOfAccountingString = (loa) => {
-    const dfasMap = LineOfAccountingDfasElementOrder.map((key) => loa[key] || '');
+    const dfasMap = LineOfAccountingDfasElementOrder.map((key) => {
+      if (key === 'loaEndFyTx') {
+        // Specific logic for DFAS element A3, the loaEndFyTx.
+        // This is a combination of both the BgFyTx and EndFyTx
+        // and if one are null, then typically we would resort to "XXXXXXXX"
+        // but for this one we'll just leave it empty as this is not for the EDI858.
+        if (loa.loaBgFyTx != null && loa.loaEndFyTx != null) {
+          return `${loa.loaBgFyTx}${loa.loaEndFyTx}`;
+        }
+        if (loa.loaBgFyTx === null || loa.loaByFyTx === undefined) {
+          // Catch the scenario of loaBgFyTx being null but loaEndFyTx not being null
+          return '';
+        }
+      }
+      return loa[key] || '';
+    });
     return dfasMap.join('*');
   };
 
