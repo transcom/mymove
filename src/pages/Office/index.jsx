@@ -118,14 +118,16 @@ export class OfficeApp extends Component {
     // while still logged into Okta which will force a redirect to logout
     const currentUrl = new URL(window.location.href);
     const oktaLoggedOutParam = currentUrl.searchParams.get('okta_logged_out');
+    // okta_error=true params are added when the user is still logged into Okta elsewhere and Okta denies access
+    // due to authentication method limitations
+    const oktaErrorParam = currentUrl.searchParams.get('okta_error');
 
-    // If the params "okta_logged_out=true" are in the url, we will change some state
-    // so a banner will display
+    // If the params "okta_logged_out=true" or "okta_error=true" are in the url, a banner will display
     if (oktaLoggedOutParam === 'true') {
       this.setState({
         oktaLoggedOut: true,
       });
-    } else if (oktaLoggedOutParam === 'false') {
+    } else if (oktaErrorParam === 'true') {
       this.setState({
         oktaNeedsLoggedOut: true,
       });
@@ -160,8 +162,6 @@ export class OfficeApp extends Component {
       traceId,
       userPrivileges,
     } = this.props;
-
-    // TODO - test login page?
 
     const displayChangeRole =
       userIsLoggedIn &&
@@ -478,7 +478,7 @@ export class OfficeApp extends Component {
                       key="qaeCSRMoveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.QAE_CSR, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
+                        <PrivateRoute requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
                           <QAECSRMoveSearch />
                         </PrivateRoute>
                       }
@@ -492,7 +492,7 @@ export class OfficeApp extends Component {
                           requiredRoles={[
                             roleTypes.TOO,
                             roleTypes.TIO,
-                            roleTypes.QAE_CSR,
+                            roleTypes.QAE,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
                           ]}
                         >
@@ -512,7 +512,7 @@ export class OfficeApp extends Component {
                     {activeRole === roleTypes.PRIME_SIMULATOR && (
                       <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                     )}
-                    {(activeRole === roleTypes.QAE_CSR || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
+                    {(activeRole === roleTypes.QAE || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
                       <Route end path="/" element={<QAECSRMoveSearch />} />
                     )}
 
