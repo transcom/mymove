@@ -201,6 +201,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 	suite.Run("Checks for valid HHG program code and a valid LOA for a given TAC", func() {
 		appCtx := suite.AppContextForTest()
 		ordersIssueDate, startDate, endDate, tacCode := setupTest()
+		loaFY := 12
 		loa := factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.LineOfAccounting{
@@ -235,6 +236,8 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 					LoaFmsTrnsactnID:       models.StringPointer("1"),
 					LoaDscTx:               models.StringPointer("1"),
 					LoaUic:                 models.StringPointer("1"),
+					LoaBgFyTx:              &loaFY,
+					LoaEndFyTx:             &loaFY,
 				},
 			},
 		}, nil)

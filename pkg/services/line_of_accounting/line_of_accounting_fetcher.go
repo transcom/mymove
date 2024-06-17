@@ -170,7 +170,7 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 			missingLoaFields = append(missingLoaFields, "loa.LoaUic")
 		}
 		if loa.LoaBgFyTx == nil || loa.LoaEndFyTx == nil { // Ending Fiscal Year Indicator (A3)
-			// LoaEndFyTx = LoaBgFyTx and LoaEndFyTx
+			// A3 is a concatenation of both LoaBgFyTx and LoaEndFyTx
 			if loa.LoaBgFyTx == nil {
 				missingLoaFields = append(missingLoaFields, "loa.LoaBgFyTx")
 			}
