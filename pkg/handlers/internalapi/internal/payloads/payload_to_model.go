@@ -131,8 +131,10 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	model := &models.PPMShipment{
 		PickupPostalCode:               *ppmShipment.PickupPostalCode,
 		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryPickupPostalCode),
+		TertiaryPickupPostalCode:       handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.TertiaryPickupPostalCode),
 		DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryDestinationPostalCode),
+		TertiaryDestinationPostalCode:  handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.TertiaryDestinationPostalCode),
 		SITExpected:                    ppmShipment.SitExpected,
 		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
@@ -146,6 +148,11 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		model.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
 	}
 
+	model.HasTertiaryPickupAddress = handlers.FmtBool(ppmShipment.TertiaryPickupAddress != nil)
+	if ppmShipment.TertiaryPickupAddress != nil {
+		model.TertiaryPickupAddress = AddressModel(ppmShipment.TertiaryPickupAddress)
+	}
+
 	if ppmShipment.DestinationAddress != nil {
 		model.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
 	}
@@ -153,6 +160,11 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	model.HasSecondaryDestinationAddress = handlers.FmtBool(ppmShipment.SecondaryDestinationAddress != nil)
 	if ppmShipment.SecondaryDestinationAddress != nil {
 		model.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
+	}
+
+	model.HasTertiaryDestinationAddress = handlers.FmtBool(ppmShipment.TertiaryDestinationAddress != nil)
+	if ppmShipment.TertiaryDestinationAddress != nil {
+		model.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
 	}
 
 	return model

@@ -1969,8 +1969,7 @@ definitions:
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       tertiaryDestinationAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
       tertiaryPickupPostalCode:
         format: zip
         title: ZIP
@@ -1978,8 +1977,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
       tertiaryPickupAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
       tertiaryDestinationPostalCode:
         format: zip
         title: ZIP

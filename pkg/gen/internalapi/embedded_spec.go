@@ -3547,11 +3547,7 @@ func init() {
           "type": "boolean"
         },
         "tertiaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDestinationPostalCode": {
           "format": "zip",
@@ -3561,11 +3557,7 @@ func init() {
           "example": "90210"
         },
         "tertiaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "tertiaryPickupPostalCode": {
           "format": "zip",
@@ -11593,11 +11585,7 @@ func init() {
           "type": "boolean"
         },
         "tertiaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDestinationPostalCode": {
           "format": "zip",
@@ -11607,11 +11595,7 @@ func init() {
           "example": "90210"
         },
         "tertiaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "tertiaryPickupPostalCode": {
           "format": "zip",
