@@ -98,6 +98,7 @@ const renderOfficeAppAtRoute = (route, role) => {
           traceId=""
           loginIsLoading={!!role}
           userIsLoggedIn={!!role}
+          hqRoleFlag
         />
       </Provider>
     </MemoryRouter>,

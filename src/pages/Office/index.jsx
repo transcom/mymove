@@ -108,7 +108,7 @@ export class OfficeApp extends Component {
       info: undefined,
       oktaLoggedOut: undefined,
       oktaNeedsLoggedOut: undefined,
-      hqRoleFlag: false,
+      hqRoleFlag: !!props.hqRoleFlag,
     };
   }
 
