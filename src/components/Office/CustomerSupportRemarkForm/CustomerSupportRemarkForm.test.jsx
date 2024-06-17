@@ -19,7 +19,7 @@ beforeEach(() => {
 
 const qaeTestState = {
   auth: {
-    activeRole: roleTypes.QAE_CSR,
+    activeRole: roleTypes.QAE,
     isLoading: false,
     isLoggedIn: true,
   },
@@ -27,7 +27,7 @@ const qaeTestState = {
     user: {
       userId123: {
         id: 'userId123',
-        roles: [{ roleType: roleTypes.QAE_CSR }],
+        roles: [{ roleType: roleTypes.QAE }],
         office_user: {
           first_name: 'Amanda',
           last_name: 'Gorman',
