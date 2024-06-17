@@ -158,9 +158,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLID() {
 		Emplid:      &emplid,
 	}
 
-	result := formatEmplid(serviceMember)
+	result, err := formatEmplid(serviceMember)
 
 	suite.Equal("EMPLID: 9999999", *result)
+	suite.NoError(err)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNotCG() {
@@ -174,9 +175,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNotCG() {
 		Emplid:      &emplid,
 	}
 
-	result := formatEmplid(serviceMember)
+	result, err := formatEmplid(serviceMember)
 
 	suite.Equal("12345567890", *result)
+	suite.NoError(err)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNull() {
@@ -188,9 +190,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNull() {
 		Affiliation: &affiliation,
 	}
 
-	result := formatEmplid(serviceMember)
+	result, err := formatEmplid(serviceMember)
 
 	suite.Equal("12345567890", *result)
+	suite.NoError(err)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
