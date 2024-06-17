@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { generatePath, Link, useParams, useNavigate } from 'react-router-dom';
+import { generatePath, Link, useParams } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,7 +30,6 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import ServiceItemContainer from 'components/Office/ServiceItemContainer/ServiceItemContainer';
-import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   acknowledgeExcessWeightRisk,
@@ -46,7 +45,7 @@ import {
   updateServiceItemSITEntryDate,
   updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
-import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -124,8 +123,6 @@ export const MoveTaskOrder = (props) => {
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
-  const navigate = useNavigate();
-
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
   }, []);
@@ -729,17 +726,6 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
-  const handleButtonDropdownChange = (e) => {
-    const selectedOption = e.target.value;
-
-    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
-      moveCode,
-      shipmentType: selectedOption,
-    })}`;
-
-    navigate(addShipmentPath);
-  };
-
   /**
    * @typedef AddressShape
    * @prop {string} city
@@ -1138,19 +1124,6 @@ export const MoveTaskOrder = (props) => {
               <WeightDisplay heading="PPM estimated weight (total)" weightValue={estimatedPPMWeightTotal} />
               <WeightDisplay heading="Actual PPM weight (total)" weightValue={ppmWeightTotal} />
             </div>
-          )}
-          {!isMoveLocked && (
-            <Restricted to={permissionTypes.createTxoShipment}>
-              <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
-                <option value="">Add a new shipment</option>
-                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                  HHG
-                </option>
-                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-              </ButtonDropdown>
-            </Restricted>
           )}
           {mtoShipments.map((mtoShipment) => {
             if (
