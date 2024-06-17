@@ -483,7 +483,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		SecondaryTelephone: customer.SecondaryTelephone,
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
-		CacValidated:       swag.BoolValue(&customer.CacValidated),
+		CacValidated:       &customer.CacValidated,
 	}
 	return &payload
 }
@@ -1585,6 +1585,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
 		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
+		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
 	}
 }
@@ -1898,48 +1899,33 @@ func findEarliestDateForRequestedMoveDate(shipment models.MTOShipment) (earliest
 	return earliestDate
 }
 
-var (
-	// QueuePaymentRequestPaymentRequested status payment requested
-	QueuePaymentRequestPaymentRequested = "Payment requested"
-	// QueuePaymentRequestReviewed status Payment request reviewed
-	QueuePaymentRequestReviewed = "Reviewed"
-	// QueuePaymentRequestRejected status Payment request rejected
-	QueuePaymentRequestRejected = "Rejected"
-	// QueuePaymentRequestPaid status PaymentRequest paid
-	QueuePaymentRequestPaid = "Paid"
-	// QueuePaymentRequestDeprecated status PaymentRequest deprecated
-	QueuePaymentRequestDeprecated = "Deprecated"
-	// QueuePaymentRequestError status PaymentRequest error
-	QueuePaymentRequestError = "Error"
-)
-
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
 func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 	// If a payment request is in the PENDING state, let's use the term 'payment requested'
 	if paymentRequest.Status == models.PaymentRequestStatusPending {
-		return QueuePaymentRequestPaymentRequested
+		return models.QueuePaymentRequestPaymentRequested
 	}
 
 	// If a payment request is either reviewed, sent_to_gex or recieved_by_gex then we'll use 'reviewed'
 	if paymentRequest.Status == models.PaymentRequestStatusSentToGex ||
 		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
 		paymentRequest.Status == models.PaymentRequestStatusReviewed {
-		return QueuePaymentRequestReviewed
+		return models.QueuePaymentRequestReviewed
 	}
 
 	if paymentRequest.Status == models.PaymentRequestStatusReviewedAllRejected {
-		return QueuePaymentRequestRejected
+		return models.QueuePaymentRequestRejected
 	}
 
 	if paymentRequest.Status == models.PaymentRequestStatusPaid {
-		return QueuePaymentRequestPaid
+		return models.QueuePaymentRequestPaid
 	}
 
 	if paymentRequest.Status == models.PaymentRequestStatusDeprecated {
-		return QueuePaymentRequestDeprecated
+		return models.QueuePaymentRequestDeprecated
 	}
 
-	return QueuePaymentRequestError
+	return models.QueuePaymentRequestError
 
 }
 

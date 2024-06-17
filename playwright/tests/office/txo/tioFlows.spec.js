@@ -480,8 +480,9 @@ test.describe('TIO user', () => {
       await page.locator('#locator').type(tioFlowPage.moveLocator);
       await page.locator('#locator').blur();
       const paymentSection = page.locator(`[data-uuid="${tioFlowPage.paymentRequest.id}"]`);
-      await expect(paymentSection).toHaveCount(1);
-      await expect(paymentSection.locator('td', { hasText: 'Reviewed' })).toBeVisible();
+      // the payment request that is now in the "Reviewed" status will no longer appear
+      // in the TIO queue - only "Payment requested" moves will appear
+      await expect(paymentSection.locator('td', { hasText: 'Reviewed' })).not.toBeVisible();
     });
 
     // This is a stripped down version of the above to build tests on for MB-7936
