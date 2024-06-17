@@ -2054,6 +2054,7 @@ func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustome
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
 			DodID:         customer.Edipi,
+			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
 			PersonalEmail: *customer.PersonalEmail,

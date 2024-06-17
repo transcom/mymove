@@ -390,6 +390,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -410,6 +417,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -3844,6 +3852,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -10191,6 +10200,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -12309,6 +12322,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -12329,6 +12349,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -16676,6 +16697,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -23409,6 +23431,10 @@ func init() {
           "type": "string"
         },
         "dodID": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "emplid": {
           "type": "string",
           "x-nullable": true
         },

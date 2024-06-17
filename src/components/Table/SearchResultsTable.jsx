@@ -241,6 +241,10 @@ const customerSearchColumns = () => [
     id: 'dodID',
     isFilterable: false,
   }),
+  createHeader('EMPLID', 'emplid', {
+    id: 'emplid',
+    isFilterable: false,
+  }),
   createHeader('Email', 'personalEmail', {
     id: 'personalEmail',
     isFilterable: false,

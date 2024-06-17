@@ -201,6 +201,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               branch:
                 description: Branch
                 type: string
@@ -213,7 +219,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum: [customerName, dodID, branch, personalEmail, telephone]
+                enum: [customerName, dodID, emplid, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -3248,7 +3254,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -4077,6 +4083,9 @@ definitions:
         example: Doe
         x-nullable: true
       dodID:
+        type: string
+        x-nullable: true
+      emplid:
         type: string
         x-nullable: true
       branch:
