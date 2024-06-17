@@ -52,20 +52,21 @@ const ShipmentAddresses = ({
         columnHeaders={[
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
-            {shipmentInfo.status !== shipmentStatuses.CANCELED && (
-              <Restricted to={permissionTypes.createShipmentDiversionRequest}>
-                <Restricted to={permissionTypes.updateMTOPage}>
-                  <Button
-                    type="button"
-                    onClick={() => handleShowDiversionModal(shipmentInfo)}
-                    unstyled
-                    disabled={isMoveLocked}
-                  >
-                    Request diversion
-                  </Button>
+            {shipmentInfo.status !== shipmentStatuses.CANCELED &&
+              shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.PPM && (
+                <Restricted to={permissionTypes.createShipmentDiversionRequest}>
+                  <Restricted to={permissionTypes.updateMTOPage}>
+                    <Button
+                      type="button"
+                      onClick={() => handleShowDiversionModal(shipmentInfo)}
+                      unstyled
+                      disabled={isMoveLocked}
+                    >
+                      Request diversion
+                    </Button>
+                  </Restricted>
                 </Restricted>
-              </Restricted>
-            )}
+              )}
           </div>,
         ]}
         dataRow={[

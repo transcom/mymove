@@ -3340,8 +3340,8 @@ paths:
             type: string
             enum:
               - SUBMITTED
+              - SERVICE COUNSELING COMPLETED
               - APPROVALS REQUESTED
-              - APPROVED
         - in: query
           name: orderType
           type: string
@@ -3830,7 +3830,7 @@ definitions:
         example: customer
       roleName:
         type: string
-        example: Transportation Ordering Officer
+        example: Task Ordering Officer
       createdAt:
         type: string
         format: date-time
@@ -3987,12 +3987,12 @@ definitions:
     properties:
       name:
         type: string
-        example: Transportation Ordering Officer
+        example: Task Ordering Officer
         x-nullable: true
         title: name
       roleType:
         type: string
-        example: transportation_ordering_officer
+        example: task_ordering_officer
         x-nullable: true
         title: roleType
   Customer:
@@ -4054,6 +4054,7 @@ definitions:
         $ref: '#/definitions/Address'
       cacValidated:
         type: boolean
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -7150,6 +7151,10 @@ definitions:
         x-nullable: true
       serviceRequestDocuments:
         $ref: '#/definitions/ServiceRequestDocuments'
+      estimatedPrice:
+        type: integer
+        format: cents
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array

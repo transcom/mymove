@@ -44,10 +44,12 @@ const ppmShipmentSchema = ({
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     sitExpected: Yup.boolean().required('Required'),
-    sitEstimatedWeight: Yup.number().when('sitExpected', {
-      is: true,
-      then: (schema) => schema.required('Required'),
-    }),
+    sitEstimatedWeight: Yup.number()
+      .min(1, 'Enter a weight greater than 0 lbs')
+      .when('sitExpected', {
+        is: true,
+        then: (schema) => schema.required('Required'),
+      }),
     sitEstimatedEntryDate: Yup.date()
       .when('sitExpected', {
         is: true,

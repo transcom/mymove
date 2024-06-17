@@ -2740,7 +2740,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -2789,6 +2789,12 @@ func init() {
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
+        },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -7921,7 +7927,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -7970,6 +7976,12 @@ func init() {
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
+        },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
