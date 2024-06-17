@@ -12,6 +12,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -19,11 +20,13 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -333,6 +336,18 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
 	return page2
+}
+
+func formatEmplid(serviceMember models.ServiceMember) *string {
+	const prefix = "EMPLID:"
+	const separator = " "
+	if *serviceMember.Affiliation == models.AffiliationCOASTGUARD && serviceMember.Emplid != nil {
+		slice := []string{prefix, *serviceMember.Emplid}
+		formattedReturn := strings.Join(slice, separator)
+		return &formattedReturn
+	} else {
+		return serviceMember.Edipi
+	}
 }
 
 func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
@@ -702,6 +717,19 @@ func (SSWPPMComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
 func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
 
+	// Section below fetches the Coast Guard EMPLID Feature flag value
+	featureflagconfig := cli.GetFliptFetcherConfig(viper.GetViper())
+
+	newFeatureFlagService, err := featureflag.NewFeatureFlagFetcher(featureflagconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	ff, err := newFeatureFlagService.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), appCtx.Session().UserID.String(), "PPM", nil)
+	if err != nil {
+		return nil, err
+	}
+
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
@@ -721,6 +749,10 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 	if ppmShipment.Shipment.MoveTaskOrder.Orders.Grade == nil {
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
+	}
+
+	if ff.Match { // If feature flag is true, call function to use emplid if available
+		serviceMember.Edipi = formatEmplid(serviceMember)
 	}
 
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
