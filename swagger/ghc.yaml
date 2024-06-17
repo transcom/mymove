@@ -5436,6 +5436,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryDeliveryAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -5797,20 +5811,34 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryPickupAddress:
+      tertiaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -8173,15 +8201,34 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      hasSecondaryPickupAddress:
-        type: boolean
-        x-omitempty: false
-        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
           - x-nullable: true
           - x-omitempty: false
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupPostalCode:
+        format: >-
+          An optional secondary pickup location near the origin where additional
+          goods exist.
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -8215,15 +8262,34 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      hasSecondaryDestinationAddress:
-        type: boolean
-        x-omitempty: false
-        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
           - x-nullable: true
           - x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
+      tertiaryDestinationPostalCode:
+        format: >-
+          An optional tertiary pickup location near the origin where additional
+          goods exist.
+        type: string
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5})$
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once

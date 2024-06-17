@@ -1819,9 +1819,21 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDeliveryAddress:
         $ref: "definitions/Address.yaml"
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDeliveryAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -1877,9 +1889,13 @@ definitions:
         $ref: "definitions/Address.yaml"
       secondaryPickupAddress:
         $ref: "definitions/Address.yaml"
+      tertiaryPickupAddress:
+        $ref: "definitions/Address.yaml"
       destinationAddress:
         $ref: "definitions/Address.yaml"
       secondaryDeliveryAddress:
+        $ref: "definitions/Address.yaml"
+      tertiaryDeliveryAddress:
         $ref: "definitions/Address.yaml"
       agents:
         $ref: "#/definitions/MTOAgents"
@@ -1926,7 +1942,31 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       secondaryDestinationAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
+      tertiaryPickupPostalCode:
+        format: zip
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        $ref: definitions/NullableString.yaml
+      tertiaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
+      tertiaryDestinationPostalCode:
+        format: zip
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        $ref: definitions/NullableString.yaml
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
     required:
@@ -1971,6 +2011,18 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupPostalCode:
+        format: zip
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        $ref: definitions/NullableString.yaml
+      tertiaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
@@ -1998,6 +2050,18 @@ definitions:
       secondaryDestinationAddress:
         $ref: "definitions/Address.yaml"
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationPostalCode:
+        format: zip
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        $ref: definitions/NullableString.yaml
+      tertiaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
+      hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -2090,11 +2154,23 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationAddress:
         $ref: "definitions/Address.yaml"
       secondaryDeliveryAddress:
         $ref: "definitions/Address.yaml"
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false

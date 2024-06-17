@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useEffect, useState } from 'react';
 import { string, shape } from 'prop-types';
 
 import { AddressShape } from '../../../../types/address';
@@ -7,14 +7,26 @@ import styles from './ShipmentCard.module.scss';
 
 import { formatCustomerDate } from 'utils/formatters';
 import { formatCustomerDestination } from 'utils/shipmentDisplay';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const DeliveryDisplay = ({
   destinationLocation,
   destinationZIP,
   secondaryDeliveryAddress,
+  tertiaryDeliveryAddress,
   receivingAgent,
   requestedDeliveryDate,
 }) => {
+  const [isTertiaryAddressEnabled, setYourFFHere] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('third_address_available').then((enabled) => {
+        setYourFFHere(enabled);
+      });
+    };
+    fetchData();
+  }, []);
+
   return (
     <>
       <div className={styles.row}>
@@ -31,7 +43,12 @@ const DeliveryDisplay = ({
           <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
         </div>
       )}
-
+      {isTertiaryAddressEnabled && secondaryDeliveryAddress && tertiaryDeliveryAddress && (
+        <div className={styles.row}>
+          <dt>Third Destination</dt>
+          <dd>{formatCustomerDestination(tertiaryDeliveryAddress)}</dd>
+        </div>
+      )}
       {receivingAgent && (
         <div className={styles.row}>
           <dt>Receiving agent</dt>

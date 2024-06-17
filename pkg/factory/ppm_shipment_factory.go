@@ -139,6 +139,26 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				},
 			},
 		}, nil)
+		tertiaryPickupAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Third Street",
+					City:           pickupAddress.City,
+					State:          pickupAddress.State,
+					PostalCode:     pickupAddress.PostalCode,
+				},
+			},
+		}, nil)
+		tertiaryDestinationAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Third Street",
+					City:           destinationAddress.City,
+					State:          destinationAddress.State,
+					PostalCode:     destinationAddress.PostalCode,
+				},
+			},
+		}, nil)
 		ppmShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
 		ppmShipment.SecondaryPickupAddress = &secondaryPickupAddress
 		ppmShipment.SecondaryPickupPostalCode = &secondaryPickupAddress.PostalCode
@@ -148,6 +168,16 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
 		ppmShipment.SecondaryDestinationPostalCode = &secondaryDestinationAddress.PostalCode
 		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
+
+		ppmShipment.TertiaryPickupAddressID = &tertiaryPickupAddress.ID
+		ppmShipment.TertiaryPickupAddress = &tertiaryPickupAddress
+		ppmShipment.TertiaryPickupPostalCode = &tertiaryPickupAddress.PostalCode
+		ppmShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
+
+		ppmShipment.TertiaryDestinationAddressID = &tertiaryDestinationAddress.ID
+		ppmShipment.TertiaryDestinationAddress = &tertiaryDestinationAddress
+		ppmShipment.TertiaryDestinationPostalCode = &tertiaryDestinationAddress.PostalCode
+		ppmShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 	}
 
 	// Overwrite values with those from customizations
