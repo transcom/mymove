@@ -101,7 +101,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 
 	interchangeControlNumber, err := g.icnSequencer.NextVal(appCtx)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to get next Interchange Control Number: %w", err)
+		return ediinvoice.Invoice858C{}, fmt.Errorf("failed to get next Interchange Control Number: %w", err)
 	}
 
 	// save ICN
@@ -112,9 +112,9 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 	}
 	verrs, err := appCtx.DB().ValidateAndSave(&pr2icn)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %w", err)
+		return ediinvoice.Invoice858C{}, fmt.Errorf("failed to save Interchange Control Number: %w", err)
 	} else if verrs != nil && verrs.HasAny() {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %s", verrs.String())
+		return ediinvoice.Invoice858C{}, fmt.Errorf("failed to save Interchange Control Number: %s", verrs.String())
 	}
 
 	var usageIndicator string
@@ -712,7 +712,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 
 	// Nil check on service member affiliation
 	if orders.ServiceMember.Affiliation == nil {
-		return nil, apperror.NewQueryError("orders", fmt.Errorf("Could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
+		return nil, apperror.NewQueryError("orders", fmt.Errorf("could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
 	}
 
 	loas, err := FetchLongLinesOfAccountingForInvoice(*orders.ServiceMember.Affiliation, orders.IssueDate, tac, appCtx)
@@ -893,7 +893,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(appCtx appcontext.App
 	}
 	weightInt, err := strconv.Atoi(weight.Value)
 	if err != nil {
-		return 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, fmt.Errorf("could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
 	return weightInt, nil
@@ -907,7 +907,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(app
 
 	cubicFeetFloat, err := strconv.ParseFloat(cubicFeet.Value, 64)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse cubic feet as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, fmt.Errorf("could not parse cubic feet as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
 	rate, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, models.ServiceItemParamNamePriceRateOrFactor)
@@ -916,7 +916,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(app
 	}
 	rateFloat, err := strconv.ParseFloat(rate.Value, 64)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse rate as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, fmt.Errorf("could not parse rate as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
 	return cubicFeetFloat, rateFloat, nil
@@ -944,7 +944,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(appCtx app
 	}
 	distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, fmt.Errorf("could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 	return weight, distanceFloat, nil
 }
