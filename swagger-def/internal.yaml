@@ -1944,8 +1944,7 @@ definitions:
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
-        allOf:
-          - $ref: 'definitions/Address.yaml'
+        $ref: 'definitions/Address.yaml'
       tertiaryPickupPostalCode:
         format: zip
         title: ZIP
@@ -1953,8 +1952,7 @@ definitions:
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
       tertiaryPickupAddress:
-        allOf:
-          - $ref: 'definitions/Address.yaml'
+        $ref: 'definitions/Address.yaml'
       tertiaryDestinationPostalCode:
         format: zip
         title: ZIP
