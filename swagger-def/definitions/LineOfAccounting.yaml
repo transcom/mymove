@@ -3,16 +3,16 @@ properties:
   id:
     type: string
     format: uuid
-    example: "06254fc3-b763-484c-b555-42855d1ad5cd"
+    example: '06254fc3-b763-484c-b555-42855d1ad5cd'
   loaSysId:
     type: string
     maxLength: 20
-    example: "10003"
+    example: '10003'
     x-nullable: true
   loaDptID:
     type: string
     maxLength: 2
-    example: "1 "
+    example: '1 '
     x-nullable: true
   loaTnsfrDptNm:
     type: string
@@ -21,12 +21,12 @@ properties:
   loaBafID:
     type: string
     maxLength: 4
-    example: "1234"
+    example: '1234'
     x-nullable: true
   loaTrsySfxTx:
     type: string
     maxLength: 4
-    example: "0000"
+    example: '0000'
     x-nullable: true
   loaMajClmNm:
     type: string
@@ -35,17 +35,17 @@ properties:
   loaOpAgncyID:
     type: string
     maxLength: 4
-    example: "1A"
+    example: '1A'
     x-nullable: true
   loaAlltSnID:
     type: string
     maxLength: 5
-    example: "123A"
+    example: '123A'
     x-nullable: true
   loaPgmElmntID:
     type: string
     maxLength: 12
-    example: "00000000"
+    example: '00000000'
     x-nullable: true
   loaTskBdgtSblnTx:
     type: string
@@ -82,7 +82,7 @@ properties:
   loaObjClsID:
     type: string
     maxLength: 6
-    example: "22NL"
+    example: '22NL'
     x-nullable: true
   loaSrvSrcID:
     type: string
@@ -95,12 +95,12 @@ properties:
   loaBdgtAcntClsNm:
     type: string
     maxLength: 8
-    example: "000000"
+    example: '000000'
     x-nullable: true
   loaDocID:
     type: string
     maxLength: 15
-    example: "HHG12345678900"
+    example: 'HHG12345678900'
     x-nullable: true
   loaClsRefID:
     type: string
@@ -109,7 +109,7 @@ properties:
   loaInstlAcntgActID:
     type: string
     maxLength: 6
-    example: "12345"
+    example: '12345'
     x-nullable: true
   loaLclInstlID:
     type: string
@@ -121,17 +121,17 @@ properties:
     x-nullable: true
   loaDscTx:
     type: string
-    example: "PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)"
+    example: 'PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)'
     x-nullable: true
   loaBgnDt:
     type: string
     format: date
-    example: "2005-10-01"
+    example: '2005-10-01'
     x-nullable: true
   loaEndDt:
     type: string
     format: date
-    example: "2015-10-01"
+    example: '2015-10-01'
     x-nullable: true
   loaFnctPrsNm:
     type: string
@@ -140,7 +140,7 @@ properties:
   loaStatCd:
     type: string
     maxLength: 1
-    example: "U"
+    example: 'U'
     x-nullable: true
   loaHistStatCd:
     type: string
@@ -149,12 +149,12 @@ properties:
   loaHsGdsCd:
     type: string
     maxLength: 2
-    example: "HT"
+    example: 'HT'
     x-nullable: true
   orgGrpDfasCd:
     type: string
     maxLength: 2
-    example: "ZZ"
+    example: 'ZZ'
     x-nullable: true
   loaUic:
     type: string
@@ -163,7 +163,7 @@ properties:
   loaTrnsnID:
     type: string
     maxLength: 3
-    example: "B1"
+    example: 'B1'
     x-nullable: true
   loaSubAcntID:
     type: string
@@ -252,8 +252,14 @@ properties:
   createdAt:
     type: string
     format: date-time
-    example: "2023-08-03T19:17:10.050Z"
+    example: '2023-08-03T19:17:10.050Z'
   updatedAt:
     type: string
     format: date-time
-    example: "2023-08-03T19:17:38.776Z"
+    example: '2023-08-03T19:17:38.776Z'
+  validLoaForTac:
+    type: boolean
+    x-nullable: true
+  validHhgProgramCodeForLoa:
+    type: boolean
+    x-nullable: true
