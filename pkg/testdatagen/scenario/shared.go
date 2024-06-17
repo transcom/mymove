@@ -8642,7 +8642,7 @@ func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err))
 	}
 	// no need to create
 	if officeUserExists {
@@ -8653,7 +8653,7 @@ func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
 	customerServiceRepresentativeRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeCustomerServiceRepresentative).First(&customerServiceRepresentativeRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomerServiceRepresentative in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeCustomerServiceRepresentative in the DB: %w", err))
 	}
 
 	csrUUID := uuid.Must(uuid.FromString("72432922-BF2E-45DE-8837-1A458F5D1011"))
