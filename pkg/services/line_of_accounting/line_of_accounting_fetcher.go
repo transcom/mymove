@@ -169,6 +169,15 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 		if loa.LoaUic == nil { // Activity Address Code/UIC (B3)
 			missingLoaFields = append(missingLoaFields, "loa.LoaUic")
 		}
+		if loa.LoaBgFyTx == nil || loa.LoaEndFyTx == nil { // Ending Fiscal Year Indicator (A3)
+			// LoaEndFyTx = LoaBgFyTx and LoaEndFyTx
+			if loa.LoaBgFyTx == nil {
+				missingLoaFields = append(missingLoaFields, "loa.LoaBgFyTx")
+			}
+			if loa.LoaEndFyTx == nil {
+				missingLoaFields = append(missingLoaFields, "loa.LoaEndFyTx")
+			}
+		}
 
 		if missingLoaFields != nil {
 			validLoaForTac = false
