@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 )
 
 func TestOrder(_ *testing.T) {
@@ -18,7 +19,8 @@ func TestOrder(_ *testing.T) {
 
 // TestMove makes sure zero values/optional fields are handled
 func TestMove(_ *testing.T) {
-	Move(&models.Move{})
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	Move(fakeS3, &models.Move{})
 }
 
 func (suite *PayloadsSuite) TestFetchPPMShipment() {

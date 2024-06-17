@@ -579,7 +579,7 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(
 
 			h.triggerAcknowledgeExcessWeightRiskEvent(appCtx, updatedMove.ID, params)
 
-			movePayload := payloads.Move(updatedMove)
+			movePayload := payloads.Move(h.FileStorer(), updatedMove)
 
 			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload), nil
 		})

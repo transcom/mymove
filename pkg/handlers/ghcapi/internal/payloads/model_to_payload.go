@@ -52,7 +52,7 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 // Move payload
-func Move(move *models.Move) *ghcmessages.Move {
+func Move(storer storage.FileStorer, move *models.Move) *ghcmessages.Move {
 	if move == nil {
 		return nil
 	}
@@ -62,6 +62,12 @@ func Move(move *models.Move) *ghcmessages.Move {
 		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 	} else if move.Orders.OriginDutyLocationGBLOC != nil {
 		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
+
+	// JOEY DOYE
+	document, documentModelErr := PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+	if documentModelErr != nil {
+		return nil
 	}
 
 	payload := &ghcmessages.Move{
@@ -92,6 +98,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
+		AdditionalDocuments:          document,
 	}
 
 	return payload
@@ -1416,7 +1423,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ID:                              *handlers.FmtUUID(pr.ID),
 		IsFinal:                         &pr.IsFinal,
 		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:                   Move(&pr.MoveTaskOrder),
+		MoveTaskOrder:                   Move(storer, &pr.MoveTaskOrder),
 		PaymentRequestNumber:            pr.PaymentRequestNumber,
 		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
 		RejectionReason:                 pr.RejectionReason,
@@ -1761,6 +1768,7 @@ func PayloadForUploadModel(
 func PayloadForDocumentModel(storer storage.FileStorer, document models.Document) (*ghcmessages.Document, error) {
 	uploads := make([]*ghcmessages.Upload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
+		// JOEY DOYE
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
 		}

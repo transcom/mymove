@@ -336,6 +336,9 @@ export const useReviewShipmentWeightsQuery = (moveCode) => {
     },
   });
 
+  // JOEY DOYE
+  // console.log(move, mtoShipments, orders);
+
   // attach ppm documents to their respective ppm shipments
   const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
 

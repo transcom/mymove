@@ -8074,6 +8074,10 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "description": "Document that is associated with the user uploads containing the supporting documents.",
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",
@@ -21743,6 +21747,10 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "description": "Document that is associated with the user uploads containing the supporting documents.",
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",

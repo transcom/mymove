@@ -131,6 +131,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"LockedByOfficeUser",
 		"AdditionalDocuments",
 		"AdditionalDocuments.UserUploads",
+		"AdditionalDocuments.UserUploads.Upload",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {

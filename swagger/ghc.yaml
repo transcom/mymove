@@ -4509,6 +4509,11 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      additionalDocuments:
+        description: >-
+          Document that is associated with the user uploads containing the
+          supporting documents.
+        $ref: '#/definitions/Document'
   MoveHistory:
     properties:
       id:
@@ -6829,6 +6834,76 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+  Upload:
+    description: An uploaded file.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      filename:
+        type: string
+        example: filename.pdf
+        readOnly: true
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+        readOnly: true
+      bytes:
+        type: integer
+        readOnly: true
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      isWeightTicket:
+        type: boolean
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/Upload'
+    required:
+      - id
+      - service_member_id
+      - uploads
   NullableString:
     type: string
     x-go-type:
@@ -6964,57 +7039,6 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
-  Upload:
-    description: An uploaded file.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      filename:
-        type: string
-        example: filename.pdf
-        readOnly: true
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-        readOnly: true
-      bytes:
-        type: integer
-        readOnly: true
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-      isWeightTicket:
-        type: boolean
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
   ServiceRequestDocument:
     type: object
     properties:
@@ -7490,25 +7514,6 @@ definitions:
       - EDITED
       - RECEIVED
       - NOT_RECEIVED
-  Document:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
   OmittablePPMDocumentStatus:
     description: Status of the PPM document.
     type: string

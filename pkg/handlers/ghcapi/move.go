@@ -81,7 +81,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				appCtx.Logger().Error("Invalid permissions")
 				return moveop.NewGetMoveNotFound(), nil
 			} else {
-				payload := payloads.Move(move)
+				payload := payloads.Move(h.FileStorer(), move)
 				return moveop.NewGetMoveOK().WithPayload(payload), nil
 			}
 		})
@@ -174,7 +174,7 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 				}
 			}
 
-			payload := payloads.Move(move)
+			payload := payloads.Move(h.FileStorer(), move)
 			return moveop.NewSetFinancialReviewFlagOK().WithPayload(payload), nil
 		})
 }
@@ -204,6 +204,6 @@ func (h UpdateMoveCloseoutOfficeHandler) Handle(params moveop.UpdateCloseoutOffi
 				}
 			}
 
-			return moveop.NewUpdateCloseoutOfficeOK().WithPayload(payloads.Move(move)), nil
+			return moveop.NewUpdateCloseoutOfficeOK().WithPayload(payloads.Move(h.FileStorer(), move)), nil
 		})
 }

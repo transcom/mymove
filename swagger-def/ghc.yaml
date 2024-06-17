@@ -4346,6 +4346,9 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      additionalDocuments:
+        description: Document that is associated with the user uploads containing the supporting documents.
+        $ref: 'definitions/Document.yaml'
   MoveHistory:
     properties:
       id:
