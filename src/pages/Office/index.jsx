@@ -19,6 +19,8 @@ import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
 } from 'shared/Swagger/ducks';
+// Feature Flags
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 // Shared layout components
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
@@ -106,6 +108,7 @@ export class OfficeApp extends Component {
       info: undefined,
       oktaLoggedOut: undefined,
       oktaNeedsLoggedOut: undefined,
+      hqRoleFlag: false,
     };
   }
 
@@ -134,6 +137,19 @@ export class OfficeApp extends Component {
         oktaNeedsLoggedOut: true,
       });
     }
+
+    // Feature Flag
+    const fetchFeatureFlags = async () => {
+      try {
+        const hqRoleFlagValue = await isBooleanFlagEnabled('HEADQUARTERS_ROLE');
+        this.setState({
+          hqRoleFlag: hqRoleFlagValue,
+        });
+      } catch (error) {
+        retryPageLoading(error);
+      }
+    };
+    fetchFeatureFlags();
   }
 
   componentDidCatch(error, info) {
@@ -148,7 +164,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -260,7 +276,7 @@ export class OfficeApp extends Component {
                       path="/hq/queues"
                       end
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                        <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
                           <HeadquartersQueues />
                         </PrivateRoute>
                       }
@@ -331,7 +347,7 @@ export class OfficeApp extends Component {
                         path="/:queueType/*"
                         end
                         element={
-                          <PrivateRoute requiredRoles={[roleTypes.HQ]}>
+                          <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
                             <HeadquartersQueues />
                           </PrivateRoute>
                         }
@@ -516,8 +532,8 @@ export class OfficeApp extends Component {
                             roleTypes.TOO,
                             roleTypes.TIO,
                             roleTypes.QAE,
-                            roleTypes.HQ,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                            hqRoleFlag ? roleTypes.HQ : undefined,
                           ]}
                         >
                           <TXOMoveInfo />
@@ -530,6 +546,9 @@ export class OfficeApp extends Component {
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
                     {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.HQ && !hqRoleFlag && (
+                      <Route end path="/*" element={<InvalidPermissions />} />
+                    )}
                     {activeRole === roleTypes.HQ && <Route end path="/*" element={<HeadquartersQueues />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
