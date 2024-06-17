@@ -88,85 +88,85 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 		if loa.LoaSysID == nil {
 			missingLoaFields = append(missingLoaFields, "loa.LoaSysID")
 		}
-		if loa.LoaDptID == nil { // Department Indicator
+		if loa.LoaDptID == nil { // Department Indicator (A1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaDptID")
 		}
-		if loa.LoaTnsfrDptNm == nil { // Transfer from Department
+		if loa.LoaTnsfrDptNm == nil { // Transfer from Department (A2)
 			missingLoaFields = append(missingLoaFields, "loa.LoaTnsfrDptNm")
 		}
-		if loa.LoaBafID == nil { // Basic Symbol Number
+		if loa.LoaBafID == nil { // Basic Symbol Number (A4)
 			missingLoaFields = append(missingLoaFields, "loa.LoaBafID")
 		}
-		if loa.LoaTrsySfxTx == nil { // Subhead/Limit
+		if loa.LoaTrsySfxTx == nil { // Subhead/Limit (A5)
 			missingLoaFields = append(missingLoaFields, "loa.LoaTrsySfxTx")
 		}
-		if loa.LoaMajClmNm == nil { // Fund Code/MC
+		if loa.LoaMajClmNm == nil { // Fund Code/MC (A6)
 			missingLoaFields = append(missingLoaFields, "loa.LoaMajClmNm")
 		}
-		if loa.LoaOpAgncyID == nil { // Operating Agency Code/Fund Admin
+		if loa.LoaOpAgncyID == nil { // Operating Agency Code/Fund Admin (B1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaOpAgncyID")
 		}
-		if loa.LoaAlltSnID == nil { // Allotment Serial Number
+		if loa.LoaAlltSnID == nil { // Allotment Serial Number (B2)
 			missingLoaFields = append(missingLoaFields, "loa.LoaAlltSnID")
 		}
-		if loa.LoaPgmElmntID == nil { // Program Element
+		if loa.LoaPgmElmntID == nil { // Program Element (C1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaPgmElmntID")
 		}
-		if loa.LoaTskBdgtSblnTx == nil { // Project Task or Budget Sub line
+		if loa.LoaTskBdgtSblnTx == nil { // Project Task or Budget Sub line (C2)
 			missingLoaFields = append(missingLoaFields, "loa.LoaTskBdgtSblnTx")
 		}
-		if loa.LoaDfAgncyAlctnRcpntID == nil { // Defense Agency Allocation Recipient
+		if loa.LoaDfAgncyAlctnRcpntID == nil { // Defense Agency Allocation Recipient (D1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaDfAgncyAlctnRcpntID")
 		}
-		if loa.LoaJbOrdNm == nil { // Job Order/Work Order Code
+		if loa.LoaJbOrdNm == nil { // Job Order/Work Order Code (D4)
 			missingLoaFields = append(missingLoaFields, "loa.LoaJbOrdNm")
 		}
-		if loa.LoaSbaltmtRcpntID == nil { // Sub-allotment Recipient
+		if loa.LoaSbaltmtRcpntID == nil { // Sub-allotment Recipient (D6)
 			missingLoaFields = append(missingLoaFields, "loa.LoaSbaltmtRcpntID")
 		}
-		if loa.LoaWkCntrRcpntNm == nil { // Work Center Recipient
+		if loa.LoaWkCntrRcpntNm == nil { // Work Center Recipient (D7)
 			missingLoaFields = append(missingLoaFields, "loa.LoaWkCntrRcpntNm")
 		}
-		if loa.LoaMajRmbsmtSrcID == nil { // Major Reimbursement Source Code
+		if loa.LoaMajRmbsmtSrcID == nil { // Major Reimbursement Source Code (E1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaMajRmbsmtSrcID")
 		}
-		if loa.LoaDtlRmbsmtSrcID == nil { // Detail Reimbursement Source Code
+		if loa.LoaDtlRmbsmtSrcID == nil { // Detail Reimbursement Source Code (E2)
 			missingLoaFields = append(missingLoaFields, "loa.LoaDtlRmbsmtSrcID")
 		}
-		if loa.LoaCustNm == nil { // Customer Indicator/MPC
+		if loa.LoaCustNm == nil { // Customer Indicator/MPC (E3)
 			missingLoaFields = append(missingLoaFields, "loa.LoaCustNm")
 		}
-		if loa.LoaObjClsID == nil { // Object Class
+		if loa.LoaObjClsID == nil { // Object Class (F1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaObjClsID")
 		}
-		if loa.LoaSrvSrcID == nil { // Government or Public Sector Identifier
+		if loa.LoaSrvSrcID == nil { // Government or Public Sector Identifier (F3)
 			missingLoaFields = append(missingLoaFields, "loa.LoaSrvSrcID")
 		}
-		if loa.LoaSpclIntrID == nil { // Special Interest Code or Special Program Cost Code
+		if loa.LoaSpclIntrID == nil { // Special Interest Code or Special Program Cost Code (G2)
 			missingLoaFields = append(missingLoaFields, "loa.LoaSpclIntrID")
 		}
-		if loa.LoaBdgtAcntClsNm == nil { // Abbreviated Department of Defense (DoD) Budget and Accounting
+		if loa.LoaBdgtAcntClsNm == nil { // Abbreviated Department of Defense (DoD) Budget and Accounting (I1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaBdgtAcntClsNm")
 		}
-		if loa.LoaDocID == nil { // (SDN) Document or Record Reference Number
+		if loa.LoaDocID == nil { // (SDN) Document or Record Reference Number (J1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaDocID")
 		}
-		if loa.LoaClsRefID == nil { // (ACRN) Accounting Classification Reference Code
+		if loa.LoaClsRefID == nil { // (ACRN) Accounting Classification Reference Code (K6)
 			missingLoaFields = append(missingLoaFields, "loa.LoaClsRefID")
 		}
-		if loa.LoaInstlAcntgActID == nil { // Accounting Installation Number
+		if loa.LoaInstlAcntgActID == nil { // Accounting Installation Number (L1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaInstlAcntgActID")
 		}
-		if loa.LoaLclInstlID == nil { // Local Installation Data
+		if loa.LoaLclInstlID == nil { // Local Installation Data (M1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaLclInstlID")
 		}
-		if loa.LoaFmsTrnsactnID == nil { // Transaction Type
+		if loa.LoaFmsTrnsactnID == nil { // Transaction Type (N1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaFmsTrnsactnID")
 		}
-		if loa.LoaDscTx == nil { // Foreign Military Sales (FMS) Line Item Number
+		if loa.LoaDscTx == nil { // Foreign Military Sales (FMS) Line Item Number (P5)
 			missingLoaFields = append(missingLoaFields, "loa.LoaDscTx")
 		}
-		if loa.LoaUic == nil { // Activity Address Code/UIC
+		if loa.LoaUic == nil { // Activity Address Code/UIC (B3)
 			missingLoaFields = append(missingLoaFields, "loa.LoaUic")
 		}
 
