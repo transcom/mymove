@@ -9341,6 +9341,12 @@ definitions:
         type: string
         format: date-time
         example: '2023-08-03T19:17:38.776Z'
+      validLoaForTac:
+        type: boolean
+        x-nullable: true
+      validHhgProgramCodeForLoa:
+        type: boolean
+        x-nullable: true
 responses:
   InvalidRequest:
     description: The request payload is invalid
