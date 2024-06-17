@@ -259,14 +259,14 @@ const Orders = () => {
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
           // Conditionally set the LOA warning message based on off if it is missing or just invalid
-          const isLoaMissing = loaValidationState.loa === null || loaValidationState.loa === undefined;
-          let loaWarning = '';
+          const isHHGLoaMissing = loaValidationState.loa === null || loaValidationState.loa === undefined;
+          let hhgLoaWarning = '';
           // Making a nested ternary here goes against linter rules
           // The primary warning should be if it is missing, the other warning should be if it is invalid
-          if (isLoaMissing) {
-            loaWarning = loaMissingWarningMsg;
+          if (isHHGLoaMissing) {
+            hhgLoaWarning = loaMissingWarningMsg;
           } else if (!loaValidationState.isValid) {
-            loaWarning = loaInvalidWarningMsg;
+            hhgLoaWarning = loaInvalidWarningMsg;
           }
 
           return (
@@ -311,11 +311,11 @@ const Orders = () => {
                         ntsTacWarning={ntsTacWarning}
                         validateHHGTac={handleHHGTacValidation}
                         validateNTSTac={handleNTSTacValidation}
-                        loaWarning={loaWarning}
-                        validateLOA={() =>
+                        hhgLoaWarning={hhgLoaWarning}
+                        validateHHGLoa={() =>
                           handleLoaValidation(formik.values)
                         } /* loa validation requires access to the formik values scope */
-                        longLineOfAccounting={loaValidationState.longLineOfAccounting}
+                        hhgLongLineOfAccounting={loaValidationState.longLineOfAccounting}
                         showOrdersAcknowledgement={hasAmendedOrders}
                         ordersType={order.order_type}
                         setFieldValue={formik.setFieldValue}
@@ -332,11 +332,11 @@ const Orders = () => {
                       ntsTacWarning={ntsTacWarning}
                       validateHHGTac={handleHHGTacValidation}
                       validateNTSTac={handleNTSTacValidation}
-                      loaWarning={loaWarning}
-                      validateLOA={() =>
+                      hhgLoaWarning={hhgLoaWarning}
+                      validateHHGLoa={() =>
                         handleLoaValidation(formik.values)
                       } /* loa validation requires access to the formik values scope */
-                      longLineOfAccounting={loaValidationState.longLineOfAccounting}
+                      hhgLongLineOfAccounting={loaValidationState.longLineOfAccounting}
                       showOrdersAcknowledgement={hasAmendedOrders}
                       ordersType={order.order_type}
                       setFieldValue={formik.setFieldValue}
