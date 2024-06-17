@@ -672,7 +672,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 
 	// Nil check on service member affiliation
 	if orders.ServiceMember.Affiliation == nil {
-		return nil, apperror.NewQueryError("orders", fmt.Errorf("Could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
+		return nil, apperror.NewQueryError("orders", fmt.Errorf("could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
 	}
 
 	// Fetch the long lines of accounting for an invoice based off a service member, tacCode, and the orders issue date.
@@ -855,7 +855,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(appCtx appcontext.App
 	}
 	weightInt, err := strconv.Atoi(weight.Value)
 	if err != nil {
-		return 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, fmt.Errorf("could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
 	return weightInt, nil
@@ -869,7 +869,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(app
 
 	cubicFeetFloat, err := strconv.ParseFloat(cubicFeet.Value, 64)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse cubic feet as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, fmt.Errorf("could not parse cubic feet as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
 	rate, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, models.ServiceItemParamNamePriceRateOrFactor)
@@ -878,7 +878,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(app
 	}
 	rateFloat, err := strconv.ParseFloat(rate.Value, 64)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse rate as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, fmt.Errorf("could not parse rate as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
 	return cubicFeetFloat, rateFloat, nil
@@ -906,7 +906,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(appCtx app
 	}
 	distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, fmt.Errorf("could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 	return weight, distanceFloat, nil
 }
