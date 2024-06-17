@@ -261,14 +261,14 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
           // Conditionally set the LOA warning message based on off if it is missing or just invalid
-          const isLoaMissing = loaValidationState.loa === null || loaValidationState.loa === undefined;
-          let loaWarning = '';
+          const isHHGLoaMissing = loaValidationState.loa === null || loaValidationState.loa === undefined;
+          let hhgLoaWarning = '';
           // Making a nested ternary here goes against linter rules
           // The primary warning should be if it is missing, the other warning should be if it is invalid
-          if (isLoaMissing) {
-            loaWarning = loaMissingWarningMsg;
+          if (isHHGLoaMissing) {
+            hhgLoaWarning = loaMissingWarningMsg;
           } else if (!loaValidationState.isValid) {
-            loaWarning = loaInvalidWarningMsg;
+            hhgLoaWarning = loaInvalidWarningMsg;
           }
 
           return (
@@ -319,14 +319,14 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
                     setFieldValue={formik.setFieldValue}
                     hhgTacWarning={hhgTacWarning}
                     ntsTacWarning={ntsTacWarning}
-                    loaWarning={loaWarning}
+                    hhgLoaWarning={hhgLoaWarning}
                     validateHHGTac={handleHHGTacValidation}
-                    validateLOA={() =>
+                    validateHHGLoa={() =>
                       handleLoaValidation(formik.values)
                     } /* loa validation requires access to the formik values scope */
                     validateNTSTac={handleNTSTacValidation}
                     payGradeOptions={payGradeDropdownOptions}
-                    longLineOfAccounting={loaValidationState.longLineOfAccounting}
+                    hhgLongLineOfAccounting={loaValidationState.longLineOfAccounting}
                   />
                 </div>
                 <div className={styles.bottom}>
