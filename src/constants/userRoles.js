@@ -28,6 +28,7 @@ export const officeRoles = [
   roleTypes.TIO,
   roleTypes.SERVICES_COUNSELOR,
   roleTypes.PRIME_SIMULATOR,
+  roleTypes.QAE,
   roleTypes.HQ,
   roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
 ];
