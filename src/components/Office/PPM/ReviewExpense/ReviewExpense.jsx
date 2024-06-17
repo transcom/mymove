@@ -84,6 +84,7 @@ export default function ReviewExpense({
   onError,
   onSuccess,
   formRef,
+  readOnly,
 }) {
   const {
     movingExpenseType,
