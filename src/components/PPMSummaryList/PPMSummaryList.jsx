@@ -103,7 +103,16 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
       content = submittedContent;
       break;
     case ppmShipmentStatuses.WAITING_ON_CUSTOMER:
-      actionButtons = <Button onClick={onButtonClick}>Upload PPM Documents</Button>;
+      actionButtons = isFeedbackAvailable(shipment?.ppmShipment) ? (
+        [
+          <div>
+            <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
+            <Button onClick={onButtonClick}>Upload PPM Documents</Button>;
+          </div>,
+        ]
+      ) : (
+        <Button onClick={onButtonClick}>Upload PPM Documents</Button>
+      );
       content = approvedContent(approvedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.NEEDS_CLOSEOUT:
