@@ -147,7 +147,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				ServiceMemberID: maliciousUser.ID,
 			})
 
-			ppmShipment := factory.BuildPPMShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+			ppmShipment := factory.BuildFullAddressPPMShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				appCtx,
@@ -260,6 +260,20 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 					}
 					if suite.NotNil(actual.DestinationAddress) {
 						suite.Equal(expected.DestinationAddress.ID, actual.DestinationAddress.ID)
+					}
+
+					if suite.NotNil(actual.SecondaryPickupAddress) {
+						suite.Equal(expected.SecondaryPickupAddress.ID, actual.SecondaryPickupAddress.ID)
+					}
+					if suite.NotNil(actual.SecondaryDestinationAddress) {
+						suite.Equal(expected.SecondaryDestinationAddress.ID, actual.SecondaryDestinationAddress.ID)
+					}
+
+					if suite.NotNil(actual.TertiaryPickupAddress) {
+						suite.Equal(expected.TertiaryPickupAddress.ID, actual.TertiaryPickupAddress.ID)
+					}
+					if suite.NotNil(actual.TertiaryDestinationAddress) {
+						suite.Equal(expected.TertiaryDestinationAddress.ID, actual.TertiaryDestinationAddress.ID)
 					}
 
 					if suite.NotNil(actual.AOAPacket) {

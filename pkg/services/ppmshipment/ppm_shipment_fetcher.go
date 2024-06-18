@@ -43,10 +43,14 @@ const (
 	EagerPreloadAssociationPickupAddress = "PickupAddress"
 	// EagerPreloadAssociationSecondaryPickupAddress is the name of the association for the Secondary Pickup address
 	EagerPreloadAssociationSecondaryPickupAddress = "SecondaryPickupAddress"
+	// EagerPreloadAssociationSecondaryPickupAddress is the name of the association for the Secondary Pickup address
+	EagerPreloadAssociationTertiaryPickupAddress = "TertiaryPickupAddress"
 	// EagerPreloadAssociationDestinationAddress is the name of the association for the Destination address
 	EagerPreloadAssociationDestinationAddress = "DestinationAddress"
 	// EagerPreloadAssociationSecondaryDestinationAddress is the name of the association for the Secondary Destination address
 	EagerPreloadAssociationSecondaryDestinationAddress = "SecondaryDestinationAddress"
+	// EagerPreloadAssociationSecondaryDestinationAddress is the name of the association for the Secondary Destination address
+	EagerPreloadAssociationTertiaryDestinationAddress = "TertiaryDestinationAddress"
 )
 
 // These are helper constants for requesting post load associations, meaning associations that can't be eager pre-loaded
@@ -79,6 +83,8 @@ func GetListOfAllPreloadAssociations() []string {
 		EagerPreloadAssociationDestinationAddress,
 		EagerPreloadAssociationSecondaryPickupAddress,
 		EagerPreloadAssociationSecondaryDestinationAddress,
+		EagerPreloadAssociationTertiaryPickupAddress,
+		EagerPreloadAssociationTertiaryDestinationAddress,
 	}
 }
 
