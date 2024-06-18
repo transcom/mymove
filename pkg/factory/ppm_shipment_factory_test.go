@@ -27,7 +27,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
 			PickupAddress: &models.Address{
-				StreetAddress1: "987 New Avenue",
+				StreetAddress1: "987 New Street",
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50309",
@@ -39,16 +39,16 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 				PostalCode:     "50309",
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "987 New Avenue",
+				StreetAddress1: "123 New Street",
 				City:           "Fort Eisenhower",
 				State:          "GA",
-				PostalCode:     "30183",
+				PostalCode:     "30813",
 			},
 			SecondaryDestinationAddress: &models.Address{
 				StreetAddress1: "1234 Main Street",
 				City:           "Fort Eisenhower",
 				State:          "GA",
-				PostalCode:     "30183",
+				PostalCode:     "30813",
 			},
 		}
 
