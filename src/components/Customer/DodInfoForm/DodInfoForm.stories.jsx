@@ -12,12 +12,7 @@ export default {
 };
 
 export const DefaultState = (argTypes) => (
-  <DodInfoForm
-    initialValues={{ edipi: '9999999999' }}
-    onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
-    isEmplidEnabled
-  />
+  <DodInfoForm initialValues={{ edipi: '9999999999' }} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
 );
 
 export const WithInitialValues = (argTypes) => (
@@ -29,7 +24,6 @@ export const WithInitialValues = (argTypes) => (
     }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}
-    isEmplidEnabled
   />
 );
 
@@ -43,6 +37,5 @@ export const CoastGuardCustomer = (argTypes) => (
     }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}
-    isEmplidEnabled
   />
 );

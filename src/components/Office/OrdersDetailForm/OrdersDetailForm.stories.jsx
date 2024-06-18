@@ -38,6 +38,9 @@ const newDutyLocation = {
   updated_at: '2018-10-04T22:54:46.589Z',
 };
 
+const longLineOfAccounting =
+  '1**2016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345***PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)';
+
 const deptIndicatorOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
@@ -89,6 +92,7 @@ export const EmptyValues = () => (
           setFieldValue={Formik.setFieldValue}
           payGrade={ORDERS_PAY_GRADE_OPTIONS.E_1}
           payGradeOptions={payGradeOptions}
+          longLineOfAccounting={longLineOfAccounting}
         />
       </form>
     </Formik>

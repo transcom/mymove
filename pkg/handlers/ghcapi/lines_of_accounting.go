@@ -2,15 +2,14 @@ package ghcapi
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	linesofaccountingop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -50,22 +49,20 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 					// This error check will currently never be triggered, but in the case
 					// of the service object being updated in the future, this will catch it and keep the API giving good errors
 					// instead of defaulting to an internal server error
-					errMsg := "Unable to find any lines of accounting based on the provided parameters"
-					err := apperror.NewNotFoundError(uuid.Nil, errMsg)
-					errPayload := &ghcmessages.Error{Message: &errMsg}
 
-					return linesofaccountingop.NewRequestLineOfAccountingNotFound().WithPayload(errPayload), err
-
+					errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.OrdersIssueDate), payload.TacCode)
+					appCtx.Logger().Info(errMsg)
+					// Do not return any payload here as no LOA was found
+					return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
 				}
 				return linesofaccountingop.NewRequestLineOfAccountingInternalServerError(), err
 			}
 			if len(loas) == 0 {
-				// No LOAs were identified with the provided paramters
-				errMsg := "Unable to find any lines of accounting based on the provided parameters"
-				err := apperror.NewNotFoundError(uuid.Nil, errMsg)
-				errPayload := &ghcmessages.Error{Message: &errMsg}
-
-				return linesofaccountingop.NewRequestLineOfAccountingNotFound().WithPayload(errPayload), err
+				// No LOAs were identified with the provided parameters
+				// Return an empty 200 and log the error
+				errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.OrdersIssueDate), payload.TacCode)
+				appCtx.Logger().Info(errMsg)
+				return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
 			}
 
 			// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt) inside the service object

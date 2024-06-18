@@ -15,7 +15,7 @@ import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
@@ -41,7 +41,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled })
           .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
           .required('Required'),
     emplid: Yup.string().when('showEmplid', () => {
-      if (showEmplid && isEmplidEnabled)
+      if (showEmplid)
         return Yup.string()
           .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
           .required('Required');
@@ -102,7 +102,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isEmplidEnabled })
                     }}
                   />
                 </Grid>
-                {showEmplid && isEmplidEnabled && (
+                {showEmplid && (
                   <Grid mobileLg={{ col: 6 }}>
                     <TextField
                       label="EMPLID"

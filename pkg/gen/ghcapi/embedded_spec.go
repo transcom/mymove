@@ -7234,6 +7234,14 @@ func init() {
           "type": "string",
           "format": "date-time",
           "example": "2023-08-03T19:17:38.776Z"
+        },
+        "validHhgProgramCodeForLoa": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "validLoaForTac": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },
@@ -20915,6 +20923,14 @@ func init() {
           "type": "string",
           "format": "date-time",
           "example": "2023-08-03T19:17:38.776Z"
+        },
+        "validHhgProgramCodeForLoa": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "validLoaForTac": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },

@@ -96,13 +96,13 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingBadRequest{},
 		},
 		{
-			name:                         "Return 404 if TAC cannot be found",
+			name:                         "Return 200 if TAC cannot be found",
 			shouldGenerateGoodTacAndLoa:  false,
 			serviceMemberAffiliation:     models.StringPointer(models.AffiliationARMY.String()),
 			ordersIssueDate:              (*strfmt.Date)(models.TimePointer(time.Now())),
 			tacCode:                      models.StringPointer("BAD"), // This may break in the future if TAC codes are enforced to be a minimum of 4 characters
 			shouldTheBodyBeCompletelyNil: false,
-			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingNotFound{},
+			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingOK{},
 		},
 	}
 
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 	}
 
 	// Run mock tests
-	suite.Run("Returns 404 on LOA fetcher giving sql err rows not found", func() {
+	suite.Run("Returns 200 on LOA fetcher giving sql err rows not found", func() {
 		mockLoaFetcher := &mocks.LineOfAccountingFetcher{}
 		handler := LinesOfAccountingRequestLineOfAccountingHandler{
 			HandlerConfig:           suite.HandlerConfig(),
@@ -177,7 +177,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 		mockLoaFetcher.On("FetchLongLinesOfAccounting", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([]models.LineOfAccounting{}, sql.ErrNoRows)
 
 		response := handler.Handle(params)
-		suite.IsType(&linesofaccountingop.RequestLineOfAccountingNotFound{}, response)
+		suite.IsType(&linesofaccountingop.RequestLineOfAccountingOK{}, response)
 	})
 
 	suite.Run("Returns 500 on LOA fetcher erroring without sql no rows", func() {

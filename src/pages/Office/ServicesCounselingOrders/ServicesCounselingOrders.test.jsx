@@ -41,6 +41,34 @@ const mockDestinationDutyLocation = {
   name: 'Fort Gordon',
 };
 
+const mockLoa = {
+  createdAt: '2023-08-03T19:17:10.050Z',
+  id: '06254fc3-b763-484c-b555-42855d1ad5cd',
+  loaAlltSnID: '123A',
+  loaBafID: '1234',
+  loaBdgtAcntClsNm: '000000',
+  loaBgFyTx: 2006,
+  loaBgnDt: '2005-10-01',
+  loaDocID: 'HHG12345678900',
+  loaDptID: '1',
+  loaDscTx: 'PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)',
+  loaEndDt: '2015-10-01',
+  loaEndFyTx: 2016,
+  loaHsGdsCd: 'HT',
+  loaInstlAcntgActID: '12345',
+  loaObjClsID: '22NL',
+  loaOpAgncyID: '1A',
+  loaPgmElmntID: '00000000',
+  loaStatCd: 'U',
+  loaSysId: '10003',
+  loaTrnsnID: 'B1',
+  loaTrsySfxTx: '0000',
+  orgGrpDfasCd: 'ZZ',
+  updatedAt: '2023-08-03T19:17:38.776Z',
+  validHhgProgramCodeForLoa: true,
+  validLoaForTac: true,
+};
+
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
 }));
@@ -50,8 +78,27 @@ jest.mock('services/ghcApi', () => ({
   getTacValid: ({ tac }) => {
     return {
       tac,
-      isValid: tac === '1111' || tac === '2222',
+      isValid: tac === '1111' || tac === '2222' || tac === '3333',
     };
+  },
+  getLoa: ({ tacCode }) => {
+    // 1111 is our good dummy TAC code
+    if (tacCode === '1111') {
+      // 200 OK, a LOA was found
+      return Promise.resolve(mockLoa);
+    }
+    if (tacCode === '2222') {
+      // 200 OK, but no LOAs were found
+      return Promise.resolve(undefined);
+    }
+    if (tacCode === '3333') {
+      // 200 OK, but the LOA found is invalid
+      const invalidLoa = mockLoa;
+      invalidLoa.validHhgProgramCodeForLoa = false;
+      return Promise.resolve(invalidLoa);
+    }
+    // Default to no LOA
+    return Promise.resolve(undefined);
   },
 }));
 
@@ -247,11 +294,101 @@ describe('Orders page', () => {
       });
 
       await userEvent.clear(hhgTacInput);
-      await userEvent.type(hhgTacInput, '3333');
+      await userEvent.type(hhgTacInput, '4444');
 
       await waitFor(() => {
         expect(screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('LOA validation', () => {
+    beforeEach(() => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+    });
+
+    it('validates on load', async () => {
+      // Both TAC and LOA are missing on load (On this test per useOrdersDocumentQueriesReturnValue and the
+      // mocked responses)
+      expect(await screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+      expect(await screen.getByText(/Unable to find a LOA based on the provided details/)).toBeInTheDocument();
+    });
+
+    describe('validates on user input', () => {
+      it('validates with a valid TAC and valid loa', async () => {
+        const hhgTacInput = screen.getByTestId('hhgTacInput');
+        await userEvent.clear(hhgTacInput);
+        await userEvent.type(hhgTacInput, '1111');
+
+        // TAC is found and valid
+        // LOA is found and valid
+        await waitFor(() => {
+          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
+          expect(screen.queryByText(/Unable to find a LOA based on the provided details/)).not.toBeInTheDocument();
+          expect(
+            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+          ).not.toBeInTheDocument();
+        });
+      });
+
+      it('validates with a valid TAC and no LOA', async () => {
+        const hhgTacInput = screen.getByTestId('hhgTacInput');
+        await userEvent.clear(hhgTacInput);
+        await userEvent.type(hhgTacInput, '2222');
+
+        // TAC is found and valid
+        // LOA is NOT found
+        await waitFor(() => {
+          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
+          expect(screen.getByText(/Unable to find a LOA based on the provided details/)).toBeInTheDocument();
+          expect(
+            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+          ).not.toBeInTheDocument();
+        });
+      });
+
+      it('validates with a valid TAC and invalid LOA', async () => {
+        const hhgTacInput = screen.getByTestId('hhgTacInput');
+        await userEvent.clear(hhgTacInput);
+        await userEvent.type(hhgTacInput, '3333');
+
+        // TAC is found and valid
+        // LOA is found and NOT valid
+        await waitFor(() => {
+          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
+          expect(
+            screen.getByText(/The LOA identified based on the provided details appears to be invalid/),
+          ).toBeInTheDocument();
+          expect(screen.queryByText(/Unable to find a LOA based on the provided details/)).not.toBeInTheDocument();
+        });
+      });
+    });
+  });
+  describe('LOA concatenation', () => {
+    it('concatenates the LOA string correctly', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <ServicesCounselingOrders />
+        </MockProviders>,
+      );
+
+      const hhgTacInput = screen.getByTestId('hhgTacInput');
+      await userEvent.clear(hhgTacInput);
+      await userEvent.type(hhgTacInput, '1111');
+
+      const expectedLongLineOfAccounting =
+        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345***PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)';
+
+      const loaTextField = screen.getByTestId('loaTextField');
+      expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
     });
   });
 });

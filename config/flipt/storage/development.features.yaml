@@ -105,14 +105,6 @@ flags:
   - segment:
       key: mil-app
       value: true
-- key: coast_guard_emplid
-  name: USCG EMPLID feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
 - key: manage_supporting_docs
   name: Additional doc upload feature flag
   type: BOOLEAN_FLAG_TYPE

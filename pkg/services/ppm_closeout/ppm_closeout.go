@@ -101,6 +101,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	fullWeightGCCShipment.ProGearWeight = &proGearCustomerMax
 	fullWeightGCCShipment.SpouseProGearWeight = &proGearSpouseMax
 	gcc, _ := p.calculateGCC(appCtx, *fullWeightGCCShipment, fullAllowableWeight)
+	if serviceItems.storageReimbursementCosts != nil {
+		gcc = gcc.AddCents(*serviceItems.storageReimbursementCosts)
+	}
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
@@ -158,9 +161,6 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 	}
 	if finalIncentive != nil {
 		gcc = gcc.AddCents(*finalIncentive)
-		if ppmShipment.SITEstimatedCost != nil {
-			gcc = gcc.AddCents(*ppmShipment.SITEstimatedCost)
-		}
 	}
 	return gcc, err
 }
@@ -396,7 +396,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
 		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
 		// rather than optimizing I think.
-		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(ppmToMtoShipment, serviceItem)
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(appCtx, ppmToMtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, ppmToMtoShipment, contract.Code)

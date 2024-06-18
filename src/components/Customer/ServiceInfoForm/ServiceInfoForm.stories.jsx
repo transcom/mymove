@@ -23,7 +23,6 @@ export const DefaultState = (argTypes) => (
       grade: '',
       current_location: {},
     }}
-    isEmplidEnabled
     onSubmit={argTypes.onSubmit}
     onCancel={argTypes.onCancel}
   />
@@ -49,7 +48,6 @@ export const WithInitialValues = (argTypes) => (
         id: 'testId',
       },
     }}
-    isEmplidEnabled
     onSubmit={argTypes.onSubmit}
     onCancel={argTypes.onCancel}
   />
@@ -76,7 +74,6 @@ export const CoastGuardCustomer = (argTypes) => (
         id: 'testId',
       },
     }}
-    isEmplidEnabled
     onSubmit={argTypes.onSubmit}
     onCancel={argTypes.onCancel}
   />
