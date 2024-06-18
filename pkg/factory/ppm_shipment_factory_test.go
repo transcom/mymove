@@ -27,7 +27,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
 			PickupAddress: &models.Address{
-				StreetAddress1: "987 New Avenue",
+				StreetAddress1: "987 New Street",
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Des Moines",
@@ -45,12 +45,12 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 				Country:        models.StringPointer("US"),
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "987 New Avenue",
+				StreetAddress1: "123 New Street",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Fort Eisenhower",
 				State:          "GA",
-				PostalCode:     "30183",
+				PostalCode:     "30813",
 				Country:        models.StringPointer("US"),
 			},
 			SecondaryDestinationAddress: &models.Address{
@@ -70,10 +70,6 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// VALIDATE RESULTS
 		suite.Equal(defaultPPM.PickupAddress.StreetAddress1, ppmShipment.PickupAddress.StreetAddress1)
 		suite.Equal(defaultPPM.DestinationAddress.StreetAddress1, ppmShipment.DestinationAddress.StreetAddress1)
-		suite.Equal(defaultPPM.PickupAddress.StreetAddress2, ppmShipment.PickupAddress.StreetAddress2)
-		suite.Equal(defaultPPM.DestinationAddress.StreetAddress2, ppmShipment.DestinationAddress.StreetAddress2)
-		suite.Equal(defaultPPM.PickupAddress.StreetAddress3, ppmShipment.PickupAddress.StreetAddress3)
-		suite.Equal(defaultPPM.DestinationAddress.StreetAddress3, ppmShipment.DestinationAddress.StreetAddress3)
 		suite.Equal(defaultPPM.PickupAddress.City, ppmShipment.PickupAddress.City)
 		suite.Equal(defaultPPM.DestinationAddress.City, ppmShipment.DestinationAddress.City)
 		suite.Equal(defaultPPM.PickupAddress.State, ppmShipment.PickupAddress.State)

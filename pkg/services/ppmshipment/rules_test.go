@@ -223,7 +223,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 					models.PPMShipment{
 						ShipmentID:            shipmentID,
 						ExpectedDepartureDate: expectedTime,
-						SITExpected:           nil,
+						SITExpected:           &sitExpected,
 						DestinationAddress:    destinationAddress,
 						DestinationAddressID:  &destinationAddressID,
 					},
@@ -235,7 +235,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 					models.PPMShipment{
 						ShipmentID:            shipmentID,
 						ExpectedDepartureDate: expectedTime,
-						SITExpected:           nil,
+						SITExpected:           &sitExpected,
 						PickupAddress:         pickupAddress,
 						PickupAddressID:       &pickupAddressID,
 					},
