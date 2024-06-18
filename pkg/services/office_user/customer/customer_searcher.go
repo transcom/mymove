@@ -48,7 +48,8 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	var query *pop.Query
 
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		rawquery := `SELECT DISTINCT ON (id)
+		rawquery := `SELECT * FROM
+			(SELECT DISTINCT ON (id)
 			service_members.affiliation, service_members.backup_mailing_address_id,
 			service_members.cac_validated, service_members.created_at, service_members.edipi,
 			service_members.email_is_preferred, service_members.emplid,
@@ -68,17 +69,21 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		}
 
 		if params.DodID != nil {
-			rawquery += ` service_members.edipi = $1)`
+			rawquery += ` service_members.edipi = $1) ) distinct_customers`
 			if params.Sort != nil && params.Order != nil {
 				sortTerm := parameters[*params.Sort]
 				rawquery += ` ORDER BY ` + sortTerm + *params.Order
+			} else {
+				rawquery += ` ORDER BY distinct_customers.last_name ASC`
 			}
 			query = appCtx.DB().RawQuery(rawquery, params.DodID)
 		} else {
-			rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name))`
+			rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name)) ) distinct_customers`
 			if params.Sort != nil && params.Order != nil {
 				sortTerm := parameters[*params.Sort]
 				rawquery += ` ORDER BY ` + sortTerm + ` ` + *params.Order
+			} else {
+				rawquery += ` ORDER BY distinct_customers.last_name ASC`
 			}
 			query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
 		}
@@ -86,7 +91,6 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	dodIDQuery := dodIDSearch(params.DodID)
-	//orderQuery := sortOrder(params.Sort, params.Order)
 	options := [3]QueryOption{customerNameQuery, dodIDQuery}
 
 	for _, option := range options {
@@ -122,21 +126,10 @@ func customerNameSearch(customerName *string) QueryOption {
 }
 
 var parameters = map[string]string{
-	"customerName":  "service_members.last_name",
-	"dodID":         "service_members.edipi",
-	"emplid":        "service_members.emplid",
-	"branch":        "service_members.affiliation",
-	"personalEmail": "service_members.personal_email",
-	"telephone":     "service_members.telephone",
+	"customerName":  "distinct_customers.last_name",
+	"dodID":         "distinct_customers.edipi",
+	"emplid":        "distinct_customers.emplid",
+	"branch":        "distinct_customers.affiliation",
+	"personalEmail": "distinct_customers.personal_email",
+	"telephone":     "distinct_customers.telephone",
 }
-
-// func sortOrder(sort *string, order *string) QueryOption {
-// 	return func(query *pop.Query) {
-// 		if sort != nil && order != nil {
-// 			sortTerm := parameters[*sort]
-// 			query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
-// 		} else {
-// 			query.Order("service_members.last_name ASC")
-// 		}
-// 	}
-// }
