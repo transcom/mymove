@@ -59,12 +59,8 @@ const validationSchema = (maxWeight) => {
       then: (schema) =>
         schema
           .required('Required')
-          .max(maxWeight, `Enter a weight ${maxWeight} lbs or less`)
+          .max(maxWeight, `Weight must be less than total PPM weight of ${maxWeight} lbs`)
           .min(1, `Enter a weight greater than 0 lbs`),
-    }),
-    actualWeight: Yup.number().when('movingExpenseType', {
-      is: expenseTypes.STORAGE,
-      then: (schema) => schema.required('Required').min(1, `Enter a weight greater than 0 lbs`),
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
@@ -105,8 +101,7 @@ export default function ReviewExpense({
   });
 
   const [descriptionString, setDescriptionString] = React.useState(description || '');
-  const [actualWeightValue, setActualWeightValue] = React.useState(ppmShipmentInfo?.actualWeight?.toString() || '');
-  const actualWeight = actualWeightValue;
+  const actualWeight = ppmShipmentInfo?.actualWeight?.toString() || '';
   const [amountValue, setAmountValue] = React.useState(amount);
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
@@ -124,7 +119,6 @@ export default function ReviewExpense({
     status: status || '',
     reason: reason || '',
     weightStored: weightStoredValue?.toString() || '',
-    actualWeight: actualWeightValue?.toString() || '',
     sitLocation: ppmSITLocation,
   };
 
@@ -225,12 +219,6 @@ export default function ReviewExpense({
           const handleWeightStoredChange = (event) => {
             const weight = parseInt(removeCommas(event.target.value), 10);
             setWeightStoredValue(weight);
-            refreshPage(event);
-          };
-
-          const handleActualWeightChange = (event) => {
-            const weight = parseInt(removeCommas(event.target.value), 10);
-            setActualWeightValue(weight);
             refreshPage(event);
           };
 
@@ -372,22 +360,6 @@ export default function ReviewExpense({
                       isDisabled={readOnly}
                       onBlur={(e) => {
                         handleWeightStoredChange(e);
-                      }}
-                    />
-                    <MaskedTextField
-                      defaultValue="0"
-                      name="actualWeight"
-                      label="Actual PPM Weight"
-                      id="actualWeight"
-                      mask={Number}
-                      scale={0} // digits after point, 0 for integers
-                      signed={false} // disallow negative
-                      thousandsSeparator=","
-                      lazy={false} // immediate masking evaluation
-                      suffix="lbs"
-                      isDisabled={readOnly}
-                      onBlur={(e) => {
-                        handleActualWeightChange(e);
                       }}
                     />
                     <DatePickerInput
