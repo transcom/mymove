@@ -99,7 +99,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				},
 			},
 			{
-				Model: &models.Address{
+				Model: models.Address{
 					StreetAddress1: "987 Other Avenue",
 					StreetAddress2: models.StringPointer("P.O. Box 1234"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),
@@ -111,7 +111,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
-				Model: &models.Address{
+				Model: models.Address{
 					StreetAddress1: "987 Other Avenue",
 					StreetAddress2: models.StringPointer("P.O. Box 12345"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),

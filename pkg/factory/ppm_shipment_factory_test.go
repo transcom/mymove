@@ -27,7 +27,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
 			PickupAddress: &models.Address{
-				StreetAddress1: "987 Other Avenue",
+				StreetAddress1: "987 New Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Des Moines",
@@ -45,7 +45,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 				Country:        models.StringPointer("US"),
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "987 Other Avenue",
+				StreetAddress1: "987 New Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Fort Eisenhower",
