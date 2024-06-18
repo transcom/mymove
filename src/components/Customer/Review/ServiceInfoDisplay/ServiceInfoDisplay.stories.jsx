@@ -44,24 +44,24 @@ const uscgProps = {
 
 export const Editable = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoDisplay {...defaultProps} isEmplidEnabled />
+    <ServiceInfoDisplay {...defaultProps} />
   </div>
 );
 
 export const NonEditableWithMessage = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoDisplay {...defaultProps} isEditable={false} showMessage isEmplidEnabled />
+    <ServiceInfoDisplay {...defaultProps} isEditable={false} showMessage />
   </div>
 );
 
 export const NonEditableWithoutMessage = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoDisplay {...defaultProps} isEditable={false} isEmplidEnabled />
+    <ServiceInfoDisplay {...defaultProps} isEditable={false} />
   </div>
 );
 
 export const CoastGuardCustomer = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoDisplay {...uscgProps} isEditable={false} isEmplidEnabled />
+    <ServiceInfoDisplay {...uscgProps} isEditable={false} />
   </div>
 );
