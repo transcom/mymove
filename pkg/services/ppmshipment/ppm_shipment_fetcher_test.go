@@ -147,7 +147,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				ServiceMemberID: maliciousUser.ID,
 			})
 
-			ppmShipment := factory.BuildFullAddressPPMShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				appCtx,
