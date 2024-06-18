@@ -198,4 +198,152 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 		// Ensure we got 1 loa, FBMC P should've been filtered out
 		suite.Len(loas, 1)
 	})
+	suite.Run("Checks for valid HHG program code and a valid LOA for a given TAC", func() {
+		appCtx := suite.AppContextForTest()
+		ordersIssueDate, startDate, endDate, tacCode := setupTest()
+		loaFY := 12
+		loa := factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.LineOfAccounting{
+					LoaBgnDt:               &startDate,
+					LoaEndDt:               &endDate,
+					LoaSysID:               models.StringPointer("1234567890"),
+					LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+					LoaDptID:               models.StringPointer("1"),
+					LoaTnsfrDptNm:          models.StringPointer("1"),
+					LoaBafID:               models.StringPointer("1"),
+					LoaTrsySfxTx:           models.StringPointer("1"),
+					LoaMajClmNm:            models.StringPointer("1"),
+					LoaOpAgncyID:           models.StringPointer("1"),
+					LoaAlltSnID:            models.StringPointer("1"),
+					LoaPgmElmntID:          models.StringPointer("1"),
+					LoaTskBdgtSblnTx:       models.StringPointer("1"),
+					LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+					LoaJbOrdNm:             models.StringPointer("1"),
+					LoaSbaltmtRcpntID:      models.StringPointer("1"),
+					LoaWkCntrRcpntNm:       models.StringPointer("1"),
+					LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+					LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+					LoaCustNm:              models.StringPointer("1"),
+					LoaObjClsID:            models.StringPointer("1"),
+					LoaSrvSrcID:            models.StringPointer("1"),
+					LoaSpclIntrID:          models.StringPointer("1"),
+					LoaBdgtAcntClsNm:       models.StringPointer("1"),
+					LoaDocID:               models.StringPointer("1"),
+					LoaClsRefID:            models.StringPointer("1"),
+					LoaInstlAcntgActID:     models.StringPointer("1"),
+					LoaLclInstlID:          models.StringPointer("1"),
+					LoaFmsTrnsactnID:       models.StringPointer("1"),
+					LoaDscTx:               models.StringPointer("1"),
+					LoaUic:                 models.StringPointer("1"),
+					LoaBgFyTx:              &loaFY,
+					LoaEndFyTx:             &loaFY,
+				},
+			},
+		}, nil)
+		factory.BuildTransportationAccountingCodeWithoutAttachedLoa(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:               tacCode,
+					TrnsprtnAcntBgnDt: &startDate,
+					TrnsprtnAcntEndDt: &endDate,
+					TacFnBlModCd:      models.StringPointer("1"),
+					LoaSysID:          loa.LoaSysID,
+				},
+			},
+		}, nil)
+
+		// Get the TACs that we will extract LOAs from
+		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		suite.NoError(err)
+		suite.NotEmpty(tacs)
+		// Ensure LOA isn't nil
+		suite.NotNil(tacs[0].LineOfAccounting)
+		// Extract LOAs
+		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		suite.NoError(err)
+		suite.Equal(loa.ID, loas[0].ID)
+
+		ValidHhgProgramCodeForLoaReturnValue := true
+		ValidLoaForTacReturnValue := true
+		suite.Equal(loas[0].ValidHhgProgramCodeForLoa, &ValidHhgProgramCodeForLoaReturnValue)
+		suite.Equal(loas[0].ValidLoaForTac, &ValidLoaForTacReturnValue)
+	})
+	suite.Run("Checks for invalid HHG program code and an invalid LOA for a given TAC", func() {
+		appCtx := suite.AppContextForTest()
+		ordersIssueDate, startDate, endDate, tacCode := setupTest()
+		loa := factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.LineOfAccounting{
+					LoaBgnDt:               &startDate,
+					LoaEndDt:               &endDate,
+					LoaSysID:               models.StringPointer("1234567890"),
+					LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+					LoaDptID:               models.StringPointer("1"),
+					LoaTnsfrDptNm:          models.StringPointer("1"),
+					LoaBafID:               models.StringPointer("1"),
+					LoaTrsySfxTx:           models.StringPointer("1"),
+					LoaMajClmNm:            models.StringPointer("1"),
+					LoaOpAgncyID:           models.StringPointer("1"),
+					LoaAlltSnID:            models.StringPointer("1"),
+					LoaPgmElmntID:          models.StringPointer("1"),
+					LoaTskBdgtSblnTx:       models.StringPointer("1"),
+					LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+					LoaJbOrdNm:             models.StringPointer("1"),
+					LoaSbaltmtRcpntID:      models.StringPointer("1"),
+					LoaWkCntrRcpntNm:       models.StringPointer("1"),
+					LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+					LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+					LoaCustNm:              models.StringPointer("1"),
+					LoaObjClsID:            models.StringPointer("1"),
+					LoaSrvSrcID:            models.StringPointer("1"),
+					LoaSpclIntrID:          models.StringPointer("1"),
+					LoaBdgtAcntClsNm:       models.StringPointer("1"),
+					LoaDocID:               models.StringPointer("1"),
+					LoaClsRefID:            models.StringPointer("1"),
+					LoaInstlAcntgActID:     models.StringPointer("1"),
+					LoaLclInstlID:          models.StringPointer("1"),
+					LoaFmsTrnsactnID:       models.StringPointer("1"),
+					LoaDscTx:               models.StringPointer("1"),
+				},
+			},
+		}, nil)
+		factory.BuildTransportationAccountingCodeWithoutAttachedLoa(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:               tacCode,
+					TrnsprtnAcntBgnDt: &startDate,
+					TrnsprtnAcntEndDt: &endDate,
+					TacFnBlModCd:      models.StringPointer("1"),
+					LoaSysID:          loa.LoaSysID,
+				},
+			},
+		}, nil)
+
+		// Get the TACs that we will extract LOAs from
+		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		suite.NoError(err)
+		suite.NotEmpty(tacs)
+		// Ensure LOA isn't nil
+		suite.NotNil(tacs[0].LineOfAccounting)
+
+		// Extract LOAs
+		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		suite.NoError(err)
+		suite.Equal(loa.ID, loas[0].ID)
+
+		// The LoaUic field is missing, so the ValidLoaForTac field should be false
+		ValidLoaForTacReturnValue := false
+		suite.Equal(loas[0].ValidLoaForTac, &ValidLoaForTacReturnValue)
+
+		// In the event that the LoaHsGdsCd is for some reason nil, the ValidHhgProgramCodeForLoa should be false
+		// Forcing LoaHsGdsCd to be nil since it can't be nil earlier in the test
+		loas[0].LoaHsGdsCd = nil
+		loasWithValidityCheck, err := checkForValidHhgProgramCodeForLoaAndValidLoaForTac(loas, appCtx)
+		// This is a "soft warning" and shouldn't prevent the return of the LOA information, so err is nil
+		suite.Nil(err)
+		ValidHhgProgramCodeForLoaReturnValue := false
+		// When LoaHsGdsCd is nil, so the ValidHhgProgramCodeForLoa should be false
+		suite.Equal(loasWithValidityCheck[0].ValidHhgProgramCodeForLoa, &ValidHhgProgramCodeForLoaReturnValue)
+	})
 }
