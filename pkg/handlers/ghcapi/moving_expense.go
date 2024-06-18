@@ -32,10 +32,10 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 		movingExpense.ID = uuid.FromStringOrNil(params.MovingExpenseID.String())
 		movingExpense.PPMShipmentID = uuid.FromStringOrNil(params.PpmShipmentID.String())
 		ppmEagerAssociations := []string{"PickupAddress",
-					"DestinationAddress",
-					"SecondaryPickupAddress",
-					"SecondaryDestinationAddress",
-				}
+			"DestinationAddress",
+			"SecondaryPickupAddress",
+			"SecondaryDestinationAddress",
+		}
 		ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 		ppmShipment, ppmShipmentErr := ppmShipmentFetcher.GetPPMShipment(appCtx, movingExpense.PPMShipmentID, ppmEagerAssociations, nil)
 

@@ -284,7 +284,7 @@ const usePPMCloseoutQueryReturnValue = {
 
 const useGetPPMSITEstimatedCostQueryReturnValue = {
   estimatedCost: 5000,
-}
+};
 
 const mockRoutingOptions = {
   path: servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH,
