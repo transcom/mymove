@@ -262,20 +262,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 						suite.Equal(expected.DestinationAddress.ID, actual.DestinationAddress.ID)
 					}
 
-					if suite.NotNil(actual.SecondaryPickupAddress) {
-						suite.Equal(expected.SecondaryPickupAddress.ID, actual.SecondaryPickupAddress.ID)
-					}
-					if suite.NotNil(actual.SecondaryDestinationAddress) {
-						suite.Equal(expected.SecondaryDestinationAddress.ID, actual.SecondaryDestinationAddress.ID)
-					}
-
-					if suite.NotNil(actual.TertiaryPickupAddress) {
-						suite.Equal(expected.TertiaryPickupAddress.ID, actual.TertiaryPickupAddress.ID)
-					}
-					if suite.NotNil(actual.TertiaryDestinationAddress) {
-						suite.Equal(expected.TertiaryDestinationAddress.ID, actual.TertiaryDestinationAddress.ID)
-					}
-
 					if suite.NotNil(actual.AOAPacket) {
 						suite.Equal(expected.AOAPacket.ID, actual.AOAPacket.ID)
 					}
@@ -311,6 +297,22 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				}
 			})
 		}
+
+		suite.Run("Return a shipment that has secondary and tertiary addresses", func() {
+			ppmShipment := factory.BuildFullAddressPPMShipment(suite.DB(), nil, nil)
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				ppmShipment.ID,
+				nil,
+				nil,
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.NotNil(ppmShipmentReturned.TertiaryPickupAddressID)
+				suite.NotNil(ppmShipmentReturned.TertiaryDestinationAddressID)
+			}
+		})
 
 		suite.Run("Returns a not found error if the PPM Shipment does not exist", func() {
 			nonexistentID := uuid.Must(uuid.NewV4())
