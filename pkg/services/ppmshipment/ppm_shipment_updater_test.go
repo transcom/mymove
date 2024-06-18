@@ -96,25 +96,31 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				Model: models.PPMShipment{
 					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
 					SITExpected:           models.BoolPointer(false),
-					PickupAddress: &models.Address{
-						StreetAddress1: "987 Other Avenue",
-						StreetAddress2: models.StringPointer("P.O. Box 1234"),
-						StreetAddress3: models.StringPointer("c/o Another Person"),
-						City:           "Des Moines",
-						State:          "IA",
-						PostalCode:     "50309",
-						Country:        models.StringPointer("US"),
-					},
-					DestinationAddress: &models.Address{
-						StreetAddress1: "987 Other Avenue",
-						StreetAddress2: models.StringPointer("P.O. Box 12345"),
-						StreetAddress3: models.StringPointer("c/o Another Person"),
-						City:           "Fort Eisenhower",
-						State:          "GA",
-						PostalCode:     "50309",
-						Country:        models.StringPointer("US"),
-					},
 				},
+			},
+			{
+				Model: &models.Address{
+					StreetAddress1: "987 Other Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50309",
+					Country:        models.StringPointer("US"),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: &models.Address{
+					StreetAddress1: "987 Other Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 12345"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Fort Eisenhower",
+					State:          "GA",
+					PostalCode:     "50309",
+					Country:        models.StringPointer("US"),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
 		newPPM := models.PPMShipment{

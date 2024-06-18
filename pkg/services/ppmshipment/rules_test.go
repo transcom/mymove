@@ -149,6 +149,8 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		expectedTime := time.Now()
 		sitExpected := false
 		shipmentID := uuid.Must(uuid.NewV4())
+		pickupAddressID, _ := uuid.NewV4()
+		destinationAddressID, _ := uuid.NewV4()
 		pickupAddress := &models.Address{
 			StreetAddress1: "987 Other Avenue",
 			StreetAddress2: models.StringPointer("P.O. Box 1234"),
@@ -174,7 +176,9 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 				ExpectedDepartureDate: expectedTime,
 				SITExpected:           &sitExpected,
 				PickupAddress:         pickupAddress,
+				PickupAddressID:       &pickupAddressID,
 				DestinationAddress:    destinationAddress,
+				DestinationAddressID:  &destinationAddressID,
 			}
 
 			err := checkRequiredFields().Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
@@ -191,10 +195,12 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 				{
 					"Missing expected departure date",
 					models.PPMShipment{
-						ShipmentID:         shipmentID,
-						SITExpected:        &sitExpected,
-						PickupAddress:      pickupAddress,
-						DestinationAddress: destinationAddress,
+						ShipmentID:           shipmentID,
+						SITExpected:          &sitExpected,
+						PickupAddress:        pickupAddress,
+						PickupAddressID:      &pickupAddressID,
+						DestinationAddress:   destinationAddress,
+						DestinationAddressID: &destinationAddressID,
 					},
 					"expectedDepartureDate",
 					"cannot be a zero value"},
@@ -205,33 +211,36 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						ExpectedDepartureDate: expectedTime,
 						SITExpected:           nil,
 						PickupAddress:         pickupAddress,
+						PickupAddressID:       &pickupAddressID,
 						DestinationAddress:    destinationAddress,
+						DestinationAddressID:  &destinationAddressID,
 					},
 					"sitExpected",
 					"cannot be nil",
 				},
 				{
-					"Missing SIT Expected value",
+					"Missing PickupAddressID Expected value",
 					models.PPMShipment{
 						ShipmentID:            shipmentID,
 						ExpectedDepartureDate: expectedTime,
 						SITExpected:           nil,
 						DestinationAddress:    destinationAddress,
+						DestinationAddressID:  &destinationAddressID,
 					},
-					"pickupAddress",
-					"cannot be nil",
+					"pickupAddressID",
+					"cannot be nil or empty",
 				},
 				{
-					"Missing SIT Expected value",
+					"Missing DestinationAddressID Expected value",
 					models.PPMShipment{
 						ShipmentID:            shipmentID,
 						ExpectedDepartureDate: expectedTime,
 						SITExpected:           nil,
 						PickupAddress:         pickupAddress,
-						DestinationAddress:    destinationAddress,
+						PickupAddressID:       &pickupAddressID,
 					},
-					"destinationAddress",
-					"cannot be nil",
+					"destinationAddressID",
+					"cannot be nil or empty",
 				},
 			}
 
