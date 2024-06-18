@@ -273,8 +273,8 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		storageExpenseType := models.MovingExpenseReceiptTypeStorage
 		storageStart := time.Now()
 		storageEnd := storageStart.Add(7 * time.Hour * 24)
+		sitLocation := models.SITLocationTypeOrigin
 		weightStored := 2000
-		sitLocation := "ORIGIN"
 
 		expectedMovingExpense := &models.MovingExpense{
 			ID:                originalMovingExpense.ID,
