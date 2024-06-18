@@ -306,7 +306,7 @@ describe('Orders page', () => {
       const expectedLongLineOfAccounting =
         '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345***PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)';
 
-      const loaTextField = screen.getByTestId('loaTextField');
+      const loaTextField = screen.getByTestId('hhgLoaTextField');
       expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
     });
   });

@@ -53,7 +53,7 @@ const defaultProps = {
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   setFieldValue: jest.fn,
   payGradeOptions,
-  longLineOfAccounting: 'Long line of accounting is present',
+  hhgLongLineOfAccounting: 'Long line of accounting is present',
 };
 
 function renderOrdersDetailForm(props) {
@@ -102,7 +102,7 @@ describe('OrdersDetailForm', () => {
 
   it('accepts longLineOfAccounting prop', async () => {
     renderOrdersDetailForm();
-    const loaTextField = screen.getByTestId('loaTextField');
+    const loaTextField = screen.getByTestId('hhgLoaTextField');
     expect(loaTextField).toHaveValue('Long line of accounting is present');
   });
 
@@ -112,7 +112,7 @@ describe('OrdersDetailForm', () => {
   });
 
   it('shows the loa warning', async () => {
-    renderOrdersDetailForm({ loaWarning: 'Test LOA warning' });
+    renderOrdersDetailForm({ hhgLoaWarning: 'Test LOA warning' });
     expect(await screen.findByText('Test LOA warning')).toBeInTheDocument();
   });
 
