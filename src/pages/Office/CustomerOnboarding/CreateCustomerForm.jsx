@@ -25,7 +25,7 @@ import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { getResponseError } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import departmentIndicators from 'constants/departmentIndicators';
 
 export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
@@ -40,18 +40,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const backupAddressName = 'backup_mailing_address';
   const backupContactName = 'backup_contact';
 
-  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
-
   useEffect(() => {
-    isBooleanFlagEnabled('safety_move')?.then((enabled) => {
-      setSafetyMoveFF(enabled);
-    });
     setIsEmplidRequired(!isSafetyMove && showEmplid);
   }, [showEmplid, isSafetyMove]);
 
-  const isSafetyPrivileged = isSafetyMoveFF
-    ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
-    : false;
+  const isSafetyPrivileged = userPrivileges?.some(
+    (privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY,
+  );
 
   const initialValues = {
     affiliation: '',
@@ -103,7 +98,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     const body = {
       affiliation: values.affiliation,
       edipi: values.edipi,
-      emplid: values.emplid,
+      emplid: values.emplid || '',
       firstName: values.first_name,
       middleName: values.middle_name,
       lastName: values.last_name,
@@ -146,7 +141,11 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
     edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
-    emplid: isEmplidRequired ? Yup.string().required('Required') : Yup.string().notRequired(),
+    emplid: isEmplidRequired
+      ? Yup.string()
+          .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
+          .required('Required')
+      : Yup.string().notRequired(),
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
@@ -167,7 +166,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     [backupContactName]: backupContactInfoSchema.required(),
     create_okta_account: isSafetyMove ? '' : Yup.boolean().required('Required'),
     cac_user: isSafetyMove ? '' : Yup.boolean().required('Required'),
-    is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
+    is_safety_move: Yup.boolean().required('Required'),
   });
 
   return (
@@ -192,7 +191,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                 const { value } = e.target;
                 if (value === 'true') {
                   setIsSafetyMove(true);
-                  // clear out DoDID and OKTA fields
+                  // clear out DoDID, emplid, and OKTA fields
                   setValues({
                     ...values,
                     edipi: '',
@@ -210,7 +209,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                 }
               };
               const handleBranchChange = (e) => {
-                if (e.target.value === 'COAST_GUARD') {
+                if (e.target.value === departmentIndicators.COAST_GUARD) {
                   setShowEmplid(true);
                 } else {
                   setShowEmplid(false);
@@ -270,7 +269,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                         label="EMPLID"
                         name="emplid"
                         id="emplid"
-                        required
                         maxLength="7"
                         inputMode="numeric"
                         pattern="[0-9]{7}"
