@@ -61,12 +61,12 @@ func checkRequiredFields() ppmShipmentValidator {
 		verrs := validate.NewErrors()
 
 		// Check that we have something in the pickupPostalCode field:
-		if newPPMShipment.PickupAddressID == nil {
+		if newPPMShipment.PickupAddressID == nil || newPPMShipment.PickupAddressID == models.UUIDPointer(uuid.Nil) {
 			verrs.Add("pickupAddressID", "cannot be nil or empty")
 		}
 
 		// Check that we have something in the destinationPostalCode field:
-		if newPPMShipment.DestinationAddressID == nil {
+		if newPPMShipment.DestinationAddressID == nil || newPPMShipment.PickupAddressID == models.UUIDPointer(uuid.Nil) {
 			verrs.Add("destinationAddressID", "cannot be nil or empty")
 		}
 

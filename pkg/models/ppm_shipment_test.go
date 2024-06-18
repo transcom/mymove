@@ -37,10 +37,13 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 			expectedErrs: nil,
 		},
 		"Missing Required Fields": {
-			ppmShipment: models.PPMShipment{},
+			ppmShipment: models.PPMShipment{
+				PickupAddressID:      models.UUIDPointer(uuid.Nil),
+				DestinationAddressID: models.UUIDPointer(uuid.Nil),
+			},
 			expectedErrs: map[string][]string{
-				"pickup_postal_address_id":      {"PickupAddressID can not be blank."},
-				"destination_postal_address_id": {"DestinationAddressID can not be blank."},
+				"pickup_postal_address_id":      {"PickupAddressID can not be nil."},
+				"destination_postal_address_id": {"DestinationAddressID can not be nil."},
 				"shipment_id":                   {"ShipmentID can not be blank."},
 				"expected_departure_date":       {"ExpectedDepartureDate can not be blank."},
 				"status":                        {fmt.Sprintf("Status is not in the list [%s].", validPPMShipmentStatuses)},
@@ -59,6 +62,8 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				SubmittedAt:                 models.TimePointer(time.Time{}),
 				ReviewedAt:                  models.TimePointer(time.Time{}),
 				ApprovedAt:                  models.TimePointer(time.Time{}),
+				PickupAddressID:             models.UUIDPointer(uuid.Nil),
+				DestinationAddressID:        models.UUIDPointer(uuid.Nil),
 				W2AddressID:                 models.UUIDPointer(uuid.Nil),
 				ActualPickupPostalCode:      models.StringPointer(""),
 				ActualDestinationPostalCode: models.StringPointer(""),
