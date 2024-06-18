@@ -105,7 +105,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 	if err != nil {
 		return PpmPacketEmailData{}, LoggerData{}, err
 	} else if ppmShipment.PickupAddressID == nil || ppmShipment.DestinationAddressID == nil {
-		return PpmPacketEmailData{}, LoggerData{}, fmt.Errorf("no pickup or destination postal code found for this shipment")
+		return PpmPacketEmailData{}, LoggerData{}, fmt.Errorf("no pickup or destination address found for this shipment")
 	}
 
 	var mtoShipment models.MTOShipment

@@ -708,12 +708,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Create a service item that doesn't match the modeltype
 		mtoServiceItems := models.MTOServiceItems{
 			models.MTOServiceItem{
-				MoveTaskOrderID: move.ID,
-				MTOShipmentID:   &uuid.Nil,
-				ReService:       models.ReService{Code: models.ReServiceCodeMS},
-				Reason:          nil,
-				CreatedAt:       time.Now(),
-				UpdatedAt:       time.Now(),
+				MoveTaskOrderID:  move.ID,
+				MTOShipmentID:    &uuid.Nil,
+				ReService:        models.ReService{Code: models.ReServiceCodeMS},
+				Reason:           nil,
+				PickupPostalCode: nil,
+				CreatedAt:        time.Now(),
+				UpdatedAt:        time.Now(),
 			},
 		}
 		params := mtoshipmentops.CreateMTOShipmentParams{

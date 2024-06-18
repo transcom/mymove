@@ -19,6 +19,8 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 
 	blankAdvanceStatus := models.PPMAdvanceStatus("")
 	blankSITLocation := models.SITLocationType("")
+	pickupAddressID, _ := uuid.NewV4()
+	destinationAddressID, _ := uuid.NewV4()
 
 	testCases := map[string]struct {
 		ppmShipment  models.PPMShipment
@@ -29,12 +31,19 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
+				PickupAddressID:       models.UUIDPointer(pickupAddressID),
+				DestinationAddressID:  models.UUIDPointer(destinationAddressID),
 			},
 			expectedErrs: nil,
 		},
 		"Missing Required Fields": {
-			ppmShipment: models.PPMShipment{},
+			ppmShipment: models.PPMShipment{
+				PickupAddressID:      models.UUIDPointer(uuid.Nil),
+				DestinationAddressID: models.UUIDPointer(uuid.Nil),
+			},
 			expectedErrs: map[string][]string{
+				"pickup_address_id":       {"PickupAddressID can not be blank."},
+				"destination_address_id":  {"DestinationAddressID can not be blank."},
 				"shipment_id":             {"ShipmentID can not be blank."},
 				"expected_departure_date": {"ExpectedDepartureDate can not be blank."},
 				"status":                  {fmt.Sprintf("Status is not in the list [%s].", validPPMShipmentStatuses)},
@@ -53,6 +62,8 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				SubmittedAt:                 models.TimePointer(time.Time{}),
 				ReviewedAt:                  models.TimePointer(time.Time{}),
 				ApprovedAt:                  models.TimePointer(time.Time{}),
+				PickupAddressID:             models.UUIDPointer(uuid.Nil),
+				DestinationAddressID:        models.UUIDPointer(uuid.Nil),
 				W2AddressID:                 models.UUIDPointer(uuid.Nil),
 				ActualPickupPostalCode:      models.StringPointer(""),
 				ActualDestinationPostalCode: models.StringPointer(""),
@@ -78,6 +89,8 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				"submitted_at":                   {"SubmittedAt can not be blank."},
 				"reviewed_at":                    {"ReviewedAt can not be blank."},
 				"approved_at":                    {"ApprovedAt can not be blank."},
+				"pickup_address_id":              {"PickupAddressID can not be blank."},
+				"destination_address_id":         {"DestinationAddressID can not be blank."},
 				"w2_address_id":                  {"W2AddressID can not be blank."},
 				"actual_pickup_postal_code":      {"ActualPickupPostalCode can not be blank."},
 				"actual_destination_postal_code": {"ActualDestinationPostalCode can not be blank."},

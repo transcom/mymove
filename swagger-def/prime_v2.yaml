@@ -403,6 +403,14 @@ definitions:
           Date the customer expects to begin moving from their origin.
         format: date
         type: string
+      pickupAddress:
+        description: The address of the origin location where goods are being moved from.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      destinationAddress:
+        description: The address of the destination location where goods are being delivered to.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       sitExpected:
         description: |
           Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
