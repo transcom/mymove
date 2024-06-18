@@ -19,6 +19,11 @@ import (
 // swagger:model CreatePPMShipment
 type CreatePPMShipment struct {
 
+	// The address of the destination location where goods are being delivered to.
+	DestinationAddress struct {
+		Address
+	} `json:"destinationAddress,omitempty"`
+
 	// The estimated weight of the PPM shipment goods being moved in pounds.
 	// Example: 4200
 	// Required: true
@@ -34,6 +39,11 @@ type CreatePPMShipment struct {
 	//
 	// Required: true
 	HasProGear *bool `json:"hasProGear"`
+
+	// The address of the origin location where goods are being moved from.
+	PickupAddress struct {
+		Address
+	} `json:"pickupAddress,omitempty"`
 
 	// The estimated weight of the pro-gear being moved belonging to the service member in pounds.
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
@@ -68,6 +78,10 @@ type CreatePPMShipment struct {
 func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEstimatedWeight(formats); err != nil {
 		res = append(res, err)
 	}
@@ -77,6 +91,10 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateHasProGear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,6 +117,14 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreatePPMShipment) validateDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
+
 	return nil
 }
 
@@ -128,6 +154,14 @@ func (m *CreatePPMShipment) validateHasProGear(formats strfmt.Registry) error {
 
 	if err := validate.Required("hasProGear", "body", m.HasProGear); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreatePPMShipment) validatePickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
 	}
 
 	return nil
@@ -189,6 +223,14 @@ func (m *CreatePPMShipment) validateSitLocation(formats strfmt.Registry) error {
 func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -196,6 +238,16 @@ func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
 	return nil
 }
 

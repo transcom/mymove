@@ -1739,6 +1739,14 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "destinationAddress": {
+          "description": "The address of the destination location where goods are being delivered to.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "estimatedWeight": {
           "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
@@ -1752,6 +1760,14 @@ func init() {
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
+        },
+        "pickupAddress": {
+          "description": "The address of the origin location where goods are being moved from.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -6821,6 +6837,14 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "destinationAddress": {
+          "description": "The address of the destination location where goods are being delivered to.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "estimatedWeight": {
           "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
           "type": "integer",
@@ -6834,6 +6858,14 @@ func init() {
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
+        },
+        "pickupAddress": {
+          "description": "The address of the origin location where goods are being moved from.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",

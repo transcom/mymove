@@ -208,6 +208,20 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 		HasProGear:      ppmShipment.HasProGear,
 	}
 
+	addressModel := &models.Address{
+		StreetAddress1: "Deprecated Endpoint Prime V2",
+		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
+		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
+		City:           "DEPV2",
+		State:          "CA",
+		PostalCode:     "90210",
+		Country:        models.StringPointer("US"),
+	}
+
+	model.PickupAddress = addressModel
+
+	model.DestinationAddress = addressModel
+
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	if expectedDepartureDate != nil && !expectedDepartureDate.IsZero() {
 		model.ExpectedDepartureDate = *expectedDepartureDate
