@@ -3526,6 +3526,41 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /lines-of-accounting:
+    post:
+      summary: "Fetch line of accounting"
+      description: "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC)."
+      operationId: requestLineOfAccounting
+      tags:
+        - linesOfAccounting
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Service member affiliation, order issue date, and TAC code."
+          required: true
+          schema:
+            $ref: '#/definitions/FetchLineOfAccountingPayload'
+      responses:
+        '200':
+          description: "Successfully retrieved line of accounting"
+          schema:
+            $ref: 'definitions/LineOfAccounting.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /transportation-offices:
     get:
       produces:
@@ -4118,6 +4153,20 @@ definitions:
         type: boolean
       cacUser:
         type: boolean
+  FetchLineOfAccountingPayload:
+    type: object
+    properties:
+      serviceMemberAffiliation:
+        $ref: 'definitions/Affiliation.yaml'
+      ordersIssueDate:
+        type: string
+        format: date
+        example: "2023-01-01"
+      tacCode:
+        type: string
+        minLength: 4
+        maxLength: 4
+        example: 'F8J1'
   SearchCustomersResult:
     type: object
     properties:
