@@ -152,7 +152,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="pickupAddress.address"
                   render={(fields) => (
                     <>
-                      <p>What address are the movers picking up from?</p>
+                      <p>What address are you moving from?</p>
                       <Checkbox
                         data-testid="useCurrentResidence"
                         label="Use my current origin address"
@@ -161,7 +161,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         id="useCurrentResidence"
                       />
                       {fields}
-                      <h4>Second pickup location</h4>
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">
@@ -211,7 +210,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="destinationAddress.address"
                   render={(fields) => (
                     <>
-                      <p>Please input Delivery Address</p>
+                      <p>Please input your destination address.</p>
                       <Checkbox
                         data-testid="useCurrentDestinationAddress"
                         label="Use my current destination address"
@@ -250,7 +249,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields name="secondaryDestinationAddress.address" />
                           <Hint className={ppmStyles.hint}>
                             <p>
-                              A second destination ZIP could mean that your final incentive is lower than your estimate.
+                              A second destination address could mean that your final incentive is lower than your
+                              estimate.
                             </p>
                             <p>
                               Get separate weight tickets for each leg of the trip to show how the weight changes. Talk

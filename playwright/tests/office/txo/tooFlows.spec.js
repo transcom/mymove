@@ -582,7 +582,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveDetails();
     });
 
-    // Test that the TOO is blocked from doing QAECSR actions
+    // Test that the TOO is blocked from doing QAE actions
     test('is unable to see create report buttons', async ({ page }) => {
       await page.getByText('Quality assurance').click();
       await tooFlowPage.waitForLoading();
@@ -669,7 +669,7 @@ test.describe('TOO user', () => {
       await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
       await page.getByTestId('form').getByTestId('button').click();
       await page.getByRole('link', { name: 'Change user role' }).click();
-      await page.getByRole('button', { name: 'Select transportation_ordering_officer' }).click();
+      await page.getByRole('button', { name: 'Select task_ordering_officer' }).click();
     });
     test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
       await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
@@ -748,7 +748,8 @@ test.describe('TOO user', () => {
 
     await page.locator('input[name="locator"]').type(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
     await page.locator('input[name="locator"]').blur();
-    await expect(page.getByText('Move approved')).toBeVisible();
+    // once the move is in the Move approved status, it will no longer show up in the TOO queue
+    await expect(page.getByText('Move approved')).not.toBeVisible();
     await expect(page.getByText('Approvals requested')).not.toBeVisible();
   });
 });

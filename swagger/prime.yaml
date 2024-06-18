@@ -4111,8 +4111,8 @@ definitions:
         readOnly: true
       approvedDate:
         description: >-
-          The date when the Transportation Ordering Officer first approved this
-          shipment for the move.
+          The date when the Task Ordering Officer first approved this shipment
+          for the move.
         format: date
         type: string
         readOnly: true
@@ -4316,6 +4316,13 @@ definitions:
           diversion. If yes, the shipment can be either the starting or ending
           segment of the diversion.
         type: boolean
+      diversionReason:
+        description: >
+          The reason the TOO provided when requesting a diversion for this
+          shipment.
+        type: string
+        x-nullable: true
+        readOnly: true
       status:
         description: >
           The status of a shipment, indicating where it is in the TOO's approval

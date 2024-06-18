@@ -8575,9 +8575,9 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 }
 
-func createQaeCsr(appCtx appcontext.AppContext) {
+func createQae(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	email := "qae_csr_role@office.mil"
+	email := "qae_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
@@ -8589,22 +8589,22 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 	}
 
 	/* A user with tio role */
-	qaeCsrRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaeCsrRole)
+	qaeRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeQae).First(&qaeRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find RoleTypeQae in the DB: %w", err))
 	}
 
-	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
+	qaeUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
 	oktaID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:        qaeCsrUUID,
+				ID:        qaeUUID,
 				OktaID:    oktaID.String(),
 				OktaEmail: email,
 				Active:    true,
-				Roles:     []roles.Role{qaeCsrRole},
+				Roles:     []roles.Role{qaeRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8613,7 +8613,7 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
 				Email:  email,
 				Active: true,
-				UserID: &qaeCsrUUID,
+				UserID: &qaeUUID,
 			},
 		},
 	}, nil)
@@ -10401,7 +10401,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 		{
 			Model: models.ServiceMember{
 				Edipi:        models.StringPointer(dodID),
-				FirstName:    models.StringPointer("QAECSRTestFirst"),
+				FirstName:    models.StringPointer("QAETestFirst"),
 				CacValidated: true,
 			},
 		},

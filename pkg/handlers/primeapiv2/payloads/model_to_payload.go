@@ -459,6 +459,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		ActualSpouseProGearWeight:        handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
+		DiversionReason:                  mtoShipment.DiversionReason,
 		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),

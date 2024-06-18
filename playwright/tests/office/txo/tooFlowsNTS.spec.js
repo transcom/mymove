@@ -9,6 +9,9 @@ import { test, expect } from '../../utils/office/officeTest';
 
 import { TooFlowPage } from './tooTestFixture';
 
+const TOOTabsTitles = ['Move Queue', 'Search'];
+const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
+
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
@@ -170,19 +173,33 @@ test.describe('TOO user', () => {
   });
 
   test.describe('with approved HHG + NTS Move', () => {
+    let move;
+
     test.beforeEach(async ({ officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveWithApprovedNTSShipmentsForTOO();
+      move = await officePage.testHarness.buildHHGMoveWithApprovedNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
+
+      const searchTab = officePage.page.getByTitle(TOOTabsTitles[1]);
+      await searchTab.click();
     });
 
     test('TOO can view and edit Domestic NTS Shipments handled by the Prime on the MTO page', async ({ page }) => {
       // This test is almost exactly a duplicate of the test in
       // tooFlowsNTSR.
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').type(move.locator);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results (1)')).toBeVisible();
+      await expect(page.getByTestId('locator-0')).toContainText(move.locator);
+
+      // await page.getByTestId('MoveTaskOrder-Tab').click();
+      await page.getByTestId('locator-0').click();
+
       await page.getByTestId('MoveTaskOrder-Tab').click();
       await tooFlowPage.waitForLoading();
-
       await expect(
         page.locator('[id="move-weights"] div').getByText('1 shipment not moved by GHC prime.'),
       ).not.toBeVisible();

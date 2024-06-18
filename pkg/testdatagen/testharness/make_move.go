@@ -258,6 +258,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	sitDaysAllowance := 270
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
+	actualPickupDate := time.Now().AddDate(0, 0, 1)
 	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
@@ -266,6 +267,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				Status:               models.MTOShipmentStatusSubmitted,
 				SITDaysAllowance:     &sitDaysAllowance,
+				ActualPickupDate:     &actualPickupDate,
 			},
 		},
 		{
@@ -4469,7 +4471,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
@@ -4735,7 +4737,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
@@ -5120,7 +5122,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
