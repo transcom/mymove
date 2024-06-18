@@ -9,6 +9,7 @@ import { MockProviders } from 'testUtils';
 import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import departmentIndicators from 'constants/departmentIndicators';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -199,6 +200,19 @@ describe('CreateCustomerForm', () => {
     expect(saveBtn).toBeDisabled();
     const cancelBtn = await screen.findByRole('button', { name: 'Cancel' });
     expect(cancelBtn).toBeInTheDocument();
+  });
+
+  it('renders emplid input if branch is coast guard', async () => {
+    const { getByLabelText } = render(
+      <MockProviders>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    const user = userEvent.setup();
+
+    await user.selectOptions(getByLabelText('Branch of service'), [departmentIndicators.COAST_GUARD]);
+    expect(screen.getByText('EMPLID')).toBeInTheDocument();
   });
 
   it('navigates the user on cancel click', async () => {
