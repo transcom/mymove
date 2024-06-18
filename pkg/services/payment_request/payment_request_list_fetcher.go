@@ -21,6 +21,7 @@ type paymentRequestListFetcher struct {
 var parameters = map[string]string{
 	"lastName":           "service_members.last_name",
 	"dodID":              "service_members.edipi",
+	"emplid":             "service_members.emplid",
 	"submittedAt":        "payment_requests.created_at",
 	"branch":             "service_members.affiliation",
 	"locator":            "moves.locator",
