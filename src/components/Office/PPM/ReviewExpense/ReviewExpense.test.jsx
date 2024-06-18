@@ -4,9 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ReviewExpense from './ReviewExpense';
 
-import {
-  createPPMShipmentWithFinalIncentive,
-} from 'utils/test/factories/ppmShipment';
+import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import createUpload from 'utils/test/factories/upload';
 import ppmDocumentStatus from 'constants/ppms';
@@ -254,7 +252,7 @@ const usePPMCloseoutQueryReturnValue = {
 
 const useGetPPMSITEstimatedCostQueryReturnValue = {
   estimatedCost: 5000,
-}
+};
 
 const defaultProps = {
   ppmShipmentInfo: {
