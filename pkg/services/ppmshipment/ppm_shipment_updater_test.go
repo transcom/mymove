@@ -196,6 +196,36 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM.EstimatedIncentive)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - add tertiary zips", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(nil, nil, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), nil, nil)
+
+		newPPM := models.PPMShipment{
+			TertiaryPickupPostalCode:      models.StringPointer("79906"),
+			TertiaryDestinationPostalCode: models.StringPointer("94303"),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.TertiaryPickupPostalCode, *updatedPPM.TertiaryPickupPostalCode)
+		suite.Equal(*newPPM.TertiaryDestinationPostalCode, *updatedPPM.TertiaryDestinationPostalCode)
+
+		// Estimated Incentive shouldn't be set since we don't have all the necessary fields.
+		suite.Nil(updatedPPM.EstimatedIncentive)
+	})
+
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - remove secondary zips", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
@@ -227,6 +257,42 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		// Fields that should now be updated
 		suite.Nil(updatedPPM.SecondaryPickupPostalCode)
 		suite.Nil(updatedPPM.SecondaryDestinationPostalCode)
+
+		// Estimated Incentive shouldn't be set since we don't have all the necessary fields.
+		suite.Nil(updatedPPM.EstimatedIncentive)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - remove tertiary zips", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(nil, nil, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					TertiaryPickupPostalCode:      models.StringPointer("79906"),
+					TertiaryDestinationPostalCode: models.StringPointer("94303"),
+				},
+			},
+		}, nil)
+		newPPM := models.PPMShipment{
+			TertiaryPickupPostalCode:      models.StringPointer(""),
+			TertiaryDestinationPostalCode: models.StringPointer(""),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		suite.Equal(originalPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
+		suite.Equal(originalPPM.PickupPostalCode, updatedPPM.PickupPostalCode)
+		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
+		suite.Equal(originalPPM.SITExpected, updatedPPM.SITExpected)
+
+		// Fields that should now be updated
+		suite.Nil(updatedPPM.TertiaryPickupPostalCode)
+		suite.Nil(updatedPPM.TertiaryDestinationPostalCode)
 
 		// Estimated Incentive shouldn't be set since we don't have all the necessary fields.
 		suite.Nil(updatedPPM.EstimatedIncentive)
@@ -712,6 +778,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)
 		suite.Equal(originalPPM.SecondaryDestinationPostalCode, updatedPPM.SecondaryDestinationPostalCode)
+		suite.Equal(originalPPM.TertiaryPickupPostalCode, updatedPPM.TertiaryPickupPostalCode)
+		suite.Equal(originalPPM.TertiaryDestinationPostalCode, updatedPPM.TertiaryDestinationPostalCode)
 		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
@@ -762,6 +830,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(originalPPM.DestinationPostalCode, updatedPPM.DestinationPostalCode)
 		suite.Equal(originalPPM.SecondaryPickupPostalCode, updatedPPM.SecondaryPickupPostalCode)
 		suite.Equal(originalPPM.SecondaryDestinationPostalCode, updatedPPM.SecondaryDestinationPostalCode)
+		suite.Equal(originalPPM.TertiaryPickupPostalCode, updatedPPM.TertiaryPickupPostalCode)
+		suite.Equal(originalPPM.TertiaryDestinationPostalCode, updatedPPM.TertiaryDestinationPostalCode)
 		suite.Equal(*originalPPM.EstimatedWeight, *updatedPPM.EstimatedWeight)
 		suite.Equal(*originalPPM.HasProGear, *updatedPPM.HasProGear)
 		suite.Equal(*originalPPM.ProGearWeight, *updatedPPM.ProGearWeight)
@@ -1022,6 +1092,20 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				State:          state,
 				PostalCode:     postalCode,
 			},
+			TertiaryPickupAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+			TertiaryDestinationAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
 		}
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -1059,5 +1143,21 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(city, updatedPPM.SecondaryDestinationAddress.City)
 		suite.Equal(state, updatedPPM.SecondaryDestinationAddress.State)
 		suite.Equal(postalCode, updatedPPM.SecondaryDestinationAddress.PostalCode)
+
+		suite.NotNil(updatedPPM.TertiaryPickupAddressID)
+		suite.NotNil(updatedPPM.TertiaryPickupAddress)
+		suite.Equal(streetAddress1, updatedPPM.TertiaryPickupAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.TertiaryPickupAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.TertiaryPickupAddress.City)
+		suite.Equal(state, updatedPPM.TertiaryPickupAddress.State)
+		suite.Equal(postalCode, updatedPPM.TertiaryPickupAddress.PostalCode)
+
+		suite.NotNil(updatedPPM.TertiaryDestinationAddressID)
+		suite.NotNil(updatedPPM.TertiaryDestinationAddress)
+		suite.Equal(streetAddress1, updatedPPM.TertiaryDestinationAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.TertiaryDestinationAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.TertiaryDestinationAddress.City)
+		suite.Equal(state, updatedPPM.TertiaryDestinationAddress.State)
+		suite.Equal(postalCode, updatedPPM.TertiaryDestinationAddress.PostalCode)
 	})
 }
