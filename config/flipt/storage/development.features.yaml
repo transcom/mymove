@@ -81,14 +81,6 @@ flags:
   - segment:
       key: mil-app
       value: true
-- key: coast_guard_emplid
-  name: USCG EMPLID feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
 - key: boolean_flag
   name: Boolean Flag
   type: BOOLEAN_FLAG_TYPE
