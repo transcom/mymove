@@ -1431,7 +1431,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						StreetAddress3: models.StringPointer("c/o Another Person"),
 						City:           "Fort Eisenhower",
 						State:          "GA",
-						PostalCode:     "50309",
+						PostalCode:     "30813",
 						Country:        models.StringPointer("US"),
 					},
 					Type: &factory.Addresses.DeliveryAddress,
