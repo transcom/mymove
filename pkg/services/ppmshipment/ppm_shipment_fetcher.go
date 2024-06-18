@@ -43,13 +43,13 @@ const (
 	EagerPreloadAssociationPickupAddress = "PickupAddress"
 	// EagerPreloadAssociationSecondaryPickupAddress is the name of the association for the Secondary Pickup address
 	EagerPreloadAssociationSecondaryPickupAddress = "SecondaryPickupAddress"
-	// EagerPreloadAssociationSecondaryPickupAddress is the name of the association for the Secondary Pickup address
+	// EagerPreloadAssociationSecondaryPickupAddress is the name of the association for the Tertiary Pickup address
 	EagerPreloadAssociationTertiaryPickupAddress = "TertiaryPickupAddress"
 	// EagerPreloadAssociationDestinationAddress is the name of the association for the Destination address
 	EagerPreloadAssociationDestinationAddress = "DestinationAddress"
 	// EagerPreloadAssociationSecondaryDestinationAddress is the name of the association for the Secondary Destination address
 	EagerPreloadAssociationSecondaryDestinationAddress = "SecondaryDestinationAddress"
-	// EagerPreloadAssociationSecondaryDestinationAddress is the name of the association for the Secondary Destination address
+	// EagerPreloadAssociationSecondaryDestinationAddress is the name of the association for the Tertiary Destination address
 	EagerPreloadAssociationTertiaryDestinationAddress = "TertiaryDestinationAddress"
 )
 
