@@ -140,7 +140,7 @@ const Feedback = () => {
               <div className={styles.headingContainer}>
                 <div className={styles.headingContent}>
                   <h3>Weight Moved</h3>
-                  <span>({formatWeight(weightTicketsTotal)})</span>
+                  <span>-&nbsp;{formatWeight(weightTicketsTotal)}</span>
                 </div>
               </div>
               <FeedbackItems
@@ -153,7 +153,7 @@ const Feedback = () => {
                   <div className={styles.headingContainer} data-testid="pro-gear-items">
                     <div className={styles.headingContent}>
                       <h3>Pro-gear</h3>
-                      <span>({formatWeight(proGearTotal)})</span>
+                      <span>-&nbsp;{formatWeight(proGearTotal)}</span>
                     </div>
                   </div>
                   <FeedbackItems
@@ -168,7 +168,7 @@ const Feedback = () => {
                   <div className={styles.headingContainer} data-testid="expenses-items">
                     <div className={styles.headingContent}>
                       <h3>Expenses</h3>
-                      <span>(${expensesTotal ? formatCents(expensesTotal) : 0})</span>
+                      <span>-&nbsp;${expensesTotal ? formatCents(expensesTotal) : 0}</span>
                     </div>
                   </div>
                   <FeedbackItems
