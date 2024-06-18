@@ -11647,7 +11647,7 @@ func init() {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
           "x-nullable": true,
-          "x-omitempty": null
+          "x-omitempty": false
         },
         "fullDocument": {
           "allOf": [
@@ -24953,7 +24953,7 @@ func init() {
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,
-          "x-omitempty": null
+          "x-omitempty": false
         },
         "fullDocument": {
           "allOf": [

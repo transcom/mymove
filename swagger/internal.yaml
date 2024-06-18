@@ -2721,7 +2721,7 @@ definitions:
         type: integer
         minimum: 0
         x-nullable: true
-        x-omitempty: null
+        x-omitempty: false
       submittedEmptyWeight:
         description: Customer submitted weight of the vehicle when empty.
         type: integer
