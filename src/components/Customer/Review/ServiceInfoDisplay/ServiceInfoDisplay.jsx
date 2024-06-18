@@ -17,7 +17,6 @@ const ServiceInfoDisplay = ({
   showMessage,
   lastName,
   editURL,
-  isEmplidEnabled,
 }) => {
   const { state } = useLocation();
 
@@ -56,7 +55,7 @@ const ServiceInfoDisplay = ({
             <dd>{edipi}</dd>
           </div>
 
-          {affiliation === 'Coast Guard' && isEmplidEnabled && (
+          {affiliation === 'Coast Guard' && (
             <div className={descriptionListStyles.row}>
               <dt>EMPLID</dt>
               <dd>{emplid}</dd>
