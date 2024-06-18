@@ -3583,7 +3583,8 @@ func init() {
               "destinationDutyLocation",
               "ppmType",
               "closeoutInitiated",
-              "closeoutLocation"
+              "closeoutLocation",
+              "ppmStatus"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3702,6 +3703,16 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
             "in": "query"
           }
         ],
@@ -9605,6 +9616,19 @@ func init() {
       ],
       "readOnly": true
     },
+    "PPMStatus": {
+      "type": "string",
+      "enum": [
+        "CANCELLED",
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE",
+        "COMPLETED"
+      ]
+    },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
       "type": "object",
@@ -10073,6 +10097,10 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMStatus"
         },
         "ppmType": {
           "type": "string",
@@ -16874,7 +16902,8 @@ func init() {
               "destinationDutyLocation",
               "ppmType",
               "closeoutInitiated",
-              "closeoutLocation"
+              "closeoutLocation",
+              "ppmStatus"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -16993,6 +17022,16 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
             "in": "query"
           }
         ],
@@ -23246,6 +23285,19 @@ func init() {
       ],
       "readOnly": true
     },
+    "PPMStatus": {
+      "type": "string",
+      "enum": [
+        "CANCELLED",
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE",
+        "COMPLETED"
+      ]
+    },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
       "type": "object",
@@ -23716,6 +23768,10 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMStatus"
         },
         "ppmType": {
           "type": "string",
