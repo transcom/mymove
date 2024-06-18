@@ -60,6 +60,16 @@ func checkRequiredFields() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(_ appcontext.AppContext, newPPMShipment models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
+		// Check that we have something in the pickupPostalCode field:
+		if newPPMShipment.PickupAddressID == nil {
+			verrs.Add("pickupAddress", "cannot be nil or empty")
+		}
+
+		// Check that we have something in the destinationPostalCode field:
+		if newPPMShipment.DestinationAddressID == nil {
+			verrs.Add("destinationAddress", "cannot be nil or empty")
+		}
+
 		// Check that we have something in the expectedDepartureDate field:
 		if newPPMShipment.ExpectedDepartureDate.IsZero() {
 			verrs.Add("expectedDepartureDate", "cannot be a zero value")

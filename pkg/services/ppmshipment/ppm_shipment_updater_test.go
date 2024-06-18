@@ -96,12 +96,48 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				Model: models.PPMShipment{
 					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
 					SITExpected:           models.BoolPointer(false),
+					PickupAddress: &models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 1234"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Des Moines",
+						State:          "IA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
+					DestinationAddress: &models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 12345"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Fort Eisenhower",
+						State:          "GA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
 				},
 			},
 		}, nil)
 		newPPM := models.PPMShipment{
 			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
 			SITExpected:           models.BoolPointer(true),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50308",
+				Country:        models.StringPointer("US"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+				Country:        models.StringPointer("US"),
+			},
 		}
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -110,6 +146,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		// Fields that should now be updated
 		suite.Equal(newPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
+		suite.Equal(newPPM.PickupAddress.PostalCode, updatedPPM.PickupAddress.PostalCode)
+		suite.Equal(newPPM.DestinationAddress.PostalCode, updatedPPM.DestinationAddress.PostalCode)
 		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
 
 		// Estimated Incentive shouldn't be set since we don't have all the necessary fields.

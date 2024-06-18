@@ -71,6 +71,24 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		subtestData := createSubtestData(models.PPMShipment{
 			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
 			SITExpected:           models.BoolPointer(false),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50308",
+				Country:        models.StringPointer("US"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+				Country:        models.StringPointer("US"),
+			},
 		}, nil)
 
 		ppmEstimator.On(

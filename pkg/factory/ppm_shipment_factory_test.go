@@ -26,12 +26,60 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			EstimatedIncentive:     models.CentPointer(unit.Cents(1000000)),
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
+				Country:        models.StringPointer("US"),
+			},
+			SecondaryPickupAddress: &models.Address{
+				StreetAddress1: "123 Main Street",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
+				Country:        models.StringPointer("US"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+				Country:        models.StringPointer("US"),
+			},
+			SecondaryDestinationAddress: &models.Address{
+				StreetAddress1: "1234 Main Street",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+				Country:        models.StringPointer("US"),
+			},
 		}
 
 		// SETUP
 		ppmShipment := BuildPPMShipment(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
+		suite.Equal(defaultPPM.PickupAddress.StreetAddress1, ppmShipment.PickupAddress.StreetAddress1)
+		suite.Equal(defaultPPM.DestinationAddress.StreetAddress1, ppmShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(defaultPPM.PickupAddress.StreetAddress2, ppmShipment.PickupAddress.StreetAddress2)
+		suite.Equal(defaultPPM.DestinationAddress.StreetAddress2, ppmShipment.DestinationAddress.StreetAddress2)
+		suite.Equal(defaultPPM.PickupAddress.StreetAddress3, ppmShipment.PickupAddress.StreetAddress3)
+		suite.Equal(defaultPPM.DestinationAddress.StreetAddress3, ppmShipment.DestinationAddress.StreetAddress3)
+		suite.Equal(defaultPPM.PickupAddress.City, ppmShipment.PickupAddress.City)
+		suite.Equal(defaultPPM.DestinationAddress.City, ppmShipment.DestinationAddress.City)
+		suite.Equal(defaultPPM.PickupAddress.State, ppmShipment.PickupAddress.State)
+		suite.Equal(defaultPPM.DestinationAddress.State, ppmShipment.DestinationAddress.State)
+		suite.Equal(defaultPPM.PickupAddress.PostalCode, ppmShipment.PickupAddress.PostalCode)
+		suite.Equal(defaultPPM.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
 		suite.Equal(defaultPPM.ExpectedDepartureDate, ppmShipment.ExpectedDepartureDate)
 		suite.Equal(defaultPPM.SITExpected, ppmShipment.SITExpected)
 		suite.Equal(defaultPPM.Status, ppmShipment.Status)

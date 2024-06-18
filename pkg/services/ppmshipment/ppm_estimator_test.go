@@ -1400,7 +1400,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					},
 				},
 			}, nil)
-			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
+			shipmentDestinationSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
 						SITExpected:               models.BoolPointer(true),
@@ -1408,6 +1408,24 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
 						SITEstimatedEntryDate:     &entryDate,
 						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+						PickupAddress: &models.Address{
+							StreetAddress1: "987 Other Avenue",
+							StreetAddress2: models.StringPointer("P.O. Box 1234"),
+							StreetAddress3: models.StringPointer("c/o Another Person"),
+							City:           "Des Moines",
+							State:          "IA",
+							PostalCode:     "50309",
+							Country:        models.StringPointer("US"),
+						},
+						DestinationAddress: &models.Address{
+							StreetAddress1: "987 Other Avenue",
+							StreetAddress2: models.StringPointer("P.O. Box 12345"),
+							StreetAddress3: models.StringPointer("c/o Another Person"),
+							City:           "Fort Eisenhower",
+							State:          "GA",
+							PostalCode:     "30183",
+							Country:        models.StringPointer("US"),
+						},
 					},
 				},
 				{
@@ -1419,7 +1437,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "30813").Return(2294, nil)
 
-			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentOriginSIT)
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentDestinationSIT)
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
@@ -1435,6 +1453,24 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				{
 					Model: models.MTOShipment{
 						ShipmentType: models.MTOShipmentTypePPM,
+						PickupAddress: &models.Address{
+							StreetAddress1: "987 Other Avenue",
+							StreetAddress2: models.StringPointer("P.O. Box 1234"),
+							StreetAddress3: models.StringPointer("c/o Another Person"),
+							City:           "Des Moines",
+							State:          "IA",
+							PostalCode:     "50309",
+							Country:        models.StringPointer("US"),
+						},
+						DestinationAddress: &models.Address{
+							StreetAddress1: "987 Other Avenue",
+							StreetAddress2: models.StringPointer("P.O. Box 12345"),
+							StreetAddress3: models.StringPointer("c/o Another Person"),
+							City:           "Fort Eisenhower",
+							State:          "GA",
+							PostalCode:     "30183",
+							Country:        models.StringPointer("US"),
+						},
 					},
 				},
 			}, nil)
