@@ -67,7 +67,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
+		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {

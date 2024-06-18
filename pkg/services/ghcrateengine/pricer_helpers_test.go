@@ -60,7 +60,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		isPPM := false
 		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, badContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup domestic other price")
+		suite.Contains(err.Error(), "could not lookup domestic other price")
 	})
 
 	suite.Run("not finding contract year", func() {
@@ -78,7 +78,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, badMarket, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup shipment type price")
+		suite.Contains(err.Error(), "could not lookup shipment type price")
 	})
 
 }
@@ -582,7 +582,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
+		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
