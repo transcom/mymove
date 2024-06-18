@@ -189,17 +189,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
 		}
 	}
-	fmt.Println("*PB1********")
-	fmt.Println(query)
-	fmt.Println("*********")
+
 	for _, option := range options {
 		if option != nil {
 			option(query) // mutates
 		}
 	}
-	fmt.Println("*PB********")
-	fmt.Println(query)
-	fmt.Println("*********")
+
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
 	if params.Page == nil {
 		params.Page = models.Int64Pointer(0)
@@ -231,7 +227,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	if err != nil {
 		return []models.Move{}, 0, err
 	}
-	fmt.Println("***before count")
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
 

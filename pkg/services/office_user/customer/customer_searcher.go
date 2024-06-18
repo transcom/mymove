@@ -1,8 +1,6 @@
 package customer
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -71,17 +69,25 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 
 		if params.DodID != nil {
 			rawquery += ` service_members.edipi = $1)`
+			if params.Sort != nil && params.Order != nil {
+				sortTerm := parameters[*params.Sort]
+				rawquery += ` ORDER BY ` + sortTerm + *params.Order
+			}
 			query = appCtx.DB().RawQuery(rawquery, params.DodID)
 		} else {
 			rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name))`
+			if params.Sort != nil && params.Order != nil {
+				sortTerm := parameters[*params.Sort]
+				rawquery += ` ORDER BY ` + sortTerm + ` ` + *params.Order
+			}
 			query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
 		}
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	dodIDQuery := dodIDSearch(params.DodID)
-	orderQuery := sortOrder(params.Sort, params.Order)
-	options := [3]QueryOption{customerNameQuery, dodIDQuery, orderQuery}
+	//orderQuery := sortOrder(params.Sort, params.Order)
+	options := [3]QueryOption{customerNameQuery, dodIDQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -124,13 +130,13 @@ var parameters = map[string]string{
 	"telephone":     "service_members.telephone",
 }
 
-func sortOrder(sort *string, order *string) QueryOption {
-	return func(query *pop.Query) {
-		if sort != nil && order != nil {
-			sortTerm := parameters[*sort]
-			query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
-		} else {
-			query.Order("service_members.last_name ASC")
-		}
-	}
-}
+// func sortOrder(sort *string, order *string) QueryOption {
+// 	return func(query *pop.Query) {
+// 		if sort != nil && order != nil {
+// 			sortTerm := parameters[*sort]
+// 			query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+// 		} else {
+// 			query.Order("service_members.last_name ASC")
+// 		}
+// 	}
+// }
