@@ -7225,6 +7225,14 @@ func init() {
           "type": "string",
           "format": "date-time",
           "example": "2023-08-03T19:17:38.776Z"
+        },
+        "validHhgProgramCodeForLoa": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "validLoaForTac": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },
@@ -8609,6 +8617,37 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
@@ -9957,6 +9996,24 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -11094,6 +11151,34 @@ func init() {
         }
       }
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -12049,6 +12134,30 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
@@ -20772,6 +20881,14 @@ func init() {
           "type": "string",
           "format": "date-time",
           "example": "2023-08-03T19:17:38.776Z"
+        },
+        "validHhgProgramCodeForLoa": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "validLoaForTac": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },
@@ -22156,6 +22273,37 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
@@ -23505,6 +23653,25 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -24695,6 +24862,34 @@ func init() {
         }
       }
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -25666,6 +25861,32 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
