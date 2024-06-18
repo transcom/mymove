@@ -20,59 +20,260 @@ import (
 // swagger:model ListReport
 type ListReport struct {
 
+	// a a a
+	AAA *string `json:"AAA,omitempty"`
+
+	// accessorial total
+	AccessorialTotal *float64 `json:"AccessorialTotal,omitempty"`
+
+	// actual origin net weight
+	ActualOriginNetWeight string `json:"ActualOriginNetWeight,omitempty"`
+
+	// address
+	Address *Address `json:"Address,omitempty"`
+
 	// affiliation
 	Affiliation *Affiliation `json:"Affiliation,omitempty"`
+
+	// Appropriation
+	Appro *string `json:"Appro,omitempty"`
+
+	// b c n
+	BCN *string `json:"BCN,omitempty"`
+
+	// cost c d
+	CostCD *string `json:"CostCD,omitempty"`
+
+	// counseled date
+	// Format: date
+	CounseledDate strfmt.Date `json:"CounseledDate,omitempty"`
+
+	// Counseling Date
+	// Format: date
+	DD2278IssueDate strfmt.Date `json:"DD2278IssueDate,omitempty"`
+
+	// d d c d
+	DDCD *string `json:"DDCD,omitempty"`
+
+	// delivery date
+	// Format: date
+	DeliveryDate strfmt.Date `json:"DeliveryDate,omitempty"`
+
+	// Department Code
+	DepCD *string `json:"DepCD,omitempty"`
+
+	// destination address
+	DestinationAddress *Address `json:"DestinationAddress,omitempty"`
+
+	// destination gbloc
+	// Enum: [AGFM APAT BGAC BGNC BKAS CFMQ CLPK CNNQ DMAT GSAT HAFC HBAT JEAT JENQ KKFA LHNQ LKNQ MAPK MAPS MBFL MLNQ XXXX]
+	DestinationGbloc *string `json:"DestinationGbloc,omitempty"`
+
+	// destination reweigh net weight
+	DestinationReweighNetWeight string `json:"DestinationReweighNetWeight,omitempty"`
 
 	// edipi
 	// Example: 1234567890
 	Edipi string `json:"Edipi,omitempty"`
 
 	// email primary
-	// Example: 9169876543
+	// Example: a@b.com
 	EmailPrimary string `json:"EmailPrimary,omitempty"`
 
 	// email secondary
-	// Example: 2101234567
-	EmailSecondary string `json:"EmailSecondary,omitempty"`
+	EmailSecondary *string `json:"EmailSecondary,omitempty"`
+
+	// entitlement weight
+	EntitlementWeight int64 `json:"EntitlementWeight,omitempty"`
 
 	// first name
 	// Example: Bob
 	FirstName string `json:"FirstName,omitempty"`
 
-	// grade
-	// Enum: [E_1 E_2 E_3 E_4 E_5 E_6 E_7 E_8 E_9 E_9_SPECIAL_SENIOR_ENLISTED O_1_ACADEMY_GRADUATE O_2 O_3 O_4 O_5 O_6 O_7 O_8 O_9 O_10 W_1 W_2 W_3 W_4 W_5 AVIATION_CADET CIVILIAN_EMPLOYEE ACADEMY_CADET MIDSHIPMAN]
-	Grade *string `json:"Grade,omitempty"`
+	// fiscal year
+	FiscalYear *int64 `json:"FiscalYear,omitempty"`
+
+	// fuel total
+	FuelTotal *float64 `json:"FuelTotal,omitempty"`
 
 	// ID
 	// Format: uuid
 	ID strfmt.UUID `json:"ID,omitempty"`
 
+	// invoice paid amt
+	InvoicePaidAmt float64 `json:"InvoicePaidAmt,omitempty"`
+
+	// l o a
+	LOA *string `json:"LOA,omitempty"`
+
 	// last name
 	// Example: Job
 	LastName string `json:"LastName,omitempty"`
+
+	// linehaul total
+	LinehaulTotal *float64 `json:"LinehaulTotal,omitempty"`
 
 	// middle initial
 	// Example: G
 	MiddleInitial string `json:"MiddleInitial,omitempty"`
 
+	// miles
+	Miles int64 `json:"Miles,omitempty"`
+
+	// move date
+	// Format: date
+	MoveDate *strfmt.Date `json:"MoveDate,omitempty"`
+
+	// net weight
+	NetWeight int64 `json:"NetWeight,omitempty"`
+
+	// obj class
+	ObjClass *string `json:"ObjClass,omitempty"`
+
+	// not to be confused with Orders Number
+	// Example: 030-00362
+	OrderNumber string `json:"OrderNumber,omitempty"`
+
+	// orders date
+	// Format: date-time
+	OrdersDate strfmt.DateTime `json:"OrdersDate,omitempty"`
+
+	// orders number
+	OrdersNumber string `json:"OrdersNumber,omitempty"`
+
+	// orders type
+	OrdersType string `json:"OrdersType,omitempty"`
+
+	// origin address
+	OriginAddress *Address `json:"OriginAddress,omitempty"`
+
+	// origin gbloc
+	// Enum: [AGFM APAT BGAC BGNC BKAS CFMQ CLPK CNNQ DMAT GSAT HAFC HBAT JEAT JENQ KKFA LHNQ LKNQ MAPK MAPS MBFL MLNQ XXXX]
+	OriginGbloc *string `json:"OriginGbloc,omitempty"`
+
+	// other total
+	OtherTotal *float64 `json:"OtherTotal,omitempty"`
+
+	// p a a
+	PAA *string `json:"PAA,omitempty"`
+
+	// Pro Gear
+	PBPAndE float64 `json:"PBP&E,omitempty"`
+
+	// paid date
+	// Format: date
+	PaidDate *strfmt.Date `json:"PaidDate,omitempty"`
+
+	// grade
+	// Enum: [E_1 E_2 E_3 E_4 E_5 E_6 E_7 E_8 E_9 E_9_SPECIAL_SENIOR_ENLISTED O_1_ACADEMY_GRADUATE O_2 O_3 O_4 O_5 O_6 O_7 O_8 O_9 O_10 W_1 W_2 W_3 W_4 W_5 AVIATION_CADET CIVILIAN_EMPLOYEE ACADEMY_CADET MIDSHIPMAN]
+	PayGrade *string `json:"PayGrade,omitempty"`
+
 	// phone primary
-	// Example: a@b.com
+	// Example: 9169876543
 	PhonePrimary string `json:"PhonePrimary,omitempty"`
 
 	// phone secondary
-	// Example: a@b.com
-	PhoneSecondary string `json:"PhoneSecondary,omitempty"`
+	// Example: 9169876543
+	PhoneSecondary *string `json:"PhoneSecondary,omitempty"`
+
+	// pickup date
+	// Format: date
+	PickupDate strfmt.Date `json:"PickupDate,omitempty"`
+
+	// rate
+	Rate *float64 `json:"Rate,omitempty"`
+
+	// s c a c
+	// Example: AGFM
+	SCAC *string `json:"SCAC,omitempty"`
+
+	// shipment Id
+	// Format: uuid
+	ShipmentID strfmt.UUID `json:"ShipmentId,omitempty"`
+
+	// Number of shipments
+	ShipmentNum int64 `json:"ShipmentNum,omitempty"`
+
+	// shipment type
+	ShipmentType string `json:"ShipmentType,omitempty"`
+
+	// sit in date
+	// Format: date
+	SitInDate *strfmt.Date `json:"SitInDate,omitempty"`
+
+	// sit out date
+	// Format: date
+	SitOutDate *strfmt.Date `json:"SitOutDate,omitempty"`
+
+	// sit total
+	SitTotal *float64 `json:"SitTotal,omitempty"`
+
+	// sit type
+	// Example: Destination
+	SitType *string `json:"SitType,omitempty"`
+
+	// sub allot c d
+	SubAllotCD *string `json:"SubAllotCD,omitempty"`
+
+	// subhead
+	Subhead *string `json:"Subhead,omitempty"`
+
+	// Transportation Accounting Code
+	TAC *string `json:"TAC,omitempty"`
+
+	// Transmit Code
+	TransmitCD *string `json:"TransmitCD,omitempty"`
+
+	// travel advance
+	TravelAdvance *string `json:"TravelAdvance,omitempty"`
+
+	// travel class code
+	// Example: PCS
+	TravelClassCode string `json:"TravelClassCode,omitempty"`
+
+	// Travel Type
+	// Example: Shipment of HHG Permitted
+	TravelType string `json:"TravelType,omitempty"`
+
+	// type c d
+	TypeCD *string `json:"TypeCD,omitempty"`
+
+	// weight authorized
+	WeightAuthorized float64 `json:"WeightAuthorized,omitempty"`
+
+	// Total weight estimate
+	WeightEstimate float64 `json:"WeightEstimate,omitempty"`
 }
 
 // Validate validates this list report
 func (m *ListReport) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAffiliation(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateGrade(formats); err != nil {
+	if err := m.validateCounseledDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDD2278IssueDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationGbloc(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -80,9 +281,68 @@ func (m *ListReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrdersDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginGbloc(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePaidDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePayGrade(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitInDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitOutDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ListReport) validateAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.Address) { // not required
+		return nil
+	}
+
+	if m.Address != nil {
+		if err := m.Address.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("Address")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -105,123 +365,157 @@ func (m *ListReport) validateAffiliation(formats strfmt.Registry) error {
 	return nil
 }
 
-var listReportTypeGradePropEnum []interface{}
+func (m *ListReport) validateCounseledDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounseledDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("CounseledDate", "body", "date", m.CounseledDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateDD2278IssueDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.DD2278IssueDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("DD2278IssueDate", "body", "date", m.DD2278IssueDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateDeliveryDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.DeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("DeliveryDate", "body", "date", m.DeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("DestinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("DestinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var listReportTypeDestinationGblocPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["E_1","E_2","E_3","E_4","E_5","E_6","E_7","E_8","E_9","E_9_SPECIAL_SENIOR_ENLISTED","O_1_ACADEMY_GRADUATE","O_2","O_3","O_4","O_5","O_6","O_7","O_8","O_9","O_10","W_1","W_2","W_3","W_4","W_5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGFM","APAT","BGAC","BGNC","BKAS","CFMQ","CLPK","CNNQ","DMAT","GSAT","HAFC","HBAT","JEAT","JENQ","KKFA","LHNQ","LKNQ","MAPK","MAPS","MBFL","MLNQ","XXXX"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		listReportTypeGradePropEnum = append(listReportTypeGradePropEnum, v)
+		listReportTypeDestinationGblocPropEnum = append(listReportTypeDestinationGblocPropEnum, v)
 	}
 }
 
 const (
 
-	// ListReportGradeE1 captures enum value "E_1"
-	ListReportGradeE1 string = "E_1"
+	// ListReportDestinationGblocAGFM captures enum value "AGFM"
+	ListReportDestinationGblocAGFM string = "AGFM"
 
-	// ListReportGradeE2 captures enum value "E_2"
-	ListReportGradeE2 string = "E_2"
+	// ListReportDestinationGblocAPAT captures enum value "APAT"
+	ListReportDestinationGblocAPAT string = "APAT"
 
-	// ListReportGradeE3 captures enum value "E_3"
-	ListReportGradeE3 string = "E_3"
+	// ListReportDestinationGblocBGAC captures enum value "BGAC"
+	ListReportDestinationGblocBGAC string = "BGAC"
 
-	// ListReportGradeE4 captures enum value "E_4"
-	ListReportGradeE4 string = "E_4"
+	// ListReportDestinationGblocBGNC captures enum value "BGNC"
+	ListReportDestinationGblocBGNC string = "BGNC"
 
-	// ListReportGradeE5 captures enum value "E_5"
-	ListReportGradeE5 string = "E_5"
+	// ListReportDestinationGblocBKAS captures enum value "BKAS"
+	ListReportDestinationGblocBKAS string = "BKAS"
 
-	// ListReportGradeE6 captures enum value "E_6"
-	ListReportGradeE6 string = "E_6"
+	// ListReportDestinationGblocCFMQ captures enum value "CFMQ"
+	ListReportDestinationGblocCFMQ string = "CFMQ"
 
-	// ListReportGradeE7 captures enum value "E_7"
-	ListReportGradeE7 string = "E_7"
+	// ListReportDestinationGblocCLPK captures enum value "CLPK"
+	ListReportDestinationGblocCLPK string = "CLPK"
 
-	// ListReportGradeE8 captures enum value "E_8"
-	ListReportGradeE8 string = "E_8"
+	// ListReportDestinationGblocCNNQ captures enum value "CNNQ"
+	ListReportDestinationGblocCNNQ string = "CNNQ"
 
-	// ListReportGradeE9 captures enum value "E_9"
-	ListReportGradeE9 string = "E_9"
+	// ListReportDestinationGblocDMAT captures enum value "DMAT"
+	ListReportDestinationGblocDMAT string = "DMAT"
 
-	// ListReportGradeE9SPECIALSENIORENLISTED captures enum value "E_9_SPECIAL_SENIOR_ENLISTED"
-	ListReportGradeE9SPECIALSENIORENLISTED string = "E_9_SPECIAL_SENIOR_ENLISTED"
+	// ListReportDestinationGblocGSAT captures enum value "GSAT"
+	ListReportDestinationGblocGSAT string = "GSAT"
 
-	// ListReportGradeO1ACADEMYGRADUATE captures enum value "O_1_ACADEMY_GRADUATE"
-	ListReportGradeO1ACADEMYGRADUATE string = "O_1_ACADEMY_GRADUATE"
+	// ListReportDestinationGblocHAFC captures enum value "HAFC"
+	ListReportDestinationGblocHAFC string = "HAFC"
 
-	// ListReportGradeO2 captures enum value "O_2"
-	ListReportGradeO2 string = "O_2"
+	// ListReportDestinationGblocHBAT captures enum value "HBAT"
+	ListReportDestinationGblocHBAT string = "HBAT"
 
-	// ListReportGradeO3 captures enum value "O_3"
-	ListReportGradeO3 string = "O_3"
+	// ListReportDestinationGblocJEAT captures enum value "JEAT"
+	ListReportDestinationGblocJEAT string = "JEAT"
 
-	// ListReportGradeO4 captures enum value "O_4"
-	ListReportGradeO4 string = "O_4"
+	// ListReportDestinationGblocJENQ captures enum value "JENQ"
+	ListReportDestinationGblocJENQ string = "JENQ"
 
-	// ListReportGradeO5 captures enum value "O_5"
-	ListReportGradeO5 string = "O_5"
+	// ListReportDestinationGblocKKFA captures enum value "KKFA"
+	ListReportDestinationGblocKKFA string = "KKFA"
 
-	// ListReportGradeO6 captures enum value "O_6"
-	ListReportGradeO6 string = "O_6"
+	// ListReportDestinationGblocLHNQ captures enum value "LHNQ"
+	ListReportDestinationGblocLHNQ string = "LHNQ"
 
-	// ListReportGradeO7 captures enum value "O_7"
-	ListReportGradeO7 string = "O_7"
+	// ListReportDestinationGblocLKNQ captures enum value "LKNQ"
+	ListReportDestinationGblocLKNQ string = "LKNQ"
 
-	// ListReportGradeO8 captures enum value "O_8"
-	ListReportGradeO8 string = "O_8"
+	// ListReportDestinationGblocMAPK captures enum value "MAPK"
+	ListReportDestinationGblocMAPK string = "MAPK"
 
-	// ListReportGradeO9 captures enum value "O_9"
-	ListReportGradeO9 string = "O_9"
+	// ListReportDestinationGblocMAPS captures enum value "MAPS"
+	ListReportDestinationGblocMAPS string = "MAPS"
 
-	// ListReportGradeO10 captures enum value "O_10"
-	ListReportGradeO10 string = "O_10"
+	// ListReportDestinationGblocMBFL captures enum value "MBFL"
+	ListReportDestinationGblocMBFL string = "MBFL"
 
-	// ListReportGradeW1 captures enum value "W_1"
-	ListReportGradeW1 string = "W_1"
+	// ListReportDestinationGblocMLNQ captures enum value "MLNQ"
+	ListReportDestinationGblocMLNQ string = "MLNQ"
 
-	// ListReportGradeW2 captures enum value "W_2"
-	ListReportGradeW2 string = "W_2"
-
-	// ListReportGradeW3 captures enum value "W_3"
-	ListReportGradeW3 string = "W_3"
-
-	// ListReportGradeW4 captures enum value "W_4"
-	ListReportGradeW4 string = "W_4"
-
-	// ListReportGradeW5 captures enum value "W_5"
-	ListReportGradeW5 string = "W_5"
-
-	// ListReportGradeAVIATIONCADET captures enum value "AVIATION_CADET"
-	ListReportGradeAVIATIONCADET string = "AVIATION_CADET"
-
-	// ListReportGradeCIVILIANEMPLOYEE captures enum value "CIVILIAN_EMPLOYEE"
-	ListReportGradeCIVILIANEMPLOYEE string = "CIVILIAN_EMPLOYEE"
-
-	// ListReportGradeACADEMYCADET captures enum value "ACADEMY_CADET"
-	ListReportGradeACADEMYCADET string = "ACADEMY_CADET"
-
-	// ListReportGradeMIDSHIPMAN captures enum value "MIDSHIPMAN"
-	ListReportGradeMIDSHIPMAN string = "MIDSHIPMAN"
+	// ListReportDestinationGblocXXXX captures enum value "XXXX"
+	ListReportDestinationGblocXXXX string = "XXXX"
 )
 
 // prop value enum
-func (m *ListReport) validateGradeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listReportTypeGradePropEnum, true); err != nil {
+func (m *ListReport) validateDestinationGblocEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listReportTypeDestinationGblocPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *ListReport) validateGrade(formats strfmt.Registry) error {
-	if swag.IsZero(m.Grade) { // not required
+func (m *ListReport) validateDestinationGbloc(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationGbloc) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := m.validateGradeEnum("Grade", "body", *m.Grade); err != nil {
+	if err := m.validateDestinationGblocEnum("DestinationGbloc", "body", *m.DestinationGbloc); err != nil {
 		return err
 	}
 
@@ -240,17 +534,378 @@ func (m *ListReport) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *ListReport) validateMoveDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.MoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("MoveDate", "body", "date", m.MoveDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateOrdersDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.OrdersDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("OrdersDate", "body", "date-time", m.OrdersDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateOriginAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginAddress) { // not required
+		return nil
+	}
+
+	if m.OriginAddress != nil {
+		if err := m.OriginAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("OriginAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("OriginAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var listReportTypeOriginGblocPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGFM","APAT","BGAC","BGNC","BKAS","CFMQ","CLPK","CNNQ","DMAT","GSAT","HAFC","HBAT","JEAT","JENQ","KKFA","LHNQ","LKNQ","MAPK","MAPS","MBFL","MLNQ","XXXX"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listReportTypeOriginGblocPropEnum = append(listReportTypeOriginGblocPropEnum, v)
+	}
+}
+
+const (
+
+	// ListReportOriginGblocAGFM captures enum value "AGFM"
+	ListReportOriginGblocAGFM string = "AGFM"
+
+	// ListReportOriginGblocAPAT captures enum value "APAT"
+	ListReportOriginGblocAPAT string = "APAT"
+
+	// ListReportOriginGblocBGAC captures enum value "BGAC"
+	ListReportOriginGblocBGAC string = "BGAC"
+
+	// ListReportOriginGblocBGNC captures enum value "BGNC"
+	ListReportOriginGblocBGNC string = "BGNC"
+
+	// ListReportOriginGblocBKAS captures enum value "BKAS"
+	ListReportOriginGblocBKAS string = "BKAS"
+
+	// ListReportOriginGblocCFMQ captures enum value "CFMQ"
+	ListReportOriginGblocCFMQ string = "CFMQ"
+
+	// ListReportOriginGblocCLPK captures enum value "CLPK"
+	ListReportOriginGblocCLPK string = "CLPK"
+
+	// ListReportOriginGblocCNNQ captures enum value "CNNQ"
+	ListReportOriginGblocCNNQ string = "CNNQ"
+
+	// ListReportOriginGblocDMAT captures enum value "DMAT"
+	ListReportOriginGblocDMAT string = "DMAT"
+
+	// ListReportOriginGblocGSAT captures enum value "GSAT"
+	ListReportOriginGblocGSAT string = "GSAT"
+
+	// ListReportOriginGblocHAFC captures enum value "HAFC"
+	ListReportOriginGblocHAFC string = "HAFC"
+
+	// ListReportOriginGblocHBAT captures enum value "HBAT"
+	ListReportOriginGblocHBAT string = "HBAT"
+
+	// ListReportOriginGblocJEAT captures enum value "JEAT"
+	ListReportOriginGblocJEAT string = "JEAT"
+
+	// ListReportOriginGblocJENQ captures enum value "JENQ"
+	ListReportOriginGblocJENQ string = "JENQ"
+
+	// ListReportOriginGblocKKFA captures enum value "KKFA"
+	ListReportOriginGblocKKFA string = "KKFA"
+
+	// ListReportOriginGblocLHNQ captures enum value "LHNQ"
+	ListReportOriginGblocLHNQ string = "LHNQ"
+
+	// ListReportOriginGblocLKNQ captures enum value "LKNQ"
+	ListReportOriginGblocLKNQ string = "LKNQ"
+
+	// ListReportOriginGblocMAPK captures enum value "MAPK"
+	ListReportOriginGblocMAPK string = "MAPK"
+
+	// ListReportOriginGblocMAPS captures enum value "MAPS"
+	ListReportOriginGblocMAPS string = "MAPS"
+
+	// ListReportOriginGblocMBFL captures enum value "MBFL"
+	ListReportOriginGblocMBFL string = "MBFL"
+
+	// ListReportOriginGblocMLNQ captures enum value "MLNQ"
+	ListReportOriginGblocMLNQ string = "MLNQ"
+
+	// ListReportOriginGblocXXXX captures enum value "XXXX"
+	ListReportOriginGblocXXXX string = "XXXX"
+)
+
+// prop value enum
+func (m *ListReport) validateOriginGblocEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listReportTypeOriginGblocPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ListReport) validateOriginGbloc(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginGbloc) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateOriginGblocEnum("OriginGbloc", "body", *m.OriginGbloc); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validatePaidDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.PaidDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("PaidDate", "body", "date", m.PaidDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listReportTypePayGradePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["E_1","E_2","E_3","E_4","E_5","E_6","E_7","E_8","E_9","E_9_SPECIAL_SENIOR_ENLISTED","O_1_ACADEMY_GRADUATE","O_2","O_3","O_4","O_5","O_6","O_7","O_8","O_9","O_10","W_1","W_2","W_3","W_4","W_5","AVIATION_CADET","CIVILIAN_EMPLOYEE","ACADEMY_CADET","MIDSHIPMAN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listReportTypePayGradePropEnum = append(listReportTypePayGradePropEnum, v)
+	}
+}
+
+const (
+
+	// ListReportPayGradeE1 captures enum value "E_1"
+	ListReportPayGradeE1 string = "E_1"
+
+	// ListReportPayGradeE2 captures enum value "E_2"
+	ListReportPayGradeE2 string = "E_2"
+
+	// ListReportPayGradeE3 captures enum value "E_3"
+	ListReportPayGradeE3 string = "E_3"
+
+	// ListReportPayGradeE4 captures enum value "E_4"
+	ListReportPayGradeE4 string = "E_4"
+
+	// ListReportPayGradeE5 captures enum value "E_5"
+	ListReportPayGradeE5 string = "E_5"
+
+	// ListReportPayGradeE6 captures enum value "E_6"
+	ListReportPayGradeE6 string = "E_6"
+
+	// ListReportPayGradeE7 captures enum value "E_7"
+	ListReportPayGradeE7 string = "E_7"
+
+	// ListReportPayGradeE8 captures enum value "E_8"
+	ListReportPayGradeE8 string = "E_8"
+
+	// ListReportPayGradeE9 captures enum value "E_9"
+	ListReportPayGradeE9 string = "E_9"
+
+	// ListReportPayGradeE9SPECIALSENIORENLISTED captures enum value "E_9_SPECIAL_SENIOR_ENLISTED"
+	ListReportPayGradeE9SPECIALSENIORENLISTED string = "E_9_SPECIAL_SENIOR_ENLISTED"
+
+	// ListReportPayGradeO1ACADEMYGRADUATE captures enum value "O_1_ACADEMY_GRADUATE"
+	ListReportPayGradeO1ACADEMYGRADUATE string = "O_1_ACADEMY_GRADUATE"
+
+	// ListReportPayGradeO2 captures enum value "O_2"
+	ListReportPayGradeO2 string = "O_2"
+
+	// ListReportPayGradeO3 captures enum value "O_3"
+	ListReportPayGradeO3 string = "O_3"
+
+	// ListReportPayGradeO4 captures enum value "O_4"
+	ListReportPayGradeO4 string = "O_4"
+
+	// ListReportPayGradeO5 captures enum value "O_5"
+	ListReportPayGradeO5 string = "O_5"
+
+	// ListReportPayGradeO6 captures enum value "O_6"
+	ListReportPayGradeO6 string = "O_6"
+
+	// ListReportPayGradeO7 captures enum value "O_7"
+	ListReportPayGradeO7 string = "O_7"
+
+	// ListReportPayGradeO8 captures enum value "O_8"
+	ListReportPayGradeO8 string = "O_8"
+
+	// ListReportPayGradeO9 captures enum value "O_9"
+	ListReportPayGradeO9 string = "O_9"
+
+	// ListReportPayGradeO10 captures enum value "O_10"
+	ListReportPayGradeO10 string = "O_10"
+
+	// ListReportPayGradeW1 captures enum value "W_1"
+	ListReportPayGradeW1 string = "W_1"
+
+	// ListReportPayGradeW2 captures enum value "W_2"
+	ListReportPayGradeW2 string = "W_2"
+
+	// ListReportPayGradeW3 captures enum value "W_3"
+	ListReportPayGradeW3 string = "W_3"
+
+	// ListReportPayGradeW4 captures enum value "W_4"
+	ListReportPayGradeW4 string = "W_4"
+
+	// ListReportPayGradeW5 captures enum value "W_5"
+	ListReportPayGradeW5 string = "W_5"
+
+	// ListReportPayGradeAVIATIONCADET captures enum value "AVIATION_CADET"
+	ListReportPayGradeAVIATIONCADET string = "AVIATION_CADET"
+
+	// ListReportPayGradeCIVILIANEMPLOYEE captures enum value "CIVILIAN_EMPLOYEE"
+	ListReportPayGradeCIVILIANEMPLOYEE string = "CIVILIAN_EMPLOYEE"
+
+	// ListReportPayGradeACADEMYCADET captures enum value "ACADEMY_CADET"
+	ListReportPayGradeACADEMYCADET string = "ACADEMY_CADET"
+
+	// ListReportPayGradeMIDSHIPMAN captures enum value "MIDSHIPMAN"
+	ListReportPayGradeMIDSHIPMAN string = "MIDSHIPMAN"
+)
+
+// prop value enum
+func (m *ListReport) validatePayGradeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listReportTypePayGradePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ListReport) validatePayGrade(formats strfmt.Registry) error {
+	if swag.IsZero(m.PayGrade) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validatePayGradeEnum("PayGrade", "body", *m.PayGrade); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validatePickupDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.PickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("PickupDate", "body", "date", m.PickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateShipmentID(formats strfmt.Registry) error {
+	if swag.IsZero(m.ShipmentID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("ShipmentId", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateSitInDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitInDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("SitInDate", "body", "date", m.SitInDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListReport) validateSitOutDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitOutDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("SitOutDate", "body", "date", m.SitOutDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list report based on the context it is used
 func (m *ListReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ListReport) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Address != nil {
+
+		if swag.IsZero(m.Address) { // not required
+			return nil
+		}
+
+		if err := m.Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("Address")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("Address")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -267,6 +922,48 @@ func (m *ListReport) contextValidateAffiliation(ctx context.Context, formats str
 				return ve.ValidateName("Affiliation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("Affiliation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ListReport) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationAddress != nil {
+
+		if swag.IsZero(m.DestinationAddress) { // not required
+			return nil
+		}
+
+		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("DestinationAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("DestinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ListReport) contextValidateOriginAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginAddress != nil {
+
+		if swag.IsZero(m.OriginAddress) { // not required
+			return nil
+		}
+
+		if err := m.OriginAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("OriginAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("OriginAddress")
 			}
 			return err
 		}

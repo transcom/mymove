@@ -90,40 +90,26 @@ properties:
   PhoneSecondary:
     example: 9169876543
     type: string
+    x-nullable: true
   EmailPrimary:
     example: a@b.com
     type: string
+  EmailSecondary:
+    type: string
+    x-nullable: true
   OrdersType:
     type: string
   OrdersNumber:
+    type: string
+  OrdersDate:
     type: string
     format: date-time
   Address:
     $ref: 'Address.yaml'
   OriginAddress:
     $ref: 'Address.yaml'
-  # OriginCity:
-  #   type: string
-  # OriginState:
-  #   type: string
-  # OriginZip:
-  #   type: string
-  #   format: zip
-  #   title: ZIP
-  #   example: '90210'
-  #   pattern: '^(\d{5}([\-]\d{4})?)$'
   DestinationAddress:
     $ref: 'Address.yaml'
-  # DestinationCity:
-  #   type: string
-  # DestinationState:
-  #   type: string
-  # DestinationZip:
-  #   type: string
-  #   format: zip
-  #   title: ZIP
-  #   example: '90210'
-  #   pattern: '^(\d{5}([\-]\d{4})?)$'
   OriginGbloc:
     type: string
     enum:
@@ -149,6 +135,7 @@ properties:
       - MBFL
       - MLNQ
       - XXXX
+    x-nullable: true
   DestinationGbloc:
     type: string
     enum:
@@ -174,62 +161,160 @@ properties:
       - MBFL
       - MLNQ
       - XXXX
-
-  # DEP CD
-  # TRAVEL ADVANCE
-  # MOVE DATE
-  # TAC
-  # FISCAL YEAR
-  # APPRO
-  # SUBHEAD
-  # OBJ CLASS
-  # BCN
-  # SUB ALLOT CD
-  # AAA
-  # TYPE CD
-  # PAA
-  # COST CD
-  # DD CD
-
+    x-nullable: true
+  DepCD:
+    description: Department Code
+    type: string
+    x-nullable: true
+  TravelAdvance:
+    type: string
+    x-nullable: true
+  MoveDate:
+    type: string
+    format: date
+    x-nullable: true
+  TAC:
+    description: Transportation Accounting Code
+    type: string
+    x-nullable: true
+  FiscalYear:
+    type: integer
+    x-nullable: true
+  Appro:
+    description: Appropriation
+    type: string
+    x-nullable: true
+  Subhead:
+    type: string
+    x-nullable: true
+  ObjClass:
+    type: string
+    x-nullable: true
+  BCN:
+    type: string
+    x-nullable: true
+  SubAllotCD:
+    type: string
+    x-nullable: true
+  AAA:
+    type: string
+    x-nullable: true
+  TypeCD:
+    type: string
+    x-nullable: true
+  PAA:
+    type: string
+    x-nullable: true
+  CostCD:
+    type: string
+    x-nullable: true
+  DDCD:
+    type: string
+    x-nullable: true
   ShipmentNum:
+    description: Number of shipments
     type: integer
   WeightEstimate:
+    description: Total weight estimate
     type: number
     format: double
-
-  # TRANSMIT CD
-  # DD2278 ISSUE DATE
-
+  TransmitCD:
+    description: Transmit Code
+    type: string
+    x-nullable: true
+  DD2278IssueDate:
+    description: Counseling Date
+    type: string
+    format: date
   Miles:
     type: integer
   WeightAuthorized:
-    type: integer
+    type: number
+    format: double
   ShipmentId:
     type: string
     format: uuid
-
-  # SCAC
-  # ORDER_NUMBER (SDN)
-  # LOA
-  # Shipment Type
-  # ENTITLEMENT WEIGHT
-  # NET WEIGHT
-  # PBP&E (Pro Gear)
-  # PICKUP DATE
-  # SIT IN DATE
-  # SIT OUT DATE
-  # SIT TYPE
-  # RATE
-  # PAID DATE
-  # LINEHAUL TOTAL
-  # SIT TOTAL
-  # ACCESSORIAL TOTAL
-  # FUEL TOTAL
-  # OTHER TOTAL
-  # INVOICE PAID AMT
-  # TRAVEL TYPE
-  # TRAVEL CLASS CODE
-  # Delivery Date
-  # Actual Origin Net Weight
-  # Destination Reweigh Net Weight
-  # Counseled Date
+  SCAC:
+    example: AGFM
+    type: string
+    x-nullable: true
+  OrderNumber:
+    description: not to be confused with Orders Number
+    type: string
+    example: '030-00362'
+  LOA:
+    type: string
+    x-nullable: true
+  ShipmentType:
+    type: string
+  EntitlementWeight:
+    type: integer
+  NetWeight:
+    type: integer
+  PBP&E:
+    description: Pro Gear
+    type: number
+    format: double
+  PickupDate:
+    type: string
+    format: date
+  SitInDate:
+    type: string
+    format: date
+    x-nullable: true
+  SitOutDate:
+    type: string
+    format: date
+    x-nullable: true
+  SitType:
+    example: Destination
+    type: string
+    x-nullable: true
+  Rate:
+    type: number
+    format: double
+    x-nullable: true
+  PaidDate:
+    type: string
+    format: date
+    x-nullable: true
+  LinehaulTotal:
+    type: number
+    format: double
+    x-nullable: true
+  SitTotal:
+    type: number
+    format: double
+    x-nullable: true
+  AccessorialTotal:
+    type: number
+    format: double
+    x-nullable: true
+  FuelTotal:
+    type: number
+    format: double
+    x-nullable: true
+  OtherTotal:
+    type: number
+    format: double
+    x-nullable: true
+  InvoicePaidAmt:
+    type: number
+    format: double
+  TravelType:
+    description: Travel Type
+    example: Shipment of HHG Permitted
+    type: string
+  TravelClassCode:
+    example: PCS
+    type: string
+  DeliveryDate:
+    type: string
+    format: date
+  ActualOriginNetWeight:
+    type: string
+  DestinationReweighNetWeight:
+    type: string
+  CounseledDate:
+    type: string
+    format: date

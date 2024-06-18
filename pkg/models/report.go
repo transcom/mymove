@@ -6,76 +6,76 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type Report struct {
-	ID                 uuid.UUID
-	FirstName          *string
-	LastName           *string
-	MiddleInitial      *string
-	Affiliation        *ServiceMemberAffiliation
-	PayGrade           *internalmessages.OrderPayGrade
-	Edipi              *string
-	PhonePrimary       *string
-	PhoneSecondary     *string
-	EmailPrimary       *string
-	EmailSecondary     *string
-	OrdersType         internalmessages.OrdersType
-	OrdersNumber       *string
-	Address1           *Address
-	OriginAddress      *Address
-	DestinationAddress *Address
-	OriginGBLOC        *string
-	DestinationGBLOC   *string
-	// DepCD - ??
-	// TravelAdvance
-	MoveDate time.Time
-
-	/* LOA */
-	// TAC
-	// FiscalYear
-	// Appro
-	// Subhead
-	// ObjClass
-	// BCN
-	// 	SUB ALLOT CD
-	// AAA
-	// TYPE CD
-	// PAA
-	// COST CD
-	// DD CD
-	// SHIP NUM
-	// WGT EST
-	// TRANSMIT CD
-	// DD2278 ISSUE DATE
-	// MILES
-	// WGT AUTH
-	// Shipment ID (formerly GBL)
-	// SCAC
-	// ORDER_NUMBER (SDN)
-	// LOA
-	// Shipment Type
-	// ENTITLEMENT WEIGHT
-	// NET WEIGHT
-	// PBP&E (Pro Gear)
-	// PICKUP DATE
-	// SIT IN DATE
-	// SIT OUT DATE
-	// SIT TYPE
-	// RATE
-	// PAID DATE
-	// LINEHAUL TOTAL
-	// SIT TOTAL
-	// ACCESSORIAL TOTAL
-	// FUEL TOTAL
-	// OTHER TOTAL
-	// INVOICE PAID AMT
-	// TRAVEL TYPE
-	// TRAVEL CLASS CODE
-	// Delivery Date
-	// Actual Origin Net Weight
-	// Destination Reweigh Net Weight
-	// Counseled Date
+	ID                          uuid.UUID
+	FirstName                   *string
+	LastName                    *string
+	MiddleInitial               *string
+	Affiliation                 *ServiceMemberAffiliation
+	PayGrade                    *internalmessages.OrderPayGrade
+	Edipi                       *string
+	PhonePrimary                *string
+	PhoneSecondary              *string
+	EmailPrimary                *string
+	EmailSecondary              *string
+	OrdersType                  internalmessages.OrdersType
+	OrdersNumber                *string
+	OrdersDate                  *time.Time
+	Address                     *Address
+	OriginAddress               *Address
+	DestinationAddress          *Address
+	OriginGBLOC                 *string
+	DestinationGBLOC            *string
+	DepCD                       *string
+	TravelAdvance               *string
+	MoveDate                    *time.Time
+	TAC                         *string
+	FiscalYear                  *int
+	Appro                       *string
+	Subhead                     *string
+	ObjClass                    *string
+	BCN                         *string
+	SubAllotCD                  *string
+	AAA                         *string
+	TypeCD                      *string
+	PAA                         *string
+	CostCD                      *string
+	DDCD                        *string
+	ShipmentNum                 int
+	WeightEstimate              *unit.Pound
+	TransmitCd                  *string
+	DD2278IssueDate             *time.Time
+	Miles                       *int
+	WeightAuthorized            *unit.Pound
+	ShipmentId                  uuid.UUID
+	SCAC                        *string
+	OrderNumber                 *string
+	LOA                         *string
+	ShipmentType                *string
+	EntitlementWeight           *unit.Pound
+	NetWeight                   *unit.Pound
+	PBPAndE                     *unit.Pound
+	PickupDate                  *time.Time
+	SitInDate                   *time.Time
+	SitOutDate                  *time.Time
+	SitType                     *string
+	Rate                        *unit.Cents
+	PaidDate                    *time.Time
+	LinehaulTotal               *unit.Cents
+	SitTotal                    *unit.Cents
+	AccessorialTotal            *unit.Cents
+	FuelTotal                   *unit.Cents
+	OtherTotal                  *unit.Cents
+	InvoicePaidAmt              *unit.Cents
+	TravelType                  *string
+	TravelClassCode             *string
+	DeliveryDate                *time.Time
+	ActualOriginNetWeight       *string
+	DestinationReweighNetWeight *string
+	CounseledDate               *time.Time
 }
 
 type Reports []Report
