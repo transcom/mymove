@@ -22,6 +22,7 @@ type DistanceZipLookup struct {
 func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
 	db := appCtx.DB()
+	var distanceMiles int
 
 	// Make sure there's an MTOShipment since that's nullable
 	mtoShipmentID := keyData.mtoShipmentID
@@ -40,6 +41,11 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		}
 	}
 
+	err = appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "Distance").Find(&mtoShipment, mtoShipment.ID)
+	if err != nil {
+		return "", err
+	}
+
 	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
@@ -55,11 +61,6 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	serviceCode := keyData.MTOServiceItem.ReService.Code
 	switch serviceCode {
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
-		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "Distance").Find(&mtoShipment, mtoShipment.ID)
-		if err != nil {
-			return "", err
-		}
-
 		for _, si := range mtoShipment.MTOServiceItems {
 			siCopy := si
 			err := appCtx.DB().EagerPreload("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
@@ -78,13 +79,20 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 				}
 			}
 		}
+
+		if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+			distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode)
+			if err != nil {
+				return "", err
+			}
+			return strconv.Itoa(distanceMiles), nil
+		}
 	}
 
 	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
 
-	var distanceMiles int
 	if pickupZip == destinationZip {
 		distanceMiles = 1
 	} else {
