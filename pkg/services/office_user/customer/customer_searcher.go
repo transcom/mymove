@@ -101,7 +101,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	dodIDQuery := dodIDSearch(params.DodID)
-	options := [3]QueryOption{customerNameQuery, dodIDQuery}
+	options := [2]QueryOption{customerNameQuery, dodIDQuery}
 
 	for _, option := range options {
 		if option != nil {

@@ -87,7 +87,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	scheduledDeliveryDateQuery := scheduledDeliveryDateFilter(params.DeliveryDate)
 	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
 
-	options := [12]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
+	options := [11]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
 		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery}
 
 	for _, option := range options {
