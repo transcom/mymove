@@ -14,10 +14,9 @@ import {
   paymentRequestStatusReadable,
   formatAgeToDays,
 } from 'utils/formatters';
-import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { BRANCH_OPTIONS, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, GBLOC } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -28,6 +27,7 @@ import { roleTypes } from 'constants/userRoles';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
 const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader(' ', (row) => {
@@ -71,17 +71,11 @@ const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader(
     'Status',
     (row) => {
-      return paymentRequestStatusReadable(row.status);
+      return row.status !== PAYMENT_REQUEST_STATUS.PAYMENT_REQUESTED ? paymentRequestStatusReadable(row.status) : null;
     },
     {
       id: 'status',
-      isFilterable: true,
-      Filter: (props) => (
-        <div data-testid="statusFilter">
-          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-          <MultiSelectCheckBoxFilter options={PAYMENT_REQUEST_STATUS_OPTIONS} {...props} />
-        </div>
-      ),
+      disableSortBy: true,
     },
   ),
   createHeader(

@@ -1150,6 +1150,79 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	return payload
 }
 
+// LineOfAccounting payload
+func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.LineOfAccounting {
+	// Nil check
+	if lineOfAccounting == nil {
+		return nil
+	}
+
+	return &ghcmessages.LineOfAccounting{
+		ID:                        strfmt.UUID(lineOfAccounting.ID.String()),
+		LoaActvtyID:               lineOfAccounting.LoaActvtyID,
+		LoaAgncAcntngCd:           lineOfAccounting.LoaAgncAcntngCd,
+		LoaAgncDsbrCd:             lineOfAccounting.LoaAgncDsbrCd,
+		LoaAlltSnID:               lineOfAccounting.LoaAlltSnID,
+		LoaBafID:                  lineOfAccounting.LoaBafID,
+		LoaBdgtAcntClsNm:          lineOfAccounting.LoaBdgtAcntClsNm,
+		LoaBetCd:                  lineOfAccounting.LoaBetCd,
+		LoaBgFyTx:                 handlers.FmtIntPtrToInt64(lineOfAccounting.LoaBgFyTx),
+		LoaBgnDt:                  handlers.FmtDatePtr(lineOfAccounting.LoaBgnDt),
+		LoaBgtLnItmID:             lineOfAccounting.LoaBgtLnItmID,
+		LoaBgtRstrCd:              lineOfAccounting.LoaBgtRstrCd,
+		LoaBgtSubActCd:            lineOfAccounting.LoaBgtSubActCd,
+		LoaClsRefID:               lineOfAccounting.LoaClsRefID,
+		LoaCstCd:                  lineOfAccounting.LoaCstCd,
+		LoaCstCntrID:              lineOfAccounting.LoaCstCntrID,
+		LoaCustNm:                 lineOfAccounting.LoaCustNm,
+		LoaDfAgncyAlctnRcpntID:    lineOfAccounting.LoaDfAgncyAlctnRcpntID,
+		LoaDocID:                  lineOfAccounting.LoaDocID,
+		LoaDptID:                  lineOfAccounting.LoaDptID,
+		LoaDscTx:                  lineOfAccounting.LoaDscTx,
+		LoaDtlRmbsmtSrcID:         lineOfAccounting.LoaDtlRmbsmtSrcID,
+		LoaEndDt:                  handlers.FmtDatePtr(lineOfAccounting.LoaEndDt),
+		LoaEndFyTx:                handlers.FmtIntPtrToInt64(lineOfAccounting.LoaEndFyTx),
+		LoaFmsTrnsactnID:          lineOfAccounting.LoaFmsTrnsactnID,
+		LoaFnclArID:               lineOfAccounting.LoaFnclArID,
+		LoaFnctPrsNm:              lineOfAccounting.LoaFnctPrsNm,
+		LoaFndCntrID:              lineOfAccounting.LoaFndCntrID,
+		LoaFndTyFgCd:              lineOfAccounting.LoaFndTyFgCd,
+		LoaHistStatCd:             lineOfAccounting.LoaHistStatCd,
+		LoaHsGdsCd:                lineOfAccounting.LoaHsGdsCd,
+		LoaInstlAcntgActID:        lineOfAccounting.LoaInstlAcntgActID,
+		LoaJbOrdNm:                lineOfAccounting.LoaJbOrdNm,
+		LoaLclInstlID:             lineOfAccounting.LoaLclInstlID,
+		LoaMajClmNm:               lineOfAccounting.LoaMajClmNm,
+		LoaMajRmbsmtSrcID:         lineOfAccounting.LoaMajRmbsmtSrcID,
+		LoaObjClsID:               lineOfAccounting.LoaObjClsID,
+		LoaOpAgncyID:              lineOfAccounting.LoaOpAgncyID,
+		LoaPgmElmntID:             lineOfAccounting.LoaPgmElmntID,
+		LoaPrjID:                  lineOfAccounting.LoaPrjID,
+		LoaSbaltmtRcpntID:         lineOfAccounting.LoaSbaltmtRcpntID,
+		LoaScrtyCoopCustCd:        lineOfAccounting.LoaScrtyCoopCustCd,
+		LoaScrtyCoopDsgntrCd:      lineOfAccounting.LoaScrtyCoopDsgntrCd,
+		LoaScrtyCoopImplAgncCd:    lineOfAccounting.LoaScrtyCoopImplAgncCd,
+		LoaScrtyCoopLnItmID:       lineOfAccounting.LoaScrtyCoopLnItmID,
+		LoaSpclIntrID:             lineOfAccounting.LoaSpclIntrID,
+		LoaSrvSrcID:               lineOfAccounting.LoaSrvSrcID,
+		LoaStatCd:                 lineOfAccounting.LoaStatCd,
+		LoaSubAcntID:              lineOfAccounting.LoaSubAcntID,
+		LoaSysID:                  lineOfAccounting.LoaSysID,
+		LoaTnsfrDptNm:             lineOfAccounting.LoaTnsfrDptNm,
+		LoaTrnsnID:                lineOfAccounting.LoaTrnsnID,
+		LoaTrsySfxTx:              lineOfAccounting.LoaTrsySfxTx,
+		LoaTskBdgtSblnTx:          lineOfAccounting.LoaTskBdgtSblnTx,
+		LoaUic:                    lineOfAccounting.LoaUic,
+		LoaWkCntrRcpntNm:          lineOfAccounting.LoaWkCntrRcpntNm,
+		LoaWrkOrdID:               lineOfAccounting.LoaWrkOrdID,
+		OrgGrpDfasCd:              lineOfAccounting.OrgGrpDfasCd,
+		UpdatedAt:                 strfmt.DateTime(lineOfAccounting.UpdatedAt),
+		CreatedAt:                 strfmt.DateTime(lineOfAccounting.CreatedAt),
+		ValidLoaForTac:            lineOfAccounting.ValidLoaForTac,
+		ValidHhgProgramCodeForLoa: lineOfAccounting.ValidHhgProgramCodeForLoa,
+	}
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -1829,48 +1902,33 @@ func findEarliestDateForRequestedMoveDate(shipment models.MTOShipment) (earliest
 	return earliestDate
 }
 
-var (
-	// QueuePaymentRequestPaymentRequested status payment requested
-	QueuePaymentRequestPaymentRequested = "Payment requested"
-	// QueuePaymentRequestReviewed status Payment request reviewed
-	QueuePaymentRequestReviewed = "Reviewed"
-	// QueuePaymentRequestRejected status Payment request rejected
-	QueuePaymentRequestRejected = "Rejected"
-	// QueuePaymentRequestPaid status PaymentRequest paid
-	QueuePaymentRequestPaid = "Paid"
-	// QueuePaymentRequestDeprecated status PaymentRequest deprecated
-	QueuePaymentRequestDeprecated = "Deprecated"
-	// QueuePaymentRequestError status PaymentRequest error
-	QueuePaymentRequestError = "Error"
-)
-
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
 func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 	// If a payment request is in the PENDING state, let's use the term 'payment requested'
 	if paymentRequest.Status == models.PaymentRequestStatusPending {
-		return QueuePaymentRequestPaymentRequested
+		return models.QueuePaymentRequestPaymentRequested
 	}
 
 	// If a payment request is either reviewed, sent_to_gex or recieved_by_gex then we'll use 'reviewed'
 	if paymentRequest.Status == models.PaymentRequestStatusSentToGex ||
 		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
 		paymentRequest.Status == models.PaymentRequestStatusReviewed {
-		return QueuePaymentRequestReviewed
+		return models.QueuePaymentRequestReviewed
 	}
 
 	if paymentRequest.Status == models.PaymentRequestStatusReviewedAllRejected {
-		return QueuePaymentRequestRejected
+		return models.QueuePaymentRequestRejected
 	}
 
 	if paymentRequest.Status == models.PaymentRequestStatusPaid {
-		return QueuePaymentRequestPaid
+		return models.QueuePaymentRequestPaid
 	}
 
 	if paymentRequest.Status == models.PaymentRequestStatusDeprecated {
-		return QueuePaymentRequestDeprecated
+		return models.QueuePaymentRequestDeprecated
 	}
 
-	return QueuePaymentRequestError
+	return models.QueuePaymentRequestError
 
 }
 

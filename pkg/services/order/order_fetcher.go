@@ -320,7 +320,7 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
@@ -380,19 +380,7 @@ func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			var translatedStatuses []string
-			for _, status := range statuses {
-				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
-				} else {
-					translatedStatuses = append(translatedStatuses, status)
-				}
-			}
-			query.Where("moves.status IN (?)", translatedStatuses)
-		}
-		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
-		if len(statuses) <= 0 {
-			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
+			query.Where("moves.status IN (?)", statuses)
 		}
 	}
 }
