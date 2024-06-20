@@ -96,6 +96,7 @@ const MultiSelectCheckBoxFilter = ({ options, column: { filterValue, setFilter }
         hideSelectedOptions={false}
         isClearable={false}
         components={{ DropdownIndicator, ValueContainer, MultiValueContainer, Option }}
+        value={selectFilterValue}
       />
     </div>
   );

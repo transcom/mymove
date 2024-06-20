@@ -11,6 +11,7 @@ const SelectFilter = ({ options, column: { filterValue, setFilter } }) => {
         setFilter(e.target.value);
       }}
       style={{ width: 'auto' }}
+      value={filterValue}
     >
       {options.map(({ value, label }) => (
         <option value={value} key={`filterOption_${value}`}>
