@@ -86,6 +86,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},
+	"HHGMoveForTOOAfterActualPickupDate": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveForTOOAfterActualPickupDate(appCtx)
+	},
 	"HHGMoveWithRetireeForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithRetireeForTOO(appCtx)
 	},
