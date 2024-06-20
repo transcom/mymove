@@ -19,10 +19,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 	requester := NewShipmentCancellationRequester(router, moveRouter)
 
 	suite.Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func() {
+		// valid pickupdate is anytime after the request to cancel date
+		actualPickupDate := time.Now().AddDate(0, 0, 1)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:           models.MTOShipmentStatusApproved,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 		}, nil)
@@ -48,11 +51,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 	suite.Run("When status transition is not allowed, returns a ConflictStatusError", func() {
 		rejectionReason := "extraneous shipment"
+		actualPickupDate := time.Now().AddDate(0, 0, 1)
 		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:          models.MTOShipmentStatusRejected,
-					RejectionReason: &rejectionReason,
+					Status:           models.MTOShipmentStatusRejected,
+					RejectionReason:  &rejectionReason,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 		}, nil)
@@ -105,10 +110,13 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		shipmentRouter := NewShipmentRouter()
 		moveRouter := moveservices.NewMoveRouter()
 		requester := NewShipmentCancellationRequester(shipmentRouter, moveRouter)
+		// valid pickupdate is anytime after the request to cancel date
+		actualPickupDate := time.Now().AddDate(0, 0, 1)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:           models.MTOShipmentStatusApproved,
+					ActualPickupDate: &actualPickupDate,
 				},
 			},
 		}, nil)
@@ -131,5 +139,34 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		suite.FatalNoError(err)
 		// if the created shipment has a status of cancellation requested, then RequestCancellation was successful
 		suite.Equal(models.MTOShipmentStatusCancellationRequested, dbShipment.Status)
+	})
+
+	suite.Run("It calls RequestCancellation on shipment with invalid actualPickupDate", func() {
+		shipmentRouter := NewShipmentRouter()
+		moveRouter := moveservices.NewMoveRouter()
+		requester := NewShipmentCancellationRequester(shipmentRouter, moveRouter)
+		actualPickupDate := time.Now()
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					ActualPickupDate: &actualPickupDate,
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		createdShipment := models.MTOShipment{
+			ActualPickupDate: &actualPickupDate,
+		}
+		err := suite.DB().Find(&createdShipment, shipment.ID)
+		suite.FatalNoError(err)
+
+		_, err = requester.RequestShipmentCancellation(session, shipment.ID, eTag)
+
+		suite.Equal(err, apperror.NewUpdateError(shipment.ID, "cancellation request date cannot be on or after actual pickup date"))
 	})
 }

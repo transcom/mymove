@@ -138,7 +138,6 @@ describe('ServiceInfoForm', () => {
   const testPropsWithEdipi = {
     onSubmit: jest.fn(),
     onCancel: jest.fn(),
-    isEmplidEnabled: true,
     initialValues: {
       first_name: '',
       middle_name: '',
@@ -237,7 +236,6 @@ describe('ServiceInfoForm', () => {
 
   describe('Coast Guard customer', () => {
     it('renders the form inputs', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       testPropsWithEdipi.initialValues.affiliation = 'COAST_GUARD';
       render(<ServiceInfoForm {...testPropsWithEdipi} />);
 
@@ -267,7 +265,6 @@ describe('ServiceInfoForm', () => {
     });
 
     it('validates the EMPLID number on blur', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       testPropsWithEdipi.initialValues.affiliation = 'COAST_GUARD';
       render(<ServiceInfoForm {...testPropsWithEdipi} />);
 
@@ -280,7 +277,6 @@ describe('ServiceInfoForm', () => {
     });
 
     it('shows an error message if trying to submit an invalid form', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       testPropsWithEdipi.initialValues.affiliation = 'COAST_GUARD';
       render(<ServiceInfoForm {...testPropsWithEdipi} />);
 
