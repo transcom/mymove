@@ -426,6 +426,8 @@ const ServicesCounselingQueue = () => {
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );
@@ -447,6 +449,8 @@ const ServicesCounselingQueue = () => {
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

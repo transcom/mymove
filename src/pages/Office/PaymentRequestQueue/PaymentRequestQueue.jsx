@@ -252,6 +252,8 @@ const PaymentRequestQueue = () => {
           title="Payment requests"
           handleClick={handleClick}
           useQueries={usePaymentRequestQueueQueries}
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

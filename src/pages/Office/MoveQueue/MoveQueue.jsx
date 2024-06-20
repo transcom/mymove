@@ -251,6 +251,8 @@ const MoveQueue = () => {
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

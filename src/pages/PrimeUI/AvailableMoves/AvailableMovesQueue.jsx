@@ -88,6 +88,8 @@ const PrimeSimulatorAvailableMoves = () => {
       disableMultiSort
       showFilters
       showPagination
+      sessionStorageKey="PrimeSimulatorAvailableMoves"
+      key="PrimeSimulatorAvailableMoves"
     />
   );
 };

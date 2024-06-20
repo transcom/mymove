@@ -10,6 +10,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
+import { setTableQueueFilterSessionStorageValue, getTableQueueFilterSessionStorageValue } from 'components/Table/utils';
 
 // TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
 const TableQueue = ({
@@ -26,9 +27,16 @@ const TableQueue = ({
   useQueries,
   showFilters,
   showPagination,
+  sessionStorageKey,
 }) => {
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
-  const [paramFilters, setParamFilters] = useState([]);
+
+  const [paramFilters, setParamFilters] = useState(getTableQueueFilterSessionStorageValue(sessionStorageKey) || []);
+
+  useEffect(() => {
+    setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
+  }, [paramFilters, sessionStorageKey]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
@@ -101,12 +109,20 @@ const TableQueue = ({
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamSort(sortBy);
+      if (filters.length === 0) {
+        // on page reload
+        getTableQueueFilterSessionStorageValue(sessionStorageKey).forEach((item) => {
+          // add cached filters to current prop filters var
+          filters.push(item);
+        });
+      }
       setParamFilters(filters);
+
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
     }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]);
+  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, sessionStorageKey]);
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -167,6 +183,8 @@ TableQueue.propTypes = {
   defaultSortedColumns: SortShape,
   // defaultHiddenColumns is an array of columns to hide
   defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
+  // session storage key to store search filters
+  sessionStorageKey: PropTypes.string,
 };
 
 TableQueue.defaultProps = {
@@ -179,5 +197,6 @@ TableQueue.defaultProps = {
   disableSortBy: true,
   defaultSortedColumns: [],
   defaultHiddenColumns: ['id'],
+  sessionStorageKey: 'default',
 };
 export default TableQueue;
