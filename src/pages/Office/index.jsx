@@ -142,7 +142,7 @@ export class OfficeApp extends Component {
     // Feature Flag
     const fetchFeatureFlags = async () => {
       try {
-        const hqRoleFlagValue = await isBooleanFlagEnabled('HEADQUARTERS_ROLE');
+        const hqRoleFlagValue = await isBooleanFlagEnabled('headquarters_role');
         this.setState({
           hqRoleFlag: hqRoleFlagValue,
         });
