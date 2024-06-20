@@ -7,6 +7,7 @@ import { BackupContactShape } from 'types/backupContact';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { AddressShape } from 'types/address';
 import { formatCustomerContactFullAddress } from 'utils/formatters';
+import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerInfoList = ({ customerInfo }) => {
   return (
@@ -20,6 +21,12 @@ const CustomerInfoList = ({ customerInfo }) => {
           <dt>DoD ID</dt>
           <dd data-testid="dodId">{customerInfo.dodId}</dd>
         </div>
+        {customerInfo.agency === departmentIndicators.COAST_GUARD && (
+          <div className={descriptionListStyles.row}>
+            <dt>EMPLID</dt>
+            <dd data-testid="dodId">{customerInfo.emplid}</dd>
+          </div>
+        )}
         <div className={descriptionListStyles.row}>
           <dt>Phone</dt>
           <dd data-testid="phone">{`+1 ${customerInfo.phone}`}</dd>
