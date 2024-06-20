@@ -168,8 +168,7 @@ func Order(order *models.Order) *primemessages.Order {
 		OrdersType:              primemessages.OrdersType(order.OrdersType),
 	}
 
-	customerGBLOC := strings.ToLower(payload.Customer.Branch)
-	if customerGBLOC == "marines" {
+	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
 	}
 

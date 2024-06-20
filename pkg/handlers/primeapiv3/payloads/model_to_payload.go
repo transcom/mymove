@@ -115,8 +115,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		Naics:                          order.NAICS,
 	}
 
-	customerGBLOC := strings.ToLower(payload.Customer.Branch)
-	if customerGBLOC == "marines" {
+	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
 	}
 
