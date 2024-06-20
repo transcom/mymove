@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -167,7 +168,8 @@ func Order(order *models.Order) *primemessages.Order {
 		OrdersType:              primemessages.OrdersType(order.OrdersType),
 	}
 
-	if payload.Customer.Branch == "Marines" {
+	customerGBLOC := strings.ToLower(payload.Customer.Branch)
+	if customerGBLOC == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
 	}
 
