@@ -6,7 +6,7 @@ import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
 
-const getW2Address = (address) => {
+export const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
     ? `${address.streetAddress1} ${address.streetAddress2}`
     : address?.streetAddress1;
