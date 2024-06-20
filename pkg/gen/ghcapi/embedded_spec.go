@@ -3860,11 +3860,7 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
@@ -17191,11 +17187,7 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
