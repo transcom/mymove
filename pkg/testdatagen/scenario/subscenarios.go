@@ -703,7 +703,10 @@ func subScenarioPaymentRequestCalculations(
 				Status: models.MTOShipmentStatusApproved,
 			},
 		)
+<<<<<<< HEAD
 
+=======
+>>>>>>> B-20250-Incorrect-GBLOC-Prime-MAIN
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)

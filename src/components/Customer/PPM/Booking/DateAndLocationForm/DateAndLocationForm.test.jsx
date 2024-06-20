@@ -223,10 +223,15 @@ describe('DateAndLocationForm component', () => {
 describe('validates form fields and displays error messages', () => {
   it('marks required inputs when left empty', async () => {
     render(<DateAndLocationForm {...defaultProps} />);
+<<<<<<< HEAD
     await act(async () => {
       await userEvent.click(screen.getByLabelText('Which closeout office should review your PPM?'));
       await userEvent.keyboard('{backspace}');
     });
+=======
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+>>>>>>> B-20250-Incorrect-GBLOC-Prime-MAIN
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
     await userEvent.click(screen.getByText('Start typing a closeout office...'));
