@@ -84,8 +84,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   if (showCloseoutOffice) {
-    // TODO: when you fail the following test, change the value of the variable called meta to 'Required' when you pass, make it '';
-
     validationShape = {
       ...validationShape,
       closeoutOffice: Yup.object().shape({
