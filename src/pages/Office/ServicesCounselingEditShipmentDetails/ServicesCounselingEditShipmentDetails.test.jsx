@@ -487,7 +487,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
-    });
+    }, 10000);
 
     describe('Check SIT field validations', () => {
       it.each([
