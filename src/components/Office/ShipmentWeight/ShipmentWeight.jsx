@@ -7,8 +7,20 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
-const ShipmentWeight = () => {
+const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
+  const [, , estimatedWeightHelper] = useField('estimatedWeight');
+
+  const handleEstimatedWeightChange = (event) => {
+    const { value } = event.target;
+    onEstimatedWeightChange(value);
+  };
+
+  const handleEstimatedWeight = (event) => {
+    estimatedWeightHelper.setValue(event.target.value);
+    estimatedWeightHelper.setTouched(true);
+    handleEstimatedWeightChange(event.target.value);
+  };
 
   const hasProGear = proGearInput.value === true;
 
@@ -33,6 +45,7 @@ const ShipmentWeight = () => {
               thousandsSeparator=","
               lazy={false} // immediate masking evaluation
               suffix="lbs"
+              onChange={handleEstimatedWeight}
             />
             <Label className={styles.Label}>Pro-gear?</Label>
             <FormGroup>

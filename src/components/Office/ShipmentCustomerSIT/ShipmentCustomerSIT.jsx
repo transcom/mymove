@@ -9,12 +9,27 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 
-const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEstimatedDepartureDate }) => {
+const ShipmentCustomerSIT = ({
+  sitEstimatedWeight,
+  sitEstimatedEntryDate,
+  sitEstimatedDepartureDate,
+  onSITEstimatedWeightChange,
+}) => {
   const [sitExpectedInput, , sitExpectedHelper] = useField('sitExpected');
   const sitExpected = sitExpectedInput.value === true;
   const [, , sitEstimatedWeightHelper] = useField('sitEstimatedWeight');
   const [, , sitEstimatedEntryDateHelper] = useField('sitEstimatedEntryDate');
   const [, , sitEstimatedDepartureDateHelper] = useField('sitEstimatedDepartureDate');
+
+  const handleSITEstimatedWeightChange = () => {
+    onSITEstimatedWeightChange();
+  };
+
+  const handleSITEstimatedWeight = (event) => {
+    sitEstimatedWeightHelper.setValue(event.target.value);
+    sitEstimatedWeightHelper.setTouched(true);
+    handleSITEstimatedWeightChange();
+  };
 
   const handleSITExpected = (event) => {
     sitExpectedHelper.setValue(event.target.value === 'yes');
@@ -126,6 +141,7 @@ const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEst
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
+                  onChange={handleSITEstimatedWeight}
                 />
 
                 <DatePickerInput name="sitEstimatedEntryDate" label="Estimated storage start" />
